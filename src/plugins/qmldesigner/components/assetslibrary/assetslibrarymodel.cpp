@@ -1,13 +1,13 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include <QCheckBox>
 #include <QFileInfo>
 #include <QFileSystemModel>
-#include <QImageReader>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
+#include "asset.h"
 #include "assetslibrarymodel.h"
 
 #include <modelnodeoperations.h>
@@ -158,9 +158,7 @@ bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
 bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) const
 {
     return Utils::allOf(filePaths, [](const QString &path) {
-        const QString suffix = "*." + path.split('.').last().toLower();
-
-        return AssetsLibraryModel::supportedImageSuffixes().contains(suffix);
+        return Asset(path).isImage();
     });
 }
 
@@ -299,7 +297,7 @@ void AssetsLibraryModel::setRootPath(const QString &newPath)
     m_rootPath = newPath;
     m_sourceFsModel->setRootPath(newPath);
 
-    m_sourceFsModel->setNameFilters(supportedSuffixes().values());
+    m_sourceFsModel->setNameFilters(Asset::supportedSuffixes().values());
     m_sourceFsModel->setNameFilterDisables(false);
 
     endResetModel();
@@ -372,82 +370,6 @@ QString AssetsLibraryModel::parentDirPath(const QString &path) const
     QModelIndex idx = indexForPath(path);
     QModelIndex parentIdx = idx.parent();
     return filePath(parentIdx);
-}
-
-const QStringList &AssetsLibraryModel::supportedImageSuffixes()
-{
-    static QStringList retList;
-    if (retList.isEmpty()) {
-        const QList<QByteArray> suffixes = QImageReader::supportedImageFormats();
-        for (const QByteArray &suffix : suffixes)
-            retList.append("*." + QString::fromUtf8(suffix));
-    }
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFragmentShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.vert",
-                                      "*.glsl", "*.glslv", "*.glslf",
-                                      "*.vsh", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFontSuffixes()
-{
-    static const QStringList retList {"*.ttf", "*.otf"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedAudioSuffixes()
-{
-    static const QStringList retList {"*.wav", "*.mp3"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedVideoSuffixes()
-{
-    static const QStringList retList {"*.mp4"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
-{
-    // These are file types only supported by 3D textures
-    static QStringList retList {"*.hdr", "*.ktx"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedEffectMakerSuffixes()
-{
-    // These are file types only supported by Effect Maker
-    static QStringList retList {"*.qep"};
-    return retList;
-}
-
-const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
-{
-    static QSet<QString> allSuffixes;
-    if (allSuffixes.isEmpty()) {
-        auto insertSuffixes = [](const QStringList &suffixes) {
-            for (const auto &suffix : suffixes)
-                allSuffixes.insert(suffix);
-        };
-        insertSuffixes(supportedImageSuffixes());
-        insertSuffixes(supportedShaderSuffixes());
-        insertSuffixes(supportedFontSuffixes());
-        insertSuffixes(supportedAudioSuffixes());
-        insertSuffixes(supportedVideoSuffixes());
-        insertSuffixes(supportedTexture3DSuffixes());
-        insertSuffixes(supportedEffectMakerSuffixes());
-    }
-    return allSuffixes;
 }
 
 } // namespace QmlDesigner

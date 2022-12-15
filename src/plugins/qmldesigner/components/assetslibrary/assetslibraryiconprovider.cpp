@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "assetslibraryiconprovider.h"
-#include "assetslibrarymodel.h"
+#include "asset.h"
 #include "modelnodeoperations.h"
 
 #include <theme.h>
@@ -57,24 +57,25 @@ QPixmap AssetsLibraryIconProvider::generateFontIcons(const QString &filePath, co
 
 QPixmap AssetsLibraryIconProvider::fetchPixmap(const QString &id, const QSize &requestedSize) const
 {
-    const QString suffix = "*." + id.split('.').last().toLower();
+    Asset asset(id);
+
     if (id == "browse") {
         return Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/browse.png");
-    } else if (AssetsLibraryModel::supportedFontSuffixes().contains(suffix)) {
+    } else if (asset.isFont()) {
         return generateFontIcons(id, requestedSize);
-    } else if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
+    } else if (asset.isImage()) {
         return Utils::StyleHelper::dpiSpecificImageFile(id);
-    } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
+    } else if (asset.isTexture3D()) {
         return HdrImage{id}.toPixmap();
     } else {
         QString type;
-        if (AssetsLibraryModel::supportedShaderSuffixes().contains(suffix))
+        if (asset.isShader())
             type = "shader";
-        else if (AssetsLibraryModel::supportedAudioSuffixes().contains(suffix))
+        else if (asset.isAudio())
             type = "sound";
-        else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix))
+        else if (asset.isVideo())
             type = "video";
-        else if (AssetsLibraryModel::supportedEffectMakerSuffixes().contains(suffix))
+        else if (asset.isEffect())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);

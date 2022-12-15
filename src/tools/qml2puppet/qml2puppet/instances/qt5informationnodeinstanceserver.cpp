@@ -921,7 +921,7 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unu
         if (toolStates.contains("syncBackgroundColor")) {
             bool sync = toolStates["syncBackgroundColor"].toBool();
             if (sync) {
-                QList<QColor> colors = {helper->sceneEnvironmentColor(sceneId)};
+                QList<QColor> colors{helper->sceneEnvironmentColor(sceneId)};
                 View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
                                         QVariant::fromValue(colors));
                 view3DAction(cmd);
@@ -2274,7 +2274,7 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentColor(const PropertyVa
 
     if (toolStates.contains("syncBackgroundColor")) {
         bool sync = toolStates["syncBackgroundColor"].toBool();
-        QList<QColor> colors = {color};
+        QList<QColor> colors{color};
         if (sync) {
             View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
                                     QVariant::fromValue(colors));

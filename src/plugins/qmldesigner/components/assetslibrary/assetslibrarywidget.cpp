@@ -3,8 +3,9 @@
 
 #include "assetslibrarywidget.h"
 
-#include "assetslibrarymodel.h"
+#include "asset.h"
 #include "assetslibraryiconprovider.h"
+#include "assetslibrarymodel.h"
 
 #include <theme.h>
 
@@ -229,7 +230,7 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
 
     QSet<QString> suffixes;
     for (const AddResourceHandler &handler : handlers) {
-        if (AssetsLibraryModel::supportedSuffixes().contains(handler.filter) != complex)
+        if (Asset(handler.filter).isSupported() != complex)
             suffixes.insert(handler.filter);
     }
 
@@ -290,32 +291,32 @@ void AssetsLibraryWidget::startDragAsset(const QStringList &assetPaths, const QP
 
 QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QString &assetPath)
 {
-    QString suffix = "*." + assetPath.split('.').last().toLower();
-    if (!suffix.isEmpty()) {
-        if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
+    Asset asset(assetPath);
+    if (asset.hasSuffix()) {
+        if (asset.isImage()) {
             // Data: Image format (suffix)
-            return {Constants::MIME_TYPE_ASSET_IMAGE, suffix.toUtf8()};
-        } else if (AssetsLibraryModel::supportedFontSuffixes().contains(suffix)) {
+            return {Constants::MIME_TYPE_ASSET_IMAGE, asset.suffix().toUtf8()};
+        } else if (asset.isFont()) {
             // Data: Font family name
             QRawFont font(assetPath, 10);
             QString fontFamily = font.isValid() ? font.familyName() : "";
             return {Constants::MIME_TYPE_ASSET_FONT, fontFamily.toUtf8()};
-        } else if (AssetsLibraryModel::supportedShaderSuffixes().contains(suffix)) {
+        } else if (asset.isShader()) {
             // Data: shader type, frament (f) or vertex (v)
             return {Constants::MIME_TYPE_ASSET_SHADER,
-                AssetsLibraryModel::supportedFragmentShaderSuffixes().contains(suffix) ? "f" : "v"};
-        } else if (AssetsLibraryModel::supportedAudioSuffixes().contains(suffix)) {
+                asset.isFragmentShader() ? "f" : "v"};
+        } else if (asset.isAudio()) {
             // No extra data for sounds
             return {Constants::MIME_TYPE_ASSET_SOUND, {}};
-        } else if (AssetsLibraryModel::supportedVideoSuffixes().contains(suffix)) {
+        } else if (asset.isVideo()) {
             // No extra data for videos
             return {Constants::MIME_TYPE_ASSET_VIDEO, {}};
-        } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
+        } else if (asset.isTexture3D()) {
             // Data: Image format (suffix)
-            return {Constants::MIME_TYPE_ASSET_TEXTURE3D, suffix.toUtf8()};
-        } else if (AssetsLibraryModel::supportedEffectMakerSuffixes().contains(suffix)) {
+            return {Constants::MIME_TYPE_ASSET_TEXTURE3D, asset.suffix().toUtf8()};
+        } else if (asset.isEffect()) {
             // Data: Effect Maker format (suffix)
-            return {Constants::MIME_TYPE_ASSET_EFFECT, suffix.toUtf8()};
+            return {Constants::MIME_TYPE_ASSET_EFFECT, asset.suffix().toUtf8()};
         }
     }
     return {};
