@@ -60,31 +60,22 @@ signals:
                                const ChunkSelection &selection);
 
 protected:
-    void setDisplayName(const QString &name) { m_displayName = name; }
-    QString displayName() const { return m_displayName; }
-
+    // Core functions:
     void setReloadRecipe(const Utils::Tasking::Group &recipe) { m_reloadRecipe = recipe; }
-
-    // reloadFinished() should be called inside the reloader (for synchronous reload)
-    // or later (for asynchronous reload)
-    void setReloader(const std::function<void ()> &reloader);
-    void reloadFinished(bool success);
-
-    void setStartupFile(const QString &startupFile);
     void setDiffFiles(const QList<FileData> &diffFileList);
+    // Optional:
+    void setDisplayName(const QString &name) { m_displayName = name; }
     void setDescription(const QString &description);
-    QString description() const;
+    void setStartupFile(const QString &startupFile);
     void forceContextLineCount(int lines);
 
 private:
+    void reloadFinished(bool success);
+
     Internal::DiffEditorDocument *const m_document;
-    bool m_isReloading = false;
     QString m_displayName;
-    std::function<void()> m_reloader;
     std::unique_ptr<Utils::TaskTree> m_taskTree;
     Utils::Tasking::Group m_reloadRecipe;
-
-    friend class Internal::DiffEditorDocument;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(DiffEditorController::PatchOptions)

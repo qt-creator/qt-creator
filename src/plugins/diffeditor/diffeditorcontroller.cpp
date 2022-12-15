@@ -7,8 +7,6 @@
 #include "diffeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <utils/qtcassert.h>
@@ -29,7 +27,7 @@ DiffEditorController::DiffEditorController(IDocument *document)
 
 bool DiffEditorController::isReloading() const
 {
-    return m_isReloading;
+    return m_taskTree.get() != nullptr;
 }
 
 FilePath DiffEditorController::workingDirectory() const
@@ -86,11 +84,6 @@ void DiffEditorController::setDescription(const QString &description)
     m_document->setDescription(description);
 }
 
-QString DiffEditorController::description() const
-{
-    return m_document->description();
-}
-
 /**
  * @brief Force the lines of context to the given number.
  *
@@ -104,11 +97,6 @@ void DiffEditorController::forceContextLineCount(int lines)
     m_document->forceContextLineCount(lines);
 }
 
-void DiffEditorController::setReloader(const std::function<void ()> &reloader)
-{
-    m_reloader = reloader;
-}
-
 IDocument *DiffEditorController::document() const
 {
     return m_document;
@@ -119,17 +107,12 @@ IDocument *DiffEditorController::document() const
  */
 void DiffEditorController::requestReload()
 {
-    m_isReloading = true;
     m_document->beginReload();
-    if (m_reloader) {
-        m_reloader();
-        return;
-    }
     m_taskTree.reset(new TaskTree(m_reloadRecipe));
     connect(m_taskTree.get(), &TaskTree::done, this, [this] { reloadFinished(true); });
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] { reloadFinished(false); });
     auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(displayName());
+    progress->setDisplayName(m_displayName);
     m_taskTree->start();
 }
 
@@ -138,7 +121,6 @@ void DiffEditorController::reloadFinished(bool success)
     if (m_taskTree)
         m_taskTree.release()->deleteLater();
     m_document->endReload(success);
-    m_isReloading = false;
 }
 
 void DiffEditorController::setStartupFile(const QString &startupFile)
