@@ -44,7 +44,8 @@ Command CMakeFormatter::command() const
 {
     Command command;
     command.setExecutable(CMakeFormatterSettings::instance()->command().toString());
-    command.setProcessing(Command::PipeProcessing);
+    command.setProcessing(Command::FileProcessing);
+    command.addOption("--in-place");
     command.addOption("%file");
     return command;
 }
