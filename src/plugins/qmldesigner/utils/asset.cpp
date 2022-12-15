@@ -154,6 +154,11 @@ bool Asset::isTexture3D() const
     return type() == Asset::Type::Texture3D;
 }
 
+bool Asset::isHdrFile() const
+{
+    return m_suffix == "*.hdr";
+}
+
 bool Asset::isEffect() const
 {
     return type() == Asset::Type::Effect;

@@ -165,6 +165,22 @@ void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
     m_assetsIconProvider->invalidateThumbnail(id);
 }
 
+QSize AssetsLibraryWidget::imageSize(const QString &id)
+{
+    return m_assetsIconProvider->imageSize(id);
+}
+
+QString AssetsLibraryWidget::assetFileSize(const QString &id)
+{
+    qint64 fileSize = m_assetsIconProvider->fileSize(id);
+    return QLocale::system().formattedDataSize(fileSize, 2, QLocale::DataSizeTraditionalFormat);
+}
+
+bool AssetsLibraryWidget::assetIsImage(const QString &id)
+{
+    return m_assetsIconProvider->assetIsImage(id);
+}
+
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 {
     return {};

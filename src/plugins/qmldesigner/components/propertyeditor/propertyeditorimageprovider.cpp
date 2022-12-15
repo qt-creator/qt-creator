@@ -36,7 +36,7 @@ QQuickImageResponse *PropertyEditorImageProvider::requestImageResponse(const QSt
                     response->setImage(image.scaled(requestedSize, Qt::KeepAspectRatio));
                     return;
                 }
-            } else if (asset.isTexture3D()) {
+            } else if (asset.isHdrFile()) {
                 HdrImage hdr{asset.id()};
                 if (!hdr.image().isNull()) {
                     response->setImage(hdr.image().scaled(requestedSize, Qt::KeepAspectRatio));

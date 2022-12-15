@@ -182,9 +182,36 @@ TreeViewDelegate {
         }
 
         ToolTip {
+            id: assetTooltip
             visible: !root.isFont && mouseArea.containsMouse && !root.assetsView.contextMenu.visible
-            text: model.filePath
+            text: assetTooltip.__computeText()
             delay: 1000
+
+            function __computeText()
+            {
+                let filePath = model.filePath.replace(assetsModel.contentDirPath(), "")
+                let fileSize = rootView.assetFileSize(model.filePath)
+                let fileExtMatches = model.filePath.match(/\.(.*)$/)
+                let fileExt = fileExtMatches ? "(" + fileExtMatches[1] + ")" : ""
+
+                if (rootView.assetIsImage(model.filePath)) {
+                    let size = rootView.imageSize(model.filePath)
+
+                    return filePath + "\n"
+                            + size.width + " x " + size.height
+                            + "\n" + fileSize
+                            + " " + fileExt
+                } else {
+                    return filePath + "\n"
+                            + fileSize
+                            + " " + fileExt
+                }
+            }
+
+            function refresh()
+            {
+                text = assetTooltip.__computeText()
+            }
         }
 
         Timer {
@@ -291,6 +318,11 @@ TreeViewDelegate {
             return root.__isDirectory
                     ? ""
                     : "image://qmldesigner_assets/" + model.filePath
+        }
+
+        onStatusChanged: {
+            if (thumbnailImage.status === Image.Ready)
+                assetTooltip.refresh()
         }
 
     } // Image
