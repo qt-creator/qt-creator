@@ -6,14 +6,16 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
-#include <utils/filepath.h>
 #include <utils/tasktree.h>
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
+namespace Utils { class FilePath; }
 
 namespace DiffEditor {
 

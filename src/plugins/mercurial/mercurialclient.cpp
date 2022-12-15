@@ -427,7 +427,6 @@ void MercurialClient::requestReload(const QString &documentId, const QString &so
     QTC_ASSERT(document, return);
     auto controller = new MercurialDiffEditorController(document, args);
     controller->setVcsBinary(settings().binaryPath.filePath());
-    controller->setVcsTimeoutS(settings().timeout.value());
     controller->setProcessEnvironment(processEnvironment());
     controller->setWorkingDirectory(workingDirectory);
 

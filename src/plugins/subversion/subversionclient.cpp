@@ -246,7 +246,6 @@ SubversionDiffEditorController *SubversionClient::findOrCreateDiffEditor(const Q
     if (!controller) {
         controller = new SubversionDiffEditorController(document, addAuthenticationOptions(settings));
         controller->setVcsBinary(settings.binaryPath.filePath());
-        controller->setVcsTimeoutS(settings.timeout.value());
         controller->setProcessEnvironment(processEnvironment());
         controller->setWorkingDirectory(workingDirectory);
     }

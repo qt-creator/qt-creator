@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+
+#include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -12,14 +13,12 @@
 
 #include <utils/qtcassert.h>
 
-#include <QStringList>
-
 using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor {
 
-DiffEditorController::DiffEditorController(Core::IDocument *document)
+DiffEditorController::DiffEditorController(IDocument *document)
     : QObject(document)
     , m_document(qobject_cast<Internal::DiffEditorDocument *>(document))
     , m_reloadRecipe{}
@@ -62,16 +61,16 @@ QString DiffEditorController::makePatch(int fileIndex, int chunkIndex,
                                  options & AddPrefix);
 }
 
-Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
-                                                            const QString &displayName)
+IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId,
+                                                      const QString &displayName)
 {
     QString preferredDisplayName = displayName;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Constants::DIFF_EDITOR_ID, &preferredDisplayName, {}, vcsId);
+    IEditor *editor = EditorManager::openEditorWithContents(Constants::DIFF_EDITOR_ID,
+                                                            &preferredDisplayName, {}, vcsId);
     return editor ? editor->document() : nullptr;
 }
 
-DiffEditorController *DiffEditorController::controller(Core::IDocument *document)
+DiffEditorController *DiffEditorController::controller(IDocument *document)
 {
     auto doc = qobject_cast<Internal::DiffEditorDocument *>(document);
     return doc ? doc->controller() : nullptr;
@@ -110,7 +109,7 @@ void DiffEditorController::setReloader(const std::function<void ()> &reloader)
     m_reloader = reloader;
 }
 
-Core::IDocument *DiffEditorController::document() const
+IDocument *DiffEditorController::document() const
 {
     return m_document;
 }
