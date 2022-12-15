@@ -53,8 +53,6 @@ Project {
             "remotelinuxdeployconfiguration.h",
             "remotelinuxenvironmentaspect.cpp",
             "remotelinuxenvironmentaspect.h",
-            "remotelinuxenvironmentaspectwidget.cpp",
-            "remotelinuxenvironmentaspectwidget.h",
             "remotelinuxplugin.cpp",
             "remotelinuxplugin.h",
             "remotelinuxqmltoolingsupport.cpp",
