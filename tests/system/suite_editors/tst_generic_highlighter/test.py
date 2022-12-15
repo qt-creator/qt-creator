@@ -196,9 +196,8 @@ def main():
         if current.endswith(".lhs"):
             type(editor, ">")
         type(editor, "<Tab>")
+    saveAndExit()
 
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
 
 def init():
     syntaxDirectory = __highlighterDefinitionsDirectory__()

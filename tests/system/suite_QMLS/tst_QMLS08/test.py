@@ -19,8 +19,7 @@ def verifyNextLineIndented(editorArea, expectedIndentation):
 def verifyIndentation(editorArea):
     #verify indentation
     if not placeCursorToLine(editorArea, "id: wdw"):
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
+        saveAndExit()
         return False
     type(editorArea, "<Up>")
     expectedIndentations = [1,1,1,2,2,2,2,3,3,3,4,3,3,2,1]
@@ -58,6 +57,4 @@ def main():
     # verify invoked indentation
     if not verifyIndentation(editorArea):
         return
-    # save and exit
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()

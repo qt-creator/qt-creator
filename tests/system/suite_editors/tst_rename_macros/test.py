@@ -24,9 +24,7 @@ def main():
                      expectedHeaderName=headerName)
     if not testRenameMacroAfterSourceMoving():
         return
-    # save and exit
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
 
 def testRenameMacroAfterSourceModification():
     def __deleteAnyClass__():
