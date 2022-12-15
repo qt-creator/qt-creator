@@ -13,6 +13,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -38,22 +39,36 @@ namespace Mercurial::Internal {
 class MercurialDiffEditorController : public VcsBaseDiffEditorController
 {
 public:
-    MercurialDiffEditorController(IDocument *document, const QStringList &args)
-        : VcsBaseDiffEditorController(document)
-    {
-        setDisplayName("Hg Diff");
-        setReloader([this, args] { runCommand({addConfigurationArguments(args)}); });
-    }
+    MercurialDiffEditorController(IDocument *document, const QStringList &args);
 
 private:
-    void runCommand(const QList<QStringList> &args, QTextCodec *codec = nullptr);
     QStringList addConfigurationArguments(const QStringList &args) const;
 };
 
-void MercurialDiffEditorController::runCommand(const QList<QStringList> &args, QTextCodec *codec)
+MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document,
+                                                             const QStringList &args)
+    : VcsBaseDiffEditorController(document)
 {
-    // at this moment, don't ignore any errors
-    VcsBaseDiffEditorController::runCommand(args, RunFlags::None, codec);
+    setDisplayName("Hg Diff");
+
+    using namespace Tasking;
+
+    const TreeStorage<QString> diffInputStorage = inputStorage();
+
+    const auto setupDiff = [=](QtcProcess &process) {
+        setupCommand(process, {addConfigurationArguments(args)});
+        VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+    };
+    const auto onDiffDone = [diffInputStorage](const QtcProcess &process) {
+        *diffInputStorage.activeStorage() = process.cleanedStdOut();
+    };
+
+    const Group root {
+        Storage(diffInputStorage),
+        Process(setupDiff, onDiffDone),
+        postProcessTask()
+    };
+    setReloadRecipe(root);
 }
 
 QStringList MercurialDiffEditorController::addConfigurationArguments(const QStringList &args) const
