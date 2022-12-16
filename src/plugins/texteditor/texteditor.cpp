@@ -4475,7 +4475,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
-    qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1)
+    qreal x = textLine.x() + data.offset.x() + qMax(0, q->cursorWidth() - 1)
             + horizontalAdvance * m_visualIndentOffset;
     int paintColumn = 0;
 
