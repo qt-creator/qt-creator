@@ -53,28 +53,41 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         QQuickDesignerSupport::polishItems(quickWindow());
 
         QVector<ImageContainer> imageContainerVector;
+
+        // Base state needs to be rendered twice to properly render shared resources,
+        // if there is more than one View3D and at least one of them is dirty.
+        bool dirtyView3d = false;
+        const QList<ServerNodeInstance> view3dInstances = allView3DInstances();
+        for (const auto &instance : view3dInstances) {
+            if (QQuickDesignerSupport::isDirty(instance.rootQuickItem(),
+                                               QQuickDesignerSupport::ContentUpdateMask)) {
+                dirtyView3d = true;
+                break;
+            }
+        }
+        if (dirtyView3d)
+            renderPreviewImage();
         imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));
 
-          QList<ServerNodeInstance> stateInstances = rootNodeInstance().stateInstances();
+        QList<ServerNodeInstance> stateInstances = rootNodeInstance().stateInstances();
 
-          const QList<ServerNodeInstance> groupInstances = allGroupStateInstances();
+        const QList<ServerNodeInstance> groupInstances = allGroupStateInstances();
 
-          for (ServerNodeInstance instance : groupInstances) {
-              stateInstances.append(instance.stateInstances());
-          }
+        for (const ServerNodeInstance &instance : groupInstances)
+            stateInstances.append(instance.stateInstances());
 
-          for (ServerNodeInstance instance : std::as_const(stateInstances)) {
-              instance.activateState();
-              QImage previewImage = renderPreviewImage();
-              if (!previewImage.isNull())
-                  imageContainerVector.append(ImageContainer(instance.instanceId(),
-                                                             renderPreviewImage(),
-                                                             instance.instanceId()));
-              instance.deactivateState();
-          }
+        for (ServerNodeInstance instance : std::as_const(stateInstances)) {
+            instance.activateState();
+            QImage previewImage = renderPreviewImage();
+            if (!previewImage.isNull())
+                imageContainerVector.append(ImageContainer(instance.instanceId(),
+                                                           renderPreviewImage(),
+                                                           instance.instanceId()));
+            instance.deactivateState();
+        }
 
         nodeInstanceClient()->statePreviewImagesChanged(
-            StatePreviewImageChangedCommand(imageContainerVector));
+                    StatePreviewImageChangedCommand(imageContainerVector));
 
         slowDownRenderTimer();
         handleExtraRender();
