@@ -441,6 +441,28 @@ static QString extractVisualStudioPlatformFromConfig(const CMakeConfig &config)
     return platform;
 }
 
+void updateCompilerPaths(CMakeConfig &config, const Environment &env)
+{
+    auto updateRelativePath = [&config, env](const QByteArray &key) {
+        FilePath pathValue = config.filePathValueOf(key);
+
+        if (pathValue.isAbsolutePath() || pathValue.isEmpty())
+            return;
+
+        pathValue = env.searchInPath(pathValue.fileName());
+
+        auto it = std::find_if(config.begin(), config.end(), [&key](const CMakeConfigItem &item) {
+            return item.key == key;
+        });
+        QTC_ASSERT(it != config.end(), return);
+
+        it->value = pathValue.path().toUtf8();
+    };
+
+    updateRelativePath("CMAKE_C_COMPILER");
+    updateRelativePath("CMAKE_CXX_COMPILER");
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -518,6 +540,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             }
         } else {
             config = cache;
+            updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
                                       configurePreset.cmakeExecutable.value().toUtf8());
