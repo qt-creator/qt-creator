@@ -11,10 +11,12 @@
 #include "axivionsettingspage.h"
 #include "axiviontr.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/session.h>
@@ -37,6 +39,7 @@ class AxivionPluginPrivate : public QObject
 public:
     void fetchProjectInfo(const QString &projectName);
     void handleProjectInfo(const ProjectInfo &info);
+    void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
     void handleIssuesForFile(const IssuesList &issues);
@@ -188,6 +191,19 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     runner->start();
 }
 
+void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
+{
+    if (project && ProjectExplorer::SessionManager::startupProject() != project)
+        return;
+    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *doc : openDocuments)
+        onDocumentOpened(doc);
+    if (project)
+        disconnect(ProjectExplorer::SessionManager::instance(),
+                   &ProjectExplorer::SessionManager::projectFinishedParsing,
+                   this, &AxivionPluginPrivate::handleOpenedDocs);
+}
+
 void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 {
     runningQuery = false;
@@ -201,7 +217,15 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 
     if (currentProjectInfo.name.isEmpty())
         return;
-    // FIXME handle already opened documents
+
+    // handle already opened documents
+    if (!ProjectExplorer::SessionManager::startupBuildSystem()->isParsing()) {
+        handleOpenedDocs(nullptr);
+    } else {
+        connect(ProjectExplorer::SessionManager::instance(),
+                &ProjectExplorer::SessionManager::projectFinishedParsing,
+                this, &AxivionPluginPrivate::handleOpenedDocs);
+    }
 }
 
 void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
