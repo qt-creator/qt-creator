@@ -3,6 +3,7 @@
 #include "eventlistpluginview.h"
 #include "assigneventdialog.h"
 #include "connectsignaldialog.h"
+#include "designericons.h"
 #include "eventlistactions.h"
 #include "eventlistdialog.h"
 
@@ -45,6 +46,7 @@ void EventListPluginView::registerActions()
 
     designerActionManager.addDesignerAction(new ActionGroup(tr("Event List"),
                                                             ComponentCoreConstants::eventListCategory,
+                                                            designerActionManager.contextIcon(DesignerIcons::EventListIcon),
                                                             ComponentCoreConstants::Priorities::EventListCategory,
                                                             &SelectionContextFunctors::always,
                                                             &SelectionContextFunctors::always));

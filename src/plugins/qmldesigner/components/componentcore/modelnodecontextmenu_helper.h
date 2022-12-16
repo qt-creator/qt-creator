@@ -141,7 +141,7 @@ public:
 class ActionGroup : public AbstractActionGroup
 {
 public:
-    ActionGroup(const QString &displayName, const QByteArray &menuId, int priority,
+    ActionGroup(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority,
             SelectionContextPredicate enabled = &SelectionContextFunctors::always,
             SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
         AbstractActionGroup(displayName),
@@ -150,6 +150,7 @@ public:
         m_enabled(enabled),
         m_visibility(visibility)
     {
+        menu()->setIcon(icon);
     }
 
     bool isVisible(const SelectionContext &m_selectionState) const override { return m_visibility(m_selectionState); }

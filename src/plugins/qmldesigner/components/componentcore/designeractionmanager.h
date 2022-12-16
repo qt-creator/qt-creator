@@ -23,6 +23,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class DesignerActionManagerView;
+class DesignerIcons;
 
 using AddResourceOperation = std::function<AddFilesResult(const QStringList &, const QString &, bool)>;
 using ModelNodePreviewImageOperation = std::function<QVariant(const ModelNode &)>;
@@ -118,16 +119,20 @@ public:
     ModelNodePreviewImageOperation modelNodePreviewOperation(const ModelNode &node) const;
     bool externalDragHasSupportedAssets(const QMimeData *data) const;
     QHash<QString, QStringList> handleExternalAssetsDrop(const QMimeData *data) const;
+    QIcon contextIcon(int contextId) const;
 
 private:
     void addTransitionEffectAction(const TypeName &typeName);
     void addCustomTransitionEffectAction();
+    void setupIcons();
+    QString designerIconResourcesPath() const;
 
     QList<QSharedPointer<ActionInterface> > m_designerActions;
     DesignerActionManagerView *m_designerActionManagerView;
     QList<AddResourceHandler> m_addResourceHandler;
     QList<ModelNodePreviewImageHandler> m_modelNodePreviewImageHandlers;
     ExternalDependenciesInterface &m_externalDependencies;
+    QScopedPointer<DesignerIcons> m_designerIcons;
 };
 
 } //QmlDesigner

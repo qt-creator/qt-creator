@@ -609,6 +609,7 @@ extend_qtc_plugin(QmlDesigner
     crumblebar.cpp crumblebar.h
     designeractionmanager.cpp designeractionmanager.h
     designeractionmanagerview.cpp designeractionmanagerview.h
+    designericons.cpp designericons.h
     findimplementation.cpp findimplementation.h
     layoutingridlayout.cpp layoutingridlayout.h
     modelnodecontextmenu.cpp modelnodecontextmenu.h

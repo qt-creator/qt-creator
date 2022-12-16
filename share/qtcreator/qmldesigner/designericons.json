@@ -1,0 +1,81 @@
+{
+    "ContextMenuArea": {
+        "size": "28x28",
+        "Off": {
+            "Disabled": { "color": "DSiconColorDisabled" },
+            "Hovered": { "color": "DSnavigatorIconHover"  },
+            "Normal": { "color": "DSnavigatorIcon" },
+            "Selected": { "color": "DSnavigatorIconSelected" }
+        },
+        "On": {
+            "Disabled": { "color": "DSiconColorDisabled" },
+            "Hovered": { "color": "DSnavigatorIconHover"  },
+            "Normal": { "color": "DSnavigatorIcon" },
+            "Selected": { "color": "DSnavigatorIconSelected" }
+        }
+    },
+    "AddMouseAreaIcon": {
+        "iconName": "s_mouseArea"
+    },
+    "AnchorsIcon": {
+        "iconName": "s_anchors"
+    },
+    "AnnotationIcon": {
+        "iconName": "s_annotations"
+    },
+    "ArrangeIcon": {
+        "iconName": "s_arrange"
+    },
+    "ConnectionsIcon": {
+        "iconName": "s_connections"
+    },
+    "EditIcon": {
+        "iconName": "s_edit"
+    },
+    "EnterComponentIcon": {
+        "iconName": "s_enterComponent"
+    },
+    "EventListIcon": {
+        "iconName": "s_eventList"
+    },
+    "GroupSelectionIcon": {
+        "iconName": "s_group"
+    },
+    "LayoutsIcon": {
+        "iconName": "s_layouts"
+    },
+    "MakeComponentIcon": {
+        "iconName": "s_component"
+    },
+    "MergeWithTemplateIcon": {
+        "iconName": "s_merging"
+    },
+    "PositionsersIcon": {
+        "iconName": "s_positioners"
+    },
+    "SelecionIcon": {
+        "iconName": "s_selection"
+    },
+    "ShowBoundsIcon": {
+        "Off": {
+            "iconName": "visibilityOff"
+        },
+        "On": {
+            "iconName": "visibilityOn"
+        }
+    },
+    "SnappingIcon": {
+        "iconName": "s_snapping"
+    },
+    "TimelineIcon": {
+        "iconName": "s_timeline"
+    },
+    "VisibilityIcon": {
+        "Off": {
+            "iconName": "visibilityOff"
+        },
+        "On": {
+            "iconName": "visibilityOn"
+        }
+    }
+}

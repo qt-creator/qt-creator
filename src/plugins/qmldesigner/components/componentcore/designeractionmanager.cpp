@@ -6,6 +6,7 @@
 #include "anchoraction.h"
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
+#include "designericons.h"
 #include "designermcumanager.h"
 #include "formatoperation.h"
 #include "modelnodecontextmenu_helper.h"
@@ -286,14 +287,19 @@ QHash<QString, QStringList> DesignerActionManager::handleExternalAssetsDrop(cons
     return addedCategoryFiles;
 }
 
+QIcon DesignerActionManager::contextIcon(int contextId) const
+{
+    return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
-    VisiblityModelNodeAction(const QByteArray &id, const QString &description, const QByteArray &category, const QKeySequence &key, int priority,
+    VisiblityModelNodeAction(const QByteArray &id, const QString &description, const QIcon &icon, const QByteArray &category, const QKeySequence &key, int priority,
                              SelectionContextOperation action,
                              SelectionContextPredicate enabled = &SelectionContextFunctors::always,
                              SelectionContextPredicate visibility = &SelectionContextFunctors::always) :
-        ModelNodeContextMenuAction(id, description, {}, category, key, priority, action, enabled, visibility)
+        ModelNodeContextMenuAction(id, description, icon, category, key, priority, action, enabled, visibility)
     {}
 
     void updateContext() override
@@ -376,9 +382,9 @@ public:
 class SelectionModelNodeAction : public ActionGroup
 {
 public:
-    SelectionModelNodeAction(const QString &displayName, const QByteArray &menuId, int priority) :
-        ActionGroup(displayName, menuId, priority,
-                           &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
+    SelectionModelNodeAction(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority) :
+        ActionGroup(displayName, menuId, icon, priority,
+                    &SelectionContextFunctors::always, &SelectionContextFunctors::selectionEnabled)
 
     {}
 
@@ -599,9 +605,10 @@ void removeSignal(SignalHandlerProperty signalHandler)
 class ConnectionsModelNodeActionGroup : public ActionGroup
 {
 public:
-    ConnectionsModelNodeActionGroup(const QString &displayName, const QByteArray &menuId, int priority)
+    ConnectionsModelNodeActionGroup(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority)
         : ActionGroup(displayName,
                       menuId,
+                      icon,
                       priority,
                       &SelectionContextFunctors::always,
                       &SelectionContextFunctors::selectionEnabled)
@@ -968,8 +975,8 @@ bool isFlowTargetOrTransition(const SelectionContext &context)
 class FlowActionConnectAction : public ActionGroup
 {
 public:
-    FlowActionConnectAction(const QString &displayName, const QByteArray &menuId, int priority) :
-        ActionGroup(displayName, menuId, priority,
+    FlowActionConnectAction(const QString &displayName, const QByteArray &menuId, const QIcon &icon, int priority) :
+        ActionGroup(displayName, menuId, icon, priority,
                     &isFlowActionItemItem, &flowOptionVisible)
 
     {}
@@ -1341,16 +1348,19 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,
                           selectionCategory,
+                          contextIcon(DesignerIcons::SelecionIcon),
                           Priorities::SelectionCategory));
 
     addDesignerAction(new ConnectionsModelNodeActionGroup(
                           connectionsCategoryDisplayName,
                           connectionsCategory,
+                          contextIcon(DesignerIcons::ConnectionsIcon),
                           Priorities::ConnectionsCategory));
 
     addDesignerAction(new ActionGroup(
                           arrangeCategoryDisplayName,
                           arrangeCategory,
+                          contextIcon(DesignerIcons::ArrangeIcon),
                           Priorities::ArrangeCategory,
                           &selectionNotEmpty));
 
@@ -1408,7 +1418,11 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &reverse,
                           &multiSelectionAndHasSameParent));
 
-    addDesignerAction(new ActionGroup(editCategoryDisplayName, editCategory, Priorities::EditCategory, &selectionNotEmpty));
+    addDesignerAction(new ActionGroup(editCategoryDisplayName,
+                                      editCategory,
+                                      contextIcon(DesignerIcons::EditIcon),
+                                      Priorities::EditCategory,
+                                      &selectionNotEmpty));
 
     addDesignerAction(new SeperatorDesignerAction(editCategory, 30));
 
@@ -1491,6 +1505,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new VisiblityModelNodeAction(
                           visiblityCommandId,
                           visibilityDisplayName,
+                          contextIcon(DesignerIcons::VisibilityIcon),
                           rootCategory,
                           QKeySequence("Ctrl+g"),
                           Priorities::Visibility,
@@ -1499,6 +1514,7 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new ActionGroup(anchorsCategoryDisplayName,
                                       anchorsCategory,
+                                      contextIcon(DesignerIcons::AnchorsIcon),
                                       Priorities::AnchorsCategory,
                                       &anchorsMenuEnabled));
 
@@ -1596,18 +1612,21 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(
                           positionerCategoryDisplayName,
                           positionerCategory,
+                          contextIcon(DesignerIcons::PositionsersIcon),
                           Priorities::PositionCategory,
                           &positionOptionVisible));
 
     addDesignerAction(new ActionGroup(
                           layoutCategoryDisplayName,
                           layoutCategory,
+                          contextIcon(DesignerIcons::LayoutsIcon),
                           Priorities::LayoutCategory,
                           &layoutOptionVisible));
 
     addDesignerAction(new ActionGroup(
                           snappingCategoryDisplayName,
                           snappingCategory,
+                          contextIcon(DesignerIcons::SnappingIcon),
                           Priorities::SnappingCategory,
                           &selectionEnabled,
                           &selectionEnabled));
@@ -1615,12 +1634,14 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(
                           groupCategoryDisplayName,
                           groupCategory,
+                          contextIcon(DesignerIcons::GroupSelectionIcon),
                           Priorities::Group,
                           &studioComponentsAvailableAndSelectionCanBeLayouted));
 
     addDesignerAction(new ActionGroup(
                           flowCategoryDisplayName,
                           flowCategory,
+                          {},
                           Priorities::FlowCategory,
                           &isFlowTargetOrTransition,
                           &flowOptionVisible));
@@ -1629,6 +1650,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     auto effectMenu = new ActionGroup(
                 flowEffectCategoryDisplayName,
                 flowEffectCategory,
+                {},
                 Priorities::FlowCategory,
                 &isFlowTransitionItem,
                 &flowOptionVisible);
@@ -1660,9 +1682,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &flowOptionVisible));
 
     addDesignerAction(new FlowActionConnectAction(
-        flowConnectionCategoryDisplayName,
-        flowConnectionCategory,
-        Priorities::FlowCategory));
+                          flowConnectionCategoryDisplayName,
+                          flowConnectionCategory,
+                          {},
+                          Priorities::FlowCategory));
 
 
     const QList<TypeName> transitionTypes = {"FlowFadeEffect",
@@ -1688,6 +1711,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(
                           stackedContainerCategoryDisplayName,
                           stackedContainerCategory,
+                          {},
                           Priorities::StackedContainerCategory,
                           &isStackedContainer));
 
@@ -1888,7 +1912,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           goIntoComponentCommandId,
                           enterComponentDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::EnterComponentIcon),
                           rootCategory,
                           QKeySequence(Qt::Key_F2),
                           Priorities::ComponentActions + 2,
@@ -1898,7 +1922,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           editAnnotationsCommandId,
                           editAnnotationsDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::AnnotationIcon),
                           rootCategory,
                           QKeySequence(),
                           Priorities::EditAnnotations,
@@ -1907,15 +1931,15 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
-        addMouseAreaFillCommandId,
-        addMouseAreaFillDisplayName,
-        {},
-        rootCategory,
-        QKeySequence(),
-        Priorities::AddMouseArea,
-        &addMouseAreaFill,
-        &addMouseAreaFillCheck,
-        &singleSelection));
+                          addMouseAreaFillCommandId,
+                          addMouseAreaFillDisplayName,
+                          contextIcon(DesignerIcons::AddMouseAreaIcon),
+                          rootCategory,
+                          QKeySequence(),
+                          Priorities::AddMouseArea,
+                          &addMouseAreaFill,
+                          &addMouseAreaFillCheck,
+                          &singleSelection));
 
     const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
 
@@ -1943,7 +1967,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           makeComponentCommandId,
                           makeComponentDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::MakeComponentIcon),
                           rootCategory,
                           QKeySequence(),
                           Priorities::ComponentActions + 1,
@@ -1954,7 +1978,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           editMaterialCommandId,
                           editMaterialDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::EditIcon),
                           rootCategory,
                           QKeySequence(),
                           44,
@@ -1974,6 +1998,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ActionGroup(
                           "",
                           genericToolBarCategory,
+                          {},
                           Priorities::GenericToolBar));
 
     addDesignerAction(new ChangeStyleAction());
@@ -2114,6 +2139,7 @@ DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designer
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
 {
+    setupIcons();
 }
 
 DesignerActionManager::~DesignerActionManager() = default;
@@ -2143,6 +2169,20 @@ void DesignerActionManager::addCustomTransitionEffectAction()
         21,
         &ModelNodeOperations::addCustomFlowEffect,
     &isFlowTransitionItem));
+}
+
+void DesignerActionManager::setupIcons()
+{
+    m_designerIcons.reset(new DesignerIcons("qtds_propertyIconFont.ttf", designerIconResourcesPath()));
+}
+
+QString DesignerActionManager::designerIconResourcesPath() const
+{
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/designericons.json";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/designericons.json").toString();
 }
 
 DesignerActionToolBar::DesignerActionToolBar(QWidget *parentWidget) : Utils::StyledBar(parentWidget),

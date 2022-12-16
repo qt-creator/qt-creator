@@ -3,6 +3,7 @@
 
 #include "formeditorwidget.h"
 #include "designeractionmanager.h"
+#include "designericons.h"
 #include "designersettings.h"
 #include "formeditoritem.h"
 #include "formeditorscene.h"
@@ -104,6 +105,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction = new QAction(tr("Show Bounds"), this);
     m_showBoundingRectAction->setCheckable(true);
     m_showBoundingRectAction->setChecked(false);
+    m_showBoundingRectAction->setIcon(DesignerActionManager::instance().contextIcon(DesignerIcons::ShowBoundsIcon));
     registerActionAsCommand(m_showBoundingRectAction,
                             Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
                             QKeySequence(Qt::Key_A),
