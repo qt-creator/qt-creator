@@ -112,13 +112,9 @@ void AxivionProjectSettingsWidget::fetchProjects()
 void AxivionProjectSettingsWidget::onDashboardInfoReceived(const DashboardInfo &info)
 {
     if (!info.error.isEmpty()) {
-        if (info.error.contains("credentials")) {
-            m_infoLabel->setText("Authentication failed. Check credentials settings.");
-            m_infoLabel->setType(Utils::InfoLabel::Error);
-            m_infoLabel->setVisible(true);
-        }
-        // send error to general message and discard results
-        // FIXME currently we do not get all errors - e.g. wrong curl calls
+        m_infoLabel->setText(info.error);
+        m_infoLabel->setType(Utils::InfoLabel::Error);
+        m_infoLabel->setVisible(true);
         updateEnabledStates();
         return;
     }

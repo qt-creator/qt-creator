@@ -39,7 +39,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
     const AxivionServer server = settings->server;
 
     QStringList args = server.curlArguments();
-    // TODO handle paginated results
+    args << "-i";
     args << "--header" << "Authorization: AxToken " + server.token;
 
     QString url = server.dashboard;
@@ -62,7 +62,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
                 start();
                 return;
             }
-            // output error to general message
+            emit resultRetrieved(m_process.readAllStandardError());
         } else {
             emit resultRetrieved(m_process.readAllStandardOutput());
         }
