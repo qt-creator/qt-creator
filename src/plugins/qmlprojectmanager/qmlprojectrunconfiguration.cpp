@@ -199,31 +199,27 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         return qmlViewer;
 
     Kit *kit = target()->kit();
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
-    if (!dev.isNull()) {
+
+    // We might not have a full Qt version for building, but the device
+    // might know what is good for running.
+    if (IDevice::ConstPtr dev = DeviceKitAspect::device(kit)) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
 
-    // If not given explicitly by device, try to pick it from $PATH.
-    QtVersion *version = QtKitAspect::qtVersion(kit);
-    if (!version) // No Qt version in Kit. Don't try to run QML runtime.
-        return {};
-
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(kit);
-    if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        // If not given explicitly by Qt Version, try to pick it from $PATH.
-        const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
-        return isDesktop ? version->qmlRuntimeFilePath() : "qmlscene";
+    // The Qt version might know. That's the "build" Qt version,
+    // i.e. not necessarily something the device can use, but the
+    // device had its chance above.
+    if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
+        const FilePath qmlRuntime = version->qmlRuntimeFilePath();
+        if (!qmlRuntime.isEmpty())
+            return qmlRuntime;
     }
 
-    if (dev.isNull()) // No device set. We don't know where a QML utility is.
-        return {};
-
-    const FilePath qmlRuntime = dev->qmlRunCommand();
-    // If not given explicitly by device, try to pick it from $PATH.
-    return qmlRuntime.isEmpty() ? "qml" : qmlRuntime;
+    // If not given explicitly by run device, nor Qt, try to pick
+    // it from $PATH on the run device.
+    return "qml";
 }
 
 void QmlProjectRunConfiguration::createQtVersionAspect()
