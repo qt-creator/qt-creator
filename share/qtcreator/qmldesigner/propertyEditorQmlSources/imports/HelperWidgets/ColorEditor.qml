@@ -216,19 +216,15 @@ SecondColumnLayout {
 
             property alias active: popupLoader.loader.active
             property Loader loader: Loader {
-                parent: colorEditor
+                parent: preview
                 active: colorEditor.supportGradient
-                anchors.left: parent.left
-                anchors.leftMargin: 0
 
                 sourceComponent: ColorEditorPopup {
                     id: cePopup
                     x: cePopup.__defaultX
                     y: cePopup.__defaultY
                 }
-                onLoaded: {
-                    popupLoader.dialog.initEditor()
-                }
+                onLoaded: popupLoader.dialog.initEditor()
             }
         }
     }
