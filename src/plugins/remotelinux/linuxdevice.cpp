@@ -976,7 +976,11 @@ LinuxDevice::LinuxDevice()
             d->m_terminals.removeOne(proc);
         });
 
-        proc->setCommand({filePath({}), {}});
+        // Empty command for ssh implies the user's shell, which would be nice in general,
+        // but we can't use that if we modify environment settings, as variables without
+        // command don't work on the ssh commandline.
+        const QString shell = env.toDictionary().size() == 0 ? QString() : QString("/bin/sh");
+        proc->setCommand({filePath(shell), {}});
         proc->setTerminalMode(TerminalMode::On);
         proc->setEnvironment(env);
         proc->setWorkingDirectory(workingDir);
