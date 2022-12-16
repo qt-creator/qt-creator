@@ -37,6 +37,8 @@ namespace Axivion::Internal {
 class AxivionPluginPrivate : public QObject
 {
 public:
+    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
     void handleProjectInfo(const ProjectInfo &info);
     void handleOpenedDocs(ProjectExplorer::Project *project);
@@ -48,7 +50,7 @@ public:
     AxivionSettings axivionSettings;
     AxivionSettingsPage axivionSettingsPage{&axivionSettings};
     AxivionOutputPane axivionOutputPane;
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> projectSettings;
+    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> axivionProjectSettings;
     ProjectInfo currentProjectInfo;
     bool runningQuery = false;
 };
@@ -63,9 +65,9 @@ AxivionPlugin::AxivionPlugin()
 
 AxivionPlugin::~AxivionPlugin()
 {
-    if (!dd->projectSettings.isEmpty()) {
-        qDeleteAll(dd->projectSettings);
-        dd->projectSettings.clear();
+    if (!dd->axivionProjectSettings.isEmpty()) {
+        qDeleteAll(dd->axivionProjectSettings);
+        dd->axivionProjectSettings.clear();
     }
     delete dd;
     dd = nullptr;
@@ -101,27 +103,12 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
-            this, &AxivionPlugin::onStartupProjectChanged);
+            dd, &AxivionPluginPrivate::onStartupProjectChanged);
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
             dd, &AxivionPluginPrivate::onDocumentOpened);
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
             dd, &AxivionPluginPrivate::onDocumentClosed);
     return true;
-}
-
-void AxivionPlugin::onStartupProjectChanged()
-{
-    QTC_ASSERT(dd, return);
-    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
-    if (!project) {
-        dd->clearAllMarks();
-        dd->currentProjectInfo = ProjectInfo();
-        dd->axivionOutputPane.updateDashboard();
-        return;
-    }
-
-    const AxivionProjectSettings *projSettings = projectSettings(project);
-    dd->fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
 AxivionSettings *AxivionPlugin::settings()
@@ -135,10 +122,7 @@ AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project 
     QTC_ASSERT(project, return nullptr);
     QTC_ASSERT(dd, return nullptr);
 
-    auto &settings = dd->projectSettings[project];
-    if (!settings)
-        settings = new AxivionProjectSettings(project);
-    return settings;
+    return dd->projectSettings(project);
 }
 
 bool AxivionPlugin::handleCertificateIssue()
@@ -169,6 +153,28 @@ ProjectInfo AxivionPlugin::projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->currentProjectInfo;
+}
+
+AxivionProjectSettings *AxivionPluginPrivate::projectSettings(ProjectExplorer::Project *project)
+{
+    auto &settings = axivionProjectSettings[project];
+    if (!settings)
+        settings = new AxivionProjectSettings(project);
+    return settings;
+}
+
+void AxivionPluginPrivate::onStartupProjectChanged()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project) {
+        clearAllMarks();
+        currentProjectInfo = ProjectInfo();
+        axivionOutputPane.updateDashboard();
+        return;
+    }
+
+    const AxivionProjectSettings *projSettings = projectSettings(project);
+    fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
