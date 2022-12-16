@@ -23,12 +23,29 @@ Image {
 
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
+        hoverEnabled: true
 
         onPressed: (mouse) => {
             if (mouse.button === Qt.LeftButton)
                 rootView.startDragTexture(modelData, mapToGlobal(mouse.x, mouse.y))
             else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
+        }
+    }
+
+    ToolTip {
+        visible: mouseArea.containsMouse
+        // contentWidth is not calculated correctly by the toolTip (resulting in a wider tooltip than
+        // needed). Using a helper Text to calculate the correct width
+        contentWidth: helperText.width
+        bottomInset: -2
+        text: modelData.textureToolTip
+        delay: 1000
+
+        Text {
+            id: helperText
+            text: modelData.textureToolTip
+            visible: false
         }
     }
 }
