@@ -4483,8 +4483,10 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     while (paintColumn < depth) {
         if (x >= 0) {
             int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
-            if (blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0)
+            if (q->lineWrapMode() == QPlainTextEdit::WidgetWidth
+                && blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0) {
                 break;
+            }
             const QPointF top(x, blockData.boundingRect.top());
             const QPointF bottom(x, blockData.boundingRect.top() + rect.height());
             const QLineF line(top, bottom);
