@@ -42,6 +42,7 @@ public:
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
+    void clearAllMarks();
     void handleIssuesForFile(const IssuesList &issues);
 
     AxivionSettings axivionSettings;
@@ -113,6 +114,7 @@ void AxivionPlugin::onStartupProjectChanged()
     QTC_ASSERT(dd, return);
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project) {
+        dd->clearAllMarks();
         dd->currentProjectInfo = ProjectInfo();
         dd->axivionOutputPane.updateDashboard();
         return;
@@ -175,6 +177,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         QTimer::singleShot(3000, [this, projectName]{ fetchProjectInfo(projectName); });
         return;
     }
+    clearAllMarks();
     if (projectName.isEmpty()) {
         currentProjectInfo = ProjectInfo();
         axivionOutputPane.updateDashboard();
@@ -202,6 +205,13 @@ void AxivionPluginPrivate::handleOpenedDocs(ProjectExplorer::Project *project)
         disconnect(ProjectExplorer::SessionManager::instance(),
                    &ProjectExplorer::SessionManager::projectFinishedParsing,
                    this, &AxivionPluginPrivate::handleOpenedDocs);
+}
+
+void AxivionPluginPrivate::clearAllMarks()
+{
+    const QList<Core::IDocument *> openDocuments = Core::DocumentModel::openedDocuments();
+    for (Core::IDocument *doc : openDocuments)
+        onDocumentClosed(doc);
 }
 
 void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
