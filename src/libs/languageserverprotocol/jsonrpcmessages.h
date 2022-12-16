@@ -290,7 +290,10 @@ public:
         return val.isUndefined() ? std::nullopt : std::make_optional(fromJsonValue<Error>(val));
     }
     void setError(const Error &error)
-    { m_jsonObject.insert(errorKey, QJsonValue(error)); }
+    {
+        QTC_CHECK(error.isValid());
+        m_jsonObject.insert(errorKey, QJsonValue(error));
+    }
     void clearError() { m_jsonObject.remove(errorKey); }
 
     bool isValid(QString *errorMessage) const override
