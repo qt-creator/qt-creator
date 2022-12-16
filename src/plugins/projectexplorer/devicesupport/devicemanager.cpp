@@ -4,7 +4,7 @@
 #include "devicemanager.h"
 
 #include "idevicefactory.h"
-#include "projectexplorertr.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
