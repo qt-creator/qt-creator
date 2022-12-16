@@ -3,6 +3,8 @@
 
 #include "axivionresultparser.h"
 
+#include <utils/qtcassert.h>
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -37,13 +39,12 @@ static int httpStatus(const QByteArray &header)
     return match.hasMatch() ? match.captured(1).toInt() : 601;
 }
 
-static std::pair<BaseResult, QJsonDocument> prehandleHeaderAndBody(const QByteArray &header,
-                                                                   const QByteArray &body)
+static BaseResult prehandleHeader(const QByteArray &header, const QByteArray &body)
 {
     BaseResult result;
     if (header.isEmpty()) {
         result.error = QString::fromUtf8(body); // we likely had a curl problem
-        return {result, {}};
+        return result;
     }
     int status = httpStatus(header);
     if ((status > 399) || (status > 299 && body.isEmpty())) { // FIXME handle some explicitly?
@@ -52,8 +53,16 @@ static std::pair<BaseResult, QJsonDocument> prehandleHeaderAndBody(const QByteAr
             result.error = QLatin1String("(%1)").arg(statusStr);
         else
             result.error = QLatin1String("%1 (%2)").arg(QString::fromUtf8(body)).arg(statusStr);
-        return {result, {}};
     }
+    return result;
+}
+
+static std::pair<BaseResult, QJsonDocument> prehandleHeaderAndBody(const QByteArray &header,
+                                                                   const QByteArray &body)
+{
+    BaseResult result = prehandleHeader(header, body);
+    if (!result.error.isEmpty())
+        return {result, {}};
 
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(body, &error);
@@ -261,6 +270,65 @@ ProjectInfo parseProjectInfo(const QByteArray &input)
         return result;
     }
     result.issueKinds = issueKindsFromJson(issueKindsValue.toArray());
+    return result;
+}
+
+static QRegularExpression issueCsvLineRegex(const QByteArray &firstCsvLine)
+{
+    QString pattern = "^";
+    for (const QByteArray &part : firstCsvLine.split(',')) {
+        const QString cleaned = QString::fromUtf8(part).remove(' ').chopped(1).mid(1);
+        pattern.append(QString("\"(?<" + cleaned + ">.*)\","));
+    }
+    pattern.chop(1); // remove last comma
+    pattern.append('$');
+    const QRegularExpression regex(pattern);
+    QTC_ASSERT(regex.isValid(), return {});
+    return regex;
+}
+
+static void parseCsvIssue(const QByteArray &csv, QList<ShortIssue> *issues)
+{
+    QTC_ASSERT(issues, return);
+
+    bool first = true;
+    std::optional<QRegularExpression> regex;
+    for (auto &line : csv.split('\n')) {
+        if (first) {
+            regex.emplace(issueCsvLineRegex(line));
+            first = false;
+            if (regex.value().pattern().isEmpty())
+                return;
+            continue;
+        }
+        if (line.isEmpty())
+            continue;
+        const QRegularExpressionMatch match = regex->match(QString::fromUtf8(line));
+        QTC_ASSERT(match.hasMatch(), continue);
+        // FIXME: some of these are not present for all issue kinds! Limited to SV for now
+        ShortIssue issue;
+        issue.state = match.captured("State");
+        issue.errorNumber = match.captured("ErrorNumber");
+        issue.message = match.captured("Message");
+        issue.entity = match.captured("Entity");
+        issue.filePath = match.captured("Path");
+        issue.severity = match.captured("Severity");
+        issue.lineNumber = match.captured("Line").toInt();
+        issues->append(issue);
+    }
+}
+
+IssuesList parseIssuesList(const QByteArray &input)
+{
+    IssuesList result;
+
+    auto [header, body] = splitHeaderAndBody(input);
+    BaseResult headerResult = prehandleHeader(header, body);
+    if (!headerResult.error.isEmpty()) {
+        result.error = headerResult.error;
+        return result;
+    }
+    parseCsvIssue(body, &result.issues);
     return result;
 }
 

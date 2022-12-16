@@ -70,10 +70,29 @@ public:
     QList<IssueKind> issueKinds;
 };
 
+class ShortIssue : public BaseResult
+{
+public:
+    QString state;
+    QString errorNumber;
+    QString message;
+    QString entity;
+    QString filePath;
+    QString severity;
+    int lineNumber = 0;
+};
+
+class IssuesList : public BaseResult
+{
+public:
+    QList<ShortIssue> issues;
+};
+
 namespace ResultParser {
 
 DashboardInfo parseDashboardInfo(const QByteArray &input);
 ProjectInfo parseProjectInfo(const QByteArray &input);
+IssuesList parseIssuesList(const QByteArray &input);
 
 } // ResultParser
 

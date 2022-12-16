@@ -8,7 +8,7 @@ endif()
 
 add_qtc_plugin(Axivion
   PLUGIN_DEPENDS
-    QtCreator::Core QtCreator::ProjectExplorer
+    QtCreator::Core QtCreator::ProjectExplorer QtCreator::TextEditor
     ${LICENSECHECKER_DEPENDS}
   DEPENDS Qt5::Network Qt5::Widgets QtCreator::ExtensionSystem QtCreator::Utils
   SOURCES

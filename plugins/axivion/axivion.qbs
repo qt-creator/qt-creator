@@ -5,6 +5,7 @@ QtcCommercialPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "TextEditor" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }

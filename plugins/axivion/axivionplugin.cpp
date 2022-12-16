@@ -11,12 +11,16 @@
 #include "axivionsettingspage.h"
 #include "axiviontr.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/session.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
 
 #ifdef LICENSECHECKER
@@ -33,6 +37,9 @@ class AxivionPluginPrivate : public QObject
 public:
     void fetchProjectInfo(const QString &projectName);
     void handleProjectInfo(const ProjectInfo &info);
+    void onDocumentOpened(Core::IDocument *doc);
+    void onDocumentClosed(Core::IDocument * doc);
+    void handleIssuesForFile(const IssuesList &issues);
 
     AxivionSettings axivionSettings;
     AxivionSettingsPage axivionSettingsPage{&axivionSettings};
@@ -91,6 +98,10 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &AxivionPlugin::onStartupProjectChanged);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::documentOpened,
+            dd, &AxivionPluginPrivate::onDocumentOpened);
+    connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
+            dd, &AxivionPluginPrivate::onDocumentClosed);
     return true;
 }
 
@@ -187,6 +198,69 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 
     currentProjectInfo = info;
     axivionOutputPane.updateDashboard();
+
+    if (currentProjectInfo.name.isEmpty())
+        return;
+    // FIXME handle already opened documents
+}
+
+void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
+{
+    if (currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
+        return;
+
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!doc || !project->isKnownFile(doc->filePath()))
+        return;
+
+    Utils::FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
+    // for now only style violations
+    AxivionQuery query(AxivionQuery::IssuesForFileList, {currentProjectInfo.name, "SV",
+                                                         relative.path() } );
+    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
+    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
+        handleIssuesForFile(ResultParser::parseIssuesList(result));
+    });
+    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
+    runner->start();
+}
+
+void AxivionPluginPrivate::onDocumentClosed(Core::IDocument *doc)
+{
+    const auto document = qobject_cast<TextEditor::TextDocument *>(doc);
+    if (!document)
+        return;
+
+    const TextEditor::TextMarks marks = document->marks();
+    auto axivionId = Utils::Id("AxivionTextMark");
+    for (auto m : marks) {
+        if (m->category() == axivionId)
+            delete m;
+    }
+}
+
+void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
+{
+    if (issues.issues.isEmpty())
+        return;
+
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    if (!project)
+        return;
+
+    const Utils::FilePath filePath = project->projectDirectory()
+            .pathAppended(issues.issues.first().filePath);
+
+    auto axivionId = Utils::Id("AxivionTextMark");
+    for (const ShortIssue &issue : std::as_const(issues.issues)) {
+        // FIXME the line location can be wrong (even the whole issue could be wrong)
+        // depending on whether this line has been changed since the last axivion run and the
+        // current state of the file - some magic has to happen here
+        auto mark = new TextEditor::TextMark(filePath, issue.lineNumber, axivionId);
+        mark->setToolTip(issue.errorNumber + " " + issue.entity + ": " + issue.message);
+        mark->setPriority(TextEditor::TextMark::NormalPriority);
+        mark->setLineAnnotation(issue.errorNumber);
+    }
 }
 
 } // Axivion::Internal

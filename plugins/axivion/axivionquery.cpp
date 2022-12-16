@@ -33,6 +33,13 @@ QString AxivionQuery::toString() const
         QTC_ASSERT(m_parameters.size() == 1, return {});
         query += "/projects/" + QUrl::toPercentEncoding(m_parameters.first());
         return query;
+    case IssuesForFileList:
+        QTC_ASSERT(m_parameters.size() == 3, return {});
+        // FIXME shall we validate the kind? (some kinds do not support path filter)
+        query += "/projects/" + QUrl::toPercentEncoding(m_parameters.first())
+                + "/issues?kind=" + m_parameters.at(1) + "&filter_path="
+                + QUrl::toPercentEncoding(m_parameters.at(2)) + "&format=csv";
+        return query;
     }
 
     return {};
