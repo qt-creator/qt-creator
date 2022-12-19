@@ -142,7 +142,8 @@ void QmlBundle::printEscaped(QTextStream &s, const QString &str)
 void QmlBundle::writeTrie(QTextStream &stream, const Trie &t, const QString &indent) {
     stream << QLatin1Char('[');
     bool firstLine = true;
-    foreach (const QString &i, t.stringList()) {
+    const QStringList list = t.stringList();
+    for (const QString &i : list) {
         if (firstLine)
             firstLine = false;
         else
@@ -197,7 +198,8 @@ QStringList QmlBundle::maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config,
     Utils::JsonValue *imp0 = config->member(propertyName);
     Utils::JsonArrayValue *imp = ((imp0 != nullptr) ? imp0->toArray() : nullptr);
     if (imp != nullptr) {
-        foreach (Utils::JsonValue *v, imp->elements()) {
+        const QList<Utils::JsonValue *> elements = imp->elements();
+        for (Utils::JsonValue *v : elements) {
             Utils::JsonStringValue *impStr = ((v != nullptr) ? v->toString() : nullptr);
             if (impStr != nullptr) {
                 trie.insert(impStr->value());
@@ -272,14 +274,14 @@ void QmlLanguageBundles::mergeBundleForLanguage(Dialect l, const QmlBundle &bund
         m_bundles.insert(l,bundle);
 }
 
-QList<Dialect> QmlLanguageBundles::languages() const
+const QList<Dialect> QmlLanguageBundles::languages() const
 {
     return m_bundles.keys();
 }
 
 void QmlLanguageBundles::mergeLanguageBundles(const QmlLanguageBundles &o)
 {
-    foreach (Dialect l, o.languages())
+    for (Dialect l : o.languages())
         mergeBundleForLanguage(l, o.bundleForLanguage(l));
 }
 

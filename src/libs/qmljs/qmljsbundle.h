@@ -74,7 +74,7 @@ class QMLJS_EXPORT QmlLanguageBundles
 public:
     QmlBundle bundleForLanguage(Dialect l) const;
     void mergeBundleForLanguage(Dialect l, const QmlBundle &bundle);
-    QList<Dialect> languages() const;
+    const QList<Dialect> languages() const;
     void mergeLanguageBundles(const QmlLanguageBundles &);
 private:
     QHash<Dialect,QmlBundle> m_bundles;

@@ -283,11 +283,11 @@ void FakeMetaObject::setExportMetaObjectRevision(int exportIndex, int metaObject
     m_exports[exportIndex].metaObjectRevision = metaObjectRevision;
 }
 
-QList<FakeMetaObject::Export> FakeMetaObject::exports() const
+const QList<FakeMetaObject::Export> FakeMetaObject::exports() const
 { return m_exports; }
 FakeMetaObject::Export FakeMetaObject::exportInPackage(const QString &package) const
 {
-    for (const Export &exp : std::as_const(m_exports)) {
+    for (const Export &exp : m_exports) {
         if (exp.package == package)
             return exp;
     }

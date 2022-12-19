@@ -47,7 +47,7 @@ Document::Ptr QmlComponentChain::document() const
     return m_document;
 }
 
-QList<const QmlComponentChain *> QmlComponentChain::instantiatingComponents() const
+const QList<const QmlComponentChain *> QmlComponentChain::instantiatingComponents() const
 {
     return m_instantiatingComponents;
 }
@@ -153,7 +153,7 @@ void ScopeChain::setQmlComponentChain(const QSharedPointer<const QmlComponentCha
     m_qmlComponentScope = qmlComponentChain;
 }
 
-QList<const ObjectValue *> ScopeChain::qmlScopeObjects() const
+const QList<const ObjectValue *> ScopeChain::qmlScopeObjects() const
 {
     return m_qmlScopeObjects;
 }
@@ -212,7 +212,7 @@ QList<const ObjectValue *> ScopeChain::all() const
 
 static void collectScopes(const QmlComponentChain *chain, QList<const ObjectValue *> *target)
 {
-    foreach (const QmlComponentChain *parent, chain->instantiatingComponents())
+    for (const QmlComponentChain *parent : chain->instantiatingComponents())
         collectScopes(parent, target);
 
     if (!chain->document())
@@ -237,7 +237,7 @@ void ScopeChain::update() const
     // the root scope in js files doesn't see instantiating components
     if (m_document->language() != Dialect::JavaScript || m_jsScopes.count() != 1) {
         if (m_qmlComponentScope) {
-            foreach (const QmlComponentChain *parent, m_qmlComponentScope->instantiatingComponents())
+            for (const QmlComponentChain *parent : m_qmlComponentScope->instantiatingComponents())
                 collectScopes(parent, &m_all);
         }
     }
@@ -265,7 +265,7 @@ void ScopeChain::update() const
 static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *chain)
 {
     const QRegularExpression importCommentPattern(QLatin1String("@scope\\s+(.*)"));
-    foreach (const SourceLocation &commentLoc, chain->document()->engine()->comments()) {
+    for (const SourceLocation &commentLoc : chain->document()->engine()->comments()) {
         const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
 
         // find all @scope annotations
@@ -283,10 +283,10 @@ static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *ch
                                     .absoluteFilePath();
         }
 
-        foreach (const QmlComponentChain *c, chain->instantiatingComponents())
+        for (const QmlComponentChain *c : chain->instantiatingComponents())
             additionalScopes.removeAll(c->document()->fileName());
 
-        foreach (const Utils::FilePath &scope, additionalScopes) {
+        for (const Utils::FilePath &scope : std::as_const(additionalScopes)) {
             Document::Ptr doc = context->snapshot().document(scope);
             if (doc) {
                 QmlComponentChain *ch = new QmlComponentChain(doc);
@@ -322,8 +322,8 @@ void ScopeChain::initializeRootScope()
         // add scope chains for all components that import this file
         // unless there's .pragma library
         if (!m_document->bind()->isJsLibrary()) {
-            foreach (Document::Ptr otherDoc, snapshot) {
-                foreach (const ImportInfo &import, otherDoc->bind()->imports()) {
+            for (Document::Ptr otherDoc : snapshot) {
+                for (const ImportInfo &import : otherDoc->bind()->imports()) {
                     if ((import.type() == ImportType::File
                          && m_document->fileName().toString() == import.path())
                         || (import.type() == ImportType::QrcFile
@@ -358,7 +358,7 @@ void ScopeChain::makeComponentChain(
     const Bind *bind = doc->bind();
 
     // add scopes for all components instantiating this one
-    foreach (Document::Ptr otherDoc, snapshot) {
+    for (Document::Ptr otherDoc : snapshot) {
         if (otherDoc == doc)
             continue;
         if (otherDoc->bind()->usesQmlPrototype(bind->rootObjectValue(), m_context)) {

@@ -1023,7 +1023,7 @@ void CodeFormatter::dump() const
 {
     qCDebug(formatterLog) << "Current token index" << m_tokenIndex;
     qCDebug(formatterLog) << "Current state:";
-    foreach (const State &s, m_currentState) {
+    for (const State &s : m_currentState) {
         qCDebug(formatterLog) << stateToString(s.type) << s.savedIndentDepth;
     }
     qCDebug(formatterLog) << "Current indent depth:" << m_indentDepth;

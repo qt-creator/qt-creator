@@ -75,7 +75,7 @@ public:
             _comments.append(QmlJS::SourceLocation(pos, len, line, col));
     }
 
-    QList<SourceLocation> comments() const { return _comments; }
+    const QList<SourceLocation> comments() const { return _comments; }
 
     Lexer *lexer() const { return _lexer; }
     void setLexer(Lexer *lexer) { _lexer = lexer; }

@@ -107,7 +107,7 @@ bool JsonCheck::visit(ObjectPattern *ast)
     }
 
     QStringList missing;
-    foreach (const QString &property, properties) {
+    for (const QString &property : properties) {
         if (!propertiesFound.contains(property)) {
             m_schema->enterNestedPropertySchema(property);
             if (m_schema->required())

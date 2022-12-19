@@ -133,14 +133,15 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     }
 
     // add typeinfo files listed in qmldir
-    foreach (const QString &typeInfo, libraryInfo.typeInfos()) {
+    for (const QString &typeInfo : libraryInfo.typeInfos()) {
         const FilePath pathNow = canonicalLibraryPath.resolvePath(typeInfo);
         if (!plugin.typeInfoPaths.contains(pathNow) && pathNow.exists())
             plugin.typeInfoPaths += pathNow;
     }
 
     // watch plugin libraries
-    foreach (const QmlDirParser::Plugin &plugin, snapshot.libraryInfo(canonicalLibraryPath).plugins()) {
+    const QList<QmlDirParser::Plugin> plugins = snapshot.libraryInfo(canonicalLibraryPath).plugins();
+    for (const QmlDirParser::Plugin &plugin : plugins) {
         const QString pluginLibrary = resolvePlugin(canonicalLibraryPath.toString(), plugin.path, plugin.name);
         if (!pluginLibrary.isEmpty()) {
             if (!pluginWatcher()->watchesFile(pluginLibrary))
@@ -165,7 +166,7 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
 
 void PluginDumper::dumpAllPlugins()
 {
-    foreach (const Plugin &plugin, m_plugins) {
+    for (const Plugin &plugin : std::as_const(m_plugins)) {
         dump(plugin);
     }
 }
@@ -676,7 +677,7 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
     if (!qmldirPluginPathIsRelative)
         searchPaths.prepend(qmldirPluginPath);
 
-    foreach (const QString &pluginPath, searchPaths) {
+    for (const QString &pluginPath : std::as_const(searchPaths)) {
 
         QString resolvedPath;
 
@@ -690,7 +691,7 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
         }
 
         QDir dir(resolvedPath);
-        foreach (const QString &suffix, suffixes) {
+        for (const QString &suffix : suffixes) {
             QString pluginFileName = prefix;
 
             pluginFileName += baseName;

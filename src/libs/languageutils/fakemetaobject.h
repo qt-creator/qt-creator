@@ -162,7 +162,7 @@ public:
 
     void addExport(const QString &name, const QString &package, ComponentVersion version);
     void setExportMetaObjectRevision(int exportIndex, int metaObjectRevision);
-    QList<Export> exports() const;
+    const QList<Export> exports() const;
     Export exportInPackage(const QString &package) const;
 
     void setSuperclassName(const QString &superclass);

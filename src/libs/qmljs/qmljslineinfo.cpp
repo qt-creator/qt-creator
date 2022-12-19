@@ -105,7 +105,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     yyLinizerState.tokens = scanner(t, startState);
     QString trimmed;
     int previousTokenEnd = 0;
-    foreach (const Token &token, yyLinizerState.tokens) {
+    for (const Token &token : std::as_const(yyLinizerState.tokens)) {
         trimmed.append(t.mid(previousTokenEnd, token.begin() - previousTokenEnd));
 
         if (token.is(Token::String)) {
@@ -131,7 +131,7 @@ QString LineInfo::trimmedCodeLine(const QString &t)
     }
 
     bool isBinding = false;
-    foreach (const Token &token, yyLinizerState.tokens) {
+    for (const Token &token : std::as_const(yyLinizerState.tokens)) {
         if (token.is(Token::Colon)) {
             isBinding = true;
             break;

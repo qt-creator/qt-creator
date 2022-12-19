@@ -25,7 +25,7 @@ public:
     ~Bind();
 
     bool isJsLibrary() const;
-    QList<ImportInfo> imports() const;
+    const QList<ImportInfo> imports() const;
 
     ObjectValue *idEnvironment() const;
     ObjectValue *rootObjectValue() const;

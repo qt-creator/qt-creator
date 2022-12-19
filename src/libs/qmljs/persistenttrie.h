@@ -88,7 +88,7 @@ template <typename T> void enumerateTrieNode(const TrieNode::Ptr &trie, T &t,
     if (trie.isNull())
         return;
     base.append(trie->prefix);
-    foreach (const TrieNode::Ptr subT, trie->postfixes) {
+    for (const TrieNode::Ptr subT : std::as_const(trie->postfixes)) {
         enumerateTrieNode(subT,t,base);
     }
     if (trie->postfixes.isEmpty())

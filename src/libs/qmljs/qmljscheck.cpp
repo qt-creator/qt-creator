@@ -433,7 +433,8 @@ protected:
         }
 
         if (_possiblyUndeclaredUses.contains(name)) {
-            foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+            const QList<SourceLocation> values = _possiblyUndeclaredUses.value(name);
+            for (const SourceLocation &loc : values) {
                 addMessage(WarnVarUsedBeforeDeclaration, loc, name);
             }
             _possiblyUndeclaredUses.remove(name);
@@ -469,7 +470,8 @@ protected:
 
         if (FunctionDeclaration *decl = cast<FunctionDeclaration *>(ast)) {
             if (_possiblyUndeclaredUses.contains(name)) {
-                foreach (const SourceLocation &loc, _possiblyUndeclaredUses.value(name)) {
+                const QList<SourceLocation> values = _possiblyUndeclaredUses.value(name);
+                for (const SourceLocation &loc : values) {
                     addMessage(WarnFunctionUsedBeforeDeclaration, loc, name);
                 }
                 _possiblyUndeclaredUses.remove(name);
@@ -1642,7 +1644,7 @@ void Check::checkExtraParentheses(ExpressionNode *expression)
 
 void Check::addMessages(const QList<Message> &messages)
 {
-    foreach (const Message &msg, messages)
+    for (const Message &msg : messages)
         addMessage(msg);
 }
 
@@ -1682,7 +1684,8 @@ void Check::scanCommentsForAnnotations()
     m_disabledMessageTypesByLine.clear();
     const QRegularExpression disableCommentPattern = Message::suppressionPattern();
 
-    foreach (const SourceLocation &commentLoc, _doc->engine()->comments()) {
+    const QList<SourceLocation> comments = _doc->engine()->comments();
+    for (const SourceLocation &commentLoc : comments) {
         const QString &comment = _doc->source().mid(int(commentLoc.begin()), int(commentLoc.length));
 
         // enable all checks annotation
@@ -1728,7 +1731,7 @@ void Check::warnAboutUnnecessarySuppressions()
 {
     for (auto it = m_disabledMessageTypesByLine.cbegin(), end = m_disabledMessageTypesByLine.cend();
            it != end; ++it) {
-        foreach (const MessageTypeAndSuppression &entry, it.value()) {
+        for (const MessageTypeAndSuppression &entry : it.value()) {
             if (!entry.wasSuppressed)
                 addMessage(WarnUnnecessaryMessageSuppression, entry.suppressionSource);
         }
@@ -1738,7 +1741,7 @@ void Check::warnAboutUnnecessarySuppressions()
 bool Check::isQtQuick2() const
 {
     if (_doc->language() == Dialect::Qml) {
-        foreach (const Import &import, _imports->all()) {
+        for (const Import &import : _imports->all()) {
             if (import.info.name() == "QtQuick"
                     && import.info.version().majorVersion() == 2)
                 return true;
@@ -2053,7 +2056,7 @@ void Check::checkCaseFallthrough(StatementList *statements, SourceLocation error
                     afterLastStatement = it->statement->lastSourceLocation().end();
             }
 
-            foreach (const SourceLocation &comment, _doc->engine()->comments()) {
+            for (const SourceLocation &comment : _doc->engine()->comments()) {
                 if (comment.begin() < afterLastStatement
                         || comment.end() > nextLoc.begin())
                     continue;

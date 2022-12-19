@@ -54,7 +54,7 @@ bool Bind::isJsLibrary() const
     return _isJsLibrary;
 }
 
-QList<ImportInfo> Bind::imports() const
+const QList<ImportInfo> Bind::imports() const
 {
     return _imports;
 }
@@ -86,7 +86,8 @@ bool Bind::usesQmlPrototype(ObjectValue *prototype,
     if (componentName.isEmpty())
         return false;
 
-    foreach (const ObjectValue *object, _qmlObjectsByPrototypeName.values(componentName)) {
+    QList<const ObjectValue *> values = _qmlObjectsByPrototypeName.values(componentName);
+    for (const ObjectValue *object : values) {
         // resolve and check the prototype
         const ObjectValue *resolvedPrototype = object->prototype(context);
         if (resolvedPrototype == prototype)

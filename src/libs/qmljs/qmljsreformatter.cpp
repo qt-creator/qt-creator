@@ -273,7 +273,7 @@ protected:
             const int minContentLength = 10;
 
             qreal result = badnessFromSplits;
-            foreach (const QString &line, lines) {
+            for (const QString &line : std::as_const(lines)) {
                 // really long lines should be avoided at all cost
                 if (line.size() > strongMaxLineLength) {
                     result += 50 + (line.size() - strongMaxLineLength);

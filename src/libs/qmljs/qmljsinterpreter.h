@@ -577,7 +577,7 @@ public:
 
     using ObjectValue::prototype;
     const CppComponentValue *prototype() const;
-    QList<const CppComponentValue *> prototypes() const;
+    const QList<const CppComponentValue *> prototypes() const;
 
     LanguageUtils::FakeMetaObject::ConstPtr metaObject() const;
 
