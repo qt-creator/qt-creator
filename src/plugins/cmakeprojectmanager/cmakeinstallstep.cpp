@@ -3,6 +3,7 @@
 
 #include "cmakeinstallstep.h"
 
+#include "cmakeabstractprocessstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitinformation.h"
 #include "cmakeparser.h"
@@ -27,7 +28,23 @@ const char CMAKE_ARGUMENTS_KEY[] = "CMakeProjectManager.InstallStep.CMakeArgumen
 
 // CMakeInstallStep
 
-CMakeInstallStep::CMakeInstallStep(BuildStepList *bsl, Utils::Id id)
+class CMakeInstallStep : public CMakeAbstractProcessStep
+{
+public:
+    CMakeInstallStep(ProjectExplorer::BuildStepList *bsl, Id id);
+
+private:
+    CommandLine cmakeCommand() const;
+
+    void processFinished(bool success) override;
+
+    void setupOutputFormatter(OutputFormatter *formatter) override;
+    QWidget *createConfigWidget() override;
+
+    StringAspect *m_cmakeArguments = nullptr;
+};
+
+CMakeInstallStep::CMakeInstallStep(BuildStepList *bsl, Id id)
     : CMakeAbstractProcessStep(bsl, id)
 {
     m_cmakeArguments = addAspect<StringAspect>();
@@ -38,7 +55,7 @@ CMakeInstallStep::CMakeInstallStep(BuildStepList *bsl, Utils::Id id)
     setCommandLineProvider([this] { return cmakeCommand(); });
 }
 
-void CMakeInstallStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
+void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     CMakeParser *cmakeParser = new CMakeParser;
     cmakeParser->setSourceDirectory(project()->projectDirectory());
@@ -119,5 +136,5 @@ CMakeInstallStepFactory::CMakeInstallStepFactory()
     setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_DEPLOY});
 }
 
-} // namespace CMakeProjectManager::Internal
+} // CMakeProjectManager::Internal
 

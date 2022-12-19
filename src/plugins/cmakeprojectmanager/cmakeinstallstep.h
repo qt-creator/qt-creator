@@ -3,33 +3,9 @@
 
 #pragma once
 
-#include "cmakeabstractprocessstep.h"
-
-namespace Utils {
-class CommandLine;
-class StringAspect;
-} // namespace Utils
+#include <projectexplorer/buildstep.h>
 
 namespace CMakeProjectManager::Internal {
-
-class CMakeInstallStep : public CMakeAbstractProcessStep
-{
-    Q_OBJECT
-
-public:
-    CMakeInstallStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-
-private:
-    Utils::CommandLine cmakeCommand() const;
-
-    void processFinished(bool success) override;
-
-    void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    QWidget *createConfigWidget() override;
-
-    friend class CMakeInstallStepConfigWidget;
-    Utils::StringAspect *m_cmakeArguments = nullptr;
-};
 
 class CMakeInstallStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -37,4 +13,4 @@ public:
     CMakeInstallStepFactory();
 };
 
-} // namespace CMakeProjectManager::Internal
+} // CMakeProjectManager::Internal
