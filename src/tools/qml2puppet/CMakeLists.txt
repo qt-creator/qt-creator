@@ -1,35 +1,35 @@
 cmake_minimum_required(VERSION 3.16)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
-
-
-project(qml2puppet)
-
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+
+  project(qml2puppet)
+
+  set(CMAKE_AUTOMOC ON)
+  set(CMAKE_AUTORCC ON)
+  set(CMAKE_AUTOUIC ON)
+  set(CMAKE_CXX_STANDARD 17)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+
+  find_package(Qt5
+    COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
+    REQUIRED
+  )
 endif()
 
-find_package(Qt5
-  COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
-  REQUIRED
-)
-
 if (NOT TARGET QmlPuppetCommunication)
-include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
+  include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
 endif()
 
 add_qtc_executable(qml2puppet
   ${DESTINATION}
+  CONDITION TARGET Qt5::Quick
   DEPENDS
     Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
