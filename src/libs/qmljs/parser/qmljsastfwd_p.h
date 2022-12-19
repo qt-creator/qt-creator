@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "qmljsglobal_p.h"
 #include "qmljs/parser/qmljssourcelocation_p.h"
 
 #include "qmljsglobal_p.h"
@@ -122,7 +121,7 @@ class NestedExpression;
 class ClassExpression;
 class ClassDeclaration;
 class ClassElementList;
-class TypeArgumentList;
+class TypeArgument;
 class Type;
 class TypeAnnotation;
 

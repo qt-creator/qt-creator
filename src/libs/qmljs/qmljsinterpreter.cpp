@@ -2100,9 +2100,9 @@ bool ASTPropertyReference::getSourceLocation(Utils::FilePath *fileName, int *lin
 const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) const
 {
     if (m_ast->statement
-            && (m_ast->memberType->name == QLatin1String("variant")
-                || m_ast->memberType->name == QLatin1String("var")
-                || m_ast->memberType->name == QLatin1String("alias"))) {
+            && (m_ast->memberType->toString() == QLatin1String("variant")
+                || m_ast->memberType->toString() == QLatin1String("var")
+                || m_ast->memberType->toString() == QLatin1String("alias"))) {
 
         // Adjust the context for the current location - expensive!
         // ### Improve efficiency by caching the 'use chain' constructed in ScopeBuilder.
@@ -2118,7 +2118,7 @@ const Value *ASTPropertyReference::value(ReferenceContext *referenceContext) con
         return evaluator(m_ast->statement);
     }
 
-    const QString memberType = m_ast->memberType->name.toString();
+    const QString memberType = m_ast->memberType->toString();
 
     const Value *builtin = valueOwner()->defaultValueForBuiltinType(memberType);
     if (!builtin->asUndefinedValue())
@@ -2142,7 +2142,7 @@ ASTSignal::ASTSignal(UiPublicMember *ast, const Document *doc, ValueOwner *value
     ObjectValue *v = valueOwner->newObject(/*prototype=*/nullptr);
     for (UiParameterList *it = ast->parameters; it; it = it->next) {
         if (!it->name.isEmpty())
-            v->setMember(it->name.toString(), valueOwner->defaultValueForBuiltinType(it->type->name.toString()));
+            v->setMember(it->name.toString(), valueOwner->defaultValueForBuiltinType(it->type->toString()));
     }
     m_bodyScope = v;
 }
@@ -2169,9 +2169,9 @@ const Value *ASTSignal::argument(int index) const
     UiParameterList *param = m_ast->parameters;
     for (int i = 0; param && i < index; ++i)
         param = param->next;
-    if (!param || param->type->name.isEmpty())
+    if (!param || param->type->toString().isEmpty())
         return valueOwner()->unknownValue();
-    return valueOwner()->defaultValueForBuiltinType(param->type->name.toString());
+    return valueOwner()->defaultValueForBuiltinType(param->type->toString());
 }
 
 QString ASTSignal::argumentName(int index) const
