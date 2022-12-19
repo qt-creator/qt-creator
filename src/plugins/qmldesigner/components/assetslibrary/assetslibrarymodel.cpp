@@ -134,32 +134,10 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
 bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;
-    static QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
     QDir dir{folderPath};
 
     while (dir.exists()) {
-        // if the folder name ends with a number, increment it
-        QRegularExpressionMatch match = rgx.match(iterPath);
-        if (match.hasMatch()) { // ends with a number
-            QString numStr = match.captured(0);
-            int num = match.captured(0).toInt();
-
-            // get number of padding zeros, ex: for "005" = 2
-            int nPaddingZeros = 0;
-            for (; nPaddingZeros < numStr.size() && numStr[nPaddingZeros] == '0'; ++nPaddingZeros);
-
-            ++num;
-
-            // if the incremented number's digits increased, decrease the padding zeros
-            if (std::fmod(std::log10(num), 1.0) == 0)
-                --nPaddingZeros;
-
-            iterPath = folderPath.mid(0, match.capturedStart())
-                       + QString('0').repeated(nPaddingZeros)
-                       + QString::number(num);
-        } else {
-            iterPath = folderPath + '1';
-        }
+        iterPath = getUniqueName(iterPath);
 
         dir.setPath(iterPath);
     }
@@ -184,6 +162,36 @@ bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) con
 
         return AssetsLibraryModel::supportedImageSuffixes().contains(suffix);
     });
+}
+
+QString AssetsLibraryModel::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
+{
+    auto genEffectPath = [=](const QString &name) {
+        return QString(parentFolder + "/" + name + ".qep");
+    };
+
+    QString uniqueName = effectName;
+    QString path = genEffectPath(uniqueName);
+    QFileInfo file{path};
+
+    while (file.exists()) {
+        uniqueName = getUniqueName(uniqueName);
+
+        path = genEffectPath(uniqueName);
+        file.setFile(path);
+    }
+
+    return path;
+}
+
+bool AssetsLibraryModel::createNewEffect(const QString &effectPath, bool openEffectMaker)
+{
+    bool created = QFile(effectPath).open(QIODevice::WriteOnly);
+
+    if (created && openEffectMaker)
+        ModelNodeOperations::openEffectMaker(effectPath);
+
+    return created;
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
@@ -240,6 +248,36 @@ bool AssetsLibraryModel::checkHaveFiles() const
 void AssetsLibraryModel::syncHaveFiles()
 {
     setHaveFiles(checkHaveFiles());
+}
+
+QString AssetsLibraryModel::getUniqueName(const QString &oldName) {
+    static QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+
+    QString uniqueName = oldName;
+    // if the folder name ends with a number, increment it
+    QRegularExpressionMatch match = rgx.match(uniqueName);
+    if (match.hasMatch()) { // ends with a number
+        QString numStr = match.captured(0);
+        int num = match.captured(0).toInt();
+
+        // get number of padding zeros, ex: for "005" = 2
+        int nPaddingZeros = 0;
+        for (; nPaddingZeros < numStr.size() && numStr[nPaddingZeros] == '0'; ++nPaddingZeros);
+
+        ++num;
+
+        // if the incremented number's digits increased, decrease the padding zeros
+        if (std::fmod(std::log10(num), 1.0) == 0)
+            --nPaddingZeros;
+
+        uniqueName = oldName.mid(0, match.capturedStart())
+                   + QString('0').repeated(nPaddingZeros)
+                   + QString::number(num);
+    } else {
+        uniqueName = oldName + '1';
+    }
+
+    return uniqueName;
 }
 
 void AssetsLibraryModel::setRootPath(const QString &newPath)
