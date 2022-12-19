@@ -232,6 +232,14 @@ void Edit3DWidget::createContextMenu()
         view()->setSelectedModelNode(parentNode);
     });
 
+    QAction *defaultToggleGroupAction = view()->edit3DAction(View3DActionType::SelectionModeToggle)->action();
+    m_toggleGroupAction = m_contextMenu->addAction(tr("Group Selection Mode"), [&](const bool &mode) {
+        view()->edit3DAction(View3DActionType::SelectionModeToggle)->action()->trigger();
+    });
+    connect(defaultToggleGroupAction, &QAction::toggled, m_toggleGroupAction, &QAction::setChecked);
+    m_toggleGroupAction->setCheckable(true);
+    m_toggleGroupAction->setChecked(defaultToggleGroupAction->isChecked());
+
     m_contextMenu->addSeparator();
 }
 
@@ -376,6 +384,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_alignCameraAction->setEnabled(isCamera);
     m_alignViewAction->setEnabled(isCamera);
     m_selectParentAction->setEnabled(selectionExcludingRoot);
+    m_toggleGroupAction->setEnabled(true);
 
     m_contextMenu->popup(mapToGlobal(pos));
 }

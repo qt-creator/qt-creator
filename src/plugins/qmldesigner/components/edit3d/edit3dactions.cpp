@@ -3,7 +3,6 @@
 
 #include "edit3dactions.h"
 #include "edit3dview.h"
-#include "edit3dwidget.h"
 
 #include <viewmanager.h>
 #include <nodeinstanceview.h>
@@ -18,7 +17,7 @@ namespace QmlDesigner {
 
 Edit3DActionTemplate::Edit3DActionTemplate(const QString &description,
                                            SelectionContextOperation action,
-                                           AbstractView *view,
+                                           Edit3DView *view,
                                            View3DActionType type)
     : DefaultAction(description)
     , m_action(action)
@@ -45,12 +44,14 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
                            bool checked,
                            const QIcon &iconOff,
                            const QIcon &iconOn,
-                           AbstractView *view,
+                           Edit3DView *view,
                            SelectionContextOperation selectionAction,
                            const QString &toolTip)
     : AbstractAction(new Edit3DActionTemplate(description, selectionAction, view, type))
     , m_menuId(menuId)
+    , m_actionTemplate(qobject_cast<Edit3DActionTemplate *>(defaultAction()))
 {
+    view->registerEdit3DAction(this);
     action()->setShortcut(key);
     action()->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     action()->setCheckable(checkable);
@@ -73,9 +74,19 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
     }
 }
 
+Edit3DAction::~Edit3DAction()
+{
+    m_actionTemplate->m_view->unregisterEdit3DAction(this);
+}
+
 QByteArray Edit3DAction::category() const
 {
     return QByteArray();
+}
+
+View3DActionType Edit3DAction::actionType() const
+{
+    return m_actionTemplate->m_type;
 }
 
 bool Edit3DAction::isVisible([[maybe_unused]] const SelectionContext &selectionContext) const
@@ -96,7 +107,7 @@ Edit3DCameraAction::Edit3DCameraAction(const QByteArray &menuId,
                                        bool checked,
                                        const QIcon &iconOff,
                                        const QIcon &iconOn,
-                                       AbstractView *view,
+                                       Edit3DView *view,
                                        SelectionContextOperation selectionAction)
     : Edit3DAction(menuId, type, description, key, checkable, checked, iconOff, iconOn, view, selectionAction)
 {
