@@ -659,6 +659,22 @@ public:
         return rootCommand;
     }
 
+    Environment fullEnvironment() const
+    {
+        Environment env = m_setup.m_environment;
+        if (!env.isValid()) {
+// FIXME: Either switch to using EnvironmentChange instead of full Environments, or
+// feed the full environment into the QtcProcess instead of fixing it up here.
+//            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
+//                 qPrintable(m_setup.m_commandLine.executable().toString()));
+            env = m_setup.m_commandLine.executable().deviceEnvironment();
+        }
+        // TODO: needs SshSettings
+        //        if (m_runAsRoot)
+        //            RunControl::provideAskPassEntry(env);
+        return env;
+    }
+
     QtcProcess *q;
     std::unique_ptr<ProcessBlockingInterface> m_blockingInterface;
     std::unique_ptr<ProcessInterface> m_process;
@@ -1091,7 +1107,7 @@ void QtcProcess::start()
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
-    d->m_process->m_setup.m_environment = d->m_setup.m_environment;
+    d->m_process->m_setup.m_environment = d->fullEnvironment();
     d->emitGuardedSignal(&QtcProcess::starting);
     d->m_process->start();
 }
