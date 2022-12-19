@@ -858,7 +858,9 @@ FileApiData FileApiParser::parseData(QFutureInterface<std::shared_ptr<FileApiQtc
                                          errorMessage);
 
     if (codeModels.size() == 0) {
-        errorMessage = "No CMake configuration found!";
+        errorMessage = Tr::tr("CMake project configuration failed. No CMake configuration for "
+                              "build type \"%1\" found.")
+                           .arg(cmakeBuildType);
         return result;
     }
 
