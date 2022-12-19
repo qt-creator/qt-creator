@@ -26,7 +26,12 @@ TreeViewDelegate {
     readonly property int __dirItemHeight: 21
 
     implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
-    implicitWidth: root.assetsView.width > 0 ? root.assetsView.width : 10
+    implicitWidth: {
+        if (root.assetsView.verticalScrollBar.scrollBarVisible)
+            return root.assetsView.width - root.indentation - root.assetsView.verticalScrollBar.width
+        else
+            return root.assetsView.width - root.indentation
+    }
 
     leftMargin: root.__isDirectory ? 0 : thumbnailImage.width
 
@@ -54,17 +59,6 @@ TreeViewDelegate {
         }
     }
 
-    onImplicitWidthChanged: {
-        // a small hack, to fix a glitch: when resizing the width of the tree view,
-        // the widths of the delegate items remain the same as before, unless we re-set
-        // that width explicitly.
-        var newWidth = root.implicitWidth - (root.assetsView.verticalScrollBar.scrollBarVisible
-                                             ? root.assetsView.verticalScrollBar.width
-                                             : 0)
-        bg.width = newWidth
-        bg.implicitWidth = newWidth
-    }
-
     onDepthChanged: {
         if (root.depth > root.initialDepth && root.initialDepth >= 0)
             root.depth = root.initialDepth
@@ -72,6 +66,8 @@ TreeViewDelegate {
 
     background: Rectangle {
         id: bg
+
+        width: root.implicitWidth
 
         color: {
             if (root.__isDirectory && (root.isHighlighted || root.hasChildWithDropHover))
