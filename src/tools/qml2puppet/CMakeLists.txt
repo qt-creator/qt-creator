@@ -37,9 +37,9 @@ add_qtc_executable(qml2puppet
   SOURCES
     qml2puppet/qml2puppetmain.cpp
     qmlpuppet.qrc
+  PROPERTIES
+    OUTPUT_NAME qml2puppet-${IDE_VERSION}
 )
-
-set_target_properties(qml2puppet PROPERTIES OUTPUT_NAME qml2puppet-${IDE_VERSION})
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
