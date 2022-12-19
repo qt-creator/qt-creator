@@ -186,6 +186,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Effect")
+        visible: assetsModel.canCreateEffects()
 
         NewEffectDialog {
             id: newEffectDialog

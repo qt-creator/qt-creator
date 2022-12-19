@@ -194,6 +194,15 @@ bool AssetsLibraryModel::createNewEffect(const QString &effectPath, bool openEff
     return created;
 }
 
+bool AssetsLibraryModel::canCreateEffects() const
+{
+#ifdef LICENSECHECKER
+    return checkLicense() == FoundLicense::enterprise;
+#else
+    return true;
+#endif
+}
+
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QString path = m_sourceFsModel->filePath(sourceParent);
