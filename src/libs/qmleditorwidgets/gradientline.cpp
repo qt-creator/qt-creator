@@ -77,7 +77,8 @@ void GradientLine::readGradient()
     if (m_useGradient) {
         m_colorList.clear();
         m_stops.clear();
-        foreach (const QGradientStop &stop, m_gradient.stops()) {
+        const QGradientStops stops = m_gradient.stops();
+        for (const QGradientStop &stop : stops) {
             m_stops << stop.first;
             m_colorList << stop.second;
         }

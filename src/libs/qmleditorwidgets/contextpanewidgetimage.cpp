@@ -896,7 +896,9 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 
     connect(m_slider, &QSlider::valueChanged, this, &PreviewDialog::onSliderMoved);
 
-    foreach (QWidget *childWidget, findChildren<QWidget*>()) {
+
+    const QList<QWidget *> children = findChildren<QWidget*>();
+    for (QWidget *childWidget : children) {
         childWidget->installEventFilter(wheelFilter);
     }
 }

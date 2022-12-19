@@ -56,7 +56,7 @@ void QmlToolsClient::messageReceived(const QByteArray &message)
             debugIds.removeAll(-1);
 
             QStringList debugIdStrings;
-            foreach (int debugId, debugIds) {
+            for (int debugId : std::as_const(debugIds)) {
                 debugIdStrings << QString::number(debugId);
             }
             log(LogReceive, type + ':' + event,

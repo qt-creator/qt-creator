@@ -189,8 +189,9 @@ ContextPaneWidget::~ContextPaneWidget()
 void ContextPaneWidget::activate(const QPoint &pos, const QPoint &alternative, const QPoint &alternative2, bool pinned)
 {
     //uncheck all color buttons
-    foreach (ColorButton *colorButton, findChildren<ColorButton*>()) {
-            colorButton->setChecked(false);
+    const QList<ColorButton *> children = findChildren<ColorButton*>();
+    for (ColorButton *colorButton : children) {
+        colorButton->setChecked(false);
     }
     show();
     update();

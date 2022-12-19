@@ -241,7 +241,8 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
 
         QLinearGradient gradient = ui->gradientLine->gradient();
         QString str = QLatin1String("Gradient {\n");
-        foreach (const QGradientStop &stop, gradient.stops()) {
+        const QGradientStops stops = gradient.stops();
+        for (const QGradientStop &stop : stops) {
             str += QLatin1String("GradientStop {\n");
             str += QLatin1String("position: ") + QString::number(stop.first, 'f', 2) + QLatin1String(";\n");
             str += QLatin1String("color: ") + QLatin1String("\"") + stop.second.name() + QLatin1String("\";\n");

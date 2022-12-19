@@ -21,7 +21,8 @@ void BaseToolsClient::recurseObjectIdList(const ObjectReference &ref,
 {
     debugIds << ref.debugId();
     objectIds << ref.idString();
-    foreach (const ObjectReference &child, ref.children())
+    const QList<ObjectReference> children = ref.children();
+    for (const ObjectReference &child : children)
         recurseObjectIdList(child, debugIds, objectIds);
 }
 
