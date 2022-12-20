@@ -40,98 +40,98 @@ QString removeObviousSideEffects(const QString &expIn)
     return exp;
 }
 
-bool isSkippableFunction(const QString &funcName, const QString &fileName)
+bool isSkippableFunction(const QStringView funcName, const QStringView fileName)
 {
-    if (fileName.endsWith("/atomic_base.h"))
+    if (fileName.endsWith(u"/atomic_base.h"))
         return true;
-    if (fileName.endsWith("/atomic"))
+    if (fileName.endsWith(u"/atomic"))
         return true;
-    if (fileName.endsWith("/qatomic_cxx11.h"))
+    if (fileName.endsWith(u"/qatomic_cxx11.h"))
         return true;
-    if (fileName.endsWith("/qbasicatomic.h"))
+    if (fileName.endsWith(u"/qbasicatomic.h"))
         return true;
-    if (fileName.endsWith("/qobjectdefs.h"))
+    if (fileName.endsWith(u"/qobjectdefs.h"))
         return true;
-    if (fileName.endsWith("/qobjectdefs_impl.h"))
+    if (fileName.endsWith(u"/qobjectdefs_impl.h"))
         return true;
-    if (fileName.endsWith("/qobject.cpp"))
+    if (fileName.endsWith(u"/qobject.cpp"))
         return true;
-    if (fileName.endsWith("/qobject_p.h"))
+    if (fileName.endsWith(u"/qobject_p.h"))
         return true;
-    if (fileName.endsWith("/qobject_p_p.h"))
+    if (fileName.endsWith(u"/qobject_p_p.h"))
         return true;
-    if (fileName.endsWith("/qscopedpointer.h"))
+    if (fileName.endsWith(u"/qscopedpointer.h"))
         return true;
-    if (fileName.endsWith("/qthread.h"))
+    if (fileName.endsWith(u"/qthread.h"))
         return true;
-    if (fileName.endsWith("/moc_qobject.cpp"))
+    if (fileName.endsWith(u"/moc_qobject.cpp"))
         return true;
-    if (fileName.endsWith("/qmetaobject.cpp"))
+    if (fileName.endsWith(u"/qmetaobject.cpp"))
         return true;
-    if (fileName.endsWith("/qmetaobject_p.h"))
+    if (fileName.endsWith(u"/qmetaobject_p.h"))
         return true;
-    if (fileName.endsWith(".moc"))
+    if (fileName.endsWith(u".moc"))
         return true;
 
-    if (funcName.endsWith("::qt_metacall"))
+    if (funcName.endsWith(u"::qt_metacall"))
         return true;
-    if (funcName.endsWith("::d_func"))
+    if (funcName.endsWith(u"::d_func"))
         return true;
-    if (funcName.endsWith("::q_func"))
+    if (funcName.endsWith(u"::q_func"))
         return true;
 
     return false;
 }
 
-bool isLeavableFunction(const QString &funcName, const QString &fileName)
+bool isLeavableFunction(const QStringView funcName, const QStringView fileName)
 {
-    if (funcName.endsWith("QObjectPrivate::setCurrentSender"))
+    if (funcName.endsWith(u"QObjectPrivate::setCurrentSender"))
         return true;
-    if (funcName.endsWith("QMutexPool::get"))
+    if (funcName.endsWith(u"QMutexPool::get"))
         return true;
 
-    if (fileName.endsWith(".cpp")) {
-        if (fileName.endsWith("/qmetaobject.cpp")
-                && funcName.endsWith("QMetaObject::methodOffset"))
+    if (fileName.endsWith(u".cpp")) {
+        if (fileName.endsWith(u"/qmetaobject.cpp")
+                && funcName.endsWith(u"QMetaObject::methodOffset"))
             return true;
-        if (fileName.endsWith("/qobject.cpp")
-                && (funcName.endsWith("QObjectConnectionListVector::at")
-                    || funcName.endsWith("~QObject")))
+        if (fileName.endsWith(u"/qobject.cpp")
+                && (funcName.endsWith(u"QObjectConnectionListVector::at")
+                    || funcName.endsWith(u"~QObject")))
             return true;
-        if (fileName.endsWith("/qmutex.cpp"))
+        if (fileName.endsWith(u"/qmutex.cpp"))
             return true;
-        if (fileName.endsWith("/qthread.cpp"))
+        if (fileName.endsWith(u"/qthread.cpp"))
             return true;
-        if (fileName.endsWith("/qthread_unix.cpp"))
+        if (fileName.endsWith(u"/qthread_unix.cpp"))
             return true;
-    } else if (fileName.endsWith(".h")) {
+    } else if (fileName.endsWith(u".h")) {
 
-        if (fileName.endsWith("/qobject.h"))
+        if (fileName.endsWith(u"/qobject.h"))
             return true;
-        if (fileName.endsWith("/qmutex.h"))
+        if (fileName.endsWith(u"/qmutex.h"))
             return true;
-        if (fileName.endsWith("/qvector.h"))
+        if (fileName.endsWith(u"/qvector.h"))
             return true;
-        if (fileName.endsWith("/qlist.h"))
+        if (fileName.endsWith(u"/qlist.h"))
             return true;
-        if (fileName.endsWith("/qhash.h"))
+        if (fileName.endsWith(u"/qhash.h"))
             return true;
-        if (fileName.endsWith("/qmap.h"))
+        if (fileName.endsWith(u"/qmap.h"))
             return true;
-        if (fileName.endsWith("/qshareddata.h"))
+        if (fileName.endsWith(u"/qshareddata.h"))
             return true;
-        if (fileName.endsWith("/qstring.h"))
+        if (fileName.endsWith(u"/qstring.h"))
             return true;
-        if (fileName.endsWith("/qglobal.h"))
+        if (fileName.endsWith(u"/qglobal.h"))
             return true;
 
     } else {
 
-        if (fileName.contains("/qbasicatomic"))
+        if (fileName.contains(u"/qbasicatomic"))
             return true;
-        if (fileName.contains("/qorderedmutexlocker_p"))
+        if (fileName.contains(u"/qorderedmutexlocker_p"))
             return true;
-        if (fileName.contains("/qatomic"))
+        if (fileName.contains(u"/qatomic"))
             return true;
     }
 

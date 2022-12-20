@@ -11,8 +11,8 @@
 namespace Debugger {
 namespace Internal {
 
-bool isSkippableFunction(const QString &funcName, const QString &fileName);
-bool isLeavableFunction(const QString &funcName, const QString &fileName);
+bool isSkippableFunction(const QStringView funcName, const QStringView fileName);
+bool isLeavableFunction(const QStringView funcName, const QStringView fileName);
 
 bool hasLetterOrNumber(const QString &exp);
 bool hasSideEffects(const QString &exp);
