@@ -45,6 +45,12 @@ bool isSkippableFunction(const QStringView funcName, const QStringView fileName)
         return true;
     if (fileName.endsWith(u"/atomic"))
         return true;
+    if (fileName.endsWith(u"/bits/invoke.h"))
+        return true;
+    if (fileName.endsWith(u"/bits/move.h"))
+        return true;
+    if (fileName.endsWith(u"/bits/std_function.h"))
+        return true;
     if (fileName.endsWith(u"/qatomic_cxx11.h"))
         return true;
     if (fileName.endsWith(u"/qbasicatomic.h"))
