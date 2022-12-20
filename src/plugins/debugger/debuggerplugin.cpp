@@ -1139,9 +1139,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 //        QTC_CHECK(false);
 //    });
 
+    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
     addGdbOptionPages(&m_optionPages);
     addCdbOptionPages(&m_optionPages);
-    m_optionPages.append(new LocalsAndExpressionsOptionsPage);
 
     connect(ModeManager::instance(), &ModeManager::currentModeAboutToChange, this, [] {
         if (ModeManager::currentModeId() == MODE_DEBUG)
