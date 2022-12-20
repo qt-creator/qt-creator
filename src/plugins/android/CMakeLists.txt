@@ -1,5 +1,5 @@
 add_qtc_plugin(Android
-  DEPENDS QmlDebug Qt5::Xml LanguageServerProtocol
+  DEPENDS QmlDebug Qt::Xml LanguageServerProtocol
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
     android.qrc

@@ -38,7 +38,7 @@ if(TARGET Qt${QT_VERSION_MAJOR}::QmlPrivate)
   )
   extend_qtc_plugin(QmlPreview
     CONDITION have_qml_debug_translation_protocol
-    PUBLIC_DEPENDS Qt5::QmlPrivate
+    PUBLIC_DEPENDS Qt::QmlPrivate
     PUBLIC_DEFINES "FOUND_QML_DEBUG_TRANSLATION_PROTOCOL"
   )
 endif()

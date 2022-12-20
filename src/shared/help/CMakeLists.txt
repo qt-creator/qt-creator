@@ -1,5 +1,5 @@
-if (NOT TARGET Qt5::Help)
-  # Do not built without Qt5::Help being available
+if (NOT TARGET Qt::Help)
+  # Do not built without Qt::Help being available
   return()
 endif()
 
@@ -12,7 +12,7 @@ if (isMultiConfig)
 endif()
 
 add_qtc_library(shared_help STATIC
-  DEPENDS Utils Core PUBLIC Qt5::Help Qt5::PrintSupport Qt5::Widgets
+  DEPENDS Utils Core PUBLIC Qt::Help Qt::PrintSupport Qt::Widgets
   PUBLIC_INCLUDES
     "${PLUGIN_SOURCE_DIR}/help"
     "${PLUGIN_SOURCE_DIR}"

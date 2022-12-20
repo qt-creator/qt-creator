@@ -1,5 +1,5 @@
 add_qtc_plugin(ResourceEditor
-  DEPENDS Qt5::Xml
+  DEPENDS Qt::Xml
   PLUGIN_DEPENDS Core ProjectExplorer
   SOURCES
     qrceditor/qrceditor.cpp qrceditor/qrceditor.h

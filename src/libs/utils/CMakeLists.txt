@@ -1,7 +1,7 @@
 add_qtc_library(Utils
-  DEPENDS Qt5::Qml Qt5::Xml
+  DEPENDS Qt::Qml Qt::Xml
   PUBLIC_DEPENDS
-    Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets
+    Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
     Qt6Core5Compat
   SOURCES
     ../3rdparty/span/span.hpp
@@ -254,8 +254,8 @@ extend_qtc_library(Utils CONDITION UNIX AND NOT APPLE
 )
 
 extend_qtc_library(Utils
-  CONDITION TARGET Qt5::CorePrivate
-  DEPENDS Qt5::CorePrivate
+  CONDITION TARGET Qt::CorePrivate
+  DEPENDS Qt::CorePrivate
   DEFINES QTC_UTILS_WITH_FSENGINE
   SOURCES fsengine/fsengine_impl.cpp
           fsengine/fsengine_impl.h

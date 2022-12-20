@@ -1054,11 +1054,11 @@ function(qtc_add_resources target resourceName)
 
   # Process .qrc file:
   add_custom_command(OUTPUT "${generatedSourceCode}"
-                     COMMAND Qt5::rcc ${rccArgs}
+                     COMMAND Qt::rcc ${rccArgs}
                      DEPENDS
                       ${resource_dependencies}
                       ${generatedResourceFile}
-                      "Qt5::rcc"
+                      "Qt::rcc"
                      COMMENT "RCC ${newResourceName}"
                      VERBATIM)
 

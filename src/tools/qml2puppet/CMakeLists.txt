@@ -31,10 +31,10 @@ endif()
 
 add_qtc_executable(qml2puppet
   ${DESTINATION}
-  CONDITION TARGET Qt5::Quick
+  CONDITION TARGET Qt::Quick
   DEPENDS
-    Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
-    Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
+    Qt::CorePrivate Qt::Widgets Qt::QmlPrivate
+    Qt::QuickPrivate Qt::Network Qt::GuiPrivate
     QmlPuppetCommunication
   INCLUDES
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
@@ -89,9 +89,9 @@ extend_qtc_executable(qml2puppet
 
 find_package(Qt5 5.15.0 COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3D
+  CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
-  DEPENDS Qt5::Quick3D Qt5::Quick3DPrivate
+  DEPENDS Qt::Quick3D Qt::Quick3DPrivate
   DEFINES QUICK3D_MODULE
 
   SOURCES_PREFIX qml2puppet/editor3d
@@ -109,26 +109,26 @@ extend_qtc_executable(qml2puppet
 
 find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetImport QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DAssetImport
+  CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
-  DEPENDS Qt5::Quick3DAssetImportPrivate
+  DEPENDS Qt::Quick3DAssetImportPrivate
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
 find_package(Qt5 5.15.0 COMPONENTS Quick3DParticles QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DParticles
+  CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
-  DEPENDS Qt5::Quick3DParticles Qt5::Quick3DParticlesPrivate
+  DEPENDS Qt::Quick3DParticles Qt::Quick3DParticlesPrivate
   DEFINES QUICK3D_PARTICLES_MODULE
 )
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
 find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
 extend_qtc_executable(qml2puppet
-  CONDITION TARGET Qt5::Quick3DAssetUtils
+  CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
-  DEPENDS Qt5::Quick3DAssetUtilsPrivate
+  DEPENDS Qt::Quick3DAssetUtilsPrivate
   DEFINES QUICK3D_ASSET_UTILS_MODULE
 )
 

@@ -1,5 +1,5 @@
 add_qtc_plugin(WebAssembly
-  DEPENDS Qt5::Core
+  DEPENDS Qt::Core
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     webassembly.qrc

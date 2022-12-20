@@ -1,7 +1,7 @@
 add_qtc_plugin(QmlProjectManager
-  CONDITION TARGET Qt5::QuickWidgets
+  CONDITION TARGET Qt::QuickWidgets
   PLUGIN_CLASS QmlProjectPlugin
-  DEPENDS QmlJS Qt5::QuickWidgets
+  DEPENDS QmlJS Qt::QuickWidgets
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   SOURCES
     fileformat/filefilteritems.cpp fileformat/filefilteritems.h

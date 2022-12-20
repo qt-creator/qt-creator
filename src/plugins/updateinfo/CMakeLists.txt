@@ -1,5 +1,5 @@
 add_qtc_plugin(UpdateInfo
-  DEPENDS Qt5::Xml
+  DEPENDS Qt::Xml
   PLUGIN_DEPENDS Core
   PLUGIN_JSON_IN UPDATEINFO_EXPERIMENTAL_STR=true
   SOURCES

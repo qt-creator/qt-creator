@@ -21,7 +21,7 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-  set(IMPLICIT_DEPENDS Qt5::Test)
+  set(IMPLICIT_DEPENDS Qt::Test)
 
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)

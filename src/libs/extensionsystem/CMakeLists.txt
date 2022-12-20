@@ -1,6 +1,6 @@
 add_qtc_library(ExtensionSystem
   DEPENDS Aggregation Utils
-  PUBLIC_DEPENDS Qt5::Core Qt5::Widgets
+  PUBLIC_DEPENDS Qt::Core Qt::Widgets
   SOURCES
     extensionsystem_global.h
     extensionsystemtr.h
@@ -22,7 +22,7 @@ add_qtc_library(ExtensionSystem
 find_package(Qt5 COMPONENTS Test QUIET)
 
 extend_qtc_library(ExtensionSystem
-  CONDITION TARGET Qt5::Test
-  DEPENDS Qt5::Test
+  CONDITION TARGET Qt::Test
+  DEPENDS Qt::Test
   DEFINES WITH_TESTS
 )

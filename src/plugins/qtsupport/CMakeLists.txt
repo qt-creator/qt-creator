@@ -1,5 +1,5 @@
 add_qtc_plugin(QtSupport
-  DEPENDS Qt5::Xml
+  DEPENDS Qt::Xml
   PUBLIC_DEPENDS ProParser
   PLUGIN_DEPENDS Core ProjectExplorer ResourceEditor
   SOURCES

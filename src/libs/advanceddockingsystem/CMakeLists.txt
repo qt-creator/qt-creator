@@ -1,5 +1,5 @@
 add_qtc_library(AdvancedDockingSystem
-  DEPENDS Qt5::Widgets Qt5::Core Qt5::Gui Utils
+  DEPENDS Qt::Widgets Qt::Core Qt::Gui Utils
   SOURCES
     ads_globals.cpp ads_globals.h
     advanceddockingsystemtr.h

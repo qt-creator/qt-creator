@@ -9,7 +9,7 @@ add_feature_info("Build online documentation" WITH_ONLINE_DOCS "")
 # as this is not yet exported by cmake.
 # Used for QT_INSTALL_DOCS
 function(qt5_query_qmake)
-  if (NOT TARGET Qt5::qmake)
+  if (NOT TARGET Qt::qmake)
     message(FATAL_ERROR "Qmake was not found. Add find_package(Qt5 COMPONENTS Core) to CMake to enable.")
   endif()
   # dummy check for if we already queried qmake
@@ -17,7 +17,7 @@ function(qt5_query_qmake)
     return()
   endif()
 
-  get_target_property(_qmake_binary Qt5::qmake IMPORTED_LOCATION)
+  get_target_property(_qmake_binary Qt::qmake IMPORTED_LOCATION)
   execute_process(COMMAND "${_qmake_binary}" "-query"
                   TIMEOUT 10
                   RESULT_VARIABLE _qmake_result
@@ -45,11 +45,11 @@ endfunction()
 
 # Find programs:
 function(_doc_find_program result_var)
-  if (NOT TARGET Qt5::qmake)
+  if (NOT TARGET Qt::qmake)
     message(FATAL_ERROR "QDoc is only available in Qt5 projects")
   endif()
 
-  get_target_property(_qmake_binary Qt5::qmake IMPORTED_LOCATION)
+  get_target_property(_qmake_binary Qt::qmake IMPORTED_LOCATION)
   get_filename_component(_qmake_dir "${_qmake_binary}" DIRECTORY)
   find_program("_prg_${result_var}" ${ARGN} HINTS "${_qmake_dir}")
   if ("_prg_${result_var}" STREQUAL "_prg_${result_var}-NOTFOUND")
@@ -153,7 +153,7 @@ function(_setup_qhelpgenerator_targets _qdocconf_file _html_outputdir)
     set(_arg_QCH_DIR "${CMAKE_CURRENT_BINARY_DIR}/doc")
   endif()
 
-  if (NOT TARGET Qt5::qhelpgenerator)
+  if (NOT TARGET Qt::qhelpgenerator)
     message(WARNING "qhelpgenerator missing: No QCH documentation targets were generated. Add find_package(Qt5 COMPONENTS Help) to CMake to enable.")
     return()
   endif()
@@ -166,7 +166,7 @@ function(_setup_qhelpgenerator_targets _qdocconf_file _html_outputdir)
   set(_qch_target "qch_docs_${_target}")
   set(_html_target "html_docs_${_target}")
   add_custom_target("${_qch_target}"
-    Qt5::qhelpgenerator "${_html_outputdir}/${_target}.qhp" -o "${_qch_outputdir}/${_target}.qch"
+    Qt::qhelpgenerator "${_html_outputdir}/${_target}.qhp" -o "${_qch_outputdir}/${_target}.qch"
     COMMENT "Build QCH documentation from ${_qdocconf_file}"
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     VERBATIM

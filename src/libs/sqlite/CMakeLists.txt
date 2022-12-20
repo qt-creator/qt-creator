@@ -14,7 +14,7 @@ add_qtc_library(SqliteC OBJECT
 
 add_qtc_library(Sqlite
   PROPERTIES AUTOMOC OFF AUTOUIC OFF
-  DEPENDS Qt5::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteC
+  DEPENDS Qt::Core Threads::Threads ${CMAKE_DL_LIBS} SqliteC
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"

@@ -1,5 +1,5 @@
 add_qtc_plugin(Help
-  CONDITION TARGET Qt5::Help
+  CONDITION TARGET Qt::Help
   DEPENDS shared_help
   PLUGIN_DEPENDS Core ProjectExplorer
   PLUGIN_RECOMMENDS TextEditor
@@ -48,9 +48,9 @@ extend_qtc_plugin(Help
 option(BUILD_HELPVIEWERBACKEND_QTWEBENGINE "Build QtWebEngine based help viewer backend." YES)
 find_package(Qt5 COMPONENTS WebEngineWidgets QUIET)
 extend_qtc_plugin(Help
-  CONDITION BUILD_HELPVIEWERBACKEND_QTWEBENGINE AND TARGET Qt5::WebEngineWidgets
+  CONDITION BUILD_HELPVIEWERBACKEND_QTWEBENGINE AND TARGET Qt::WebEngineWidgets
   FEATURE_INFO "QtWebEngine help viewer"
-  DEPENDS Qt5::WebEngineWidgets
+  DEPENDS Qt::WebEngineWidgets
   DEFINES QTC_WEBENGINE_HELPVIEWER
   SOURCES
     webenginehelpviewer.cpp

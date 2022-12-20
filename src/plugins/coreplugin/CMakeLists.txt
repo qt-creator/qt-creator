@@ -4,7 +4,7 @@ endif()
 configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
 
 add_qtc_plugin(Core
-  DEPENDS Qt5::PrintSupport Qt5::Qml Qt5::Sql Qt5::Gui Qt5::GuiPrivate
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
   SOURCES
     actionmanager/actioncontainer.cpp actionmanager/actioncontainer.h actionmanager/actioncontainer_p.h

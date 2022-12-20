@@ -1,9 +1,9 @@
-if (NOT TARGET Qt5::Designer)
+if (NOT TARGET Qt::Designer)
   return()
 endif()
 
 add_qtc_library(designerintegrationv2 STATIC
-  DEPENDS Qt5::Designer Qt5::Widgets
+  DEPENDS Qt::Designer Qt::Widgets
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
@@ -14,7 +14,9 @@ add_qtc_library(designerintegrationv2 STATIC
 )
 
 if (QTC_STATIC_BUILD)
-  get_target_property(_designerType Qt5::Designer TYPE)
+  # version-less target Qt::Designer is an interface library that links to QtX::Designer
+  get_target_property(_designer Qt::Designer INTERFACE_LINK_LIBRARIES)
+  get_target_property(_designerType ${_designer} TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(designerintegrationv2 PUBLIC_DEFINES QT_DESIGNER_STATIC)
   endif()

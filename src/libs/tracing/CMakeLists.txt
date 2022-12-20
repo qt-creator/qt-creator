@@ -36,10 +36,10 @@ set(TRACING_CPP_SOURCES
 find_package(Qt6 COMPONENTS ShaderTools QUIET)
 
 add_qtc_library(Tracing
-  CONDITION TARGET Qt6::ShaderTools AND TARGET Qt5::Quick
+  CONDITION TARGET Qt6::ShaderTools AND TARGET Qt::Quick
   FEATURE_INFO
-  DEPENDS Utils Qt5::Quick
-  PUBLIC_DEPENDS Qt5::Widgets Qt5::Qml
+  DEPENDS Utils Qt::Quick
+  PUBLIC_DEPENDS Qt::Widgets Qt::Qml
   SOURCES
     ${TEST_SOURCES}
 )

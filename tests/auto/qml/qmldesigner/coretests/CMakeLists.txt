@@ -4,8 +4,8 @@ add_qtc_test(tst_qml_testcore
   DEPENDS
     Sqlite
     QmlDesignerCore
-    Qt5::Widgets
-    Qt5::Qml
+    Qt::Widgets
+    Qt::Qml
   DEFINES
     QT_CREATOR
     IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"

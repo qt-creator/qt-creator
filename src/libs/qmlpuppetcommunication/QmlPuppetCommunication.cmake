@@ -1,6 +1,6 @@
 add_qtc_library(QmlPuppetCommunication STATIC
     PROPERTIES AUTOUIC OFF
-    DEPENDS Qt5::Core Qt5::CorePrivate Qt5::Gui
+    DEPENDS Qt::Core Qt::CorePrivate Qt::Gui
 )
 
 extend_qtc_library(QmlPuppetCommunication

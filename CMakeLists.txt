@@ -54,7 +54,7 @@ set(CMAKE_AUTOUIC ON)
 
 if (WITH_TESTS)
   set(QT_TEST_COMPONENT Test)
-  set(IMPLICIT_DEPENDS Qt5::Test)
+  set(IMPLICIT_DEPENDS Qt::Test)
 endif()
 
 # suppress bogus warning
@@ -124,12 +124,12 @@ function (set_if_target var target)
    set(${var} "${_result}" PARENT_SCOPE)
 endfunction()
 
-set_if_target(_has_svg_target Qt5::Svg)
+set_if_target(_has_svg_target Qt::Svg)
 option(ENABLE_SVG_SUPPORT "Enable SVG support" "${_has_svg_target}")
 
 add_library(OptionalSvg INTERFACE)
-if (TARGET Qt5::Svg AND ENABLE_SVG_SUPPORT)
-  target_link_libraries(OptionalSvg INTERFACE Qt5::Svg)
+if (TARGET Qt::Svg AND ENABLE_SVG_SUPPORT)
+  target_link_libraries(OptionalSvg INTERFACE Qt::Svg)
 else()
   target_compile_definitions(OptionalSvg INTERFACE QT_NO_SVG)
 endif()

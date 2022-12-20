@@ -5,7 +5,7 @@ else()
 endif()
 
 add_qtc_plugin(TextEditor
-  DEPENDS Qt5::Concurrent Qt5::Network Qt5::PrintSupport Qt5::Xml
+  DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
   PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
   PLUGIN_DEPENDS Core
   SOURCES

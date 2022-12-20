@@ -277,7 +277,8 @@ function(finalize_test_setup test_name)
     list(APPEND env_path $ENV{PATH})
     list(APPEND env_path ${CMAKE_BINARY_DIR}/${_IDE_PLUGIN_PATH})
     list(APPEND env_path ${CMAKE_BINARY_DIR}/${_IDE_BIN_PATH})
-    list(APPEND env_path $<TARGET_FILE_DIR:Qt5::Test>)
+    # version-less target Qt::Test is an interface library that links to QtX::Test
+    list(APPEND env_path $<TARGET_FILE_DIR:$<TARGET_PROPERTY:Qt::Test,INTERFACE_LINK_LIBRARIES>>)
     if (TARGET libclang)
         list(APPEND env_path $<TARGET_FILE_DIR:libclang>)
     endif()
@@ -430,15 +431,15 @@ function(enable_pch target)
             PROPERTIES GENERATED TRUE)
 
         _add_pch_target(${PROJECT_NAME}PchGui
-          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt5::Widgets)
+          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h" Qt::Widgets)
         _add_pch_target(${PROJECT_NAME}PchConsole
-          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt5::Core)
+          "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_pch.h" Qt::Core)
       endif()
 
       unset(PCH_TARGET)
-      if ("Qt5::Widgets" IN_LIST dependencies)
+      if ("Qt::Widgets" IN_LIST dependencies)
         set(PCH_TARGET ${PROJECT_NAME}PchGui)
-      elseif ("Qt5::Core" IN_LIST dependencies)
+      elseif ("Qt::Core" IN_LIST dependencies)
         set(PCH_TARGET ${PROJECT_NAME}PchConsole)
       endif()
 

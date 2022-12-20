@@ -1,5 +1,5 @@
 add_qtc_library(3rd_cplusplus OBJECT
-  PUBLIC_DEPENDS Qt5::Core Utils
+  PUBLIC_DEPENDS Qt::Core Utils
   SOURCES
     AST.cpp AST.h
     ASTClone.cpp

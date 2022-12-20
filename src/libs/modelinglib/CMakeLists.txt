@@ -1,5 +1,5 @@
 add_qtc_library(Modeling
-  DEPENDS Qt5::Widgets Utils
+  DEPENDS Qt::Widgets Utils
   PUBLIC_DEPENDS OptionalSvg
   INCLUDES qtserialization/inc
   PUBLIC_INCLUDES

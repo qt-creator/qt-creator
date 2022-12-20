@@ -25,7 +25,9 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
 
   # framework path
   if (APPLE)
-    get_target_property(_qt_target Qt5::Core LOCATION) # <fw_path>/QtCore.framework/QtCore
+    # version-less target Qt::Core is an interface library that links to QtX::Core
+    get_target_property(_qt_core Qt::Core INTERFACE_LINK_LIBRARIES)
+    get_target_property(_qt_target ${_qt_core} LOCATION) # <fw_path>/QtCore.framework/QtCore
     get_filename_component(_qt_loc "${_qt_target}" DIRECTORY)
     set("${_ret_framework_paths}" "${_qt_loc}/.." PARENT_SCOPE)
   endif()

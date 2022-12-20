@@ -91,7 +91,7 @@ function(_create_ts_custom_target name)
   file(WRITE "${ts_file_list}" "${_sources_str}\n${_includes_str}\n")
 
   add_custom_target("${_arg_TS_TARGET_PREFIX}${name}"
-    COMMAND Qt5::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+    COMMAND Qt::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     COMMENT "Generate .ts files"
     DEPENDS ${_sources}
@@ -103,11 +103,11 @@ function(_create_ts_custom_target name)
   list(LENGTH ts_files file_count)
   if(file_count EQUAL 1)
     # get path for lconvert...
-    get_target_property(_lupdate_binary Qt5::lupdate IMPORTED_LOCATION)
+    get_target_property(_lupdate_binary Qt::lupdate IMPORTED_LOCATION)
     get_filename_component(_bin_dir ${_lupdate_binary} DIRECTORY)
 
     add_custom_target("${_arg_TS_TARGET_PREFIX}${name}_cleaned"
-      COMMAND Qt5::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
+      COMMAND Qt::lupdate -locations relative -no-ui-lines -no-sort "@${ts_file_list}" -ts ${ts_files}
       COMMAND ${_bin_dir}/lconvert -locations none -no-ui-lines -no-obsolete ${ts_files} -o ${ts_files}
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       COMMENT "Generate .ts files, remove obsolete and vanished translations, and do not add files and line number"
@@ -117,7 +117,7 @@ function(_create_ts_custom_target name)
 endfunction()
 
 function(add_translation_targets file_prefix)
-  if (NOT TARGET Qt5::lrelease OR NOT TARGET Qt5::lupdate)
+  if (NOT TARGET Qt::lrelease OR NOT TARGET Qt::lupdate)
     # No Qt translation tools were found: Skip this directory
     message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt5 COMPONENTS LinguistTools) to CMake to enable.")
     return()
@@ -170,7 +170,7 @@ function(add_translation_targets file_prefix)
       SOURCES ${_to_process_sources} ${_arg_SOURCES} INCLUDES ${_to_process_includes} ${_arg_INCLUDES})
 
     add_custom_command(OUTPUT "${_qm_file}"
-      COMMAND Qt5::lrelease "${_ts_file}" -qm "${_qm_file}"
+      COMMAND Qt::lrelease "${_ts_file}" -qm "${_qm_file}"
       MAIN_DEPENDENCY "${_ts_file}"
       WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
       COMMENT "Generate .qm file"
