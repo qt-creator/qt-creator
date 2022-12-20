@@ -395,58 +395,58 @@ std::optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArra
 
 void EnvironmentChange::addSetValue(const QString &key, const QString &value)
 {
-    m_changeItems.append({Item::SetValue, QVariant::fromValue(QPair<QString, QString>(key, value))});
+    m_changeItems.append(Item{std::in_place_index_t<SetValue>(), QPair<QString, QString>{key, value}});
 }
 
 void EnvironmentChange::addUnsetValue(const QString &key)
 {
-    m_changeItems.append({Item::UnsetValue, key});
+    m_changeItems.append(Item{std::in_place_index_t<UnsetValue>(), key});
 }
 
 void EnvironmentChange::addPrependToPath(const FilePaths &values)
 {
     for (int i = values.size(); --i >= 0; ) {
         const FilePath value = values.at(i);
-        m_changeItems.append({Item::PrependToPath, value.toVariant()});
+        m_changeItems.append(Item{std::in_place_index_t<PrependToPath>(), value});
     }
 }
 
 void EnvironmentChange::addAppendToPath(const FilePaths &values)
 {
     for (const FilePath &value : values)
-        m_changeItems.append({Item::AppendToPath, value.toVariant()});
+        m_changeItems.append(Item{std::in_place_index_t<AppendToPath>(), value});
 }
 
 EnvironmentChange EnvironmentChange::fromFixedEnvironment(const Environment &fixedEnv)
 {
     EnvironmentChange change;
-    change.m_changeItems.append({Item::SetFixedEnvironment, QVariant::fromValue(fixedEnv)});
+    change.m_changeItems.append(Item{std::in_place_index_t<SetFixedEnvironment>(), fixedEnv});
     return change;
 }
 
 void EnvironmentChange::applyToEnvironment(Environment &env) const
 {
     for (const Item &item : m_changeItems) {
-        switch (item.type) {
-        case Item::SetSystemEnvironment:
+        switch (item.index()) {
+        case SetSystemEnvironment:
             env = Environment::systemEnvironment();
             break;
-        case Item::SetFixedEnvironment:
-            env = item.data.value<Environment>();
+        case SetFixedEnvironment:
+            env = std::get<SetFixedEnvironment>(item);
             break;
-        case Item::SetValue: {
-            auto data = item.data.value<QPair<QString, QString>>();
+        case SetValue: {
+            const QPair<QString, QString> data = std::get<SetValue>(item);
             env.set(data.first, data.second);
             break;
         }
-        case Item::UnsetValue:
-            env.unset(item.data.toString());
+        case UnsetValue:
+            env.unset(std::get<UnsetValue>(item));
             break;
-        case Item::PrependToPath:
-            env.prependOrSetPath(FilePath::fromVariant(item.data));
+        case PrependToPath:
+            env.prependOrSetPath(std::get<PrependToPath>(item));
             break;
-        case Item::AppendToPath:
-            env.appendOrSetPath(FilePath::fromVariant(item.data));
+        case AppendToPath:
+            env.appendOrSetPath(std::get<AppendToPath>(item));
             break;
         }
     }

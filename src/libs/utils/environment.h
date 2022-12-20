@@ -109,21 +109,23 @@ class QTCREATOR_UTILS_EXPORT EnvironmentChange final
 public:
     EnvironmentChange() = default;
 
-    class Item final
-    {
-    public:
-        enum Type {
-            SetSystemEnvironment,
-            SetFixedEnvironment,
-            SetValue,
-            UnsetValue,
-            PrependToPath,
-            AppendToPath,
-        };
-
-        Type type;
-        QVariant data;
+    enum Type {
+        SetSystemEnvironment,
+        SetFixedEnvironment,
+        SetValue,
+        UnsetValue,
+        PrependToPath,
+        AppendToPath,
     };
+
+    using Item = std::variant<
+        std::monostate,          // SetSystemEnvironment dummy
+        Environment,             // SetFixedEnvironment
+        QPair<QString, QString>, // SetValue
+        QString,                 // UnsetValue
+        FilePath,                // PrependToPath
+        FilePath                 // AppendToPath
+    >;
 
     static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
 
