@@ -94,9 +94,7 @@ bool isLeavableFunction(const QStringView funcName, const QStringView fileName)
         if (fileName.endsWith(u"/qmetaobject.cpp")
                 && funcName.endsWith(u"QMetaObject::methodOffset"))
             return true;
-        if (fileName.endsWith(u"/qobject.cpp")
-                && (funcName.endsWith(u"QObjectConnectionListVector::at")
-                    || funcName.endsWith(u"~QObject")))
+        if (fileName.endsWith(u"/qobject.cpp"))
             return true;
         if (fileName.endsWith(u"/qmutex.cpp"))
             return true;
