@@ -11,8 +11,8 @@
 #include <QQmlComponent>
 #include <QQmlEngine>
 
-#include "qml2puppet/iconrenderer/iconrenderer.h"
-#include "qml2puppet/import3d/import3d.h"
+#include <qml2puppet/iconrenderer/iconrenderer.h>
+#include <qml2puppet/import3d/import3d.h>
 
 #include "configcrashpad.h"
 

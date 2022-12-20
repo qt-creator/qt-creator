@@ -37,7 +37,7 @@ add_qtc_executable(qml2puppet
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
     QmlPuppetCommunication
   INCLUDES
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     qml2puppet/main.cpp
     qmlpuppet.qrc
@@ -181,7 +181,6 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  DEPENDS app_version
   SOURCES_PREFIX qml2puppet/runner
   SOURCES
     runtime/qmlruntime.h runtime/qmlruntime.cpp
