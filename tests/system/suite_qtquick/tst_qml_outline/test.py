@@ -21,8 +21,7 @@ def main():
     qmlFiles = [treebase + "focus\\.qml", treebase + "Core.ListMenu\\.qml"]
     checkOutlineFor(qmlFiles)
     testModify()
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
 
 def checkOutlineFor(qmlFiles):
     for qmlFile in qmlFiles:

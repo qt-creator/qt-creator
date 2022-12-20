@@ -157,15 +157,21 @@ like Qt and LLVM, additionally run
 
     cmake --install . --prefix /path/to/qtcreator_install --component Dependencies
 
-### Performance Analyzer
+### Perf Profiler Support
 
-If you have not installed Qt with the Maintenance Tool, you must
-either set the path to the `perfparser` executable as a value of
-the `PERFPROFILER_PARSER_FILEPATH` environment variable or copy
-the executable to from the Qt Creator installation directory to
-the build directory. That is, copy it from
-`/path/to/qtcreator_install/Tools/QtCreator/libexec/qtcreator/` to
-/path/to/qtcreator_buid/libexec/qtcreator/`.
+Support for the [perf](https://perf.wiki.kernel.org/index.php/Main_Page) profiler
+requires the `perfparser` tool that is part of the Qt Creator source package, and also
+part of the Qt Creator Git repository in form of a submodule in `src/tools/perfparser`.
+
+Compilation of `perfparser` requires ELF and DWARF development packages.
+You can either download and extract a prebuilt package from
+https://download.qt.io/development_releases/prebuilt/elfutils/ and add the
+directory to the `CMAKE_PREFIX_PATH` when configuring Qt Creator,
+or install the `libdw-dev` package on Debian-style Linux systems.
+
+You can also point Qt Creator to a separate installation of `perfparser` by
+setting the `PERFPROFILER_PARSER_FILEPATH` environment variable to the full
+path to the executable.
 
 ## Getting LLVM/Clang for the Clang Code Model
 

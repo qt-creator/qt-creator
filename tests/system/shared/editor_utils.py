@@ -400,8 +400,7 @@ def openDocument(treeElement):
 
 def earlyExit(details="No additional information"):
     test.fail("Something went wrong running this test", details)
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
 
 def openDocumentPlaceCursor(doc, line, additionalFunction=None):
     cppEditorStr = ":Qt Creator_CppEditor::Internal::CPPEditorWidget"

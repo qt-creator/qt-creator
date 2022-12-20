@@ -46,5 +46,4 @@ def main():
                         'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), "ui->%s" % buttonName))
             type(editor, "<Shift+Delete>") # Delete line
         selectFromLocator("mainwindow.ui")
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()

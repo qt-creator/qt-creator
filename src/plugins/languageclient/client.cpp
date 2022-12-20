@@ -1893,6 +1893,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;
         error.setCode(ResponseError<JsonObject>::MethodNotFound);
+        error.setMessage(QString("The client cannot handle the method '%1'.").arg(method));
         response.setError(error);
         sendResponse(response);
     }

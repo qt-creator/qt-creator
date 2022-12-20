@@ -46,16 +46,13 @@ def main():
             waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", addBranchWildcardToRoot(myCompTE), 1000)
         except:
             test.fail("Refactoring failed - file MyComponent.qml was not generated properly in project explorer")
-            #save and exit
-            invokeMenuItem("File", "Save All")
-            invokeMenuItem("File", "Exit")
+            saveAndExit()
             return
     test.passes("Refactoring - file MyComponent.qml was generated properly in project explorer")
     # open MyComponent.qml file for verification
     if not openDocument(myCompTE):
         test.fatal("Could not open MyComponent.qml.")
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
+        saveAndExit()
         return
     editorArea = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     codeText = str(editorArea.plainText)

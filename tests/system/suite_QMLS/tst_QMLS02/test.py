@@ -42,7 +42,5 @@ def main():
     # wait for issues
     test.verify(waitFor("issuesModel.rowCount() == 0", 3000),
                 "Verifying if error was properly cleared after code fix")
-    #save and exit
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
 

@@ -39,6 +39,13 @@ def get_arguments():
                         action='store_true', default=False)
     parser.add_argument('--build-type', help='Build type to pass to CMake (defaults to RelWithDebInfo)',
                         default='RelWithDebInfo')
+    # zipping
+    parser.add_argument('--zip-threads', help='Sets number of threads to use for 7z. Use "+" for turning threads on '
+                        'without a specific number of threads. This is directly passed to the "-mmt" option of 7z.',
+                        default='2')
+    # signing
+    parser.add_argument('--keychain-unlock-script',
+                        help='Path to script for unlocking the keychain used for signing (macOS)')
     args = parser.parse_args()
     args.with_debug_info = args.build_type == 'RelWithDebInfo'
     return args
@@ -144,6 +151,21 @@ def package(args, paths):
         common.check_print_call(['7z', 'a', '-mmt2',
                                  os.path.join(paths.result, args.name + '-debug.7z'), '*'],
                                 paths.debug_install)
+    if common.is_mac_platform() and common.codesign_call():
+        if args.keychain_unlock_script:
+            common.check_print_call([args.keychain_unlock_script], paths.install)
+        if os.environ.get('SIGNING_IDENTITY'):
+            signed_install_path = paths.install + '-signed'
+            common.copytree(paths.install, signed_install_path, symlinks=True)
+            apps = [d for d in os.listdir(signed_install_path) if d.endswith('.app')]
+            if apps:
+                app = apps[0]
+                common.conditional_sign_recursive(os.path.join(signed_install_path, app),
+                                                  lambda ff: ff.endswith('.dylib'))
+                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
+                                         os.path.join(paths.result, args.name + '-signed.7z'),
+                                         app],
+                                        signed_install_path)
 
 def get_paths(args):
     Paths = collections.namedtuple('Paths',
