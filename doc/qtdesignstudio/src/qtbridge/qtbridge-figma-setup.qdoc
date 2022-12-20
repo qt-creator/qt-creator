@@ -10,11 +10,19 @@
     \note \QBF is included in the
     \l{https://www.qt.io/pricing}{\QDS Enterprise license}.
 
-    \QBF is delivered with \QDS as a developer plugin that you can install to
-    the Desktop version of Figma. To install the plugin, open the Plugin Manager
-    of Figma and press the plus button to create a new plugin. Then choose the
-    \e Manifest.json file that comes with \QDS.
+    You need both Figma and Qt accounts to use \QBF in \QDS.
+    To use \QBF in \QDS:
+    \list 1
+        \li Go to \l {https://www.figma.com/community/plugin/1167809465162924409/Qt-Bridge-for-Figma}
+        {\QBF plugin page}.
+        \li Select \uicontrol {Try it out}.
+        \li Select your logged in Figma account.
+        \li After the plugin loads, select \uicontrol Run.
+        \li Select \uicontrol Export, to get the \e {.qtbridge} file in your
+        local drive.
+        \li In \QDS, drag the file to the \uicontrol 2D, \uicontrol 3D, \uicontrol Assets,
+        or \uicontrol Navigator view in an open project .
+    \endlist
 
-    You can launch the Figma plugin from \uicontrol Plugins >
-    \uicontrol Development > \uicontrol {\QBF} in Figma.
+    You can launch the installed Figma plugin from \uicontrol Plugins > \uicontrol {\QBF} in Figma.
 */
