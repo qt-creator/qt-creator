@@ -163,7 +163,6 @@ public:
     Utils::AspectContainer all; // All
     Utils::AspectContainer page1; // General
     Utils::AspectContainer page2; // GDB
-    Utils::AspectContainer page3; // GDB Extended
     Utils::AspectContainer page4; // Locals & Expressions
     Utils::AspectContainer page5; // CDB
     Utils::AspectContainer page6; // CDB Paths

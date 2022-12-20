@@ -414,8 +414,7 @@
     To increase the timeout in the \uicontrol {GDB timeout} field, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol GDB. For more information about settings that you can specify
-    to manage the GDB process, see \l{Specifying GDB Settings} and
-    \l{Specifying Extended GDB Settings}.
+    to manage the GDB process, see \l{Specifying GDB Settings}.
 
     For more information about connecting with \c {target extended-remote} mode
     in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
@@ -630,7 +629,7 @@
 
     The extended GDB settings provide the option to step backwards in code,
     but this option should be used with care, as it is slow and unstable on the
-    GDB side. For more information, see \l{Specifying Extended GDB Settings}.
+    GDB side. For more information, see \l{Specifying GDB Settings}.
 
    \section2 Customizing Debug Views
 

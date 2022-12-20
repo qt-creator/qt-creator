@@ -155,7 +155,7 @@
 
     You can automatically add breakpoints on some functions to catch error
     and warning messages. For more information, see \l{Specifying CDB Settings}
-    and \l{Specifying Extended GDB Settings}.
+    and \l{Specifying GDB Settings}.
 
     For more information on breakpoints, see
     \l{http://sourceware.org/gdb/onlinedocs/gdb/Breakpoints.html#Breakpoints}

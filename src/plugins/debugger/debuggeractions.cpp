@@ -571,15 +571,13 @@ DebuggerSettings::DebuggerSettings()
     page2.registerAspect(&useIndexCache);
     page2.registerAspect(&gdbStartupCommands);
     page2.registerAspect(&gdbPostAttachCommands);
-
-    // Page 3
-    page3.registerAspect(&targetAsync);
-    page3.registerAspect(&autoEnrichParameters);
-    page3.registerAspect(&breakOnWarning);
-    page3.registerAspect(&breakOnFatal);
-    page3.registerAspect(&breakOnAbort);
-    page3.registerAspect(&enableReverseDebugging);
-    page3.registerAspect(&multiInferior);
+    page2.registerAspect(&targetAsync);
+    page2.registerAspect(&autoEnrichParameters);
+    page2.registerAspect(&breakOnWarning);
+    page2.registerAspect(&breakOnFatal);
+    page2.registerAspect(&breakOnAbort);
+    page2.registerAspect(&enableReverseDebugging);
+    page2.registerAspect(&multiInferior);
 
     // Page 4
     page4.registerAspect(&useDebuggingHelpers);
@@ -624,7 +622,6 @@ DebuggerSettings::DebuggerSettings()
     // Collect all
     all.registerAspects(page1);
     all.registerAspects(page2);
-    all.registerAspects(page3);
     all.registerAspects(page4);
     all.registerAspects(page5);
     all.registerAspects(page6);

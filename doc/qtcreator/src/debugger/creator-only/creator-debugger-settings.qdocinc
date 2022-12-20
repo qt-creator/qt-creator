@@ -110,15 +110,10 @@
     To execute arbitrary Python scripts, use
     \c {python execfile('/path/to/script.py')}.
 
-    \section2 Specifying Extended GDB Settings
-
-    To specify extended settings for GBD, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol {GDB Extended}.
-    The settings give access to advanced or experimental functions of GDB.
+    The settings in the \uicontrol Extended group give access to advanced
+    or experimental functions of GDB.
     Enabling them may negatively impact your debugging experience, so use
     them with care.
-
-    \image qtcreator-gdb-extended-options.png "GDB Extended preferences"
 
     To use asynchronous mode to control the inferior, select the
     respective check box.
