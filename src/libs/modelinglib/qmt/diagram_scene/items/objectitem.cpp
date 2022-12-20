@@ -707,7 +707,8 @@ void ObjectItem::updateRelationStarter()
             const QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
             if (!toolbars.isEmpty()) {
                 for (const Toolbar &toolbar : toolbars) {
-                    for (const Toolbar::Tool &tool : toolbar.tools()) {
+                    const QList<Toolbar::Tool> tools = toolbar.tools();
+                    for (const Toolbar::Tool &tool : tools) {
                         CustomRelation customRelation =
                                 stereotypeController->findCustomRelation(tool.m_elementType);
                         if (!customRelation.isNull())

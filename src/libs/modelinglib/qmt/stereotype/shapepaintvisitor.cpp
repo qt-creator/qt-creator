@@ -96,7 +96,8 @@ void ShapePaintVisitor::visitArc(const ArcShape *shapeArc)
 void ShapePaintVisitor::visitPath(const PathShape *shapePath)
 {
     QPainterPath path;
-    foreach (const PathShape::Element &element, shapePath->elements()) {
+    const QList<PathShape::Element> elements = shapePath->elements();
+    for (const PathShape::Element &element : elements) {
         switch (element.m_elementType) {
         case PathShape::TypeNone:
             // nothing to do
@@ -206,7 +207,8 @@ void ShapeSizeVisitor::visitArc(const ArcShape *shapeArc)
 void ShapeSizeVisitor::visitPath(const PathShape *shapePath)
 {
     QPainterPath path;
-    foreach (const PathShape::Element &element, shapePath->elements()) {
+    const QList<PathShape::Element> elements = shapePath->elements();
+    for (const PathShape::Element &element : elements) {
         switch (element.m_elementType) {
         case PathShape::TypeNone:
             // nothing to do

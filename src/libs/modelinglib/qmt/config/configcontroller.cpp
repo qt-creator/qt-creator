@@ -24,8 +24,8 @@ public:
 };
 
 ConfigController::ConfigController(QObject *parent)
-    : QObject(parent),
-      d(new ConfigControllerPrivate)
+    : QObject(parent)
+    , d(new ConfigControllerPrivate)
 {
 }
 
@@ -68,7 +68,7 @@ void ConfigController::readStereotypeDefinitions(const QString &path)
         // TODO add error handling
         return;
     }
-    foreach (const QString &fileName, fileNames) {
+    for (const QString &fileName : std::as_const(fileNames)) {
         QFile file(QFileInfo(dir, fileName).absoluteFilePath());
         if (file.open(QIODevice::ReadOnly)) {
             QString text = QString::fromUtf8(file.readAll());

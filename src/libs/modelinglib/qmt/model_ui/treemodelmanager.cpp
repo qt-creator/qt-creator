@@ -36,7 +36,8 @@ void TreeModelManager::setModelTreeView(ModelTreeViewInterface *modelTreeView)
 
 bool TreeModelManager::isRootPackageSelected() const
 {
-    foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
+    const QList<QModelIndex> indices = m_modelTreeView->selectedSourceModelIndexes();
+    for (const QModelIndex &index : indices) {
         auto object = dynamic_cast<MObject *>(m_treeModel->element(index));
         if (object && !object->owner())
             return true;
@@ -75,7 +76,8 @@ MPackage *TreeModelManager::selectedPackage() const
 MSelection TreeModelManager::selectedObjects() const
 {
     MSelection modelSelection;
-    foreach (const QModelIndex &index, m_modelTreeView->selectedSourceModelIndexes()) {
+    const QList<QModelIndex> indices = m_modelTreeView->selectedSourceModelIndexes();
+    for (const QModelIndex &index : indices) {
         MElement *element = m_treeModel->element(index);
         if (auto object = dynamic_cast<MObject *>(element))
             modelSelection.append(object->uid(), m_treeModel->modelController()->ownerKey(object));

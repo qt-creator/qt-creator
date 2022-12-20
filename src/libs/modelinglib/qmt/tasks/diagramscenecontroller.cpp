@@ -163,7 +163,8 @@ void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDi
     if (!dselection.isEmpty()) {
         MSelection mselection;
         DSelection remainingDselection;
-        foreach (const DSelection::Index &index, dselection.indices()) {
+        const QList<DSelection::Index> indices = dselection.indices();
+        for (const DSelection::Index &index : indices) {
             DElement *delement = m_diagramController->findElement(index.elementKey(), diagram);
             QMT_ASSERT(delement, return);
             if (delement->modelUid().isValid()) {
@@ -421,7 +422,8 @@ void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage 
 void DiagramSceneController::addRelatedElements(const DSelection &selection, MDiagram *diagram)
 {
     m_diagramController->undoController()->beginMergeSequence(tr("Add Related Element"));
-    foreach (const DSelection::Index &index, selection.indices()) {
+    const QList<DSelection::Index> indices = selection.indices();
+    for (const DSelection::Index &index : indices) {
         DElement *delement = m_diagramController->findElement(index.elementKey(), diagram);
         QMT_ASSERT(delement, return);
         DObject *dobject = dynamic_cast<DObject *>(delement);
@@ -747,7 +749,8 @@ void DiagramSceneController::alignVBorderDistance(const DSelection &selection, M
 void DiagramSceneController::alignPosition(DObject *object, const DSelection &selection,
                                            QPointF (*aligner)(DObject *, DObject *), MDiagram *diagram)
 {
-    foreach (const DSelection::Index &index, selection.indices()) {
+    const QList<DSelection::Index> indices = selection.indices();
+    for (const DSelection::Index &index : indices) {
         DElement *element = m_diagramController->findElement(index.elementKey(), diagram);
         if (auto selectedObject = dynamic_cast<DObject *>(element)) {
             if (selectedObject != object) {
@@ -774,7 +777,8 @@ void DiagramSceneController::alignSize(DObject *object, const DSelection &select
         size.setHeight(minimumSize.height());
     else
         size.setHeight(object->rect().height());
-    foreach (const DSelection::Index &index, selection.indices()) {
+    const QList<DSelection::Index> indices = selection.indices();
+    for (const DSelection::Index &index : indices) {
         DElement *element = m_diagramController->findElement(index.elementKey(), diagram);
         if (auto selectedObject = dynamic_cast<DObject *>(element)) {
             QRectF newRect = aligner(selectedObject, size);
@@ -800,7 +804,8 @@ void DiagramSceneController::alignOnRaster(DElement *element, MDiagram *diagram)
 QList<DObject *> DiagramSceneController::collectObjects(const DSelection &selection, MDiagram *diagram)
 {
     QList<DObject *> list;
-    foreach (const DSelection::Index &index, selection.indices()) {
+    const QList<DSelection::Index> indices = selection.indices();
+    for (const DSelection::Index &index : indices) {
         DObject *object = m_diagramController->findElement<DObject>(index.elementKey(), diagram);
         if (object)
             list.append(object);
@@ -839,7 +844,7 @@ DObject *DiagramSceneController::addObject(MObject *modelObject, const QPointF &
     alignOnRaster(diagramObject, diagram);
 
     // add all relations between any other element on diagram and new element
-    foreach (DElement *delement, diagram->diagramElements()) {
+    for (DElement *delement : diagram->diagramElements()) {
         if (delement != diagramObject) {
             auto dobject = dynamic_cast<DObject *>(delement);
             if (dobject) {
@@ -925,7 +930,7 @@ DRelation *DiagramSceneController::addRelation(MRelation *modelRelation, const Q
         relationPoints.append(DRelation::IntermediatePoint(i2));
         relationPoints.append(DRelation::IntermediatePoint(i3));
     } else {
-        foreach (const QPointF &intermediatePoint, intermediatePoints)
+        for (const QPointF &intermediatePoint : intermediatePoints)
             relationPoints.append(DRelation::IntermediatePoint(intermediatePoint));
     }
     diagramRelation->setIntermediatePoints(relationPoints);
@@ -957,7 +962,8 @@ bool DiagramSceneController::relocateRelationEnd(DRelation *relation, DObject *t
             if (currentTargetMObject == modelRelation->owner())
                 m_modelController->moveRelation(targetMObject, modelRelation);
             // remove relation on all diagrams where the new targe element does not exist
-            foreach (MDiagram *diagram, m_diagramController->allDiagrams()) {
+            const QList<MDiagram *> diagrams = m_diagramController->allDiagrams();
+            for (MDiagram *diagram : diagrams) {
                 if (DElement *diagramRelation = m_diagramController->findDelegate(modelRelation, diagram)) {
                     if (!m_diagramController->findDelegate(targetMObject, diagram)) {
                         m_diagramController->removeElement(diagramRelation, diagram);
