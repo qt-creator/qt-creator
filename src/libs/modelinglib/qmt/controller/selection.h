@@ -36,7 +36,7 @@ public:
     ~Selection();
 
     bool isEmpty() const { return m_indices.isEmpty(); }
-    QList<Index> indices() const { return m_indices; }
+    const QList<Index> indices() const { return m_indices; }
     void setIndices(const QList<Index> &indices);
 
     void clear();

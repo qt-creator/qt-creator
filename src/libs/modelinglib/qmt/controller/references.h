@@ -18,7 +18,7 @@ public:
 
     bool isEmpty() const { return m_elements.empty(); }
     int size() const { return m_elements.size(); }
-    QList<T *> elements() const { return m_elements; }
+    const QList<T *> elements() const { return m_elements; }
     void setElements(const QList<T *> &elements) { m_elements = elements; }
     void clear() { m_elements.clear(); }
     void append(T *element) { m_elements.append(element); }

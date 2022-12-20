@@ -704,10 +704,10 @@ void ObjectItem::updateRelationStarter()
             else
                 elementType = m_elementType;
             StereotypeController *stereotypeController = diagramSceneModel()->stereotypeController();
-            QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
+            const QList<Toolbar> toolbars = stereotypeController->findToolbars(elementType);
             if (!toolbars.isEmpty()) {
-                foreach (const Toolbar &toolbar, toolbars) {
-                    foreach (const Toolbar::Tool &tool, toolbar.tools()) {
+                for (const Toolbar &toolbar : toolbars) {
+                    for (const Toolbar::Tool &tool : toolbar.tools()) {
                         CustomRelation customRelation =
                                 stereotypeController->findCustomRelation(tool.m_elementType);
                         if (!customRelation.isNull())
@@ -836,13 +836,15 @@ void ObjectItem::updateAlignmentButtonsGeometry(const QRectF &objectRect)
     if (m_horizontalAlignButtons) {
         m_horizontalAlignButtons->clear();
         m_horizontalAlignButtons->setPos(mapToScene(QPointF(0.0, objectRect.top() - AlignButtonsItem::NormalButtonHeight - AlignButtonsItem::VerticalDistanceToObejct)));
-        foreach (const ILatchable::Latch &latch, horizontalLatches(ILatchable::Move, true))
+        const QList<ILatchable::Latch> latches = horizontalLatches(ILatchable::Move, true);
+        for (const ILatchable::Latch &latch : latches)
             m_horizontalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(latch.m_pos, 0.0)).x());
     }
     if (m_verticalAlignButtons) {
         m_verticalAlignButtons->clear();
         m_verticalAlignButtons->setPos(mapToScene(QPointF(objectRect.left() - AlignButtonsItem::NormalButtonWidth - AlignButtonsItem::HorizontalDistanceToObject, 0.0)));
-        foreach (const ILatchable::Latch &latch, verticalLatches(ILatchable::Move, true))
+        const QList<ILatchable::Latch> latches = verticalLatches(ILatchable::Move, true);
+        for (const ILatchable::Latch &latch : latches)
             m_verticalAlignButtons->addButton(translateLatchTypeToAlignType(latch.m_latchType), latch.m_identifier, mapFromScene(QPointF(0.0, latch.m_pos)).y());
     }
 }
@@ -879,7 +881,9 @@ IAlignable::AlignType ObjectItem::translateLatchTypeToAlignType(ILatchable::Latc
 const Style *ObjectItem::adaptedStyle(const QString &stereotypeIconId)
 {
     QList<const DObject *> collidingObjects;
-    foreach (const QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems)) {
+    const QList<QGraphicsItem *> items
+        = m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingItems);
+    for (const QGraphicsItem *item : items) {
         if (auto objectItem = dynamic_cast<const ObjectItem *>(item))
             collidingObjects.append(objectItem->object());
     }
@@ -909,7 +913,9 @@ bool ObjectItem::showContext() const
         QMT_ASSERT(mobject, return false);
         MObject *owner = mobject->owner();
         if (owner) {
-            foreach (QGraphicsItem *item, m_diagramSceneModel->collectCollidingObjectItems(this, DiagramSceneModel::CollidingOuterItems)) {
+            const QList<QGraphicsItem *> items = m_diagramSceneModel->collectCollidingObjectItems(
+                this, DiagramSceneModel::CollidingOuterItems);
+            for (QGraphicsItem *item : items) {
                 if (auto objectItem = dynamic_cast<ObjectItem *>(item)) {
                     if (objectItem->object()->modelUid().isValid() && objectItem->object()->modelUid() == owner->uid()) {
                         showContext = false;
@@ -1078,7 +1084,7 @@ void ObjectItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 QSizeF ObjectItem::minimumSize(const QSet<QGraphicsItem *> &items) const
 {
     QSizeF minimumSize(0.0, 0.0);
-    foreach (QGraphicsItem *item, items) {
+    for (QGraphicsItem *item : items) {
         if (auto resizable = dynamic_cast<IResizable *>(item)) {
             QSizeF size = resizable->minimumSize();
             if (size.width() > minimumSize.width())

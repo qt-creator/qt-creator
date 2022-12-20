@@ -72,7 +72,7 @@ void RelationStarter::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (m_currentPreviewArrow)
         return;
-    foreach (ArrowItem *item, m_arrows) {
+    for (ArrowItem *item : std::as_const(m_arrows)) {
         if (item->boundingRect().contains(mapToItem(item, event->pos()))) {
             prepareGeometryChange();
             m_currentPreviewArrowIntermediatePoints.clear();

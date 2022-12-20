@@ -40,7 +40,7 @@ public:
     void setEndBUid(const Uid &uid);
     QString name() const { return m_name; }
     void setName(const QString &name);
-    QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
+    const QList<IntermediatePoint> intermediatePoints() const { return m_intermediatePoints; }
     void setIntermediatePoints(const QList<IntermediatePoint> &intermediatePoints);
 
     void accept(DVisitor *visitor) override;

@@ -135,7 +135,7 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
         (void) isUpdating(true);
         endAObject = nullptr;
         // TODO use DiagramController::findDelegate
-        foreach (DElement *diagramElement, m_diagram->diagramElements()) {
+        for (DElement *diagramElement : m_diagram->diagramElements()) {
             if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == relation->endAUid()) {
                 endAObject = dynamic_cast<DObject *>(diagramElement);
                 break;
@@ -151,7 +151,7 @@ void DUpdateVisitor::visitMRelation(const MRelation *relation)
         (void) isUpdating(true);
         endBObject = nullptr;
         // TODO use DiagramController::findDelegate
-        foreach (DElement *diagramElement, m_diagram->diagramElements()) {
+        for (DElement *diagramElement : m_diagram->diagramElements()) {
             if (diagramElement->modelUid().isValid() && diagramElement->modelUid() == relation->endBUid()) {
                 endBObject = dynamic_cast<DObject *>(diagramElement);
                 break;

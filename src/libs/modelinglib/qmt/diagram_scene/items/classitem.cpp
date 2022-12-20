@@ -403,7 +403,7 @@ QString ClassItem::buildDisplayName() const
         name = object()->name();
         name += QLatin1Char('<');
         bool first = true;
-        foreach (const QString &p, diagramClass->templateParameters()) {
+        for (const QString &p : diagramClass->templateParameters()) {
             if (!first)
                 name += QLatin1Char(',');
             name += p;
@@ -746,7 +746,7 @@ void ClassItem::updateMembers(const Style *style)
     auto dclass = dynamic_cast<DClass *>(object());
     QMT_ASSERT(dclass, return);
 
-    foreach (const MClassMember &member, dclass->members()) {
+    for (const MClassMember &member : dclass->members()) {
         switch (member.memberType()) {
         case MClassMember::MemberUndefined:
             QMT_ASSERT(false, return);

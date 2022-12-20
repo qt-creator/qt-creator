@@ -102,7 +102,7 @@ QString NameController::calcRelativePath(const QString &absoluteFileName, const 
 QString NameController::calcElementNameSearchId(const QString &elementName)
 {
     QString searchId;
-    foreach (const QChar &c, elementName) {
+    for (const QChar &c : elementName) {
         if (c.isLetterOrNumber())
             searchId += c.toLower();
     }

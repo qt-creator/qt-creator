@@ -25,7 +25,7 @@ QString StereotypesItem::format(const QList<QString> &stereotypes)
     if (!stereotypes.isEmpty()) {
         text = QString::fromUtf8("«");
         bool first = true;
-        foreach (const QString &stereotype, stereotypes) {
+        for (const QString &stereotype : stereotypes) {
             if (!first)
                 text += ", ";
             text += stereotype;

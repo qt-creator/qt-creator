@@ -55,7 +55,7 @@ void TemplateParameterBox::updateText()
 {
     QString templateText;
     bool first = true;
-    foreach (const QString &parameter, m_templateParameters) {
+    for (const QString &parameter : std::as_const(m_templateParameters)) {
         if (!first) {
             if (m_breakLines)
                 templateText += QLatin1Char('\n');
