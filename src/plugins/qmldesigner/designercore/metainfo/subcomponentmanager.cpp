@@ -123,7 +123,8 @@ void SubComponentManager::removeImport(int index)
         if (!m_dirToQualifier.contains(canonicalDirPath))
             m_watcher.removePath(canonicalDirPath);
 
-//        foreach (const QFileInfo &monitoredFile, watchedFiles(canonicalDirPath)) { ### todo: proper support for import as
+//        const QList<QFileInfo> files = watchedFiles(canonicalDirPath);
+//        for (const QFileInfo &monitoredFile : files) { ### todo: proper support for import as
 //            if (!m_dirToQualifier.contains(canonicalDirPath))
 //                unregisterQmlFile(monitoredFile, import.qualifier());
 //        }

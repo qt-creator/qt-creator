@@ -163,7 +163,7 @@ void LocalSymbolsTest::test()
     LocalSymbols localSymbols(document, functionDefinition);
 
     const QList<Result> actualUses = Result::fromLocalUses(localSymbols.uses);
-//    foreach (const Result &result, actualUses)
+//    for (const Result &result : actualUses)
 //        qDebug() << QTest::toString(result);
     QCOMPARE(actualUses, expectedUses);
 }

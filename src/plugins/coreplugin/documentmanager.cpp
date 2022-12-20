@@ -439,9 +439,9 @@ static void dump()
         }
     }
     qDebug() << "------- dumping files with watch list";
-    foreach (IDocument *key, d->m_filesWithWatch.keys()) {
+    const QList<IDocument *> keys = d->m_filesWithWatch.keys()
+    for (IDocument *key : keys)
         qDebug() << key->fileName() << d->m_filesWithWatch.value(key);
-    }
     qDebug() << "------- dumping watch list";
     if (d->m_fileWatcher)
         qDebug() << d->m_fileWatcher->files();

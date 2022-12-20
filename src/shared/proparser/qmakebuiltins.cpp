@@ -546,7 +546,7 @@ void QMakeEvaluator::populateDeps(
             if (depends.isEmpty()) {
                 rootSet.insert(first(ProKey(prefix + item + priosfx)).toInt(), item);
             } else {
-                foreach (const ProString &dep, depends) {
+                for (const ProString &dep : std::as_const(depends)) {
                     dset.insert(dep.toKey());
                     dependees[dep.toKey()] << item;
                 }
@@ -699,7 +699,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             evalError(fL1S("num_add(num, ...) requires at least one argument."));
         } else {
             qlonglong sum = 0;
-            foreach (const ProString &arg, args) {
+            for (const ProString &arg : args) {
                 if (arg.contains(QLatin1Char('.'))) {
                     evalError(fL1S("num_add(): floats are currently not supported."));
                     goto nafail;
@@ -1174,7 +1174,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                 rootSet.erase(it);
                 if ((func_t == E_RESOLVE_DEPENDS) || orgList.contains(item))
                     ret.prepend(item);
-                foreach (const ProString &dep, dependees[item.toKey()]) {
+                for (const ProString &dep : std::as_const(dependees[item.toKey()])) {
                     QSet<ProKey> &dset = dependencies[dep.toKey()];
                     dset.remove(item.toKey());
                     if (dset.isEmpty())
@@ -1185,11 +1185,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_ENUMERATE_VARS: {
         QSet<ProString> keys;
-        foreach (const ProValueMap &vmap, m_valuemapStack)
+        for (const ProValueMap &vmap : std::as_const(m_valuemapStack))
             for (ProValueMap::ConstIterator it = vmap.constBegin(); it != vmap.constEnd(); ++it)
                 keys.insert(it.key());
         ret.reserve(keys.size());
-        foreach (const ProString &key, keys)
+        for (const ProString &key : std::as_const(keys))
             ret << key;
         break; }
     case E_SHADOWED:

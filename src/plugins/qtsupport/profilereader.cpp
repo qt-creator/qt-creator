@@ -86,7 +86,7 @@ ProFileReader::ProFileReader(QMakeGlobals *option, QMakeVfs *vfs)
 
 ProFileReader::~ProFileReader()
 {
-    foreach (ProFile *pf, m_proFiles)
+    for (ProFile *pf : std::as_const(m_proFiles))
         pf->deref();
 }
 

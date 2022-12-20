@@ -131,7 +131,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                 for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
                     it->replace(projectDir, targetDir);
 
-                foreach (const QString &dependency, dependencies) {
+                for (const QString &dependency : dependencies) {
                     const FilePath targetFile = FilePath::fromString(targetDir)
                             .pathAppended(QDir(dependency).dirName());
                     if (!FileUtils::copyRecursively(FilePath::fromString(dependency), targetFile,

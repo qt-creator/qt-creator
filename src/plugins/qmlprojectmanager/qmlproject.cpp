@@ -161,7 +161,8 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 // FIXME: Check. Probably bogus after the BuildSystem move.
 //    // addedTarget calls updateEnabled on the runconfigurations
 //    // which needs to happen after refresh
-//    foreach (Target *t, targets())
+//    const QLis<Target> targetList = targets();
+//    for (Target *t : targetList)
 //        addedTarget(t);
 
     connect(target->project(), &Project::activeTargetChanged,

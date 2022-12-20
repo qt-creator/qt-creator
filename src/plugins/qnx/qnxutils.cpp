@@ -130,7 +130,8 @@ FilePath QnxUtils::envFilePath(const FilePath &sdpPath)
 
 QString QnxUtils::defaultTargetVersion(const QString &sdpPath)
 {
-    foreach (const ConfigInstallInformation &sdpInfo, installedConfigs()) {
+    const QList<ConfigInstallInformation> configs = installedConfigs();
+    for (const ConfigInstallInformation &sdpInfo : configs) {
         if (!sdpInfo.path.compare(sdpPath, HostOsInfo::fileNameCaseSensitivity()))
             return sdpInfo.version;
     }
@@ -146,10 +147,9 @@ QList<ConfigInstallInformation> QnxUtils::installedConfigs(const QString &config
     if (!QDir(sdpConfigPath).exists())
         return sdpList;
 
-    QFileInfoList sdpfileList =
-            QDir(sdpConfigPath).entryInfoList(QStringList() << QLatin1String("*.xml"),
-                                              QDir::Files, QDir::Time);
-    foreach (const QFileInfo &sdpFile, sdpfileList) {
+    const QFileInfoList sdpfileList
+        = QDir(sdpConfigPath).entryInfoList(QStringList{"*.xml"}, QDir::Files, QDir::Time);
+    for (const QFileInfo &sdpFile : sdpfileList) {
         QFile xmlFile(sdpFile.absoluteFilePath());
         if (!xmlFile.open(QIODevice::ReadOnly))
             continue;

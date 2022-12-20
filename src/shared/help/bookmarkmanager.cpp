@@ -459,9 +459,10 @@ void BookmarkWidget::setup()
 void BookmarkWidget::expandItems()
 {
     QStandardItemModel *model = bookmarkManager->treeBookmarkModel();
-    QList<QStandardItem*>list = model->findItems(QLatin1String("*"),
-        Qt::MatchWildcard | Qt::MatchRecursive, 0);
-    foreach (const QStandardItem* item, list) {
+    const QList<QStandardItem *> list = model->findItems(QLatin1String("*"),
+                                                         Qt::MatchWildcard | Qt::MatchRecursive,
+                                                         0);
+    for (const QStandardItem *item : list) {
         const QModelIndex& index = model->indexFromItem(item);
         treeView->setExpanded(filterBookmarkModel->mapFromSource(index),
             item->data(Qt::UserRole + 11).toBool());
@@ -604,11 +605,12 @@ QStringList BookmarkManager::bookmarkFolders() const
 {
     QStringList folders(tr("Bookmarks"));
 
-    QList<QStandardItem*>list = treeModel->findItems(QLatin1String("*"),
-        Qt::MatchWildcard | Qt::MatchRecursive, 0);
+    const QList<QStandardItem *> list = treeModel->findItems(QLatin1String("*"),
+                                                             Qt::MatchWildcard | Qt::MatchRecursive,
+                                                             0);
 
     QString data;
-    foreach (const QStandardItem *item, list) {
+    for (const QStandardItem *item : list) {
         data = item->data(Qt::UserRole + 10).toString();
         if (data == QLatin1String("Folder"))
             folders << item->data(Qt::DisplayRole).toString();
@@ -649,8 +651,8 @@ void BookmarkManager::removeBookmarkItem(QTreeView *treeView,
         }
 
         if (data != QLatin1String("Folder")) {
-            QList<QStandardItem*>itemList = listModel->findItems(item->text());
-            foreach (const QStandardItem *i, itemList) {
+            const QList<QStandardItem *> itemList = listModel->findItems(item->text());
+            for (const QStandardItem *i : itemList) {
                 if (i->data(Qt::UserRole + 10) == data) {
                     listModel->removeRow(i->row());
                     break;
@@ -754,11 +756,12 @@ void BookmarkManager::setupBookmarkModels()
 QString BookmarkManager::uniqueFolderName() const
 {
     QString folderName = tr("New Folder");
-    QList<QStandardItem*> list = treeModel->findItems(folderName,
-        Qt::MatchContains | Qt::MatchRecursive, 0);
+    const QList<QStandardItem *> list = treeModel->findItems(folderName,
+                                                             Qt::MatchContains | Qt::MatchRecursive,
+                                                             0);
     if (!list.isEmpty()) {
         QStringList names;
-        foreach (const QStandardItem *item, list)
+        for (const QStandardItem *item : list)
             names << item->text();
 
         QString folderNameBase = tr("New Folder") + QLatin1String(" %1");
@@ -779,8 +782,8 @@ void BookmarkManager::removeBookmarkFolderItems(QStandardItem *item)
             removeBookmarkFolderItems(child);
 
         QString data = child->data(Qt::UserRole + 10).toString();
-        QList<QStandardItem*>itemList = listModel->findItems(child->text());
-        foreach (const QStandardItem *i, itemList) {
+        const QList<QStandardItem*> itemList = listModel->findItems(child->text());
+        for (const QStandardItem *i : itemList) {
             if (i->data(Qt::UserRole + 10) == data) {
                 listModel->removeRow(i->row());
                 break;

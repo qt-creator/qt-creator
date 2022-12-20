@@ -2998,7 +2998,7 @@ void CdbEngine::handleBreakPoints(const DebuggerResponse &response)
             }
             QTC_ASSERT(false, qDebug() << "bp not found in either of the pending maps");
         } // not pending reported
-    } // foreach
+    } // for
     if (m_pendingBreakpointMap.empty())
         str << "All breakpoints have been resolved.\n";
     else

@@ -62,7 +62,8 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::fixifiedValues(
         bool expandWildcards) const
 {
     QVector<SourceFile> result;
-    foreach (const ProString &str, d->values(ProKey(variable))) {
+    const ProStringList values = d->values(ProKey(variable));
+    for (const ProString &str : values) {
         const QString &el = d->m_option->expandEnvVars(str.toQString());
         const QString fn = IoUtils::isAbsolutePath(el)
                 ? QDir::cleanPath(el) : QDir::cleanPath(baseDirectory + QLatin1Char('/') + el);
@@ -115,7 +116,8 @@ QStringList ProFileEvaluator::absolutePathValues(
         const QString &variable, const QString &baseDirectory) const
 {
     QStringList result;
-    foreach (const QString &el, values(variable)) {
+    const QStringList valueList = values(variable);
+    for (const QString &el : valueList) {
         QString absEl = IoUtils::resolvePath(baseDirectory, el);
         if (IoUtils::fileType(absEl) == IoUtils::FileIsDir)
             result << absEl;
@@ -129,7 +131,8 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
 {
     QMakeVfs::VfsFlags flags = (d->m_cumulative ? QMakeVfs::VfsCumulative : QMakeVfs::VfsExact);
     QVector<SourceFile> result;
-    foreach (const ProString &str, d->values(ProKey(variable))) {
+    const ProStringList values = d->values(ProKey(variable));
+    for (const ProString &str : values) {
         bool &seen = (*handled)[str];
         if (seen)
             continue;
@@ -144,7 +147,7 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
             }
             absEl = fn;
         } else {
-            foreach (const QString &dir, searchDirs) {
+            for (const QString &dir : searchDirs) {
                 QString fn = QDir::cleanPath(dir + QLatin1Char('/') + el);
                 if (m_vfs->exists(fn, flags)) {
                     result << SourceFile{fn, str.sourceFile()};
@@ -169,7 +172,8 @@ QVector<ProFileEvaluator::SourceFile> ProFileEvaluator::absoluteFileValues(
                     wildcard.detach(); // Keep m_tmp out of QRegExp's cache
                     QDir theDir(absDir);
                     theDir.setFilter(theDir.filter() & ~QDir::AllDirs);
-                    foreach (const QString &fn, theDir.entryList(QStringList(wildcard)))
+                    const QStringList list = theDir.entryList(QStringList(wildcard));
+                    for (const QString &fn : list)
                         if (fn != QLatin1String(".") && fn != QLatin1String(".."))
                             result << SourceFile{absDir + QLatin1Char('/') + fn, str.sourceFile()};
                     QString directoryWithWildcard(absDir);

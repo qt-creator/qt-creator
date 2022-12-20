@@ -168,7 +168,7 @@ void QMakeGlobals::commitCommandLineArguments(QMakeCmdLineParserState &state)
 {
     if (!state.extraargs.isEmpty()) {
         QString extra = fL1S("QMAKE_EXTRA_ARGS =");
-        foreach (const QString &ea, state.extraargs)
+        for (const QString &ea  : std::as_const(state.extraargs))
             extra += QLatin1Char(' ') + QMakeEvaluator::quoteValue(ProString(ea));
         state.cmds[QMakeEvalBefore] << extra;
     }
