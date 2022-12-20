@@ -567,7 +567,6 @@ DebuggerSettings::DebuggerSettings()
     page2.registerAspect(&loadGdbInit);
     page2.registerAspect(&loadGdbDumpers);
     page2.registerAspect(&intelFlavor);
-    page2.registerAspect(&skipKnownFrames);
     page2.registerAspect(&usePseudoTracepoints);
     page2.registerAspect(&useIndexCache);
     page2.registerAspect(&gdbStartupCommands);

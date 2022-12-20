@@ -42,7 +42,27 @@ QString removeObviousSideEffects(const QString &expIn)
 
 bool isSkippableFunction(const QString &funcName, const QString &fileName)
 {
+    if (fileName.endsWith("/atomic_base.h"))
+        return true;
+    if (fileName.endsWith("/atomic"))
+        return true;
+    if (fileName.endsWith("/qatomic_cxx11.h"))
+        return true;
+    if (fileName.endsWith("/qbasicatomic.h"))
+        return true;
+    if (fileName.endsWith("/qobjectdefs.h"))
+        return true;
+    if (fileName.endsWith("/qobjectdefs_impl.h"))
+        return true;
     if (fileName.endsWith("/qobject.cpp"))
+        return true;
+    if (fileName.endsWith("/qobject_p.h"))
+        return true;
+    if (fileName.endsWith("/qobject_p_p.h"))
+        return true;
+    if (fileName.endsWith("/qscopedpointer.h"))
+        return true;
+    if (fileName.endsWith("/qthread.h"))
         return true;
     if (fileName.endsWith("/moc_qobject.cpp"))
         return true;
