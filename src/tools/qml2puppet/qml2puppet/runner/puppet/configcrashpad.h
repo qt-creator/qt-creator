@@ -6,11 +6,6 @@
 #include <windows.h>
 #endif
 
-#define START_CRASHPAD
-#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
-startCrashpad()
-#endif
-
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
 #endif
@@ -63,6 +58,11 @@ namespace {
     const QString libexecPath = QCoreApplication::applicationDirPath() + '/'
                                 + RELATIVE_LIBEXEC_PATH;
     QtSystemExceptionHandler systemExceptionHandler(libexecPath);
-#endif
-#endif
+#endif //#ifdef ENABLE_QT_BREAKPAD
+#else //#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
+    bool startCrashpad()
+    {
+        return false;
+    }
+#endif //#if defined(ENABLE_CRASHPAD) && defined(Q_OS_WIN)
 }

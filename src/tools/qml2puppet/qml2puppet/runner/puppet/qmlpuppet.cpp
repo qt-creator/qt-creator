@@ -114,7 +114,8 @@ void QmlPuppet::initQmlRunner()
         Import3D::import3D(sourceAsset, outDir, options);
     }
 
-    START_CRASHPAD;
+    startCrashpad();
+
     new QmlDesigner::Qt5NodeInstanceClientProxy(m_coreApp.get());
 
 #if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
