@@ -19,6 +19,8 @@ if (NOT QT_CREATOR_API_DEFINED)
   include(QtCreatorAPI)
 endif()
 
+configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
+
 find_package(Qt5
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
   REQUIRED
@@ -34,6 +36,8 @@ add_qtc_executable(qml2puppet
     Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
     QmlPuppetCommunication
+  INCLUDES
+    ${CMAKE_CURRENT_BINARY_DIR}
   SOURCES
     qml2puppet/main.cpp
     qmlpuppet.qrc
