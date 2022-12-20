@@ -1106,10 +1106,37 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
         return;
     }
 
+    const QString reason = data["reason"].data();
+    const GdbMi frame = data["frame"];
+
+    // Jump over well-known frames.
+    static int stepCounter = 0;
+    if (debuggerSettings()->skipKnownFrames.value()) {
+        if (reason == "end-stepping-range" || reason == "function-finished") {
+            //showMessage(frame.toString());
+            QString funcName = frame["function"].data();
+            QString fileName = frame["file"].data();
+            if (isLeavableFunction(funcName, fileName)) {
+                //showMessage(_("LEAVING ") + funcName);
+                ++stepCounter;
+                executeStepOut();
+                return;
+            }
+            if (isSkippableFunction(funcName, fileName)) {
+                //showMessage(_("SKIPPING ") + funcName);
+                ++stepCounter;
+                executeStepIn(false);
+                return;
+            }
+            //if (stepCounter)
+            //    qDebug() << "STEPCOUNTER:" << stepCounter;
+            stepCounter = 0;
+        }
+    }
+
     GdbMi threads = data["stopped-thread"];
     threadsHandler()->notifyStopped(threads.data());
 
-    const QString reason = data["reason"].data();
     if (isExitedReason(reason)) {
         //   // The user triggered a stop, but meanwhile the app simply exited ...
         //    QTC_ASSERT(state() == InferiorStopRequested
@@ -1148,7 +1175,6 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
     QString fullName;
     QString function;
     QString language;
-    const GdbMi frame = data["frame"];
     if (frame.isValid()) {
         const GdbMi lineNumberG = frame["line"];
         function = frame["function"].data(); // V4 protocol
@@ -1258,31 +1284,6 @@ void GdbEngine::handleStop1(const GdbMi &data)
          continueInferiorInternal();
          return;
      }
-
-    // Jump over well-known frames.
-    static int stepCounter = 0;
-    if (debuggerSettings()->skipKnownFrames.value()) {
-        if (reason == "end-stepping-range" || reason == "function-finished") {
-            //showMessage(frame.toString());
-            QString funcName = frame["function"].data();
-            QString fileName = frame["file"].data();
-            if (isLeavableFunction(funcName, fileName)) {
-                //showMessage(_("LEAVING ") + funcName);
-                ++stepCounter;
-                executeStepOut();
-                return;
-            }
-            if (isSkippableFunction(funcName, fileName)) {
-                //showMessage(_("SKIPPING ") + funcName);
-                ++stepCounter;
-                executeStepIn(false);
-                return;
-            }
-            //if (stepCounter)
-            //    qDebug() << "STEPCOUNTER:" << stepCounter;
-            stepCounter = 0;
-        }
-    }
 
     // Show return value if possible, usually with reason "function-finished".
     // *stopped,reason="function-finished",frame={addr="0x080556da",
