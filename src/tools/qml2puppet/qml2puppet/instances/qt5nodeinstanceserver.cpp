@@ -147,7 +147,7 @@ void Qt5NodeInstanceServer::resizeCanvasToRootItem()
 
 void Qt5NodeInstanceServer::resetAllItems()
 {
-    foreach (QQuickItem *item, allItems())
+    for (QQuickItem *item : allItems())
         QQuickDesignerSupport::resetDirty(item);
 }
 
@@ -167,13 +167,14 @@ QList<QQuickItem*> subItems(QQuickItem *parentItem)
     QList<QQuickItem*> itemList;
     itemList.append(parentItem->childItems());
 
-    foreach (QQuickItem *childItem, parentItem->childItems())
+    const QList<QQuickItem *> childItems = parentItem->childItems();
+    for (QQuickItem *childItem : childItems)
         itemList.append(subItems(childItem));
 
     return itemList;
 }
 
-QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
+const QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
 {
     if (rootNodeInstance().isValid())
         return rootNodeInstance().allItemsRecursive();

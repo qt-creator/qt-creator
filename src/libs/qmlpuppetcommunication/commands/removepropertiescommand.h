@@ -19,7 +19,7 @@ public:
     RemovePropertiesCommand();
     explicit RemovePropertiesCommand(const QVector<PropertyAbstractContainer> &properties);
 
-    QVector<PropertyAbstractContainer> properties() const;
+    const QVector<PropertyAbstractContainer> properties() const;
 
 private:
     QVector<PropertyAbstractContainer> m_properties;

@@ -15,7 +15,7 @@ RemoveInstancesCommand::RemoveInstancesCommand(const QVector<qint32> &idVector)
 {
 }
 
-QVector<qint32> RemoveInstancesCommand::instanceIds() const
+const QVector<qint32> RemoveInstancesCommand::instanceIds() const
 {
     return m_instanceIdVector;
 }

@@ -15,7 +15,7 @@ CompleteComponentCommand::CompleteComponentCommand(const QVector<qint32> &contai
 {
 }
 
-QVector<qint32> CompleteComponentCommand::instances() const
+const QVector<qint32> CompleteComponentCommand::instances() const
 {
     return m_instanceVector;
 }

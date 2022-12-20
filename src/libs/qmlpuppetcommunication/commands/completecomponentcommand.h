@@ -18,7 +18,7 @@ public:
     CompleteComponentCommand();
     explicit CompleteComponentCommand(const QVector<qint32> &container);
 
-    QVector<qint32> instances() const;
+    const QVector<qint32> instances() const;
 
 private:
     QVector<qint32> m_instanceVector;

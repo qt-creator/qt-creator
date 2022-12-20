@@ -14,7 +14,7 @@ ChangeValuesCommand::ChangeValuesCommand(const QVector<PropertyValueContainer> &
 {
 }
 
-QVector<PropertyValueContainer> ChangeValuesCommand::valueChanges() const
+const QVector<PropertyValueContainer> ChangeValuesCommand::valueChanges() const
 {
     return m_valueChangeVector;
 }

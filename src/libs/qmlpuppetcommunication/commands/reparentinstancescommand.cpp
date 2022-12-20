@@ -15,7 +15,7 @@ ReparentInstancesCommand::ReparentInstancesCommand(const QVector<ReparentContain
 {
 }
 
-QVector<ReparentContainer> ReparentInstancesCommand::reparentInstances() const
+const QVector<ReparentContainer> ReparentInstancesCommand::reparentInstances() const
 {
     return m_reparentInstanceVector;
 }

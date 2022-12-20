@@ -14,7 +14,7 @@ RemovePropertiesCommand::RemovePropertiesCommand(const QVector<PropertyAbstractC
 {
 }
 
-QVector<PropertyAbstractContainer> RemovePropertiesCommand::properties() const
+const QVector<PropertyAbstractContainer> RemovePropertiesCommand::properties() const
 {
     return m_properties;
 }

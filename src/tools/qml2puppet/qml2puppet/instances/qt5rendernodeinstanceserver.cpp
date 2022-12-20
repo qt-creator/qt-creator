@@ -56,7 +56,7 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
         if (quickWindow() && nodeInstanceClient()->bytesToWrite() < 10000) {
             bool windowDirty = false;
-            foreach (QQuickItem *item, allItems()) {
+            for (QQuickItem *item : allItems()) {
                 if (item) {
                     if (Internal::QuickItemNodeInstance::unifiedRenderPath()) {
                         if (QQuickDesignerSupport::isDirty(item, QQuickDesignerSupport::AllMask)) {

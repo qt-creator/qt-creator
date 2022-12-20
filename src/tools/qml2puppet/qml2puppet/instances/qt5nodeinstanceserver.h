@@ -57,7 +57,7 @@ protected:
     void resizeCanvasToRootItem() override;
     void resetAllItems();
     void setupScene(const CreateSceneCommand &command) override;
-    QList<QQuickItem*> allItems() const;
+    const QList<QQuickItem*> allItems() const;
     bool rootIsRenderable3DObject() const;
 
     struct RenderViewData {

@@ -19,7 +19,7 @@ public:
     ChangeValuesCommand();
     explicit ChangeValuesCommand(const QVector<PropertyValueContainer> &valueChangeVector);
 
-    QVector<PropertyValueContainer> valueChanges() const;
+    const QVector<PropertyValueContainer> valueChanges() const;
 
 private:
     QVector<PropertyValueContainer> m_valueChangeVector;

@@ -20,7 +20,7 @@ public:
     RemoveInstancesCommand();
     explicit RemoveInstancesCommand(const QVector<qint32> &idVector);
 
-    QVector<qint32> instanceIds() const;
+    const QVector<qint32> instanceIds() const;
 
 private:
     QVector<qint32> m_instanceIdVector;
