@@ -419,6 +419,11 @@ QSet<Id> QtVersion::availableFeatures() const
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_PREFIX, 6, -1));
     features.unite(versionedIds(Constants::FEATURE_QT_QUICK_CONTROLS_2_PREFIX, 6, -1));
 
+    if (QVersionNumber(6, 1).isPrefixOf(qtVersion()))
+        return features;
+
+    features.insert(Constants::FEATURE_QT_QML_CMAKE_API);
+
     return features;
 }
 
