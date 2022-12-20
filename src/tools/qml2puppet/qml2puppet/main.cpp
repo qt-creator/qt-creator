@@ -1,12 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "runner/puppet/qmlpuppet.h"
-#include "runner/runtime/qmlruntime.h"
+#include "qmlpuppet.h"
+
+#ifdef ENABLE_INTERNAL_QML_RUNTIME
+#include "runner/qmlruntime.h"
+#endif
 
 QmlBase *getQmlRunner(int &argc, char **argv)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+#ifdef ENABLE_INTERNAL_QML_RUNTIME
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "--qml-runtime")){
             qInfo() << "Starting QML Runtime";

@@ -40,6 +40,8 @@ add_qtc_executable(qml2puppet
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
     qml2puppet/main.cpp
+    qml2puppet/qmlbase.h qml2puppet/appmetadata.h
+    qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
     qmlpuppet.qrc
 )
 
@@ -181,15 +183,6 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  SOURCES_PREFIX qml2puppet/runner
-  SOURCES
-    runtime/qmlruntime.h runtime/qmlruntime.cpp
-    runtime/qmlconfiguration.h runtime/loadwatcher.h
-    puppet/qmlpuppet.h puppet/qmlpuppet.cpp puppet/configcrashpad.h
-    qmlbase.h appmetadata.h
-)
-
-extend_qtc_executable(qml2puppet
   SOURCES_PREFIX qmlprivategate
   SOURCES
     qmlprivategate.cpp qmlprivategate.h
@@ -210,23 +203,30 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner/runtime
-)
-
-extend_qtc_executable(qml2puppet
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
 )
 
-# Turn the tool into its own self-contained qml module
-qt6_add_qml_module(qml2puppet
-    URI QmlRuntime.QmlConfiguration
-    VERSION 1.0
-)
+if (Qt5_VERSION VERSION_GREATER_EQUAL 6.4.0)
+    extend_qtc_executable(qml2puppet
+      DEFINES ENABLE_INTERNAL_QML_RUNTIME
+      PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner
+      SOURCES_PREFIX qml2puppet/runner
+      SOURCES
+        qmlruntime.h qmlruntime.cpp
+        qmlconfiguration.h loadwatcher.h
+    )
 
-if (QTC_STATIC_BUILD AND Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0)
-  qt6_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+    # Turn the tool into its own self-contained qml module
+    qt_add_qml_module(qml2puppet
+        URI QmlRuntime.QmlConfiguration
+        VERSION 1.0
+    )
+    if (QTC_STATIC_BUILD)
+      qt_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+    endif()
 endif()
+
 
 # Crashpad
 # only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()

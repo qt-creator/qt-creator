@@ -16,7 +16,6 @@ inline Q_LOGGING_CATEGORY(deprecated, "qt.tools.qds.deprecated");
 inline Q_LOGGING_CATEGORY(verbose1, "qt.tools.qds.verbose1");
 inline Q_LOGGING_CATEGORY(verbose2, "qt.tools.qds.verbose2");
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 inline void registerMessageHandler()
 {
     qInstallMessageHandler(
@@ -45,8 +44,6 @@ inline void registerMessageHandler()
             }
         });
 }
-#endif
-
 } // namespace Logging
 
 namespace AppInfo {
