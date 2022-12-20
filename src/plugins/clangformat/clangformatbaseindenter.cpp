@@ -467,10 +467,9 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
                                                                 bool secondTry) const
 {
     QTC_ASSERT(replacementsToKeep != ReplacementsToKeep::All, return Utils::Text::Replacements());
+    QTC_ASSERT(!m_fileName.isEmpty(), return {});
 
-    clang::format::FormatStyle style = styleForFile();
     QByteArray originalBuffer = buffer;
-
     int utf8Offset = Utils::Text::utf8NthLineOffset(m_doc, buffer, startBlock.blockNumber() + 1);
     QTC_ASSERT(utf8Offset >= 0, return Utils::Text::Replacements(););
     int utf8Length = selectedLines(m_doc, startBlock, endBlock).toUtf8().size();
@@ -479,6 +478,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
     if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
         rangeStart = formattingRangeStart(startBlock, buffer, lastSaveRevision());
 
+    clang::format::FormatStyle style = styleForFile();
     adjustFormatStyleForLineBreak(style, replacementsToKeep);
     if (replacementsToKeep == ReplacementsToKeep::OnlyIndent) {
         CharacterContext currentCharContext = CharacterContext::Unknown;
@@ -527,6 +527,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::replacements(QByteArray buffe
 Utils::Text::Replacements ClangFormatBaseIndenter::format(
     const TextEditor::RangesInLines &rangesInLines)
 {
+    QTC_ASSERT(!m_fileName.isEmpty(), return {});
     if (rangesInLines.empty())
         return Utils::Text::Replacements();
 

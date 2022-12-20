@@ -110,9 +110,12 @@ def is_ignored_windows_file(use_debug, basepath, filename):
     return False
 
 def ignored_qt_lib_files(path, filenames):
+    # Qt ships some unneeded object files in the qml plugins
+    # On Windows we also do not want to ship the wrong debug/release .dlls or .lib files etc
     if not common.is_windows_platform():
-        return []
-    return [fn for fn in filenames if is_ignored_windows_file(debug_build, path, fn)]
+        return [fn for fn in filenames if fn.endswith('.cpp.o')]
+    return [fn for fn in filenames
+            if fn.endswith('.cpp.obj') or is_ignored_windows_file(debug_build, path, fn)]
 
 def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir, qt_plugin_dir, qt_qml_dir, plugins):
     print("copying Qt libraries...")

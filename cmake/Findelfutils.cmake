@@ -62,6 +62,8 @@ if(elfutils_FOUND)
       endif()
     endif()
   endforeach()
+else()
+  message(STATUS "                        (set ELFUTILS_INSTALL_DIR, or install libdw-dev on a Debian-like system)")
 endif()
 
 mark_as_advanced(ELFUTILS_INCLUDE_DIR ELFUTILS_LIB_elf ELFUTILS_LIB_dw)
