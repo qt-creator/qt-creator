@@ -4562,7 +4562,7 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <name>::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Stvori simulatora</translation>
@@ -4583,9 +4583,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>None</source>
         <translation>Bez</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildSettingsWidget</name>
     <message>
         <source>Reset</source>
         <translation>Resetiraj</translation>
@@ -4609,10 +4606,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     <message>
         <source>Default</source>
         <translation>Standardno</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Bez</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -4654,9 +4647,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
         <translation>Osnovni argumenti:</translation>
@@ -4673,9 +4663,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>xcodebuild</source>
         <translation>xcodebuild</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
     <message>
         <source>Reset to Default</source>
         <translation>Vrati na zadane vrijednosti</translation>
@@ -4688,9 +4675,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Konfiguracija za iOS</translation>
@@ -4726,10 +4710,6 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Resetiraj sadržaj i postavke simulatora uređaja.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -4867,9 +4847,6 @@ UDID: %2</translation>
         <source>simulator screenshot</source>
         <translation>snimka ekrana simulatora</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Stanje operacije simulatora</translation>
@@ -25628,15 +25605,12 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>iOS gradnja</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation>%1 simulator</translation>
@@ -25669,7 +25643,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosDeployStep</name>
+    <name>::Ios</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Primijeni na %1</translation>
@@ -25706,20 +25680,10 @@ Rok upotrebe: %3</translation>
         <source>Deploy to iOS device or emulator</source>
         <translation>Primijeni na iOS ili emulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
     <message>
         <source>iOS Device</source>
         <translation>iOS uređaj</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Naziv uređaja</translation>
@@ -25757,16 +25721,10 @@ Rok upotrebe: %3</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Želiš li vidjeti kako se postavlja za razvoj?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Primijeni na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Neuspjelo prepoznavanje ABI-a, korištenog od Qt verzije.</translation>
@@ -25776,9 +25734,6 @@ Rok upotrebe: %3</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Pokreni na %1</translation>
@@ -25820,13 +25775,6 @@ Rok upotrebe: %3</translation>
         <translation>%1 nije povezan.</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Vrsta uređaja:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
-    <message>
         <source>Could not find %1.</source>
         <translation>Nije bilo moguće naći %1.</translation>
     </message>
@@ -25854,23 +25802,14 @@ Rok upotrebe: %3</translation>
         <source>Run ended with error.</source>
         <translation>Pokretanje prekinuto s greškom.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Započinjanje daljinskog procesa.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation>Nije bilo moguće dobiti potrebne priključke za vezu s programom za profiliranje.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Program nije pokrenut.</translation>
@@ -25883,30 +25822,10 @@ Rok upotrebe: %3</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>iOS simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>iOS simulator</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>Greška iOS alata %1</translation>
@@ -25943,9 +25862,6 @@ Rok upotrebe: %3</translation>
         <source>Invalid simulator response. Device Id mismatch. Device Id = %1 Response Id = %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>

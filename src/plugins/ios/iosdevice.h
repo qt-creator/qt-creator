@@ -22,8 +22,6 @@ class IosDeviceManager;
 
 class IosDevice final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDevice)
-
 public:
     using Dict = QMap<QString, QString>;
     using ConstPtr = QSharedPointer<const IosDevice>;
@@ -69,7 +67,6 @@ public:
 
 class IosDeviceManager : public QObject
 {
-    Q_OBJECT
 public:
     using TranslationMap = QHash<QString, QString>;
 
@@ -85,6 +82,7 @@ public:
                     const Ios::IosToolHandler::Dict &info);
     void infoGathererFinished(Ios::IosToolHandler *gatherer);
     void monitorAvailableDevices();
+
 private:
     void updateUserModeDevices();
     IosDeviceManager(QObject *parent = nullptr);

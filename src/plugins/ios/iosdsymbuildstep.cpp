@@ -6,6 +6,7 @@
 #include "iosconstants.h"
 #include "iosconfigurations.h"
 #include "iosrunconfiguration.h"
+#include "iostr.h"
 
 #include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/target.h>
@@ -34,13 +35,39 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
-static const char USE_DEFAULT_ARGS_PARTIAL_KEY[] = ".ArgumentsUseDefault";
-static const char COMMAND_PARTIAL_KEY[] = ".Command";
-static const char ARGUMENTS_PARTIAL_KEY[] = ".Arguments";
-static const char CLEAN_PARTIAL_KEY[] = ".Clean";
+const char USE_DEFAULT_ARGS_PARTIAL_KEY[] = ".ArgumentsUseDefault";
+const char COMMAND_PARTIAL_KEY[] = ".Command";
+const char ARGUMENTS_PARTIAL_KEY[] = ".Arguments";
+const char CLEAN_PARTIAL_KEY[] = ".Clean";
+
+class IosDsymBuildStep : public AbstractProcessStep
+{
+public:
+    IosDsymBuildStep(BuildStepList *parent, Id id);
+
+    QWidget *createConfigWidget() override;
+    void setArguments(const QStringList &args);
+    QStringList arguments() const;
+    QStringList defaultArguments() const;
+    FilePath defaultCommand() const;
+    FilePath command() const;
+    void setCommand(const FilePath &command);
+    bool isDefault() const;
+
+private:
+    void setupOutputFormatter(OutputFormatter *formatter) override;
+    QVariantMap toMap() const override;
+    bool fromMap(const QVariantMap &map) override;
+
+    QStringList defaultCleanCmdList() const;
+    QStringList defaultCmdList() const;
+
+    QStringList m_arguments;
+    FilePath m_command;
+    bool m_clean;
+};
 
 IosDsymBuildStep::IosDsymBuildStep(BuildStepList *parent, Id id) :
     AbstractProcessStep(parent, id),
@@ -180,12 +207,11 @@ QStringList IosDsymBuildStep::arguments() const
     return m_arguments;
 }
 
-
 QWidget *IosDsymBuildStep::createConfigWidget()
 {
     auto widget = new QWidget;
 
-    auto commandLabel = new QLabel(tr("Command:"), widget);
+    auto commandLabel = new QLabel(Tr::tr("Command:"), widget);
 
     auto commandLineEdit = new QLineEdit(widget);
     commandLineEdit->setText(command().toString());
@@ -193,9 +219,9 @@ QWidget *IosDsymBuildStep::createConfigWidget()
     auto argumentsTextEdit = new QPlainTextEdit(widget);
     argumentsTextEdit->setPlainText(Utils::ProcessArgs::joinArgs(arguments()));
 
-    auto argumentsLabel = new QLabel(tr("Arguments:"), widget);
+    auto argumentsLabel = new QLabel(Tr::tr("Arguments:"), widget);
 
-    auto resetDefaultsButton = new QPushButton(tr("Reset to Default"), widget);
+    auto resetDefaultsButton = new QPushButton(Tr::tr("Reset to Default"), widget);
     resetDefaultsButton->setLayoutDirection(Qt::RightToLeft);
     resetDefaultsButton->setEnabled(!isDefault());
 
@@ -248,9 +274,7 @@ QWidget *IosDsymBuildStep::createConfigWidget()
     return widget;
 }
 
-//
 // IosDsymBuildStepFactory
-//
 
 IosDsymBuildStepFactory::IosDsymBuildStepFactory()
 {
@@ -260,5 +284,4 @@ IosDsymBuildStepFactory::IosDsymBuildStepFactory()
     setDisplayName("dsymutil");
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

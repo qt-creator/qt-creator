@@ -29393,7 +29393,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Basisargumente:</translation>
@@ -29631,14 +29631,11 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosConfigurations</name>
+    <name>::Ios</name>
     <message>
         <source>%1 Simulator</source>
         <translation>%1 Simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Anwendung läuft nicht.</translation>
@@ -29651,9 +29648,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation>Der dSYM %1 scheint veraltet zu sein, dies kann den Debugger stören.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Deployment auf %1</translation>
@@ -29690,9 +29684,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Deploy to iOS device</source>
         <translation>Deployment auf iOS-Gerät</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
     <message>
         <source>iOS Device</source>
         <translation>iOS-Gerät</translation>
@@ -29713,13 +29704,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>CPU Architecture:</source>
         <translation>CPU-Architektur:</translation>
     </message>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Gerätename</translation>
@@ -29757,9 +29741,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Möchten Sie sehen, wie man es für die Entwicklung einrichtet?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Die von der Qt-Version verwendeten ABIs konnten nicht bestimmt werden.</translation>
@@ -29769,9 +29750,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Auf %1 ausführen</translation>
@@ -29816,16 +29794,10 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Device type:</source>
         <translation>Gerätetyp:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>iOS-Simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>Fehler vom iOS-Tool %1</translation>
@@ -30214,7 +30186,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosRunner</name>
+    <name>::Ios</name>
     <message>
         <source>Could not find %1.</source>
         <translation>%1 konnte nicht gefunden werden.</translation>
@@ -38966,7 +38938,7 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <name>::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Simulator erstellen</translation>
@@ -38976,20 +38948,9 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
         <translation>Name des Simulators:</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Gerätetyp:</translation>
-    </message>
-    <message>
         <source>OS version:</source>
         <translation>Betriebssystemversion:</translation>
     </message>
-    <message>
-        <source>None</source>
-        <translation>Keiner</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>iOS-Konfiguration</translation>
@@ -39025,10 +38986,6 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Inhalte und Einstellungen von Simulator-Geräten zurücksetzen.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -39160,13 +39117,6 @@ Fehler: %2</translation>
         <source>simulator screenshot</source>
         <translation>Simulator Screenshot</translation>
     </message>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Simulator-Betriebszustand</translation>
@@ -40281,21 +40231,15 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosRunSupport</name>
+    <name>::Ios</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Starte entfernten Prozess.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation>Auf die für die Profiler-Verbindung notwendigen Ports konnte nicht zugegriffen werden.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>
@@ -43723,7 +43667,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal</name>
+    <name>::Ios</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Deployment auf iOS</translation>
@@ -53792,7 +53736,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosQmakeBuildConfiguration</name>
+    <name>::Ios</name>
     <message>
         <source>iOS Settings</source>
         <translation type="unfinished">iOS-Einstellungen</translation>
@@ -53861,9 +53805,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation type="unfinished">Das Provisioning-Profil ist abgelaufen. Ablaufdatum: %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDsymBuildStep</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished"></translation>

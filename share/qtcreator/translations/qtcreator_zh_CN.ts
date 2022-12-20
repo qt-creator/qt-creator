@@ -24090,14 +24090,11 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal</name>
+    <name>::Ios</name>
     <message>
         <source>Deploy on iOS</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
     <message>
         <source>Create Simulator</source>
         <translation type="unfinished"></translation>
@@ -24118,9 +24115,6 @@ Id必须以小写字母开头。</translation>
         <source>None</source>
         <translation type="unfinished">无</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
         <translation type="unfinished"></translation>
@@ -24142,16 +24136,10 @@ Id必须以小写字母开头。</translation>
         <source>xcodebuild</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation type="unfinished"></translation>
@@ -24164,9 +24152,6 @@ Id必须以小写字母开头。</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation type="unfinished"></translation>
@@ -24203,13 +24188,6 @@ Id必须以小写字母开头。</translation>
         <source>Deploy to iOS device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>iOS Device</source>
         <translation type="unfinished"></translation>
@@ -24230,9 +24208,6 @@ Id必须以小写字母开头。</translation>
         <source>CPU Architecture:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation type="unfinished"></translation>
@@ -24270,9 +24245,6 @@ Id必须以小写字母开头。</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDsymBuildStep</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished">命令:</translation>
@@ -24285,9 +24257,6 @@ Id必须以小写字母开头。</translation>
         <source>Reset to Default</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmakeBuildConfiguration</name>
     <message>
         <source>iOS Settings</source>
         <translation type="unfinished"></translation>
@@ -24311,10 +24280,6 @@ Id必须以小写字母开头。</translation>
     <message>
         <source>Default</source>
         <translation type="unfinished">默认</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">无</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -24356,16 +24321,10 @@ Id必须以小写字母开头。</translation>
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation type="unfinished">检测Qt版本使用的ABI失败。</translation>
@@ -24375,9 +24334,6 @@ Id必须以小写字母开头。</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation type="unfinished"></translation>
@@ -24419,19 +24375,9 @@ Id必须以小写字母开头。</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation type="unfinished">设备类型:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
-    <message>
         <source>Starting remote process.</source>
         <translation type="unfinished">启动远端进程。</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation type="unfinished"></translation>
@@ -24460,13 +24406,6 @@ Id必须以小写字母开头。</translation>
         <source>Run ended with error.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
-    <message>
-        <source>iOS</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>iOS Configuration</source>
         <translation type="unfinished"></translation>
@@ -24490,10 +24429,6 @@ Id必须以小写字母开头。</translation>
     <message>
         <source>Delete simulator devices.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="unfinished">重置</translation>
     </message>
     <message>
         <source>Reset contents and settings of simulator devices.</source>
@@ -24629,16 +24564,10 @@ Error: %2</source>
         <source>simulator screenshot</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation type="unfinished"></translation>
@@ -24655,9 +24584,6 @@ Error: %2</source>
         <source>Current State</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation type="unfinished"></translation>
@@ -24682,9 +24608,6 @@ Error: %5</source>
         <source>Done.</source>
         <translation type="unfinished">完成。</translation>
     </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation type="unfinished"></translation>
@@ -24721,9 +24644,6 @@ Error: %5</source>
         <source>Invalid simulator response. Device Id mismatch. Device Id = %1 Response Id = %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Relayer</name>
     <message>
         <source>iOS Debugging connection to creator failed with error %1</source>
         <translation type="unfinished"></translation>

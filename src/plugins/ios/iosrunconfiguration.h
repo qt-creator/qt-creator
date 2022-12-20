@@ -14,8 +14,7 @@
 #include <QComboBox>
 #include <QStandardItemModel>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosRunConfiguration;
 
@@ -61,7 +60,7 @@ private:
 
 class IosRunConfiguration : public ProjectExplorer::RunConfiguration
 {
-    Q_OBJECT
+    Q_OBJECT // FIXME: Used in  IosDsymBuildStep
 
 public:
     IosRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
@@ -84,5 +83,4 @@ public:
     IosRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

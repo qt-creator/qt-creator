@@ -10,8 +10,7 @@
 
 #include <QDebug>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosConfigurations;
 class IosSimulatorFactory;
@@ -42,8 +41,6 @@ QDebug operator <<(QDebug debug, const IosDeviceType &deviceType);
 
 class IosSimulator final : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosSimulator)
-
 public:
     using ConstPtr = QSharedPointer<const IosSimulator>;
     using Ptr = QSharedPointer<IosSimulator>;
@@ -69,7 +66,6 @@ public:
     IosSimulatorFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
 
 Q_DECLARE_METATYPE(Ios::Internal::IosDeviceType)

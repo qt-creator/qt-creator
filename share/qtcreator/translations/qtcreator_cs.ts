@@ -55609,7 +55609,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Základní argumenty:</translation>
@@ -55634,16 +55634,6 @@ monitor reset</source>
         <source>Configuration is faulty. Check the Issues output pane for details.</source>
         <translation>Nastavení je chybové. Zkontrolujte tabulku s potížemi kvůli podrobnostem.</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-</context>
-<context>
-    <name>IosRunConfiguration</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -55656,9 +55646,6 @@ monitor reset</source>
         <source>Executable:</source>
         <translation>Spustitelný soubor:</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Nastavení iOS</translation>
@@ -56680,29 +56667,16 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Sestavení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
         <translation>Symboly pro ladění zvláštní pro zařízení se nepodařilo najít v %1. Spuštění ladění bude pomalé, dokud neotevřete okno organizéru Xcode s připojeným zařízením, abyste měli symboly vytvořeny.</translation>
@@ -56719,23 +56693,14 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Run failed unexpectedly.</source>
         <translation>Spuštění se neočekávaně nezdařilo.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Poslat na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Poslat na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Poslat na %1</translation>
@@ -56760,34 +56725,18 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The Info.plist might be incorrect.</source>
         <translation>Info.plist může být nesprávný.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Nasadit na zařízení nebo emulátor iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
         <translation>&lt;b&gt;Poslat na %1&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Zařízení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Název zařízení</translation>
@@ -56825,9 +56774,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Do you want to see how to set it up for development?</source>
         <translation>Chcete vidět, jak je nastavit, aby se dalo použít pro vývoj?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>ABI(s) verze Qt se nepodařilo určit.</translation>
@@ -56837,9 +56783,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Spustit na %1</translation>
@@ -56880,16 +56823,10 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>%1 is not connected.</source>
         <translation>%1 není připojeno.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>Nastavení spuštění na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Spouští se vzdálený proces.</translation>
@@ -56898,9 +56835,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Run ended unexpectedly.</source>
         <translation>Spuštění skončilo neočekávaně.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
         <translation>Spuštění se nezdařilo. Nastavení v okně organizéru Xcode může být nesprávné.</translation>
@@ -56909,30 +56843,14 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>The device is locked, please unlock.</source>
         <translation>Zařízení je zamknuto. Odemkněte je, prosím.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
     <message>
         <source>iOS Configurations</source>
         <translation>Nastavení iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Simulátor iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>Simulátor iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>Subprocess Error %1</source>
         <translation>Chyba podprocesu %1</translation>

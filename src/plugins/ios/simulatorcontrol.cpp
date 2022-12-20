@@ -28,8 +28,7 @@ namespace {
 static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 }
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 const int simulatorStartTimeout = 60000;
 
@@ -584,5 +583,4 @@ bool SimulatorInfo::operator==(const SimulatorInfo &other) const
             && runtimeName == other.runtimeName;
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

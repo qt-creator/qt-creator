@@ -9,6 +9,7 @@
 #include "iosrunconfiguration.h"
 #include "iossimulator.h"
 #include "iostoolhandler.h"
+#include "iostr.h"
 
 #include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitinformation.h>
@@ -73,8 +74,6 @@ static void stopRunningRunControl(RunControl *runControl)
 
 class IosRunner : public RunWorker
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosRunner)
-
 public:
     IosRunner(RunControl *runControl);
     ~IosRunner() override;
@@ -194,7 +193,8 @@ void IosRunner::start()
     m_cleanExit = false;
     m_qmlServerPort = Port();
     if (!QFileInfo::exists(m_bundleDir)) {
-        TaskHub::addTask(DeploymentTask(Task::Warning, tr("Could not find %1.").arg(m_bundleDir)));
+        TaskHub::addTask(DeploymentTask(Task::Warning,
+                                        Tr::tr("Could not find %1.").arg(m_bundleDir)));
         reportFailure();
         return;
     }
@@ -275,7 +275,7 @@ void IosRunner::handleGotServerPorts(IosToolHandler *handler, const QString &bun
     if (prerequisiteOk)
         reportStarted();
     else
-        reportFailure(tr("Could not get necessary ports for the debugger connection."));
+        reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
@@ -293,7 +293,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
     if (m_pid > 0) {
         prerequisiteOk = true;
     } else {
-        reportFailure(tr("Could not get inferior PID."));
+        reportFailure(Tr::tr("Could not get inferior PID."));
         return;
     }
 
@@ -303,7 +303,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
     if (prerequisiteOk)
         reportStarted();
     else
-        reportFailure(tr("Could not get necessary ports for the debugger connection."));
+        reportFailure(Tr::tr("Could not get necessary ports for the debugger connection."));
 }
 
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
@@ -324,10 +324,10 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     QString res(msg);
     QString lockedErr ="Unexpected reply: ELocked (454c6f636b6564) vs OK (4f4b)";
     if (msg.contains("AMDeviceStartService returned -402653150")) {
-        TaskHub::addTask(DeploymentTask(Task::Warning, tr("Run failed. "
+        TaskHub::addTask(DeploymentTask(Task::Warning, Tr::tr("Run failed. "
            "The settings in the Organizer window of Xcode might be incorrect.")));
     } else if (res.contains(lockedErr)) {
-        QString message = tr("The device is locked, please unlock.");
+        QString message = Tr::tr("The device is locked, please unlock.");
         TaskHub::addTask(DeploymentTask(Task::Error, message));
         res.replace(lockedErr, message);
     }
@@ -350,9 +350,9 @@ void IosRunner::handleFinished(IosToolHandler *handler)
 {
     if (m_toolHandler == handler) {
         if (m_cleanExit)
-            appendMessage(tr("Run ended."), NormalMessageFormat);
+            appendMessage(Tr::tr("Run ended."), NormalMessageFormat);
         else
-            appendMessage(tr("Run ended with error."), ErrorMessageFormat);
+            appendMessage(Tr::tr("Run ended with error."), ErrorMessageFormat);
         m_toolHandler = nullptr;
     }
     handler->deleteLater();
@@ -385,13 +385,12 @@ Port IosRunner::qmlServerPort() const
 
 class IosRunSupport : public IosRunner
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosRunSupport)
-
 public:
     explicit IosRunSupport(RunControl *runControl);
     ~IosRunSupport() override;
 
     void didStartApp(IosToolHandler::OpStatus status);
+
 private:
     void start() override;
 };
@@ -412,7 +411,7 @@ IosRunSupport::~IosRunSupport()
 
 void IosRunSupport::start()
 {
-    appendMessage(tr("Starting remote process."), NormalMessageFormat);
+    appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
     IosRunner::start();
 }
 
@@ -422,7 +421,6 @@ void IosRunSupport::start()
 
 class IosQmlProfilerSupport : public RunWorker
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosQmlProfilerSupport)
 
 public:
     IosQmlProfilerSupport(RunControl *runControl);
@@ -462,7 +460,7 @@ void IosQmlProfilerSupport::start()
     if (qmlPort.isValid())
         reportStarted();
     else
-        reportFailure(tr("Could not get necessary ports for the profiler connection."));
+        reportFailure(Tr::tr("Could not get necessary ports for the profiler connection."));
 }
 
 //
@@ -471,8 +469,6 @@ void IosQmlProfilerSupport::start()
 
 class IosDebugSupport : public DebuggerRunTool
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDebugSupport)
-
 public:
     IosDebugSupport(RunControl *runControl);
 
@@ -498,7 +494,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 void IosDebugSupport::start()
 {
     if (!m_runner->isAppRunning()) {
-        reportFailure(tr("Application not running."));
+        reportFailure(Tr::tr("Application not running."));
         return;
     }
 
@@ -520,9 +516,9 @@ void IosDebugSupport::start()
         if (deviceSdk.isEmpty()) {
             TaskHub::addTask(DeploymentTask(
                 Task::Warning,
-                tr("Could not find device specific debug symbols at %1. "
-                   "Debugging initialization will be slow until you open the Organizer window of "
-                   "Xcode with the device connected to have the symbols generated.")
+                Tr::tr("Could not find device specific debug symbols at %1. "
+                       "Debugging initialization will be slow until you open the Organizer window of "
+                       "Xcode with the device connected to have the symbols generated.")
                     .arg(symbolsPathCandidates.constFirst().toUserOutput())));
         }
         setDeviceSymbolsRoot(deviceSdk.toString());
@@ -553,8 +549,8 @@ void IosDebugSupport::start()
         if (dsymPath.exists()
                 && dsymPath.lastModified() < data->localExecutable.lastModified()) {
             TaskHub::addTask(DeploymentTask(Task::Warning,
-                     tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
-                             .arg(dsymPath.toUserOutput())));
+                Tr::tr("The dSYM %1 seems to be outdated, it might confuse the debugger.")
+                    .arg(dsymPath.toUserOutput())));
         }
     }
 

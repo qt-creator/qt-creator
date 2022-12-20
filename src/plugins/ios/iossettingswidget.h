@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include "iosconfigurations.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
-
-#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
@@ -21,8 +17,6 @@ namespace Ios::Internal {
 
 class IosSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosSettingsWidget)
-
 public:
     IosSettingsWidget();
     ~IosSettingsWidget() final;

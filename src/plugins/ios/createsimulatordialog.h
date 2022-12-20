@@ -23,8 +23,6 @@ class RuntimeInfo;
  */
 class CreateSimulatorDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit CreateSimulatorDialog(QWidget *parent = nullptr);
     ~CreateSimulatorDialog() override;

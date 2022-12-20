@@ -60,4 +60,5 @@ private:
     QMap<QString, XcodePlatform> m_platforms;
     QStringList m_developerPaths;
 };
+
 } // namespace Ios

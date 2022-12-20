@@ -53068,7 +53068,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Arguments de base :</translation>
@@ -53093,16 +53093,6 @@ réinitialisation du moniteur</translation>
         <source>Configuration is faulty. Check the Issues output pane for details.</source>
         <translation>La configuration est défectueuse. Veuillez vérifier la vue des problèmes pour les détails.</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-</context>
-<context>
-    <name>IosRunConfiguration</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -53115,9 +53105,6 @@ réinitialisation du moniteur</translation>
         <source>Executable:</source>
         <translation>Exécutable :</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Configuration iOS</translation>
@@ -54113,29 +54100,16 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Compilation iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Could not get debug server file descriptor.</source>
         <translation>Impossible de récupérer le fichier de description du serveur de débogage.</translation>
@@ -54148,23 +54122,14 @@ réinitialisation du moniteur</translation>
         <source>Run failed unexpectedly.</source>
         <translation>L&apos;exécution a échoué de façon inattendu.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Déploiement sur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Déploiement sur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Déploiement sur %1</translation>
@@ -54189,34 +54154,18 @@ réinitialisation du moniteur</translation>
         <source>The Info.plist might be incorrect.</source>
         <translation>Le fichier Info.plist est peut-être incorrecte.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Déploiement sur un périphérique iOS ou un émulateur</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
         <translation>&lt;b&gt;Déploiement sur %1&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Périphérique iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Nom du périphérique</translation>
@@ -54250,9 +54199,6 @@ réinitialisation du moniteur</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Voulez-vous voir comment l&apos;activer pour le développement ?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Échec de la détection des ABI utilisées par la version de Qt.</translation>
@@ -54262,23 +54208,14 @@ réinitialisation du moniteur</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Exécuter sur %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>Paramètres d&apos;exécution iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Démarrage des processus distants.</translation>
@@ -54287,9 +54224,6 @@ réinitialisation du moniteur</translation>
         <source>Run ended unexpectedly.</source>
         <translation>L&apos;exécution s&apos;est terminée de façon inattendu.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
         <translation>Échec lors de l&apos;exécution. Les paramètres dans le fenêtre Organizer de Xcode sont peut-être incorrecte.</translation>
@@ -54298,30 +54232,14 @@ réinitialisation du moniteur</translation>
         <source>The device is locked, please unlock.</source>
         <translation>Le périphérique est verouillé, veuillez le dévérouiller.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
     <message>
         <source>iOS Configurations</source>
         <translation>Configurations iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Simulateur iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>Simulateur iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>Subprocess Error %1</source>
         <translation>Erreur du sous-processus %1</translation>

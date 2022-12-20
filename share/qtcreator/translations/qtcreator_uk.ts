@@ -35426,7 +35426,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Базові аргументи:</translation>
@@ -35451,27 +35451,17 @@ monitor reset</translation>
         <source>Configuration is faulty. Check the Issues output pane for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
     </message>
-</context>
-<context>
-    <name>IosRunConfiguration</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">Форма</translation>
-    </message>
     <message>
         <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
+        <translation>Аргументи:</translation>
     </message>
     <message>
         <source>Executable:</source>
-        <translation type="vanished">Виконуваний модуль:</translation>
+        <translation>Виконуваний модуль:</translation>
     </message>
     <message>
         <source>iPhone 3.5-inch Retina display</source>
@@ -35509,9 +35499,6 @@ monitor reset</translation>
         <source>Device type:</source>
         <translation type="vanished">Тип пристрою:</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Конфігурація iOS</translation>
@@ -36422,29 +36409,16 @@ Do you want to uninstall the existing package next time?</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Збірка iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Could not find device specific debug symbols at %1. Debugging initialization will be slow until you open the Organizer window of Xcode with the device connected to have the symbols generated.</source>
         <translation>Не вдалось знайти специфічних для пристрою символів зневадження в %1. Ініціалізація зневадження буде повільною, поки ви не відкриєте вікно Organizer в Xcode при підключеному пристрої, щоб символи згенерувались.</translation>
@@ -36477,23 +36451,14 @@ Do you want to uninstall the existing package next time?</source>
         <source>Run failed unexpectedly.</source>
         <translation type="vanished">Несподіваний збій запуску.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Розгортання на iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Розгортання на iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Розгортання на %1</translation>
@@ -36518,34 +36483,22 @@ Do you want to uninstall the existing package next time?</source>
         <source>The Info.plist might be incorrect.</source>
         <translation>Файл Info.plist може бути неправильним.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
+    <message>
+        <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Розгортання на пристрій iOS або емулятор</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
         <translation type="vanished">&lt;b&gt;Розгортання на %1&lt;/b&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Пристрій iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Назва пристрою</translation>
@@ -36583,9 +36536,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Бажаєте дізнатись, як перевести його в режим розробника?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Збій визначення ABI, що використовуються версією Qt.</translation>
@@ -36595,9 +36545,6 @@ Do you want to uninstall the existing package next time?</source>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Запустити на %1</translation>
@@ -36647,42 +36594,17 @@ Do you want to uninstall the existing package next time?</source>
         <translation>%1 не підключено.</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Тип пристрою:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Виконуваний модуль:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
-    <message>
         <source>iOS run settings</source>
         <translation>Налаштування запуску iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Запуск віддаленого процесу.</translation>
     </message>
     <message>
-        <source>Run ended with error.</source>
-        <translation>Виконання закінчилось з помилкою.</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>Виконання закінчилось.</translation>
-    </message>
-    <message>
         <source>Run ended unexpectedly.</source>
         <translation type="vanished">Запуск несподівано завершився.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation>Не вдалось знайти %1.</translation>
@@ -36695,30 +36617,14 @@ Do you want to uninstall the existing package next time?</source>
         <source>The device is locked, please unlock.</source>
         <translation>Пристрій заблоковано, будь ласка, розблокуйте його.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
     <message>
         <source>iOS Configurations</source>
         <translation>Конфігурації iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Симулятор iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>Симулятор iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>Subprocess Error %1</source>
         <translation type="vanished">Помилка підпроцесу %1</translation>
@@ -37778,7 +37684,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Reset to Default</source>
         <translation>Скинути до типового</translation>
@@ -37786,10 +37692,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Command:</source>
         <translation>Команда:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
     </message>
 </context>
 <context>
@@ -38801,15 +38703,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosAnalyzeSupport</name>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>Виконання закінчилось з помилкою.</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>Виконання закінчилось.</translation>
-    </message>
+    <name>::Ios</name>
 </context>
 <context>
     <name>::ProjectExplorer</name>

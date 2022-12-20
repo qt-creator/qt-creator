@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosBuildStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     IosBuildStepFactory();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

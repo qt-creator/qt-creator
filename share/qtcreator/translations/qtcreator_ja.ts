@@ -3720,7 +3720,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>基本引数:</translation>
@@ -3742,16 +3742,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>xcodebuild</source>
         <translation>xcodebuild</translation>
     </message>
-</context>
-<context>
-    <name>IosDeployStepWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
     </message>
-</context>
-<context>
-    <name>IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>iOS 設定</translation>
@@ -21608,15 +21602,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
-    <message>
-        <source>iOS build</source>
-        <comment>iOS BuildStep display name.</comment>
-        <translation>iOS ビルド</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
+    <name>::Ios</name>
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
@@ -21625,16 +21611,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>%1 Simulator</source>
         <translation>%1 シミュレータ</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>アプリケーションが実行されていません。</translation>
@@ -21667,23 +21643,14 @@ instead of its installation directory when run outside git bash.</source>
         <source>Run ended.</source>
         <translation>実行が終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>iOS にデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>iOS にデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>%1 にデプロイ</translation>
@@ -21720,19 +21687,9 @@ instead of its installation directory when run outside git bash.</source>
         <source>Deploy to iOS device</source>
         <translation>iOS デバイスにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>iOS デバイス、またはエミュレータにデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
@@ -21754,9 +21711,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>CPU Architecture:</source>
         <translation>CPU アーキテクチャ:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>デバイス名</translation>
@@ -21794,9 +21748,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Do you want to see how to set it up for development?</source>
         <translation>開発用にデバイスを設定する方法を確認しますか？</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Qt で使用されている ABI の検出に失敗しました。</translation>
@@ -21806,9 +21757,6 @@ instead of its installation directory when run outside git bash.</source>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>%1 で実行</translation>
@@ -21861,31 +21809,14 @@ instead of its installation directory when run outside git bash.</source>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfigurationWidget</name>
     <message>
         <source>iOS run settings</source>
         <translation>iOS 実行設定</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunControl</name>
     <message>
         <source>Starting remote process.</source>
         <translation>リモートプロセスを起動します。</translation>
     </message>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>エラーが発生しました。</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>実行が終了しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation>%1 が見つかりませんでした。</translation>
@@ -21907,30 +21838,9 @@ instead of its installation directory when run outside git bash.</source>
         <translation>デバイスがロックされています。ロックを解除してください。</translation>
     </message>
     <message>
-        <source>Run ended.</source>
-        <translation>実行が終了しました。</translation>
-    </message>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>エラーが発生しました。</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
-    <message>
         <source>iOS Configurations</source>
         <translation>iOS 設定</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>iOS シミュレータ</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
     <message>
         <source>iOS Simulator</source>
         <translation>iOS シミュレータ</translation>
@@ -32297,7 +32207,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Ios::IosToolHandler</name>
+    <name>::Ios</name>
     <message>
         <source>iOS tool Error %1</source>
         <translation>iOS ツールエラー %1</translation>
@@ -33649,7 +33559,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Reset to Default</source>
         <translation>既定に戻す</translation>
@@ -33661,17 +33571,6 @@ kill しますか？</translation>
     <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosAnalyzeSupport</name>
-    <message>
-        <source>Run ended with error.</source>
-        <translation>エラーが発生しました。</translation>
-    </message>
-    <message>
-        <source>Run ended.</source>
-        <translation>実行が終了しました。</translation>
     </message>
 </context>
 <context>
@@ -44271,25 +44170,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
-    <message>
-        <source>Device type:</source>
-        <translation>デバイス種類:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
-    <message>
-        <source>iOS Configuration</source>
-        <translation>iOS 設定</translation>
-    </message>
+    <name>::Ios</name>
     <message>
         <source>Devices</source>
         <translation>デバイス</translation>
-    </message>
-    <message>
-        <source>Ask about devices not in developer mode</source>
-        <translation>デバイスがデベロッパーモードかどうか確認する</translation>
     </message>
     <message>
         <source>Rename</source>
@@ -44307,13 +44191,6 @@ Output:
         <source>Start</source>
         <translation>開始</translation>
     </message>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Unknown</source>
         <translation>不明</translation>
@@ -47527,14 +47404,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosQmakeBuildConfiguration</name>
+    <name>::Ios</name>
     <message>
         <source>iOS Settings</source>
         <translation>iOS の設定</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
     </message>
     <message>
         <source>Automatically manage signing</source>
@@ -47605,33 +47478,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosDsymBuildStep</name>
-    <message>
-        <source>Command:</source>
-        <translation>コマンド:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Reset to Default</source>
-        <translation>既定に戻す</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal</name>
-    <message>
-        <source>Deploy on iOS</source>
-        <translation>iOS にデプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
-    <message>
-        <source>Starting remote process.</source>
-        <translation>リモートプロセスを起動します。</translation>
-    </message>
+    <name>::Ios</name>
 </context>
 <context>
     <name>LanguageClient::DiagnosticManager</name>

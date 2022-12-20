@@ -9,16 +9,12 @@
 
 #include <QAbstractListModel>
 
-
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 using SimulatorInfoList = QList<SimulatorInfo>;
 
 class SimulatorInfoModel : public QAbstractItemModel
 {
-    Q_OBJECT
-
 public:
     SimulatorInfoModel(QObject *parent = nullptr);
 
@@ -34,10 +30,8 @@ private:
     void requestSimulatorInfo();
     void populateSimulators(const SimulatorInfoList &simulatorList);
 
-private:
     Utils::FutureSynchronizer m_fetchFuture;
     SimulatorInfoList m_simList;
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

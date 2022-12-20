@@ -18904,7 +18904,7 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <name>::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Opret simulator</translation>
@@ -18925,9 +18925,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>None</source>
         <translation>Ingen</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildSettingsWidget</name>
     <message>
         <source>Reset</source>
         <translation>Nulstil</translation>
@@ -18951,10 +18948,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Default</source>
         <translation>Standard</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -18996,9 +18989,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation>Provisioneringsprofil udløbet. Udløbsdato: %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
         <translation>Basisargumenter:</translation>
@@ -19015,24 +19005,15 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>xcodebuild</source>
         <translation>xcodebuild</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>iOS-byg</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation>%1-simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Program kører ikke.</translation>
@@ -19045,16 +19026,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation>dSYM&apos;en %1 ser ud til at være gammel, det vil måske forvirre fejlretteren.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Udsend på iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Udsend til %1</translation>
@@ -19083,27 +19058,14 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
         <translation>Provisioneringsprofilen &quot;%1&quot; (%2) brugt til at signere programmet dækker ikke enheden %3 (%4). Udsendelse til den vil mislykkes.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Udsend til iOS-enhed eller emulator</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>iOS-enhed</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Enhedsnavn</translation>
@@ -19141,9 +19103,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Vil du se hvordan den sættes op til udvikling?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
     <message>
         <source>Reset to Default</source>
         <translation>Nulstil til standard</translation>
@@ -19156,16 +19115,10 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation>Kunne ikke få nødvendige porte for profilering-forbindelsen.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Kunne ikke detektere ABI&apos;erne brugt af Qt versionen.</translation>
@@ -19175,9 +19128,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Kør på %1</translation>
@@ -19219,23 +19169,13 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <translation>%1 er ikke forbundet.</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Enhedstype:</translation>
-    </message>
-    <message>
         <source>Executable:</source>
         <translation>Eksekverbar:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Starter fjern-process.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation>Kunne ikke finde %1.</translation>
@@ -19264,16 +19204,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
         <source>Run ended with error.</source>
         <translation>Kørsel sluttede med fejl.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>iOS-konfiguration</translation>
@@ -19309,10 +19239,6 @@ Id&apos;er skal begynde med et lille bogstav.</translation>
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Nulstil indhold og indstillinger af simulatorenheder.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Nulstil</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -19444,23 +19370,10 @@ Fejl: %2</translation>
         <source>simulator screenshot</source>
         <translation>simulator skærmbillede</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>iOS-simulator</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>iOS-simulator</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>
@@ -19477,9 +19390,6 @@ Fejl: %2</translation>
         <source>Current State</source>
         <translation>Aktuelle tilstand</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Simulatorhandlingsstatus</translation>
@@ -19508,9 +19418,6 @@ Fejl: %5</translation>
         <source>Done.</source>
         <translation>Færdig.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>iOS-værktøjsfejl %1</translation>

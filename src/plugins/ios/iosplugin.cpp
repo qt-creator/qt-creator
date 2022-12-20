@@ -15,6 +15,7 @@
 #include "iossettingspage.h"
 #include "iossimulator.h"
 #include "iostoolhandler.h"
+#include "iostr.h"
 #include "iosrunconfiguration.h"
 
 #include <projectexplorer/deployconfiguration.h>
@@ -36,7 +37,7 @@ public:
         setConfigBaseId("Qt4ProjectManager.IosDeployConfiguration");
         addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
         addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
-        setDefaultDisplayName(QCoreApplication::translate("Ios::Internal", "Deploy on iOS"));
+        setDefaultDisplayName(Tr::tr("Deploy on iOS"));
         addInitialStep(Constants::IOS_DEPLOY_STEP_ID);
     }
 };

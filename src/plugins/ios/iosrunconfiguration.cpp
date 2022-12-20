@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "iosrunconfiguration.h"
+
 #include "iosconstants.h"
 #include "iosdevice.h"
+#include "iostr.h"
 #include "simulatorcontrol.h"
 
 #include <projectexplorer/buildconfiguration.h>
@@ -18,7 +20,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/layoutbuilder.h>
@@ -38,7 +40,7 @@ using namespace Utils;
 
 namespace Ios::Internal {
 
-static const QLatin1String deviceTypeKey("Ios.device_type");
+const QLatin1String deviceTypeKey("Ios.device_type");
 
 static QString displayName(const SimulatorInfo &device)
 {
@@ -66,8 +68,8 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     setUpdater([this, target, executableAspect] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
         const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
-        setDefaultDisplayName(tr("Run on %1").arg(devName));
-        setDisplayName(tr("Run %1 on %2").arg(applicationName()).arg(devName));
+        setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
+        setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
 
         executableAspect->setExecutable(localExecutable());
 
@@ -227,7 +229,7 @@ QString IosRunConfiguration::disabledReason() const
 {
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
-        return tr("Kit has incorrect device type for running on iOS devices.");
+        return Tr::tr("Kit has incorrect device type for running on iOS devices.");
     IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
     QString validDevName;
     bool hasConncetedDev = false;
@@ -248,27 +250,27 @@ QString IosRunConfiguration::disabledReason() const
 
     if (dev.isNull()) {
         if (!validDevName.isEmpty())
-            return tr("No device chosen. Select %1.").arg(validDevName); // should not happen
+            return Tr::tr("No device chosen. Select %1.").arg(validDevName); // should not happen
         else if (hasConncetedDev)
-            return tr("No device chosen. Enable developer mode on a device."); // should not happen
+            return Tr::tr("No device chosen. Enable developer mode on a device."); // should not happen
         else
-            return tr("No device available.");
+            return Tr::tr("No device available.");
     } else {
         switch (dev->deviceState()) {
         case IDevice::DeviceReadyToUse:
             break;
         case IDevice::DeviceConnected:
-            return tr("To use this device you need to enable developer mode on it.");
+            return Tr::tr("To use this device you need to enable developer mode on it.");
         case IDevice::DeviceDisconnected:
         case IDevice::DeviceStateUnknown:
             if (!validDevName.isEmpty())
-                return tr("%1 is not connected. Select %2?")
+                return Tr::tr("%1 is not connected. Select %2?")
                         .arg(dev->displayName(), validDevName);
             else if (hasConncetedDev)
-                return tr("%1 is not connected. Enable developer mode on a device?")
+                return Tr::tr("%1 is not connected. Enable developer mode on a device?")
                         .arg(dev->displayName());
             else
-                return tr("%1 is not connected.").arg(dev->displayName());
+                return Tr::tr("%1 is not connected.").arg(dev->displayName());
         }
     }
     return RunConfiguration::disabledReason();
@@ -327,7 +329,7 @@ void IosDeviceTypeAspect::addToLayout(LayoutBuilder &builder)
     m_deviceTypeComboBox = new QComboBox;
     m_deviceTypeComboBox->setModel(&m_deviceTypeModel);
 
-    m_deviceTypeLabel = new QLabel(IosRunConfiguration::tr("Device type:"));
+    m_deviceTypeLabel = new QLabel(Tr::tr("Device type:"));
 
     builder.addItems({m_deviceTypeLabel, m_deviceTypeComboBox});
 

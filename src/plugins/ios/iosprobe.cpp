@@ -6,9 +6,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcprocess.h>
 
-#include <QDir>
 #include <QFileInfo>
-#include <QFileInfoList>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(probeLog, "qtc.ios.probe", QtWarningMsg)

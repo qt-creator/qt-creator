@@ -23846,14 +23846,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Ios::Internal</name>
+    <name>::Ios</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Развернуть на iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
     <message>
         <source>Create Simulator</source>
         <translation>Создание эмулятора</translation>
@@ -23874,9 +23871,6 @@ Ids must begin with a lowercase letter.</source>
         <source>None</source>
         <translation>Нет</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildConfiguration</name>
     <message>
         <source>Reset</source>
         <translation>Сбросить</translation>
@@ -23900,10 +23894,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Default</source>
         <translation>По умолчанию</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
     </message>
     <message>
         <source>Development team is not selected.</source>
@@ -23945,9 +23935,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation>Провизионный профиль истёк %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosBuildStep</name>
     <message>
         <source>Base arguments:</source>
         <translation>Базовые параметры:</translation>
@@ -23969,16 +23956,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Reset Defaults</source>
         <translation>По умолчанию</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation>Эмулятор %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Приложение не запущено.</translation>
@@ -23991,9 +23972,6 @@ Ids must begin with a lowercase letter.</source>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation>Видимо dSYM %1 устарел, он может смутить отладчик.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Развернуть на %1</translation>
@@ -24030,9 +24008,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Deploy to iOS device or emulator</source>
         <translation>Развёртывание на устройство или эмулятор iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
     <message>
         <source>iOS Device</source>
         <translation>Устройство iOS</translation>
@@ -24053,13 +24028,6 @@ Ids must begin with a lowercase letter.</source>
         <source>CPU Architecture:</source>
         <translation>Архитектура ЦПУ:</translation>
     </message>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Название устройства</translation>
@@ -24097,9 +24065,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Желаете узнать, как перевести его в режим разработки?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
     <message>
         <source>Reset to Default</source>
         <translation>По умолчанию</translation>
@@ -24112,16 +24077,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Arguments:</source>
         <translation>Параметры:</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation>Не удалось получить необходимые порты для подключения профайлера.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Не удалось определить ABI, используемые профилем Qt.</translation>
@@ -24131,9 +24090,6 @@ Ids must begin with a lowercase letter.</source>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Запуск на %1</translation>
@@ -24175,19 +24131,9 @@ Ids must begin with a lowercase letter.</source>
         <translation>%1 не подключён.</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Тип устройства:</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunSupport</name>
-    <message>
         <source>Starting remote process.</source>
         <translation>Запуск внешнего процесса.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation>Не удалось найти %1.</translation>
@@ -24216,9 +24162,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Run ended with error.</source>
         <translation>Выполнение завершилось с ошибкой.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Конфигурация iOS</translation>
@@ -24254,10 +24197,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Сбросить содержимое и настройки эмулируемых устройств.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -24396,19 +24335,9 @@ Error: %2</source>
         <translation>снимок экрана эмулятора</translation>
     </message>
     <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
-    <message>
         <source>iOS Simulator</source>
         <translation>Эмулятор iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>
@@ -24425,9 +24354,6 @@ Error: %2</source>
         <source>Current State</source>
         <translation>Текущее состояние</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Состояние эмулятора</translation>
@@ -24456,9 +24382,6 @@ Error: %5</translation>
         <source>Done.</source>
         <translation>Готово.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>Ошибка %1 утилиты iOS</translation>

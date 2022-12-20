@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosSettingsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     IosSettingsPage();
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

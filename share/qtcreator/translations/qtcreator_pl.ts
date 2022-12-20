@@ -25844,7 +25844,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Base arguments:</source>
         <translation>Podstawowe argumenty:</translation>
@@ -26631,22 +26631,16 @@ Czy odinstalować istniejący pakiet?</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <name>::Ios</name>
     <message>
         <source>iOS build</source>
         <comment>iOS BuildStep display name.</comment>
         <translation>Wersja iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosConfigurations</name>
     <message>
         <source>%1 Simulator</source>
         <translation>Symulator %1</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDebugSupport</name>
     <message>
         <source>Application not running.</source>
         <translation>Aplikacja nie jest uruchomiona.</translation>
@@ -26663,23 +26657,14 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>The dSYM %1 seems to be outdated, it might confuse the debugger.</source>
         <translation>dSYM %1 może być nieaktualny i może spowodować nieprawidłową pracę debuggera.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfiguration</name>
     <message>
         <source>Deploy to iOS</source>
         <translation>Zainstaluj na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployConfigurationFactory</name>
     <message>
         <source>Deploy on iOS</source>
         <translation>Zainstaluj na iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStep</name>
     <message>
         <source>Deploy to %1</source>
         <translation>Zainstaluj na %1</translation>
@@ -26708,27 +26693,14 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepFactory</name>
     <message>
         <source>Deploy to iOS device or emulator</source>
         <translation>Zainstaluj na urządzeniu iOS lub emulatorze</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDevice</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
     </message>
     <message>
         <source>iOS Device</source>
         <translation>Urządzenie iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeviceManager</name>
     <message>
         <source>Device name</source>
         <translation>Nazwa urządzenia</translation>
@@ -26766,9 +26738,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>Do you want to see how to set it up for development?</source>
         <translation>Czy chcesz zobaczyć jak przełączyć je do trybu deweloperskiego?</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQtVersion</name>
     <message>
         <source>Failed to detect the ABIs used by the Qt version.</source>
         <translation>Nie można wykryć ABI użytych przez wersję Qt.</translation>
@@ -26778,9 +26747,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <extracomment>Qt Version is meant for Ios</extracomment>
         <translation>iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunConfiguration</name>
     <message>
         <source>Run on %1</source>
         <translation>Uruchom na %1</translation>
@@ -26837,9 +26803,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>iOS run settings</source>
         <translation>Ustawienia uruchamiania iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosRunner</name>
     <message>
         <source>Could not find %1.</source>
         <translation>Nie można odnaleźć %1.</translation>
@@ -26872,30 +26835,10 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>Run ended with error.</source>
         <translation>Praca zakończona błędem.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsPage</name>
-    <message>
-        <source>iOS</source>
-        <translation>iOS</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulator</name>
     <message>
         <source>iOS Simulator</source>
         <translation>Symulator iOS</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSimulatorFactory</name>
-    <message>
-        <source>iOS Simulator</source>
-        <translation>iOS Simulator</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::IosToolHandler</name>
     <message>
         <source>iOS tool error %1</source>
         <translation>Błąd narzędzia iOS %1</translation>
@@ -28626,7 +28569,7 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosPresetBuildStep</name>
+    <name>::Ios</name>
     <message>
         <source>Reset to Default</source>
         <translation>Przywróć domyślny</translation>
@@ -39549,7 +39492,7 @@ Wiersz: %4, kolumna: %5
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosBuildSettingsWidget</name>
+    <name>::Ios</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -39622,16 +39565,6 @@ Wiersz: %4, kolumna: %5
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosDeployStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::IosSettingsWidget</name>
     <message>
         <source>iOS Configuration</source>
         <translation>Konfiguracja iOS</translation>
@@ -39667,10 +39600,6 @@ Wiersz: %4, kolumna: %5
     <message>
         <source>Reset contents and settings of simulator devices.</source>
         <translation>Resetuje zawartości i ustawienia symulatorów.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
     </message>
     <message>
         <source>Screenshot directory:</source>
@@ -40869,7 +40798,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::CreateSimulatorDialog</name>
+    <name>::Ios</name>
     <message>
         <source>Create Simulator</source>
         <translation>Utwórz symulator</translation>
@@ -40879,20 +40808,9 @@ Termin wygaśnięcia: %3</translation>
         <translation>Nazwa symulatora:</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Typ urządzenia:</translation>
-    </message>
-    <message>
         <source>OS version:</source>
         <translation>Wersja OS:</translation>
     </message>
-    <message>
-        <source>None</source>
-        <translation>Brak</translation>
-    </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorOperationDialog</name>
     <message>
         <source>Simulator Operation Status</source>
         <translation>Stan operacji symulatora</translation>
@@ -41108,21 +41026,15 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Ios::Internal::IosRunSupport</name>
+    <name>::Ios</name>
     <message>
         <source>Starting remote process.</source>
         <translation>Uruchamianie zdalnego procesu.</translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::IosQmlProfilerSupport</name>
     <message>
         <source>Could not get necessary ports for the profiler connection.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Ios::Internal::SimulatorInfoModel</name>
     <message>
         <source>UDID: %1</source>
         <translation>UDID: %1</translation>
