@@ -126,6 +126,8 @@ private:
     bool setupRunnerPath();
     void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
     void setupRunnerForQuery();
+    void setupRunnerForRun();
+    void startPrimaryRunner();
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
