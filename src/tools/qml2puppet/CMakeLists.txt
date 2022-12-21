@@ -55,6 +55,11 @@ execute_process(
     ERROR_VARIABLE GIT_SHA_ERROR
 )
 
+#if we are not a git repository use the .tag file
+if(NOT GIT_SHA_OUTPUT)
+    file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../../.tag GIT_SHA_OUTPUT)
+endif()
+
 add_definitions( -D GIT_SHA=${GIT_SHA_OUTPUT} )
 
 extend_qtc_executable(qml2puppet
