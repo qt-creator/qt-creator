@@ -1,7 +1,7 @@
 
 #line 110 "qmljs.g"
 // Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljs/parser/qmljsengine_p.h"
 #include "qmljs/parser/qmljslexer_p.h"

@@ -2,7 +2,7 @@
 // Copyright (C) 2016 Falko Arps
 // Copyright (C) 2016 Sven Klein
 // Copyright (C) 2016 Giuliano Schneider
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "ioptionspage.h"
 

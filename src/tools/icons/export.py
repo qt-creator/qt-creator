@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Copyright (C) 2020 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 # This script calls Inkscape to rasterize several images into png files.
 # The images end up in the final position of the source tree.

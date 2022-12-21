@@ -4,7 +4,7 @@ index 49b7ee9d0c..690d1ef557 100644
 +++ b/src/libs/qmljs/parser/qmldirparser.cpp
 @@ -1,72 +1,42 @@
  // Copyright (C) 2021 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
  
  #include "qmldirparser_p.h"
  
@@ -186,7 +186,7 @@ index 3d4ba5fdc0..9712ab2a6e 100644
 +++ b/src/libs/qmljs/parser/qmldirparser_p.h
 @@ -1,5 +1,5 @@
  // Copyright (C) 2021 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
  
  #pragma once
  
@@ -302,7 +302,7 @@ index 1d9582f76a..0c1c79860e 100644
 +++ b/src/libs/qmljs/parser/qmlimportresolver.cpp
 @@ -1,16 +1,13 @@
  // Copyright (C) 2021 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
  
  #include "qmlimportresolver_p.h"
 -#include <QtCore/QList>
@@ -383,7 +383,7 @@ index 4c9ed68d11..0a36cd3c9b 100644
 +++ b/src/libs/qmljs/parser/qmlimportresolver_p.h
 @@ -1,5 +1,5 @@
  // Copyright (C) 2021 The Qt Company Ltd.
- // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+ // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
  
  #pragma once
  
