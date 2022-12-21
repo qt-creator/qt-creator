@@ -2,21 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlpuppet.h"
+#include "configcrashpad.h"
 
 #ifdef MULTILANGUAGE_TRANSLATIONPROVIDER
 #include <sqlitelibraryinitializer.h>
 #endif
 
-#include <QFileInfo>
-#include <QQmlComponent>
-#include <QQmlEngine>
-
 #include <qml2puppet/iconrenderer/iconrenderer.h>
 #include <qml2puppet/import3d/import3d.h>
 
-#include "configcrashpad.h"
-
 #include <qt5nodeinstanceclientproxy.h>
+
+#include <QFileInfo>
+#include <QQmlComponent>
+#include <QQmlEngine>
 
 void QmlPuppet::initCoreApp()
 {

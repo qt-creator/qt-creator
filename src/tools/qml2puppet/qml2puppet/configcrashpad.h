@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
+#include <QtGlobal>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
