@@ -119,7 +119,7 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
 
     QStringList errorsAndWarnings;
     QmlJS::CppQmlTypesLoader::loadQmlTypes(qmlFiles, &errorsAndWarnings, &errorsAndWarnings);
-    foreach (const QString &errorAndWarning, errorsAndWarnings)
+    for (const QString &errorAndWarning : std::as_const(errorsAndWarnings))
         qWarning() << qPrintable(errorAndWarning);
 }
 

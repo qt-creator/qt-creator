@@ -108,17 +108,17 @@ struct Line {
     int expectedIndent;
 };
 
-QString concatLines(QList<Line> lines)
+QString concatLines(const QList<Line> &lines)
 {
     QString result;
-    foreach (const Line &l, lines) {
+    for (const Line &l : lines) {
         result += l.line;
         result += "\n";
     }
     return result;
 }
 
-void checkIndent(QList<Line> data, int style = 0)
+void checkIndent(const QList<Line> &data, int style = 0)
 {
     Q_UNUSED(style)
 
@@ -127,7 +127,7 @@ void checkIndent(QList<Line> data, int style = 0)
     CreatorCodeFormatter formatter;
 
     int i = 0;
-    foreach (const Line &l, data) {
+    for (const Line &l : data) {
         QTextBlock b = document.findBlockByLineNumber(i);
         if (l.expectedIndent != DontCheck) {
             int actualIndent = formatter.indentFor(b);

@@ -81,7 +81,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(tst_SimpleLexer::TokenCompareFlags)
 Tokens tst_SimpleLexer::toTokens(const TokenKindList &tokenKinds)
 {
     Tokens tokens;
-    foreach (unsigned tokenKind, tokenKinds) {
+    for (unsigned tokenKind : tokenKinds) {
         Token token;
         token.f.kind = tokenKind;
         tokens << token;

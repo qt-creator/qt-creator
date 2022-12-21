@@ -152,23 +152,23 @@ struct Line {
     int expectedPadding;
 };
 
-QString concatLines(QList<Line> lines)
+QString concatLines(const QList<Line> &lines)
 {
     QString result;
-    foreach (const Line &l, lines) {
+    for (const Line &l : lines) {
         result += l.line;
         result += "\n";
     }
     return result;
 }
 
-void checkIndent(QList<Line> data, QtStyleCodeFormatter formatter)
+void checkIndent(const QList<Line> &data, QtStyleCodeFormatter formatter)
 {
     QString text = concatLines(data);
     QTextDocument document(text);
 
     int i = 0;
-    foreach (const Line &l, data) {
+    for (const Line &l : data) {
         QTextBlock b = document.findBlockByLineNumber(i);
         if (l.expectedIndent != -1) {
             int indent, padding;
@@ -183,14 +183,14 @@ void checkIndent(QList<Line> data, QtStyleCodeFormatter formatter)
     }
 }
 
-void checkIndent(QList<Line> data, CppCodeStyleSettings style)
+void checkIndent(QList<Line> &data, CppCodeStyleSettings style)
 {
     QtStyleCodeFormatter formatter;
     formatter.setCodeStyleSettings(style);
     checkIndent(data, formatter);
 }
 
-void checkIndent(QList<Line> data, int style = 0)
+void checkIndent(QList<Line> &data, int style = 0)
 {
     CppCodeStyleSettings codeStyle;
     QtStyleCodeFormatter formatter;

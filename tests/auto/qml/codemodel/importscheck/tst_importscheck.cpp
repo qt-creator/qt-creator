@@ -63,11 +63,13 @@ void scanDirectory(const QString &dir)
 
     ImportDependencies *iDeps = snap.importDependencies();
     qDebug() << "libs:";
-    foreach (const ImportKey &importK, iDeps->libraryImports(vCtx))
+    const QSet<ImportKey> imports = iDeps->libraryImports(vCtx);
+    for (const ImportKey &importK : imports)
         qDebug() << "libImport: " << importK.toString();
     qDebug() << "qml files:";
-    foreach (const ImportKey &importK, iDeps->subdirImports(ImportKey(ImportType::Directory, dir),
-                                                           vCtx))
+    const QSet<ImportKey> importKeys = iDeps->subdirImports(ImportKey(ImportType::Directory, dir),
+                                                            vCtx);
+    for (const ImportKey &importK : importKeys)
         qDebug() << importK.toString();
 }
 
@@ -161,7 +163,7 @@ void tst_ImportCheck::test_data()
 
 void tst_ImportCheck::test()
 {
-    QFETCH(QStringList, paths);
+    QFETCH(const QStringList, paths);
     QFETCH(QStringList, expectedLibraries);
     QFETCH(QStringList, expectedFiles);
 
@@ -185,11 +187,13 @@ void tst_ImportCheck::test()
     ImportDependencies *iDeps = snap.importDependencies();
     QStringList detectedLibraries;
     QStringList detectedFiles;
-    foreach (const ImportKey &importK, iDeps->libraryImports(vCtx))
+    const QSet<ImportKey> imports = iDeps->libraryImports(vCtx);
+    for (const ImportKey &importK : imports)
         detectedLibraries << importK.toString();
-    foreach (const QString &path, paths) {
-        foreach (const ImportKey &importK, iDeps->subdirImports(ImportKey(ImportType::Directory,
-                                                                          path), vCtx)) {
+    for (const QString &path : paths) {
+        const QSet<ImportKey> importKeys
+            = iDeps->subdirImports(ImportKey(ImportType::Directory, path), vCtx);
+        for (const ImportKey &importK : importKeys) {
             detectedFiles << QFileInfo(importK.toString()).canonicalFilePath();
         }
     }

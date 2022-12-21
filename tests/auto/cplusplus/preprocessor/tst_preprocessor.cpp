@@ -203,7 +203,7 @@ public:
 
     QString resolveGlobally(const QString &currentFileName) const
     {
-        foreach (const QDir &dir, m_includePaths) {
+        for (const QDir &dir : m_includePaths) {
             QFileInfo f(dir, currentFileName);
             if (f.exists())
                 return f.filePath();
@@ -214,7 +214,7 @@ public:
 
     void setIncludePaths(const QStringList &includePaths)
     {
-        foreach (const QString &path, includePaths) {
+        for (const QString &path : includePaths) {
             QDir dir(path);
             if (dir.exists())
                 m_includePaths.append(dir);
@@ -292,7 +292,7 @@ namespace QTest {
     template<> char *toString(const QList<int> &list)
     {
         QByteArray ba = "QList<int>(";
-        foreach (const int& item, list) {
+        for (const int &item : list) {
             ba += QTest::toString(item);
             ba += ',';
         }
@@ -303,7 +303,7 @@ namespace QTest {
     template<> char *toString(const QList<QByteArray> &list)
     {
         QByteArray ba = "QList<QByteArray>(";
-        foreach (const QByteArray& item, list) {
+        for (const QByteArray &item : list) {
             ba += QTest::toString(item);
             ba += ',';
         }
@@ -392,8 +392,8 @@ private slots:
 QByteArray tst_Preprocessor::simplified(const QByteArray &buf)
 {
     QString out;
-    QList<QByteArray> lines = buf.split('\n');
-    foreach (const QByteArray &line, lines) {
+    const QList<QByteArray> lines = buf.split('\n');
+    for (const QByteArray &line : lines) {
         if (!line.startsWith('#')) {
             out.append(" ");
             out.append(QString::fromUtf8(line));

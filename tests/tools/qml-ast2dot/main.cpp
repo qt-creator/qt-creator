@@ -46,7 +46,7 @@ public:
 
         typedef QPair<QByteArray, QByteArray> Pair;
 
-        foreach (const Pair &conn, _connections)
+        for (const Pair &conn : std::as_const(_connections))
             out << conn.first.constData() << " -> " << conn.second.constData() << endl;
 
         alignTerminals();
@@ -59,7 +59,7 @@ public:
 protected:
     void alignTerminals() {
         out<<"{ rank=same;" << endl;
-        foreach (const QByteArray &terminalShape, _terminalShapes) {
+        for (const QByteArray &terminalShape : std::as_const(_terminalShapes)) {
             out << "  " << string(terminalShape.constData(), terminalShape.size()).c_str() << ";" << endl;
         }
         out<<"}"<<endl;
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
     QStringList files = app.arguments();
     files.removeFirst();
 
-    foreach (const QString &fileName, files) {
+    for (const QString &fileName : std::as_const(files)) {
         QFile file(fileName);
         if (! file.open(QFile::ReadOnly)) {
             cerr << "Cannot open \"" << qPrintable(fileName)
@@ -311,7 +311,8 @@ int main(int argc, char *argv[])
         doc->setSource(QString::fromUtf8(source));
         doc->parse();
 
-        foreach (const DiagnosticMessage &m, doc->diagnosticMessages()) {
+        const QList<DiagnosticMessage> messages = doc->diagnosticMessages();
+        for (const DiagnosticMessage &m : messages) {
             ostream *os;
             if (m.isError()) {
                 os = &cerr;

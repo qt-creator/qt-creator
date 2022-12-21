@@ -21,7 +21,8 @@ bool MyPlugin3::initialize(const QStringList & /*arguments*/, QString *errorStri
     ExtensionSystem::PluginManager::addObject(object1);
 
     bool found2 = false;
-    foreach (QObject *object, ExtensionSystem::PluginManager::allObjects()) {
+    const QList<QObject *> objects = ExtensionSystem::PluginManager::allObjects();
+    for (QObject *object : objects) {
         if (object->objectName() == "MyPlugin2")
             found2 = true;
     }

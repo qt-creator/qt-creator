@@ -84,7 +84,8 @@ void tst_FlameGraph::testRebuild()
     QCOMPARE(flameGraph.depth(), 3);
     qreal i = 0;
     qreal position = 0;
-    foreach (QQuickItem *child, flameGraph.childItems()) {
+    const QList<QQuickItem *> children = flameGraph.childItems();
+    for (QQuickItem *child : children) {
         FlameGraph::FlameGraphAttached *attached =
                 FlameGraph::FlameGraph::qmlAttachedProperties(child);
         QVERIFY(attached);
@@ -94,7 +95,8 @@ void tst_FlameGraph::testRebuild()
         QVERIFY(attached->isDataValid());
 
         qreal j = 0;
-        foreach (QQuickItem *grandchild, child->childItems()) {
+        const QList<QQuickItem *> grandchildren = child->childItems();
+        for (QQuickItem *grandchild : grandchildren) {
             FlameGraph::FlameGraphAttached *attached2 =
                     FlameGraph::FlameGraph::qmlAttachedProperties(grandchild);
             QVERIFY(attached2);

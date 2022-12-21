@@ -335,7 +335,7 @@ void CallgrindParserTests::testMultiPosAndCost()
 
 const Function *findFunction(const QString &needle, const QVector<const Function *> &haystack)
 {
-    foreach (const Function *function, haystack) {
+    for (const Function *function : haystack) {
         if (function->name() == needle) {
             return function;
         }

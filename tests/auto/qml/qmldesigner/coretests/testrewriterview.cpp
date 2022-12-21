@@ -12,7 +12,8 @@ using namespace QmlDesigner::Internal;
 
 bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (RemoveNodeRewriteAction *removeAction = action->asRemoveNodeRewriteAction()) {
             if (removeAction->node() == node)
                 return true;
@@ -24,7 +25,8 @@ bool TestModelToTextMerger::isNodeScheduledForRemoval(const ModelNode &node) con
 
 bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty property = addPropertyAction->property();
             if (property.isNodeProperty() && property.toNodeProperty().modelNode() == node)
@@ -46,7 +48,8 @@ bool TestModelToTextMerger::isNodeScheduledForAddition(const ModelNode &node) co
 
 VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantProperty &property) const
 {
-    foreach (RewriteAction *action, scheduledRewriteActions()) {
+    const QList<RewriteAction *> actions = scheduledRewriteActions();
+    for (RewriteAction *action : actions) {
         if (AddPropertyRewriteAction *addPropertyAction = action->asAddPropertyRewriteAction()) {
             const AbstractProperty candidate = addPropertyAction->property();
 

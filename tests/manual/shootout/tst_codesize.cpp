@@ -126,7 +126,7 @@ void tst_CodeSize::cleanup()
 
 void tst_CodeSize::codesize()
 {
-    QFETCH(Suite, suite);
+    QFETCH(const Suite, suite);
     static int suiteCount = 0;
     ++suiteCount;
 
@@ -148,7 +148,7 @@ void tst_CodeSize::codesize()
                "}\n");
     mainCpp.close();
 
-    foreach (const Case &c, suite.cases) {
+    for (const Case &c : suite.cases) {
         QByteArray caseProName = c.file + ".pro";
         bigPro.write("\nSUBDIRS += " + caseProName);
         mainPro.write("\nLIBS += -l" + c.file);
@@ -223,7 +223,7 @@ void tst_CodeSize::codesize()
 
     bool ok = true;
     int i = 0;
-    foreach (const Case &c, suite.cases) {
+    for (const Case &c : std::as_const(suite.cases)) {
         ++i;
         cout << "\n\n===================== VARIANT " << suiteCount << '.' << i << ' '
              << " ================================"
