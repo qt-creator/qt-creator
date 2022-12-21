@@ -17,6 +17,10 @@
 #include <QQmlComponent>
 #include <QQmlEngine>
 
+#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG)
+    #include <Windows.h>
+#endif
+
 void QmlPuppet::initCoreApp()
 {
     // Since we always render text into an FBO, we need to globally disable
