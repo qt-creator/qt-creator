@@ -102,6 +102,7 @@ private:
     void queryServer(RunnerQuery query);
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
+    void handleQueryDone();
     void onRunnerFinished();
     void onRecorderFinished();
     void onRunnerOutput();                              // runner's results file
@@ -124,10 +125,15 @@ private:
     QStringList runnerArgumentsFromSettings();
     bool setupRunnerPath();
     void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
+    void setupRunnerForQuery();
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
     SquishServerProcess m_serverProcess;
+
+    Utils::QtcProcess *m_primaryRunner = nullptr;
+    Utils::QtcProcess *m_secondaryRunner = nullptr;
+
     Utils::QtcProcess m_runnerProcess;
     Utils::QtcProcess m_recorderProcess;
     QString m_serverHost;
@@ -139,7 +145,6 @@ private:
     SuiteConf m_suiteConf; // holds information of current test suite e.g. while recording
     Utils::FilePaths m_reportFiles;
     Utils::FilePath m_currentResultsDirectory;
-    QString m_fullRunnerOutput; // used when querying the server
     QString m_queryParameter;
     Utils::FilePath m_currentTestCasePath;
     Utils::FilePath m_currentRecorderSnippetFile;

@@ -294,8 +294,8 @@ void SquishTools::queryServer(RunnerQuery query)
         return;
     }
     m_perspective.setPerspectiveMode(SquishPerspective::Querying);
-    m_fullRunnerOutput.clear();
     m_query = query;
+    setupRunnerForQuery();
     startSquishServer(RunnerQueryRequested);
 }
 
@@ -699,7 +699,23 @@ void SquishTools::executeRunnerQuery()
     default:
         QTC_ASSERT(false, return);
     }
-    setupAndStartSquishRunnerProcess(cmdLine);
+
+    QTC_ASSERT(m_primaryRunner, return);
+    m_primaryRunner->setCommand(cmdLine);
+    m_primaryRunner->setEnvironment(squishEnvironment());
+    setState(RunnerStarting);
+
+    qCDebug(LOG) << "Runner starts:" << m_primaryRunner->commandLine().toUserOutput();
+    m_primaryRunner->start();
+    if (!m_primaryRunner->waitForStarted()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              Tr::tr("Squish Runner Error"),
+                              Tr::tr("Squish runner failed to start within given timeframe."));
+        setState(RunnerStartFailed);
+        m_primaryRunner->close();
+        return;
+    }
+    setState(RunnerStarted);
 }
 
 Environment SquishTools::squishEnvironment()
@@ -711,21 +727,21 @@ Environment SquishTools::squishEnvironment()
     return environment;
 }
 
+void SquishTools::handleQueryDone()
+{
+    qCDebug(LOG) << "Runner finished";
+    const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
+                                          : QString();
+    if (m_queryCallback && QTC_GUARD(m_primaryRunner))
+        m_queryCallback(m_primaryRunner->stdOut(), error);
+    setState(RunnerStopped);
+    m_queryCallback = {};
+    m_queryParameter.clear();
+}
+
 void SquishTools::onRunnerFinished()
 {
     qCDebug(LOG) << "Runner finished";
-    if (m_request == RunnerQueryRequested) {
-        const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
-                                              : QString();
-        if (m_queryCallback)
-            m_queryCallback(m_fullRunnerOutput, error);
-        setState(RunnerStopped);
-        m_fullRunnerOutput.clear();
-        m_queryCallback = {};
-        m_queryParameter.clear();
-        return;
-    }
-
     if (!m_shutdownInitiated) {
         logRunnerStateChange(m_squishRunnerState, RunnerState::Finished);
         m_squishRunnerState = RunnerState::Finished;
@@ -901,11 +917,6 @@ void SquishTools::onRunnerErrorOutput()
 
 void SquishTools::onRunnerStdOutput(const QString &lineIn)
 {
-    if (m_request == RunnerQueryRequested) { // only handle test runs / record here
-        m_fullRunnerOutput.append(lineIn);   // but store output for query, see onRunnerFinished()
-        return;
-    }
-
     int fileLine = -1;
     int fileColumn = -1;
     QString fileName;
@@ -1422,6 +1433,18 @@ void SquishTools::setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmd
         return;
     }
     setState(RunnerStarted);
+}
+
+void SquishTools::setupRunnerForQuery()
+{
+    if (m_primaryRunner) {
+        m_primaryRunner->close();
+        delete m_primaryRunner;
+    }
+
+    m_primaryRunner = new QtcProcess(this);
+    connect(m_primaryRunner, &QtcProcess::done,
+            this, &SquishTools::handleQueryDone);
 }
 
 } // namespace Internal
