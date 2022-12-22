@@ -5,6 +5,7 @@ add_qtc_library(Utils
     Qt6Core5Compat
   SOURCES
     ../3rdparty/span/span.hpp
+    ../3rdparty/tl_expected/include/tl/expected.hpp
     QtConcurrentTools
     algorithm.h
     ansiescapecodehandler.cpp ansiescapecodehandler.h

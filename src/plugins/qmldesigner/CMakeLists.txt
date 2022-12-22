@@ -280,6 +280,7 @@ extend_qtc_library(QmlDesignerCore
     nodeinstanceview.cpp
     puppetbuildprogressdialog.cpp
     puppetbuildprogressdialog.h
+    puppetstartdata.h
     puppetstarter.cpp
     puppetstarter.h
     puppetdialog.cpp
