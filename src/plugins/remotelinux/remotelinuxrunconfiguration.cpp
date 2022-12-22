@@ -62,7 +62,10 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
         const FilePath localExecutable = bti.targetFilePath;
         DeployableFile depFile = target->deploymentData().deployableForLocalFile(localExecutable);
 
-        exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
+        if (depFile.localFilePath().needsDevice()) // a full remote build
+            exeAspect->setExecutable(depFile.localFilePath());
+        else
+            exeAspect->setExecutable(FilePath::fromString(depFile.remoteFilePath()));
         symbolsAspect->setFilePath(localExecutable);
 
         const IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(target->kit());
