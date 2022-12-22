@@ -94,6 +94,7 @@ public:
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
+    bool contains(const QString &s) const;
 
     bool exists() const;
 

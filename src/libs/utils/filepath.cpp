@@ -1039,6 +1039,15 @@ bool FilePath::endsWith(const QString &s) const
 }
 
 /*!
+* \param s The string to check for contains.
+* \returns whether FilePath contains \a s
+*/
+bool FilePath::contains(const QString &s) const
+{
+    return pathView().contains(s, caseSensitivity());
+}
+
+/*!
 * \brief Checks whether the FilePath starts with a drive letter.
 * Defaults to \c false if it is a non-Windows host or represents a path on device
 * \returns whether FilePath starts with a drive letter
