@@ -65,19 +65,27 @@ ModelNode CreateTexture::createTextureFromImage(const QString &assetPath, AddTex
 
     NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
 
-    Utils::FilePath imagePath = ModelNodeOperations::getImagesDefaultDirectory()
-            .pathAppended(Utils::FilePath::fromString(assetPath).fileName());
-    QString sourceVal = imagePath.relativePathFrom(
-            QmlDesigner::DocumentManager::currentFilePath()).toString();
+    Utils::FilePath currentDocumentPath = QmlDesigner::DocumentManager::currentFilePath();
+    Utils::FilePath imageTargetPath;
+    if (m_importFile) {
+        QString assetName = Utils::FilePath::fromString(assetPath).fileName();
+        // if the asset had to be imported from somewhere else, then assetPath is the source where
+        // the asset was taken from, and we have to compute where it was placed in the project.
+        imageTargetPath = ModelNodeOperations::getImagesDefaultDirectory().pathAppended(assetName);
+    } else {
+        imageTargetPath = Utils::FilePath::fromString(assetPath);
+    }
 
-    ModelNode newTexNode = m_view->getTextureDefaultInstance(sourceVal);
+    QString textureSource = imageTargetPath.relativePathFrom(currentDocumentPath).toString();
+
+    ModelNode newTexNode = m_view->getTextureDefaultInstance(textureSource);
     if (!newTexNode.isValid()) {
         newTexNode = m_view->createModelNode("QtQuick3D.Texture",
                                              metaInfo.majorVersion(),
                                              metaInfo.minorVersion());
         newTexNode.validId();
         VariantProperty sourceProp = newTexNode.variantProperty("source");
-        sourceProp.setValue(sourceVal);
+        sourceProp.setValue(textureSource);
         matLib.defaultNodeListProperty().reparentHere(newTexNode);
     }
 

@@ -797,10 +797,7 @@ void NavigatorTreeModel::handleMaterialDrop(const QMimeData *mimeData, int rowNu
     if (!targetNode.metaInfo().isQtQuick3DModel())
         return;
 
-    QByteArray data = mimeData->data(Constants::MIME_TYPE_MATERIAL);
-    QDataStream stream(data);
-    qint32 internalId;
-    stream >> internalId;
+    qint32 internalId = mimeData->data(Constants::MIME_TYPE_MATERIAL).toInt();
     ModelNode matNode = m_view->modelNodeForInternalId(internalId);
 
     m_view->executeInTransaction(__FUNCTION__, [&] {

@@ -12,4 +12,9 @@
         <file>mockfiles/ToolBarButton.qml</file>
         <file>mockfiles/ToggleButton.qml</file>
     </qresource>
+    <qresource prefix="/runner">
+        <file>runnerconf/qmlruntime/default.qml</file>
+        <file>runnerconf/qmlruntime/content/resizeItemToWindow.qml</file>
+        <file>runnerconf/qmlruntime/content/resizeWindowToItem.qml</file>
+    </qresource>
 </RCC>

@@ -72,6 +72,7 @@ private:
     QPointer<QAction> m_alignCameraAction;
     QPointer<QAction> m_alignViewAction;
     QPointer<QAction> m_selectParentAction;
+    QPointer<QAction> m_toggleGroupAction;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;

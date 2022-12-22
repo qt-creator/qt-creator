@@ -1,14 +1,14 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #pragma once
 
+#include <QFileInfo>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
-#include <QFileInfo>
 
-#include <utils/qtcassert.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -47,6 +47,11 @@ public:
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreImages(const QStringList &filePaths) const;
 
+    Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
+    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
+
+    Q_INVOKABLE bool canCreateEffects() const;
+
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
         int result = QSortFilterProxyModel::columnCount(parent);
@@ -54,16 +59,6 @@ public:
     }
 
     bool haveFiles() const { return m_haveFiles; }
-
-    static const QStringList &supportedImageSuffixes();
-    static const QStringList &supportedFragmentShaderSuffixes();
-    static const QStringList &supportedShaderSuffixes();
-    static const QStringList &supportedFontSuffixes();
-    static const QStringList &supportedAudioSuffixes();
-    static const QStringList &supportedVideoSuffixes();
-    static const QStringList &supportedTexture3DSuffixes();
-    static const QStringList &supportedEffectMakerSuffixes();
-    static const QSet<QString> &supportedSuffixes();
 
 signals:
     void directoryLoaded(const QString &path);
@@ -79,6 +74,7 @@ private:
     void destroyBackendModel();
     bool checkHaveFiles(const QModelIndex &parentIdx) const;
     bool checkHaveFiles() const;
+    QString getUniqueName(const QString &oldName);
 
     QString m_searchText;
     QString m_rootPath;

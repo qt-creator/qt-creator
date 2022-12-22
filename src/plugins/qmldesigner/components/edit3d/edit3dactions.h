@@ -10,19 +10,22 @@
 namespace QmlDesigner {
 
 using SelectionContextOperation = std::function<void(const SelectionContext &)>;
+class Edit3DView;
 
 class Edit3DActionTemplate : public DefaultAction
 {
+    Q_OBJECT
+
 public:
     Edit3DActionTemplate(const QString &description,
                          SelectionContextOperation action,
-                         AbstractView *view,
+                         Edit3DView *view,
                          View3DActionType type);
 
     void actionTriggered(bool b) override;
 
     SelectionContextOperation m_action;
-    AbstractView *m_view;
+    Edit3DView *m_view = nullptr;
     View3DActionType m_type;
 };
 
@@ -37,9 +40,11 @@ public:
                  bool checked,
                  const QIcon &iconOff,
                  const QIcon &iconOn,
-                 AbstractView *view,
+                 Edit3DView *view,
                  SelectionContextOperation selectionAction = nullptr,
                  const QString &toolTip = {});
+
+    virtual ~Edit3DAction();
 
     QByteArray category() const override;
 
@@ -58,12 +63,15 @@ public:
         return m_menuId;
     }
 
+    View3DActionType actionType() const;
+
 protected:
     bool isVisible(const SelectionContext &selectionContext) const override;
     bool isEnabled(const SelectionContext &selectionContext) const override;
 
 private:
     QByteArray m_menuId;
+    Edit3DActionTemplate *m_actionTemplate = nullptr;
 };
 
 class Edit3DCameraAction : public Edit3DAction
@@ -77,7 +85,7 @@ public:
                        bool checked,
                        const QIcon &iconOff,
                        const QIcon &iconOn,
-                       AbstractView *view,
+                       Edit3DView *view,
                        SelectionContextOperation selectionAction = nullptr);
 
 protected:

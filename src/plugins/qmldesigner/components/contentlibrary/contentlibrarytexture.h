@@ -13,6 +13,7 @@ class ContentLibraryTexture : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString texturePath MEMBER m_path CONSTANT)
+    Q_PROPERTY(QString textureToolTip MEMBER m_toolTip CONSTANT)
     Q_PROPERTY(QUrl textureIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool textureVisible MEMBER m_visible NOTIFY textureVisibleChanged)
 
@@ -29,6 +30,7 @@ signals:
 
 private:
     QString m_path;
+    QString m_toolTip;
     QUrl m_icon;
 
     bool m_visible = true;

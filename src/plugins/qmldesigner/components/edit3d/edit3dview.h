@@ -57,6 +57,7 @@ public:
     QVector<Edit3DAction *> rightActions() const;
     QVector<Edit3DAction *> visibilityToggleActions() const;
     QVector<Edit3DAction *> backgroundColorActions() const;
+    Edit3DAction *edit3DAction(View3DActionType type) const;
     void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
@@ -77,6 +78,9 @@ private:
         None
     };
 
+    void registerEdit3DAction(Edit3DAction *action);
+    void unregisterEdit3DAction(Edit3DAction *action);
+
     void createEdit3DWidget();
     void checkImports();
     void handleEntriesChanged();
@@ -92,6 +96,7 @@ private:
     QVector<Edit3DAction *> m_rightActions;
     QVector<Edit3DAction *> m_visibilityToggleActions;
     QVector<Edit3DAction *> m_backgroundColorActions;
+    QMap<View3DActionType, Edit3DAction *> m_edit3DActions;
     Edit3DAction *m_selectionModeAction = nullptr;
     Edit3DAction *m_moveToolAction = nullptr;
     Edit3DAction *m_rotateToolAction = nullptr;
@@ -120,6 +125,8 @@ private:
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;
+
+    friend class Edit3DAction;
 };
 
 } // namespace QmlDesigner

@@ -3,8 +3,8 @@
 
 #include "materialbrowsertexturesmodel.h"
 
-#include "designeractionmanager.h"
 #include "designmodewidget.h"
+#include "imageutils.h"
 #include "qmldesignerplugin.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
@@ -52,24 +52,18 @@ QVariant MaterialBrowserTexturesModel::data(const QModelIndex &index, int role) 
         return m_textureList.at(index.row()).internalId();
 
     if (role == RoleTexToolTip) {
-        QString source = QmlObjectNode(m_textureList.at(index.row())).modelValue("source").toString();
+        QString source = data(index, RoleTexSource).toString(); // absolute path
         if (source.isEmpty())
             return tr("Texture has no source image.");
 
-        const QString noData = tr("Texture has no data.");
+        ModelNode texNode = m_textureList.at(index.row());
+        QString info = ImageUtils::imageInfo(source);
 
-        auto op = QmlDesignerPlugin::instance()->viewManager().designerActionManager()
-                    .modelNodePreviewOperation(m_textureList.at(index.row()));
-        if (!op)
-            return noData;
+        if (info.isEmpty())
+            return tr("Texture has no data.");
 
-        QVariantMap imgMap = op(m_textureList.at(index.row())).toMap();
-        if (imgMap.isEmpty())
-            return noData;
-
-        return QLatin1String("%1\n%2\n%3").arg(imgMap.value("id").toString(),
-                                               source.split('/').last(),
-                                               imgMap.value("info").toString());
+        QString sourceRelative = QmlObjectNode(texNode).modelValue("source").toString();
+        return QLatin1String("%1\n%2\n%3").arg(texNode.id(), sourceRelative, info);
     }
 
     return {};

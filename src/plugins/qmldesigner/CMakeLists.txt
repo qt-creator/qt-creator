@@ -35,8 +35,10 @@ add_qtc_library(QmlDesignerUtils STATIC
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
+    asset.cpp asset.h
     designersettings.cpp designersettings.h
     hdrimage.cpp hdrimage.h
+    imageutils.cpp imageutils.h
     qmldesignerutils_global.h
 )
 

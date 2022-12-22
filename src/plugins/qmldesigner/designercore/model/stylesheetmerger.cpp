@@ -515,11 +515,24 @@ void StylesheetMerger::merge()
     }
 }
 
-void StylesheetMerger::styleMerge(Model *model, const QString &templateFile, ExternalDependenciesInterface &externalDependencies)
+void StylesheetMerger::styleMerge(const Utils::FilePath &templateFile,
+                                  Model *model,
+                                  ExternalDependenciesInterface &externalDependencies)
+{
+    Utils::FileReader reader;
+
+    QTC_ASSERT(reader.fetch(templateFile), return );
+    const QString qmlTemplateString = QString::fromUtf8(reader.data());
+    StylesheetMerger::styleMerge(qmlTemplateString, model, externalDependencies);
+}
+
+void StylesheetMerger::styleMerge(const QString &qmlTemplateString,
+                                  Model *model,
+                                  ExternalDependenciesInterface &externalDependencies)
 {
     Model *parentModel = model;
 
-    QTC_ASSERT(parentModel, return);
+    QTC_ASSERT(parentModel, return );
 
     auto templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(templateModel.get());
@@ -527,10 +540,6 @@ void StylesheetMerger::styleMerge(Model *model, const QString &templateFile, Ext
     templateModel->setFileUrl(parentModel->fileUrl());
 
     QPlainTextEdit textEditTemplate;
-    Utils::FileReader reader;
-
-    QTC_ASSERT(reader.fetch(Utils::FilePath::fromString(templateFile)), return);
-    QString qmlTemplateString = QString::fromUtf8(reader.data());
     QString imports;
 
     for (const Import &import : parentModel->imports()) {
@@ -541,13 +550,14 @@ void StylesheetMerger::styleMerge(Model *model, const QString &templateFile, Ext
     textEditTemplate.setPlainText(imports + qmlTemplateString);
     NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
 
-    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(externalDependencies, RewriterView::Amend));
+    QScopedPointer<RewriterView> templateRewriterView(
+        new RewriterView(externalDependencies, RewriterView::Amend));
     templateRewriterView->setTextModifier(&textModifierTemplate);
     templateModel->attachView(templateRewriterView.data());
     templateRewriterView->setCheckSemanticErrors(false);
 
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
-    QTC_ASSERT(templateRootNode.isValid(), return);
+    QTC_ASSERT(templateRootNode.isValid(), return );
 
     auto styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(styleModel.get());
@@ -556,11 +566,12 @@ void StylesheetMerger::styleMerge(Model *model, const QString &templateFile, Ext
 
     QPlainTextEdit textEditStyle;
     RewriterView *parentRewriterView = parentModel->rewriterView();
-    QTC_ASSERT(parentRewriterView, return);
+    QTC_ASSERT(parentRewriterView, return );
     textEditStyle.setPlainText(parentRewriterView->textModifierContent());
     NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
 
-    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(externalDependencies, RewriterView::Amend));
+    QScopedPointer<RewriterView> styleRewriterView(
+        new RewriterView(externalDependencies, RewriterView::Amend));
     styleRewriterView->setTextModifier(&textModifierStyle);
     styleModel->attachView(styleRewriterView.data());
 

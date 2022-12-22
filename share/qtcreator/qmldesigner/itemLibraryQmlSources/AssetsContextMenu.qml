@@ -183,4 +183,17 @@ StudioControls.Menu {
             }
         }
     }
+
+    StudioControls.MenuItem {
+        text: qsTr("New Effect")
+        visible: assetsModel.canCreateEffects()
+
+        NewEffectDialog {
+            id: newEffectDialog
+            parent: root.assetsView
+            dirPath: root.__dirPath
+        }
+
+        onTriggered: newEffectDialog.open()
+    }
 }

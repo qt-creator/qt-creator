@@ -119,7 +119,8 @@ void addMouseAreaFill(const SelectionContext &selectionContext);
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 
-QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsDirectory();
+QMLDESIGNERCORE_EXPORT Utils::FilePath getEffectsImportDirectory();
+QMLDESIGNERCORE_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir);
 void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();

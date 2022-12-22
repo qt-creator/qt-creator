@@ -24,9 +24,9 @@
     set of files (icons, translation files, and so on) and you don't want
     to run the risk of losing the files.
 
-    To package your application, select \uicontrol Build >
-    \uicontrol {Generate QRC Resource File}. Then select the
-    files to package in the \uicontrol {Add Resources} dialog.
+    To package your application, select \uicontrol File >
+    \uicontrol {Export Project} > \uicontrol {Generate QRC Resource File}.
+    Then select the files to package in the \uicontrol {Add Resources} dialog.
 
     \image studio-add-resources.png "Add Resources dialog"
 
@@ -44,10 +44,11 @@
 
     \section1 Embedding Resources into Applications
 
-    Alternatively, you can embedd the resources into your application by
-    selecting \uicontrol Build > \uicontrol {Generate Deployable Package}.
-    Select the location for the .qmlrc file, and then select the files to
-    embedd in the \uicontrol {Add Resources} dialog.
+    Alternatively, you can embed the resources into your application by
+    selecting \uicontrol File > \uicontrol {Export Project} >
+    \uicontrol {Generate Deployable Package}. Select the location for
+    the .qmlrc file, and then select the files to embed in the
+    \uicontrol {Add Resources} dialog.
 
     When you select \uicontrol OK, \QDS creates a resource collection file
     (.qmlrc) in the location you selected.

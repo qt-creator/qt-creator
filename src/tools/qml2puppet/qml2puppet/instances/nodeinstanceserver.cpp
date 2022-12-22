@@ -1043,6 +1043,21 @@ QList<ServerNodeInstance> NodeInstanceServer::allGroupStateInstances() const
     return groups;
 }
 
+QList<ServerNodeInstance> NodeInstanceServer::allView3DInstances() const
+{
+    QList<ServerNodeInstance> view3Ds;
+    std::copy_if(nodeInstances().cbegin(),
+                 nodeInstances().cend(),
+                 std::back_inserter(view3Ds),
+                 [](const ServerNodeInstance &instance) {
+                     return instance.isValid()
+                             && ServerNodeInstance::isSubclassOf(instance.internalObject(),
+                                                                 QByteArrayLiteral("QQuick3DViewport"));
+                 });
+
+    return view3Ds;
+}
+
 void NodeInstanceServer::setStateInstance(const ServerNodeInstance &stateInstance)
 {
     m_activeStateInstance = stateInstance;

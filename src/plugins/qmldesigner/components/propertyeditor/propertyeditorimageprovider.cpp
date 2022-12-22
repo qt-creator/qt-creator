@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "propertyeditorimageprovider.h"
-#include "assetslibrarymodel.h"
+#include "asset.h"
 
 #include <projectexplorer/target.h>
 #include <utils/hdrimage.h>
@@ -16,12 +16,12 @@ namespace QmlDesigner {
 QQuickImageResponse *PropertyEditorImageProvider::requestImageResponse(const QString &id,
                                                                        const QSize &requestedSize)
 {
-    const QString suffix = "*." + id.split('.').last().toLower();
+    Asset asset(id);
 
-    if (suffix == "*.mesh")
+    if (asset.suffix() == "*.mesh")
         return m_smallImageCacheProvider.requestImageResponse(id, requestedSize);
 
-    if (suffix == "*.builtin")
+    if (asset.suffix() == "*.builtin")
         return m_smallImageCacheProvider.requestImageResponse("#" + id.split('.').first(),
                                                               requestedSize);
 
@@ -29,15 +29,15 @@ QQuickImageResponse *PropertyEditorImageProvider::requestImageResponse(const QSt
 
     QMetaObject::invokeMethod(
         response.get(),
-        [response = QPointer<QmlDesigner::ImageResponse>(response.get()), suffix, id, requestedSize] {
-            if (AssetsLibraryModel::supportedImageSuffixes().contains(suffix)) {
-                QImage image = QImage(Utils::StyleHelper::dpiSpecificImageFile(id));
+        [response = QPointer<QmlDesigner::ImageResponse>(response.get()), asset, requestedSize] {
+            if (asset.isImage()) {
+                QImage image = QImage(Utils::StyleHelper::dpiSpecificImageFile(asset.id()));
                 if (!image.isNull()) {
                     response->setImage(image.scaled(requestedSize, Qt::KeepAspectRatio));
                     return;
                 }
-            } else if (AssetsLibraryModel::supportedTexture3DSuffixes().contains(suffix)) {
-                HdrImage hdr{id};
+            } else if (asset.isTexture3D()) {
+                HdrImage hdr{asset.id()};
                 if (!hdr.image().isNull()) {
                     response->setImage(hdr.image().scaled(requestedSize, Qt::KeepAspectRatio));
                     return;

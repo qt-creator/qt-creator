@@ -1,13 +1,13 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include <QCheckBox>
 #include <QFileInfo>
 #include <QFileSystemModel>
-#include <QImageReader>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
+#include "asset.h"
 #include "assetslibrarymodel.h"
 
 #include <modelnodeoperations.h>
@@ -134,32 +134,10 @@ bool AssetsLibraryModel::renameFolder(const QString &folderPath, const QString &
 bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
 {
     QString iterPath = folderPath;
-    static QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
     QDir dir{folderPath};
 
     while (dir.exists()) {
-        // if the folder name ends with a number, increment it
-        QRegularExpressionMatch match = rgx.match(iterPath);
-        if (match.hasMatch()) { // ends with a number
-            QString numStr = match.captured(0);
-            int num = match.captured(0).toInt();
-
-            // get number of padding zeros, ex: for "005" = 2
-            int nPaddingZeros = 0;
-            for (; nPaddingZeros < numStr.size() && numStr[nPaddingZeros] == '0'; ++nPaddingZeros);
-
-            ++num;
-
-            // if the incremented number's digits increased, decrease the padding zeros
-            if (std::fmod(std::log10(num), 1.0) == 0)
-                --nPaddingZeros;
-
-            iterPath = folderPath.mid(0, match.capturedStart())
-                       + QString('0').repeated(nPaddingZeros)
-                       + QString::number(num);
-        } else {
-            iterPath = folderPath + '1';
-        }
+        iterPath = getUniqueName(iterPath);
 
         dir.setPath(iterPath);
     }
@@ -180,10 +158,47 @@ bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
 bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) const
 {
     return Utils::allOf(filePaths, [](const QString &path) {
-        const QString suffix = "*." + path.split('.').last().toLower();
-
-        return AssetsLibraryModel::supportedImageSuffixes().contains(suffix);
+        return Asset(path).isImage();
     });
+}
+
+QString AssetsLibraryModel::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
+{
+    auto genEffectPath = [=](const QString &name) {
+        return QString(parentFolder + "/" + name + ".qep");
+    };
+
+    QString uniqueName = effectName;
+    QString path = genEffectPath(uniqueName);
+    QFileInfo file{path};
+
+    while (file.exists()) {
+        uniqueName = getUniqueName(uniqueName);
+
+        path = genEffectPath(uniqueName);
+        file.setFile(path);
+    }
+
+    return path;
+}
+
+bool AssetsLibraryModel::createNewEffect(const QString &effectPath, bool openEffectMaker)
+{
+    bool created = QFile(effectPath).open(QIODevice::WriteOnly);
+
+    if (created && openEffectMaker)
+        ModelNodeOperations::openEffectMaker(effectPath);
+
+    return created;
+}
+
+bool AssetsLibraryModel::canCreateEffects() const
+{
+#ifdef LICENSECHECKER
+    return checkLicense() == FoundLicense::enterprise;
+#else
+    return true;
+#endif
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
@@ -242,6 +257,36 @@ void AssetsLibraryModel::syncHaveFiles()
     setHaveFiles(checkHaveFiles());
 }
 
+QString AssetsLibraryModel::getUniqueName(const QString &oldName) {
+    static QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+
+    QString uniqueName = oldName;
+    // if the folder name ends with a number, increment it
+    QRegularExpressionMatch match = rgx.match(uniqueName);
+    if (match.hasMatch()) { // ends with a number
+        QString numStr = match.captured(0);
+        int num = match.captured(0).toInt();
+
+        // get number of padding zeros, ex: for "005" = 2
+        int nPaddingZeros = 0;
+        for (; nPaddingZeros < numStr.size() && numStr[nPaddingZeros] == '0'; ++nPaddingZeros);
+
+        ++num;
+
+        // if the incremented number's digits increased, decrease the padding zeros
+        if (std::fmod(std::log10(num), 1.0) == 0)
+            --nPaddingZeros;
+
+        uniqueName = oldName.mid(0, match.capturedStart())
+                   + QString('0').repeated(nPaddingZeros)
+                   + QString::number(num);
+    } else {
+        uniqueName = oldName + '1';
+    }
+
+    return uniqueName;
+}
+
 void AssetsLibraryModel::setRootPath(const QString &newPath)
 {
     beginResetModel();
@@ -252,7 +297,7 @@ void AssetsLibraryModel::setRootPath(const QString &newPath)
     m_rootPath = newPath;
     m_sourceFsModel->setRootPath(newPath);
 
-    m_sourceFsModel->setNameFilters(supportedSuffixes().values());
+    m_sourceFsModel->setNameFilters(Asset::supportedSuffixes().values());
     m_sourceFsModel->setNameFilterDisables(false);
 
     endResetModel();
@@ -325,82 +370,6 @@ QString AssetsLibraryModel::parentDirPath(const QString &path) const
     QModelIndex idx = indexForPath(path);
     QModelIndex parentIdx = idx.parent();
     return filePath(parentIdx);
-}
-
-const QStringList &AssetsLibraryModel::supportedImageSuffixes()
-{
-    static QStringList retList;
-    if (retList.isEmpty()) {
-        const QList<QByteArray> suffixes = QImageReader::supportedImageFormats();
-        for (const QByteArray &suffix : suffixes)
-            retList.append("*." + QString::fromUtf8(suffix));
-    }
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFragmentShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.glsl", "*.glslf", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedShaderSuffixes()
-{
-    static const QStringList retList {"*.frag", "*.vert",
-                                      "*.glsl", "*.glslv", "*.glslf",
-                                      "*.vsh", "*.fsh"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedFontSuffixes()
-{
-    static const QStringList retList {"*.ttf", "*.otf"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedAudioSuffixes()
-{
-    static const QStringList retList {"*.wav", "*.mp3"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedVideoSuffixes()
-{
-    static const QStringList retList {"*.mp4"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedTexture3DSuffixes()
-{
-    // These are file types only supported by 3D textures
-    static QStringList retList {"*.hdr", "*.ktx"};
-    return retList;
-}
-
-const QStringList &AssetsLibraryModel::supportedEffectMakerSuffixes()
-{
-    // These are file types only supported by Effect Maker
-    static QStringList retList {"*.qep"};
-    return retList;
-}
-
-const QSet<QString> &AssetsLibraryModel::supportedSuffixes()
-{
-    static QSet<QString> allSuffixes;
-    if (allSuffixes.isEmpty()) {
-        auto insertSuffixes = [](const QStringList &suffixes) {
-            for (const auto &suffix : suffixes)
-                allSuffixes.insert(suffix);
-        };
-        insertSuffixes(supportedImageSuffixes());
-        insertSuffixes(supportedShaderSuffixes());
-        insertSuffixes(supportedFontSuffixes());
-        insertSuffixes(supportedAudioSuffixes());
-        insertSuffixes(supportedVideoSuffixes());
-        insertSuffixes(supportedTexture3DSuffixes());
-        insertSuffixes(supportedEffectMakerSuffixes());
-    }
-    return allSuffixes;
 }
 
 } // namespace QmlDesigner

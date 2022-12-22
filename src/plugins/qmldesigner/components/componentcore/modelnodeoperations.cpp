@@ -1525,8 +1525,11 @@ void mergeWithTemplate(const SelectionContext &selectionContext, ExternalDepende
 
     const QString templateFile = getTemplateDialog(projectPath);
 
-    if (QFileInfo::exists(templateFile))
-        StylesheetMerger::styleMerge(selectionContext.view()->model(), templateFile, externalDependencies);
+    if (QFileInfo::exists(templateFile)) {
+        StylesheetMerger::styleMerge(Utils::FilePath::fromString(templateFile),
+                                     selectionContext.view()->model(),
+                                     externalDependencies);
+    }
 }
 
 void removeGroup(const SelectionContext &selectionContext)
@@ -1674,7 +1677,7 @@ void openEffectMaker(const QString &filePath)
     }
 }
 
-Utils::FilePath getEffectsDirectory()
+Utils::FilePath getEffectsImportDirectory()
 {
     QString defaultDir = "asset_imports/Effects";
     Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
@@ -1686,6 +1689,11 @@ Utils::FilePath getEffectsDirectory()
     }
 
     return effectsPath;
+}
+
+QString getEffectsDefaultDirectory(const QString &defaultDir)
+{
+    return getAssetDefaultDirectory("effects", defaultDir);
 }
 
 QString getEffectIcon(const QString &effectPath)
@@ -1715,7 +1723,7 @@ bool useLayerEffect()
 bool validateEffect(const QString &effectPath)
 {
     const QString effectName = QFileInfo(effectPath).baseName();
-    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsDirectory();
+    Utils::FilePath effectsResDir = ModelNodeOperations::getEffectsImportDirectory();
     Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
     if (!qmlPath.exists()) {
         QMessageBox msgBox;

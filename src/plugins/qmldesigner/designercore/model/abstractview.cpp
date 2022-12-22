@@ -559,6 +559,7 @@ void AbstractView::resetView()
 
 void AbstractView::resetPuppet()
 {
+    QTC_ASSERT(isAttached(), return);
     emitCustomNotification(QStringLiteral("reset QmlPuppet"));
 }
 
@@ -689,7 +690,8 @@ void AbstractView::emitCustomNotification(const QString &identifier, const QList
 
 void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
-    model()->d->notifyCustomNotification(this, identifier, nodeList, data);
+    if (model())
+        model()->d->notifyCustomNotification(this, identifier, nodeList, data);
 }
 
 void AbstractView::emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList)

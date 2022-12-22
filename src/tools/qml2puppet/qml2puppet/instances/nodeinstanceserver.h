@@ -179,6 +179,7 @@ public:
     ServerNodeInstance rootNodeInstance() const;
 
     QList<ServerNodeInstance> allGroupStateInstances() const;
+    QList<ServerNodeInstance> allView3DInstances() const;
 
     void notifyPropertyChange(qint32 instanceid, const PropertyName &propertyName);
 

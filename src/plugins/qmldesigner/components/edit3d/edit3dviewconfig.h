@@ -28,17 +28,9 @@ public:
         });
     }
 
-    static void setColor(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
+    static void setColors(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
     {
-        if (colorConfig.size() == 1)
-            setColor(view, type, colorConfig.at(0));
-        else
-            setVariant(view, type, QVariant::fromValue(colorConfig));
-    }
-
-    static void setColor(AbstractView *view, View3DActionType type, const QColor &color)
-    {
-        setVariant(view, type, QVariant::fromValue(color));
+        setVariant(view, type, QVariant::fromValue(colorConfig));
     }
 
     template <typename T>
@@ -47,7 +39,7 @@ public:
         setVariant(view, type, QVariant::fromValue(value));
     }
 
-    static void saveColor(const QByteArray &key, const QList<QColor> &colorConfig)
+    static void saveColors(const QByteArray &key, const QList<QColor> &colorConfig)
     {
         QStringList colorNames = Utils::transform(colorConfig, [](const QColor &color) {
             return color.name();
@@ -56,12 +48,7 @@ public:
         saveVariant(key, QVariant::fromValue(colorNames));
     }
 
-    static void saveColor(const QByteArray &key, const QColor &color)
-    {
-        saveVariant(key, QVariant::fromValue(color.name()));
-    }
-
-    static bool isColorValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
+    static bool colorsValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
 
 private:
     static void setVariant(AbstractView *view, View3DActionType type, const QVariant &colorConfig)

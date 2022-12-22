@@ -194,24 +194,18 @@ Item {
     function updateViewStates(viewStates)
     {
         if ("selectBackgroundColor" in viewStates) {
-            if (Array.isArray(viewStates.selectBackgroundColor)) {
-                var colors = viewStates.selectBackgroundColor
-                if (colors.length === 1) {
-                    backgroundGradientColorStart = colors[0];
-                    backgroundGradientColorEnd = colors[0];
-                } else {
-                    backgroundGradientColorStart = colors[0];
-                    backgroundGradientColorEnd = colors[1];
-                }
+            var colors = viewStates.selectBackgroundColor
+            if (colors.length === 1) {
+                backgroundGradientColorStart = colors[0];
+                backgroundGradientColorEnd = colors[0];
             } else {
-                var color = viewStates.selectBackgroundColor
-                backgroundGradientColorStart = color;
-                backgroundGradientColorEnd = color;
+                backgroundGradientColorStart = colors[0];
+                backgroundGradientColorEnd = colors[1];
             }
         }
 
-        if ("selectGridColor" in viewStates)
-            viewRoot.gridColor = viewStates.selectGridColor
+        if ("selectGridColor" in viewStates && viewStates.selectGridColor.length === 1)
+            viewRoot.gridColor = viewStates.selectGridColor[0]
     }
 
     // If resetToDefault is true, tool states not specifically set to anything will be reset to

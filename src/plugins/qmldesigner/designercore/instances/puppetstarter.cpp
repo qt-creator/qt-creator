@@ -35,7 +35,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
                      processFinishCallback);
 
     if (forwardOutput == puppetMode || forwardOutput == "all") {
-        puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
+        puppetProcess->setProcessChannelMode(QProcess::ForwardedChannels);
         QObject::connect(puppetProcess.get(), &QProcess::readyRead, processOutputCallback);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);
@@ -46,7 +46,6 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
     else
         processArguments = {socketToken, puppetMode};
 
-    processArguments.push_back("-graphicssystem raster");
     processArguments.push_back(freeTypeOption);
 
     puppetProcess->start(puppetPath, processArguments);

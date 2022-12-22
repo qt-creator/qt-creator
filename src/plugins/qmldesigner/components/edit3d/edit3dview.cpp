@@ -38,7 +38,9 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
 }
 
 Edit3DView::~Edit3DView()
-{}
+{
+    qDeleteAll(m_edit3DActions);
+}
 
 void Edit3DView::createEdit3DWidget()
 {
@@ -195,6 +197,31 @@ void Edit3DView::modelAttached(Model *model)
 void Edit3DView::onEntriesChanged()
 {
     m_compressionTimer.start();
+}
+
+void Edit3DView::registerEdit3DAction(Edit3DAction *action)
+{
+    View3DActionType actionType = action->actionType();
+    if (actionType == View3DActionType::Empty)
+        return;
+
+    if (m_edit3DActions.contains(actionType)) {
+        Edit3DAction *formerAction = m_edit3DActions.value(actionType);
+        if (formerAction == action)
+            return;
+
+        qWarning() << Q_FUNC_INFO << __LINE__ << "Reregistering action for" << int(actionType);
+        delete formerAction;
+    }
+
+    m_edit3DActions.insert(actionType, action);
+}
+
+void Edit3DView::unregisterEdit3DAction(Edit3DAction *action)
+{
+    View3DActionType actionType = action->actionType();
+    if (m_edit3DActions.value(actionType, nullptr) == action)
+        m_edit3DActions.remove(actionType);
 }
 
 void Edit3DView::handleEntriesChanged()
@@ -389,12 +416,12 @@ Edit3DAction *Edit3DView::createResetColorAction(QAction *syncBackgroundColorAct
 
     auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
-        Edit3DViewConfig::setColor(this, View3DActionType::SelectBackgroundColor, bgColors);
-        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
+        Edit3DViewConfig::setColors(this, View3DActionType::SelectBackgroundColor, bgColors);
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
 
         QColor gridColor{0xaaaaaa};
-        Edit3DViewConfig::setColor(this, View3DActionType::SelectGridColor, gridColor);
-        Edit3DViewConfig::saveColor(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, gridColor);
+        Edit3DViewConfig::setColors(this, View3DActionType::SelectGridColor, {gridColor});
+        Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
 
         if (syncBackgroundColorAction->isChecked()) {
             Edit3DViewConfig::set(this, View3DActionType::SyncBackgroundColor, false);
@@ -810,6 +837,11 @@ QVector<Edit3DAction *> Edit3DView::visibilityToggleActions() const
 QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
 {
     return m_backgroundColorActions;
+}
+
+Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
+{
+    return m_edit3DActions.value(type, nullptr);
 }
 
 void Edit3DView::addQuick3DImport()

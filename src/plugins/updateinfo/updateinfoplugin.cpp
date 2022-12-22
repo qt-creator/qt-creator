@@ -23,6 +23,7 @@
 #include <QMetaEnum>
 #include <QTimer>
 #include <QVersionNumber>
+#include <QScrollArea>
 
 #include <memory>
 
@@ -223,7 +224,12 @@ static void showUpdateInfo(const QList<Update> &updates,
             label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
                            + qtText + updateText + "</li></ul></p></qt>");
             label->setContentsMargins(0, 0, 0, 8);
-            return label;
+            auto scrollArea = new QScrollArea;
+            scrollArea->setWidget(label);
+            scrollArea->setFrameShape(QFrame::NoFrame);
+            scrollArea->viewport()->setAutoFillBackground(false);
+            label->setAutoFillBackground(false);
+            return scrollArea;
         });
     }
     ICore::infoBar()->removeInfo(InstallUpdates); // remove any existing notifications

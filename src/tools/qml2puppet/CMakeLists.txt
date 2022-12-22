@@ -23,6 +23,8 @@ if (NOT QT_CREATOR_API_DEFINED)
   )
 endif()
 
+configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
+
 if (NOT TARGET QmlPuppetCommunication)
   include(../../libs/qmlpuppetcommunication/QmlPuppetCommunication.cmake)
 endif()
@@ -34,12 +36,33 @@ add_qtc_executable(qml2puppet
     Qt5::CorePrivate Qt5::Widgets Qt5::QmlPrivate
     Qt5::QuickPrivate Qt5::Network Qt5::GuiPrivate
     QmlPuppetCommunication
+  INCLUDES
+    ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
   SOURCES
-    qml2puppet/qml2puppetmain.cpp
+    qml2puppet/main.cpp
+    qml2puppet/qmlbase.h qml2puppet/appmetadata.h
+    qml2puppet/qmlpuppet.h qml2puppet/qmlpuppet.cpp qml2puppet/configcrashpad.h
     qmlpuppet.qrc
   PROPERTIES
     OUTPUT_NAME qml2puppet-${IDE_VERSION}
 )
+
+if(TARGET qml2puppet)
+  execute_process(
+      COMMAND git describe --tags --always --dirty=+
+      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SHA_RESULT
+      OUTPUT_VARIABLE GIT_SHA_OUTPUT
+      ERROR_VARIABLE GIT_SHA_ERROR
+  )
+
+  #if we are not a git repository use the .tag file
+  if(NOT GIT_SHA_OUTPUT)
+      file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../../../.tag GIT_SHA_OUTPUT)
+  endif()
+
+  add_definitions( -D GIT_SHA=${GIT_SHA_OUTPUT} )
+endif()
 
 extend_qtc_executable(qml2puppet
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
@@ -191,9 +214,26 @@ extend_qtc_executable(qml2puppet
   DEPENDS Nanotrace
 )
 
-if (QTC_STATIC_BUILD AND Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0)
-  qt6_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+if (Qt5_VERSION VERSION_GREATER_EQUAL 6.4.0)
+    extend_qtc_executable(qml2puppet
+      DEFINES ENABLE_INTERNAL_QML_RUNTIME
+      PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner
+      SOURCES_PREFIX qml2puppet/runner
+      SOURCES
+        qmlruntime.h qmlruntime.cpp
+        qmlconfiguration.h loadwatcher.h
+    )
+
+    # Turn the tool into its own self-contained qml module
+    qt_add_qml_module(qml2puppet
+        URI QmlRuntime.QmlConfiguration
+        VERSION 1.0
+    )
+    if (QTC_STATIC_BUILD)
+      qt_import_qml_plugins(qml2puppet PATH_TO_SCAN ${SRCDIR})
+    endif()
 endif()
+
 
 # Crashpad
 # only windows requires separate crashpad client per process until client->SetHandlerIPCPipe()

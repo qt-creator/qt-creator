@@ -112,6 +112,7 @@ public:
     bool available() const;
 
     Q_INVOKABLE void start();
+    Q_INVOKABLE void cancel();
 
 signals:
     void finishedChanged();
@@ -123,6 +124,8 @@ signals:
     void lastModifiedChanged();
     void availableChanged();
 
+    void downloadCanceled();
+
 private:
     void probeUrl();
 
@@ -133,6 +136,8 @@ private:
     QFile m_tempFile;
     QDateTime m_lastModified;
     bool m_available = false;
+
+    QNetworkReply *m_reply = nullptr;
 };
 
 class DataModelDownloader : public QObject

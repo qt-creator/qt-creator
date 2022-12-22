@@ -3,12 +3,17 @@
 
 #include "contentlibrarytexture.h"
 
+#include "imageutils.h"
+
 namespace QmlDesigner {
 
 ContentLibraryTexture::ContentLibraryTexture(QObject *parent, const QString &path, const QUrl &icon)
     : QObject(parent)
     , m_path(path)
-    , m_icon(icon) {}
+    , m_icon(icon)
+{
+    m_toolTip = QLatin1String("%1\n%2").arg(path.split('/').last(), ImageUtils::imageInfo(path));
+}
 
 bool ContentLibraryTexture::filter(const QString &searchText)
 {
