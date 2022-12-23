@@ -10,7 +10,7 @@ add_qtc_plugin(Axivion
   PLUGIN_DEPENDS
     QtCreator::Core QtCreator::ProjectExplorer QtCreator::TextEditor
     ${LICENSECHECKER_DEPENDS}
-  DEPENDS Qt5::Network Qt5::Widgets QtCreator::ExtensionSystem QtCreator::Utils
+  DEPENDS Qt::Network Qt::Widgets QtCreator::ExtensionSystem QtCreator::Utils
   SOURCES
     axivion.qrc
     axivionoutputpane.cpp axivionoutputpane.h
