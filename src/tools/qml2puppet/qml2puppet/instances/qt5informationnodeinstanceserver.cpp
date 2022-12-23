@@ -2123,7 +2123,7 @@ void Qt5InformationNodeInstanceServer::completeComponent(const CompleteComponent
     Qt5NodeInstanceServer::completeComponent(command);
 
     QList<ServerNodeInstance> instanceList;
-    QList<qint32> instances = command.instances();
+    const QVector<qint32> instances = command.instances();
     for (qint32 instanceId : instances) {
         if (hasInstanceForId(instanceId)) {
             ServerNodeInstance instance = instanceForId(instanceId);
