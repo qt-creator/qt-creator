@@ -32,7 +32,7 @@
     By default, a directional light and a perspective camera are used in a 3D
     scene created by using the wizard template mentioned above. To use other
     light and camera types, select the component in the \uicontrol{3D} or
-    \uicontrol Navigatorn view and change the type of the component in the \uicontrol
+    \uicontrol Navigator view and change the type of the component in the \uicontrol
     Type field in \l Properties. For example, to use a point light, enter
     \e {PointLight}.
 
