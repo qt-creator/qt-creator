@@ -9,6 +9,7 @@
 #include "designericons.h"
 #include "designermcumanager.h"
 #include "formatoperation.h"
+#include "groupitemaction.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
 #include "qmleditormenu.h"
@@ -1593,12 +1594,10 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionEnabled,
                           &selectionEnabled));
 
-    addDesignerAction(new ActionGroup(
-                          groupCategoryDisplayName,
-                          groupCategory,
+    addDesignerAction(new GroupItemAction(
                           contextIcon(DesignerIcons::GroupSelectionIcon),
-                          Priorities::Group,
-                          &studioComponentsAvailableAndSelectionCanBeLayouted));
+                          {},
+                          Priorities::Group));
 
     addDesignerAction(new ActionGroup(
                           flowCategoryDisplayName,
@@ -1744,24 +1743,6 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &removeLayout,
                           &isLayout,
                           &isLayout));
-
-    addDesignerAction(new ModelNodeContextMenuAction(addToGroupItemCommandId,
-                                                     addToGroupItemDisplayName,
-                                                     {},
-                                                     groupCategory,
-                                                     QKeySequence("Ctrl+Shift+g"),
-                                                     1,
-                                                     &addToGroupItem,
-                                                     &selectionCanBeLayouted));
-
-    addDesignerAction(new ModelNodeContextMenuAction(removeGroupItemCommandId,
-                                                     removeGroupItemDisplayName,
-                                                     {},
-                                                     groupCategory,
-                                                     QKeySequence(),
-                                                     2,
-                                                     &removeGroup,
-                                                     &isGroup));
 
     addDesignerAction(new ModelNodeFormEditorAction(
                           addItemToStackedContainerCommandId,

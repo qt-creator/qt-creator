@@ -75,7 +75,6 @@ const char decreaseIndexOfStackedContainerCommandId[] = "DecreaseIndexOfStackedC
 const char flowAssignEffectCommandId[] = "AssignFlowEffect";
 const char flowAssignCustomEffectCommandId[] = "AssignFlowCustomEffect";
 const char addToGroupItemCommandId[] = "AddToGroupItem";
-const char removeGroupItemCommandId[] = "RemoveToGroupItem";
 const char fitRootToScreenCommandId[] = "FitRootToScreen";
 const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 const char editAnnotationsCommandId[] = "EditAnnotation";

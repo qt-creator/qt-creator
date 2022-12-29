@@ -132,6 +132,7 @@ add_qtc_library(Utils
     qtcolorbutton.cpp qtcolorbutton.h
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
+    ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
     runextensions.cpp runextensions.h

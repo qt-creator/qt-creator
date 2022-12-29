@@ -614,6 +614,7 @@ extend_qtc_plugin(QmlDesigner
     designeractionmanagerview.cpp designeractionmanagerview.h
     designericons.cpp designericons.h
     findimplementation.cpp findimplementation.h
+    groupitemaction.cpp groupitemaction.h
     layoutingridlayout.cpp layoutingridlayout.h
     modelnodecontextmenu.cpp modelnodecontextmenu.h
     modelnodecontextmenu_helper.cpp modelnodecontextmenu_helper.h

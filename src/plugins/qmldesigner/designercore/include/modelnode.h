@@ -223,6 +223,7 @@ public:
 
     static bool isThisOrAncestorLocked(const ModelNode &node);
     static ModelNode lowestCommonAncestor(const QList<ModelNode> &nodes);
+    static QList<ModelNode> pruneChildren(const QList<ModelNode> &nodes);
 
     qint32 internalId() const;
 
