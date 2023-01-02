@@ -84,7 +84,7 @@
             \list
                 \li \uicontrol Component exports the layer as a separate UI file
                     that contains all the exportable artwork and text in it. Only
-                    Artboards can be exported as components.
+                    Artboards and XD component layers can be exported as components.
                 \li \uicontrol Child exports each asset of the selected group
                     or layer a separate PNG file, with references
                     to the images in the component file.
