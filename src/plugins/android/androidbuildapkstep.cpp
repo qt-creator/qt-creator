@@ -897,7 +897,7 @@ QVariant AndroidBuildApkStep::data(Utils::Id id) const
     if (id == Constants::AndroidNdkPlatform) {
         if (auto qtVersion = QtKitAspect::qtVersion(kit()))
             return AndroidConfigurations::currentConfig()
-                .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion).mid(8);
+                .bestNdkPlatformMatch(AndroidManager::minimumSDK(target()), qtVersion);
         return {};
     }
     if (id == Constants::NdkLocation) {
