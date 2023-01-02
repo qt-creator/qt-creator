@@ -1573,6 +1573,8 @@ bool FilePath::isRelativePath() const
 */
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
+    if (tail.isEmpty())
+        return cleanPath();
     if (tail.isRelativePath())
         return pathAppended(tail.path()).cleanPath();
     return tail;
