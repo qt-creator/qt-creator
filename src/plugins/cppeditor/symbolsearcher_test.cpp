@@ -75,9 +75,8 @@ public:
         QVERIFY(succeededSoFar());
         QVERIFY(parseFiles(testFile));
 
-        CppIndexingSupport *indexingSupport = m_modelManager->indexingSupport();
         const QScopedPointer<SymbolSearcher> symbolSearcher(
-            indexingSupport->createSymbolSearcher(searchParameters, QSet<QString>{testFile}));
+            new SymbolSearcher(searchParameters, QSet<QString>{testFile}));
         QFuture<Core::SearchResultItem> search
             = Utils::runAsync(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();

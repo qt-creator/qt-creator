@@ -334,10 +334,4 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &source
     return result;
 }
 
-SymbolSearcher *CppIndexingSupport::createSymbolSearcher(
-    const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames)
-{
-    return new SymbolSearcher(parameters, fileNames);
-}
-
 } // namespace CppEditor

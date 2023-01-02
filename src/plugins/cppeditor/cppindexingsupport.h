@@ -62,8 +62,6 @@ public:
 
     QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
                                      CppModelManager::ProgressNotificationMode mode);
-    SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                                         const QSet<QString> &fileNames);
 private:
     Utils::FutureSynchronizer m_synchronizer;
 };

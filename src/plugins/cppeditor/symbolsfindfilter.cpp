@@ -116,7 +116,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] { finish(watcher); });
     connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, [this, watcher]
             (int begin, int end) { addResults(watcher, begin, end); });
-    SymbolSearcher *symbolSearcher = m_manager->indexingSupport()->createSymbolSearcher(parameters, projectFileNames);
+    SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
     watcher->setFuture(Utils::runAsync(m_manager->sharedThreadPool(),
