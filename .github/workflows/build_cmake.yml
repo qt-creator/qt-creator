@@ -5,6 +5,7 @@ on: [push]
 env:
   PLUGIN_NAME: Fossil
   QT_VERSION: 6.4.1
+  MACOS_DEPLOYMENT_TARGET: 10.14
   QT_CREATOR_VERSION: 9.0.0
   QT_CREATOR_SNAPSHOT: NO
   CMAKE_VERSION: 3.21.1
@@ -202,7 +203,7 @@ jobs:
       run: |
         set(ENV{CC} ${{ matrix.config.cc }})
         set(ENV{CXX} ${{ matrix.config.cxx }})
-        set(ENV{MACOSX_DEPLOYMENT_TARGET} "10.13")
+        set(ENV{MACOSX_DEPLOYMENT_TARGET} "${{ env.MACOS_DEPLOYMENT_TARGET }}")
 
         if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           execute_process(
@@ -227,6 +228,10 @@ jobs:
           endif()
         endforeach()
 
+        if("${{ runner.os }}" STREQUAL "macOS")
+          set(architecture_config "--add-config=-DCMAKE_OSX_ARCHITECTURES=x86_64\;arm64")
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -237,6 +242,7 @@ jobs:
             --qt-path "${{ steps.qt.outputs.qt_dir }}"
             --qtc-path "${{ steps.qt_creator.outputs.qtc_dir }}"
             --output-path "$ENV{GITHUB_WORKSPACE}"
+            ${architecture_config}
           RESULT_VARIABLE result
         )
         if (NOT result EQUAL 0)
