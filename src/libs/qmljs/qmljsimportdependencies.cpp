@@ -663,7 +663,7 @@ void ImportDependencies::iterateOnCandidateImports(
         for (const QString &cImportName : imp) {
             CoreImport cImport = coreImport(cImportName);
             if (languageIsCompatible(vContext.language, cImport.language)) {
-                for (const Export e : std::as_const(cImport.possibleExports)) {
+                for (const Export &e : std::as_const(cImport.possibleExports)) {
                     ++benchMark.nPossibleExports;
                     if (e.visibleInVContext(vContext)) {
                         ImportMatchStrength m = e.exportName.matchImport(key, vContext);
@@ -686,7 +686,7 @@ void ImportDependencies::iterateOnCandidateImports(
             for (const QString &cImportName : std::as_const(lb.value())) {
                 CoreImport cImport = coreImport(cImportName);
                 if (languageIsCompatible(vContext.language, cImport.language)) {
-                    for (const Export e : std::as_const(cImport.possibleExports)) {
+                    for (const Export &e : std::as_const(cImport.possibleExports)) {
                         ++benchMark.nPossibleExports;
                         if (e.visibleInVContext(vContext)) {
                             ImportMatchStrength m = e.exportName.matchImport(key, vContext);
