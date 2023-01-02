@@ -210,15 +210,15 @@ void JsonFieldPage::Field::createWidget(JsonFieldPage *page)
     w->setObjectName(name());
     QFormLayout *layout = page->layout();
 
-    if (suppressName()) {
-        layout->addWidget(w);
-    } else if (hasSpan()) {
+    if (hasSpan()) {
         if (!suppressName()) {
             d->m_label = new QLabel(displayName());
             layout->addRow(d->m_label);
         }
 
         layout->addRow(w);
+    } else if (suppressName()) {
+        layout->addWidget(w);
     } else {
         d->m_label = new QLabel(displayName());
         layout->addRow(d->m_label, w);
