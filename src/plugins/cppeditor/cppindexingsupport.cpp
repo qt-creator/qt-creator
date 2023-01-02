@@ -27,12 +27,12 @@ namespace CppEditor {
 
 static Q_LOGGING_CATEGORY(indexerLog, "qtc.cppeditor.indexer", QtWarningMsg)
 
-SymbolSearcher::SymbolSearcher(QObject *parent)
-    : QObject(parent)
-{
-}
-
-SymbolSearcher::~SymbolSearcher() = default;
+SymbolSearcher::SymbolSearcher(const SymbolSearcher::Parameters &parameters,
+                               const QSet<QString> &fileNames)
+    : m_snapshot(CppModelManager::instance()->snapshot())
+    , m_parameters(parameters)
+    , m_fileNames(fileNames)
+{}
 
 namespace {
 
@@ -241,83 +241,64 @@ void parse(QFutureInterface<void> &indexingFuture, const ParseParams params)
 
 } // anonymous namespace
 
-
-class BuiltinSymbolSearcher: public SymbolSearcher
+void SymbolSearcher::runSearch(QFutureInterface<Core::SearchResultItem> &future)
 {
-public:
-    BuiltinSymbolSearcher(const CPlusPlus::Snapshot &snapshot,
-                          const Parameters &parameters, const QSet<QString> &fileNames)
-        : m_snapshot(snapshot)
-        , m_parameters(parameters)
-        , m_fileNames(fileNames)
-    {}
+    future.setProgressRange(0, m_snapshot.size());
+    future.setProgressValue(0);
+    int progress = 0;
 
-    ~BuiltinSymbolSearcher() override = default;
+    SearchSymbols search;
+    search.setSymbolsToSearchFor(m_parameters.types);
+    CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
 
-    void runSearch(QFutureInterface<Core::SearchResultItem> &future) override
-    {
-        future.setProgressRange(0, m_snapshot.size());
-        future.setProgressValue(0);
-        int progress = 0;
-
-        SearchSymbols search;
-        search.setSymbolsToSearchFor(m_parameters.types);
-        CPlusPlus::Snapshot::const_iterator it = m_snapshot.begin();
-
-        QString findString = (m_parameters.flags & Core::FindRegularExpression
-                                  ? m_parameters.text : QRegularExpression::escape(m_parameters.text));
-        if (m_parameters.flags & Core::FindWholeWords)
-            findString = QString::fromLatin1("\\b%1\\b").arg(findString);
-        QRegularExpression matcher(findString, (m_parameters.flags & Core::FindCaseSensitively
-                                                    ? QRegularExpression::NoPatternOption
-                                                    : QRegularExpression::CaseInsensitiveOption));
-        matcher.optimize();
-        while (it != m_snapshot.end()) {
-            if (future.isPaused())
-                future.waitForResume();
-            if (future.isCanceled())
-                break;
-            if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
-                QVector<Core::SearchResultItem> resultItems;
-                auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
-                    if (matcher.match(info->symbolName()).hasMatch()) {
-                        QString text = info->symbolName();
-                        QString scope = info->symbolScope();
-                        if (info->type() == IndexItem::Function) {
-                            QString name;
-                            info->unqualifiedNameAndScope(info->symbolName(), &name, &scope);
-                            text = name + info->symbolType();
-                        } else if (info->type() == IndexItem::Declaration){
-                            text = info->representDeclaration();
-                        }
-
-                        Core::SearchResultItem item;
-                        item.setPath(scope.split(QLatin1String("::"), Qt::SkipEmptyParts));
-                        item.setLineText(text);
-                        item.setIcon(info->icon());
-                        item.setUserData(QVariant::fromValue(info));
-                        resultItems << item;
-                    }
-
-                    return IndexItem::Recurse;
-                };
-                search(it.value())->visitAllChildren(filter);
-                if (!resultItems.isEmpty())
-                    future.reportResults(resultItems);
-            }
-            ++it;
-            ++progress;
-            future.setProgressValue(progress);
-        }
+    QString findString = (m_parameters.flags & Core::FindRegularExpression
+                              ? m_parameters.text : QRegularExpression::escape(m_parameters.text));
+    if (m_parameters.flags & Core::FindWholeWords)
+        findString = QString::fromLatin1("\\b%1\\b").arg(findString);
+    QRegularExpression matcher(findString, (m_parameters.flags & Core::FindCaseSensitively
+                                                ? QRegularExpression::NoPatternOption
+                                                : QRegularExpression::CaseInsensitiveOption));
+    matcher.optimize();
+    while (it != m_snapshot.end()) {
         if (future.isPaused())
             future.waitForResume();
-    }
+        if (future.isCanceled())
+            break;
+        if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
+            QVector<Core::SearchResultItem> resultItems;
+            auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
+                if (matcher.match(info->symbolName()).hasMatch()) {
+                    QString text = info->symbolName();
+                    QString scope = info->symbolScope();
+                    if (info->type() == IndexItem::Function) {
+                        QString name;
+                        info->unqualifiedNameAndScope(info->symbolName(), &name, &scope);
+                        text = name + info->symbolType();
+                    } else if (info->type() == IndexItem::Declaration){
+                        text = info->representDeclaration();
+                    }
 
-private:
-    const CPlusPlus::Snapshot m_snapshot;
-    const Parameters m_parameters;
-    const QSet<QString> m_fileNames;
-};
+                    Core::SearchResultItem item;
+                    item.setPath(scope.split(QLatin1String("::"), Qt::SkipEmptyParts));
+                    item.setLineText(text);
+                    item.setIcon(info->icon());
+                    item.setUserData(QVariant::fromValue(info));
+                    resultItems << item;
+                }
+
+                return IndexItem::Recurse;
+            };
+            search(it.value())->visitAllChildren(filter);
+            if (!resultItems.isEmpty())
+                future.reportResults(resultItems);
+        }
+        ++it;
+        ++progress;
+        future.setProgressValue(progress);
+    }
+    if (future.isPaused())
+        future.waitForResume();
+}
 
 CppIndexingSupport::CppIndexingSupport()
 {
@@ -356,7 +337,7 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &source
 SymbolSearcher *CppIndexingSupport::createSymbolSearcher(
     const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames)
 {
-    return new BuiltinSymbolSearcher(CppModelManager::instance()->snapshot(), parameters, fileNames);
+    return new SymbolSearcher(parameters, fileNames);
 }
 
 } // namespace CppEditor

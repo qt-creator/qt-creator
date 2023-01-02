@@ -7,11 +7,9 @@
 
 #include "cppmodelmanager.h"
 
-#include <coreplugin/find/textfindconstants.h>
 #include <utils/futuresynchronizer.h>
 
 #include <QFuture>
-#include <QStringList>
 
 namespace Core { class SearchResultItem; }
 
@@ -45,11 +43,13 @@ public:
         SearchScope scope;
     };
 
+    SymbolSearcher(const SymbolSearcher::Parameters &parameters, const QSet<QString> &fileNames);
+    void runSearch(QFutureInterface<Core::SearchResultItem> &future);
 
-public:
-    SymbolSearcher(QObject *parent = nullptr);
-    ~SymbolSearcher() override = 0;
-    virtual void runSearch(QFutureInterface<Core::SearchResultItem> &future) = 0;
+private:
+    const CPlusPlus::Snapshot m_snapshot;
+    const Parameters m_parameters;
+    const QSet<QString> m_fileNames;
 };
 
 class CPPEDITOR_EXPORT CppIndexingSupport
