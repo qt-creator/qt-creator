@@ -8,6 +8,7 @@
 #include "cppmodelmanager.h"
 
 #include <coreplugin/find/textfindconstants.h>
+#include <utils/futuresynchronizer.h>
 
 #include <QFuture>
 #include <QStringList>
@@ -51,17 +52,20 @@ public:
     virtual void runSearch(QFutureInterface<Core::SearchResultItem> &future) = 0;
 };
 
-
 class CPPEDITOR_EXPORT CppIndexingSupport
 {
 public:
-    virtual ~CppIndexingSupport() = 0;
+    CppIndexingSupport();
+    ~CppIndexingSupport();
 
-    virtual QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
-                                             CppModelManager::ProgressNotificationMode mode)
-        = 0;
-    virtual SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                                                 const QSet<QString> &fileNames) = 0;
+    static bool isFindErrorsIndexingActive();
+
+    QFuture<void> refreshSourceFiles(const QSet<QString> &sourceFiles,
+                                     CppModelManager::ProgressNotificationMode mode);
+    SymbolSearcher *createSymbolSearcher(const SymbolSearcher::Parameters &parameters,
+                                         const QSet<QString> &fileNames);
+private:
+    Utils::FutureSynchronizer m_synchronizer;
 };
 
 } // namespace CppEditor

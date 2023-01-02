@@ -3,7 +3,7 @@
 
 #include "symbolsearcher_test.h"
 
-#include "builtinindexingsupport.h"
+#include "cppindexingsupport.h"
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 #include "searchsymbols.h"

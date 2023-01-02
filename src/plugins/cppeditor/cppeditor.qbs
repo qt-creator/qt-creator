@@ -39,8 +39,6 @@ QtcPlugin {
         "builtineditordocumentparser.h",
         "builtineditordocumentprocessor.cpp",
         "builtineditordocumentprocessor.h",
-        "builtinindexingsupport.cpp",
-        "builtinindexingsupport.h",
         "clangdiagnosticconfig.cpp",
         "clangdiagnosticconfig.h",
         "clangdiagnosticconfigsmodel.cpp",

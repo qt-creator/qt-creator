@@ -10,7 +10,6 @@ add_qtc_plugin(CppEditor
     builtincursorinfo.cpp builtincursorinfo.h
     builtineditordocumentparser.cpp builtineditordocumentparser.h
     builtineditordocumentprocessor.cpp builtineditordocumentprocessor.h
-    builtinindexingsupport.cpp builtinindexingsupport.h
     clangdiagnosticconfig.cpp clangdiagnosticconfig.h
     clangdiagnosticconfigsmodel.cpp clangdiagnosticconfigsmodel.h
     clangdiagnosticconfigsselectionwidget.cpp clangdiagnosticconfigsselectionwidget.h

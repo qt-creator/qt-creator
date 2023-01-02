@@ -5,7 +5,6 @@
 
 #include "abstracteditorsupport.h"
 #include "baseeditordocumentprocessor.h"
-#include "builtinindexingsupport.h"
 #include "compileroptionsbuilder.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
@@ -975,7 +974,7 @@ CppModelManager::CppModelManager()
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
 
-    d->m_internalIndexingSupport = new BuiltinIndexingSupport;
+    d->m_internalIndexingSupport = new CppIndexingSupport;
 
     initCppTools();
 }
@@ -1696,7 +1695,7 @@ void CppModelManager::onActiveProjectChanged(ProjectExplorer::Project *project)
 
 void CppModelManager::onSourceFilesRefreshed() const
 {
-    if (BuiltinIndexingSupport::isFindErrorsIndexingActive()) {
+    if (CppIndexingSupport::isFindErrorsIndexingActive()) {
         QTimer::singleShot(1, QCoreApplication::instance(), &QCoreApplication::quit);
         qDebug("FindErrorsIndexing: Done, requesting Qt Creator to quit.");
     }
