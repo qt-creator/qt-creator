@@ -32,6 +32,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/namedwidget.h>
@@ -92,6 +93,7 @@ const char CMAKE_QT6_TOOLCHAIN_FILE_ARG[]
 const char CMAKE_BUILD_TYPE[] = "CMake.Build.Type";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "CMake.Configure.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "CMake.Configure.UserEnvironmentChanges";
+const char BASE_ENVIRONMENT_KEY[] = "CMake.Configure.BaseEnvironment";
 
 namespace Internal {
 
@@ -172,7 +174,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 {
     QTC_ASSERT(bs, return);
     BuildConfiguration *bc = bs->buildConfiguration();
-    CMakeBuildConfiguration *cbc = static_cast<CMakeBuildConfiguration *>(bc);
 
     m_configureDetailsWidget = new DetailsWidget;
 
@@ -309,35 +310,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
     m_reconfigureButton = new QPushButton(Tr::tr("Run CMake"));
     m_reconfigureButton->setEnabled(false);
 
-    auto clearBox = new QCheckBox(Tr::tr("Clear system environment"), this);
-    clearBox->setChecked(cbc->useClearConfigureEnvironment());
-
-    auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal, clearBox);
-    envWidget->setBaseEnvironment(cbc->baseConfigureEnvironment());
-    envWidget->setBaseEnvironmentText(cbc->baseConfigureEnvironmentText());
-    envWidget->setUserChanges(cbc->userConfigureEnvironmentChanges());
-
-    const EnvironmentWidget::OpenTerminalFunc openTerminalFunc
-            = [bc](const Utils::Environment &env) {
-        Core::FileUtils::openTerminal(bc->buildDirectory(), env);
-    };
-    envWidget->setOpenTerminalFunc(openTerminalFunc);
-
-    connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [cbc, envWidget] {
-        cbc->setUserConfigureEnvironmentChanges(envWidget->userChanges());
-    });
-
-    connect(clearBox, &QAbstractButton::toggled, this, [cbc, envWidget](bool checked) {
-        cbc->setUseClearConfigureEnvironment(checked);
-        envWidget->setBaseEnvironment(cbc->baseConfigureEnvironment());
-        envWidget->setBaseEnvironmentText(cbc->baseConfigureEnvironmentText());
-    });
-
-    connect(cbc, &CMakeBuildConfiguration::configureEnvironmentChanged, this, [cbc, envWidget] {
-        envWidget->setBaseEnvironment(cbc->baseConfigureEnvironment());
-        envWidget->setBaseEnvironmentText(cbc->baseConfigureEnvironmentText());
-    });
-
     using namespace Layouting;
     Grid cmakeConfiguration {
         m_filterEdit, br,
@@ -354,6 +326,11 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
             st
         }
     };
+
+    auto configureEnvironmentAspectWidget
+        = bc->aspect<ConfigureEnvironmentAspect>()->createConfigWidget();
+    configureEnvironmentAspectWidget->setContentsMargins(0, 0, 0, 0);
+    configureEnvironmentAspectWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
     Column {
         Form {
@@ -375,8 +352,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                     m_reconfigureButton,
                 }
             },
-            clearBox,
-            envWidget
+            configureEnvironmentAspectWidget
         }
     }.attachTo(details, WithoutMargins);
 
@@ -1364,18 +1340,6 @@ static Utils::EnvironmentItems getEnvironmentItemsFromCMakeBuildPreset(
     return envItems;
 }
 
-// -----------------------------------------------------------------------------
-// CMakeBuildConfigurationPrivate:
-// -----------------------------------------------------------------------------
-
-class CMakeBuildConfigurationPrivate
-{
-public:
-    Utils::Environment m_configureEnvironment;
-    Utils::EnvironmentItems  m_userConfigureEnvironmentChanges;
-    bool m_clearSystemConfigureEnvironment = false;
-};
-
 } // namespace Internal
 
 // -----------------------------------------------------------------------------
@@ -1383,7 +1347,7 @@ public:
 // -----------------------------------------------------------------------------
 
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
-    : BuildConfiguration(target, id), d(new Internal::CMakeBuildConfigurationPrivate())
+    : BuildConfiguration(target, id)
 {
     m_buildSystem = new CMakeBuildSystem(this);
 
@@ -1461,6 +1425,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     addAspect<SourceDirectoryAspect>();
     addAspect<BuildTypeAspect>();
     addAspect<QtSupport::QmlDebuggingAspect>(this);
+
+    addAspect<ConfigureEnvironmentAspect>(target);
 
     setInitialBuildAndCleanSteps(target);
 
@@ -1566,8 +1532,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
-        setUserConfigureEnvironmentChanges(getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
-        updateAndEmitConfigureEnvironmentChanged();
+        aspect<ConfigureEnvironmentAspect>()->setUserEnvironmentChanges(
+            getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
 
         QStringList initialCMakeArguments = cmd.splitArguments();
         addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
@@ -1585,14 +1551,11 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 CMakeBuildConfiguration::~CMakeBuildConfiguration()
 {
     delete m_buildSystem;
-    delete d;
 }
 
 QVariantMap CMakeBuildConfiguration::toMap() const
 {
     QVariantMap map(BuildConfiguration::toMap());
-    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemConfigureEnvironment);
-    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY), EnvironmentItem::toStringList(d->m_userConfigureEnvironmentChanges));
     return map;
 }
 
@@ -1626,27 +1589,6 @@ bool CMakeBuildConfiguration::fromMap(const QVariantMap &map)
             cmd.addArg(item.toArgument(macroExpander()));
         m_buildSystem->setInitialCMakeArguments(cmd.splitArguments());
     }
-
-    // Upgrading from Qt Creator version <9 to 9, if the build environment is set
-    // apply the specific values to the configure environment
-    auto settingsKey = [map](const QLatin1String &configureKey, const QLatin1String &buildKey) {
-        if (!map.contains(configureKey) && map.contains(buildKey))
-            return buildKey;
-        return configureKey;
-    };
-
-    const QLatin1String clearSystemEnvironmentKey
-        = settingsKey(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY),
-                      QLatin1String(ProjectExplorer::Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY));
-    const QLatin1String userEnvironmentChangesKey
-        = settingsKey(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
-                      QLatin1String(ProjectExplorer::Constants::USER_ENVIRONMENT_CHANGES_KEY));
-
-    d->m_clearSystemConfigureEnvironment = map.value(clearSystemEnvironmentKey).toBool();
-    d->m_userConfigureEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(userEnvironmentChangesKey).toStringList());
-
-    updateAndEmitConfigureEnvironmentChanged();
 
     return true;
 }
@@ -2128,64 +2070,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 
 Environment CMakeBuildConfiguration::configureEnvironment() const
 {
-    return d->m_configureEnvironment;
-}
-
-void CMakeBuildConfiguration::setUserConfigureEnvironmentChanges(const Utils::EnvironmentItems &diff)
-{
-    if (d->m_userConfigureEnvironmentChanges == diff)
-        return;
-    d->m_userConfigureEnvironmentChanges = diff;
-    updateAndEmitConfigureEnvironmentChanged();
-}
-
-EnvironmentItems CMakeBuildConfiguration::userConfigureEnvironmentChanges() const
-{
-    return d->m_userConfigureEnvironmentChanges;
-}
-
-bool CMakeBuildConfiguration::useClearConfigureEnvironment() const
-{
-    return d->m_clearSystemConfigureEnvironment;
-}
-
-void CMakeBuildConfiguration::setUseClearConfigureEnvironment(bool b)
-{
-    if (useClearConfigureEnvironment() == b)
-        return;
-    d->m_clearSystemConfigureEnvironment = b;
-    updateAndEmitConfigureEnvironmentChanged();
-}
-
-void CMakeBuildConfiguration::updateAndEmitConfigureEnvironmentChanged()
-{
-    Environment env = baseConfigureEnvironment();
-    env.modify(userConfigureEnvironmentChanges());
-    if (env == d->m_configureEnvironment)
-        return;
-    d->m_configureEnvironment = env;
-    emit configureEnvironmentChanged();
-}
-
-Environment CMakeBuildConfiguration::baseConfigureEnvironment() const
-{
-    Environment result;
-    if (!useClearConfigureEnvironment()) {
-        ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
-        result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
-    }
-    kit()->addToBuildEnvironment(result);
-    addToEnvironment(result);
-    result.modify(project()->additionalEnvironment());
-    return result;
-}
-
-QString CMakeBuildConfiguration::baseConfigureEnvironmentText() const
-{
-    if (useClearConfigureEnvironment())
-        return Tr::tr("Clean Environment");
-    else
-        return Tr::tr("System Environment");
+    return aspect<ConfigureEnvironmentAspect>()->environment();
 }
 
 QString CMakeBuildSystem::cmakeBuildType() const
@@ -2353,6 +2238,112 @@ BuildTypeAspect::BuildTypeAspect()
     setLabelText(Tr::tr("Build type:"));
     setDisplayStyle(LineEditDisplay);
     setDefaultValue("Unknown");
+}
+
+// -----------------------------------------------------------------------------
+// ConfigureEnvironmentAspect:
+// -----------------------------------------------------------------------------
+class ConfigureEnvironmentAspectWidget final : public ProjectExplorer::EnvironmentAspectWidget
+{
+public:
+    ConfigureEnvironmentAspectWidget(ConfigureEnvironmentAspect *aspect,
+                                     ProjectExplorer::Target *target)
+        : EnvironmentAspectWidget(aspect)
+    {
+        envWidget()->setOpenTerminalFunc([target](const Environment &env) {
+            if (BuildConfiguration *bc = target->activeBuildConfiguration())
+                Core::FileUtils::openTerminal(bc->buildDirectory(), env);
+        });
+    }
+};
+
+ConfigureEnvironmentAspect::ConfigureEnvironmentAspect(ProjectExplorer::Target *target)
+{
+    setIsLocal(true);
+    setConfigWidgetCreator(
+        [this, target] { return new ConfigureEnvironmentAspectWidget(this, target); });
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+    setLabelText(Tr::tr("Base environment for the CMake configure step:"));
+
+    const int systemEnvIndex = addSupportedBaseEnvironment(Tr::tr("System Environment"), [target] {
+        IDevice::ConstPtr device = BuildDeviceKitAspect::device(target->kit());
+        return device ? device->systemEnvironment() : Environment::systemEnvironment();
+    });
+
+    const int buildEnvIndex = addSupportedBaseEnvironment(Tr::tr("Build Environment"), [target] {
+        Environment env;
+        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            env = bc->environment();
+        } else { // Fallback for targets without buildconfigurations:
+            env = target->kit()->buildEnvironment();
+        }
+        return env;
+    });
+
+    connect(target,
+            &Target::activeBuildConfigurationChanged,
+            this,
+            &EnvironmentAspect::environmentChanged);
+    connect(target,
+            &Target::buildEnvironmentChanged,
+            this,
+            &EnvironmentAspect::environmentChanged);
+
+
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
+        target->kit());
+
+    setBaseEnvironmentBase(presetItem.isNull() ? buildEnvIndex : systemEnvIndex);
+
+    connect(target->project(),
+            &Project::environmentChanged,
+            this,
+            &EnvironmentAspect::environmentChanged);
+
+    connect(KitManager::instance(), &KitManager::kitUpdated, this, [this, target](const Kit *k) {
+        if (target->kit() == k)
+            emit EnvironmentAspect::environmentChanged();
+    });
+
+    addModifier([target](Utils::Environment &env) {
+        // This will add ninja to path
+        if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
+            bc->addToEnvironment(env);
+        }
+        target->kit()->addToBuildEnvironment(env);
+        env.modify(target->project()->additionalEnvironment());
+    });
+}
+
+void ConfigureEnvironmentAspect::fromMap(const QVariantMap &map)
+{
+    // Match the key values from Qt Creator 9.0.0/1 to the ones from EnvironmentAspect
+    const bool cleanSystemEnvironment = map.value(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY))
+                                            .toBool();
+    const QStringList userEnvironmentChanges
+        = map.value(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY)).toStringList();
+
+    const int baseEnvironmentIndex
+        = map.value(QLatin1String(BASE_ENVIRONMENT_KEY), baseEnvironmentBase()).toInt();
+
+    QVariantMap tmpMap;
+    tmpMap.insert(QLatin1String(BASE_KEY), cleanSystemEnvironment ? 0 : baseEnvironmentIndex);
+    tmpMap.insert(QLatin1String(CHANGES_KEY), userEnvironmentChanges);
+
+    ProjectExplorer::EnvironmentAspect::fromMap(tmpMap);
+}
+
+void ConfigureEnvironmentAspect::toMap(QVariantMap &map) const
+{
+    QVariantMap tmpMap;
+    ProjectExplorer::EnvironmentAspect::toMap(tmpMap);
+
+    const int baseKey = tmpMap.value(BASE_KEY).toInt();
+
+    map.insert(QLatin1String(CLEAR_SYSTEM_ENVIRONMENT_KEY), baseKey == 0);
+    map.insert(QLatin1String(BASE_ENVIRONMENT_KEY), baseKey);
+    map.insert(QLatin1String(USER_ENVIRONMENT_CHANGES_KEY),
+               tmpMap.value(CHANGES_KEY).toStringList());
 }
 
 } // namespace Internal

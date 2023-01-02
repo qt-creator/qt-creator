@@ -11,9 +11,6 @@
 
 using namespace Utils;
 
-static const char BASE_KEY[] = "PE.EnvironmentAspect.Base";
-static const char CHANGES_KEY[] = "PE.EnvironmentAspect.Changes";
-
 namespace ProjectExplorer {
 
 // --------------------------------------------------------------------
@@ -77,25 +74,31 @@ void EnvironmentAspect::addModifier(const EnvironmentAspect::EnvironmentModifier
     m_modifiers.append(modifier);
 }
 
-void EnvironmentAspect::addSupportedBaseEnvironment(const QString &displayName,
-                                                    const std::function<Environment()> &getter)
+int EnvironmentAspect::addSupportedBaseEnvironment(const QString &displayName,
+                                                   const std::function<Environment()> &getter)
 {
     BaseEnvironment baseEnv;
     baseEnv.displayName = displayName;
     baseEnv.getter = getter;
     m_baseEnvironments.append(baseEnv);
+    const int index = m_baseEnvironments.size() - 1;
     if (m_base == -1)
-        setBaseEnvironmentBase(m_baseEnvironments.size() - 1);
+        setBaseEnvironmentBase(index);
+
+    return index;
 }
 
-void EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
-                                                    const std::function<Environment()> &getter)
+int EnvironmentAspect::addPreferredBaseEnvironment(const QString &displayName,
+                                                   const std::function<Environment()> &getter)
 {
     BaseEnvironment baseEnv;
     baseEnv.displayName = displayName;
     baseEnv.getter = getter;
     m_baseEnvironments.append(baseEnv);
-    setBaseEnvironmentBase(m_baseEnvironments.size() - 1);
+    const int index = m_baseEnvironments.size() - 1;
+    setBaseEnvironmentBase(index);
+
+    return index;
 }
 
 void EnvironmentAspect::fromMap(const QVariantMap &map)
