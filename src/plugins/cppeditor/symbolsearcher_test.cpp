@@ -62,18 +62,6 @@ public:
 
 Q_DECLARE_METATYPE(ResultData)
 
-QT_BEGIN_NAMESPACE
-namespace QTest {
-
-template<> char *toString(const ResultData &data)
-{
-    QByteArray ba = "\"" + data.m_symbolName.toUtf8() + "\", \"" + data.m_scope.toUtf8() + "\"";
-    return qstrdup(ba.data());
-}
-
-} // namespace QTest
-QT_END_NAMESPACE
-
 namespace CppEditor::Internal {
 
 namespace  {
