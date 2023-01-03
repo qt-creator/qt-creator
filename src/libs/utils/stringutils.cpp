@@ -73,26 +73,6 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
     return strings.at(0).left(commonLength);
 }
 
-QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
-{
-    QStringList appendedSlashes = transform(files, [](const QString &file) -> QString {
-        if (!file.endsWith('/'))
-            return QString(file + '/');
-        return file;
-    });
-    QString common = commonPrefix(appendedSlashes);
-    // Find common directory part: "C:\foo\bar" -> "C:\foo"
-    int lastSeparatorPos = common.lastIndexOf('/');
-    if (lastSeparatorPos == -1)
-        lastSeparatorPos = common.lastIndexOf('\\');
-    if (lastSeparatorPos == -1)
-        return QString();
-    if (HostOsInfo::isAnyUnixHost() && lastSeparatorPos == 0) // Unix: "/a", "/b" -> '/'
-        lastSeparatorPos = 1;
-    common.truncate(lastSeparatorPos);
-    return common;
-}
-
 QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
 {
     if (HostOsInfo::isWindowsHost())

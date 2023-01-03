@@ -26,10 +26,6 @@ QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
 // "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
 QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
 
-// Return the common path of a list of files:
-// "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo"
-QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
-
 // On Linux/Mac replace user's home path with ~
 // Uses cleaned path and tries to use absolute path of "path" if possible
 // If path is not sub of home path, or when running on Windows, returns the input
