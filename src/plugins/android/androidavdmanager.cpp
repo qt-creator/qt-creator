@@ -76,30 +76,26 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         return result;
     }
 
-    QStringList arguments({"create", "avd", "-n", result.name});
-
-    arguments << "-k" << result.systemImage->sdkStylePath();
+    CommandLine avdManager(config.avdManagerToolPath(), {"create", "avd", "-n", result.name});
+    avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
 
     if (result.sdcardSize > 0)
-        arguments << "-c" << QString::fromLatin1("%1M").arg(result.sdcardSize);
+        avdManager.addArgs({"-c", QString("%1M").arg(result.sdcardSize)});
 
     if (!result.deviceDefinition.isEmpty() && result.deviceDefinition != "Custom")
-        arguments << "-d" << QString::fromLatin1("%1").arg(result.deviceDefinition);
+        avdManager.addArgs({"-d", QString("%1").arg(result.deviceDefinition)});
 
     if (result.overwrite)
-        arguments << "-f";
+        avdManager.addArg("-f");
 
-    const FilePath avdManagerTool = config.avdManagerToolPath();
-    qCDebug(avdManagerLog).noquote()
-            << "Running AVD Manager command:" << CommandLine(avdManagerTool, arguments).toUserOutput();
+    qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     QtcProcess proc;
     proc.setProcessMode(ProcessMode::Writer);
     proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
-    proc.setCommand({avdManagerTool, arguments});
+    proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
-        result.error = Tr::tr("Could not start process \"%1 %2\"")
-                .arg(avdManagerTool.toString(), arguments.join(' '));
+        result.error = Tr::tr("Could not start process \"%1\"").arg(avdManager.toUserOutput());
         return result;
     }
     QTC_CHECK(proc.isRunning());
