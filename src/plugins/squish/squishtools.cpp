@@ -234,8 +234,7 @@ void SquishTools::runTestCases(const FilePath &suitePath,
 
     m_xmlOutputHandler.reset(new SquishXmlOutputHandler(this));
     connect(this, &SquishTools::resultOutputCreated,
-            m_xmlOutputHandler.get(), &SquishXmlOutputHandler::outputAvailable,
-            Qt::QueuedConnection);
+            m_xmlOutputHandler.get(), &SquishXmlOutputHandler::outputAvailable);
     connect(m_xmlOutputHandler.get(), &SquishXmlOutputHandler::updateStatus,
             &m_perspective, &SquishPerspective::updateStatus);
 
