@@ -31,6 +31,7 @@
 
 using namespace CppEditor;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 static bool processEventsUntil(const std::function<bool()> condition, int timeOutInMs = 30000)
 {
@@ -51,7 +52,7 @@ static bool processEventsUntil(const std::function<bool()> condition, int timeOu
 class WaitForParsedProjects : public QObject
 {
 public:
-    WaitForParsedProjects(const QStringList &projects)
+    WaitForParsedProjects(const FilePaths &projects)
         : m_projectsToWaitFor(projects)
     {
         connect(SessionManager::instance(),
@@ -61,7 +62,7 @@ public:
 
     void onProjectFinishedParsing(ProjectExplorer::Project *project)
     {
-        m_projectsToWaitFor.removeOne(project->projectFilePath().toString());
+        m_projectsToWaitFor.removeOne(project->projectFilePath());
     }
 
     bool wait()
@@ -70,7 +71,7 @@ public:
     }
 
 private:
-    QStringList m_projectsToWaitFor;
+    FilePaths m_projectsToWaitFor;
 };
 
 namespace ClangTools {
@@ -86,7 +87,7 @@ void PreconfiguredSessionTests::initTestCase()
         QSKIP("Session must not be already active.");
 
     // Load session
-    const QStringList projects = SessionManager::projectsForSessionName(preconfiguredSessionName);
+    const FilePaths projects = SessionManager::projectsForSessionName(preconfiguredSessionName);
     WaitForParsedProjects waitForParsedProjects(projects);
     QVERIFY(SessionManager::loadSession(preconfiguredSessionName));
     QVERIFY(waitForParsedProjects.wait());

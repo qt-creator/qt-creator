@@ -1179,17 +1179,18 @@ void SessionManagerPrivate::sessionLoadingProgress()
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
-QStringList SessionManager::projectsForSessionName(const QString &session)
+FilePaths SessionManager::projectsForSessionName(const QString &session)
 {
     const FilePath fileName = sessionNameToFileName(session);
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
             qWarning() << "Could not restore session" << fileName.toUserOutput();
-            return QStringList();
+            return {};
         }
     }
-    return reader.restoreValue(QLatin1String("ProjectList")).toStringList();
+    return transform(reader.restoreValue(QLatin1String("ProjectList")).toStringList(),
+                     &FilePath::fromUserInput);
 }
 
 #ifdef WITH_TESTS

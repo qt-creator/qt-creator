@@ -99,7 +99,7 @@ public:
     static Project *projectForFile(const Utils::FilePath &fileName);
     static Project *projectWithProjectFilePath(const Utils::FilePath &filePath);
 
-    static QStringList projectsForSessionName(const QString &session);
+    static Utils::FilePaths projectsForSessionName(const QString &session);
 
     static void reportProjectLoadingProgress();
     static bool loadingSession();

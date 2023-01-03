@@ -74,18 +74,14 @@ int SessionModel::rowCount(const QModelIndex &) const
     return m_sortedSessions.count();
 }
 
-QStringList pathsToBaseNames(const QStringList &paths)
+QStringList pathsToBaseNames(const FilePaths &paths)
 {
-    return Utils::transform(paths, [](const QString &path) {
-        return QFileInfo(path).completeBaseName();
-    });
+    return Utils::transform(paths, &FilePath::completeBaseName);
 }
 
-QStringList pathsWithTildeHomePath(const QStringList &paths)
+QStringList pathsWithTildeHomePath(const FilePaths &paths)
 {
-    return Utils::transform(paths, [](const QString &path) {
-        return FilePath::fromString(path).withTildeHomePath();
-    });
+    return Utils::transform(paths, &FilePath::withTildeHomePath);
 }
 
 QVariant SessionModel::data(const QModelIndex &index, int role) const
