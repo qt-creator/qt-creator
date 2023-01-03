@@ -243,18 +243,18 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     // Prompt to overwrite existing files.
     PromptOverwriteDialog overwriteDialog;
     // Scripts cannot handle overwrite
-    overwriteDialog.setFiles(Utils::transform(existingFiles, &FilePath::toString));
+    overwriteDialog.setFiles(existingFiles);
     for (const GeneratedFile &file : std::as_const(*files))
         if (file.attributes() & GeneratedFile::CustomGeneratorAttribute)
-            overwriteDialog.setFileEnabled(file.filePath().toString(), false);
+            overwriteDialog.setFileEnabled(file.filePath(), false);
     if (overwriteDialog.exec() != QDialog::Accepted)
         return OverwriteCanceled;
-    const QStringList existingFilesToKeep = overwriteDialog.uncheckedFiles();
+    const FilePaths existingFilesToKeep = overwriteDialog.uncheckedFiles();
     if (existingFilesToKeep.size() == files->size()) // All exist & all unchecked->Cancel.
         return OverwriteCanceled;
     // Set 'keep' attribute in files
-    for (const QString &keepFile : std::as_const(existingFilesToKeep)) {
-        const int i = indexOfFile(*files, FilePath::fromString(keepFile).cleanPath());
+    for (const FilePath &keepFile : existingFilesToKeep) {
+        const int i = indexOfFile(*files, keepFile.cleanPath());
         QTC_ASSERT(i != -1, return OverwriteCanceled);
         GeneratedFile &file = (*files)[i];
         file.setAttributes(file.attributes() | GeneratedFile::KeepExistingFileAttribute);

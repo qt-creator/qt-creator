@@ -3,6 +3,7 @@
 
 #include "promptoverwritedialog.h"
 
+#include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
 #include <QTreeView>
@@ -16,6 +17,15 @@
 
 enum { FileNameRole = Qt::UserRole + 1 };
 
+using namespace Utils;
+
+namespace Core {
+
+static FilePath fileNameOfItem(const QStandardItem *item)
+{
+    return FilePath::fromString(item->data(FileNameRole).toString());
+}
+
 /*!
     \class Core::PromptOverwriteDialog
     \inmodule QtCreator
@@ -26,13 +36,6 @@ enum { FileNameRole = Qt::UserRole + 1 };
     The dialog displays the common folder and the files in a list where users
     can select the files to overwrite.
 */
-
-static inline QString fileNameOfItem(const QStandardItem *item)
-{
-    return item->data(FileNameRole).toString();
-}
-
-namespace Core {
 
 PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
     QDialog(parent),
@@ -56,15 +59,15 @@ PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
     mainLayout->addWidget(bb);
 }
 
-void PromptOverwriteDialog::setFiles(const QStringList &l)
+void PromptOverwriteDialog::setFiles(const FilePaths &l)
 {
     // Format checkable list excluding common path
-    const QString nativeCommonPath = QDir::toNativeSeparators(Utils::commonPath(l));
-    for (const QString &fileName : l) {
-        const QString nativeFileName = QDir::toNativeSeparators(fileName);
+    const QString nativeCommonPath = FileUtils::commonPath(l).toUserOutput();
+    for (const FilePath &fileName : l) {
+        const QString nativeFileName = fileName.toUserOutput();
         const int length = nativeFileName.size() - nativeCommonPath.size() - 1;
         QStandardItem *item = new QStandardItem(nativeFileName.right(length));
-        item->setData(QVariant(fileName), FileNameRole);
+        item->setData(QVariant(fileName.toString()), FileNameRole);
         item->setFlags(Qt::ItemIsEnabled);
         item->setCheckable(true);
         item->setCheckState(Qt::Checked);
@@ -76,7 +79,7 @@ void PromptOverwriteDialog::setFiles(const QStringList &l)
     m_label->setText(message);
 }
 
-QStandardItem *PromptOverwriteDialog::itemForFile(const QString &f) const
+QStandardItem *PromptOverwriteDialog::itemForFile(const FilePath &f) const
 {
     const int rowCount = m_model->rowCount();
     for (int r = 0; r < rowCount; ++r) {
@@ -87,9 +90,9 @@ QStandardItem *PromptOverwriteDialog::itemForFile(const QString &f) const
     return nullptr;
 }
 
-QStringList PromptOverwriteDialog::files(Qt::CheckState cs) const
+FilePaths PromptOverwriteDialog::files(Qt::CheckState cs) const
 {
-    QStringList result;
+    FilePaths result;
     const int rowCount = m_model->rowCount();
     for (int r = 0; r < rowCount; ++r) {
         const QStandardItem *item = m_model->item(r, 0);
@@ -99,7 +102,7 @@ QStringList PromptOverwriteDialog::files(Qt::CheckState cs) const
     return result;
 }
 
-void PromptOverwriteDialog::setFileEnabled(const QString &f, bool e)
+void PromptOverwriteDialog::setFileEnabled(const FilePath &f, bool e)
 {
     if (QStandardItem *item = itemForFile(f)) {
         Qt::ItemFlags flags = item->flags();
@@ -111,24 +114,24 @@ void PromptOverwriteDialog::setFileEnabled(const QString &f, bool e)
     }
 }
 
-bool PromptOverwriteDialog::isFileEnabled(const QString &f) const
+bool PromptOverwriteDialog::isFileEnabled(const FilePath &f) const
 {
     if (const QStandardItem *item = itemForFile(f))
         return (item->flags() & Qt::ItemIsEnabled);
     return false;
 }
 
-void PromptOverwriteDialog::setFileChecked(const QString &f, bool e)
+void PromptOverwriteDialog::setFileChecked(const FilePath &f, bool e)
 {
     if (QStandardItem *item = itemForFile(f))
         item->setCheckState(e ? Qt::Checked : Qt::Unchecked);
 }
 
-bool PromptOverwriteDialog::isFileChecked(const QString &f) const
+bool PromptOverwriteDialog::isFileChecked(const FilePath &f) const
 {
     if (const QStandardItem *item = itemForFile(f))
         return item->checkState() == Qt::Checked;
     return false;
 }
 
-} // namespace Core
+} // Core

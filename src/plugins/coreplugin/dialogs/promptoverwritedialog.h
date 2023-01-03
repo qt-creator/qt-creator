@@ -5,6 +5,8 @@
 
 #include "../core_global.h"
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
@@ -16,8 +18,6 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-// TODO: Port to Utils::FilePaths
-
 // Documentation inside.
 class CORE_EXPORT PromptOverwriteDialog : public QDialog
 {
@@ -25,24 +25,24 @@ class CORE_EXPORT PromptOverwriteDialog : public QDialog
 public:
     explicit PromptOverwriteDialog(QWidget *parent = nullptr);
 
-    void setFiles(const QStringList &);
+    void setFiles(const Utils::FilePaths &);
 
-    void setFileEnabled(const QString &f, bool e);
-    bool isFileEnabled(const QString &f) const;
+    void setFileEnabled(const Utils::FilePath &f, bool e);
+    bool isFileEnabled(const Utils::FilePath &f) const;
 
-    void setFileChecked(const QString &f, bool e);
-    bool isFileChecked(const QString &f) const;
+    void setFileChecked(const Utils::FilePath &f, bool e);
+    bool isFileChecked(const Utils::FilePath &f) const;
 
-    QStringList checkedFiles() const   { return files(Qt::Checked); }
-    QStringList uncheckedFiles() const { return files(Qt::Unchecked); }
+    Utils::FilePaths checkedFiles() const   { return files(Qt::Checked); }
+    Utils::FilePaths uncheckedFiles() const { return files(Qt::Unchecked); }
 
 private:
-    QStandardItem *itemForFile(const QString &f) const;
-    QStringList files(Qt::CheckState cs) const;
+    QStandardItem *itemForFile(const Utils::FilePath &f) const;
+    Utils::FilePaths files(Qt::CheckState cs) const;
 
     QLabel *m_label;
     QTreeView *m_view;
     QStandardItemModel *m_model;
 };
 
-} // namespace Core
+} // Core
