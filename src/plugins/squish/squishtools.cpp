@@ -546,6 +546,8 @@ void SquishTools::startSquishServer(Request request)
         m_squishRunnerState = RunnerState::Starting;
         if (m_request == RecordTestRequested)
             m_perspective.updateStatus(Tr::tr("Recording test case"));
+        else
+            m_perspective.updateStatus(Tr::tr("Running test case"));
     }
 
     const QStringList arguments = serverArgumentsFromSettings();
