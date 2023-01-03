@@ -45,18 +45,10 @@ public:
     const Project *project() const;
     Utils::FilePath source() const;
 
-    // You can set the contents from the outside. This is done if the file has been (re)created by
-    // the regular build process.
-    void setContent(const Utils::FilePath &file, const QByteArray &content);
     QByteArray content(const Utils::FilePath &file) const;
 
     Utils::FilePaths targets() const;
     void forEachTarget(std::function<void(const Utils::FilePath &)> func);
-
-    void setCompileTime(const QDateTime &time);
-    QDateTime compileTime() const;
-
-    static QThreadPool *extraCompilerThreadPool();
 
     virtual QFuture<FileNameToContentsHash> run() = 0;
     bool isDirty() const;
@@ -65,6 +57,9 @@ signals:
     void contentsChanged(const Utils::FilePath &file);
 
 protected:
+    static QThreadPool *extraCompilerThreadPool();
+    void setContent(const Utils::FilePath &file, const QByteArray &content);
+    void updateCompileTime();
     Utils::Environment buildEnvironment() const;
     void setCompileIssues(const Tasks &issues);
 

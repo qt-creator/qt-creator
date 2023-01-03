@@ -134,14 +134,9 @@ void ExtraCompiler::forEachTarget(std::function<void (const FilePath &)> func)
         func(it.key());
 }
 
-void ExtraCompiler::setCompileTime(const QDateTime &time)
+void ExtraCompiler::updateCompileTime()
 {
-    d->compileTime = time;
-}
-
-QDateTime ExtraCompiler::compileTime() const
-{
-    return d->compileTime;
+    d->compileTime = QDateTime::currentDateTime();
 }
 
 QThreadPool *ExtraCompiler::extraCompilerThreadPool()
@@ -427,7 +422,7 @@ void ProcessExtraCompiler::cleanUp()
     for (auto it = data.constBegin(), end = data.constEnd(); it != end; ++it)
         setContent(it.key(), it.value());
 
-    setCompileTime(QDateTime::currentDateTime());
+    updateCompileTime();
 }
 
 } // namespace ProjectExplorer
