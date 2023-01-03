@@ -221,9 +221,10 @@ static void showUpdateInfo(const QList<Update> &updates, const std::function<voi
         auto label = new QLabel;
         label->setText("<qt><p>" + UpdateInfoPlugin::tr("Available updates:") + "<ul><li>"
                        + updateText + "</li></ul></p></qt>");
-        label->setContentsMargins(0, 0, 0, 8);
+        label->setContentsMargins(2, 2, 2, 2);
 
         auto scrollArea = new QScrollArea;
+        scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
         scrollArea->setWidget(label);
         scrollArea->setFrameShape(QFrame::NoFrame);
         scrollArea->viewport()->setAutoFillBackground(false);
