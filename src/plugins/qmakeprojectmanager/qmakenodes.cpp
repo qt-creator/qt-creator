@@ -15,8 +15,8 @@
 
 #include <resourceeditor/resourcenode.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 
 #include <android/androidconstants.h>
 #include <ios/iosconstants.h>
@@ -114,11 +114,11 @@ bool QmakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                 // A virtual folder, we do what the projectexplorer does
                 const FolderNode *folder = node->asFolderNode();
                 if (folder) {
-                    QStringList list;
+                    FilePaths list;
                     const auto folderNodes = folder->folderNodes();
                     for (FolderNode *f : folderNodes)
-                        list << f->filePath().toString() + QLatin1Char('/');
-                    if (n->deploysFolder(Utils::commonPath(list)))
+                        list << f->filePath();
+                    if (n->deploysFolder(FileUtils::commonPath(list).toString()))
                         addExistingFiles = false;
                 }
             }
