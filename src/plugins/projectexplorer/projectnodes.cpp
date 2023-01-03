@@ -18,7 +18,6 @@
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 #include <utils/threadutils.h>
 #include <utils/utilsicons.h>
 
@@ -331,11 +330,11 @@ FilePath Node::pathOrDirectory(bool dir) const
             location = m_filePath;
         } else {
             // Otherwise we figure out a commonPath from the subfolders
-            QStringList list;
+            FilePaths list;
             const QList<FolderNode *> folders = folder->folderNodes();
             for (FolderNode *f : folders)
-                list << f->filePath().toString() + QLatin1Char('/');
-            location = FilePath::fromString(Utils::commonPath(list));
+                list << f->filePath();
+            location = FileUtils::commonPath(list);
         }
 
         QTC_CHECK(!location.needsDevice());
