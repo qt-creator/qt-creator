@@ -4477,13 +4477,22 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     const qreal indentAdvance = singleAdvance * data.tabSettings.m_indentSize;
 
     painter.save();
-    painter.setPen(data.visualWhitespaceFormat.foreground().color());
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
     qreal x = textLine.x() + data.offset.x() + qMax(0, q->cursorWidth() - 1)
               + singleAdvance * m_visualIndentOffset;
     int paintColumn = 0;
+
+    QList<int> cursorPositions;
+    for (const QTextCursor & cursor : m_cursors) {
+        if (cursor.block() == data.block)
+            cursorPositions << cursor.positionInBlock();
+    }
+
+    const QColor normalColor = data.visualWhitespaceFormat.foreground().color();
+    QColor cursorColor = normalColor;
+    cursorColor.setAlpha(cursorColor.alpha() / 2);
 
     const QString text = data.block.text().mid(m_visualIndentOffset);
     while (paintColumn < depth) {
@@ -4493,6 +4502,10 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
                 && blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0) {
                 break;
             }
+            if (cursorPositions.contains(paintPosition))
+                painter.setPen(cursorColor);
+            else
+                painter.setPen(normalColor);
             const QPointF top(x, blockData.boundingRect.top());
             const QPointF bottom(x, blockData.boundingRect.top() + rect.height());
             const QLineF line(top, bottom);
