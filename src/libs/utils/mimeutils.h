@@ -8,6 +8,8 @@
 #include <mimemagicrule_p.h>
 #include <mimetype.h>
 
+#include <functional>
+
 namespace Utils {
 
 class FilePath;
@@ -49,4 +51,8 @@ QTCREATOR_UTILS_EXPORT void setGlobPatternsForMimeType(const MimeType &mimeType,
 QTCREATOR_UTILS_EXPORT void setMagicRulesForMimeType(
     const MimeType &mimeType, const QMap<int, QList<MimeMagicRule>> &rules); // priority -> rules
 
+// visits all parents breadth-first
+// visitor should return false to break the loop, true to continue
+QTCREATOR_UTILS_EXPORT void visitMimeParents(
+    const MimeType &mimeType, const std::function<bool(const MimeType &mimeType)> &visitor);
 } // namespace Utils

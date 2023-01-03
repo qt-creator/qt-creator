@@ -100,4 +100,34 @@ void setMagicRulesForMimeType(const MimeType &mimeType, const QMap<int, QList<Mi
     d->setMagicRulesForMimeType(mimeType, rules);
 }
 
+void visitMimeParents(const MimeType &mimeType,
+                      const std::function<bool(const MimeType &mimeType)> &visitor)
+{
+    // search breadth-first through parent hierarchy, e.g. for hierarchy
+    // * application/x-ruby
+    //     * application/x-executable
+    //         * application/octet-stream
+    //     * text/plain
+    QList<MimeType> queue;
+    QSet<QString> seen;
+    queue.append(mimeType);
+    seen.insert(mimeType.name());
+    while (!queue.isEmpty()) {
+        const MimeType mt = queue.takeFirst();
+        if (!visitor(mt))
+            break;
+        // add parent mime types
+        const QStringList parentNames = mt.parentMimeTypes();
+        for (const QString &parentName : parentNames) {
+            const MimeType parent = mimeTypeForName(parentName);
+            if (parent.isValid()) {
+                int seenSize = seen.size();
+                seen.insert(parent.name());
+                if (seen.size() != seenSize) // not seen before, so add
+                    queue.append(parent);
+            }
+        }
+    }
+}
+
 } // namespace Utils

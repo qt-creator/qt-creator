@@ -120,13 +120,16 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     if (definitions.isEmpty()) {
         const MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
         if (mimeType.isValid()) {
-            // highlight definitions might not use the canonical name but an alias
-            const QStringList names = QStringList(mimeType.name()) + mimeType.aliases();
-            for (const QString &name : names) {
-                definitions = definitionsForMimeType(name);
-                if (!definitions.isEmpty())
-                    break;
-            }
+            Utils::visitMimeParents(mimeType, [&](const MimeType &mt) -> bool {
+                // highlight definitions might not use the canonical name but an alias
+                const QStringList names = QStringList(mt.name()) + mt.aliases();
+                for (const QString &name : names) {
+                    definitions = definitionsForMimeType(name);
+                    if (!definitions.isEmpty())
+                        return false; // stop
+                }
+                return true; // continue
+            });
         }
     }
 
