@@ -90,6 +90,10 @@ private:
     enum RunnerQuery { ServerInfo, GetGlobalScriptDirs, SetGlobalScriptDirs };
 
     void onServerStateChanged(SquishProcessState state);
+    void onServerStarted();
+    void onServerStopped();
+    void onServerStartFailed();
+    void onServerStopFailed();
     void setState(State state);
     void setIdle();
     void startSquishServer(Request request);
