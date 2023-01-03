@@ -152,13 +152,17 @@ FilePath::FilePath()
 {
 }
 
-/// Constructs a FilePath from \a info
+/*!
+   Constructs a FilePath from \a info
+*/
 FilePath FilePath::fromFileInfo(const QFileInfo &info)
 {
     return FilePath::fromString(info.absoluteFilePath());
 }
 
-/// \returns a QFileInfo
+/*!
+   \returns a QFileInfo
+*/
 QFileInfo FilePath::toFileInfo() const
 {
     return QFileInfo(toFSPathString());
@@ -203,20 +207,21 @@ QString decodeHost(QString host)
     return host.replace("%25", "%").replace("%2f", "/");
 }
 
-/// \returns a QString for passing through QString based APIs
-///
-/// \note This is obsolete API and should be replaced by extended use
-/// of proper \c FilePath, or, in case this is not possible by \c toFSPathString().
-///
-/// This uses a scheme://host/path setup and is, together with
-/// fromString, used to pass FilePath through \c QString using
-/// code paths.
-///
-/// The result is not useful for use with \cQDir and \c QFileInfo
-/// and gets destroyed by some operations like \c QFileInfo::canonicalFile.
-///
-/// \sa toFSPathString()
+/*!
+    \returns a QString for passing through QString based APIs
 
+    \note This is obsolete API and should be replaced by extended use
+    of proper \c FilePath, or, in case this is not possible by \c toFSPathString().
+
+    This uses a scheme://host/path setup and is, together with
+    fromString, used to pass FilePath through \c QString using
+    code paths.
+
+    The result is not useful for use with \cQDir and \c QFileInfo
+    and gets destroyed by some operations like \c QFileInfo::canonicalFile.
+
+    \sa toFSPathString()
+*/
 QString FilePath::toString() const
 {
     if (!needsDevice())
@@ -227,17 +232,18 @@ QString FilePath::toString() const
     return scheme() + "://" + encodedHost() + pathView();
 }
 
-/// \returns a QString for passing on to QString based APIs
-///
-/// This uses a /__qtc_devices__/host/path setup.
-///
-/// This works in most cases also with remote setups and QDir/QFileInfo etc.
-/// but is slower than direct FilePath use and should only be used when
-/// proper porting to FilePath is too difficult, or not possible, e.g.
-/// when external Qt based libraries are used that do not use FilePath.
-///
-/// \sa fromUserInput()
+/*!
+    \returns a QString for passing on to QString based APIs
 
+    This uses a /__qtc_devices__/host/path setup.
+
+    This works in most cases also with remote setups and QDir/QFileInfo etc.
+    but is slower than direct FilePath use and should only be used when
+    proper porting to FilePath is too difficult, or not possible, e.g.
+    when external Qt based libraries are used that do not use FilePath.
+
+    \sa fromUserInput()
+*/
 QString FilePath::toFSPathString() const
 {
     if (scheme().isEmpty())
@@ -257,10 +263,12 @@ QUrl FilePath::toUrl() const
     return url;
 }
 
-/// \returns a QString to display to the user, including the device prefix
-///
-/// Converts the separators to the native format of the system
-/// this path belongs to.
+/*!
+    returns a QString to display to the user, including the device prefix
+
+    Converts the separators to the native format of the system
+    this path belongs to.
+*/
 QString FilePath::toUserOutput() const
 {
     QString tmp = toString();
@@ -272,10 +280,13 @@ QString FilePath::toUserOutput() const
     return tmp;
 }
 
-/// \returns a QString to pass to target system native commands, without the device prefix.
-///
-/// Converts the separators to the native format of the system
-/// this path belongs to.
+/*!
+   \returns a QString to pass to target system native commands, without the device prefix.
+
+    Converts the separators to the native format of the system
+    this path belongs to.
+*/
+
 QString FilePath::nativePath() const
 {
     QString data = path();
@@ -323,23 +334,25 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
     return toString();
 }
 
-/// \returns the base name of the file without the path.
-///
-/// The base name consists of all characters in the file up to
-/// (but not including) the first '.' character.
+/*!
+    \returns the base name of the file without the path.
 
+    The base name consists of all characters in the file up to
+    (but not including) the first '.' character.
+*/
 QString FilePath::baseName() const
 {
     const QString &name = fileName();
     return name.left(name.indexOf('.'));
 }
 
-/// \returns the complete base name of the file without the path.
-///
-/// The complete base name consists of all characters in the file up to
-/// (but not including) the last '.' character. In case of ".ui.qml"
-/// it will be treated as one suffix.
+/*!
+   \returns the complete base name of the file without the path.
 
+    The complete base name consists of all characters in the file up to
+    (but not including) the last '.' character. In case of ".ui.qml"
+    it will be treated as one suffix.
+*/
 QString FilePath::completeBaseName() const
 {
     const QString &name = fileName();
@@ -348,12 +361,13 @@ QString FilePath::completeBaseName() const
     return name.left(name.lastIndexOf('.'));
 }
 
-/// \returns the suffix (extension) of the file.
-///
-/// The suffix consists of all characters in the file after
-/// (but not including) the last '.'. In case of ".ui.qml" it will
-/// be treated as one suffix.
+/*!
+   \returns the suffix (extension) of the file.
 
+    The suffix consists of all characters in the file after
+    (but not including) the last '.'. In case of ".ui.qml" it will
+    be treated as one suffix.
+*/
 QStringView FilePath::suffixView() const
 {
     const QStringView name = fileNameView();
@@ -370,11 +384,12 @@ QString FilePath::suffix() const
     return suffixView().toString();
 }
 
-/// \returns the complete suffix (extension) of the file.
-///
-/// The complete suffix consists of all characters in the file after
-/// (but not including) the first '.'.
+/*!
+   \returns the complete suffix (extension) of the file.
 
+    The complete suffix consists of all characters in the file after
+    (but not including) the first '.'.
+*/
 QString FilePath::completeSuffix() const
 {
     const QString &name = fileName();
@@ -417,19 +432,25 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
     m_pathLen = path.size();
 }
 
-/// \returns a bool indicating whether a file with this
-/// FilePath exists.
+/*!
+   \returns a bool indicating whether a file or directory with this FilePath exists.
+*/
 bool FilePath::exists() const
 {
     return fileAccess()->exists(*this);
 }
 
-/// \returns a bool indicating whether a path is writable.
+/*!
+    \returns a bool indicating whether this is a writable directory.
+*/
 bool FilePath::isWritableDir() const
 {
     return fileAccess()->isWritableDirectory(*this);
 }
 
+/*!
+    \returns a bool indicating whether this is a writable file.
+*/
 bool FilePath::isWritableFile() const
 {
     return fileAccess()->isWritableFile(*this);
@@ -450,11 +471,13 @@ bool FilePath::isExecutableFile() const
     return fileAccess()->isExecutableFile(*this);
 }
 
-/// \returns a bool indicating on whether a process with this FilePath's
-/// .nativePath() is likely to start.
-///
-/// This is equivalent to \c isExecutableFile() in general.
-/// On Windows, it will check appending various suffixes, too.
+/*!
+    \returns a bool indicating on whether a process with this FilePath's
+    .nativePath() is likely to start.
+
+    This is equivalent to \c isExecutableFile() in general.
+    On Windows, it will check appending various suffixes, too.
+*/
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
     return fileAccess()->refersToExecutableFile(*this,  matchScope);
@@ -518,9 +541,11 @@ FilePaths FilePath::dirEntries(QDir::Filters filters) const
     return dirEntries(FileFilter({}, filters));
 }
 
-// This runs \a callBack on each directory entry matching all \a filters and
-// either of the specified \a nameFilters.
-// An empty \nameFilters list matches every name.
+/*!
+   This runs \a callBack on each directory entry matching all \a filters and
+   either of the specified \a nameFilters.
+   An empty \nameFilters list matches every name.
+*/
 
 void FilePath::iterateDirectory(const IterateDirCallback &callBack, const FileFilter &filter) const
 {
@@ -646,7 +671,9 @@ bool FilePath::isSameExecutable(const FilePath &other) const
     return false;
 }
 
-/// \returns an empty FilePath if this is not a symbolic linl
+/*!
+    \returns an empty FilePath if this is not a symbolic linl
+*/
 FilePath FilePath::symLinkTarget() const
 {
     return fileAccess()->symLinkTarget(*this);
@@ -704,12 +731,13 @@ int FilePath::schemeAndHostLength(const QStringView path)
 }
 
 
-/// Find the parent directory of a given directory.
+/*! Find the parent directory of a given directory.
 
-/// Returns an empty FilePath if the current directory is already
-/// a root level directory.
+    Returns an empty FilePath if the current directory is already
+    a root level directory.
 
-/// \returns \a FilePath with the last segment removed.
+    \returns \a FilePath with the last segment removed.
+*/
 FilePath FilePath::parentDir() const
 {
     const QString basePath = path();
@@ -802,30 +830,30 @@ QString FilePath::displayName(const QString &args) const
 }
 
 /*!
-   \fn FilePath FilePath::fromString(const QString &filepath)
+    \fn FilePath FilePath::fromString(const QString &filepath)
 
-   Constructs a FilePath from \a filepath
+    Constructs a FilePath from \a filepath
 
-   \a filepath is not checked for validity. It can be given in the following forms:
+    \a filepath is not checked for validity. It can be given in the following forms:
 
-   \list
-   \li  /some/absolute/local/path
-   \li  some/relative/path
-   \li  scheme://host/absolute/path
-   \li  scheme://host/./relative/path    \note the ./ is verbatim part of the path
-   \endlist
+    \list
+    \li  /some/absolute/local/path
+    \li  some/relative/path
+    \li  scheme://host/absolute/path
+    \li  scheme://host/./relative/path    \note the ./ is verbatim part of the path
+    \endlist
 
-   Some decoding happens when parsing the \a filepath
-   A sequence %25 present in the host part is replaced by % in the host name,
-   a sequence %2f present in the host part is replaced by / in the host name.
+    Some decoding happens when parsing the \a filepath
+    A sequence %25 present in the host part is replaced by % in the host name,
+    a sequence %2f present in the host part is replaced by / in the host name.
 
-   The path part might consist of several parts separated by /, independent
-   of the platform or file system.
+    The path part might consist of several parts separated by /, independent
+    of the platform or file system.
 
-   To create FilePath objects from strings possibly containing backslashes as
-   path separator, use \c fromUserInput.
+    To create FilePath objects from strings possibly containing backslashes as
+    path separator, use \c fromUserInput.
 
-   \sa toString, fromUserInput
+    \sa toString, fromUserInput
 */
 FilePath FilePath::fromString(const QString &filepath)
 {
@@ -916,9 +944,12 @@ DeviceFileAccess *FilePath::fileAccess() const
     return access;
 }
 
-/// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
-/// to \a filename if that does not have an extension already.
-/// \a filePath is not checked for validity.
+/*!
+    Constructs a FilePath from \a filePath. The \a defaultExtension is appended
+    to \a filePath if that does not have an extension already.
+
+    \a filePath is not checked for validity.
+*/
 FilePath FilePath::fromStringWithExtension(const QString &filepath, const QString &defaultExtension)
 {
     if (filepath.isEmpty() || defaultExtension.isEmpty())
@@ -935,8 +966,11 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
     return rc;
 }
 
-/// Constructs a FilePath from \a filePath
-/// \a filePath is only passed through QDir::fromNativeSeparators
+/*!
+    Constructs a FilePath from \a filePath
+
+    The path \a filePath is cleaned and ~ replaces by the home path.
+*/
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
     QString clean = doCleanPath(filePath);
@@ -945,8 +979,11 @@ FilePath FilePath::fromUserInput(const QString &filePath)
     return FilePath::fromString(clean);
 }
 
-/// Constructs a FilePath from \a filePath, which is encoded as UTF-8.
-/// \a filePath is not checked for validity.
+/*!
+    Constructs a FilePath from \a filePath, which is encoded as UTF-8.
+
+   \a filePath is not checked for validity.
+*/
 FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
 {
     return FilePath::fromString(QString::fromUtf8(filename, filenameSize));
@@ -1003,7 +1040,9 @@ bool FilePath::operator>=(const FilePath &other) const
     return !(*this < other);
 }
 
-/// \returns whether FilePath is a child of \a s
+/*!
+    \returns whether FilePath is a child of \a s
+*/
 bool FilePath::isChildOf(const FilePath &s) const
 {
     if (!s.isSameDevice(*this))
@@ -1023,15 +1062,16 @@ bool FilePath::isChildOf(const FilePath &s) const
     return sp.isEmpty() || p.at(sp.size()) == QLatin1Char('/');
 }
 
-/// \returns whether path() startsWith \a s
+/*!
+    \returns whether \c path() starts with \a s.
+*/
 bool FilePath::startsWith(const QString &s) const
 {
     return pathView().startsWith(s, caseSensitivity());
 }
 
 /*!
-* \param s The string to check for at the end of the path.
-* \returns whether FilePath endsWith \a s
+   \returns whether \c path() ends with \a s.
 */
 bool FilePath::endsWith(const QString &s) const
 {
@@ -1039,8 +1079,7 @@ bool FilePath::endsWith(const QString &s) const
 }
 
 /*!
-* \param s The string to check for contains.
-* \returns whether FilePath contains \a s
+   \returns whether \c path() contains \a s.
 */
 bool FilePath::contains(const QString &s) const
 {
@@ -1048,9 +1087,10 @@ bool FilePath::contains(const QString &s) const
 }
 
 /*!
-* \brief Checks whether the FilePath starts with a drive letter.
-* Defaults to \c false if it is a non-Windows host or represents a path on device
-* \returns whether FilePath starts with a drive letter
+    \brief Checks whether the FilePath starts with a drive letter.
+
+    Defaults to \c false if it is a non-Windows host or represents a path on device
+    \returns whether FilePath starts with a drive letter
 */
 bool FilePath::startsWithDriveLetter() const
 {
@@ -1059,11 +1099,12 @@ bool FilePath::startsWithDriveLetter() const
 }
 
 /*!
-* \brief Relative path from \a parent to this.
-* Returns a empty FilePath if this is not a child of \p parent.
-* That is, this never returns a path starting with "../"
-* \param parent The Parent to calculate the relative path to.
-* \returns The relative path of this to \p parent if this is a child of \p parent.
+    \brief Relative path from \a parent to this.
+
+    Returns a empty FilePath if this is not a child of \p parent.
+    That is, this never returns a path starting with "../"
+    \param parent The Parent to calculate the relative path to.
+    \returns The relative path of this to \p parent if this is a child of \p parent.
 */
 FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
@@ -1077,18 +1118,19 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
     return res;
 }
 
-/// \returns the relativePath of FilePath from a given \a anchor.
-/// Both, FilePath and anchor may be files or directories.
-/// Example usage:
-///
-/// \code
-///     FilePath filePath("/foo/b/ar/file.txt");
-///     FilePath relativePath = filePath.relativePath("/foo/c");
-///     qDebug() << relativePath
-/// \endcode
-///
-/// The debug output will be "../b/ar/file.txt".
-///
+/*!
+    \returns the relativePath of FilePath from a given \a anchor.
+    Both, FilePath and anchor may be files or directories.
+    Example usage:
+
+    \code
+        FilePath filePath("/foo/b/ar/file.txt");
+        FilePath relativePath = filePath.relativePath("/foo/c");
+        qDebug() << relativePath
+    \endcode
+
+    The debug output will be "../b/ar/file.txt".
+*/
 FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 {
     QTC_ASSERT(isSameDevice(anchor), return *this);
@@ -1121,17 +1163,18 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
     return FilePath::fromString(relativeFilePath);
 }
 
-/// \returns the relativePath of \a absolutePath to given \a absoluteAnchorPath.
-/// Both paths must be an absolute path to a directory. Example usage:
-///
-/// \code
-///     qDebug() << FilePath::calcRelativePath("/foo/b/ar", "/foo/c");
-/// \endcode
-///
-/// The debug output will be "../b/ar".
-///
-/// \see FilePath::relativePath
-///
+/*!
+    \returns the relativePath of \a absolutePath to given \a absoluteAnchorPath.
+    Both paths must be an absolute path to a directory. Example usage:
+
+    \code
+        qDebug() << FilePath::calcRelativePath("/foo/b/ar", "/foo/c");
+    \endcode
+
+    The debug output will be "../b/ar".
+
+    \see FilePath::relativePath
+*/
 QString FilePath::calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath)
 {
     if (absolutePath.isEmpty() || absoluteAnchorPath.isEmpty())
@@ -1170,20 +1213,21 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 }
 
 /*!
- * \brief Returns a path corresponding to the current object on the
- * same device as \a deviceTemplate. The FilePath needs to be local.
- *
- * Example usage:
- * \code
- *     localDir = FilePath("/tmp/workingdir");
- *     executable = FilePath::fromUrl("docker://123/bin/ls")
- *     realDir = localDir.onDevice(executable)
- *     assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
- * \endcode
- *
- * \param deviceTemplate A path from which the host and scheme is taken.
- *
- * \returns A path on the same device as \a deviceTemplate.
+    \brief Returns a path corresponding to the current object on the
+
+    same device as \a deviceTemplate. The FilePath needs to be local.
+
+    Example usage:
+    \code
+        localDir = FilePath("/tmp/workingdir");
+        executable = FilePath::fromUrl("docker://123/bin/ls")
+        realDir = localDir.onDevice(executable)
+        assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
+    \endcode
+
+    \param deviceTemplate A path from which the host and scheme is taken.
+
+    \returns A path on the same device as \a deviceTemplate.
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
@@ -1352,11 +1396,11 @@ bool FilePath::removeFile() const
 }
 
 /*!
-  Removes the directory this filePath refers too and its subdirectories recursively.
+    Removes the directory this filePath refers too and its subdirectories recursively.
 
-  \note The \a error parameter is optional.
+    \note The \a error parameter is optional.
 
-  Returns whether the operation succeeded.
+    \returns A bool indicating whether the operation succeeded.
 */
 bool FilePath::removeRecursively(QString *error) const
 {
@@ -1426,16 +1470,17 @@ qint64 FilePath::bytesAvailable() const
 }
 
 /*!
- * \brief Checks if this is newer than \p timeStamp
- * \param timeStamp The time stamp to compare with
- * \returns true if this is newer than \p timeStamp.
- *  If this is a directory, the function will recursively check all files and return
- *  true if one of them is newer than \a timeStamp. If this is a single file, true will
- *  be returned if the file is newer than \a timeStamp.
- *
- *  Returns whether at least one file in \a filePath has a newer date than
- *  \p timeStamp.
- */
+    \brief Checks if this is newer than \p timeStamp
+
+    \param timeStamp The time stamp to compare with
+    \returns true if this is newer than \p timeStamp.
+     If this is a directory, the function will recursively check all files and return
+     true if one of them is newer than \a timeStamp. If this is a single file, true will
+     be returned if the file is newer than \a timeStamp.
+
+     Returns whether at least one file in \a filePath has a newer date than
+     \p timeStamp.
+*/
 bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 {
     if (!exists() || lastModified() >= timeStamp)
@@ -1451,11 +1496,12 @@ bool FilePath::isNewerThan(const QDateTime &timeStamp) const
 }
 
 /*!
- * \brief Returns the caseSensitivity of the path.
- * \returns The caseSensitivity of the path.
- * This is currently only based on the Host OS.
- * For device paths, \c Qt::CaseSensitive is always returned.
- */
+    \brief Returns the caseSensitivity of the path.
+
+    \returns The caseSensitivity of the path.
+    This is currently only based on the Host OS.
+    For device paths, \c Qt::CaseSensitive is always returned.
+*/
 Qt::CaseSensitivity FilePath::caseSensitivity() const
 {
     if (m_schemeLen == 0)
@@ -1469,32 +1515,35 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
 }
 
 /*!
- * \brief Returns the separator of path components for this path.
- * \returns The path separator of the path.
- */
+    \brief Returns the separator of path components for this path.
+
+    \returns The path separator of the path.
+*/
 QChar FilePath::pathComponentSeparator() const
 {
     return osType() == OsTypeWindows ? u'\\' : u'/';
 }
 
 /*!
- * \brief Returns the path list separator for the device this path belongs to.
- * \returns The path list separator of the device for this path
- */
+    \brief Returns the path list separator for the device this path belongs to.
+
+    \returns The path list separator of the device for this path
+*/
 QChar FilePath::pathListSeparator() const
 {
     return osType() == OsTypeWindows ? u';' : u':';
 }
 
 /*!
-*  \brief Recursively resolves symlinks if this is a symlink.
-*  To resolve symlinks anywhere in the path, see canonicalPath.
-*  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
-*  target file even if the symlink is dangling.
-*
-*  \note Maximum recursion depth == 16.
-*
-*  \returns the symlink target file path.
+    \brief Recursively resolves symlinks if this is a symlink.
+
+    To resolve symlinks anywhere in the path, see canonicalPath.
+    Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
+    target file even if the symlink is dangling.
+
+    \note Maximum recursion depth == 16.
+
+    \returns the symlink target file path.
 */
 FilePath FilePath::resolveSymlinks() const
 {
@@ -1562,7 +1611,7 @@ FilePath FilePath::operator/(const QString &str) const
 }
 
 /*!
-* \brief Clears all parts of the FilePath.
+    \brief Clears all parts of the FilePath.
 */
 void FilePath::clear()
 {
@@ -1570,9 +1619,10 @@ void FilePath::clear()
 }
 
 /*!
-* \brief Checks if the path() is empty.
-* \returns true if the path() is empty.
-* The Host and Scheme of the part are ignored.
+    \brief Checks if the path() is empty.
+
+    \returns true if the path() is empty.
+    The Host and Scheme of the part are ignored.
 */
 bool FilePath::isEmpty() const
 {
@@ -1580,11 +1630,12 @@ bool FilePath::isEmpty() const
 }
 
 /*!
-* \brief Converts the path to a possibly shortened path with native separators.
-* Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
-* absolute path is given.
-*
-* \returns the possibly shortened path with native separators.
+    \brief Converts the path to a possibly shortened path with native separators.
+
+    Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
+    absolute path is given.
+
+    \returns the possibly shortened path with native separators.
 */
 QString FilePath::shortNativePath() const
 {
@@ -1599,8 +1650,9 @@ QString FilePath::shortNativePath() const
 }
 
 /*!
-* \brief Checks whether the path is relative
-* \returns true if the path is relative.
+    \brief Checks whether the path is relative
+
+    \returns true if the path is relative.
 */
 bool FilePath::isRelativePath() const
 {
@@ -1615,9 +1667,10 @@ bool FilePath::isRelativePath() const
 }
 
 /*!
-* \brief Appends the tail to this, if the tail is a relative path.
-* \param tail The tail to append.
-* \returns Returns tail if tail is absolute, otherwise this + tail.
+    \brief Appends the tail to this, if the tail is a relative path.
+
+    \param tail The tail to append.
+    \returns Returns tail if tail is absolute, otherwise this + tail.
 */
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
@@ -1629,9 +1682,10 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 }
 
 /*!
-* \brief Appends the tail to this, if the tail is a relative path.
-* \param tail The tail to append.
-* \returns Returns tail if tail is absolute, otherwise this + tail.
+    \brief Appends the tail to this, if the tail is a relative path.
+
+    \param tail The tail to append.
+    \returns Returns tail if tail is absolute, otherwise this + tail.
 */
 FilePath FilePath::resolvePath(const QString &tail) const
 {
@@ -1648,15 +1702,19 @@ expected_str<FilePath> FilePath::localSource() const
     return s_deviceHooks.localSource(*this);
 }
 
-// Cleans path part similar to QDir::cleanPath()
-//  - directory separators normalized (that is, platform-native
-//    separators converted to "/") and redundant ones removed, and "."s and ".."s
-//    resolved (as far as possible).
-//   Symbolic links are kept. This function does not return the
-//    canonical path, but rather the simplest version of the input.
-//    For example, "./local" becomes "local", "local/../bin" becomes
-//    "bin" and "/local/usr/../bin" becomes "/local/bin".
+/*!
+    \brief Cleans path part similar to QDir::cleanPath()
 
+    \list
+    \li directory separators normalized (that is, platform-native
+     separators converted to "/") and redundant ones removed, and "."s and ".."s
+      resolved (as far as possible).
+    \li Symbolic links are kept. This function does not return the
+      canonical path, but rather the simplest version of the input.
+      For example, "./local" becomes "local", "local/../bin" becomes
+      "bin" and "/local/usr/../bin" becomes "/local/bin".
+    \endlist
+*/
 FilePath FilePath::cleanPath() const
 {
     return withNewPath(doCleanPath(path()));
