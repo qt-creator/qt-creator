@@ -123,6 +123,12 @@ Project {
         }
 
         Group {
+            name: "dap"
+            prefix: "dap/"
+            files: ["dapengine.cpp", "dapengine.h"]
+        }
+
+        Group {
             name: "uvsc"
             prefix: "uvsc/"
             files: [

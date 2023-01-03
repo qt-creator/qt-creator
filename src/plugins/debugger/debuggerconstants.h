@@ -99,6 +99,7 @@ enum DebuggerEngineType
     CdbEngineType     = 0x004,
     PdbEngineType     = 0x008,
     LldbEngineType    = 0x100,
+    DapEngineType     = 0x200,
     UvscEngineType    = 0x1000
 };
 

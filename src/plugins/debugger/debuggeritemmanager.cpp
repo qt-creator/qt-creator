@@ -813,6 +813,14 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
         item.setUnexpandedDisplayName(name.arg(item.engineTypeName()).arg(command.toUserOutput()));
         m_model->addDebugger(item);
         logMessages.append(Tr::tr("Found: \"%1\"").arg(command.toUserOutput()));
+
+        if (item.engineType() == GdbEngineType) {
+            if (item.version().startsWith("GNU gdb (GDB) 14.0.50.2023")) {
+                // FIXME: Use something more robust
+                item.setEngineType(DapEngineType);
+                m_model->addDebugger(item);
+            }
+        }
     }
     if (logMessage)
         *logMessage = logMessages.join('\n');

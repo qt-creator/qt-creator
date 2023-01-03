@@ -174,8 +174,12 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
         return;
     }
     m_abis.clear();
+
     if (output.contains("gdb")) {
         m_engineType = GdbEngineType;
+        // FIXME: HACK while introducing DAP support
+        if (m_command.fileName().endsWith("-dap"))
+            m_engineType = DapEngineType;
 
         // Version
         bool isMacGdb, isQnxGdb;
@@ -211,6 +215,7 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
         //! \note If unable to determine the GDB ABI, no ABI is appended to m_abis here.
         return;
     }
+
     if (output.contains("lldb") || output.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
@@ -278,6 +283,8 @@ QString DebuggerItem::engineTypeName() const
         return QLatin1String("CDB");
     case LldbEngineType:
         return QLatin1String("LLDB");
+    case DapEngineType:
+        return QLatin1String("DAP");
     case UvscEngineType:
         return QLatin1String("UVSC");
     default:
