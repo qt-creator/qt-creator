@@ -23,7 +23,6 @@
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/algorithm.h>
-#include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>
