@@ -353,17 +353,14 @@ void SquishTools::setState(SquishTools::State state)
     // TODO check whether state transition is legal
     m_state = state;
 
-    if (m_request == RunnerQueryRequested || m_request == KillOldBeforeQueryRunner) {
-        handleSetStateQueryRunner();
-        return;
-    }
-
     switch (m_state) {
     case Idle:
         setIdle();
         break;
     case ServerStarted:
-        if (m_request == RunTestRequested || m_request == RecordTestRequested) {
+        if (m_request == RunnerQueryRequested) {
+            executeRunnerQuery();
+        } else if (m_request == RunTestRequested || m_request == RecordTestRequested) {
             startSquishRunner();
         } else if (m_request == ServerConfigChangeRequested) { // nothing to do here
         } else {
@@ -403,6 +400,8 @@ void SquishTools::setState(SquishTools::State state)
             if (toolsSettings.minimizeIDE)
                 restoreQtCreatorWindows();
             m_perspective.destroyControlBar();
+        } else if (m_request == KillOldBeforeQueryRunner) {
+            startSquishServer(RunnerQueryRequested);
         } else if (m_request == KillOldBeforeRunRunner) {
             startSquishServer(RunTestRequested);
         } else if (m_request == KillOldBeforeRecordRunner) {
@@ -420,7 +419,11 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case RunnerStartFailed:
     case RunnerStopped:
-        if (m_request == RecordTestRequested) {
+        if (m_request == RunnerQueryRequested) {
+            m_request = ServerStopRequested;
+            qCInfo(LOG) << "Stopping server from RunnerStopped (query)";
+            stopSquishServer();
+        } else if (m_request == RecordTestRequested) {
             if (m_secondaryRunner && m_secondaryRunner->isRunning()) {
                 stopRecorder();
             } else {
@@ -447,42 +450,6 @@ void SquishTools::setState(SquishTools::State state)
             m_squishRunnerState = RunnerState::Starting;
             startSquishRunner();
         }
-        break;
-    default:
-        break;
-    }
-}
-
-void SquishTools::handleSetStateQueryRunner()
-{
-    switch (m_state) {
-    case Idle:
-        setIdle();
-        break;
-    case ServerStarted:
-        executeRunnerQuery();
-        break;
-    case ServerStartFailed:
-        m_state = Idle;
-        m_request = None;
-        break;
-    case ServerStopped:
-        m_state = Idle;
-        emit shutdownFinished();
-        if (m_request == KillOldBeforeQueryRunner) {
-            startSquishServer(RunnerQueryRequested);
-        } else {
-            QTC_ASSERT(false, qDebug() << m_state << m_request);
-        }
-        break;
-    case ServerStopFailed:
-        m_state = Idle;
-        break;
-    case RunnerStartFailed:
-    case RunnerStopped:
-        m_request = ServerStopRequested;
-        qCInfo(LOG) << "Stopping server from RunnerStopped (query)";
-        stopSquishServer();
         break;
     default:
         break;
