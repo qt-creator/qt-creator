@@ -91,7 +91,6 @@ private:
 
     void onServerStateChanged(SquishProcessState state);
     void setState(State state);
-    void handleSetStateStartAppRunner();
     void handleSetStateQueryRunner();
     void setIdle();
     void startSquishServer(Request request);
@@ -136,8 +135,6 @@ private:
     Utils::QtcProcess *m_primaryRunner = nullptr;
     Utils::QtcProcess *m_secondaryRunner = nullptr;
 
-    Utils::QtcProcess m_runnerProcess;
-    Utils::QtcProcess m_recorderProcess;
     QString m_serverHost;
     Request m_request = None;
     State m_state = Idle;
