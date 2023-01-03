@@ -89,7 +89,7 @@ void DocumentLocatorFilter::updateSymbols(const DocumentUri &uri,
         return;
     QMutexLocker locker(&m_mutex);
     m_currentSymbols = symbols;
-    emit symbolsUpToDate({});
+    emit symbolsUpToDate(QPrivateSignal());
 }
 
 void DocumentLocatorFilter::resetSymbols()

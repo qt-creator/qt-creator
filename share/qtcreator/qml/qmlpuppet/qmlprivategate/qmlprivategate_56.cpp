@@ -556,7 +556,12 @@ bool isSubclassOf(QObject *object, const QByteArray &superTypeName)
 
 void getPropertyCache(QObject *object, QQmlEngine *engine)
 {
+#if QT_VERSION < QT_VERSION_CHECK(6, 4, 0)
     QQuickDesignerSupportProperties::getPropertyCache(object, engine);
+#else
+    Q_UNUSED(engine);
+    QQuickDesignerSupportProperties::getPropertyCache(object);
+#endif
 }
 
 void registerNotifyPropertyChangeCallBack(void (*callback)(QObject *, const PropertyName &))

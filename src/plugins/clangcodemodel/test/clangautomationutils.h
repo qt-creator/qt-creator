@@ -27,6 +27,7 @@
 
 #include <texteditor/codeassist/iassistproposalmodel.h>
 
+#include <QList>
 #include <QString>
 #include <QSharedPointer>
 

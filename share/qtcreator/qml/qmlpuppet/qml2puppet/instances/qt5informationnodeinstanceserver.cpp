@@ -294,7 +294,14 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 #ifdef IMPORT_QUICK3D_ASSETS
     QSSGAssetImportManager importManager;
     const QHash<QString, QStringList> supportedExtensions = importManager.getSupportedExtensions();
-    const QHash<QString, QVariantMap> supportedOptions = importManager.getAllOptions();
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
+#define AS_VARIANT_MAP(IT) IT.value().toVariantMap()
+    using PluginOptionMaps = QSSGAssetImportManager::PluginOptionMaps;
+#else
+#define AS_VARIANT_MAP(IT) IT.value()
+    using PluginOptionMaps = QHash<QString, QVariantMap>;
+#endif // QT_VERSION >= 6.4.0
+    const PluginOptionMaps supportedOptions = importManager.getAllOptions();
 
     QVariantMap supportMap;
 
@@ -308,7 +315,7 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
     QVariantMap optMap;
     auto itOpt = supportedOptions.constBegin();
     while (itOpt != supportedOptions.constEnd()) {
-        optMap.insert(itOpt.key(), itOpt.value());
+        optMap.insert(itOpt.key(), AS_VARIANT_MAP(itOpt));
         ++itOpt;
     }
 

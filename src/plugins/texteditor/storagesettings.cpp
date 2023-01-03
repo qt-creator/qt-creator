@@ -71,7 +71,7 @@ void StorageSettings::toMap(const QString &prefix, QVariantMap *map) const
     map->insert(prefix + QLatin1String(addFinalNewLineKey), m_addFinalNewLine);
     map->insert(prefix + QLatin1String(cleanIndentationKey), m_cleanIndentation);
     map->insert(prefix + QLatin1String(skipTrailingWhitespaceKey), m_skipTrailingWhitespace);
-    map->insert(prefix + QLatin1String(ignoreFileTypesKey), m_ignoreFileTypes.toLatin1().data());
+    map->insert(prefix + QLatin1String(ignoreFileTypesKey), m_ignoreFileTypes.toLatin1());
 }
 
 void StorageSettings::fromMap(const QString &prefix, const QVariantMap &map)

@@ -342,10 +342,12 @@ bool ServerCapabilities::SemanticHighlightingServerCapabilities::isValid() const
 {
     return contains(scopesKey) && value(scopesKey).isArray()
            && Utils::allOf(value(scopesKey).toArray(), [](const QJsonValue &array) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-                  return array.isArray() && Utils::allOf(array.toArray(), &QJsonValue::isString);
-#else
+#if QT_VERSION >= QT_VERSION_CHECK(6, 4, 0)
+                  return array.isArray() && Utils::allOf(array.toArray(), &QJsonValueConstRef::isString);
+#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                   return array.isArray() && Utils::allOf(array.toArray(), &QJsonValueRef::isString);
+#else
+                  return array.isArray() && Utils::allOf(array.toArray(), &QJsonValue::isString);
 #endif
               });
 }

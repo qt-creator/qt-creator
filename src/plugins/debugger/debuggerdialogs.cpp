@@ -95,14 +95,6 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-} // namespace Internal
-} // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
-
-namespace Debugger {
-namespace Internal {
-
 ///////////////////////////////////////////////////////////////////////
 //
 // StartApplicationParameters
@@ -944,3 +936,5 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
 
 } // namespace Internal
 } // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)

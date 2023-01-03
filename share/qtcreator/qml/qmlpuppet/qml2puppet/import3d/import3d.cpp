@@ -50,7 +50,12 @@ void import3D(const QString &sourceAsset, const QString &outDir, int exitId, con
     if (!optDoc.isNull() && optDoc.isObject()) {
         QString errorStr;
         QJsonObject optObj = optDoc.object();
-        if (importer->importFile(sourceAsset, outDir, optObj.toVariantMap(), &errorStr)
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
+        const auto &optionsMap = optObj;
+#else
+        const auto optionsMap = optObj.toVariantMap();
+#endif // QT_VERSION >= 6.4.0
+        if (importer->importFile(sourceAsset, outDir, optionsMap, &errorStr)
                 != QSSGAssetImportManager::ImportState::Success) {
             qWarning() << __FUNCTION__ << "Failed to import 3D asset"
                        << sourceAsset << "with error:" << errorStr;
