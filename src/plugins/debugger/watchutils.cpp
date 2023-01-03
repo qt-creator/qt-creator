@@ -14,8 +14,7 @@
 #include <string.h>
 #include <ctype.h>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal{
 
 QString removeObviousSideEffects(const QString &expIn)
 {
@@ -143,7 +142,7 @@ bool isLetterOrNumber(int c)
         || (c >= '0' && c <= '9');
 }
 
-bool hasLetterOrNumber(const QString &exp)
+bool hasLetterOrNumber(const QStringView exp)
 {
     const QChar underscore = '_';
     for (int i = exp.size(); --i >= 0; )
@@ -152,66 +151,66 @@ bool hasLetterOrNumber(const QString &exp)
     return false;
 }
 
-bool hasSideEffects(const QString &exp)
+bool hasSideEffects(const QStringView exp)
 {
     // FIXME: complete?
-    return exp.contains("-=")
-        || exp.contains("+=")
-        || exp.contains("/=")
-        || exp.contains("%=")
-        || exp.contains("*=")
-        || exp.contains("&=")
-        || exp.contains("|=")
-        || exp.contains("^=")
-        || exp.contains("--")
-        || exp.contains("++");
+    return exp.contains(u"-=")
+        || exp.contains(u"+=")
+        || exp.contains(u"/=")
+        || exp.contains(u"%=")
+        || exp.contains(u"*=")
+        || exp.contains(u"&=")
+        || exp.contains(u"|=")
+        || exp.contains(u"^=")
+        || exp.contains(u"--")
+        || exp.contains(u"++");
 }
 
-bool isKeyWord(const QString &exp)
+bool isKeyWord(const QStringView exp)
 {
     // FIXME: incomplete.
     if (!exp.isEmpty())
         return false;
     switch (exp.at(0).toLatin1()) {
     case 'a':
-        return exp == "auto";
+        return exp == u"auto";
     case 'b':
-        return exp == "break";
+        return exp == u"break";
     case 'c':
-        return exp == "case" || exp == "class" || exp == "const" || exp == "constexpr"
-               || exp == "catch" || exp == "continue" || exp == "const_cast";
+        return exp == u"case" || exp == u"class" || exp == u"const" || exp == u"constexpr"
+            || exp == u"catch" || exp == u"continue" || exp == u"const_cast";
     case 'd':
-        return exp == "do" || exp == "default" || exp == "delete" || exp == "decltype"
-               || exp == "dynamic_cast";
+        return exp == u"do" || exp == u"default" || exp == u"delete" || exp == u"decltype"
+            || exp == u"dynamic_cast";
     case 'e':
-        return exp == "else" || exp == "extern" || exp == "enum" || exp == "explicit";
+        return exp == u"else" || exp == u"extern" || exp == u"enum" || exp == u"explicit";
     case 'f':
-        return exp == "for" || exp == "friend" || exp == "final";
+        return exp == u"for" || exp == u"friend" || exp == u"final";
     case 'g':
-        return exp == "goto";
+        return exp == u"goto";
     case 'i':
-        return exp == "if" || exp == "inline";
+        return exp == u"if" || exp == u"inline";
     case 'n':
-        return exp == "new" || exp == "namespace" || exp == "noexcept";
+        return exp == u"new" || exp == u"namespace" || exp == u"noexcept";
     case 'm':
-        return exp == "mutable";
+        return exp == u"mutable";
     case 'o':
-        return exp == "operator" || exp == "override";
+        return exp == u"operator" || exp == u"override";
     case 'p':
-        return exp == "public" || exp == "protected" || exp == "private";
+        return exp == u"public" || exp == u"protected" || exp == u"private";
     case 'r':
-        return exp == "return" || exp == "register" || exp == "reinterpret_cast";
+        return exp == u"return" || exp == u"register" || exp == u"reinterpret_cast";
     case 's':
-        return exp == "struct" || exp == "switch" || exp == "static_cast";
+        return exp == u"struct" || exp == u"switch" || exp == u"static_cast";
     case 't':
-        return exp == "template" || exp == "typename" || exp == "try"
-               || exp == "throw" || exp == "typedef";
+        return exp == u"template" || exp == u"typename" || exp == u"try"
+            || exp == u"throw" || exp == u"typedef";
     case 'u':
-        return exp == "union" || exp == "using";
+        return exp == u"union" || exp == u"using";
     case 'v':
-        return exp == "void" || exp == "volatile" || exp == "virtual";
+        return exp == u"void" || exp == u"volatile" || exp == u"virtual";
     case 'w':
-        return exp == "while";
+        return exp == u"while";
     }
     return false;
 }
@@ -277,5 +276,4 @@ QString escapeUnprintable(const QString &str, int unprintableBase)
     return encoded;
 }
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
