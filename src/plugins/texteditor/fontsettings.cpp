@@ -79,7 +79,7 @@ void FontSettings::toSettings(QSettings *s) const
 
     auto schemeFileNames = s->value(QLatin1String(schemeFileNamesKey)).toMap();
     if (m_schemeFileName != defaultSchemeFileName() || schemeFileNames.contains(Utils::creatorTheme()->id())) {
-        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName.toVariant());
+        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName.toSettings());
         s->setValue(QLatin1String(schemeFileNamesKey), schemeFileNames);
     }
 
@@ -106,7 +106,7 @@ bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const QS
         // Load the selected color scheme for the current theme
         auto schemeFileNames = s->value(group + QLatin1String(schemeFileNamesKey)).toMap();
         if (schemeFileNames.contains(Utils::creatorTheme()->id())) {
-            const FilePath scheme = FilePath::fromVariant(schemeFileNames.value(Utils::creatorTheme()->id()));
+            const FilePath scheme = FilePath::fromSettings(schemeFileNames.value(Utils::creatorTheme()->id()));
             loadColorScheme(scheme, descriptions);
         }
     }

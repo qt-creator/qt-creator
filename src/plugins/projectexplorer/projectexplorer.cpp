@@ -2487,7 +2487,7 @@ void ProjectExplorerPluginPrivate::updateWelcomePage()
 
 void ProjectExplorerPluginPrivate::loadSesssionTasks()
 {
-    const FilePath filePath = FilePath::fromVariant(
+    const FilePath filePath = FilePath::fromSettings(
         SessionManager::value(Constants::SESSION_TASKFILE_KEY));
     if (!filePath.isEmpty())
         TaskFile::openTasks(filePath);

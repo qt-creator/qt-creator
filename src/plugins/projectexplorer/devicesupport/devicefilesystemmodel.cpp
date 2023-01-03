@@ -163,7 +163,7 @@ QVariant DeviceFileSystemModel::data(const QModelIndex &index, int role) const
             return node->m_filePath.fileName();
         }
         if (role == PathRole)
-            return node->m_filePath.toString();
+            return node->m_filePath.toVariant();
     }
     return QVariant();
 }

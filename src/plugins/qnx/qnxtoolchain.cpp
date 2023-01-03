@@ -135,7 +135,7 @@ QStringList QnxToolChain::suggestedMkspecList() const
 QVariantMap QnxToolChain::toMap() const
 {
     QVariantMap data = GccToolChain::toMap();
-    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toVariant());
+    data.insert(QLatin1String(CompilerSdpPath), m_sdpPath.toSettings());
     data.insert(QLatin1String(CpuDirKey), m_cpuDir);
     return data;
 }
@@ -145,7 +145,7 @@ bool QnxToolChain::fromMap(const QVariantMap &data)
     if (!GccToolChain::fromMap(data))
         return false;
 
-    m_sdpPath = FilePath::fromVariant(data.value(CompilerSdpPath));
+    m_sdpPath = FilePath::fromSettings(data.value(CompilerSdpPath));
     m_cpuDir = data.value(QLatin1String(CpuDirKey)).toString();
 
     // Make the ABIs QNX specific (if they aren't already).

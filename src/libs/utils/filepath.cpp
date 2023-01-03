@@ -168,6 +168,11 @@ QFileInfo FilePath::toFileInfo() const
     return QFileInfo(toFSPathString());
 }
 
+FilePath FilePath::fromVariant(const QVariant &variant)
+{
+    return fromSettings(variant); // FIXME: Use variant.value<FilePath>()
+}
+
 FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
     FilePath result;
@@ -989,7 +994,7 @@ FilePath FilePath::fromUtf8(const char *filename, int filenameSize)
     return FilePath::fromString(QString::fromUtf8(filename, filenameSize));
 }
 
-FilePath FilePath::fromVariant(const QVariant &variant)
+FilePath FilePath::fromSettings(const QVariant &variant)
 {
     if (variant.type() == QVariant::Url) {
         const QUrl url = variant.toUrl();
@@ -998,9 +1003,15 @@ FilePath FilePath::fromVariant(const QVariant &variant)
     return FilePath::fromUserInput(variant.toString());
 }
 
-QVariant FilePath::toVariant() const
+QVariant FilePath::toSettings() const
 {
     return toString();
+}
+
+QVariant FilePath::toVariant() const
+{
+    // FIXME: Use qVariantFromValue
+    return toSettings();
 }
 
 /*!

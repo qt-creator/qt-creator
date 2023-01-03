@@ -1429,7 +1429,7 @@ void HeobDialog::updateProfile()
     int leakRecording = settings->value(heobLeakRecordingC, 2).toInt();
     bool attach = settings->value(heobAttachC, false).toBool();
     const QString extraArgs = settings->value(heobExtraArgsC).toString();
-    FilePath path = FilePath::fromVariant(settings->value(heobPathC));
+    FilePath path = FilePath::fromSettings(settings->value(heobPathC));
     settings->endGroup();
 
     if (path.isEmpty()) {
@@ -1486,7 +1486,7 @@ void HeobDialog::saveOptions()
     settings->setValue(heobLeakRecordingC, m_leakRecordingCombo->currentIndex());
     settings->setValue(heobAttachC, m_attachCheck->isChecked());
     settings->setValue(heobExtraArgsC, m_extraArgsEdit->text());
-    settings->setValue(heobPathC, m_pathChooser->filePath().toString());
+    settings->setValue(heobPathC, m_pathChooser->filePath().toSettings());
     settings->endGroup();
 }
 

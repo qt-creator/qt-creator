@@ -174,7 +174,7 @@ bool TaskFile::load(QString *errorString, const FilePath &fileName)
     bool result = parseTaskFile(errorString, fileName);
     if (result) {
         if (!SessionManager::isDefaultSession(SessionManager::activeSession()))
-            SessionManager::setValue(Constants::SESSION_TASKFILE_KEY, fileName.toVariant());
+            SessionManager::setValue(Constants::SESSION_TASKFILE_KEY, fileName.toSettings());
     } else {
         stopMonitoring();
     }

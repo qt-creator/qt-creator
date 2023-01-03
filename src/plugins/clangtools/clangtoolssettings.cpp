@@ -126,8 +126,8 @@ void ClangToolsSettings::readSettings()
 
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-    m_clangTidyExecutable = FilePath::fromVariant(s->value(clangTidyExecutableKey));
-    m_clazyStandaloneExecutable = FilePath::fromVariant(s->value(clazyStandaloneExecutableKey));
+    m_clangTidyExecutable = FilePath::fromSettings(s->value(clangTidyExecutableKey));
+    m_clazyStandaloneExecutable = FilePath::fromSettings(s->value(clazyStandaloneExecutableKey));
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
     QVariantMap map;
@@ -159,8 +159,8 @@ void ClangToolsSettings::writeSettings()
     QSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
-    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toVariant());
-    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toVariant());
+    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toSettings());
+    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toSettings());
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
     QVariantMap map;

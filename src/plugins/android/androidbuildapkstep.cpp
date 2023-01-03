@@ -843,7 +843,7 @@ void AndroidBuildApkStep::reportWarningOrError(const QString &message, Task::Tas
 
 bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 {
-    m_keystorePath = FilePath::fromVariant(map.value(KeystoreLocationKey));
+    m_keystorePath = FilePath::fromSettings(map.value(KeystoreLocationKey));
     m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     if (m_buildTargetSdk.isEmpty()) {
@@ -857,7 +857,7 @@ bool AndroidBuildApkStep::fromMap(const QVariantMap &map)
 QVariantMap AndroidBuildApkStep::toMap() const
 {
     QVariantMap map = ProjectExplorer::AbstractProcessStep::toMap();
-    map.insert(KeystoreLocationKey, m_keystorePath.toVariant());
+    map.insert(KeystoreLocationKey, m_keystorePath.toSettings());
     map.insert(BuildTargetSdkKey, m_buildTargetSdk);
     map.insert(VerboseOutputKey, m_verbose);
     return map;

@@ -122,7 +122,7 @@ CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
 
     setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 
-    m_qchFilePath = FilePath::fromVariant(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
+    m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
     if (m_qchFilePath.isEmpty())
         m_qchFilePath = searchQchFile(m_executable);

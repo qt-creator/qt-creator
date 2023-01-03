@@ -114,7 +114,8 @@ public:
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             k->setDeviceTypeForIcon(DEVICE_TYPE);
         k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
-        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toVariant());
+        // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
+        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toString());
         k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
@@ -679,6 +680,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
                 if (cfgItem.key == "QUL_GENERATORS") {
                     auto idx = cfgItem.value.indexOf("/lib/cmake/Qul");
                     auto qulDir = cfgItem.value.left(idx);
+                    // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
                     kit->setValue(kitQmlImportPath, QVariant(qulDir + "/include/qul"));
                     break;
                 }

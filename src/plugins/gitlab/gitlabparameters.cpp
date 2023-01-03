@@ -157,7 +157,7 @@ void GitLabParameters::toSettings(QSettings *s) const
 
     writeTokensFile(tokensFilePath(s), gitLabServers);
     s->beginGroup(settingsGroupC);
-    s->setValue(curlKeyC, curl.toVariant());
+    s->setValue(curlKeyC, curl.toSettings());
     s->setValue(defaultUuidKeyC, defaultGitLabServer.toSetting());
     s->endGroup();
 }
@@ -165,7 +165,7 @@ void GitLabParameters::toSettings(QSettings *s) const
 void GitLabParameters::fromSettings(const QSettings *s)
 {
     const QString rootKey = QLatin1String(settingsGroupC) + '/';
-    curl = Utils::FilePath::fromVariant(s->value(rootKey + curlKeyC));
+    curl = Utils::FilePath::fromSettings(s->value(rootKey + curlKeyC));
     defaultGitLabServer = Utils::Id::fromSetting(s->value(rootKey + defaultUuidKeyC));
 
     gitLabServers = readTokensFile(tokensFilePath(s));

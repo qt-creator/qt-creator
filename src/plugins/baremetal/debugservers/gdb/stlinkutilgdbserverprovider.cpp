@@ -116,7 +116,7 @@ bool StLinkUtilGdbServerProvider::isValid() const
 QVariantMap StLinkUtilGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(executableFileKeyC, m_executableFile.toVariant());
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(extendedModeKeyC, m_extendedMode);
     data.insert(resetBoardKeyC, m_resetBoard);
@@ -130,7 +130,7 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_extendedMode = data.value(extendedModeKeyC).toBool();
     m_resetBoard = data.value(resetBoardKeyC).toBool();

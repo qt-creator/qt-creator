@@ -146,16 +146,16 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastKitId", kitId.toSetting());
     settings->setValue("LastServerPort", serverPort);
     settings->setValue("LastServerAddress", serverAddress);
-    settings->setValue("LastExternalExecutable", runnable.command.executable().toVariant());
+    settings->setValue("LastExternalExecutable", runnable.command.executable().toSettings());
     settings->setValue("LastExternalExecutableArguments", runnable.command.arguments());
-    settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory.toVariant());
+    settings->setValue("LastExternalWorkingDirectory", runnable.workingDirectory.toSettings());
     settings->setValue("LastExternalBreakAtMain", breakAtMain);
     settings->setValue("LastExternalRunInTerminal", runInTerminal);
     settings->setValue("LastExternalUseTargetExtended", useTargetExtendedRemote);
     settings->setValue("LastServerInitCommands", serverInitCommands);
     settings->setValue("LastServerResetCommands", serverResetCommands);
-    settings->setValue("LastDebugInfoLocation", debugInfoLocation.toVariant());
-    settings->setValue("LastSysRoot", sysRoot.toVariant());
+    settings->setValue("LastDebugInfoLocation", debugInfoLocation.toSettings());
+    settings->setValue("LastSysRoot", sysRoot.toSettings());
 }
 
 void StartApplicationParameters::fromSettings(const QSettings *settings)
@@ -163,16 +163,16 @@ void StartApplicationParameters::fromSettings(const QSettings *settings)
     kitId = Id::fromSetting(settings->value("LastKitId"));
     serverPort = settings->value("LastServerPort").toUInt();
     serverAddress = settings->value("LastServerAddress").toString();
-    runnable.command.setExecutable(FilePath::fromVariant(settings->value("LastExternalExecutable")));
+    runnable.command.setExecutable(FilePath::fromSettings(settings->value("LastExternalExecutable")));
     runnable.command.setArguments(settings->value("LastExternalExecutableArguments").toString());
-    runnable.workingDirectory = FilePath::fromVariant(settings->value("LastExternalWorkingDirectory"));
+    runnable.workingDirectory = FilePath::fromSettings(settings->value("LastExternalWorkingDirectory"));
     breakAtMain = settings->value("LastExternalBreakAtMain").toBool();
     runInTerminal = settings->value("LastExternalRunInTerminal").toBool();
     useTargetExtendedRemote = settings->value("LastExternalUseTargetExtended").toBool();
     serverInitCommands = settings->value("LastServerInitCommands").toString();
     serverResetCommands = settings->value("LastServerResetCommands").toString();
-    debugInfoLocation = FilePath::fromVariant(settings->value("LastDebugInfoLocation"));
-    sysRoot = FilePath::fromVariant(settings->value("LastSysRoot"));
+    debugInfoLocation = FilePath::fromSettings(settings->value("LastDebugInfoLocation"));
+    sysRoot = FilePath::fromSettings(settings->value("LastSysRoot"));
 }
 
 ///////////////////////////////////////////////////////////////////////

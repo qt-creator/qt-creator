@@ -482,10 +482,8 @@ bool SessionManager::save()
         }
     } else {
         // save the startup project
-        if (d->m_startupProject) {
-            data.insert(QLatin1String("StartupProject"),
-                        d->m_startupProject->projectFilePath().toString());
-        }
+        if (d->m_startupProject)
+            data.insert("StartupProject", d->m_startupProject->projectFilePath().toSettings());
 
         const QColor c = StyleHelper::requestedBaseColor();
         if (c.isValid()) {
@@ -941,7 +939,7 @@ void SessionManagerPrivate::askUserAboutFailedProjects()
 
 void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader &reader)
 {
-    const FilePath startupProject = FilePath::fromVariant(reader.restoreValue("StartupProject"));
+    const FilePath startupProject = FilePath::fromSettings(reader.restoreValue("StartupProject"));
     if (!startupProject.isEmpty()) {
         for (Project *pro : std::as_const(m_projects)) {
             if (pro->projectFilePath() == startupProject) {

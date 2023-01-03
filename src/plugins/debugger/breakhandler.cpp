@@ -2762,7 +2762,7 @@ void BreakpointManager::saveSessionData()
         if (params.type != BreakpointByFileAndLine)
             map.insert("type", params.type);
         if (!params.fileName.isEmpty())
-            map.insert("filename", params.fileName.toVariant());
+            map.insert("filename", params.fileName.toSettings());
         if (params.lineNumber)
             map.insert("linenumber", params.lineNumber);
         if (!params.functionName.isEmpty())
@@ -2807,7 +2807,7 @@ void BreakpointManager::loadSessionData()
         BreakpointParameters params(BreakpointByFileAndLine);
         QVariant v = map.value("filename");
         if (v.isValid())
-            params.fileName = FilePath::fromVariant(v);
+            params.fileName = FilePath::fromSettings(v);
         v = map.value("linenumber");
         if (v.isValid())
             params.lineNumber = v.toString().toInt();

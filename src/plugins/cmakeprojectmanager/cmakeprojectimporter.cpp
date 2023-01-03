@@ -766,7 +766,7 @@ const QList<BuildInfo> CMakeProjectImporter::buildInfoList(void *directoryData) 
     info.buildDirectory = data->buildDirectory;
 
     QVariantMap config = info.extraInfo.toMap(); // new empty, or existing one from createBuildInfo
-    config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toString());
+    config.insert(Constants::CMAKE_HOME_DIR, data->cmakeHomeDirectory.toVariant());
     // Potentially overwrite the default QML Debugging settings for the build type as set by
     // createBuildInfo, in case we are importing a "Debug" CMake configuration without QML Debugging
     config.insert(Constants::QML_DEBUG_SETTING,

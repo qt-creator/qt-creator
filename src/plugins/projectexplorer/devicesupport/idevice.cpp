@@ -443,7 +443,7 @@ void IDevice::fromMap(const QVariantMap &map)
             : static_cast<AuthType>(storedAuthType);
 
     d->sshParameters.privateKeyFile =
-        FilePath::fromVariant(map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()));
+        FilePath::fromSettings(map.value(QLatin1String(KeyFileKey), defaultPrivateKeyFilePath()));
     d->sshParameters.timeout = map.value(QLatin1String(TimeoutKey), DefaultTimeout).toInt();
     d->sshParameters.hostKeyCheckingMode = static_cast<SshHostKeyCheckingMode>
             (map.value(QLatin1String(HostKeyCheckingKey), SshHostKeyCheckingNone).toInt());
@@ -455,8 +455,8 @@ void IDevice::fromMap(const QVariantMap &map)
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 
-    d->debugServerPath = FilePath::fromVariant(map.value(QLatin1String(DebugServerKey)));
-    d->qmlRunCommand = FilePath::fromVariant(map.value(QLatin1String(QmlRuntimeKey)));
+    d->debugServerPath = FilePath::fromSettings(map.value(QLatin1String(DebugServerKey)));
+    d->qmlRunCommand = FilePath::fromSettings(map.value(QLatin1String(QmlRuntimeKey)));
     d->extraData = map.value(ExtraDataKey).toMap();
 }
 
@@ -480,15 +480,15 @@ QVariantMap IDevice::toMap() const
     map.insert(QLatin1String(SshPortKey), d->sshParameters.port());
     map.insert(QLatin1String(UserNameKey), d->sshParameters.userName());
     map.insert(QLatin1String(AuthKey), d->sshParameters.authenticationType);
-    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile.toVariant());
+    map.insert(QLatin1String(KeyFileKey), d->sshParameters.privateKeyFile.toSettings());
     map.insert(QLatin1String(TimeoutKey), d->sshParameters.timeout);
     map.insert(QLatin1String(HostKeyCheckingKey), d->sshParameters.hostKeyCheckingMode);
 
     map.insert(QLatin1String(PortsSpecKey), d->freePorts.toString());
     map.insert(QLatin1String(VersionKey), d->version);
 
-    map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toVariant());
-    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand.toVariant());
+    map.insert(QLatin1String(DebugServerKey), d->debugServerPath.toSettings());
+    map.insert(QLatin1String(QmlRuntimeKey), d->qmlRunCommand.toSettings());
     map.insert(ExtraDataKey, d->extraData);
 
     return map;

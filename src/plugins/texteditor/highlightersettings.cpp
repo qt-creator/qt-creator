@@ -27,7 +27,7 @@ void HighlighterSettings::toSettings(const QString &category, QSettings *s) cons
 {
     const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
-    s->setValue(kDefinitionFilesPath, m_definitionFilesPath.toVariant());
+    s->setValue(kDefinitionFilesPath, m_definitionFilesPath.toSettings());
     s->setValue(kIgnoredFilesPatterns, ignoredFilesPatterns());
     s->endGroup();
 }
@@ -36,11 +36,11 @@ void HighlighterSettings::fromSettings(const QString &category, QSettings *s)
 {
     const QString &group = groupSpecifier(Constants::HIGHLIGHTER_SETTINGS_CATEGORY, category);
     s->beginGroup(group);
-    m_definitionFilesPath = FilePath::fromVariant(s->value(kDefinitionFilesPath));
+    m_definitionFilesPath = FilePath::fromSettings(s->value(kDefinitionFilesPath));
     if (!s->contains(kDefinitionFilesPath))
         assignDefaultDefinitionsPath();
     else
-        m_definitionFilesPath = FilePath::fromVariant(s->value(kDefinitionFilesPath));
+        m_definitionFilesPath = FilePath::fromSettings(s->value(kDefinitionFilesPath));
     if (!s->contains(kIgnoredFilesPatterns))
         assignDefaultIgnoredPatterns();
     else

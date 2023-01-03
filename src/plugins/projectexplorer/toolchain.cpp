@@ -259,7 +259,7 @@ QVariantMap ToolChain::toMap() const
     if (!d->m_targetAbiKey.isEmpty())
         result.insert(d->m_targetAbiKey, d->m_targetAbi.toString());
     if (!d->m_compilerCommandKey.isEmpty())
-        result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toVariant());
+        result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toSettings());
     return result;
 }
 
@@ -382,7 +382,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
     if (!d->m_targetAbiKey.isEmpty())
         d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
 
-    d->m_compilerCommand = FilePath::fromVariant(data.value(d->m_compilerCommandKey));
+    d->m_compilerCommand = FilePath::fromSettings(data.value(d->m_compilerCommandKey));
     d->m_isValid.reset();
 
     return true;
@@ -695,16 +695,16 @@ static QString badToolchainTimestampKey() { return {"Timestamp"}; }
 
 QVariantMap BadToolchain::toMap() const
 {
-    return {{badToolchainFilePathKey(), filePath.toVariant()},
-            {badToolchainSymlinkTargetKey(), symlinkTarget.toVariant()},
+    return {{badToolchainFilePathKey(), filePath.toSettings()},
+            {badToolchainSymlinkTargetKey(), symlinkTarget.toSettings()},
             {badToolchainTimestampKey(), timestamp.toMSecsSinceEpoch()}};
 }
 
 BadToolchain BadToolchain::fromMap(const QVariantMap &map)
 {
     return {
-        FilePath::fromVariant(map.value(badToolchainFilePathKey())),
-        FilePath::fromVariant(map.value(badToolchainSymlinkTargetKey())),
+        FilePath::fromSettings(map.value(badToolchainFilePathKey())),
+        FilePath::fromSettings(map.value(badToolchainSymlinkTargetKey())),
         QDateTime::fromMSecsSinceEpoch(map.value(badToolchainTimestampKey()).toLongLong())
     };
 }

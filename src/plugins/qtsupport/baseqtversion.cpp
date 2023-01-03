@@ -649,7 +649,7 @@ void QtVersion::fromMap(const QVariantMap &map)
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
-    d->m_qmakeCommand = FilePath::fromVariant(map.value(QTVERSIONQMAKEPATH));
+    d->m_qmakeCommand = FilePath::fromSettings(map.value(QTVERSIONQMAKEPATH));
 
     FilePath qmake = d->m_qmakeCommand;
     // FIXME: Check this is still needed or whether ProcessArgs::splitArg handles it.
@@ -666,7 +666,7 @@ void QtVersion::fromMap(const QVariantMap &map)
         }
     }
 
-    d->m_data.qtSources = FilePath::fromVariant(map.value(QTVERSIONSOURCEPATH));
+    d->m_data.qtSources = FilePath::fromSettings(map.value(QTVERSIONSOURCEPATH));
 
     // Handle ABIs provided by the SDKTool:
     // Note: Creator does not write these settings itself, so it has to come from the SDKTool!
@@ -692,7 +692,7 @@ QVariantMap QtVersion::toMap() const
     if (!d->m_overrideFeatures.isEmpty())
         result.insert(QTVERSION_OVERRIDE_FEATURES, Utils::Id::toStringList(d->m_overrideFeatures));
 
-    result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toVariant());
+    result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
     return result;
 }
 

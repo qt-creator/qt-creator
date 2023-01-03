@@ -41,8 +41,8 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
         File f;
 
         const QVariantMap tmp = d.toMap();
-        f.source = Utils::FilePath::fromVariant(tmp.value(QLatin1String("source")));
-        f.target = Utils::FilePath::fromVariant(tmp.value(QLatin1String("target")));
+        f.source = Utils::FilePath::fromSettings(tmp.value(QLatin1String("source")));
+        f.target = Utils::FilePath::fromSettings(tmp.value(QLatin1String("target")));
         f.condition = tmp.value(QLatin1String("condition"), true);
         f.isBinary = tmp.value(QLatin1String("isBinary"), false);
         f.overwrite = tmp.value(QLatin1String("overwrite"), false);

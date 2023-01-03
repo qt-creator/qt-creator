@@ -340,7 +340,7 @@ void UpdateInfoPlugin::loadSettings() const
     UpdateInfoPluginPrivate::Settings def;
     QSettings *settings = ICore::settings();
     const QString updaterKey = QLatin1String(UpdaterGroup) + '/';
-    d->m_maintenanceTool = FilePath::fromVariant(settings->value(updaterKey + MaintenanceToolKey));
+    d->m_maintenanceTool = FilePath::fromSettings(settings->value(updaterKey + MaintenanceToolKey));
     d->m_lastCheckDate = settings->value(updaterKey + LastCheckDateKey, QDate()).toDate();
     d->m_settings.automaticCheck
         = settings->value(updaterKey + AutomaticCheckKey, def.automaticCheck).toBool();

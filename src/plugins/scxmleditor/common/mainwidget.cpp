@@ -450,7 +450,7 @@ void MainWidget::saveScreenShot()
 
     QSettings *s = Core::ICore::settings();
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    const FilePath lastFolder = FilePath::fromVariant(
+    const FilePath lastFolder = FilePath::fromSettings(
             s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation));
     const FilePath filePath = FileUtils::getSaveFilePath(this,
                                                          Tr::tr("Save Screenshot"),
@@ -460,7 +460,7 @@ void MainWidget::saveScreenShot()
         const QImage image = view->view()->grabView();
 
         if (image.save(filePath.toString())) {
-            s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, filePath.parentDir().toVariant());
+            s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, filePath.parentDir().toSettings());
         } else {
             QMessageBox::warning(this, Tr::tr("Saving Failed"), Tr::tr("Could not save the screenshot."));
         }

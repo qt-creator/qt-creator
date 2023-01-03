@@ -737,7 +737,7 @@ bool StdIOSettings::isValid() const
 QVariantMap StdIOSettings::toMap() const
 {
     QVariantMap map = BaseSettings::toMap();
-    map.insert(executableKey, m_executable.toVariant());
+    map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
     return map;
 }
@@ -745,7 +745,7 @@ QVariantMap StdIOSettings::toMap() const
 void StdIOSettings::fromMap(const QVariantMap &map)
 {
     BaseSettings::fromMap(map);
-    m_executable = Utils::FilePath::fromVariant(map[executableKey]);
+    m_executable = Utils::FilePath::fromSettings(map[executableKey]);
     m_arguments = map[argumentsKey].toString();
 }
 

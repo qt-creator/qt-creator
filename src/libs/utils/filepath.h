@@ -62,6 +62,7 @@ public:
     [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
     [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
+    [[nodiscard]] static FilePath fromSettings(const QVariant &variant);
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
     [[nodiscard]] static FilePath fromPathPart(const QStringView path);
@@ -69,7 +70,7 @@ public:
     [[nodiscard]] static FilePath currentWorkingPath();
 
     QString toUserOutput() const;
-    QString toString() const;
+    QVariant toSettings() const;
     QVariant toVariant() const;
     QUrl toUrl() const;
 
@@ -235,6 +236,9 @@ public:
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     //! Returns a filepath the represents the same file on a local drive
     expected_str<FilePath> localSource() const;
+
+    // FIXME: Avoid. See toSettings, toVariant, toUserOutput, toFSPathString, path, nativePath.
+    QString toString() const;
 
 private:
     // These are needed.

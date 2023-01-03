@@ -821,7 +821,7 @@ void PythonSettings::initFromSettings(QSettings *settings)
         auto interpreterList = interpreterVar.toList();
         const Interpreter interpreter{interpreterList.value(0).toString(),
                                       interpreterList.value(1).toString(),
-                                      FilePath::fromVariant(interpreterList.value(2)),
+                                      FilePath::fromSettings(interpreterList.value(2)),
                                       interpreterList.value(3, true).toBool()};
         if (interpreterList.size() == 3)
             oldSettings << interpreter;
@@ -865,7 +865,7 @@ void PythonSettings::writeToSettings(QSettings *settings)
     for (const Interpreter &interpreter : m_interpreters) {
         QVariantList interpreterVar{interpreter.id,
                                     interpreter.name,
-                                    interpreter.command.toVariant()};
+                                    interpreter.command.toSettings()};
         interpretersVar.append(QVariant(interpreterVar)); // old settings
         interpreterVar.append(interpreter.autoDetected);
         interpretersVar.append(QVariant(interpreterVar)); // new settings

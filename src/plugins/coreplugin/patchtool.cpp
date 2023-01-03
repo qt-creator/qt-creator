@@ -24,7 +24,7 @@ FilePath PatchTool::patchCommand()
     QSettings *s = ICore::settings();
 
     s->beginGroup(settingsGroupC);
-    const FilePath command = FilePath::fromVariant(s->value(patchCommandKeyC, patchCommandDefaultC));
+    const FilePath command = FilePath::fromSettings(s->value(patchCommandKeyC, patchCommandDefaultC));
     s->endGroup();
 
     return command;
@@ -34,7 +34,7 @@ void PatchTool::setPatchCommand(const FilePath &newCommand)
 {
     Utils::QtcSettings *s = ICore::settings();
     s->beginGroup(settingsGroupC);
-    s->setValueWithDefault(patchCommandKeyC, newCommand.toVariant(), QVariant(QString(patchCommandDefaultC)));
+    s->setValueWithDefault(patchCommandKeyC, newCommand.toSettings(), QVariant(QString(patchCommandDefaultC)));
     s->endGroup();
 }
 

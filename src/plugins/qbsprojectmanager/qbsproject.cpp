@@ -1152,7 +1152,7 @@ void QbsBuildSystem::updateDeploymentInfo()
             const QJsonObject installData = artifact.value("install-data").toObject();
             if (installData.value("is-installable").toBool()) {
                 deploymentData.addFile(
-                            FilePath::fromVariant(artifact.value("file-path")),
+                            FilePath::fromSettings(artifact.value("file-path")),
                             QFileInfo(installData.value("install-file-path").toString()).path(),
                             artifact.value("is-executable").toBool()
                                 ? DeployableFile::TypeExecutable : DeployableFile::TypeNormal);

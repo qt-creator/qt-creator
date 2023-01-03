@@ -1384,7 +1384,7 @@ void restoreRecentFiles(const QVariantList &recentFiles, const QStringList &rece
         QString editorId;
         if (i < recentEditorIds.size()) // guard against old or weird settings
             editorId = recentEditorIds.at(i);
-        const Utils::FilePath &filePath = FilePath::fromVariant(recentFiles.at(i));
+        const Utils::FilePath &filePath = FilePath::fromSettings(recentFiles.at(i));
         result.append({filePath, Id::fromString(editorId)});
     }
 
@@ -1404,8 +1404,8 @@ void readSettings()
 
     s->beginGroup(QLatin1String(directoryGroupC));
 
-    d->m_projectsDirectory = FilePath::fromVariant(
-        s->value(QLatin1String(projectDirectoryKeyC), PathChooser::homePath().toVariant()));
+    d->m_projectsDirectory = FilePath::fromSettings(
+        s->value(QLatin1String(projectDirectoryKeyC), PathChooser::homePath().toSettings()));
 
     d->m_useProjectsDirectory
         = s->value(QLatin1String(useProjectDirectoryKeyC), kUseProjectsDirectoryDefault).toBool();

@@ -223,7 +223,7 @@ QVariantMap AddDebuggerData::addDebugger(const QVariantMap &map) const
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ABIS), QVariant(m_abis));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(ENGINE_TYPE), QVariant(m_engine));
     data << KeyValuePair(QStringList() << debugger << QLatin1String(BINARY),
-                         Utils::FilePath::fromUserInput(m_binary).toVariant());
+                         Utils::FilePath::fromUserInput(m_binary).toSettings());
 
     data << KeyValuePair(QStringList() << QLatin1String(COUNT), QVariant(count + 1));
 

@@ -309,7 +309,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
     const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
     if (ok)
-        emit changed(workingDir.toString());
+        emit changed(workingDir.toVariant());
     return ok;
 }
 

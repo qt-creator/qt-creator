@@ -155,7 +155,7 @@ void DeploymentTimeInfo::importDeployTimes(const QVariantMap &map)
                                sysrootList.size());
 
     for (int i = 0; i < elemCount; ++i) {
-        const DeployableFile df(FilePath::fromVariant(fileList.at(i)),
+        const DeployableFile df(FilePath::fromSettings(fileList.at(i)),
                                 remotePathList.at(i).toString());
         const DeployParameters dp{df, hostList.at(i).toString(), sysrootList.at(i).toString()};
         d->lastDeployed.insert(dp, { localTimesList.at(i).toDateTime(),

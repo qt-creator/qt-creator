@@ -128,9 +128,9 @@ bool OpenOcdGdbServerProvider::isValid() const
 QVariantMap OpenOcdGdbServerProvider::toMap() const
 {
     QVariantMap data = GdbServerProvider::toMap();
-    data.insert(executableFileKeyC, m_executableFile.toVariant());
-    data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toVariant());
-    data.insert(configurationFileKeyC, m_configurationFile.toVariant());
+    data.insert(executableFileKeyC, m_executableFile.toSettings());
+    data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toSettings());
+    data.insert(configurationFileKeyC, m_configurationFile.toSettings());
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
     return data;
 }
@@ -140,9 +140,9 @@ bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
     if (!GdbServerProvider::fromMap(data))
         return false;
 
-    m_executableFile = FilePath::fromVariant(data.value(executableFileKeyC));
-    m_rootScriptsDir = FilePath::fromVariant(data.value(rootScriptsDirKeyC));
-    m_configurationFile = FilePath::fromVariant(data.value(configurationFileKeyC));
+    m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
+    m_rootScriptsDir = FilePath::fromSettings(data.value(rootScriptsDirKeyC));
+    m_configurationFile = FilePath::fromSettings(data.value(configurationFileKeyC));
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
     return true;
 }

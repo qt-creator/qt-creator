@@ -112,14 +112,14 @@ QString QnxQtVersion::cpuDir() const
 QVariantMap QnxQtVersion::toMap() const
 {
     QVariantMap result = QtVersion::toMap();
-    result.insert(SDP_PATH_KEY, sdpPath().toVariant());
+    result.insert(SDP_PATH_KEY, sdpPath().toSettings());
     return result;
 }
 
 void QnxQtVersion::fromMap(const QVariantMap &map)
 {
     QtVersion::fromMap(map);
-    setSdpPath(FilePath::fromVariant(map.value(SDP_PATH_KEY)));
+    setSdpPath(FilePath::fromSettings(map.value(SDP_PATH_KEY)));
 }
 
 Abis QnxQtVersion::detectQtAbis() const

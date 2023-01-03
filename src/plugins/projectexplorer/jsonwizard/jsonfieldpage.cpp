@@ -795,8 +795,8 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_path = FilePath::fromVariant(consumeValue(tmp, "path"));
-    m_basePath = FilePath::fromVariant(consumeValue(tmp, "basePath"));
+    m_path = FilePath::fromSettings(consumeValue(tmp, "path"));
+    m_basePath = FilePath::fromSettings(consumeValue(tmp, "basePath"));
     m_historyId = consumeValue(tmp, "historyId").toString();
 
     QString kindStr = consumeValue(tmp, "kind", "existingDirectory").toString();
@@ -877,12 +877,12 @@ void PathChooserField::initializeData(MacroExpander *expander)
 
 void PathChooserField::fromSettings(const QVariant &value)
 {
-    m_path = FilePath::fromVariant(value);
+    m_path = FilePath::fromSettings(value);
 }
 
 QVariant PathChooserField::toSettings() const
 {
-    return qobject_cast<PathChooser *>(widget())->filePath().toVariant();
+    return qobject_cast<PathChooser *>(widget())->filePath().toSettings();
 }
 
 // --------------------------------------------------------------------

@@ -114,7 +114,7 @@ std::unique_ptr<QmlProjectItem> QmlProjectFileFormat::parseProjectFile(const Uti
 
         const auto targetDirectoryPropery = rootNode->property("targetDirectory");
         if (targetDirectoryPropery.isValid())
-            projectItem->setTargetDirectory(FilePath::fromVariant(targetDirectoryPropery.value));
+            projectItem->setTargetDirectory(FilePath::fromSettings(targetDirectoryPropery.value));
 
         const auto qtForMCUProperty = rootNode->property("qtForMCUs");
         if (qtForMCUProperty.isValid() && qtForMCUProperty.value.toBool())

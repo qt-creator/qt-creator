@@ -64,7 +64,7 @@ QVariantMap IosDsymBuildStep::toMap() const
     map.insert(id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString(),
                isDefault());
     map.insert(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean);
-    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command().toVariant());
+    map.insert(id().withSuffix(COMMAND_PARTIAL_KEY).toString(), command().toSettings());
     return map;
 }
 
@@ -75,7 +75,7 @@ bool IosDsymBuildStep::fromMap(const QVariantMap &map)
     bool useDefaultArguments = map.value(
                 id().withSuffix(USE_DEFAULT_ARGS_PARTIAL_KEY).toString()).toBool();
     m_clean = map.value(id().withSuffix(CLEAN_PARTIAL_KEY).toString(), m_clean).toBool();
-    m_command = FilePath::fromVariant(map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString()));
+    m_command = FilePath::fromSettings(map.value(id().withSuffix(COMMAND_PARTIAL_KEY).toString()));
     if (useDefaultArguments) {
         m_command = defaultCommand();
         m_arguments = defaultArguments();

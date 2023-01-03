@@ -122,7 +122,7 @@ QVariantMap GdbServerProvider::toMap() const
 {
     QVariantMap data = IDebugServerProvider::toMap();
     data.insert(startupModeKeyC, m_startupMode);
-    data.insert(peripheralDescriptionFileKeyC, m_peripheralDescriptionFile.toVariant());
+    data.insert(peripheralDescriptionFileKeyC, m_peripheralDescriptionFile.toSettings());
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
@@ -185,7 +185,7 @@ bool GdbServerProvider::fromMap(const QVariantMap &data)
         return false;
 
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
-    m_peripheralDescriptionFile = FilePath::fromVariant(data.value(peripheralDescriptionFileKeyC));
+    m_peripheralDescriptionFile = FilePath::fromSettings(data.value(peripheralDescriptionFileKeyC));
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();

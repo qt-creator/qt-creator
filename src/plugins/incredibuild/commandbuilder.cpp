@@ -13,13 +13,13 @@ const char CUSTOMCOMMANDBUILDER_ARGS[] = "IncrediBuild.BuildConsole.%1.Arguments
 
 void CommandBuilder::fromMap(const QVariantMap &map)
 {
-    m_command = FilePath::fromVariant(map.value(QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())));
+    m_command = FilePath::fromSettings(map.value(QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())));
     m_args = map.value(QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();
 }
 
 void CommandBuilder::toMap(QVariantMap *map) const
 {
-    (*map)[QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = m_command.toVariant();
+    (*map)[QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = m_command.toSettings();
     (*map)[QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())] = QVariant(m_args);
 }
 

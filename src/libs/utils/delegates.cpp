@@ -128,7 +128,7 @@ QWidget *PathChooserDelegate::createEditor(QWidget *parent, const QStyleOptionVi
 
 void PathChooserDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    if (auto *pathChooser = qobject_cast<PathChooser *>(editor)) {
+    if (auto pathChooser = qobject_cast<PathChooser *>(editor)) {
         pathChooser->setExpectedKind(m_kind);
         pathChooser->setPromptDialogFilter(m_filter);
         pathChooser->setFilePath(FilePath::fromVariant(index.model()->data(index, Qt::EditRole)));

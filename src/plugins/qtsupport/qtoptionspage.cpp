@@ -826,7 +826,7 @@ static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
         const QVariant value = QSettings(installSettingsFilePath, QSettings::IniFormat)
                                    .value(kInstallSettingsKey);
         if (value.isValid())
-            return FilePath::fromVariant(value);
+            return FilePath::fromSettings(value);
     }
     return {};
 }

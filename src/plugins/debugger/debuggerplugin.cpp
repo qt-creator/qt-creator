@@ -1528,22 +1528,22 @@ void DebuggerPluginPrivate::attachCore()
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
         dlg.setKitId(Id::fromString(lastExternalKit));
-    dlg.setSymbolFile(FilePath::fromVariant(configValue("LastExternalExecutableFile")));
-    dlg.setLocalCoreFile(FilePath::fromVariant(configValue("LastLocalCoreFile")));
-    dlg.setRemoteCoreFile(FilePath::fromVariant(configValue("LastRemoteCoreFile")));
-    dlg.setOverrideStartScript(FilePath::fromVariant(configValue("LastExternalStartScript")));
-    dlg.setSysRoot(FilePath::fromVariant(configValue("LastSysRoot")));
+    dlg.setSymbolFile(FilePath::fromSettings(configValue("LastExternalExecutableFile")));
+    dlg.setLocalCoreFile(FilePath::fromSettings(configValue("LastLocalCoreFile")));
+    dlg.setRemoteCoreFile(FilePath::fromSettings(configValue("LastRemoteCoreFile")));
+    dlg.setOverrideStartScript(FilePath::fromSettings(configValue("LastExternalStartScript")));
+    dlg.setSysRoot(FilePath::fromSettings(configValue("LastSysRoot")));
     dlg.setForceLocalCoreFile(configValue("LastForceLocalCoreFile").toBool());
 
     if (dlg.exec() != QDialog::Accepted)
         return;
 
-    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toVariant());
-    setConfigValue("LastLocalCoreFile", dlg.localCoreFile().toVariant());
-    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile().toVariant());
+    setConfigValue("LastExternalExecutableFile", dlg.symbolFile().toSettings());
+    setConfigValue("LastLocalCoreFile", dlg.localCoreFile().toSettings());
+    setConfigValue("LastRemoteCoreFile", dlg.remoteCoreFile().toSettings());
     setConfigValue("LastExternalKit", dlg.kit()->id().toSetting());
-    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toVariant());
-    setConfigValue("LastSysRoot", dlg.sysRoot().toVariant());
+    setConfigValue("LastExternalStartScript", dlg.overrideStartScript().toSettings());
+    setConfigValue("LastSysRoot", dlg.sysRoot().toSettings());
     setConfigValue("LastForceLocalCoreFile", dlg.forcesLocalCoreFile());
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

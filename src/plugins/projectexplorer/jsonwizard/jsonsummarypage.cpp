@@ -211,9 +211,9 @@ Node *JsonSummaryPage::findWizardContextNode(Node *contextNode) const
         // Static cast from void * to avoid qobject_cast (which needs a valid object) in value().
         auto project = static_cast<Project *>(m_wizard->value(Constants::PROJECT_POINTER).value<void *>());
         if (SessionManager::projects().contains(project) && project->rootProjectNode()) {
-            const QString path = m_wizard->value(Constants::PREFERRED_PROJECT_NODE_PATH).toString();
+            const FilePath path = FilePath::fromVariant(m_wizard->value(Constants::PREFERRED_PROJECT_NODE_PATH));
             contextNode = project->rootProjectNode()->findNode([path](const Node *n) {
-                return path == n->filePath().toString();
+                return path == n->filePath();
             });
         }
     }

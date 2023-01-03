@@ -89,7 +89,7 @@ WizardPage *VcsCommandPageFactory::create(JsonWizard *wizard, Id typeId, const Q
     for (const QVariant &value : values) {
         const QVariantMap job = value.toMap();
         const bool skipEmpty = job.value(QLatin1String(JOB_SKIP_EMPTY), true).toBool();
-        const FilePath workDir = FilePath::fromVariant(job.value(QLatin1String(JOB_WORK_DIRECTORY)));
+        const FilePath workDir = FilePath::fromSettings(job.value(QLatin1String(JOB_WORK_DIRECTORY)));
 
         const QString cmdString = job.value(QLatin1String(JOB_COMMAND)).toString();
         QTC_ASSERT(!cmdString.isEmpty(), continue);
