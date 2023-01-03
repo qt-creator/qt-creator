@@ -9,15 +9,16 @@
 #include "icontext.h"
 #include "icore.h"
 #include "ifilewizardextension.h"
+
 #include <extensionsystem/pluginmanager.h>
+
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
-#include <utils/stringutils.h>
 #include <utils/wizard.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QDebug>
 #include <QIcon>
 
@@ -190,7 +191,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     if (debugWizard)
         qDebug() << Q_FUNC_INFO << files;
 
-    QStringList existingFiles;
+    FilePaths existingFiles;
     bool oddStuffFound = false;
 
     static const QString readOnlyMsg = tr("[read only]");
@@ -200,33 +201,33 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     for (const GeneratedFile &file : std::as_const(*files)) {
         const FilePath path = file.filePath();
         if (path.exists())
-            existingFiles.append(path.toString());
+            existingFiles.append(path);
     }
     if (existingFiles.isEmpty())
         return OverwriteOk;
     // Before prompting to overwrite existing files, loop over files and check
     // if there is anything blocking overwriting them (like them being links or folders).
     // Format a file list message as ( "<file1> [readonly], <file2> [folder]").
-    const QString commonExistingPath = Utils::commonPath(existingFiles);
+    const FilePath commonExistingPath = FileUtils::commonPath(existingFiles);
+    const int commonPrefixLen = commonExistingPath.toUserOutput().size() + 1;
     QString fileNamesMsgPart;
-    for (const QString &fileName : std::as_const(existingFiles)) {
-        const QFileInfo fi(fileName);
-        if (fi.exists()) {
+    for (const FilePath &filePath : std::as_const(existingFiles)) {
+        if (filePath.exists()) {
             if (!fileNamesMsgPart.isEmpty())
                 fileNamesMsgPart += QLatin1String(", ");
-            fileNamesMsgPart += QDir::toNativeSeparators(fileName.mid(commonExistingPath.size() + 1));
+            fileNamesMsgPart += filePath.toUserOutput().mid(commonPrefixLen);
             do {
-                if (fi.isDir()) {
+                if (filePath.isDir()) {
                     oddStuffFound = true;
                     fileNamesMsgPart += QLatin1Char(' ') + directoryMsg;
                     break;
                 }
-                if (fi.isSymLink()) {
+                if (filePath.isSymLink()) {
                     oddStuffFound = true;
                     fileNamesMsgPart += QLatin1Char(' ') + symLinkMsg;
                     break;
-            }
-                if (!fi.isWritable()) {
+                }
+                if (!filePath.isWritableDir() && !filePath.isWritableFile()) {
                     oddStuffFound = true;
                     fileNamesMsgPart += QLatin1Char(' ') + readOnlyMsg;
                 }
@@ -236,13 +237,13 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
 
     if (oddStuffFound) {
         *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
-                .arg(QDir::toNativeSeparators(commonExistingPath), fileNamesMsgPart);
+                            .arg(commonExistingPath.toUserOutput(), fileNamesMsgPart);
         return OverwriteError;
     }
     // Prompt to overwrite existing files.
     PromptOverwriteDialog overwriteDialog;
     // Scripts cannot handle overwrite
-    overwriteDialog.setFiles(existingFiles);
+    overwriteDialog.setFiles(Utils::transform(existingFiles, &FilePath::toString));
     for (const GeneratedFile &file : std::as_const(*files))
         if (file.attributes() & GeneratedFile::CustomGeneratorAttribute)
             overwriteDialog.setFileEnabled(file.filePath().toString(), false);
