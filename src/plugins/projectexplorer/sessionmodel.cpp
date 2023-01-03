@@ -84,7 +84,7 @@ QStringList pathsToBaseNames(const QStringList &paths)
 QStringList pathsWithTildeHomePath(const QStringList &paths)
 {
     return Utils::transform(paths, [](const QString &path) {
-        return Utils::withTildeHomePath(QDir::toNativeSeparators(path));
+        return FilePath::fromString(path).withTildeHomePath();
     });
 }
 

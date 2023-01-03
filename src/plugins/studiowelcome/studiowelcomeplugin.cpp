@@ -396,7 +396,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.first.toVariant();
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(data.first.absolutePath().toUserOutput());
+        return data.first.absolutePath().withTildeHomePath();
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") +
                         QmlProjectManager::ProjectFileContentTools::appQmlFile(

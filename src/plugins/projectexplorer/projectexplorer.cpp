@@ -3476,7 +3476,7 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
             continue;
 
         const QString actionText = ActionManager::withNumberAccelerator(
-                    Utils::withTildeHomePath(filePath.toUserOutput()), acceleratorKey);
+                    filePath.withTildeHomePath(), acceleratorKey);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, filePath] {
             openRecentProject(filePath);

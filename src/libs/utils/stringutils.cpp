@@ -73,25 +73,6 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
     return strings.at(0).left(commonLength);
 }
 
-QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
-{
-    if (HostOsInfo::isWindowsHost())
-        return path;
-
-    if (FilePath::fromString(path).needsDevice())
-        return path;
-
-    static const QString homePath = QDir::homePath();
-
-    QFileInfo fi(QDir::cleanPath(path));
-    QString outPath = fi.absoluteFilePath();
-    if (outPath.startsWith(homePath))
-        outPath = '~' + outPath.mid(homePath.size());
-    else
-        outPath = path;
-    return outPath;
-}
-
 static bool validateVarName(const QString &varName)
 {
     return !varName.startsWith("JS:");

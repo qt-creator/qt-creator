@@ -195,6 +195,8 @@ public:
     QString displayName(const QString &args = {}) const;
     QString nativePath() const;
     QString shortNativePath() const;
+    QString withTildeHomePath() const;
+
     bool startsWithDriveLetter() const;
 
     static QString formatFilePaths(const FilePaths &files, const QString &separator);

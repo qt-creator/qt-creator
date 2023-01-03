@@ -73,7 +73,7 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.first.toVariant();
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(data.first.toUserOutput()); // FIXME: FilePath::displayName() ?
+        return data.first.withTildeHomePath(); // FIXME: FilePath::displayName() ?
     case ShortcutRole: {
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
@@ -334,7 +334,7 @@ public:
                 yy += 18;
 
                 // Project path.
-                QString pathWithTilde = Utils::withTildeHomePath(projectPath.toUserOutput());
+                QString pathWithTilde = projectPath.withTildeHomePath();
                 painter->setPen(foregroundPrimaryColor);
                 painter->drawText(x1, yy, fm.elidedText(pathWithTilde, Qt::ElideMiddle, textSpace));
                 yy += 22;
@@ -485,7 +485,7 @@ public:
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundPrimaryColor));
         painter->setFont(sizedFont(13, option.widget));
-        QString pathWithTilde = Utils::withTildeHomePath(projectPath.toUserOutput());
+        QString pathWithTilde = projectPath.withTildeHomePath();
         const QString pathWithTildeElided =
                 painter->fontMetrics().elidedText(pathWithTilde, Qt::ElideMiddle, textSpace);
         painter->drawText(x + TEXT_OFFSET_HORIZONTAL, secondBase, pathWithTildeElided);

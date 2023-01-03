@@ -1,11 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include <utils/filepath.h>
 #include <utils/stringutils.h>
 
 #include <QtTest>
 
 //TESTED_COMPONENT=src/libs/utils
+
+using namespace Utils;
 
 class TestMacroExpander : public Utils::AbstractMacroExpander
 {
@@ -77,32 +80,30 @@ private:
 
 void tst_StringUtils::testWithTildeHomePath()
 {
+    const QString home = QDir::homePath();
+    const FilePath homePath = FilePath::fromString(home);
+
 #ifndef Q_OS_WIN
     // home path itself
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QString::fromLatin1("~"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QLatin1Char('/')),
-             QString::fromLatin1("~"));
-    QCOMPARE(Utils::withTildeHomePath(QString::fromLatin1("/unclean/..") + QDir::homePath()),
-             QString::fromLatin1("~"));
+    QCOMPARE(homePath.withTildeHomePath(), QString("~"));
+    QCOMPARE(homePath.pathAppended("/").withTildeHomePath(), QString("~"));
+    QCOMPARE(FilePath::fromString("/unclean/../" + home).withTildeHomePath(), QString("~"));
     // sub of home path
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo")),
-             QString::fromLatin1("~/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo/")),
-             QString::fromLatin1("~/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/some/path/file.txt")),
-             QString::fromLatin1("~/some/path/file.txt"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/some/unclean/../path/file.txt")),
-             QString::fromLatin1("~/some/path/file.txt"));
+    QCOMPARE(homePath.pathAppended("/foo").withTildeHomePath(), QString("~/foo"));
+    QCOMPARE(homePath.pathAppended("/foo/").withTildeHomePath(), QString("~/foo"));
+    QCOMPARE(homePath.pathAppended("/some/path/file.txt").withTildeHomePath(),
+             QString("~/some/path/file.txt"));
+    QCOMPARE(homePath.pathAppended("/some/unclean/../path/file.txt").withTildeHomePath(),
+             QString("~/some/path/file.txt"));
     // not sub of home path
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")),
-             QString(QDir::homePath() + QString::fromLatin1("/../foo")));
+    QCOMPARE(homePath.pathAppended("/../foo").withTildeHomePath(),
+             QString(home + "/../foo"));
 #else
     // windows: should return same as input
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath()), QDir::homePath());
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/foo")),
-             QDir::homePath() + QString::fromLatin1("/foo"));
-    QCOMPARE(Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")),
-             Utils::withTildeHomePath(QDir::homePath() + QString::fromLatin1("/../foo")));
+    QCOMPARE(homePath.withTildeHomePath(), home);
+    QCOMPARE(homePath.pathAppended("/foo").withTildeHomePath(), home + QString("/foo"));
+    QCOMPARE(homePath.pathAppended("/../foo").withTildeHomePath(),
+             homePath.pathAppended("/../foo").withTildeHomePath());
 #endif
 }
 

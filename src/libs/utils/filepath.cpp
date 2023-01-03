@@ -1720,6 +1720,28 @@ FilePath FilePath::cleanPath() const
     return withNewPath(doCleanPath(path()));
 }
 
+/*!
+    On Linux/Mac replace user's home path with ~ in the \c toString()
+    result for this path after cleaning.
+
+    If path is not sub of home path, or when running on Windows, returns the input
+*/
+QString FilePath::withTildeHomePath() const
+{
+    if (osType() == OsTypeWindows)
+        return toString();
+
+    if (needsDevice())
+        return toString();
+
+    static const QString homePath = QDir::homePath();
+
+    QString outPath = cleanPath().absoluteFilePath().path();
+    if (outPath.startsWith(homePath))
+        outPath = '~' + outPath.mid(homePath.size());
+    return outPath;
+}
+
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
     return s << fn.toString();
