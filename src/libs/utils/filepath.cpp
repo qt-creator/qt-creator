@@ -92,6 +92,16 @@ inline bool isWindowsDriveLetter(QChar ch);
         not touched by user code. QtcProcess will use it to determine
         the remote system and apply the necessary conversions internally.
 
+    \li FilePath::toFSPathString()
+
+        Converts the FilePath to a [drive:]/__qtc_devices__/scheme/host/path
+        string.
+
+        The result works in most cases also with remote setups and QDir/QFileInfo
+        but is slower than direct FilePath use and should only be used when
+        proper porting to FilePath is too difficult, or not possible, e.g.
+        when external Qt based libraries are used that do not use FilePath.
+
     \li FilePath::toUserOutput()
 
         Converts the FilePath to the slash convention of the associated
@@ -115,7 +125,10 @@ inline bool isWindowsDriveLetter(QChar ch);
     \li FilePath::fromString(), FilePath::toString()
 
         These are used for internal interfaces to code areas that
-        still use QString based file paths.
+        still use QString based file paths for simple storage and retrieval.
+
+        In most cases, use of one of the more specialized above is
+        more appropriate.
 
     \endlist
 
@@ -190,7 +203,20 @@ QString decodeHost(QString host)
     return host.replace("%25", "%").replace("%2f", "/");
 }
 
-/// \returns a QString for passing on to QString based APIs
+/// \returns a QString for passing through QString based APIs
+///
+/// \note This is obsolete API and should be replaced by extended use
+/// of proper \c FilePath, or, in case this is not possible by \c toFSPathString().
+///
+/// This uses a scheme://host/path setup and is, together with
+/// fromString, used to pass FilePath through \c QString using
+/// code paths.
+///
+/// The result is not useful for use with \cQDir and \c QFileInfo
+/// and gets destroyed by some operations like \c QFileInfo::canonicalFile.
+///
+/// \sa toFSPathString()
+
 QString FilePath::toString() const
 {
     if (!needsDevice())
@@ -200,6 +226,17 @@ QString FilePath::toString() const
         return scheme() + "://" + encodedHost() + "/./" + pathView();
     return scheme() + "://" + encodedHost() + pathView();
 }
+
+/// \returns a QString for passing on to QString based APIs
+///
+/// This uses a /__qtc_devices__/host/path setup.
+///
+/// This works in most cases also with remote setups and QDir/QFileInfo etc.
+/// but is slower than direct FilePath use and should only be used when
+/// proper porting to FilePath is too difficult, or not possible, e.g.
+/// when external Qt based libraries are used that do not use FilePath.
+///
+/// \sa fromUserInput()
 
 QString FilePath::toFSPathString() const
 {
@@ -221,6 +258,7 @@ QUrl FilePath::toUrl() const
 }
 
 /// \returns a QString to display to the user, including the device prefix
+///
 /// Converts the separators to the native format of the system
 /// this path belongs to.
 QString FilePath::toUserOutput() const
@@ -235,6 +273,7 @@ QString FilePath::toUserOutput() const
 }
 
 /// \returns a QString to pass to target system native commands, without the device prefix.
+///
 /// Converts the separators to the native format of the system
 /// this path belongs to.
 QString FilePath::nativePath() const
