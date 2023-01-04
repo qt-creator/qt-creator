@@ -280,7 +280,8 @@ bool isListElementType(const QmlDesigner::TypeName &type)
 bool isComponentType(const QmlDesigner::TypeName &type)
 {
     return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-           || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent";
+           || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
+           || type == "QML.Component";
 }
 
 bool isCustomParserType(const QmlDesigner::TypeName &type)
