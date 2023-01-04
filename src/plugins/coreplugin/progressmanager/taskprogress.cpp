@@ -131,6 +131,8 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     });
 }
 
+TaskProgress::~TaskProgress() = default;
+
 void TaskProgress::setHalfLifeTimePerTask(int msecs)
 {
     d->m_halfLifeTimePerTask = msecs;

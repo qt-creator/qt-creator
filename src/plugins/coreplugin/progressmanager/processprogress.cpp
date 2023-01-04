@@ -107,6 +107,8 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
     });
 }
 
+ProcessProgress::~ProcessProgress() = default;
+
 void ProcessProgress::setDisplayName(const QString &name)
 {
     d->m_displayName = name;
@@ -123,9 +125,9 @@ void ProcessProgress::setProgressParser(const ProgressParser &parser)
 {
     if (d->m_parser) {
         disconnect(d->m_process, &QtcProcess::textOnStandardOutput,
-                   d, &ProcessProgressPrivate::parseProgress);
+                   d.get(), &ProcessProgressPrivate::parseProgress);
         disconnect(d->m_process, &QtcProcess::textOnStandardError,
-                   d, &ProcessProgressPrivate::parseProgress);
+                   d.get(), &ProcessProgressPrivate::parseProgress);
     }
     d->m_parser = parser;
     if (!d->m_parser)
@@ -136,9 +138,9 @@ void ProcessProgress::setProgressParser(const ProgressParser &parser)
                "text channel mode is no-op.");
 
     connect(d->m_process, &QtcProcess::textOnStandardOutput,
-            d, &ProcessProgressPrivate::parseProgress);
+            d.get(), &ProcessProgressPrivate::parseProgress);
     connect(d->m_process, &QtcProcess::textOnStandardError,
-            d, &ProcessProgressPrivate::parseProgress);
+            d.get(), &ProcessProgressPrivate::parseProgress);
 }
 
 } // namespace Core

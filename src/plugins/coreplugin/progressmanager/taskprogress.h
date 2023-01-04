@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "../core_global.h"
 
-#include "futureprogress.h" // TODO: just because of KeepOnFinishType enum - move it outside
+#include "futureprogress.h"
 
 #include <QObject>
 
@@ -19,6 +19,7 @@ class CORE_EXPORT TaskProgress : public QObject
 {
 public:
     TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
+    ~TaskProgress() override;
 
     void setHalfLifeTimePerTask(int msecs); // Default is 1000 ms
     void setDisplayName(const QString &name);
@@ -27,7 +28,7 @@ public:
     void setSubtitle(const QString &subtitle);
 
 private:
-    TaskProgressPrivate *d;
+    std::unique_ptr<TaskProgressPrivate> d;
 };
 
 } // namespace Core
