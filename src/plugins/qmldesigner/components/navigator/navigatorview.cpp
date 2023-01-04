@@ -7,6 +7,7 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
+#include "assetslibrarywidget.h"
 
 #include "nameitemdelegate.h"
 #include "iconcheckboxitemdelegate.h"
@@ -266,6 +267,19 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
 
         m_widget->setDragType(bundleMatType);
         m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
+        if (assetsPaths.count() > 0) {
+            auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
+            QString assetType = assetTypeAndData.first;
+            if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                qint32 internalId = mimeData->data(Constants::MIME_TYPE_ASSET_EFFECT).toInt();
+                ModelNode effectNode = modelNodeForInternalId(internalId);
+
+                m_widget->setDragType(effectNode.metaInfo().typeName());
+                m_widget->update();
+            }
+        }
     }
 }
 
