@@ -5,7 +5,6 @@
 
 #include "projectnodes.h"
 #include "project.h"
-#include "task.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -67,7 +66,6 @@ protected:
     void setContent(const Utils::FilePath &file, const QByteArray &content);
     void updateCompileTime();
     Utils::Environment buildEnvironment() const;
-    void setCompileIssues(const Tasks &issues);
     using ContentProvider = std::function<QByteArray()>;
 
 private:
