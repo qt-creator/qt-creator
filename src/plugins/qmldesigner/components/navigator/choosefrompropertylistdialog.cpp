@@ -90,11 +90,11 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
             || parentInfo.isQtQuick3DParticles3DAttractor3D())
             propertyList.append("shape");
     } else if (insertInfo.isQtQuick3DMaterial()) {
-        if (parentInfo.isQtQuick3DParticles3DModel())
+        if (parentInfo.isQtQuick3DModel())
             propertyList.append("materials");
-// TODO merge conflict between Change-Id: If3c58f82797beabe76baf99ea2dddc59032729df and Change-Id: Iff2dea66e253b412105427134bd49cb16ed76193
-//    } else if (insertInfo.typeName().startsWith("ComponentBundles.MaterialBundle")) {
-//       if (parentInfo.isSubclassOf("QtQuick3D.Model"))
+    } else if (insertInfo.typeName().startsWith("ComponentBundles.MaterialBundle")) {
+        if (parentInfo.isQtQuick3DModel())
+            propertyList.append("materials");
     } else if (insertInfo.isEffectMaker()) {
         if (parentInfo.isQtQuickItem())
             propertyList.append("effect");
