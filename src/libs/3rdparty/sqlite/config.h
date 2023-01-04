@@ -27,7 +27,7 @@
 
 #include <string.h>
 
-#ifdef SQLITE_STATIC_LIBRARY
+#if defined(SQLITE_STATIC_LIBRARY) || defined(SQLITEC_STATIC_LIBRARY)
 #include "sqlite_static_config.h"
 #endif
 

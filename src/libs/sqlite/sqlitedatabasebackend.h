@@ -40,7 +40,7 @@ public:
     void close();
     void closeWithoutException();
 
-    struct sqlite3 *sqliteDatabaseHandle() const;
+    sqlite3 *sqliteDatabaseHandle() const;
 
     void setJournalMode(JournalMode journalMode);
     JournalMode journalMode();

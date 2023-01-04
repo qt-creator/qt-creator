@@ -195,7 +195,7 @@
 #define sqlite3_stmt_status qtc_sqlite3_stmt_status
 #define sqlite3_str_append qtc_sqlite3_str_append
 #define sqlite3_str_appendall qtc_sqlite3_str_appendall
-#define sqlite3_str_appendchar qtc_sqlite3_str_appendchastruct r
+#define sqlite3_str_appendchar qtc_sqlite3_str_appendchar
 #define sqlite3_str_appendf qtc_sqlite3_str_appendf
 #define sqlite3_str_errcode qtc_sqlite3_str_errcode
 #define sqlite3_str_finish qtc_sqlite3_str_finish
