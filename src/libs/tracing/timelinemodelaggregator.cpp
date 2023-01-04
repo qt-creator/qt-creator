@@ -60,7 +60,7 @@ void TimelineModelAggregator::setModels(const QVariantList &models)
 {
     Q_D(TimelineModelAggregator);
 
-    QList<TimelineModel *> timelineModels = Utils::transform(models, [](const QVariant &model) {
+    const QList<TimelineModel *> timelineModels = Utils::transform(models, [](const QVariant &model) {
         return qvariant_cast<TimelineModel *>(model);
     });
 
@@ -68,14 +68,14 @@ void TimelineModelAggregator::setModels(const QVariantList &models)
         return;
 
     int prevHeight = height();
-    foreach (TimelineModel *m, d->modelList) {
+    for (TimelineModel *m : std::as_const(d->modelList)) {
         disconnect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
         if (d->notesModel)
             d->notesModel->removeTimelineModel(m);
     }
 
     d->modelList = timelineModels;
-    foreach (TimelineModel *m, timelineModels) {
+    for (TimelineModel *m : timelineModels) {
         connect(m, &TimelineModel::heightChanged, this, &TimelineModelAggregator::heightChanged);
         if (d->notesModel)
             d->notesModel->addTimelineModel(m);
@@ -95,7 +95,7 @@ QVariantList TimelineModelAggregator::models() const
 {
     Q_D(const TimelineModelAggregator);
     QVariantList ret;
-    foreach (TimelineModel *model, d->modelList)
+    for (TimelineModel *model : d->modelList)
         ret << QVariant::fromValue(model);
     return ret;
 }
