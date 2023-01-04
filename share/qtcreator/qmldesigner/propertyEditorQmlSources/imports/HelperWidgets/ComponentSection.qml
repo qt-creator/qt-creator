@@ -19,7 +19,10 @@ Section {
     property bool showState: false
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Type") }
+        PropertyLabel {
+            text: qsTr("Type")
+            tooltip: qsTr("Sets the QML type of the component.")
+        }
 
         SecondColumnLayout {
             z: 2
@@ -44,7 +47,7 @@ Section {
                         typeLineEdit.visible = !typeLineEdit.visible
                         typeLineEdit.forceActiveFocus()
                     }
-                    tooltip: qsTr("Changes the type of this component.")
+                    tooltip: qsTr("Sets the QML type of the component.")
                     enabled: !modelNodeBackend.multiSelection
                 }
 
@@ -83,7 +86,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("ID") }
+        PropertyLabel {
+            text: qsTr("ID")
+            tooltip: qsTr("Sets a unique identification or name.")
+        }
 
         SecondColumnLayout {
             Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
@@ -167,7 +173,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Name") }
+        PropertyLabel {
+            text: qsTr("Name")
+            tooltip: qsTr("Adds a note with a title to explain the component.")
+        }
 
         SecondColumnLayout {
             enabled: !modelNodeBackend.multiSelection
@@ -247,6 +256,7 @@ Section {
         PropertyLabel {
             visible: root.showState
             text: qsTr("State")
+            tooltip: qsTr("Sets the state of the component.")
         }
 
         SecondColumnLayout {
