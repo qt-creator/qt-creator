@@ -145,46 +145,9 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
         return QString();
     });
 
-    // TODO: Remove in ~4.16.
-    d->m_macroExpander.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
-            [project] { return project->displayName(); },
-            false);
     d->m_macroExpander.registerVariable("Project:Name",
             QCoreApplication::translate("ProjectExplorer", "Name of current project"),
             [project] { return project->displayName(); });
-
-    d->m_macroExpander.registerVariable("CurrentRun:Name",
-        tr("The currently active run configuration's name."),
-        [this]() -> QString {
-            if (RunConfiguration * const rc = activeRunConfiguration())
-                return rc->displayName();
-            return QString();
-        }, false);
-    d->m_macroExpander.registerFileVariables("CurrentRun:Executable",
-        tr("The currently active run configuration's executable (if applicable)."),
-        [this]() -> FilePath {
-            if (RunConfiguration * const rc = activeRunConfiguration())
-                return rc->commandLine().executable();
-            return FilePath();
-        }, false);
-    d->m_macroExpander.registerPrefix("CurrentRun:Env", tr("Variables in the current run environment."),
-                             [this](const QString &var) {
-        if (RunConfiguration * const rc = activeRunConfiguration()) {
-            if (const auto envAspect = rc->aspect<EnvironmentAspect>())
-                return envAspect->environment().expandedValueForKey(var);
-        }
-        return QString();
-    }, false);
-    d->m_macroExpander.registerVariable("CurrentRun:WorkingDir",
-                               tr("The currently active run configuration's working directory."),
-                               [this] {
-        if (RunConfiguration * const rc = activeRunConfiguration()) {
-            if (const auto wdAspect = rc->aspect<WorkingDirectoryAspect>())
-                return wdAspect->workingDirectory().toString();
-        }
-        return QString();
-    }, false);
 }
 
 Target::~Target()

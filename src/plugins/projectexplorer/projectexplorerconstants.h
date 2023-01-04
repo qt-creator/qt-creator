@@ -172,12 +172,6 @@ const char ANDROID_ABI_ARM64_V8A[] = "arm64-v8a";
 const char ANDROID_ABI_X86[] = "x86";
 const char ANDROID_ABI_X86_64[] = "x86_64";
 
-// Variable Names:
-const char VAR_CURRENTPROJECT_PREFIX[] = "CurrentProject";
-const char VAR_CURRENTPROJECT_NAME[] = "CurrentProject:Name";
-const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
-const char VAR_CURRENTBUILD_ENV[] = "CurrentBuild:Env";
-
 // JsonWizard:
 const char PAGE_ID_PREFIX[] = "PE.Wizard.Page.";
 const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";

@@ -74,27 +74,14 @@ public:
         for (KitAspect *aspect : KitManager::kitAspects())
             aspect->addToMacroExpander(kit, &m_macroExpander);
 
-        // TODO: Remove the "Current" variants in ~4.16
-        m_macroExpander.registerVariable("CurrentKit:Name",
-            tr("The name of the currently active kit."),
-            [kit] { return kit->displayName(); },
-            false);
         m_macroExpander.registerVariable("Kit:Name",
             tr("The name of the kit."),
             [kit] { return kit->displayName(); });
 
-        m_macroExpander.registerVariable("CurrentKit:FileSystemName",
-            tr("The name of the currently active kit in a filesystem-friendly version."),
-            [kit] { return kit->fileSystemFriendlyName(); },
-            false);
         m_macroExpander.registerVariable("Kit:FileSystemName",
             tr("The name of the kit in a filesystem-friendly version."),
             [kit] { return kit->fileSystemFriendlyName(); });
 
-        m_macroExpander.registerVariable("CurrentKit:Id",
-            tr("The ID of the currently active kit."),
-            [kit] { return kit->id().toString(); },
-            false);
         m_macroExpander.registerVariable("Kit:Id",
             tr("The ID of the kit."),
             [kit] { return kit->id().toString(); });

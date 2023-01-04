@@ -55,6 +55,7 @@
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "projectexplorersettingspage.h"
+#include "projectexplorertr.h"
 #include "projectfilewizardextension.h"
 #include "projectmanager.h"
 #include "projectnodes.h"
@@ -1943,19 +1944,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     dd->updateWelcomePage();
 
-    // FIXME: These are mostly "legacy"/"convenience" entries, relying on
-    // the global entry point ProjectExplorer::currentProject(). They should
-    // not be used in the Run/Build configuration pages.
-    // TODO: Remove the CurrentProject versions in ~4.16
     MacroExpander *expander = Utils::globalMacroExpander();
-    expander->registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
-        tr("Current project's main file."),
-        []() -> FilePath {
-            FilePath projectFilePath;
-            if (Project *project = ProjectTree::currentProject())
-                projectFilePath = project->projectFilePath();
-            return projectFilePath;
-        }, false);
     expander->registerFileVariables("CurrentDocument:Project",
         tr("Main file of the project the current document belongs to."),
         []() -> FilePath {
@@ -1965,12 +1954,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return projectFilePath;
         }, false);
 
-    expander->registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-        tr("The name of the current project."),
-        []() -> QString {
-            Project *project = ProjectTree::currentProject();
-            return project ? project->displayName() : QString();
-        }, false);
     expander->registerVariable("CurrentDocument:Project:Name",
         tr("The name of the project the current document belongs to."),
         []() -> QString {
@@ -1978,13 +1961,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             return project ? project->displayName() : QString();
         });
 
-    expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
-                             BuildConfiguration::tr("Variables in the current build environment."),
-                             [](const QString &var) {
-                                 if (BuildConfiguration *bc = currentBuildConfiguration())
-                                     return bc->environment().expandedValueForKey(var);
-                                 return QString();
-                             }, false);
     const char currentBuildEnvVar[] = "CurrentDocument:Project:BuildConfig:Env";
     expander->registerPrefix(currentBuildEnvVar,
                              BuildConfiguration::tr(

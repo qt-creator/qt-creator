@@ -170,16 +170,9 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     expander->registerVariable("buildDir", tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
-    // TODO: Remove "Current" variants in ~4.16.
-    expander->registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("Name of current build"),
-            [this] { return displayName(); }, false);
-
     expander->registerVariable("BuildConfig:Name", tr("Name of the build configuration"),
             [this] { return displayName(); });
 
-    expander->registerPrefix(Constants::VAR_CURRENTBUILD_ENV,
-                             tr("Variables in the current build environment"),
-                             [this](const QString &var) { return environment().expandedValueForKey(var); }, false);
     expander->registerPrefix("BuildConfig:Env",
                              tr("Variables in the build configuration's environment"),
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
@@ -602,22 +595,12 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
 
     qCDebug(bcLog) << Q_FUNC_INFO << projectDir << mainFilePath << projectName << bcName;
 
-    // TODO: Remove "Current" variants in ~4.16
-    exp.registerFileVariables(Constants::VAR_CURRENTPROJECT_PREFIX,
-                              QCoreApplication::translate("ProjectExplorer", "Main file of current project"),
-                              [mainFilePath] { return mainFilePath; }, false);
     exp.registerFileVariables("Project",
                               QCoreApplication::translate("ProjectExplorer", "Main file of the project"),
                               [mainFilePath] { return mainFilePath; });
-    exp.registerVariable(Constants::VAR_CURRENTPROJECT_NAME,
-                         QCoreApplication::translate("ProjectExplorer", "Name of current project"),
-                         [projectName] { return projectName; }, false);
     exp.registerVariable("Project:Name",
                          QCoreApplication::translate("ProjectExplorer", "Name of the project"),
                          [projectName] { return projectName; });
-    exp.registerVariable(Constants::VAR_CURRENTBUILD_NAME,
-                         QCoreApplication::translate("ProjectExplorer", "Name of current build"),
-                         [bcName] { return bcName; }, false);
     exp.registerVariable("BuildConfig:Name",
                          QCoreApplication::translate(
                              "ProjectExplorer", "Name of the project's active build configuration"),
