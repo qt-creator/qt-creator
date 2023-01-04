@@ -167,6 +167,11 @@ public:
     const QList<QPair<Utils::Id, QString>> allGenerators() const;
     void runGenerator(Utils::Id id);
 
+    static void addVariablesToMacroExpander(const QByteArray &prefix,
+                                            const QString &descriptor,
+                                            Utils::MacroExpander *expander,
+                                            const std::function<Project *()> &projectGetter);
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 

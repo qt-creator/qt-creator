@@ -8,12 +8,14 @@
 #include "buildsystem.h"
 #include "deployconfiguration.h"
 #include "editorconfiguration.h"
+#include "environmentaspect.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
+#include "runconfigurationaspects.h"
 #include "session.h"
 #include "target.h"
 #include "taskhub.h"
@@ -1085,6 +1087,129 @@ void Project::runGenerator(Utils::Id id)
         if (BuildSystem * const bs = t->buildSystem())
             bs->runGenerator(id);
     }
+}
+
+void Project::addVariablesToMacroExpander(const QByteArray &prefix,
+                                          const QString &descriptor,
+                                          MacroExpander *expander,
+                                          const std::function<Project *()> &projectGetter)
+{
+    const auto targetGetter = [projectGetter]() -> Target * {
+        if (const Project *const project = projectGetter())
+            return project->activeTarget();
+        return nullptr;
+    };
+    const auto bcGetter = [targetGetter]() -> BuildConfiguration * {
+        if (const Target *const target = targetGetter())
+            return target->activeBuildConfiguration();
+        return nullptr;
+    };
+    const auto rcGetter = [targetGetter]() -> RunConfiguration * {
+        if (const Target *const target = targetGetter())
+            return target->activeRunConfiguration();
+        return nullptr;
+    };
+    const QByteArray fullPrefix = (prefix.endsWith(':') ? prefix : prefix + ':');
+    const QByteArray prefixWithoutColon = fullPrefix.chopped(1);
+    expander->registerVariable(fullPrefix + "Name",
+                               //: %1 is something like "Active project"
+                               tr("%1: Name.").arg(descriptor),
+                               [projectGetter]() -> QString {
+                                   if (const Project *const project = projectGetter())
+                                       return project->displayName();
+                                   return {};
+                               });
+    expander->registerFileVariables(prefixWithoutColon,
+                                    //: %1 is something like "Active project"
+                                    tr("%1: Full path to main file.").arg(descriptor),
+                                    [projectGetter]() -> FilePath {
+                                        if (const Project *const project = projectGetter())
+                                            return project->projectFilePath();
+                                        return {};
+                                    });
+    expander->registerVariable(fullPrefix + "Kit:Name",
+                               //: %1 is something like "Active project"
+                               tr("%1: The name the active kit.").arg(descriptor),
+                               [targetGetter]() -> QString {
+                                   if (const Target *const target = targetGetter())
+                                       return target->kit()->displayName();
+                                   return {};
+                               });
+    expander->registerVariable(fullPrefix + "BuildConfig:Name",
+                               //: %1 is something like "Active project"
+                               tr("%1: Name of the active build configuration.").arg(descriptor),
+                               [bcGetter]() -> QString {
+                                   if (const BuildConfiguration *const bc = bcGetter())
+                                       return bc->displayName();
+                                   return {};
+                               });
+    expander->registerVariable(fullPrefix + "BuildConfig:Type",
+                               //: %1 is something like "Active project"
+                               tr("%1: Type of the active build configuration.").arg(descriptor),
+                               [bcGetter]() -> QString {
+                                   const BuildConfiguration *const bc = bcGetter();
+                                   const BuildConfiguration::BuildType type
+                                       = bc ? bc->buildType() : BuildConfiguration::Unknown;
+                                   return BuildConfiguration::buildTypeName(type);
+                               });
+    expander
+        ->registerVariable(fullPrefix + "BuildConfig:Path",
+                           //: %1 is something like "Active project"
+                           tr("%1: Full build path of active build configuration.").arg(descriptor),
+                           [bcGetter]() -> QString {
+                               if (const BuildConfiguration *const bc = bcGetter())
+                                   return bc->buildDirectory().toUserOutput();
+                               return {};
+                           });
+    expander->registerPrefix(fullPrefix + "BuildConfig:Env",
+                             //: %1 is something like "Active project"
+                             tr("%1: Variables in the active build environment.").arg(descriptor),
+                             [bcGetter](const QString &var) {
+                                 if (BuildConfiguration *const bc = bcGetter())
+                                     return bc->environment().expandedValueForKey(var);
+                                 return QString();
+                             });
+
+    expander->registerVariable(fullPrefix + "RunConfig:Name",
+                               //: %1 is something like "Active project"
+                               tr("%1: Name of the active run configuration.").arg(descriptor),
+                               [rcGetter]() -> QString {
+                                   if (const RunConfiguration *const rc = rcGetter())
+                                       return rc->displayName();
+                                   return QString();
+                               });
+    expander->registerFileVariables(fullPrefix + "RunConfig:Executable",
+                                    //: %1 is something like "Active project"
+                                    tr("%1: Executable of the active run configuration.")
+                                        .arg(descriptor),
+                                    [rcGetter]() -> FilePath {
+                                        if (const RunConfiguration *const rc = rcGetter())
+                                            return rc->commandLine().executable();
+                                        return {};
+                                    });
+    expander->registerPrefix(fullPrefix + "RunConfig:Env",
+                             //: %1 is something like "Active project"
+                             tr("%1: Variables in the environment of the active run configuration.")
+                                 .arg(descriptor),
+                             [rcGetter](const QString &var) {
+                                 if (const RunConfiguration *const rc = rcGetter()) {
+                                     if (const auto envAspect = rc->aspect<EnvironmentAspect>())
+                                         return envAspect->environment().expandedValueForKey(var);
+                                 }
+                                 return QString();
+                             });
+    expander->registerVariable(fullPrefix + "RunConfig:WorkingDir",
+                               //: %1 is something like "Active project"
+                               tr("%1: Working directory of the active run configuration.")
+                                   .arg(descriptor),
+                               [rcGetter] {
+                                   if (const RunConfiguration *const rc = rcGetter()) {
+                                       if (const auto wdAspect
+                                           = rc->aspect<WorkingDirectoryAspect>())
+                                           return wdAspect->workingDirectory().toString();
+                                   }
+                                   return QString();
+                               });
 }
 
 #if defined(WITH_TESTS)
