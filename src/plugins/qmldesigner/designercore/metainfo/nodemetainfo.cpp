@@ -2731,17 +2731,6 @@ bool NodeMetaInfo::isQtQuick3DView3D() const
     }
 }
 
-bool NodeMetaInfo::isQtQuick3DParticles3DModel() const
-{
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return isBasedOnCommonType<QtQuick3D_Particles3D, Storage::Info::Model>(m_projectStorage,
-                                                                                m_typeId);
-    } else {
-        return isValid() && isSubclassOf("QtQuick3D.Particles3D.Model");
-    }
-}
-
 bool NodeMetaInfo::isQtQuick3DPrincipledMaterial() const
 {
     if constexpr (useProjectStorage()) {

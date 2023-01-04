@@ -130,7 +130,6 @@ public:
     bool isQtQuick3DNode() const;
     bool isQtQuick3DParticles3DAffector3D() const;
     bool isQtQuick3DParticles3DAttractor3D() const;
-    bool isQtQuick3DParticles3DModel() const;
     bool isQtQuick3DParticles3DParticle3D() const;
     bool isQtQuick3DParticles3DParticleEmitter3D() const;
     bool isQtQuick3DParticles3DSpriteParticle3D() const;
