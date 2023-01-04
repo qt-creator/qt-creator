@@ -249,7 +249,7 @@ void PyLSClient::updateExtraCompilers(ProjectExplorer::Project *project,
                         updateExtraCompilerContents(extraCompiler, file);
                     });
             if (extraCompiler->isDirty())
-                static_cast<ExtraCompiler *>(extraCompiler)->run();
+                extraCompiler->compileFile();
         } else {
             m_extraCompilers[project] << oldCompilers.takeAt(index);
         }

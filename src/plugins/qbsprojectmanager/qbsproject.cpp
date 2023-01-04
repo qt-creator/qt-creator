@@ -175,7 +175,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
         CppEditor::GeneratedCodeModelSupport::update(m_extraCompilers);
         for (ExtraCompiler *compiler : m_extraCompilers) {
             if (compiler->isDirty())
-                compiler->run();
+                compiler->compileFile();
         }
         m_sourcesForGeneratedFiles.clear();
     });

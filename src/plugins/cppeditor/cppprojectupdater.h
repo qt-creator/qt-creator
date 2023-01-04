@@ -12,6 +12,8 @@
 
 #include <QFutureWatcher>
 
+namespace Utils { class TaskTree; }
+
 namespace CppEditor {
 class ProjectInfo;
 
@@ -53,7 +55,7 @@ private:
 
     QFutureWatcher<ProjectInfo::ConstPtr> m_generateFutureWatcher;
     bool m_isProjectInfoGenerated = false;
-    QSet<QFutureWatcher<void> *> m_extraCompilersFutureWatchers;
+    QSet<Utils::TaskTree *> m_extraCompilerTasks;
     std::unique_ptr<QFutureInterface<void>> m_projectUpdateFutureInterface;
     Utils::FutureSynchronizer m_futureSynchronizer;
 };

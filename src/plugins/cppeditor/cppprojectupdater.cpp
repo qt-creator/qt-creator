@@ -15,6 +15,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
+#include <utils/tasktree.h>
 
 #include <QFutureInterface>
 
@@ -68,33 +69,29 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
 
     // extra compilers
     for (QPointer<ExtraCompiler> compiler : std::as_const(m_extraCompilers)) {
-        if (compiler->isDirty()) {
-            QPointer<QFutureWatcher<void>> watcher = new QFutureWatcher<void>;
-            // queued connection to delay after the extra compiler updated its result contents,
-            // which is also done in the main thread when compiler->run() finished
-            connect(watcher, &QFutureWatcherBase::finished,
-                    this, [this, watcher] {
-                        // In very unlikely case the CppProjectUpdater::cancel() could have been
-                        // invoked after posting the finished() signal and before this handler
-                        // gets called. In this case the watcher is already deleted.
-                        if (!watcher)
-                            return;
-                        m_projectUpdateFutureInterface->setProgressValue(
-                            m_projectUpdateFutureInterface->progressValue() + 1);
-                        m_extraCompilersFutureWatchers.remove(watcher);
-                        watcher->deleteLater();
-                        if (!watcher->isCanceled())
-                            checkForExtraCompilersFinished();
-                    },
-                    Qt::QueuedConnection);
-            m_extraCompilersFutureWatchers += watcher;
-            watcher->setFuture(QFuture<void>(compiler->run()));
-            m_futureSynchronizer.addFuture(watcher->future());
-        }
+        if (!compiler->isDirty())
+            continue;
+
+        const auto destroyTaskTree = [this](TaskTree *taskTree) {
+            m_extraCompilerTasks.remove(taskTree);
+            taskTree->deleteLater();
+        };
+        TaskTree *taskTree = new TaskTree({compiler->compileFileItem()});
+        connect(taskTree, &TaskTree::done, this, [this, taskTree, destroyTaskTree] {
+            destroyTaskTree(taskTree);
+            m_projectUpdateFutureInterface->setProgressValue(
+                m_projectUpdateFutureInterface->progressValue() + 1);
+            checkForExtraCompilersFinished();
+        });
+        connect(taskTree, &TaskTree::errorOccurred, this, [taskTree, destroyTaskTree] {
+            destroyTaskTree(taskTree);
+        });
+        m_extraCompilerTasks.insert(taskTree);
+        taskTree->start();
     }
 
     m_projectUpdateFutureInterface.reset(new QFutureInterface<void>);
-    m_projectUpdateFutureInterface->setProgressRange(0, m_extraCompilersFutureWatchers.size()
+    m_projectUpdateFutureInterface->setProgressRange(0, m_extraCompilerTasks.size()
                                                         + 1 /*generateFuture*/);
     m_projectUpdateFutureInterface->setProgressValue(0);
     m_projectUpdateFutureInterface->reportStarted();
@@ -109,8 +106,8 @@ void CppProjectUpdater::cancel()
         m_projectUpdateFutureInterface->reportFinished();
     m_generateFutureWatcher.setFuture({});
     m_isProjectInfoGenerated = false;
-    qDeleteAll(m_extraCompilersFutureWatchers);
-    m_extraCompilersFutureWatchers.clear();
+    qDeleteAll(m_extraCompilerTasks);
+    m_extraCompilerTasks.clear();
     m_extraCompilers.clear();
     m_futureSynchronizer.cancelAllFutures();
 }
@@ -128,7 +125,7 @@ void CppProjectUpdater::onProjectInfoGenerated()
 
 void CppProjectUpdater::checkForExtraCompilersFinished()
 {
-    if (!m_extraCompilersFutureWatchers.isEmpty() || !m_isProjectInfoGenerated)
+    if (!m_extraCompilerTasks.isEmpty() || !m_isProjectInfoGenerated)
         return; // still need to wait
 
     m_projectUpdateFutureInterface->reportFinished();
