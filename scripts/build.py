@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (C) 2020 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 # import the print function which is used in python 3.x
 from __future__ import print_function
