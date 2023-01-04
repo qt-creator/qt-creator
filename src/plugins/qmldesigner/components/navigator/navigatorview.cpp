@@ -8,6 +8,7 @@
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
 #include "assetslibrarywidget.h"
+#include "commontypecache.h"
 
 #include "nameitemdelegate.h"
 #include "iconcheckboxitemdelegate.h"
@@ -273,10 +274,9 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
             QString assetType = assetTypeAndData.first;
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
-                qint32 internalId = mimeData->data(Constants::MIME_TYPE_ASSET_EFFECT).toInt();
-                ModelNode effectNode = modelNodeForInternalId(internalId);
-
-                m_widget->setDragType(effectNode.metaInfo().typeName());
+                // We use arbitrary type name because at this time we don't have effect maker
+                // specific type
+                m_widget->setDragType(Storage::Info::EffectMaker);
                 m_widget->update();
             }
         }

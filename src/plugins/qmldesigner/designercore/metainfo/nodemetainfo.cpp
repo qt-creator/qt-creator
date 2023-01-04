@@ -2537,12 +2537,9 @@ bool NodeMetaInfo::isColor() const
 
 bool NodeMetaInfo::isEffectMaker() const
 {
-    if constexpr (useProjectStorage()) {
-        using namespace Storage::Info;
-        return isBasedOnCommonType<Effect, Item>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && m_privateData->properties().contains("layer.effect");
-    }
+    // We use arbitrary type name because at this time we don't have effect maker
+    // specific type
+    return typeName() == QString::fromUtf8(Storage::Info::EffectMaker);
 }
 
 bool NodeMetaInfo::isBool() const
