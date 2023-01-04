@@ -27,6 +27,7 @@
 #include <cppeditor/generatedcodemodelsupport.h>
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

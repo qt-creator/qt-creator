@@ -4,18 +4,15 @@
 #pragma once
 
 #include "cppeditor_global.h"
-#include "cppprojectupdaterinterface.h"
-#include "projectinfo.h"
 
-#include <projectexplorer/extracompiler.h>
+#include "cppprojectupdaterinterface.h"
+
 #include <utils/futuresynchronizer.h>
 
-#include <QFutureWatcher>
-
+namespace ProjectExplorer { class ExtraCompiler; }
 namespace Utils { class TaskTree; }
 
 namespace CppEditor {
-class ProjectInfo;
 
 namespace Internal {
 
@@ -46,18 +43,8 @@ public:
     void cancel() override;
 
 private:
-    void onProjectInfoGenerated();
-    void checkForExtraCompilersFinished();
-
-private:
-    ProjectExplorer::ProjectUpdateInfo m_projectUpdateInfo;
-    QList<QPointer<ProjectExplorer::ExtraCompiler>> m_extraCompilers;
-
-    QFutureWatcher<ProjectInfo::ConstPtr> m_generateFutureWatcher;
-    bool m_isProjectInfoGenerated = false;
-    QSet<Utils::TaskTree *> m_extraCompilerTasks;
-    std::unique_ptr<QFutureInterface<void>> m_projectUpdateFutureInterface;
     Utils::FutureSynchronizer m_futureSynchronizer;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
 };
 
 } // namespace CppEditor

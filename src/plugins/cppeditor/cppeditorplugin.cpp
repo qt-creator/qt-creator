@@ -68,6 +68,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
