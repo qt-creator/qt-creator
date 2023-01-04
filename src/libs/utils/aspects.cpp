@@ -799,6 +799,11 @@ void StringAspect::setValue(const QString &val)
     }
 }
 
+QString StringAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toString();
+}
+
 void StringAspect::setDefaultValue(const QString &val)
 {
     BaseAspect::setDefaultValue(val);
@@ -1066,7 +1071,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         if (defaultValue() == value())
-            d->m_pathChooserDisplay->setDefaultValue(defaultValue().toString());
+            d->m_pathChooserDisplay->setDefaultValue(defaultValue());
         else
             d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         // do not override default value with placeholder, but use placeholder if default is empty
@@ -1129,7 +1134,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
             auto resetButton = createSubWidget<QPushButton>(tr("Reset"));
             resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
             connect(resetButton, &QPushButton::clicked, this, [this] {
-                d->m_lineEditDisplay->setText(defaultValue().toString());
+                d->m_lineEditDisplay->setText(defaultValue());
             });
             connect(d->m_lineEditDisplay, &QLineEdit::textChanged, this, [this, resetButton] {
                 resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
@@ -1177,17 +1182,17 @@ QVariant StringAspect::volatileValue() const
     case PathChooserDisplay:
         QTC_ASSERT(d->m_pathChooserDisplay, return {});
         if (d->m_pathChooserDisplay->filePath().isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_pathChooserDisplay->filePath().toString();
     case LineEditDisplay:
         QTC_ASSERT(d->m_lineEditDisplay, return {});
         if (d->m_lineEditDisplay->text().isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_lineEditDisplay->text();
     case TextEditDisplay:
         QTC_ASSERT(d->m_textEditDisplay, return {});
         if (d->m_textEditDisplay->document()->isEmpty())
-            return defaultValue().toString();
+            return defaultValue();
         return d->m_textEditDisplay->document()->toPlainText();
     case LabelDisplay:
         break;
@@ -1408,6 +1413,11 @@ void BoolAspect::setValue(bool value)
     }
 }
 
+bool BoolAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toBool();
+}
+
 void BoolAspect::setDefaultValue(bool val)
 {
     BaseAspect::setDefaultValue(val);
@@ -1565,6 +1575,11 @@ void SelectionAspect::setStringValue(const QString &val)
     const int index = indexForDisplay(val);
     QTC_ASSERT(index >= 0, return);
     setValue(index);
+}
+
+int SelectionAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toInt();
 }
 
 void SelectionAspect::setDefaultValue(int val)
@@ -1816,6 +1831,11 @@ void IntegerAspect::setValue(qint64 value)
     }
 }
 
+qint64 IntegerAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toLongLong();
+}
+
 void IntegerAspect::setRange(qint64 min, qint64 max)
 {
     d->m_minimumValue = min;
@@ -1935,6 +1955,11 @@ void DoubleAspect::setValue(double value)
     BaseAspect::setValue(value);
 }
 
+double DoubleAspect::defaultValue() const
+{
+    return BaseAspect::defaultValue().toDouble();
+}
+
 void DoubleAspect::setRange(double min, double max)
 {
     d->m_minimumValue = min;
@@ -1995,6 +2020,11 @@ TriState TriStateAspect::value() const
 void TriStateAspect::setValue(TriState value)
 {
     SelectionAspect::setValue(value.toInt());
+}
+
+TriState TriStateAspect::defaultValue() const
+{
+    return TriState::fromVariant(BaseAspect::defaultValue());
 }
 
 void TriStateAspect::setDefaultValue(TriState value)
@@ -2126,6 +2156,12 @@ QList<int> IntegersAspect::value() const
 void IntegersAspect::setValue(const QList<int> &value)
 {
     BaseAspect::setValue(transform(value, &QVariant::fromValue<int>));
+}
+
+QList<int> IntegersAspect::defaultValue() const
+{
+    return transform(BaseAspect::defaultValue().toList(),
+                     [](QVariant v) { return v.toInt(); });
 }
 
 void IntegersAspect::setDefaultValue(const QList<int> &value)

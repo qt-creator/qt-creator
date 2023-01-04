@@ -226,6 +226,7 @@ public:
 
     bool value() const;
     void setValue(bool val);
+    bool defaultValue() const;
     void setDefaultValue(bool val);
 
     enum class LabelPlacement { AtCheckBox, AtCheckBoxWithoutDummyLabel, InExtraLabel };
@@ -257,11 +258,14 @@ public:
 
     int value() const;
     void setValue(int val);
+
+    QString stringValue() const;
     void setStringValue(const QString &val);
+
+    int defaultValue() const;
     void setDefaultValue(int val);
     void setDefaultValue(const QString &val);
 
-    QString stringValue() const;
     QVariant itemValue() const;
 
     enum class DisplayStyle { RadioButtons, ComboBox };
@@ -341,6 +345,8 @@ public:
     void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
     void setValue(const QString &val);
+
+    QString defaultValue() const;
     void setDefaultValue(const QString &val);
 
     void setShowToolTipOnLabel(bool show);
@@ -413,6 +419,8 @@ public:
 
     qint64 value() const;
     void setValue(qint64 val);
+
+    qint64 defaultValue() const;
     void setDefaultValue(qint64 defaultValue);
 
     void setRange(qint64 min, qint64 max);
@@ -448,6 +456,8 @@ public:
 
     double value() const;
     void setValue(double val);
+
+    double defaultValue() const;
     void setDefaultValue(double defaultValue);
 
     void setRange(double min, double max);
@@ -494,6 +504,8 @@ public:
 
     TriState value() const;
     void setValue(TriState setting);
+
+    TriState defaultValue() const;
     void setDefaultValue(TriState setting);
 };
 
@@ -532,6 +544,8 @@ public:
 
     QList<int> value() const;
     void setValue(const QList<int> &value);
+
+    QList<int> defaultValue() const;
     void setDefaultValue(const QList<int> &value);
 
 signals:
