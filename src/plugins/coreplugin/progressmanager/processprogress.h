@@ -26,6 +26,7 @@ public:
     ProcessProgress(Utils::QtcProcess *process); // Makes ProcessProgress a child of process
 
     void setDisplayName(const QString &name);
+    void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setProgressParser(const ProgressParser &parser);
 
 private:

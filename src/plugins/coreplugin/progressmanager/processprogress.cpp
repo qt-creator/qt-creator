@@ -28,7 +28,9 @@ public:
     ProgressParser m_parser = {};
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
+    QPointer<FutureProgress> m_futureProgress;
     QString m_displayName;
+    FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
 };
 
 ProcessProgressPrivate::ProcessProgressPrivate(ProcessProgress *progress, QtcProcess *process)
@@ -91,11 +93,12 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
         const QString name = d->displayName();
         const auto id = Id::fromString(name + ".action");
         if (d->m_parser) {
-            ProgressManager::addTask(d->m_futureInterface.future(), name, id);
+            d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(), name, id);
         } else {
-            ProgressManager::addTimedTask(d->m_futureInterface, name, id,
-                                          qMax(2, d->m_process->timeoutS() / 5));
+            d->m_futureProgress = ProgressManager::addTimedTask(d->m_futureInterface, name, id,
+                                                   qMax(2, d->m_process->timeoutS() / 5));
         }
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
     });
     connect(d->m_process, &QtcProcess::done, this, [this] {
         if (d->m_process->result() != ProcessResult::FinishedWithSuccess)
@@ -107,6 +110,13 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
 void ProcessProgress::setDisplayName(const QString &name)
 {
     d->m_displayName = name;
+}
+
+void ProcessProgress::setKeepOnFinish(FutureProgress::KeepOnFinishType keepType)
+{
+    d->m_keep = keepType;
+    if (d->m_futureProgress)
+        d->m_futureProgress->setKeepOnFinish(d->m_keep);
 }
 
 void ProcessProgress::setProgressParser(const ProgressParser &parser)
