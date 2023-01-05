@@ -173,13 +173,13 @@ void AxivionSettingsWidget::showEditServerDialog()
     DashboardWidget *dashboardWidget = new DashboardWidget(DashboardWidget::Edit, this);
     dashboardWidget->setDashboardServer(old);
     layout->addWidget(dashboardWidget);
-    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
-    auto modify = buttons->addButton(Tr::tr("Modify"), QDialogButtonBox::AcceptRole);
-    modify->setEnabled(m_dashboardDisplay->isValid());
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
+    auto ok = buttons->button(QDialogButtonBox::Ok);
+    ok->setEnabled(m_dashboardDisplay->isValid());
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
-    connect(modify, &QPushButton::clicked, &d, &QDialog::accept);
+    connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
     connect(dashboardWidget, &DashboardWidget::validChanged,
-            modify, &QPushButton::setEnabled);
+            ok, &QPushButton::setEnabled);
     layout->addWidget(buttons);
     d.setLayout(layout);
     d.resize(500, 200);
