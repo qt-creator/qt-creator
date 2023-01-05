@@ -8,11 +8,12 @@
 #include <coreplugin/actionmanager/command.h>
 #include <extensionsystem/iplugin.h>
 
-#include <QFuture>
 #include <QObject>
 #include <QTimer>
 
 #include <functional>
+
+namespace Utils { class TaskTree; }
 
 namespace Core {
 namespace Internal {
@@ -52,7 +53,7 @@ signals:
     void filtersChanged();
 
 public slots:
-    void refresh(QList<ILocatorFilter *> filters);
+    void refresh(const QList<ILocatorFilter *> &filters);
     void saveSettings() const;
 
 private:
@@ -74,7 +75,7 @@ private:
     QList<ILocatorFilter *> m_customFilters;
     QMap<Utils::Id, QAction *> m_filterActionMap;
     QTimer m_refreshTimer;
-    QFuture<void> m_refreshTask;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
     QList<ILocatorFilter *> m_refreshingFilters;
 };
 

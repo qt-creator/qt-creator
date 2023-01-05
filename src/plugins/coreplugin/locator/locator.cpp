@@ -17,27 +17,20 @@
 #include "spotlightlocatorfilter.h"
 #include "urllocatorfilter.h"
 
-#include <coreplugin/coreplugin.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/statusbarmanager.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
 #include <coreplugin/actionsfilter.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 #include <utils/algorithm.h>
-#include <utils/mapreduce.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QAction>
 #include <QMainWindow>
-#include <QSettings>
 
 using namespace Utils;
 
@@ -154,10 +147,7 @@ ExtensionSystem::IPlugin::ShutdownFlag Locator::aboutToShutdown(
 {
     m_shuttingDown = true;
     m_refreshTimer.stop();
-    if (m_refreshTask.isRunning()) {
-        m_refreshTask.cancel();
-        m_refreshTask.waitForFinished();
-    }
+    m_taskTree.reset();
     return LocatorWidget::aboutToShutdown(emitAsynchronousShutdownFinished);
 }
 
@@ -380,28 +370,38 @@ void Locator::setUseCenteredPopupForShortcut(bool center)
     m_instance->m_settings.useCenteredPopup = center;
 }
 
-void Locator::refresh(QList<ILocatorFilter *> filters)
+void Locator::refresh(const QList<ILocatorFilter *> &filters)
 {
     if (m_shuttingDown)
         return;
 
-    if (m_refreshTask.isRunning()) {
-        m_refreshTask.cancel();
-        m_refreshTask.waitForFinished();
-        // this is not ideal because some of the previous filters might have finished, but we
-        // currently cannot find out which part of a map-reduce has finished
-        filters = Utils::filteredUnique(m_refreshingFilters + filters);
+    m_taskTree.reset(); // Superfluous, just for clarity. The next reset() below is enough.
+    m_refreshingFilters = Utils::filteredUnique(m_refreshingFilters + filters);
+
+    using namespace Tasking;
+    QList<TaskItem> tasks{parallel};
+    for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
+        const auto setupRefresh = [filter](AsyncTask<void> &async) {
+            async.setAsyncCallData(&ILocatorFilter::refresh, filter);
+        };
+        const auto onRefreshDone = [this, filter](const AsyncTask<void> &async) {
+            Q_UNUSED(async)
+            m_refreshingFilters.removeOne(filter);
+        };
+        tasks.append(Async<void>(setupRefresh, onRefreshDone));
     }
-    m_refreshingFilters = filters;
-    m_refreshTask = Utils::map(filters, &ILocatorFilter::refresh, Utils::MapReduceOption::Unordered);
-    ProgressManager::addTask(m_refreshTask, tr("Updating Locator Caches"), Constants::TASK_INDEX);
-    Utils::onFinished(m_refreshTask, this, [this](const QFuture<void> &future) {
-        if (!future.isCanceled()) {
-            saveSettings();
-            m_refreshingFilters.clear();
-            m_refreshTask = QFuture<void>();
-        }
+
+    m_taskTree.reset(new TaskTree{tasks});
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
+        saveSettings();
+        m_taskTree.release()->deleteLater();
     });
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+        m_taskTree.release()->deleteLater();
+    });
+    auto progress = new TaskProgress(m_taskTree.get());
+    progress->setDisplayName(tr("Updating Locator Caches"));
+    m_taskTree->start();
 }
 
 void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
