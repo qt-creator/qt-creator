@@ -1100,6 +1100,45 @@ static bool isExitedReason(const QString &reason)
         || reason == "exited";           // inferior exited
 }
 
+void GdbEngine::updateStateForStop()
+{
+    if (state() == InferiorRunOk) {
+        // Stop triggered by a breakpoint or otherwise not directly
+        // initiated by the user.
+        notifyInferiorSpontaneousStop();
+    } else if (state() == InferiorRunRequested) {
+        // Stop triggered by something like "-exec-step\n"
+        //  "&"Cannot access memory at address 0xbfffedd4\n"
+        // or, on S40,
+        //  "*running,thread-id="30""
+        //  "&"Warning:\n""
+        //  "&"Cannot insert breakpoint -33.\n"
+        //  "&"Error accessing memory address 0x11673fc: Input/output error.\n""
+        // In this case a proper response 94^error,msg="" will follow and
+        // be handled in the result handler.
+        // -- or --
+        // *stopped arriving earlier than ^done response to an -exec-step
+        notifyInferiorRunOk();
+        notifyInferiorSpontaneousStop();
+    } else if (state() == InferiorStopOk) {
+        // That's expected.
+    } else if (state() == InferiorStopRequested) {
+        notifyInferiorStopOk();
+    } else if (state() == EngineRunRequested) {
+        // This is gdb 7+'s initial *stopped in response to attach that
+        // appears before the ^done is seen for local setups.
+        notifyEngineRunAndInferiorStopOk();
+        if (terminal()) {
+            continueInferiorInternal();
+            return;
+        }
+    } else {
+        QTC_CHECK(false);
+    }
+
+    CHECK_STATE(InferiorStopOk);
+}
+
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {
     // Ignore trap on Windows terminals, which results in
@@ -1129,12 +1168,14 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             QString funcName = frame["function"].data();
             QString fileName = frame["file"].data();
             if (isLeavableFunction(funcName, fileName)) {
+                updateStateForStop();
                 //showMessage(_("LEAVING ") + funcName);
                 //++stepCounter;
                 executeStepOut();
                 return;
             }
             if (isSkippableFunction(funcName, fileName)) {
+                updateStateForStop();
                 //showMessage(_("SKIPPING ") + funcName);
                 //++stepCounter;
                 executeStepIn(false);
@@ -1226,42 +1267,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
             && language != "js")
         gotoLocation(Location(fileName, lineNumber));
 
-    if (state() == InferiorRunOk) {
-        // Stop triggered by a breakpoint or otherwise not directly
-        // initiated by the user.
-        notifyInferiorSpontaneousStop();
-    } else if (state() == InferiorRunRequested) {
-        // Stop triggered by something like "-exec-step\n"
-        //  "&"Cannot access memory at address 0xbfffedd4\n"
-        // or, on S40,
-        //  "*running,thread-id="30""
-        //  "&"Warning:\n""
-        //  "&"Cannot insert breakpoint -33.\n"
-        //  "&"Error accessing memory address 0x11673fc: Input/output error.\n""
-        // In this case a proper response 94^error,msg="" will follow and
-        // be handled in the result handler.
-        // -- or --
-        // *stopped arriving earlier than ^done response to an -exec-step
-        notifyInferiorRunOk();
-        notifyInferiorSpontaneousStop();
-    } else if (state() == InferiorStopOk) {
-        // That's expected.
-    } else if (state() == InferiorStopRequested) {
-        notifyInferiorStopOk();
-    } else if (state() == EngineRunRequested) {
-        // This is gdb 7+'s initial *stopped in response to attach that
-        // appears before the ^done is seen for local setups.
-        notifyEngineRunAndInferiorStopOk();
-        if (terminal()) {
-            continueInferiorInternal();
-            return;
-        }
-    } else {
-        QTC_CHECK(false);
-    }
-
-    CHECK_STATE(InferiorStopOk);
-
+    updateStateForStop();
     handleStop1(data);
 }
 

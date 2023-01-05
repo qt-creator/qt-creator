@@ -142,6 +142,7 @@ private: ////////// General Interface //////////
     void handleStop2(const GdbMi &data);
     void handleStop3();
     void resetCommandQueue();
+    void updateStateForStop();
 
     // Gdb initialization sequence
     void handleShowVersion(const DebuggerResponse &response);
