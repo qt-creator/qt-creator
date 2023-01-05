@@ -22,7 +22,7 @@ const char C_NIMBLEPROJECT_TASKS[] = "Nim.NimbleProject.Tasks";
 
 static QList<QByteArray> linesFromProcessOutput(QtcProcess *process)
 {
-    QList<QByteArray> lines = process->readAllStandardOutput().split('\n');
+    QList<QByteArray> lines = process->readAllRawStandardOutput().split('\n');
     lines = Utils::transform(lines, [](const QByteArray &line){ return line.trimmed(); });
     Utils::erase(lines, [](const QByteArray &line) { return line.isEmpty(); });
     return lines;

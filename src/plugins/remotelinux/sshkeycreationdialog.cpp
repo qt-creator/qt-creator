@@ -118,7 +118,7 @@ void SshKeyCreationDialog::generateKeys()
     if (!keygen.waitForFinished())
         errorMsg = keygen.errorString();
     else if (keygen.exitCode() != 0)
-        errorMsg = QString::fromLocal8Bit(keygen.readAllStandardError());
+        errorMsg = QString::fromLocal8Bit(keygen.readAllRawStandardError());
     if (!errorMsg.isEmpty()) {
         showError(Tr::tr("The ssh-keygen tool at \"%1\" failed: %2")
                   .arg(SshSettings::keygenFilePath().toUserOutput(), errorMsg));

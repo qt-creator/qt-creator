@@ -78,7 +78,7 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
     });
     QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput,
                      m_process.get(), [this] {
-        QString output = QString::fromUtf8(m_process->readAllStandardOutput());
+        QString output = m_process->readAllStandardOutput();
         output.replace("\r\n", "\n");
         const QStringList items = output.split('\n');
         QMutexLocker lock(&m_mutex);

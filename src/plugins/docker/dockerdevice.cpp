@@ -236,7 +236,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
 
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
         if (!m_hasReceivedFirstOutput) {
-            QByteArray output = m_process.readAllStandardOutput();
+            QByteArray output = m_process.readAllRawStandardOutput();
             qsizetype idx = output.indexOf('\n');
             QByteArray firstLine = output.left(idx);
             QByteArray rest = output.mid(idx + 1);
@@ -256,11 +256,11 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
                 return;
             }
         }
-        emit readyRead(m_process.readAllStandardOutput(), {});
+        emit readyRead(m_process.readAllRawStandardOutput(), {});
     });
 
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        emit readyRead({}, m_process.readAllStandardError());
+        emit readyRead({}, m_process.readAllRawStandardError());
     });
 
     connect(&m_process, &QtcProcess::done, this, [this] {
@@ -1005,7 +1005,7 @@ public:
         m_process->setCommand(cmd);
 
         connect(m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-            const QString out = QString::fromUtf8(m_process->readAllStandardOutput().trimmed());
+            const QString out = m_process->readAllStandardOutput().trimmed();
             m_log->append(out);
             for (const QString &line : out.split('\n')) {
                 const QStringList parts = line.trimmed().split('\t');

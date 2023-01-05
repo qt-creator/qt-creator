@@ -60,10 +60,10 @@ void Slog2InfoRunner::start()
     const auto logStartHandler = [this](QtcProcess &process) {
         process.setCommand({device()->filePath("slog2info"), {"-w"}});
         connect(&process, &QtcProcess::readyReadStandardOutput, this, [&] {
-            processLogInput(QString::fromLatin1(process.readAllStandardOutput()));
+            processLogInput(QString::fromLatin1(process.readAllRawStandardOutput()));
         });
         connect(&process, &QtcProcess::readyReadStandardError, this, [&] {
-            appendMessage(QString::fromLatin1(process.readAllStandardError()), StdErrFormat);
+            appendMessage(QString::fromLatin1(process.readAllRawStandardError()), StdErrFormat);
         });
     };
     const auto logErrorHandler = [this](const QtcProcess &process) {

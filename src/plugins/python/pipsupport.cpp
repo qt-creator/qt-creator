@@ -88,14 +88,14 @@ void PipInstallTask::handleDone()
 
 void PipInstallTask::handleOutput()
 {
-    const QString &stdOut = QString::fromLocal8Bit(m_process.readAllStandardOutput().trimmed());
+    const QString &stdOut = QString::fromLocal8Bit(m_process.readAllRawStandardOutput().trimmed());
     if (!stdOut.isEmpty())
         Core::MessageManager::writeSilently(stdOut);
 }
 
 void PipInstallTask::handleError()
 {
-    const QString &stdErr = QString::fromLocal8Bit(m_process.readAllStandardError().trimmed());
+    const QString &stdErr = QString::fromLocal8Bit(m_process.readAllRawStandardError().trimmed());
     if (!stdErr.isEmpty())
         Core::MessageManager::writeSilently(stdErr);
 }

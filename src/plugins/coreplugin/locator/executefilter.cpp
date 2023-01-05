@@ -124,7 +124,7 @@ void ExecuteFilter::done()
 void ExecuteFilter::readStandardOutput()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllStandardOutput();
+    const QByteArray data = m_process->readAllRawStandardOutput();
     MessageManager::writeSilently(
         QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stdoutState));
 }
@@ -132,7 +132,7 @@ void ExecuteFilter::readStandardOutput()
 void ExecuteFilter::readStandardError()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllStandardError();
+    const QByteArray data = m_process->readAllRawStandardError();
     MessageManager::writeSilently(
         QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stderrState));
 }

@@ -164,7 +164,7 @@ void SshSharedConnection::connectToHost()
     m_timer.setSingleShot(true);
     connect(&m_timer, &QTimer::timeout, this, &SshSharedConnection::autoDestructRequested);
     connect(m_masterProcess.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        const QByteArray reply = m_masterProcess->readAllStandardOutput();
+        const QByteArray reply = m_masterProcess->readAllRawStandardOutput();
         if (reply == "\n")
             emitConnected();
         // TODO: otherwise emitError and finish master process?
@@ -719,14 +719,14 @@ void SshProcessInterfacePrivate::handleReadyReadStandardOutput()
 {
     // By default emits signal. LinuxProcessImpl does custom parsing for processId
     // and emits delayed start() - only when terminal is off.
-    q->handleReadyReadStandardOutput(m_process.readAllStandardOutput());
+    q->handleReadyReadStandardOutput(m_process.readAllRawStandardOutput());
 }
 
 void SshProcessInterfacePrivate::handleReadyReadStandardError()
 {
     // By default emits signal. LinuxProcessImpl buffers the error channel until
     // it emits delayed start() - only when terminal is off.
-    q->handleReadyReadStandardError(m_process.readAllStandardError());
+    q->handleReadyReadStandardError(m_process.readAllRawStandardError());
 }
 
 void SshProcessInterfacePrivate::clearForStart()
@@ -1175,7 +1175,7 @@ protected:
                                                 : m_setup.m_files.first().direction();
         SshParameters::setupSshEnvironment(&m_process);
         connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-            emit progress(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
+            emit progress(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
         });
         connect(&m_process, &QtcProcess::done, this, &SshTransferInterface::doneImpl);
     }
@@ -1190,7 +1190,7 @@ protected:
             resultData.m_errorString = Tr::tr("\"%1\" crashed.")
                     .arg(FileTransfer::transferMethodName(m_setup.m_method));
         } else if (resultData.m_exitCode != 0) {
-            resultData.m_errorString = QString::fromLocal8Bit(m_process.readAllStandardError());
+            resultData.m_errorString = QString::fromLocal8Bit(m_process.readAllRawStandardError());
         } else {
             return false;
         }

@@ -232,9 +232,9 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     } else if (qbsConfig.exitCode() != 0) {
         Core::MessageManager::writeFlashing(
             Tr::tr("Failed to run qbs config: %1")
-                .arg(QString::fromLocal8Bit(qbsConfig.readAllStandardError())));
+                .arg(QString::fromLocal8Bit(qbsConfig.readAllRawStandardError())));
     }
-    return QString::fromLocal8Bit(qbsConfig.readAllStandardOutput()).trimmed();
+    return QString::fromLocal8Bit(qbsConfig.readAllRawStandardOutput()).trimmed();
 }
 
 QVariant fromJSLiteral(const QString &str)

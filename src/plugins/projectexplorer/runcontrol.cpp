@@ -1360,7 +1360,7 @@ void SimpleTargetRunnerPrivate::handleDone()
 
 void SimpleTargetRunnerPrivate::handleStandardOutput()
 {
-    const QByteArray data = m_process.readAllStandardOutput();
+    const QByteArray data = m_process.readAllRawStandardOutput();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_outputCodecState);
     q->appendMessageChunk(msg, StdOutFormat);
@@ -1368,7 +1368,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
 
 void SimpleTargetRunnerPrivate::handleStandardError()
 {
-    const QByteArray data = m_process.readAllStandardError();
+    const QByteArray data = m_process.readAllRawStandardError();
     const QString msg = m_outputCodec->toUnicode(
                 data.constData(), data.length(), &m_errorCodecState);
     q->appendMessageChunk(msg, StdErrFormat);

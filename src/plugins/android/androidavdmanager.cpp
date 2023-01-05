@@ -106,7 +106,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     QByteArray question;
     while (errorOutput.isEmpty()) {
         proc.waitForReadyRead(500);
-        question += proc.readAllStandardOutput();
+        question += proc.readAllRawStandardOutput();
         if (question.endsWith(QByteArray("]:"))) {
             // truncate to last line
             int index = question.lastIndexOf(QByteArray("\n"));
@@ -120,7 +120,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         }
         // The exit code is always 0, so we need to check stderr
         // For now assume that any output at all indicates a error
-        errorOutput = QString::fromLocal8Bit(proc.readAllStandardError());
+        errorOutput = QString::fromLocal8Bit(proc.readAllRawStandardError());
         if (!proc.isRunning())
             break;
 
@@ -270,7 +270,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
-            const QString errorOutput = QString::fromLatin1(avdProcess->readAllStandardOutput());
+            const QString errorOutput = QString::fromLatin1(avdProcess->readAllRawStandardOutput());
             QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
                 const QString title = Tr::tr("AVD Start Error");
                 QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);

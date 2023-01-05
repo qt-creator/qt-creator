@@ -231,7 +231,7 @@ static QString qmlPluginDumpErrorMessage(QtcProcess *process)
     }
     errorMessage += '\n' + PluginDumper::tr("Arguments: %1").arg(process->commandLine().arguments());
     if (process->error() != QProcess::FailedToStart) {
-        const QString stdErr = QString::fromLocal8Bit(process->readAllStandardError());
+        const QString stdErr = QString::fromLocal8Bit(process->readAllRawStandardError());
         if (!stdErr.isEmpty()) {
             errorMessage += QLatin1Char('\n');
             errorMessage += stdErr;
@@ -264,7 +264,7 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
             return;
         }
 
-        const QByteArray output = process->readAllStandardOutput();
+        const QByteArray output = process->readAllRawStandardOutput();
 
         class CppQmlTypesInfo {
         public:

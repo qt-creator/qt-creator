@@ -46,8 +46,11 @@ public:
     void close();
     void stop();
 
-    QByteArray readAllStandardOutput();
-    QByteArray readAllStandardError();
+    QString readAllStandardOutput();
+    QString readAllStandardError();
+
+    QByteArray readAllRawStandardOutput();
+    QByteArray readAllRawStandardError();
 
     qint64 write(const QString &input);
     qint64 writeRaw(const QByteArray &input);

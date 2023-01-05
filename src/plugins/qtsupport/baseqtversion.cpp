@@ -1696,7 +1696,7 @@ static QByteArray runQmakeQuery(const FilePath &binary, const Environment &env, 
         return {};
     }
 
-    const QByteArray out = process.readAllStandardOutput();
+    const QByteArray out = process.readAllRawStandardOutput();
     if (out.isEmpty()) {
         *error = Tr::tr("\"%1\" produced no output: %2.")
                 .arg(binary.displayName(), process.cleanedStdErr());

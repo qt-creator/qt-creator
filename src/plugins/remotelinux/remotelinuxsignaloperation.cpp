@@ -89,7 +89,7 @@ void RemoteLinuxSignalOperation::runnerDone()
     } else if (m_process->exitCode() != 0) {
         m_errorMessage = Tr::tr("Exit code is %1. stderr:").arg(m_process->exitCode())
                 + QLatin1Char(' ')
-                + QString::fromLatin1(m_process->readAllStandardError());
+                + QString::fromLatin1(m_process->readAllRawStandardError());
     }
     m_process.release()->deleteLater();
     emit finished(m_errorMessage);

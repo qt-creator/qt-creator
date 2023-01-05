@@ -103,14 +103,13 @@ static FormatTask format(FormatTask task)
                     .arg(executable, task.filePath.displayName());
             return task;
         }
-        const QByteArray errorText = process.readAllStandardError();
+        const QString errorText = process.readAllStandardError();
         if (!errorText.isEmpty()) {
-            task.error = QString::fromLatin1("%1: %2").arg(executable,
-                                                           QString::fromUtf8(errorText));
+            task.error = QString::fromLatin1("%1: %2").arg(executable, errorText);
             return task;
         }
 
-        task.formattedData = QString::fromUtf8(process.readAllStandardOutput());
+        task.formattedData = process.readAllStandardOutput();
 
         if (task.command.pipeAddsNewline() && task.formattedData.endsWith('\n')) {
             task.formattedData.chop(1);

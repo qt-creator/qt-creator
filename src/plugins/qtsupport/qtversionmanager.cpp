@@ -375,7 +375,7 @@ static QList<QByteArray> runQtChooser(const QString &qtchooser, const QStringLis
     p.start();
     p.waitForFinished();
     const bool success = p.exitCode() == 0;
-    return success ? p.readAllStandardOutput().split('\n') : QList<QByteArray>();
+    return success ? p.readAllRawStandardOutput().split('\n') : QList<QByteArray>();
 }
 
 // Asks qtchooser for the qmake path of a given version

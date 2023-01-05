@@ -431,7 +431,7 @@ static QString findQtInstallPath(const FilePath &qmakePath)
         qWarning("%s: '%s' crashed.", Q_FUNC_INFO, qPrintable(qmakePath.toString()));
         return QString();
     }
-    const QByteArray ba = proc.readAllStandardOutput().trimmed();
+    const QByteArray ba = proc.readAllRawStandardOutput().trimmed();
     QDir dir(QString::fromLocal8Bit(ba));
     if (dir.exists() && dir.cdUp())
         return dir.absolutePath();

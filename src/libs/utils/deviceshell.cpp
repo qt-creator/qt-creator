@@ -93,8 +93,8 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
 
         return RunResult{
             proc.exitCode(),
-            proc.readAllStandardOutput(),
-            proc.readAllStandardError()
+            proc.readAllRawStandardOutput(),
+            proc.readAllRawStandardError()
         };
     }
 
@@ -213,7 +213,7 @@ bool DeviceShell::start()
                         &QtcProcess::readyReadStandardError,
                         m_shellProcess.get(),
                         [this] {
-                            const QByteArray stdErr = m_shellProcess->readAllStandardError();
+                            const QByteArray stdErr = m_shellProcess->readAllRawStandardError();
                             qCWarning(deviceShellLog)
                                 << "Received unexpected output on stderr:" << stdErr;
                         });
@@ -249,7 +249,7 @@ bool DeviceShell::checkCommand(const QByteArray &command)
         qCWarning(deviceShellLog) << "Timeout while trying to check for" << command;
         return false;
     }
-    QByteArray out = m_shellProcess->readAllStandardOutput();
+    QByteArray out = m_shellProcess->readAllRawStandardOutput();
     if (out.contains("<missing>")) {
         m_shellScriptState = State::NoScript;
         qCWarning(deviceShellLog) << "Command" << command << "was not found";
@@ -293,7 +293,7 @@ bool DeviceShell::installShellScript()
             return false;
         }
 
-        QByteArray out = m_shellProcess->readAllStandardError();
+        QByteArray out = m_shellProcess->readAllRawStandardError();
         if (out.contains("SCRIPT_INSTALLED")) {
             m_shellScriptState = State::Succeeded;
             return true;
@@ -399,7 +399,7 @@ QList<std::tuple<int, DeviceShell::ParseType, QByteArray>> parseShellOutput(cons
  */
 void DeviceShell::onReadyRead()
 {
-    m_commandBuffer += m_shellProcess->readAllStandardOutput();
+    m_commandBuffer += m_shellProcess->readAllRawStandardOutput();
     const qsizetype lastLineEndIndex = m_commandBuffer.lastIndexOf('\n') + 1;
 
     if (lastLineEndIndex == 0)

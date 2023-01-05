@@ -156,10 +156,10 @@ void QbsSession::initialize()
     d->qbsProcess->setProcessMode(ProcessMode::Writer);
     d->qbsProcess->setEnvironment(env);
     connect(d->qbsProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
-        d->packetReader->handleData(d->qbsProcess->readAllStandardOutput());
+        d->packetReader->handleData(d->qbsProcess->readAllRawStandardOutput());
     });
     connect(d->qbsProcess, &QtcProcess::readyReadStandardError, this, [this] {
-        qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllStandardError();
+        qCDebug(qbsPmLog) << "[qbs stderr]: " << d->qbsProcess->readAllRawStandardError();
     });
     connect(d->qbsProcess, &QtcProcess::done, this, [this] {
         if (d->qbsProcess->result() == ProcessResult::StartFailed) {

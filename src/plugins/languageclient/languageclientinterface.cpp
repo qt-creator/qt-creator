@@ -152,7 +152,7 @@ void StdIOClientInterface::readError()
 {
     QTC_ASSERT(m_process, return);
 
-    const QByteArray stdErr = m_process->readAllStandardError();
+    const QByteArray stdErr = m_process->readAllRawStandardError();
     m_logFile.write(stdErr);
 
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std err:\n";
@@ -162,7 +162,7 @@ void StdIOClientInterface::readError()
 void StdIOClientInterface::readOutput()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray &out = m_process->readAllStandardOutput();
+    const QByteArray &out = m_process->readAllRawStandardOutput();
     qCDebug(LOGLSPCLIENTV) << "StdIOClient std out:\n";
     qCDebug(LOGLSPCLIENTV).noquote() << out;
     parseData(out);

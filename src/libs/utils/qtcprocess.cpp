@@ -1271,7 +1271,7 @@ bool QtcProcess::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int
         finished = waitForFinished(timeoutS > 0 ? timeoutS * 1000 : -1)
                 || state() == QProcess::NotRunning;
         // First check 'stdout'
-        const QByteArray newStdOut = readAllStandardOutput();
+        const QByteArray newStdOut = readAllRawStandardOutput();
         if (!newStdOut.isEmpty()) {
             hasData = true;
             if (stdOut)
@@ -1279,7 +1279,7 @@ bool QtcProcess::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int
         }
         // Check 'stderr' separately. This is a special handling
         // for 'git pull' and the like which prints its progress on stderr.
-        const QByteArray newStdErr = readAllStandardError();
+        const QByteArray newStdErr = readAllRawStandardError();
         if (!newStdErr.isEmpty()) {
             hasData = true;
             if (stdErr)
@@ -1481,12 +1481,12 @@ bool QtcProcess::waitForFinished(int msecs)
     return d->waitForSignal(ProcessSignalType::Done, msecs);
 }
 
-QByteArray QtcProcess::readAllStandardOutput()
+QByteArray QtcProcess::readAllRawStandardOutput()
 {
     return d->m_stdOut.readAllData();
 }
 
-QByteArray QtcProcess::readAllStandardError()
+QByteArray QtcProcess::readAllRawStandardError()
 {
     return d->m_stdErr.readAllData();
 }
@@ -1546,6 +1546,16 @@ void QtcProcess::stop()
 
     d->sendControlSignal(ControlSignal::Terminate);
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
+}
+
+QString QtcProcess::readAllStandardOutput()
+{
+    return QString::fromUtf8(readAllRawStandardOutput());
+}
+
+QString QtcProcess::readAllStandardError()
+{
+    return QString::fromUtf8(readAllRawStandardError());
 }
 
 /*!

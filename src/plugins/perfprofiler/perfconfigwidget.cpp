@@ -161,7 +161,7 @@ void PerfConfigWidget::handleProcessDone()
         return;
     }
     const QList<QByteArray> lines =
-            m_process->readAllStandardOutput().append(m_process->readAllStandardError())
+            m_process->readAllRawStandardOutput().append(m_process->readAllRawStandardError())
             .split('\n');
     auto model = eventsView->model();
     const int previousRows = model->rowCount();

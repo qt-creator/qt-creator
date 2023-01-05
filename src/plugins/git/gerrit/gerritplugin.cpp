@@ -95,10 +95,10 @@ FetchContext::FetchContext(const QSharedPointer<GerritChange> &change,
     m_process.setUseCtrlCStub(true);
     connect(&m_process, &QtcProcess::done, this, &FetchContext::processDone);
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllStandardError()));
+        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardError()));
     });
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
+        VcsBase::VcsOutputWindow::append(QString::fromLocal8Bit(m_process.readAllRawStandardOutput()));
     });
     m_process.setWorkingDirectory(repository);
     m_process.setEnvironment(GitClient::instance()->processEnvironment());

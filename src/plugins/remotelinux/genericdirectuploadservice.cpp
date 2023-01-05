@@ -132,7 +132,7 @@ QDateTime GenericDirectUploadServicePrivate::timestampFromStat(const DeployableF
                                .arg(file.remoteFilePath(), error));
         return {};
     }
-    const QByteArray output = statProc->readAllStandardOutput().trimmed();
+    const QByteArray output = statProc->readAllRawStandardOutput().trimmed();
     const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
                                 .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
     if (!output.startsWith(file.remoteFilePath().toUtf8())) {

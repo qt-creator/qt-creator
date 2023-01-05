@@ -42,7 +42,7 @@ Group QdbStopApplicationService::deployRecipe()
         process.setWorkingDirectory("/usr/bin");
         QtcProcess *proc = &process;
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(QString::fromUtf8(proc->readAllStandardOutput()));
+            emit stdOutData(proc->readAllStandardOutput());
         });
     };
     const auto doneHandler = [this](const QtcProcess &) {

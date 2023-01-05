@@ -413,7 +413,7 @@ void PdbEngine::handlePdbDone()
 
 void PdbEngine::readPdbStandardError()
 {
-    QString err = QString::fromUtf8(m_proc.readAllStandardError());
+    QString err = QString::fromUtf8(m_proc.readAllRawStandardError());
     //qWarning() << "Unexpected pdb stderr:" << err;
     showMessage("Unexpected pdb stderr: " + err);
     //handleOutput(err);
@@ -421,8 +421,7 @@ void PdbEngine::readPdbStandardError()
 
 void PdbEngine::readPdbStandardOutput()
 {
-    QString out = QString::fromUtf8(m_proc.readAllStandardOutput());
-    handleOutput(out);
+    handleOutput(m_proc.readAllStandardOutput());
 }
 
 void PdbEngine::handleOutput(const QString &data)

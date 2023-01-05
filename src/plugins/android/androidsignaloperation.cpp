@@ -39,7 +39,7 @@ void AndroidSignalOperation::adbFindRunAsFinished()
     m_timeout->stop();
 
     handleCrashMessage();
-    const QString runAs = QString::fromLatin1(m_adbProcess->readAllStandardOutput());
+    const QString runAs = QString::fromLatin1(m_adbProcess->readAllRawStandardOutput());
     m_adbProcess.release()->deleteLater();
     if (runAs.isEmpty() || !m_errorMessage.isEmpty()) {
         m_errorMessage.prepend(QLatin1String("Cannot find User for process: ")
@@ -59,7 +59,7 @@ void AndroidSignalOperation::adbKillFinished()
     m_timeout->stop();
 
     if (!handleCrashMessage())
-        m_errorMessage = QString::fromLatin1(m_adbProcess->readAllStandardError());
+        m_errorMessage = QString::fromLatin1(m_adbProcess->readAllRawStandardError());
     m_adbProcess.release()->deleteLater();
     if (!m_errorMessage.isEmpty())
         m_errorMessage.prepend(QLatin1String("Cannot kill process: ") + QString::number(m_pid));

@@ -54,7 +54,7 @@ static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
         browserLister.start();
 
         if (browserLister.waitForFinished())
-            result.append(parseEmrunOutput(browserLister.readAllStandardOutput()));
+            result.append(parseEmrunOutput(browserLister.readAllRawStandardOutput()));
     }
     return result;
 }

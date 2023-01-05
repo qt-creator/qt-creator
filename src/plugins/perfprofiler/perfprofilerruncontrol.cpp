@@ -194,11 +194,11 @@ void PerfProfilerRunner::start()
         // That's the local case.
         QtcProcess *recorder = prw->recorder();
         connect(recorder, &QtcProcess::readyReadStandardError, this, [this, recorder] {
-            appendMessage(QString::fromLocal8Bit(recorder->readAllStandardError()),
+            appendMessage(QString::fromLocal8Bit(recorder->readAllRawStandardError()),
                           Utils::StdErrFormat);
         });
         connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
-            if (!reader->feedParser(recorder->readAllStandardOutput()))
+            if (!reader->feedParser(recorder->readAllRawStandardOutput()))
                 reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });
     }

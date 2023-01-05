@@ -1489,7 +1489,7 @@ FilePath AndroidConfig::getJdkPath()
         findJdkPathProc.setCommand({"sh", args});
         findJdkPathProc.start();
         findJdkPathProc.waitForFinished();
-        QByteArray jdkPath = findJdkPathProc.readAllStandardOutput().trimmed();
+        QByteArray jdkPath = findJdkPathProc.readAllRawStandardOutput().trimmed();
 
         if (HostOsInfo::isMacHost()) {
             jdkHome = FilePath::fromUtf8(jdkPath);

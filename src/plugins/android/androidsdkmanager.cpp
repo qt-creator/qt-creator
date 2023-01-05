@@ -1012,7 +1012,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdFutureInterface &fi)
     QTextCodec *codec = QTextCodec::codecForLocale();
     int inputCounter = 0, steps = -1;
     while (!licenseCommand.waitForFinished(200)) {
-        QString stdOut = codec->toUnicode(licenseCommand.readAllStandardOutput());
+        QString stdOut = codec->toUnicode(licenseCommand.readAllRawStandardOutput());
         bool assertionFound = false;
         if (!stdOut.isEmpty())
             assertionFound = onLicenseStdOut(stdOut, reviewingLicenses, result, fi);

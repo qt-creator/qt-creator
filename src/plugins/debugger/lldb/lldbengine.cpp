@@ -824,14 +824,14 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 
 void LldbEngine::readLldbStandardError()
 {
-    QString err = QString::fromUtf8(m_lldbProc.readAllStandardError());
+    QString err = QString::fromUtf8(m_lldbProc.readAllRawStandardError());
     qDebug() << "\nLLDB STDERR UNEXPECTED: " << err;
     showMessage("Lldb stderr: " + err, LogError);
 }
 
 void LldbEngine::readLldbStandardOutput()
 {
-    QByteArray outba = m_lldbProc.readAllStandardOutput();
+    QByteArray outba = m_lldbProc.readAllRawStandardOutput();
     outba.replace("\r\n", "\n");
     QString out = QString::fromUtf8(outba);
     showMessage(out, LogOutput);

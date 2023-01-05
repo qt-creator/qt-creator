@@ -234,13 +234,13 @@ void tst_QtcProcess::multiRead()
     process.writeRaw("echo hi\n");
 
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllStandardOutput();
+    buffer = process.readAllRawStandardOutput();
     QCOMPARE(buffer, QByteArray("hi\n"));
 
     process.writeRaw("echo you\n");
 
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllStandardOutput();
+    buffer = process.readAllRawStandardOutput();
     QCOMPARE(buffer, QByteArray("you\n"));
 }
 
@@ -1164,8 +1164,8 @@ void tst_QtcProcess::channelForwarding()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllStandardOutput();
-    const QByteArray error = process.readAllStandardError();
+    const QByteArray output = process.readAllRawStandardOutput();
+    const QByteArray error = process.readAllRawStandardError();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputForwarded);
     QCOMPARE(error.contains(QByteArray(s_errorData)), errorForwarded);
@@ -1208,8 +1208,8 @@ void tst_QtcProcess::mergedChannels()
     process.start();
     QVERIFY(process.waitForFinished());
 
-    const QByteArray output = process.readAllStandardOutput();
-    const QByteArray error = process.readAllStandardError();
+    const QByteArray output = process.readAllRawStandardOutput();
+    const QByteArray error = process.readAllRawStandardError();
 
     QCOMPARE(output.contains(QByteArray(s_outputData)), outputOnOutput);
     QCOMPARE(error.contains(QByteArray(s_outputData)), outputOnError);
@@ -1256,7 +1256,7 @@ void tst_QtcProcess::flushFinishedWhileWaitingForReadyRead()
     QByteArray reply;
     while (process.state() == QProcess::Running) {
         process.waitForReadyRead(500);
-        reply += process.readAllStandardOutput();
+        reply += process.readAllRawStandardOutput();
         if (timer.hasExpired())
             break;
     }
@@ -1344,12 +1344,12 @@ void tst_QtcProcess::recursiveBlockingProcess()
         process.start();
         QVERIFY(process.waitForStarted(1000));
         QVERIFY(process.waitForReadyRead(1000));
-        QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+        QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
         QCOMPARE(runningTestProcessCount(), recursionDepth);
         QVERIFY(!process.waitForFinished(1000));
         process.terminate();
         QVERIFY(process.waitForReadyRead());
-        QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+        QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
         QVERIFY(process.waitForFinished());
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
@@ -1404,7 +1404,7 @@ void tst_QtcProcess::quitBlockingProcess()
     QVERIFY(process.isRunning());
 
     QVERIFY(process.waitForReadyRead(1000));
-    QCOMPARE(process.readAllStandardOutput(), s_leafProcessStarted);
+    QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
 
     switch (quitType) {
     case QuitType::Terminate: process.terminate(); break;
@@ -1426,11 +1426,11 @@ void tst_QtcProcess::quitBlockingProcess()
         if (gracefulQuit) {
             if (HostOsInfo::isWindowsHost())
                 QSKIP(s_skipTerminateOnWindows);
-            QCOMPARE(process.readAllStandardOutput(), s_leafProcessTerminated);
+            QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
             QCOMPARE(process.exitStatus(), QProcess::NormalExit);
             QCOMPARE(process.exitCode(), s_crashCode);
         } else {
-            QCOMPARE(process.readAllStandardOutput(), QByteArray());
+            QCOMPARE(process.readAllRawStandardOutput(), QByteArray());
             QCOMPARE(process.exitStatus(), QProcess::CrashExit);
             QVERIFY(process.exitCode() != s_crashCode);
         }

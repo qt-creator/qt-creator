@@ -50,7 +50,7 @@ private:
             process.setCommand(cmd);
             QtcProcess *proc = &process;
             connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-                emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
+                emit stdErrData(proc->readAllStandardError());
             });
         };
         const auto doneHandler = [this](const QtcProcess &) {

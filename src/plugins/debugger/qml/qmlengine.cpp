@@ -251,11 +251,11 @@ QmlEngine::QmlEngine()
 
     connect(&d->process, &QtcProcess::readyReadStandardOutput, this, [this] {
         // FIXME: Redirect to RunControl
-        showMessage(QString::fromUtf8(d->process.readAllStandardOutput()), AppOutput);
+        showMessage(d->process.readAllStandardOutput(), AppOutput);
     });
     connect(&d->process, &QtcProcess::readyReadStandardError, this, [this] {
         // FIXME: Redirect to RunControl
-        showMessage(QString::fromUtf8(d->process.readAllStandardError()), AppOutput);
+        showMessage(d->process.readAllStandardError(), AppOutput);
     });
 
     connect(&d->process, &QtcProcess::done, this, &QmlEngine::disconnected);

@@ -162,7 +162,7 @@ void Archive::unarchive()
     m_process.reset(new QtcProcess);
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(m_process.get(), &QtcProcess::readyReadStandardOutput, this, [this] {
-        emit outputReceived(QString::fromUtf8(m_process->readAllStandardOutput()));
+        emit outputReceived(m_process->readAllStandardOutput());
     });
     QObject::connect(m_process.get(), &QtcProcess::done, this, [this] {
         const bool successfulFinish = m_process->result() == ProcessResult::FinishedWithSuccess;

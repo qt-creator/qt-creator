@@ -673,7 +673,7 @@ void ExternalToolRunner::readStandardOutput()
 {
     if (m_tool->outputHandling() == ExternalTool::Ignore)
         return;
-    const QByteArray data = m_process->readAllStandardOutput();
+    const QByteArray data = m_process->readAllRawStandardOutput();
     const QString output = m_outputCodec->toUnicode(data.constData(),
                                                     data.length(),
                                                     &m_outputCodecState);
@@ -687,7 +687,7 @@ void ExternalToolRunner::readStandardError()
 {
     if (m_tool->errorHandling() == ExternalTool::Ignore)
         return;
-    const QByteArray data = m_process->readAllStandardError();
+    const QByteArray data = m_process->readAllRawStandardError();
     const QString output = m_outputCodec->toUnicode(data.constData(),
                                                     data.length(),
                                                     &m_errorCodecState);

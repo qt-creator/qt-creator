@@ -41,7 +41,7 @@ FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(QtcProcess 
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
     // conversion below is to normalize both the encoding, and the line terminators.
-    result[targetList.first()] = QString::fromLocal8Bit(process->readAllStandardOutput()).toUtf8();
+    result[targetList.first()] = QString::fromLocal8Bit(process->readAllRawStandardOutput()).toUtf8();
     return result;
 }
 

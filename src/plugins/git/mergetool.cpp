@@ -169,7 +169,7 @@ void MergeTool::prompt(const QString &title, const QString &question)
 
 void MergeTool::readData()
 {
-    QString newData = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    QString newData = QString::fromLocal8Bit(m_process.readAllRawStandardOutput());
     newData.remove('\r');
     VcsOutputWindow::append(newData);
     QString data = m_unfinishedLine + newData;

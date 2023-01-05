@@ -87,7 +87,7 @@ void DeviceUsedPortsGatherer::setupUsedPorts()
 {
     d->usedPorts.clear();
     const QList<Port> usedPorts = d->portsGatheringMethod.parsePorts(
-                                  d->process->readAllStandardOutput());
+                                  d->process->readAllRawStandardOutput());
     for (const Port port : usedPorts) {
         if (d->device->freePorts().contains(port))
             d->usedPorts << port;
@@ -107,7 +107,7 @@ void DeviceUsedPortsGatherer::handleProcessDone()
         setupUsedPorts();
     } else {
         QString errMsg = d->process->errorString();
-        const QByteArray stdErr = d->process->readAllStandardError();
+        const QByteArray stdErr = d->process->readAllRawStandardError();
         if (!stdErr.isEmpty()) {
             errMsg += QLatin1Char('\n');
             errMsg += tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));

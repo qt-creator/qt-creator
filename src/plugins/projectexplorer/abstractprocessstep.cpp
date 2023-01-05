@@ -223,11 +223,11 @@ void AbstractProcessStep::setupProcess(QtcProcess *process)
         process->setLowPriority();
 
     connect(process, &QtcProcess::readyReadStandardOutput, this, [this, process] {
-        emit addOutput(d->stdoutStream->toUnicode(process->readAllStandardOutput()),
+        emit addOutput(d->stdoutStream->toUnicode(process->readAllRawStandardOutput()),
                        OutputFormat::Stdout, DontAppendNewline);
     });
     connect(process, &QtcProcess::readyReadStandardError, this, [this, process] {
-        emit addOutput(d->stderrStream->toUnicode(process->readAllStandardError()),
+        emit addOutput(d->stderrStream->toUnicode(process->readAllRawStandardError()),
                        OutputFormat::Stderr, DontAppendNewline);
     });
     connect(process, &QtcProcess::started, this, [this] {

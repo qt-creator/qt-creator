@@ -51,8 +51,8 @@ void MesonProcess::handleProcessDone()
         ProjectExplorer::TaskHub::addTask(ProjectExplorer::BuildSystemTask{
                 ProjectExplorer::Task::TaskType::Error, m_process->exitMessage()});
     }
-    m_stdo = m_process->readAllStandardOutput();
-    m_stderr = m_process->readAllStandardError();
+    m_stdo = m_process->readAllRawStandardOutput();
+    m_stderr = m_process->readAllRawStandardError();
     const QString elapsedTime = formatElapsedTime(m_elapsed.elapsed());
     MessageManager::writeSilently(elapsedTime);
     emit finished(m_process->exitCode(), m_process->exitStatus());
@@ -105,14 +105,14 @@ bool MesonProcess::sanityCheck(const Command &command) const
 
 void MesonProcess::processStandardOutput()
 {
-    const auto data = m_process->readAllStandardOutput();
+    const auto data = m_process->readAllRawStandardOutput();
     MessageManager::writeSilently(QString::fromLocal8Bit(data));
     emit readyReadStandardOutput(data);
 }
 
 void MesonProcess::processStandardError()
 {
-    MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllStandardError()));
+    MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllRawStandardError()));
 }
 
 } // namespace Internal

@@ -131,7 +131,7 @@ private:
             m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
             m_tempCoreFile.open(QFile::WriteOnly);
             connect(&m_coreUnpackProcess, &QtcProcess::readyReadStandardOutput, this, [this] {
-                m_tempCoreFile.write(m_coreUnpackProcess.readAllStandardOutput());
+                m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
             });
             m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
             reportStarted();

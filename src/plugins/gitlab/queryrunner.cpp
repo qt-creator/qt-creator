@@ -111,7 +111,7 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
             }
             VcsBase::VcsOutputWindow::appendError(m_process.exitMessage());
         } else {
-            emit resultRetrieved(m_process.readAllStandardOutput());
+            emit resultRetrieved(m_process.readAllRawStandardOutput());
         }
         emit finished();
     });

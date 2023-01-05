@@ -33,7 +33,7 @@ private:
         p.setCommand(cmd);
         p.setEnvironment(testEnv);
         p.runBlocking();
-        return QString::fromUtf8(p.readAllStandardOutput());
+        return QString::fromUtf8(p.readAllRawStandardOutput());
     }
 
 private slots:

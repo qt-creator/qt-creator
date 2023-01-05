@@ -589,7 +589,7 @@ void GdbEngine::handleAsyncOutput(const QString &asyncClass, const GdbMi &result
 
 void GdbEngine::readGdbStandardError()
 {
-    QString err = QString::fromUtf8(m_gdbProc.readAllStandardError());
+    QString err = QString::fromUtf8(m_gdbProc.readAllRawStandardError());
     showMessage("UNEXPECTED GDB STDERR: " + err);
     if (err == "Undefined command: \"bb\".  Try \"help\".\n")
         return;
@@ -616,7 +616,7 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    QByteArray out = m_gdbProc.readAllStandardOutput();
+    QByteArray out = m_gdbProc.readAllRawStandardOutput();
     m_inbuffer.append(out);
 
     // This can trigger when a dialog starts a nested event loop.

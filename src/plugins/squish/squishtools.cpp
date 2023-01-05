@@ -802,7 +802,7 @@ void SquishTools::onRecorderFinished()
 void SquishTools::onServerOutput()
 {
     // output used for getting the port information of the current squishserver
-    const QByteArray output = m_serverProcess.readAllStandardOutput();
+    const QByteArray output = m_serverProcess.readAllRawStandardOutput();
     const QList<QByteArray> lines = output.split('\n');
     for (const QByteArray &line : lines) {
         const QByteArray trimmed = line.trimmed();
@@ -830,7 +830,7 @@ void SquishTools::onServerOutput()
 void SquishTools::onServerErrorOutput()
 {
     // output that must be send to the Runner/Server Log
-    const QByteArray output = m_serverProcess.readAllStandardError();
+    const QByteArray output = m_serverProcess.readAllRawStandardError();
     const QList<QByteArray> lines = output.split('\n');
     for (const QByteArray &line : lines) {
         const QByteArray trimmed = line.trimmed();
@@ -922,7 +922,7 @@ void SquishTools::onRunnerOutput()
 void SquishTools::onRunnerErrorOutput()
 {
     // output that must be send to the Runner/Server Log
-    const QByteArray output = m_runnerProcess.readAllStandardError();
+    const QByteArray output = m_runnerProcess.readAllRawStandardError();
     const QList<QByteArray> lines = output.split('\n');
     for (const QByteArray &line : lines) {
         const QByteArray trimmed = line.trimmed();

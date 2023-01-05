@@ -110,7 +110,7 @@ void QnxDevice::updateVersionNumber() const
     versionNumberProcess.setCommand({filePath("uname"), {"-r"}});
     versionNumberProcess.runBlocking(EventLoopMode::On);
 
-    QByteArray output = versionNumberProcess.readAllStandardOutput();
+    QByteArray output = versionNumberProcess.readAllRawStandardOutput();
     QString versionMessage = QString::fromLatin1(output);
     const QRegularExpression versionNumberRegExp("(\\d+)\\.(\\d+)\\.(\\d+)");
     const QRegularExpressionMatch match = versionNumberRegExp.match(versionMessage);

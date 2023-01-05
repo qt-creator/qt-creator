@@ -136,7 +136,7 @@ public:
                 reportFailure();
                 return;
             }
-            const QByteArrayList data = m_process->readAllStandardOutput().split(' ');
+            const QByteArrayList data = m_process->readAllRawStandardOutput().split(' ');
             if (data.size() != 3) {
                 reportFailure();
                 return;

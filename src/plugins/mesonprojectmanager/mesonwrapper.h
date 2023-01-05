@@ -42,7 +42,7 @@ inline bool run_meson(const Command &command, QIODevice *output = nullptr)
     if (!process.waitForFinished())
         return false;
     if (output) {
-        output->write(process.readAllStandardOutput());
+        output->write(process.readAllRawStandardOutput());
     }
     return process.exitCode() == 0;
 }

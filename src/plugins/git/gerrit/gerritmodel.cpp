@@ -260,12 +260,12 @@ QueryContext::QueryContext(const QString &query,
         m_arguments = server.curlArguments() << url;
     }
     connect(&m_process, &QtcProcess::readyReadStandardError, this, [this] {
-        const QString text = QString::fromLocal8Bit(m_process.readAllStandardError());
+        const QString text = QString::fromLocal8Bit(m_process.readAllRawStandardError());
         VcsOutputWindow::appendError(text);
         m_error.append(text);
     });
     connect(&m_process, &QtcProcess::readyReadStandardOutput, this, [this] {
-        m_output.append(m_process.readAllStandardOutput());
+        m_output.append(m_process.readAllRawStandardOutput());
     });
     connect(&m_process, &QtcProcess::done, this, &QueryContext::processDone);
     m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());

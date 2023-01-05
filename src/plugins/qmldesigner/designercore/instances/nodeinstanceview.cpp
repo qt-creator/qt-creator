@@ -2073,7 +2073,7 @@ void NodeInstanceView::handleQsbProcessExit(Utils::QtcProcess *qsbProcess, const
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
-    const QByteArray stdErrStr = qsbProcess->readAllStandardError();
+    const QByteArray stdErrStr = qsbProcess->readAllRawStandardError();
 
     if (!errStr.isEmpty() || !stdErrStr.isEmpty()) {
         Core::MessageManager::writeSilently(QCoreApplication::translate(

@@ -56,10 +56,10 @@ Group CustomCommandDeployService::deployRecipe()
                                  {"-c", m_commandLine}});
         QtcProcess *proc = &process;
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
-            emit stdOutData(QString::fromUtf8(proc->readAllStandardOutput()));
+            emit stdOutData(proc->readAllStandardOutput());
         });
         connect(proc, &QtcProcess::readyReadStandardError, this, [this, proc] {
-            emit stdErrData(QString::fromUtf8(proc->readAllStandardError()));
+            emit stdErrData(proc->readAllStandardError());
         });
     };
     const auto doneHandler = [this](const QtcProcess &) {

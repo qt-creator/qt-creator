@@ -70,7 +70,7 @@ TaskItem RsyncDeployService::mkdirTask()
         process.setCommand({deviceConfiguration()->filePath("mkdir"),
                             QStringList("-p") + remoteDirs});
         connect(&process, &QtcProcess::readyReadStandardError, this, [this, proc = &process] {
-            emit stdErrData(QString::fromLocal8Bit(proc->readAllStandardError()));
+            emit stdErrData(QString::fromLocal8Bit(proc->readAllRawStandardError()));
         });
     };
     const auto errorHandler = [this](const QtcProcess &process) {
