@@ -198,9 +198,8 @@ bool QMakeStep::init()
     // perspective it is local.
 
     QString make;
-    if (qmakeBc->subNodeBuild()) {
-        QmakeProFileNode *pro = qmakeBc->subNodeBuild();
-        if (pro && !pro->makefile().isEmpty())
+    if (QmakeProFileNode *pro = qmakeBc->subNodeBuild()) {
+        if (!pro->makefile().isEmpty())
             make = pro->makefile();
         else
             make = "Makefile";
