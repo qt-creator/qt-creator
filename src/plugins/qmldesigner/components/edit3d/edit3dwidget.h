@@ -77,6 +77,7 @@ private:
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
+    ItemLibraryEntry m_draggedEntry;
 };
 
 } // namespace QmlDesigner

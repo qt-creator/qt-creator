@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "edit3dwidget.h"
-#include "designdocumentview.h"
+#include "designdocument.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
@@ -10,10 +10,10 @@
 #include "metainfo.h"
 #include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
+#include "nodehints.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
-#include "timelineactions.h"
 #include "viewmanager.h"
 
 #include <auxiliarydataproperties.h>
@@ -407,6 +407,15 @@ Edit3DView *Edit3DWidget::view() const
 
 void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 {
+    // Block all drags if scene root node is locked
+    if (m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
+        ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
+        if (ModelNode::isThisOrAncestorLocked(node))
+            return;
+    }
+
+    m_draggedEntry = {};
+
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
@@ -414,6 +423,14 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
+    } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
+        if (!data.isEmpty()) {
+            QDataStream stream(data);
+            stream >> m_draggedEntry;
+            if (NodeHints::fromItemLibraryEntry(m_draggedEntry).canBeDroppedInView3D())
+                dragEnterEvent->acceptProposedAction();
+        }
     }
 }
 
@@ -440,6 +457,13 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         m_view->dropBundleMaterial(pos);
+        return;
+    }
+
+    // handle dropping from component view
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        if (!m_draggedEntry.name().isEmpty())
+            m_view->dropComponent(m_draggedEntry, pos);
         return;
     }
 

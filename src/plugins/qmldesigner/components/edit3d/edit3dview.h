@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include "itemlibraryinfo.h"
 #include <qmldesignercomponents_global.h>
 
 #include <abstractview.h>
@@ -65,6 +66,7 @@ public:
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
+    void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
 
 private slots:
     void onEntriesChanged();
@@ -72,6 +74,7 @@ private slots:
 private:
     enum class NodeAtPosReqType {
         BundleMaterialDrop,
+        ComponentDrop,
         MaterialDrop,
         TextureDrop,
         ContextMenu,
@@ -122,6 +125,7 @@ private:
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedModelNode;
+    ItemLibraryEntry m_droppedEntry;
     NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;
