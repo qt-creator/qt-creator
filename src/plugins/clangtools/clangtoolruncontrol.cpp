@@ -245,7 +245,6 @@ void ClangToolRunWorker::start()
     FutureProgress *futureProgress
         = ProgressManager::addTask(m_progress.future(), tr("Analyzing"),
                                    toolName.toStdString().c_str());
-    futureProgress->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(futureProgress, &FutureProgress::canceled,
             this, &ClangToolRunWorker::onProgressCanceled);
     m_progress.setProgressRange(0, m_initialQueueSize);

@@ -554,7 +554,6 @@ void DebuggerEnginePrivate::setupViews()
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
         Tr::tr("Launching Debugger"), "Debugger.Launcher");
     connect(fp, &FutureProgress::canceled, m_engine, &DebuggerEngine::quitDebugger);
-    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();
 
     m_inferiorPid = rp.attachPID.isValid() ? rp.attachPID : ProcessHandle();
