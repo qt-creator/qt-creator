@@ -248,6 +248,16 @@ bool Edit3DWidget::isPasteAvailable() const
     return QApplication::clipboard()->text().startsWith(Constants::HEADER_3DPASTE_CONTENT);
 }
 
+bool Edit3DWidget::isSceneLocked() const
+{
+    if (m_view && m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
+        ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
+        if (ModelNode::isThisOrAncestorLocked(node))
+            return true;
+    }
+    return false;
+}
+
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
 void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
                                        const QHash<QString, QList<ItemLibraryEntry>> &entriesMap)
@@ -286,7 +296,7 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 void Edit3DWidget::onCreateAction()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    if (!action || !m_view || !m_view->model())
+    if (!action || !m_view || !m_view->model() || isSceneLocked())
         return;
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
@@ -373,6 +383,9 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     const bool isSingleComponent = view()->hasSingleSelectedModelNode() && modelNode.isComponent();
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
     const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
+
+    if (m_createSubMenu)
+        m_createSubMenu->setEnabled(!isSceneLocked());
 
     m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
