@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class MemcheckToolRunner;
 
@@ -15,5 +14,4 @@ public:
     ~MemcheckTool();
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

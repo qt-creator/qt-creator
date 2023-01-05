@@ -87,8 +87,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char MEMCHECK_RUN_MODE[] = "MemcheckTool.MemcheckRunMode";
 const char MEMCHECK_WITH_GDB_RUN_MODE[] = "MemcheckTool.MemcheckWithGdbRunMode";
@@ -379,6 +378,17 @@ static void initKindFilterAction(QAction *action, const QVariantList &kinds)
     action->setData(kinds);
 }
 
+class MemcheckToolRunnerFactory final : public RunWorkerFactory
+{
+public:
+    MemcheckToolRunnerFactory()
+    {
+        setProduct<MemcheckToolRunner>();
+        addSupportedRunMode(MEMCHECK_RUN_MODE);
+        addSupportedRunMode(MEMCHECK_WITH_GDB_RUN_MODE);
+    }
+};
+
 class MemcheckToolPrivate : public QObject
 {
 public:
@@ -434,10 +444,7 @@ private:
     QString m_exitMsg;
     Perspective m_perspective{"Memcheck.Perspective", Tr::tr("Memcheck")};
 
-    RunWorkerFactory memcheckToolRunnerFactory{
-        RunWorkerFactory::make<MemcheckToolRunner>(),
-        {MEMCHECK_RUN_MODE, MEMCHECK_WITH_GDB_RUN_MODE}
-    };
+    MemcheckToolRunnerFactory memcheckToolRunnerFactory;
 };
 
 static MemcheckToolPrivate *dd = nullptr;
@@ -1775,7 +1782,6 @@ MemcheckTool::~MemcheckTool()
     delete dd;
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal
 
 #include "memchecktool.moc"

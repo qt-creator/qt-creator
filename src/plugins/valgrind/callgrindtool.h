@@ -3,10 +3,7 @@
 
 #pragma once
 
-namespace Valgrind {
-namespace Internal {
-
-class ValgrindGlobalSettings;
+namespace Valgrind::Internal {
 
 class CallgrindTool final
 {
@@ -15,5 +12,4 @@ public:
     ~CallgrindTool();
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal

@@ -78,14 +78,23 @@ using namespace TextEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char CallgrindLocalActionId[]       = "Callgrind.Local.Action";
 const char CallgrindRemoteActionId[]      = "Callgrind.Remote.Action";
 const char CALLGRIND_RUN_MODE[]           = "CallgrindTool.CallgrindRunMode";
 
-class CallgrindToolPrivate : public QObject
+class CallgrindToolRunnerFactory final : public RunWorkerFactory
+{
+public:
+    CallgrindToolRunnerFactory()
+    {
+        setProduct<CallgrindToolRunner>();
+        addSupportedRunMode(CALLGRIND_RUN_MODE);
+    }
+};
+
+class CallgrindToolPrivate final : public QObject
 {
     Q_OBJECT
 
@@ -195,10 +204,7 @@ public:
 
     Perspective m_perspective{"Callgrind.Perspective", Tr::tr("Callgrind")};
 
-    RunWorkerFactory callgrindRunWorkerFactory{
-        RunWorkerFactory::make<CallgrindToolRunner>(),
-        {CALLGRIND_RUN_MODE}
-    };
+    CallgrindToolRunnerFactory callgrindRunWorkerFactory;
 };
 
 CallgrindToolPrivate::CallgrindToolPrivate()
@@ -965,7 +971,6 @@ CallgrindTool::~CallgrindTool()
     delete dd;
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // Valgrind::Internal
 
 #include "callgrindtool.moc"
