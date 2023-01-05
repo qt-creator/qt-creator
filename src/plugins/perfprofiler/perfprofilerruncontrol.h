@@ -5,8 +5,7 @@
 
 #include <projectexplorer/runcontrol.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfParserWorker;
 class PerfRecordWorker;
@@ -24,5 +23,10 @@ private:
     ProjectExplorer::RunWorker *m_perfRecordWorker = nullptr;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+class PerfProfilerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    PerfProfilerRunWorkerFactory();
+};
+
+} // PerfProfiler::Internal

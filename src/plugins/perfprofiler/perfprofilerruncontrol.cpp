@@ -10,9 +10,12 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <utils/qtcprocess.h>
 
 #include <QAction>
@@ -22,8 +25,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfParserWorker : public RunWorker
 {
@@ -204,7 +206,14 @@ void PerfProfilerRunner::start()
     reportStarted();
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+// PerfProfilerRunWorkerFactory
+
+PerfProfilerRunWorkerFactory::PerfProfilerRunWorkerFactory()
+{
+    setProduct<PerfProfilerRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+}
+
+} // PerfProfiler::Internal
 
 #include "perfprofilerruncontrol.moc"

@@ -33,8 +33,7 @@
 
 using namespace ProjectExplorer;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 Q_GLOBAL_STATIC(PerfSettings, perfGlobalSettings)
 
@@ -46,11 +45,7 @@ public:
         RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
     }
 
-    RunWorkerFactory profilerWorkerFactory{
-        RunWorkerFactory::make<PerfProfilerRunner>(),
-        {ProjectExplorer::Constants::PERFPROFILER_RUN_MODE}
-    };
-
+    PerfProfilerRunWorkerFactory profilerWorkerFactory;
     PerfOptionsPage optionsPage{perfGlobalSettings()};
     PerfProfilerTool profilerTool;
 };
@@ -84,5 +79,4 @@ QVector<QObject *> PerfProfilerPlugin::createTestObjects() const
     return tests;
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // PerfProfiler::Internal

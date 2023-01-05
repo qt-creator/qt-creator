@@ -7,8 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 class PerfProfilerPlugin : public ExtensionSystem::IPlugin
 {
@@ -26,5 +25,4 @@ public:
     class PerfProfilerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // PerfProfiler::Internal
