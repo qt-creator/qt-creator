@@ -1,6 +1,8 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidplugin.h"
+
 #include "androidconfigurations.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
@@ -9,7 +11,6 @@
 #include "androiddevice.h"
 #include "androidmanifesteditorfactory.h"
 #include "androidpackageinstallationstep.h"
-#include "androidplugin.h"
 #include "androidpotentialkit.h"
 #include "androidqmlpreviewworker.h"
 #include "androidqmltoolingsupport.h"
@@ -48,8 +49,7 @@ using namespace ProjectExplorer::Constants;
 
 const char kSetupAndroidSetting[] = "ConfigureAndroid";
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidDeployConfigurationFactory : public DeployConfigurationFactory
 {
@@ -89,29 +89,10 @@ public:
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
     AndroidRunConfigurationFactory runConfigFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<AndroidRunSupport>(),
-        {NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<AndroidDebugSupport>(),
-        {DEBUG_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory profilerWorkerFactory{
-        RunWorkerFactory::make<AndroidQmlToolingSupport>(),
-        {QML_PROFILER_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory qmlPreviewWorkerFactory{
-        RunWorkerFactory::make<AndroidQmlPreviewWorker>(),
-        {QML_PREVIEW_RUN_MODE},
-        {"QmlProjectManager.QmlRunConfiguration.Qml", runConfigFactory.runConfigurationId()},
-        {Android::Constants::ANDROID_DEVICE_TYPE}
-    };
-
+    AndroidRunWorkerFactory runWorkerFactory;
+    AndroidDebugWorkerFactory debugWorkerFactory;
+    AndroidQmlToolingSupportFactory profilerWorkerFactory;
+    AndroidQmlPreviewWorkerFactory qmlPreviewWorkerFactory;
     AndroidBuildApkStepFactory buildApkStepFactory;
     AndroidDeviceManager deviceManager;
 };
@@ -177,5 +158,4 @@ void AndroidPlugin::askUserAboutAndroidSetup()
     Core::ICore::infoBar()->addInfo(info);
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

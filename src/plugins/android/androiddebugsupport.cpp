@@ -10,6 +10,7 @@
 
 #include <debugger/debuggerkitinformation.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
@@ -20,9 +21,12 @@
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcprocess.h>
 
+#include <QFutureWatcher>
 #include <QHostAddress>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QLoggingCategory>
 
 namespace {
@@ -33,8 +37,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static FilePaths getSoLibSearchPath(const ProjectNode *node)
 {
@@ -77,14 +80,23 @@ static FilePaths getExtraLibs(const ProjectNode *node)
     return res;
 }
 
-AndroidDebugSupport::AndroidDebugSupport(RunControl *runControl, const QString &intentName)
-    : Debugger::DebuggerRunTool(runControl)
+class AndroidDebugSupport : public Debugger::DebuggerRunTool
 {
-    setId("AndroidDebugger");
-    setLldbPlatform("remote-android");
-    m_runner = new AndroidRunner(runControl, intentName);
-    addStartDependency(m_runner);
-}
+public:
+    explicit AndroidDebugSupport(RunControl *runControl) : Debugger::DebuggerRunTool(runControl)
+    {
+        setId("AndroidDebugger");
+        setLldbPlatform("remote-android");
+        m_runner = new AndroidRunner(runControl, {});
+        addStartDependency(m_runner);
+    }
+
+    void start() override;
+    void stop() override;
+
+private:
+    AndroidRunner *m_runner = nullptr;
+};
 
 void AndroidDebugSupport::start()
 {
@@ -98,7 +110,7 @@ void AndroidDebugSupport::start()
     setAttachPid(m_runner->pid());
 
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
-    if (!Utils::HostOsInfo::isWindowsHost()
+    if (!HostOsInfo::isWindowsHost()
         && (qtVersion
             && AndroidConfigurations::currentConfig().ndkVersion(qtVersion)
                    >= QVersionNumber(11, 0, 0))) {
@@ -157,7 +169,7 @@ void AndroidDebugSupport::start()
         if (qtVersion) {
             const FilePath ndkLocation =
                     AndroidConfigurations::currentConfig().ndkLocation(qtVersion);
-            Utils::FilePath sysRoot = ndkLocation
+            FilePath sysRoot = ndkLocation
                     / "platforms"
                     / QString("android-%1").arg(sdkVersion)
                     / devicePreferredAbi; // Legacy Ndk structure
@@ -187,5 +199,13 @@ void AndroidDebugSupport::stop()
     DebuggerRunTool::stop();
 }
 
-} // namespace Internal
-} // namespace Android
+// AndroidDebugWorkerFactory
+
+AndroidDebugWorkerFactory::AndroidDebugWorkerFactory()
+{
+    setProduct<AndroidDebugSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+}
+
+} // Android::Internal

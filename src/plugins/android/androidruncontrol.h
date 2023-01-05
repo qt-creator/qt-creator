@@ -7,23 +7,14 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidRunner;
 
-class AndroidRunSupport final : public AndroidRunner
+class AndroidRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
-                               const QString &intentName = QString());
-    ~AndroidRunSupport() override;
-
-    void start() override;
-    void stop() override;
+    AndroidRunWorkerFactory();
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

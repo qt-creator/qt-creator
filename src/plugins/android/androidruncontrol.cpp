@@ -3,6 +3,7 @@
 
 #include "androidruncontrol.h"
 
+#include "androidconstants.h"
 #include "androidglobal.h"
 #include "androidrunconfiguration.h"
 #include "androidrunner.h"
@@ -13,8 +14,18 @@
 
 using namespace ProjectExplorer;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
+
+class AndroidRunSupport final : public AndroidRunner
+{
+public:
+    explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
+                               const QString &intentName = QString());
+    ~AndroidRunSupport() override;
+
+    void start() override;
+    void stop() override;
+};
 
 AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName)
     : AndroidRunner(runControl, intentName)
@@ -37,5 +48,11 @@ void AndroidRunSupport::stop()
     AndroidRunner::stop();
 }
 
-} // namespace Internal
-} // namespace Android
+AndroidRunWorkerFactory::AndroidRunWorkerFactory()
+{
+    setProduct<AndroidRunSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+}
+
+} // Android::Internal

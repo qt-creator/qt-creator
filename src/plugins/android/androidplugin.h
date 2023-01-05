@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidPlugin final : public ExtensionSystem::IPlugin
 {
@@ -31,5 +30,4 @@ private slots:
 #endif // WITH_TESTS
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

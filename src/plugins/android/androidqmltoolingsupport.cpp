@@ -2,39 +2,44 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidqmltoolingsupport.h"
+
+#include "androidconstants.h"
 #include "androidrunner.h"
 
 using namespace ProjectExplorer;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
-AndroidQmlToolingSupport::AndroidQmlToolingSupport(RunControl *runControl,
-                                                   const QString &intentName)
-    : RunWorker(runControl)
+class AndroidQmlToolingSupport final : public RunWorker
 {
-    setId("AndroidQmlToolingSupport");
+public:
+    explicit AndroidQmlToolingSupport(RunControl *runControl) : RunWorker(runControl)
+    {
+        setId("AndroidQmlToolingSupport");
 
-    auto runner = new AndroidRunner(runControl, intentName);
-    addStartDependency(runner);
+        auto runner = new AndroidRunner(runControl, {});
+        addStartDependency(runner);
 
-    auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-    worker->addStartDependency(this);
+        auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+        worker->addStartDependency(this);
 
-    connect(runner, &AndroidRunner::qmlServerReady, this, [this, worker](const QUrl &server) {
-        worker->recordData("QmlServerUrl", server);
-        reportStarted();
-    });
+        connect(runner, &AndroidRunner::qmlServerReady, this, [this, worker](const QUrl &server) {
+            worker->recordData("QmlServerUrl", server);
+            reportStarted();
+        });
+    }
+
+private:
+    void start() override {}
+    void stop() override { reportStopped(); }
+};
+
+
+AndroidQmlToolingSupportFactory::AndroidQmlToolingSupportFactory()
+{
+    setProduct<AndroidQmlToolingSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
 }
 
-void AndroidQmlToolingSupport::start()
-{
-}
-
-void AndroidQmlToolingSupport::stop()
-{
-    reportStopped();
-}
-
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

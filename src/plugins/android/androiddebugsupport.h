@@ -3,26 +3,14 @@
 
 #pragma once
 
-#include "androidrunner.h"
-#include <debugger/debuggerruncontrol.h>
+#include <projectexplorer/runcontrol.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
-class AndroidDebugSupport : public Debugger::DebuggerRunTool
+class AndroidDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    AndroidDebugSupport(ProjectExplorer::RunControl *runControl,
-                        const QString &intentName = QString());
-
-    void start() override;
-    void stop() override;
-
-private:
-    AndroidRunner *m_runner = nullptr;
+    AndroidDebugWorkerFactory();
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

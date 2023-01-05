@@ -50,6 +50,7 @@ const char ANDROID_DEPLOYMENT_SETTINGS_FILE[] = "ANDROID_DEPLOYMENT_SETTINGS_FIL
 const char ANDROID_SO_LIBS_PATHS[] = "ANDROID_SO_LIBS_PATHS";
 const char JAVA_HOME_ENV_VAR[] = "JAVA_HOME";
 
+const char ANDROID_RUNCONFIG_ID[] = "Qt4ProjectManager.AndroidRunConfiguration:";
 const char ANDROID_PACKAGE_INSTALL_STEP_ID[] = "Qt4ProjectManager.AndroidPackageInstallationStep";
 const char ANDROID_BUILD_APK_ID[] = "QmakeProjectManager.AndroidBuildApkStep";
 const char ANDROID_DEPLOY_QT_ID[] = "Qt4ProjectManager.AndroidDeployQtStep";

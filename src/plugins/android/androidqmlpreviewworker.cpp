@@ -1,11 +1,14 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidqmlpreviewworker.h"
+
 #include "androidavdmanager.h"
+#include "androidconfigurations.h"
+#include "androidconstants.h"
 #include "androiddevice.h"
 #include "androiddeviceinfo.h"
 #include "androidmanager.h"
-#include "androidqmlpreviewworker.h"
 #include "androidtr.h"
 
 #include <coreplugin/icore.h>
@@ -24,20 +27,23 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QDateTime>
 #include <QDeadlineTimer>
+#include <QFutureWatcher>
 #include <QThread>
 
-namespace Android {
-namespace Internal {
-
+using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace Android::Internal {
 
 #define APP_ID "io.qt.qtdesignviewer"
 
-class ApkInfo {
+class ApkInfo
+{
 public:
     ApkInfo();
     const QStringList abis;
@@ -62,7 +68,59 @@ ApkInfo::ApkInfo() :
 
 Q_GLOBAL_STATIC(ApkInfo, apkInfo)
 
+class UploadInfo
+{
+public:
+    FilePath uploadPackage;
+    FilePath projectFolder;
+};
+
 static const char packageSuffix[] = ".qmlrc";
+
+class AndroidQmlPreviewWorker : public RunWorker
+{
+    Q_OBJECT
+public:
+    AndroidQmlPreviewWorker(RunControl *runControl);
+    ~AndroidQmlPreviewWorker();
+
+signals:
+    void previewPidChanged();
+
+private:
+    void start() override;
+    void stop() override;
+
+    bool ensureAvdIsRunning();
+    bool checkAndInstallPreviewApp();
+    bool preparePreviewArtefacts();
+    bool uploadPreviewArtefacts();
+
+    SdkToolResult runAdbCommand(const QStringList &arguments) const;
+    SdkToolResult runAdbShellCommand(const QStringList &arguments) const;
+    int pidofPreview() const;
+    bool isPreviewRunning(int lastKnownPid = -1) const;
+
+    void startPidWatcher();
+    void startLogcat();
+    void filterLogcatAndAppendMessage(const QString &stdOut);
+
+    bool startPreviewApp();
+    bool stopPreviewApp();
+
+    Utils::FilePath designViewerApkPath(const QString &abi) const;
+    Utils::FilePath createQmlrcFile(const Utils::FilePath &workFolder, const QString &basename);
+
+    RunControl *m_rc = nullptr;
+    const AndroidConfig &m_androidConfig;
+    QString m_serialNumber;
+    QStringList m_avdAbis;
+    int m_viewerPid = -1;
+    QFutureWatcher<void> m_pidFutureWatcher;
+    Utils::QtcProcess m_logcatProcess;
+    QString m_logcatStartTimeStamp;
+    UploadInfo m_uploadInfo;
+};
 
 FilePath AndroidQmlPreviewWorker::designViewerApkPath(const QString &abi) const
 {
@@ -158,8 +216,8 @@ void AndroidQmlPreviewWorker::filterLogcatAndAppendMessage(const QString &stdOut
     }
 }
 
-AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(ProjectExplorer::RunControl *runControl)
-    : ProjectExplorer::RunWorker(runControl),
+AndroidQmlPreviewWorker::AndroidQmlPreviewWorker(RunControl *runControl)
+    : RunWorker(runControl),
       m_rc(runControl),
       m_androidConfig(AndroidConfigurations::currentConfig())
 {
@@ -213,7 +271,6 @@ bool AndroidQmlPreviewWorker::ensureAvdIsRunning()
         devSN = m_serialNumber;
 
     if (!avdMananager.isAvdBooted(devSN)) {
-        using namespace ProjectExplorer;
         const IDevice *dev = DeviceKitAspect::device(m_rc->target()->kit()).data();
         if (!dev) {
             appendMessage(Tr::tr("Selected device is invalid."), ErrorMessageFormat);
@@ -430,5 +487,17 @@ bool AndroidQmlPreviewWorker::stopPreviewApp()
     return res.success();
 }
 
-} // namespace Internal
-} // namespace Android
+// AndroidQmlPreviewWorkerFactory
+
+AndroidQmlPreviewWorkerFactory::AndroidQmlPreviewWorkerFactory()
+{
+    setProduct<AndroidQmlPreviewWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+    addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration.Qml");
+    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    addSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+}
+
+} // Android::Internal
+
+#include "androidqmlpreviewworker.moc"
