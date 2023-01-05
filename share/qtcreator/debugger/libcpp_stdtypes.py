@@ -340,3 +340,40 @@ def qdump__std____1__vector(d, value):
 
 def qdump__std____1__once_flag(d, value):
     qdump__std__once_flag(d, value)
+
+
+def qdump__std____1__variant(d, value):
+    index = value['__impl']['__index']
+    index_num = int(index)
+    value_type = d.templateArgument(value.type, index_num)
+    d.putValue("<%s:%s>" % (index_num, value_type.name))
+
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem("index", index)
+            d.putSubItem("value", value.cast(value_type))
+
+
+def qdump__std____1__optional(d, value):
+    if value['__engaged_'].integer() == 0:
+        d.putSpecialValue("uninitialized")
+    d.putNumChild(2)
+    if d.isExpanded():
+        with Children(d):
+            d.putSubItem("engaged", value['__engaged_'])
+            d.putSubItem("value", value['#1']['__val_'])
+
+
+def qdump__std____1__tuple(d, value):
+    values = []
+    for member in value['__base_'].members(False):
+        values.append(member['__value_'])
+    d.putItemCount(len(values))
+    d.putNumChild(len(values))
+    if d.isExpanded():
+        with Children(d):
+            count = 0
+            for internal_value in values:
+                d.putSubItem("[%i]" % count, internal_value)
+                count += 1
