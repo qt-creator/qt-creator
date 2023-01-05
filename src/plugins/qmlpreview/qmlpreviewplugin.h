@@ -15,15 +15,18 @@
 
 namespace Core { class IEditor; }
 
+namespace ProjectExplorer { class RunControl; }
+
 namespace QmlDebug { class QmlDebugConnection; }
 
 namespace QmlPreview {
 
-typedef bool (*QmlPreviewFileClassifier) (const QString &);
-typedef QByteArray (*QmlPreviewFileLoader)(const QString &, bool *);
-typedef void (*QmlPreviewFpsHandler)(quint16[8]);
-typedef QList<ProjectExplorer::RunControl *> QmlPreviewRunControlList;
-typedef std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)> QmlDebugTranslationClientCreator;
+using QmlPreviewFileClassifier = bool (*)(const QString &);
+using QmlPreviewFileLoader = QByteArray (*)(const QString &, bool *);
+using QmlPreviewFpsHandler = void (*)(quint16[8]);
+using QmlPreviewRunControlList = QList<ProjectExplorer::RunControl *>;
+using QmlDebugTranslationClientCreator =
+    std::function<std::unique_ptr<QmlDebugTranslationClient>(QmlDebug::QmlDebugConnection *)>;
 
 class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 {
@@ -69,6 +72,10 @@ public:
     void setLocaleIsoCode(const QString &localeIsoCode);
 
     void setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator);
+
+    void previewCurrentFile();
+    void addPreview(ProjectExplorer::RunControl *preview);
+    void removePreview(ProjectExplorer::RunControl *preview);
 
 signals:
     void checkDocument(const QString &name, const QByteArray &contents,

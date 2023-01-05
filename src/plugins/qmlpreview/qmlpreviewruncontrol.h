@@ -3,45 +3,26 @@
 
 #pragma once
 
-#include "qmlpreviewconnectionmanager.h"
-#include "qmlpreviewfileontargetfinder.h"
 #include "qmlpreviewplugin.h"
+
 #include <projectexplorer/runconfiguration.h>
 
 namespace QmlPreview {
 
-struct QmlPreviewRunnerSetting {
-    ProjectExplorer::RunControl *runControl = nullptr;
+struct QmlPreviewRunnerSetting
+{
     QmlPreviewFileLoader fileLoader;
     QmlPreviewFileClassifier fileClassifier;
     QmlPreviewFpsHandler fpsHandler;
-    float zoom = 1.0;
+    float zoomFactor = 1.0;
     QString language;
     QmlDebugTranslationClientCreator createDebugTranslationClientMethod;
 };
 
-class QmlPreviewRunner : public ProjectExplorer::RunWorker
+class QmlPreviewRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    QmlPreviewRunner(const QmlPreviewRunnerSetting &settings);
-
-    void setServerUrl(const QUrl &serverUrl);
-    QUrl serverUrl() const;
-
-signals:
-    void loadFile(const QString &previewedFile, const QString &changedFile,
-                  const QByteArray &contents);
-    void language(const QString &locale);
-    void zoom(float zoomFactor);
-    void rerun();
-    void ready();
-private:
-    void start() override;
-    void stop() override;
-
-    Internal::QmlPreviewConnectionManager m_connectionManager;
+    QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin, const QmlPreviewRunnerSetting *runnerSettings);
 };
 
 class LocalQmlPreviewSupportFactory final : public ProjectExplorer::RunWorkerFactory

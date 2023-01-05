@@ -42,6 +42,7 @@
 #include <android/androidconstants.h>
 
 #include <QAction>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 
@@ -90,20 +91,16 @@ static std::unique_ptr<QmlDebugTranslationClient> defaultCreateDebugTranslationC
 {
     auto client = std::make_unique<QmlPreview::QmlDebugTranslationClient>(connection);
     return client;
-};
-
+}
 
 class QmlPreviewPluginPrivate : public QObject
 {
 public:
     explicit QmlPreviewPluginPrivate(QmlPreviewPlugin *parent);
 
-    void previewCurrentFile();
     void onEditorChanged(Core::IEditor *editor);
     void onEditorAboutToClose(Core::IEditor *editor);
     void setDirty();
-    void addPreview(ProjectExplorer::RunControl *preview);
-    void removePreview(ProjectExplorer::RunControl *preview);
     void attachToEditor();
     void checkEditor();
     void checkFile(const QString &fileName);
@@ -114,7 +111,7 @@ public:
     QmlPreviewRunControlList runningPreviews() const;
 
     QmlPreviewFileClassifier fileClassifier() const;
-    void setFileClassifier(QmlPreviewFileClassifier fileClassifer);
+    void setFileClassifier(QmlPreviewFileClassifier fileClassifier);
 
     float zoomFactor() const;
     void setZoomFactor(float zoomFactor);
@@ -128,60 +125,24 @@ public:
     QmlPreviewPlugin *q = nullptr;
     QThread m_parseThread;
     QString m_previewedFile;
-    QmlPreviewFileLoader m_fileLoader = nullptr;
     Core::IEditor *m_lastEditor = nullptr;
     QmlPreviewRunControlList m_runningPreviews;
     bool m_dirty = false;
-    QmlPreview::QmlPreviewFileClassifier m_fileClassifer = nullptr;
-    float m_zoomFactor = -1.0;
-    QmlPreview::QmlPreviewFpsHandler m_fpsHandler = nullptr;
     QString m_localeIsoCode;
-    QmlDebugTranslationClientCreator m_createDebugTranslationClientMethod;
 
     LocalQmlPreviewSupportFactory localRunWorkerFactory;
 
-    RunWorkerFactory runWorkerFactory{
-        [this](RunControl *runControl) {
-            QmlPreviewRunner *runner = new QmlPreviewRunner(QmlPreviewRunnerSetting{
-                runControl,
-                m_fileLoader,
-                m_fileClassifer,
-                m_fpsHandler,
-                m_zoomFactor,
-                m_localeIsoCode,
-                m_createDebugTranslationClientMethod
-            });
-            connect(q, &QmlPreviewPlugin::updatePreviews,
-                    runner, &QmlPreviewRunner::loadFile);
-            connect(q, &QmlPreviewPlugin::rerunPreviews,
-                    runner, &QmlPreviewRunner::rerun);
-            connect(runner, &QmlPreviewRunner::ready,
-                    this, &QmlPreviewPluginPrivate::previewCurrentFile);
-            connect(q, &QmlPreviewPlugin::zoomFactorChanged,
-                    runner, &QmlPreviewRunner::zoom);
-            connect(q, &QmlPreviewPlugin::localeIsoCodeChanged,
-                    runner, &QmlPreviewRunner::language);
-
-            connect(runner, &RunWorker::started, this, [this, runControl] {
-                addPreview(runControl);
-            });
-            connect(runner, &RunWorker::stopped, this, [this, runControl] {
-                removePreview(runControl);
-            });
-
-            return runner;
-        },
-        {Constants::QML_PREVIEW_RUNNER}
-    };
+    QmlPreviewRunnerSetting m_settings;
+    QmlPreviewRunWorkerFactory runWorkerFactory;
 };
 
 QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
-    : q(parent)
+    : q(parent), runWorkerFactory(parent, &m_settings)
 {
-    m_fileLoader = &defaultFileLoader;
-    m_fileClassifer = &defaultFileClassifier;
-    m_fpsHandler = &defaultFpsHandler;
-    m_createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
+    m_settings.fileLoader = &defaultFileLoader;
+    m_settings.fileClassifier = &defaultFileClassifier;
+    m_settings.fpsHandler = &defaultFpsHandler;
+    m_settings.createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
@@ -211,7 +172,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
             action, [action](const QmlPreviewRunControlList &previews) {
         action->setEnabled(!previews.isEmpty());
     });
-    connect(action, &QAction::triggered, this, &QmlPreviewPluginPrivate::previewCurrentFile);
+    connect(action, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
     menu->addAction(
         Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
         Constants::G_FILE_OTHER);
@@ -285,49 +246,49 @@ QmlPreviewRunControlList QmlPreviewPlugin::runningPreviews() const
 
 QmlPreviewFileLoader QmlPreviewPlugin::fileLoader() const
 {
-    return d->m_fileLoader;
+    return d->m_settings.fileLoader;
 }
 
 QmlPreviewFileClassifier QmlPreviewPlugin::fileClassifier() const
 {
-    return d->m_fileClassifer;
+    return d->m_settings.fileClassifier;
 }
 
-void QmlPreviewPlugin::setFileClassifier(QmlPreviewFileClassifier fileClassifer)
+void QmlPreviewPlugin::setFileClassifier(QmlPreviewFileClassifier fileClassifier)
 {
-    if (d->m_fileClassifer == fileClassifer)
+    if (d->m_settings.fileClassifier == fileClassifier)
         return;
 
-    d->m_fileClassifer = fileClassifer;
-    emit fileClassifierChanged(d->m_fileClassifer);
+    d->m_settings.fileClassifier = fileClassifier;
+    emit fileClassifierChanged(d->m_settings.fileClassifier);
 }
 
 float QmlPreviewPlugin::zoomFactor() const
 {
-    return d->m_zoomFactor;
+    return d->m_settings.zoomFactor;
 }
 
 void QmlPreviewPlugin::setZoomFactor(float zoomFactor)
 {
-    if (d->m_zoomFactor == zoomFactor)
+    if (d->m_settings.zoomFactor == zoomFactor)
         return;
 
-    d->m_zoomFactor = zoomFactor;
-    emit zoomFactorChanged(d->m_zoomFactor);
+    d->m_settings.zoomFactor = zoomFactor;
+    emit zoomFactorChanged(d->m_settings.zoomFactor);
 }
 
 QmlPreviewFpsHandler QmlPreviewPlugin::fpsHandler() const
 {
-    return d->m_fpsHandler;
+    return d->m_settings.fpsHandler;
 }
 
 void QmlPreviewPlugin::setFpsHandler(QmlPreviewFpsHandler fpsHandler)
 {
-    if (d->m_fpsHandler == fpsHandler)
+    if (d->m_settings.fpsHandler == fpsHandler)
         return;
 
-    d->m_fpsHandler = fpsHandler;
-    emit fpsHandlerChanged(d->m_fpsHandler);
+    d->m_settings.fpsHandler = fpsHandler;
+    emit fpsHandlerChanged(d->m_settings.fpsHandler);
 }
 
 QString QmlPreviewPlugin::localeIsoCode() const
@@ -348,19 +309,19 @@ void QmlPreviewPlugin::setLocaleIsoCode(const QString &localeIsoCode)
 
 void QmlPreviewPlugin::setQmlDebugTranslationClientCreator(QmlDebugTranslationClientCreator creator)
 {
-    d->m_createDebugTranslationClientMethod = creator;
+    d->m_settings.createDebugTranslationClientMethod = creator;
 }
 
 void QmlPreviewPlugin::setFileLoader(QmlPreviewFileLoader fileLoader)
 {
-    if (d->m_fileLoader == fileLoader)
+    if (d->m_settings.fileLoader == fileLoader)
         return;
 
-    d->m_fileLoader = fileLoader;
-    emit fileLoaderChanged(d->m_fileLoader);
+    d->m_settings.fileLoader = fileLoader;
+    emit fileLoaderChanged(d->m_settings.fileLoader);
 }
 
-void QmlPreviewPluginPrivate::previewCurrentFile()
+void QmlPreviewPlugin::previewCurrentFile()
 {
     const Node *currentNode = ProjectTree::currentNode();
     if (!currentNode || !currentNode->asFileNode()
@@ -368,10 +329,10 @@ void QmlPreviewPluginPrivate::previewCurrentFile()
         return;
 
     const QString file = currentNode->filePath().toString();
-    if (file != m_previewedFile)
-        q->setPreviewedFile(file);
+    if (file != d->m_previewedFile)
+        setPreviewedFile(file);
     else
-        checkFile(file);
+        d->checkFile(file);
 }
 
 void QmlPreviewPluginPrivate::onEditorChanged(Core::IEditor *editor)
@@ -420,16 +381,16 @@ void QmlPreviewPluginPrivate::setDirty()
     });
 }
 
-void QmlPreviewPluginPrivate::addPreview(ProjectExplorer::RunControl *preview)
+void QmlPreviewPlugin::addPreview(RunControl *preview)
 {
-    m_runningPreviews.append(preview);
-    emit q->runningPreviewsChanged(m_runningPreviews);
+    d->m_runningPreviews.append(preview);
+    emit runningPreviewsChanged(d->m_runningPreviews);
 }
 
-void QmlPreviewPluginPrivate::removePreview(ProjectExplorer::RunControl *preview)
+void QmlPreviewPlugin::removePreview(RunControl *preview)
 {
-    m_runningPreviews.removeOne(preview);
-    emit q->runningPreviewsChanged(m_runningPreviews);
+    d->m_runningPreviews.removeOne(preview);
+    emit runningPreviewsChanged(d->m_runningPreviews);
 }
 
 void QmlPreviewPluginPrivate::attachToEditor()
@@ -472,11 +433,11 @@ void QmlPreviewPluginPrivate::checkEditor()
 
 void QmlPreviewPluginPrivate::checkFile(const QString &fileName)
 {
-    if (!m_fileLoader)
+    if (!m_settings.fileLoader)
         return;
 
     bool success = false;
-    const QByteArray contents = m_fileLoader(fileName, &success);
+    const QByteArray contents = m_settings.fileLoader(fileName, &success);
 
     if (success) {
         emit q->checkDocument(fileName,
@@ -490,7 +451,7 @@ void QmlPreviewPluginPrivate::checkFile(const QString &fileName)
 void QmlPreviewPluginPrivate::triggerPreview(const QString &changedFile, const QByteArray &contents)
 {
     if (m_previewedFile.isEmpty())
-        previewCurrentFile();
+        q->previewCurrentFile();
     else
         emit q->updatePreviews(m_previewedFile, changedFile, contents);
 }
