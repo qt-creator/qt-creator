@@ -138,12 +138,7 @@ public:
     QString m_localeIsoCode;
     QmlDebugTranslationClientCreator m_createDebugTranslationClientMethod;
 
-    RunWorkerFactory localRunWorkerFactory{
-        RunWorkerFactory::make<LocalQmlPreviewSupport>(),
-        {Constants::QML_PREVIEW_RUN_MODE},
-        {}, // All runconfig.
-        {Constants::DESKTOP_DEVICE_TYPE}
-    };
+    LocalQmlPreviewSupportFactory localRunWorkerFactory;
 
     RunWorkerFactory runWorkerFactory{
         [this](RunControl *runControl) {

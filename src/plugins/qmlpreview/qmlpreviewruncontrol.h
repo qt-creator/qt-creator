@@ -44,12 +44,10 @@ private:
     Internal::QmlPreviewConnectionManager m_connectionManager;
 };
 
-class LocalQmlPreviewSupport : public ProjectExplorer::SimpleTargetRunner
+class LocalQmlPreviewSupportFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    Q_OBJECT
-
 public:
-    LocalQmlPreviewSupport(ProjectExplorer::RunControl *runControl);
+    LocalQmlPreviewSupportFactory();
 };
 
-} // namespace QmlPreview
+} // QmlPreview
