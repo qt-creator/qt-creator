@@ -55,7 +55,8 @@ public:
                     s.intelFlavor,
                     s.usePseudoTracepoints,
                     s.useIndexCache,
-                 }
+                    st
+                }
             };
 
             Group extended {
