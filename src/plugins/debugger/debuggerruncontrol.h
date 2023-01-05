@@ -155,7 +155,13 @@ private:
     bool m_useMulti = true;
 };
 
+class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    DebuggerRunWorkerFactory();
+};
+
 extern DEBUGGER_EXPORT const char DebugServerRunnerWorkerId[];
 extern DEBUGGER_EXPORT const char GdbServerPortGathererWorkerId[];
 
-} // namespace Debugger
+} // Debugger

@@ -709,12 +709,7 @@ public:
     DebuggerKitAspect debuggerKitAspect;
     CommonOptionsPage commonOptionsPage;
 
-    RunWorkerFactory debuggerWorkerFactory{
-        RunWorkerFactory::make<DebuggerRunTool>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {}, // All local run configs?
-        {PE::DESKTOP_DEVICE_TYPE, "DockerDeviceType"}
-    };
+    DebuggerRunWorkerFactory debuggerWorkerFactory;
 
     // FIXME: Needed?
 //            QString mainScript = runConfig->property("mainScript").toString();

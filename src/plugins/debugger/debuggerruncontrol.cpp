@@ -1073,4 +1073,14 @@ void DebugServerRunner::setAttachPid(ProcessHandle pid)
     m_pid = pid;
 }
 
-} // namespace Debugger
+// DebuggerRunWorkerFactory
+
+DebuggerRunWorkerFactory::DebuggerRunWorkerFactory()
+{
+    setProduct<DebuggerRunTool>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    addSupportedDeviceType("DockerDeviceType");
+}
+
+} // Debugger
