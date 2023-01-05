@@ -116,8 +116,6 @@ QString QMakeStep::allArguments(const QtVersion *v, ArgumentFlags flags) const
     QStringList arguments;
     if (bc->subNodeBuild())
         arguments << bc->subNodeBuild()->filePath().nativePath();
-    else if (flags & ArgumentFlag::OmitProjectPath)
-        arguments << project()->projectFilePath().fileName();
     else
         arguments << project()->projectFilePath().nativePath();
 

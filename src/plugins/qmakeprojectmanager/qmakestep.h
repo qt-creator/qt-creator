@@ -106,7 +106,6 @@ public:
     void setForced(bool b);
 
     enum class ArgumentFlag {
-        OmitProjectPath = 0x01,
         Expand = 0x02
     };
     Q_DECLARE_FLAGS(ArgumentFlags, ArgumentFlag);
