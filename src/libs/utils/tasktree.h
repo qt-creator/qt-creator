@@ -33,11 +33,6 @@ class QTCREATOR_UTILS_EXPORT TreeStorageBase
 {
 public:
     bool isValid() const;
-    friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
-    { return first.m_storageData == second.m_storageData; }
-    friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
-    { return first.m_storageData != second.m_storageData; }
-    size_t hash(uint seed) const;
 
 protected:
     using StorageConstructor = std::function<void *(void)>;
@@ -51,6 +46,15 @@ private:
     void deleteStorage(int id);
     void activateStorage(int id);
 
+    friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
+    { return first.m_storageData == second.m_storageData; }
+
+    friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
+    { return first.m_storageData != second.m_storageData; }
+
+    friend size_t qHash(const TreeStorageBase &storage, uint seed = 0)
+    { return size_t(storage.m_storageData.get()) ^ seed; }
+
     struct StorageData {
         ~StorageData();
         StorageConstructor m_constructor = {};
@@ -63,11 +67,6 @@ private:
     friend TaskContainer;
     friend TaskTreePrivate;
 };
-
-inline size_t qHash(const TreeStorageBase &storage, uint seed = 0)
-{
-    return storage.hash(seed);
-}
 
 template <typename StorageStruct>
 class TreeStorage : public TreeStorageBase
