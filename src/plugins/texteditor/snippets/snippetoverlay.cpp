@@ -38,8 +38,13 @@ void SnippetOverlay::setFinalSelection(const QTextCursor &cursor, const QColor &
 void SnippetOverlay::updateEquivalentSelections(const QTextCursor &cursor)
 {
     const int &currentIndex = indexForCursor(cursor);
+    if (currentIndex == m_finalSelectionIndex) {
+        accept();
+        return;
+    }
     if (currentIndex < 0)
         return;
+    QTC_ASSERT(currentIndex < m_selections.size(), return);
     const QString &currentText = cursorForIndex(currentIndex).selectedText();
     const QList<int> &equivalents = m_variables.value(m_selections[currentIndex].variableIndex);
     for (int i : equivalents) {

@@ -932,29 +932,32 @@ static QStringList qtversionFilesToCheck()
     return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return qtVersionsFile(dir); });
 }
 
-static std::optional<QString> settingsDirForQtDir(const QString &qtDir)
+static std::optional<FilePath> settingsDirForQtDir(const FilePath &baseDirectory,
+                                                   const FilePath &qtDir)
 {
-    const QStringList dirsToCheck = Utils::transform(kSubdirsToCheck, [qtDir](const QString &dir) {
-        return QString(qtDir + '/' + dir);
+    const FilePaths dirsToCheck = Utils::transform(kSubdirsToCheck, [qtDir](const QString &dir) {
+        return qtDir / dir;
     });
-    const QString validDir = Utils::findOrDefault(dirsToCheck, [](const QString &dir) {
-        return QFile::exists(settingsFile(dir)) || QFile::exists(qtVersionsFile(dir));
+    const FilePath validDir = Utils::findOrDefault(dirsToCheck, [baseDirectory](const FilePath &dir) {
+        return QFile::exists(settingsFile(baseDirectory.resolvePath(dir).toString()))
+               || QFile::exists(qtVersionsFile(baseDirectory.resolvePath(dir).toString()));
     });
     if (!validDir.isEmpty())
         return validDir;
     return {};
 }
 
-static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
+static bool validateQtInstallDir(PathChooser *input, QString *errorString)
 {
-    const QString qtDir = input->text();
-    if (!settingsDirForQtDir(qtDir)) {
+    const FilePath qtDir = input->rawFilePath();
+    if (!settingsDirForQtDir(input->baseDirectory(), qtDir)) {
         if (errorString) {
             const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
-            *errorString = "<html><body>" + Tr::tr(
-                               "Qt installation information was not found in \"%1\". "
-                               "Choose a directory that contains one of the files %2")
-                               .arg(qtDir, "<pre>" + filesToCheck.join('\n') + "</pre>");
+            *errorString = "<html><body>"
+                           + Tr::tr("Qt installation information was not found in \"%1\". "
+                                    "Choose a directory that contains one of the files %2")
+                                 .arg(qtDir.toUserOutput(),
+                                      "<pre>" + filesToCheck.join('\n') + "</pre>");
         }
         return false;
     }
@@ -990,13 +993,14 @@ void QtOptionsPageWidget::linkWithQt()
     auto pathInput = new PathChooser;
     pathLayout->addWidget(pathInput);
     pathInput->setExpectedKind(PathChooser::ExistingDirectory);
+    pathInput->setBaseDirectory(FilePath::fromString(QCoreApplication::applicationDirPath()));
     pathInput->setPromptDialogTitle(title);
     pathInput->setMacroExpander(nullptr);
     pathInput->setValidationFunction([pathInput](FancyLineEdit *input, QString *errorString) {
         if (pathInput->defaultValidationFunction()
             && !pathInput->defaultValidationFunction()(input, errorString))
             return false;
-        return validateQtInstallDir(input, errorString);
+        return validateQtInstallDir(pathInput, errorString);
     });
     const std::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
     pathInput->setFilePath(currentLink ? *currentLink : defaultQtInstallationPath());
@@ -1029,11 +1033,12 @@ void QtOptionsPageWidget::linkWithQt()
 
     dialog.exec();
     if (dialog.result() == QDialog::Accepted) {
-        const std::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawFilePath().toString());
+        const std::optional<FilePath> settingsDir = settingsDirForQtDir(pathInput->baseDirectory(),
+                                                                        pathInput->rawFilePath());
         if (QTC_GUARD(settingsDir)) {
             const QString settingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
             QSettings settings(settingsFilePath, QSettings::IniFormat);
-            settings.setValue(kInstallSettingsKey, *settingsDir);
+            settings.setValue(kInstallSettingsKey, settingsDir->toVariant());
             settings.sync();
             if (settings.status() == QSettings::AccessError) {
                 QMessageBox::critical(Core::ICore::dialogParent(),

@@ -48247,7 +48247,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
     <message>
         <source>Did not find %1 plugin.</source>
-        <translation>Konnte das Plugin %1 nicht finden.</translation>
+        <translation>Konnte kein %1 Plugin finden.</translation>
     </message>
     <message>
         <source>Install Location</source>
