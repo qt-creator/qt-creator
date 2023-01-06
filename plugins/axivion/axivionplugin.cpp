@@ -297,9 +297,11 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
         auto mark = new TextEditor::TextMark(filePath, issue.lineNumber, axivionId);
-        mark->setToolTip(issue.errorNumber + " " + issue.entity + ": " + issue.message);
+        const QString markText = issue.entity.isEmpty() ? issue.message
+                                                        : issue.entity + ": " + issue.message;
+        mark->setToolTip(issue.errorNumber + " " + markText);
         mark->setPriority(TextEditor::TextMark::NormalPriority);
-        mark->setLineAnnotation(issue.errorNumber);
+        mark->setLineAnnotation(markText);
     }
 }
 
