@@ -7,6 +7,7 @@
 #include "clangtidyclazyrunner.h"
 #include "clangtoolruncontrol.h"
 #include "clangtoolsconstants.h"
+#include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"

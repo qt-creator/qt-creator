@@ -51,10 +51,8 @@
 #include <QAction>
 #include <QCheckBox>
 #include <QDesktopServices>
-#include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QSortFilterProxyModel>
 #include <QToolButton>
 
 using namespace Core;
@@ -681,22 +679,15 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     ProjectExplorerPlugin::startRunControl(m_runControl);
 }
 
-Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
-                            const QString &logFilePath,
+Diagnostics ClangTool::read(const QString &logFilePath,
                             const QSet<FilePath> &projectFiles,
                             QString *errorMessage) const
 {
     const auto acceptFromFilePath = [projectFiles](const Utils::FilePath &filePath) {
         return projectFiles.contains(filePath);
     };
-
-    if (outputFileFormat == OutputFileFormat::Yaml) {
-        return readExportedDiagnostics(Utils::FilePath::fromString(logFilePath),
-                                       acceptFromFilePath,
-                                       errorMessage);
-    }
-
-    return {};
+    return readExportedDiagnostics(Utils::FilePath::fromString(logFilePath),
+                                   acceptFromFilePath, errorMessage);
 }
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)

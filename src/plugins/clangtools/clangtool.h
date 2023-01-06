@@ -6,7 +6,6 @@
 #include "clangfileinfo.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsdiagnosticmodel.h"
-#include "clangtoolslogfilereader.h"
 
 #include <debugger/debuggermainwindow.h>
 
@@ -66,8 +65,7 @@ public:
                    const RunSettings &runSettings,
                    const CppEditor::ClangDiagnosticConfig &diagnosticConfig);
 
-    Diagnostics read(OutputFileFormat outputFileFormat,
-                     const QString &logFilePath,
+    Diagnostics read(const QString &logFilePath,
                      const QSet<Utils::FilePath> &projectFiles,
                      QString *errorMessage) const;
 

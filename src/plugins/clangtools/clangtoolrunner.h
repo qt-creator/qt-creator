@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "clangtoolslogfilereader.h"
-
 #include <utils/commandline.h>
 #include <utils/qtcprocess.h>
 
@@ -26,12 +24,10 @@ public:
     void setName(const QString &name) { m_name = name; }
     void setExecutable(const Utils::FilePath &executable) { m_executable = executable; }
     void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
-    void setOutputFileFormat(const OutputFileFormat &format) { m_outputFileFormat = format; }
     void setVFSOverlay(const QString overlayFilePath) { m_overlayFilePath = overlayFilePath; }
 
     QString name() const { return m_name; }
     Utils::FilePath executable() const { return m_executable; }
-    OutputFileFormat outputFileFormat() const { return m_outputFileFormat; }
     QString fileToAnalyze() const { return m_fileToAnalyze; }
     QString outputFilePath() const { return m_outputFilePath; }
     QStringList mainToolArguments() const;
@@ -62,7 +58,6 @@ private:
     QString m_name;
     Utils::FilePath m_executable;
     ArgsCreator m_argsCreator;
-    OutputFileFormat m_outputFileFormat = OutputFileFormat::Yaml;
 
     QString m_fileToAnalyze;
     QString m_outputFilePath;

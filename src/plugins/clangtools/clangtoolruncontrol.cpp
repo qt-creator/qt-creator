@@ -5,8 +5,6 @@
 
 #include "clangtidyclazyrunner.h"
 #include "clangtool.h"
-#include "clangtoolslogfilereader.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
@@ -323,10 +321,7 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
     emit runnerFinished();
 
     QString errorMessage;
-    const Diagnostics diagnostics = m_tool->read(runner->outputFileFormat(),
-                                                 outputFilePath,
-                                                 m_projectFiles,
-                                                 &errorMessage);
+    const Diagnostics diagnostics = m_tool->read(outputFilePath, m_projectFiles, &errorMessage);
 
     if (!errorMessage.isEmpty()) {
         m_filesAnalyzed.remove(filePath);

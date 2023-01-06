@@ -3,7 +3,6 @@
 
 #include "clangtidyclazyrunner.h"
 
-#include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
@@ -16,7 +15,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
-#include <QDir>
 #include <QLoggingCategory>
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
@@ -69,7 +67,6 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     : ClangToolRunner(parent)
 {
     setName(tr("Clang-Tidy"));
-    setOutputFileFormat(OutputFileFormat::Yaml);
     setExecutable(clangTidyExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList() << tidyChecksArguments(config)
@@ -83,7 +80,6 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
     : ClangToolRunner(parent)
 {
     setName(tr("Clazy"));
-    setOutputFileFormat(OutputFileFormat::Yaml);
     setExecutable(clazyStandaloneExecutable());
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList() << clazyChecksArguments(config)
