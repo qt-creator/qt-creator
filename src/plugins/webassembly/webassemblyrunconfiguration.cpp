@@ -11,14 +11,14 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 static FilePath pythonInterpreter(const Environment &env)
 {
@@ -111,11 +111,6 @@ public:
     }
 };
 
-RunWorkerFactory::WorkerCreator makeEmrunWorker()
-{
-    return RunWorkerFactory::make<EmrunRunWorker>();
-}
-
 // Factories
 
 EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
@@ -124,5 +119,11 @@ EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
 }
 
-} // namespace Internal
-} // namespace Webassembly
+EmrunRunWorkerFactory::EmrunRunWorkerFactory()
+{
+    setProduct<EmrunRunWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
+}
+
+} // Webassembly::Internal

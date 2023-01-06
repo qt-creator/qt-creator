@@ -25,8 +25,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class WebAssemblyPluginPrivate
 {
@@ -35,11 +34,7 @@ public:
     WebAssemblyDeviceFactory deviceFactory;
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;
-    RunWorkerFactory emrunRunWorkerFactory{
-        makeEmrunWorker(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN}
-    };
+    EmrunRunWorkerFactory emrunRunWorkerFactory;
     WebAssemblyOptionsPage optionsPage;
 };
 
@@ -94,5 +89,4 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
     ICore::infoBar()->addInfo(info);
 }
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

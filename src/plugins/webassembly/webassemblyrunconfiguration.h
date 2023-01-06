@@ -6,8 +6,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
@@ -15,7 +14,10 @@ public:
     EmrunRunConfigurationFactory();
 };
 
-ProjectExplorer::RunWorkerFactory::WorkerCreator makeEmrunWorker();
+class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    EmrunRunWorkerFactory();
+};
 
-} // namespace Internal
-} // namespace Webassembly
+} // Webassembly::Internal

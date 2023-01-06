@@ -7,8 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class WebAssemblyPlugin : public ExtensionSystem::IPlugin
 {
@@ -32,5 +31,4 @@ private slots:
 #endif // WITH_TESTS
 };
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal
