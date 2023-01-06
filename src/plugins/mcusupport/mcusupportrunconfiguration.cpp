@@ -6,6 +6,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
@@ -16,8 +17,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 static FilePath cmakeFilePath(const Target *target)
 {
@@ -76,17 +76,19 @@ public:
     }
 };
 
-RunWorkerFactory::WorkerCreator makeFlashAndRunWorker()
-{
-    return RunWorkerFactory::make<FlashAndRunWorker>();
-}
+// Factories
 
 McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
-    : RunConfigurationFactory()
 {
     registerRunConfiguration<FlashAndRunConfiguration>(Constants::RUNCONFIGURATION);
     addSupportedTargetDeviceType(Constants::DEVICE_TYPE);
 }
 
-} // namespace Internal
-} // namespace McuSupport
+FlashRunWorkerFactory::FlashRunWorkerFactory()
+{
+    setProduct<FlashAndRunWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::RUNCONFIGURATION);
+}
+
+} // McuSupport::Internal

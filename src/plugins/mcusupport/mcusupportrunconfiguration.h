@@ -3,11 +3,9 @@
 
 #pragma once
 
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuSupportRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
@@ -15,7 +13,10 @@ public:
     McuSupportRunConfigurationFactory();
 };
 
-ProjectExplorer::RunWorkerFactory::WorkerCreator makeFlashAndRunWorker();
+class FlashRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    FlashRunWorkerFactory();
+};
 
-} // namespace Internal
-} // namespace McuSupport
+} // McuSupport::Internal

@@ -53,9 +53,7 @@ class McuSupportPluginPrivate
 public:
     McuSupportDeviceFactory deviceFactory;
     McuSupportRunConfigurationFactory runConfigurationFactory;
-    RunWorkerFactory runWorkerFactory{makeFlashAndRunWorker(),
-                                      {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-                                      {Constants::RUNCONFIGURATION}};
+    FlashRunWorkerFactory flashRunWorkerFactory;
     SettingsHandler::Ptr m_settingsHandler{new SettingsHandler};
     McuSupportOptions m_options{m_settingsHandler};
     McuSupportOptionsPage optionsPage{m_options, m_settingsHandler};
