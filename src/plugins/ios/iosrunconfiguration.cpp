@@ -36,8 +36,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 static const QLatin1String deviceTypeKey("Ios.device_type");
 
@@ -403,10 +402,9 @@ FilePath IosDeviceTypeAspect::localExecutable() const
 
 IosRunConfigurationFactory::IosRunConfigurationFactory()
 {
-    registerRunConfiguration<IosRunConfiguration>("Qt4ProjectManager.IosRunConfiguration:");
+    registerRunConfiguration<IosRunConfiguration>(Constants::IOS_RUNCONFIG_ID);
     addSupportedTargetDeviceType(Constants::IOS_DEVICE_TYPE);
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

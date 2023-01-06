@@ -1,15 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "iosrunner.h"
+
 #include "iosconfigurations.h"
+#include "iosconstants.h"
 #include "iosdevice.h"
 #include "iosrunconfiguration.h"
-#include "iosrunner.h"
 #include "iossimulator.h"
-#include "iosconstants.h"
+#include "iostoolhandler.h"
 
-#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerconstants.h>
 #include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -19,6 +23,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
+#include <qmldebug/qmloutputparser.h>
 
 #include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
@@ -46,15 +51,14 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 static void stopRunningRunControl(RunControl *runControl)
 {
-    static QMap<Utils::Id, QPointer<RunControl>> activeRunControls;
+    static QMap<Id, QPointer<RunControl>> activeRunControls;
 
     Target *target = runControl->target();
-    Utils::Id devId = DeviceKitAspect::deviceId(target->kit());
+    Id devId = DeviceKitAspect::deviceId(target->kit());
 
     // The device can only run an application at a time, if an app is running stop it.
     if (activeRunControls.contains(devId)) {
@@ -66,6 +70,59 @@ static void stopRunningRunControl(RunControl *runControl)
     if (devId.isValid())
         activeRunControls[devId] = runControl;
 }
+
+class IosRunner : public RunWorker
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosRunner)
+
+public:
+    IosRunner(RunControl *runControl);
+    ~IosRunner() override;
+
+    void setCppDebugging(bool cppDebug);
+    void setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices);
+
+    QString bundlePath();
+    QString deviceId();
+    IosToolHandler::RunKind runType();
+    bool cppDebug() const;
+    bool qmlDebug() const;
+    QmlDebug::QmlDebugServicesPreset qmlDebugServices() const;
+
+    void start() override;
+    void stop() final;
+
+    virtual void appOutput(const QString &/*output*/) {}
+    virtual void errorMsg(const QString &/*msg*/) {}
+    virtual void onStart() { reportStarted(); }
+
+    Port qmlServerPort() const;
+    Port gdbServerPort() const;
+    qint64 pid() const;
+    bool isAppRunning() const;
+
+private:
+    void handleGotServerPorts(Ios::IosToolHandler *handler, const QString &bundlePath,
+                              const QString &deviceId, Port gdbPort, Port qmlPort);
+    void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
+                              const QString &deviceId, qint64 pid);
+    void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
+    void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
+    void handleToolExited(Ios::IosToolHandler *handler, int code);
+    void handleFinished(Ios::IosToolHandler *handler);
+
+    IosToolHandler *m_toolHandler = nullptr;
+    QString m_bundleDir;
+    IDeviceConstPtr m_device;
+    IosDeviceType m_deviceType;
+    bool m_cppDebug = false;
+    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
+
+    bool m_cleanExit = false;
+    Port m_qmlServerPort;
+    Port m_gdbServerPort;
+    qint64 m_pid = 0;
+};
 
 IosRunner::IosRunner(RunControl *runControl)
     : RunWorker(runControl)
@@ -312,12 +369,12 @@ bool IosRunner::isAppRunning() const
     return m_toolHandler && m_toolHandler->isRunning();
 }
 
-Utils::Port IosRunner::gdbServerPort() const
+Port IosRunner::gdbServerPort() const
 {
     return m_gdbServerPort;
 }
 
-Utils::Port IosRunner::qmlServerPort() const
+Port IosRunner::qmlServerPort() const
 {
     return m_qmlServerPort;
 }
@@ -325,6 +382,19 @@ Utils::Port IosRunner::qmlServerPort() const
 //
 // IosRunner
 //
+
+class IosRunSupport : public IosRunner
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosRunSupport)
+
+public:
+    explicit IosRunSupport(RunControl *runControl);
+    ~IosRunSupport() override;
+
+    void didStartApp(IosToolHandler::OpStatus status);
+private:
+    void start() override;
+};
 
 IosRunSupport::IosRunSupport(RunControl *runControl)
     : IosRunner(runControl)
@@ -349,6 +419,19 @@ void IosRunSupport::start()
 //
 // IosQmlProfilerSupport
 //
+
+class IosQmlProfilerSupport : public RunWorker
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosQmlProfilerSupport)
+
+public:
+    IosQmlProfilerSupport(RunControl *runControl);
+
+private:
+    void start() override;
+    IosRunner *m_runner = nullptr;
+    RunWorker *m_profiler = nullptr;
+};
 
 IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
@@ -386,8 +469,22 @@ void IosQmlProfilerSupport::start()
 // IosDebugSupport
 //
 
+class IosDebugSupport : public DebuggerRunTool
+{
+    Q_DECLARE_TR_FUNCTIONS(Ios::Internal::IosDebugSupport)
+
+public:
+    IosDebugSupport(RunControl *runControl);
+
+private:
+    void start() override;
+
+    const QString m_dumperLib;
+    IosRunner *m_runner;
+};
+
 IosDebugSupport::IosDebugSupport(RunControl *runControl)
-    : Debugger::DebuggerRunTool(runControl)
+    : DebuggerRunTool(runControl)
 {
     setId("IosDebugSupport");
 
@@ -440,8 +537,8 @@ void IosDebugSupport::start()
     setRunControlName(data->applicationName);
     setContinueAfterAttach(true);
 
-    Utils::Port gdbServerPort = m_runner->gdbServerPort();
-    Utils::Port qmlServerPort = m_runner->qmlServerPort();
+    Port gdbServerPort = m_runner->gdbServerPort();
+    Port qmlServerPort = m_runner->qmlServerPort();
     setAttachPid(ProcessHandle(m_runner->pid()));
 
     const bool cppDebug = isCppDebugging();
@@ -480,5 +577,27 @@ void IosDebugSupport::start()
     DebuggerRunTool::start();
 }
 
-} // namespace Internal
-} // namespace Ios
+// Factories
+
+IosRunWorkerFactory::IosRunWorkerFactory()
+{
+    setProduct<IosRunSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+}
+
+IosDebugWorkerFactory::IosDebugWorkerFactory()
+{
+    setProduct<IosDebugSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+}
+
+IosQmlProfilerWorkerFactory::IosQmlProfilerWorkerFactory()
+{
+    setProduct<IosQmlProfilerSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
+}
+
+} // Ios::Internal

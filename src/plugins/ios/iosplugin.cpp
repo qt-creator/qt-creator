@@ -21,13 +21,10 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/runconfiguration.h>
 
-#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
 using namespace ProjectExplorer;
 using namespace QtSupport;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 Q_LOGGING_CATEGORY(iosLog, "qtc.ios.common", QtWarningMsg)
 
@@ -59,22 +56,9 @@ public:
     IosDeployStepFactory deployStepFactory;
     IosDsymBuildStepFactory dsymBuildStepFactory;
     IosDeployConfigurationFactory deployConfigurationFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<IosRunSupport>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigurationFactory.runConfigurationId()}
-    };
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<IosDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigurationFactory.runConfigurationId()}
-    };
-    RunWorkerFactory qmlProfilerWorkerFactory{
-        RunWorkerFactory::make<IosQmlProfilerSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
-        {runConfigurationFactory.runConfigurationId()}
-    };
+    IosRunWorkerFactory runWorkerFactory;
+    IosDebugWorkerFactory debugWorkerFactory;
+    IosQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
 IosPlugin::~IosPlugin()
@@ -96,5 +80,4 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     return true;
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Internal::Ios

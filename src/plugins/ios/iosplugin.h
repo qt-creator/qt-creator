@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 class IosPlugin final : public ExtensionSystem::IPlugin
 {
@@ -23,5 +22,4 @@ private:
     class IosPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
