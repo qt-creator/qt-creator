@@ -181,19 +181,6 @@ static FilePath debugServer(bool useLldb, const Target *target)
                                   {{"lldb-server"}, dirFilter, QDirIterator::Subdirectories});
         if (!lldbServer.isEmpty())
             return lldbServer;
-
-        // Older: Find LLDB version. sdk_definitions.json contains something like  "lldb;3.1". Use that.
-        const QStringList packages = config.defaultEssentials();
-        for (const QString &package : packages) {
-            if (package.startsWith("lldb;")) {
-                const QString lldbVersion = package.mid(5);
-                const FilePath path = config.sdkLocation()
-                        / QString("lldb/%1/android/%2/lldb-server")
-                                .arg(lldbVersion, lldbServerArch(preferredAbi));
-                if (path.exists())
-                    return path;
-            }
-        }
     } else {
         // Search suitable gdbserver binary.
         const FilePath path = config.ndkLocation(qtVersion)
