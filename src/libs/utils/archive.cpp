@@ -105,8 +105,8 @@ static std::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest)
         const std::optional<Tool> resolvedTool = resolveTool(tool);
         if (resolvedTool) {
             Tool result = *resolvedTool;
-            const QString srcStr = src.toString();
-            const QString destStr = dest.toString();
+            const QString srcStr = src.path();
+            const QString destStr = dest.path();
             const QString args = result.command.arguments().replace("%{src}", srcStr).replace("%{dest}", destStr);
             result.command.setArguments(args);
             return result;
