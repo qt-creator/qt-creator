@@ -21,16 +21,12 @@ public:
     ClangToolRunner(QObject *parent = nullptr);
 
     void init(const Utils::FilePath &outputDirPath, const Utils::Environment &environment);
-    void setName(const QString &name) { m_name = name; }
-    void setExecutable(const Utils::FilePath &executable) { m_executable = executable; }
-    void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
     void setVFSOverlay(const QString overlayFilePath) { m_overlayFilePath = overlayFilePath; }
 
     QString name() const { return m_name; }
     Utils::FilePath executable() const { return m_executable; }
     QString fileToAnalyze() const { return m_fileToAnalyze; }
     QString outputFilePath() const { return m_outputFilePath; }
-    QStringList mainToolArguments() const;
     bool supportsVFSOverlay() const;
 
     // compilerOptions is expected to contain everything except:
@@ -43,7 +39,10 @@ signals:
     void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
 
 protected:
-    QString m_overlayFilePath;
+    void setName(const QString &name) { m_name = name; }
+    void setExecutable(const Utils::FilePath &executable) { m_executable = executable; }
+    void setArgsCreator(const ArgsCreator &argsCreator) { m_argsCreator = argsCreator; }
+    QStringList mainToolArguments() const;
 
 private:
     void onProcessOutput();
@@ -51,7 +50,7 @@ private:
 
     QString commandlineAndOutput() const;
 
-private:
+    QString m_overlayFilePath;
     Utils::FilePath m_outputDirPath;
     Utils::QtcProcess m_process;
 
