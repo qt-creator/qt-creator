@@ -53,8 +53,8 @@ public:
     void refresh(RefreshOptions options);
 
     Utils::FilePath canonicalProjectDir() const;
-    QString mainFile() const;
-    QString mainUiFile() const;
+    Utils::FilePath mainFile() const;
+    Utils::FilePath mainUiFile() const;
     Utils::FilePath mainFilePath() const;
     Utils::FilePath mainUiFilePath() const;
 
@@ -106,7 +106,7 @@ signals:
 private:
     bool setFileSettingInProjectFile(const QString &setting,
                                      const Utils::FilePath &mainFilePath,
-                                     const QString &oldFile);
+                                     const Utils::FilePath &oldFile);
 
     std::unique_ptr<QmlProjectItem> m_projectItem;
     Utils::FilePath m_canonicalProjectDir;

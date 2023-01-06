@@ -54,7 +54,7 @@ private:
     QString disabledReason() const final;
     bool isEnabled() const final;
 
-    QString mainScript() const;
+    FilePath mainScript() const;
     FilePath qmlRuntimeFilePath() const;
     void createQtVersionAspect();
 
@@ -108,7 +108,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
             cmd.addArg("widget");
         }
 
-        const FilePath main = bs->targetFile(FilePath::fromString(mainScript()));
+        const FilePath main = bs->targetFile(mainScript());
         if (!main.isEmpty())
             cmd.addArg(main.nativePath());
 
@@ -292,7 +292,7 @@ bool QmlProjectRunConfiguration::isEnabled() const
             && activeBuildSystem()->hasParsingData();
 }
 
-QString QmlProjectRunConfiguration::mainScript() const
+FilePath QmlProjectRunConfiguration::mainScript() const
 {
     return m_qmlMainFileAspect->mainScript();
 }

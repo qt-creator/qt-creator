@@ -173,18 +173,17 @@ public:
                     runControl->target()->buildSystem());
                 QTC_ASSERT(qmlBuildSystem, return);
 
-                const QString mainScript = aspect->mainScript;
-                const QString currentFile = aspect->currentFile;
+                const FilePath mainScript = aspect->mainScript;
+                const FilePath currentFile = aspect->currentFile;
 
-                const QString mainScriptFromProject = qmlBuildSystem->targetFile(
-                    FilePath::fromString(mainScript)).path();
+                const QString mainScriptFromProject = qmlBuildSystem->targetFile(mainScript).path();
 
                 QStringList qmlProjectRunConfigurationArguments = cmd.splitArguments();
 
                 if (!currentFile.isEmpty() && qmlProjectRunConfigurationArguments.last().contains(mainScriptFromProject)) {
                     qmlProjectRunConfigurationArguments.removeLast();
                     cmd = CommandLine(cmd.executable(), qmlProjectRunConfigurationArguments);
-                    cmd.addArg(currentFile);
+                    cmd.addArg(currentFile.path());
                 }
             }
 

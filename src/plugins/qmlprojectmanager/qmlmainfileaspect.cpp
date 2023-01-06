@@ -32,9 +32,9 @@ namespace QmlProjectManager {
 const char M_CURRENT_FILE[] = "CurrentFile";
 const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("::QmlProjectManager", "<Current File>");
 
-static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
+static bool caseInsensitiveLessThan(const FilePath &s1, const FilePath &s2)
 {
-    return s1.toLower() < s2.toLower();
+    return s1.toString().toCaseFolded() < s2.toString().toCaseFolded();
 }
 
 QmlMainFileAspect::QmlMainFileAspect(Target *target)
@@ -89,12 +89,12 @@ void QmlMainFileAspect::fromMap(const QVariantMap &map)
 
 void QmlMainFileAspect::updateFileComboBox()
 {
-    QDir projectDir(m_target->project()->projectDirectory().toString());
+    const FilePath projectDir = m_target->project()->projectDirectory();
 
     if (mainScriptSource() == FileInProjectFile) {
-        const QString mainScriptInFilePath = projectDir.relativeFilePath(mainScript());
+        const FilePath mainScriptInFilePath = projectDir.relativeChildPath(mainScript());
         m_fileListModel.clear();
-        m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath));
+        m_fileListModel.appendRow(new QStandardItem(mainScriptInFilePath.toString()));
         if (m_fileListCombo)
             m_fileListCombo->setEnabled(false);
         return;
@@ -106,27 +106,25 @@ void QmlMainFileAspect::updateFileComboBox()
     m_fileListModel.appendRow(new QStandardItem(CURRENT_FILE));
     QModelIndex currentIndex;
 
-    QStringList sortedFiles = Utils::transform(m_target->project()->files(Project::SourceFiles),
-                                               &Utils::FilePath::toString);
+    FilePaths sortedFiles = m_target->project()->files(Project::SourceFiles);
 
     // make paths relative to project directory
-    QStringList relativeFiles;
-    for (const QString &fn : std::as_const(sortedFiles))
-        relativeFiles += projectDir.relativeFilePath(fn);
+    FilePaths relativeFiles;
+    for (const FilePath &fn : std::as_const(sortedFiles))
+        relativeFiles += projectDir.relativeChildPath(fn);
     sortedFiles = relativeFiles;
 
     std::stable_sort(sortedFiles.begin(), sortedFiles.end(), caseInsensitiveLessThan);
 
-    QString mainScriptPath;
+    FilePath mainScriptPath;
     if (mainScriptSource() != FileInEditor)
-        mainScriptPath = projectDir.relativeFilePath(mainScript());
+        mainScriptPath = projectDir.relativeChildPath(mainScript());
 
-    for (const QString &fn : std::as_const(sortedFiles)) {
-        QFileInfo fileInfo(fn);
-        if (fileInfo.suffix() != "qml")
+    for (const FilePath &fn : std::as_const(sortedFiles)) {
+        if (fn.suffixView() != u"qml")
             continue;
 
-        auto item = new QStandardItem(fn);
+        auto item = new QStandardItem(fn.toString());
         m_fileListModel.appendRow(item);
 
         if (mainScriptPath == fn)
@@ -170,7 +168,7 @@ void QmlMainFileAspect::setScriptSource(MainScriptSource source, const QString &
         m_mainScriptFilename.clear();
     } else { // FileInSettings
         m_scriptFile = settingsPath;
-        m_mainScriptFilename = m_target->project()->projectDirectory().toString() + '/' + m_scriptFile;
+        m_mainScriptFilename = m_target->project()->projectDirectory() / m_scriptFile;
     }
 
     emit changed();
@@ -180,14 +178,11 @@ void QmlMainFileAspect::setScriptSource(MainScriptSource source, const QString &
 /**
   Returns absolute path to main script file.
   */
-QString QmlMainFileAspect::mainScript() const
+FilePath QmlMainFileAspect::mainScript() const
 {
     if (!qmlBuildSystem()->mainFile().isEmpty()) {
-        const QString pathInProject = qmlBuildSystem()->mainFile();
-        if (QFileInfo(pathInProject).isAbsolute())
-            return pathInProject;
-        else
-            return QDir(qmlBuildSystem()->canonicalProjectDir().toString()).absoluteFilePath(pathInProject);
+        const FilePath pathInProject = qmlBuildSystem()->mainFile();
+        return qmlBuildSystem()->canonicalProjectDir().resolvePath(pathInProject);
     }
 
     if (!m_mainScriptFilename.isEmpty())
@@ -196,7 +191,7 @@ QString QmlMainFileAspect::mainScript() const
     return m_currentFileFilename;
 }
 
-QString QmlMainFileAspect::currentFile() const
+FilePath QmlMainFileAspect::currentFile() const
 {
     return m_currentFileFilename;
 }
@@ -207,7 +202,7 @@ void QmlMainFileAspect::changeCurrentFile(Core::IEditor *editor)
         editor = EditorManager::currentEditor();
 
     if (editor)
-        m_currentFileFilename = editor->document()->filePath().toString();
+        m_currentFileFilename = editor->document()->filePath();
 
     emit changed();
 }
@@ -219,7 +214,7 @@ bool QmlMainFileAspect::isQmlFilePresent()
         IDocument *document = EditorManager::currentDocument();
         const MimeType mainScriptMimeType = mimeTypeForFile(mainScript());
         if (document) {
-            m_currentFileFilename = document->filePath().toString();
+            m_currentFileFilename = document->filePath();
             if (mainScriptMimeType.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
                     || mainScriptMimeType.matchesName(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
                 qmlFileFound = true;
@@ -229,13 +224,13 @@ bool QmlMainFileAspect::isQmlFilePresent()
                 || mainScriptMimeType.matchesName(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
-            const auto files = m_target->project()->files(Project::SourceFiles);
+            const FilePaths files = m_target->project()->files(Project::SourceFiles);
             for (const FilePath &filename : files) {
                 if (!filename.isEmpty() && filename.baseName().at(0).isLower()) {
                     const MimeType type = mimeTypeForFile(filename);
                     if (type.matchesName(ProjectExplorer::Constants::QML_MIMETYPE)
                             || type.matchesName(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
-                        m_currentFileFilename = filename.toString();
+                        m_currentFileFilename = filename;
                         qmlFileFound = true;
                         break;
                     }
@@ -252,4 +247,5 @@ QmlBuildSystem *QmlMainFileAspect::qmlBuildSystem() const
 {
     return static_cast<QmlBuildSystem *>(m_target->buildSystem());
 }
-} // namespace QmlProjectManager
+
+} // QmlProjectManager

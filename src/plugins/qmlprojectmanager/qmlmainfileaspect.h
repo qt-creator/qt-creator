@@ -38,8 +38,8 @@ public:
 
     struct Data : BaseAspect::Data
     {
-        QString mainScript;
-        QString currentFile;
+        Utils::FilePath mainScript;
+        Utils::FilePath currentFile;
     };
 
     void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
@@ -52,8 +52,8 @@ public:
 
     void setScriptSource(MainScriptSource source, const QString &settingsPath = QString());
 
-    QString mainScript() const;
-    QString currentFile() const;
+    Utils::FilePath mainScript() const;
+    Utils::FilePath currentFile() const;
     void changeCurrentFile(Core::IEditor *editor = nullptr);
     bool isQmlFilePresent();
     QmlBuildSystem *qmlBuildSystem() const;
@@ -64,9 +64,9 @@ public:
     QStandardItemModel m_fileListModel;
     QString m_scriptFile;
     // absolute path to current file (if being used)
-    QString m_currentFileFilename;
+    Utils::FilePath m_currentFileFilename;
     // absolute path to selected main script (if being used)
-    QString m_mainScriptFilename;
+    Utils::FilePath m_mainScriptFilename;
 };
 
-} // namespace QmlProjectManager
+} // QmlProjectManager
