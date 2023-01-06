@@ -80,7 +80,7 @@ QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
 
 QnxRunConfigurationFactory::QnxRunConfigurationFactory()
 {
-    registerRunConfiguration<QnxRunConfiguration>("Qt4ProjectManager.QNX.QNXRunConfiguration.");
+    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_RUNCONFIG_ID);
     addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
 }
 

@@ -5,18 +5,13 @@
 
 #include <QtGlobal>
 
-namespace Qnx {
-namespace Constants {
+namespace Qnx::Constants {
 
 const char QNX_QNX_QT[] = "Qt4ProjectManager.QtVersion.QNX.QNX";
-
 const char QNX_QNX_FEATURE[] = "QtSupport.Wizards.FeatureQNX";
-
 const char QNX_QNX_DEPLOYCONFIGURATION_ID[] = "Qt4ProjectManager.QNX.QNXDeployConfiguration";
-
+const char QNX_RUNCONFIG_ID[] = "Qt4ProjectManager.QNX.QNXRunConfiguration.";
 const char QNX_QNX_OS_TYPE[] = "QnxOsType"; // Also used for device type.
-
 const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
 
-} // namespace Constants
-} // namespace Qnx
+} // Qnx::Constants

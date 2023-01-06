@@ -103,17 +103,8 @@ public:
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
-
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<QnxDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-    RunWorkerFactory qmlProfilerWorkerFactory{
-        RunWorkerFactory::make<QnxQmlProfilerSupport>(),
-        {}, // FIXME: Shouldn't this use the run mode id somehow?
-        {runConfigFactory.runConfigurationId()}
-    };
+    QnxDebugWorkerFactory debugWorkerFactory;
+    QnxQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
 static QnxPluginPrivate *dd = nullptr;
@@ -136,8 +127,7 @@ bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
 void QnxPlugin::extensionsInitialized()
 {
     // Attach support
-    connect(&dd->m_attachToQnxApplication, &QAction::triggered,
-            this, [] { QnxAttachDebugSupport::showProcessesDialog(); });
+    connect(&dd->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 
     const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
 

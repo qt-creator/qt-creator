@@ -7,10 +7,10 @@
 
 namespace Qnx::Internal {
 
-class QnxQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
+class QnxQmlProfilerWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit QnxQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
+    QnxQmlProfilerWorkerFactory();
 };
 
 } // Qnx::Internal

@@ -3,6 +3,7 @@
 
 #include "qnxanalyzesupport.h"
 
+#include "qnxconstants.h"
 #include "qnxtr.h"
 #include "slog2inforunner.h"
 
@@ -18,30 +19,41 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-QnxQmlProfilerSupport::QnxQmlProfilerSupport(RunControl *runControl)
-    : SimpleTargetRunner(runControl)
+class QnxQmlProfilerSupport final : public SimpleTargetRunner
 {
-    setId("QnxQmlProfilerSupport");
-    appendMessage(Tr::tr("Preparing remote side..."), Utils::LogMessageFormat);
+public:
+    explicit QnxQmlProfilerSupport(RunControl *runControl)
+        : SimpleTargetRunner(runControl)
+    {
+        setId("QnxQmlProfilerSupport");
+        appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
-    auto portsGatherer = new PortsGatherer(runControl);
-    addStartDependency(portsGatherer);
+        auto portsGatherer = new PortsGatherer(runControl);
+        addStartDependency(portsGatherer);
 
-    auto slog2InfoRunner = new Slog2InfoRunner(runControl);
-    addStartDependency(slog2InfoRunner);
+        auto slog2InfoRunner = new Slog2InfoRunner(runControl);
+        addStartDependency(slog2InfoRunner);
 
-    auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
-    profiler->addStartDependency(this);
-    addStopDependency(profiler);
+        auto profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+        profiler->addStartDependency(this);
+        addStopDependency(profiler);
 
-    setStartModifier([this, portsGatherer, profiler] {
-        const QUrl serverUrl = portsGatherer->findEndPoint();
-        profiler->recordData("QmlServerUrl", serverUrl);
+        setStartModifier([this, portsGatherer, profiler] {
+            const QUrl serverUrl = portsGatherer->findEndPoint();
+            profiler->recordData("QmlServerUrl", serverUrl);
 
-        CommandLine cmd = commandLine();
-        cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
-        setCommandLine(cmd);
-    });
+            CommandLine cmd = commandLine();
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
+            setCommandLine(cmd);
+        });
+    }
+};
+
+QnxQmlProfilerWorkerFactory::QnxQmlProfilerWorkerFactory()
+{
+    setProduct<QnxQmlProfilerSupport>();
+    // FIXME: Shouldn't this use the run mode id somehow?
+    addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
 }
 
 } // Qnx::Internal
