@@ -51,8 +51,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
 
@@ -64,20 +63,9 @@ public:
     QmlProfilerActions m_actions;
 
     // The full local profiler.
-    RunWorkerFactory localQmlProfilerFactory {
-        RunWorkerFactory::make<LocalQmlProfilerSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE},
-        {},
-        {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE}
-    };
-
+    LocalQmlProfilerRunWorkerFactory localQmlProfilerRunWorkerFactory;
     // The bits plugged in in remote setups.
-    RunWorkerFactory qmlProfilerWorkerFactory {
-        RunWorkerFactory::make<QmlProfilerRunner>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUNNER},
-        {},
-        {}
-    };
+    QmlProfilerRunWorkerFactory qmlProfilerRunWorkerFactory;
 };
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -140,5 +128,4 @@ QVector<QObject *> QmlProfiler::Internal::QmlProfilerPlugin::createTestObjects()
     return tests;
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // QmlProfiler::Internal

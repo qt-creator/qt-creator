@@ -5,8 +5,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerRunConfigurationAspect : public ProjectExplorer::GlobalOrProjectAspect
 {
@@ -14,5 +13,4 @@ public:
     QmlProfilerRunConfigurationAspect(ProjectExplorer::Target *);
 };
 
-} // Internal
-} // QmlProfiler
+} // QmlProfiler::Internal

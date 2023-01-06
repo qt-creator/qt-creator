@@ -29,10 +29,9 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
-static QString QmlServerUrl = "QmlServerUrl";
+const QString QmlServerUrl = "QmlServerUrl";
 
 //
 // QmlProfilerRunControlPrivate
@@ -237,5 +236,21 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     });
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+// Factories
+
+// The bits plugged in in remote setups.
+QmlProfilerRunWorkerFactory::QmlProfilerRunWorkerFactory()
+{
+    setProduct<QmlProfilerRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
+}
+
+// The full local profiler.
+LocalQmlProfilerRunWorkerFactory::LocalQmlProfilerRunWorkerFactory()
+{
+    setProduct<LocalQmlProfilerSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+}
+
+} // QmlProfiler::Internal

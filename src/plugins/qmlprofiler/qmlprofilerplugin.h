@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 class QmlProfilerSettings;
 
@@ -27,5 +26,4 @@ private:
     class QmlProfilerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace QmlProfiler
+} // QmlProfiler::Internal

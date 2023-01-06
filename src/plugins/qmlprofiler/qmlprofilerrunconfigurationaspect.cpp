@@ -9,8 +9,7 @@
 
 #include <debugger/analyzer/analyzerrunconfigwidget.h>
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(ProjectExplorer::Target *)
 {
@@ -23,5 +22,4 @@ QmlProfilerRunConfigurationAspect::QmlProfilerRunConfigurationAspect(ProjectExpl
     setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });
 }
 
-} // Internal
-} // QmlProfiler
+} // QmlProfiler::Internal
