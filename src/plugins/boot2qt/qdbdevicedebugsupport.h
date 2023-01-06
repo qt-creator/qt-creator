@@ -3,46 +3,32 @@
 
 #pragma once
 
-#include <debugger/debuggerruncontrol.h>
-#include <qmldebug/qmldebugcommandlinearguments.h>
+#include <projectexplorer/runcontrol.h>
 
-namespace Qdb {
+namespace Qdb::Internal {
 
-class QdbDeviceInferiorRunner;
-
-class QdbDeviceDebugSupport : public Debugger::DebuggerRunTool
+class QdbRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    QdbDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start();
-    void stop();
-
-    QdbDeviceInferiorRunner *m_debuggee = nullptr;
+    explicit QdbRunWorkerFactory(const QList<Utils::Id> &runConfigs);
 };
 
-class QdbDeviceQmlToolingSupport : public ProjectExplorer::RunWorker
+class QdbDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    QdbDeviceQmlToolingSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    QdbDeviceInferiorRunner *m_runner = nullptr;
-    ProjectExplorer::RunWorker *m_worker = nullptr;
+    explicit QdbDebugWorkerFactory(const QList<Utils::Id> &runConfigs);
 };
 
-class QdbDevicePerfProfilerSupport : public ProjectExplorer::RunWorker
+class QdbQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    QdbDevicePerfProfilerSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() override;
-
-    QdbDeviceInferiorRunner *m_profilee = nullptr;
+    explicit QdbQmlToolingWorkerFactory(const QList<Utils::Id> &runConfigs);
 };
 
-} // namespace Qdb
+class QdbPerfProfilerWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    QdbPerfProfilerWorkerFactory();
+};
+
+} // Qdb::Internal

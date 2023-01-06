@@ -7,6 +7,10 @@
 #include "qdbdevice.h"
 #include "qdbrunconfiguration.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <qmldebug/qmldebugcommandlinearguments.h>
+
 #include <debugger/debuggerruncontrol.h>
 
 #include <utils/algorithm.h>
@@ -16,9 +20,8 @@
 using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
-using namespace Qdb::Internal;
 
-namespace Qdb {
+namespace Qdb::Internal {
 
 class QdbDeviceInferiorRunner : public RunWorker
 {
@@ -113,8 +116,39 @@ private:
     QtcProcess m_launcher;
 };
 
+// QdbDeviceRunSupport
+
+class QdbDeviceRunSupport : public SimpleTargetRunner
+{
+public:
+    QdbDeviceRunSupport(RunControl *runControl)
+        : SimpleTargetRunner(runControl)
+    {
+        setStartModifier([this] {
+            const CommandLine remoteCommand = commandLine();
+            const FilePath remoteExe = remoteCommand.executable();
+            CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
+            cmd.addArg(remoteExe.nativePath());
+            cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
+            setCommandLine(cmd);
+        });
+    }
+};
+
 
 // QdbDeviceDebugSupport
+
+class QdbDeviceDebugSupport final : public Debugger::DebuggerRunTool
+{
+public:
+    explicit QdbDeviceDebugSupport(RunControl *runControl);
+
+private:
+    void start() override;
+    void stop() override;
+
+    QdbDeviceInferiorRunner *m_debuggee = nullptr;
+};
 
 QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
     : Debugger::DebuggerRunTool(runControl)
@@ -150,6 +184,18 @@ void QdbDeviceDebugSupport::stop()
 
 // QdbDeviceQmlProfilerSupport
 
+class QdbDeviceQmlToolingSupport final : public RunWorker
+{
+public:
+    explicit QdbDeviceQmlToolingSupport(RunControl *runControl);
+
+private:
+    void start() override;
+
+    QdbDeviceInferiorRunner *m_runner = nullptr;
+    RunWorker *m_worker = nullptr;
+};
+
 QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
@@ -173,6 +219,17 @@ void QdbDeviceQmlToolingSupport::start()
 
 // QdbDevicePerfProfilerSupport
 
+class QdbDevicePerfProfilerSupport final : public RunWorker
+{
+public:
+    explicit QdbDevicePerfProfilerSupport(RunControl *runControl);
+
+private:
+    void start() override;
+
+    QdbDeviceInferiorRunner *m_profilee = nullptr;
+};
+
 QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runControl)
     : RunWorker(runControl)
 {
@@ -190,4 +247,38 @@ void QdbDevicePerfProfilerSupport::start()
     reportStarted();
 }
 
-} // namespace Qdb
+// Factories
+
+QdbRunWorkerFactory::QdbRunWorkerFactory(const QList<Id> &runConfigs)
+{
+    setProduct<QdbDeviceRunSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
+    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+}
+
+QdbDebugWorkerFactory::QdbDebugWorkerFactory(const QList<Id> &runConfigs)
+{
+    setProduct<QdbDeviceDebugSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
+    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+}
+
+QdbQmlToolingWorkerFactory::QdbQmlToolingWorkerFactory(const QList<Id> &runConfigs)
+{
+    setProduct<QdbDeviceQmlToolingSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
+    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+}
+
+QdbPerfProfilerWorkerFactory::QdbPerfProfilerWorkerFactory()
+{
+    setProduct<QdbDevicePerfProfilerSupport>();
+    addSupportedRunMode("PerfRecorder");
+    addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
+}
+
+} // Qdb::Internal

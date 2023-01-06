@@ -19,6 +19,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtversionfactory.h>
@@ -114,23 +115,6 @@ public:
     }
 };
 
-class QdbDeviceRunSupport : public SimpleTargetRunner
-{
-public:
-    QdbDeviceRunSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setStartModifier([this] {
-            const CommandLine remoteCommand = commandLine();
-            const FilePath remoteExe = remoteCommand.executable();
-            CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
-            cmd.addArg(remoteExe.nativePath());
-            cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
-            setCommandLine(cmd);
-        });
-    }
-};
-
 template <class Step>
 class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -168,31 +152,10 @@ public:
         "QmlProjectManager.QmlRunConfiguration"
     };
 
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceRunSupport>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory debugWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory qmlToolWorkerFactory{
-        RunWorkerFactory::make<QdbDeviceQmlToolingSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
-        supportedRunConfigs,
-        {Qdb::Constants::QdbLinuxOsType}
-    };
-    RunWorkerFactory perfRecorderFactory{
-        RunWorkerFactory::make<QdbDevicePerfProfilerSupport>(),
-        {"PerfRecorder"},
-        {},
-        {Qdb::Constants::QdbLinuxOsType}
-    };
+    QdbRunWorkerFactory runWorkerFactory{supportedRunConfigs};
+    QdbDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
+    QdbQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
+    QdbPerfProfilerWorkerFactory perfRecorderWorkerFactory;
 
     DeviceDetector m_deviceDetector;
 };
