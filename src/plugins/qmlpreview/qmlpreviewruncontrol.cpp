@@ -115,14 +115,15 @@ public:
             CommandLine cmd = commandLine();
 
             if (const auto aspect = runControl->aspect<QmlProjectManager::QmlMainFileAspect>()) {
-                const auto currentTarget = runControl->target();
-                const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(currentTarget->buildSystem());
+                const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+                    runControl->target()->buildSystem());
+                QTC_ASSERT(qmlBuildSystem, return);
 
                 const QString mainScript = aspect->mainScript;
                 const QString currentFile = aspect->currentFile;
 
                 const QString mainScriptFromProject = qmlBuildSystem->targetFile(
-                    FilePath::fromString(mainScript)).toString();
+                    FilePath::fromString(mainScript)).path();
 
                 QStringList qmlProjectRunConfigurationArguments = cmd.splitArguments();
 
