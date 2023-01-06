@@ -191,7 +191,7 @@ FilePath FilePath::currentWorkingPath()
 bool FilePath::isRootPath() const
 {
     // FIXME: Make host-independent
-    return operator==(FilePath::fromString(QDir::rootPath()));
+    return *this == FilePath::fromString(QDir::rootPath());
 }
 
 QString FilePath::encodedHost() const
@@ -1003,43 +1003,6 @@ QVariant FilePath::toVariant() const
     return toString();
 }
 
-bool FilePath::operator==(const FilePath &other) const
-{
-    return pathView().compare(other.pathView(), caseSensitivity()) == 0
-        && host() == other.host()
-        && scheme() == other.scheme();
-}
-
-bool FilePath::operator!=(const FilePath &other) const
-{
-    return !(*this == other);
-}
-
-bool FilePath::operator<(const FilePath &other) const
-{
-    const int cmp = pathView().compare(other.pathView(), caseSensitivity());
-    if (cmp != 0)
-        return cmp < 0;
-    if (host() != other.host())
-        return host() < other.host();
-    return scheme() < other.scheme();
-}
-
-bool FilePath::operator<=(const FilePath &other) const
-{
-    return !(other < *this);
-}
-
-bool FilePath::operator>(const FilePath &other) const
-{
-    return other < *this;
-}
-
-bool FilePath::operator>=(const FilePath &other) const
-{
-    return !(*this < other);
-}
-
 /*!
     \returns whether FilePath is a child of \a s
 */
@@ -1361,13 +1324,6 @@ FilePath FilePath::pathAppended(const QString &path) const
 FilePath FilePath::stringAppended(const QString &str) const
 {
     return FilePath::fromString(toString() + str);
-}
-
-size_t FilePath::hash(uint seed) const
-{
-    if (caseSensitivity() == Qt::CaseInsensitive)
-        return qHash(path().toCaseFolded(), seed);
-    return qHash(path(), seed);
 }
 
 QDateTime FilePath::lastModified() const
@@ -1984,20 +1940,53 @@ DeviceFileHooks &DeviceFileHooks::instance()
     return s_deviceHooks;
 }
 
-} // namespace Utils
-
-std::hash<Utils::FilePath>::result_type
-    std::hash<Utils::FilePath>::operator()(const std::hash<Utils::FilePath>::argument_type &fn) const
+QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &second)
 {
-    if (fn.caseSensitivity() == Qt::CaseInsensitive)
-        return hash<string>()(fn.toString().toCaseFolded().toStdString());
-    return hash<string>()(fn.toString().toStdString());
+    return first.pathView().compare(second.pathView(), first.caseSensitivity()) == 0
+        && first.host() == second.host()
+        && first.scheme() == second.scheme();
 }
 
-QT_BEGIN_NAMESPACE
-QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
+QTCREATOR_UTILS_EXPORT bool operator!=(const FilePath &first, const FilePath &second)
+{
+    return !(first == second);
+}
+
+QTCREATOR_UTILS_EXPORT bool operator<(const FilePath &first, const FilePath &second)
+{
+    const int cmp = first.pathView().compare(second.pathView(), first.caseSensitivity());
+    if (cmp != 0)
+        return cmp < 0;
+    if (first.host() != second.host())
+        return first.host() < second.host();
+    return first.scheme() < second.scheme();
+}
+
+QTCREATOR_UTILS_EXPORT bool operator<=(const FilePath &first, const FilePath &second)
+{
+    return !(second < first);
+}
+
+QTCREATOR_UTILS_EXPORT bool operator>(const FilePath &first, const FilePath &second)
+{
+    return second < first;
+}
+
+QTCREATOR_UTILS_EXPORT bool operator>=(const FilePath &first, const FilePath &second)
+{
+    return !(first < second);
+}
+
+QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
+{
+    if (filePath.caseSensitivity() == Qt::CaseInsensitive)
+        return qHash(filePath.path().toCaseFolded(), seed);
+    return qHash(filePath.path(), seed);
+}
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const FilePath &c)
 {
     return dbg << c.toString();
 }
 
-QT_END_NAMESPACE
+} // Utils

@@ -132,12 +132,6 @@ public:
     expected_str<qint64> writeFileContents(const QByteArray &data, qint64 offset = 0) const;
     FilePathInfo filePathInfo() const;
 
-    bool operator==(const FilePath &other) const;
-    bool operator!=(const FilePath &other) const;
-    bool operator<(const FilePath &other) const;
-    bool operator<=(const FilePath &other) const;
-    bool operator>(const FilePath &other) const;
-    bool operator>=(const FilePath &other) const;
     [[nodiscard]] FilePath operator/(const QString &str) const;
 
     Qt::CaseSensitivity caseSensitivity() const;
@@ -146,8 +140,6 @@ public:
 
     void clear();
     bool isEmpty() const;
-
-    size_t hash(uint seed) const;
 
     [[nodiscard]] FilePath absoluteFilePath() const;
     [[nodiscard]] FilePath absolutePath() const;
@@ -245,6 +237,20 @@ public:
     expected_str<FilePath> localSource() const;
 
 private:
+    // These are needed.
+    QTCREATOR_UTILS_EXPORT friend bool operator==(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator!=(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator<(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator<=(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator>(const FilePath &first, const FilePath &second);
+    QTCREATOR_UTILS_EXPORT friend bool operator>=(const FilePath &first, const FilePath &second);
+
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a, uint seed);
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a) { return qHash(a, 0); }
+
+    QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
+
+    // Implementation details. May change.
     friend class ::tst_fileutils;
     void setPath(QStringView path);
     void setFromString(QStringView filepath);
@@ -257,11 +263,6 @@ private:
     unsigned short m_schemeLen = 0;
     unsigned short m_hostLen = 0;
 };
-
-inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
-{
-    return a.hash(seed);
-}
 
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
@@ -276,21 +277,15 @@ public:
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
 };
 
-} // namespace Utils
-
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::FilePath &c);
-QT_END_NAMESPACE
+} // Utils
 
 Q_DECLARE_METATYPE(Utils::FilePath)
 
 namespace std {
-template<>
-struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
+
+template<> struct hash<Utils::FilePath>
 {
-    using argument_type = Utils::FilePath;
-    using result_type = size_t;
-    result_type operator()(const argument_type &fn) const;
+    size_t operator()(const Utils::FilePath &fn) const { return qHash(fn); }
 };
 
-} // namespace std
+} // std
