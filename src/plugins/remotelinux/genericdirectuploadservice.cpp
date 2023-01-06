@@ -71,18 +71,6 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
     return collected;
 }
 
-static Group packIntoOptionalParallelGroups(const QList<TaskItem> &tasks)
-{
-    QList<TaskItem> groups;
-    int i = 0;
-    while (i < tasks.size()) {
-        const QList<TaskItem> subTasks = tasks.mid(i, MaxConcurrentStatCalls);
-        i += subTasks.size();
-        groups.append(Group { QList<TaskItem> {optional, parallel} + subTasks });
-    }
-    return Group { QList<TaskItem> {optional} + groups };
-}
-
 } // namespace Internal
 
 using namespace Internal;
@@ -188,12 +176,12 @@ TaskItem GenericDirectUploadServicePrivate::statTree(const TreeStorage<UploadSto
     const auto setupHandler = [=](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<TaskItem> statList;
+        QList<TaskItem> statList{optional, ParallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
         }
-        tree.setupRoot(packIntoOptionalParallelGroups(statList));
+        tree.setupRoot({statList});
     };
     return Tree(setupHandler);
 }
@@ -273,14 +261,14 @@ TaskItem GenericDirectUploadServicePrivate::chmodTree(const TreeStorage<UploadSt
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<TaskItem> chmodList;
+        QList<TaskItem> chmodList{optional, ParallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));
         }
-        tree.setupRoot(packIntoOptionalParallelGroups(chmodList));
+        tree.setupRoot({chmodList});
     };
-    return Tree {setupChmodHandler};
+    return Tree(setupChmodHandler);
 }
 
 Group GenericDirectUploadService::deployRecipe()
