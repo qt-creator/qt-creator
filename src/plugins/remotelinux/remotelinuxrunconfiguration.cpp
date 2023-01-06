@@ -90,7 +90,7 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
 RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
 {
-    registerRunConfiguration<RemoteLinuxRunConfiguration>("RemoteLinuxRunConfiguration:");
+    registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }

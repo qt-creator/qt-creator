@@ -21,5 +21,8 @@ const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 
 const char SupportsRSync[] =  "RemoteLinux.SupportsRSync";
 
+const char RunConfigId[] = "RemoteLinuxRunConfiguration:";
+const char CustomRunConfigId[] = "RemoteLinux.CustomRunConfig";
+
 } // Constants
 } // RemoteLinux

@@ -25,7 +25,6 @@ add_qtc_plugin(RemoteLinux
     remotelinuxdeployconfiguration.cpp remotelinuxdeployconfiguration.h
     remotelinuxenvironmentaspect.cpp remotelinuxenvironmentaspect.h
     remotelinuxplugin.cpp remotelinuxplugin.h
-    remotelinuxqmltoolingsupport.cpp remotelinuxqmltoolingsupport.h
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxsignaloperation.cpp remotelinuxsignaloperation.h
     rsyncdeploystep.cpp rsyncdeploystep.h

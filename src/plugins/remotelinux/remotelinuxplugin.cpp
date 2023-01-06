@@ -10,7 +10,6 @@
 #include "makeinstallstep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxdeployconfiguration.h"
-#include "remotelinuxqmltoolingsupport.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxdeployconfiguration.h"
@@ -62,15 +61,9 @@ public:
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
     GenericDeployStepFactory<MakeInstallStep> makeInstallStepFactory;
-
-    const QList<Utils::Id> supportedRunConfigs {
-        runConfigurationFactory.runConfigurationId(),
-        customRunConfigurationFactory.runConfigurationId(),
-        "QmlProjectManager.QmlRunConfiguration"
-    };
-    RemoteLinuxRunWorkerFactory runWorkerFactory{supportedRunConfigs};
-    RemoteLinuxDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
-    RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
+    RemoteLinuxRunWorkerFactory runWorkerFactory;
+    RemoteLinuxDebugWorkerFactory debugWorkerFactory;
+    RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
 };
 
 static RemoteLinuxPluginPrivate *dd = nullptr;

@@ -55,8 +55,6 @@ Project {
             "remotelinuxenvironmentaspect.h",
             "remotelinuxplugin.cpp",
             "remotelinuxplugin.h",
-            "remotelinuxqmltoolingsupport.cpp",
-            "remotelinuxqmltoolingsupport.h",
             "remotelinuxrunconfiguration.cpp",
             "remotelinuxrunconfiguration.h",
             "remotelinuxsignaloperation.cpp",

@@ -10,13 +10,19 @@ namespace RemoteLinux::Internal {
 class RemoteLinuxRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit RemoteLinuxRunWorkerFactory(const QList<Utils::Id> &runConfigs);
+    explicit RemoteLinuxRunWorkerFactory();
 };
 
 class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit RemoteLinuxDebugWorkerFactory(const QList<Utils::Id> &runConfigs);
+    explicit RemoteLinuxDebugWorkerFactory();
+};
+
+class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    explicit RemoteLinuxQmlToolingWorkerFactory();
 };
 
 } // RemoteLinux::Internal
