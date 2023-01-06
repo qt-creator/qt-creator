@@ -64,7 +64,8 @@ public:
      *  Assumes that the name of the actual command is *not* part of the line.
      *  Terminates after the first command if the command line is complex.
      */
-    class QTCREATOR_UTILS_EXPORT ArgIterator {
+    class QTCREATOR_UTILS_EXPORT ArgIterator
+    {
     public:
         ArgIterator(QString *str, OsType osType = HostOsInfo::hostOs())
             : m_str(str), m_osType(osType)
@@ -80,6 +81,7 @@ public:
         //! Insert argument into the command line after the last one fetched via next().
         //! This may be used before the first call to next() to insert at the front.
         void appendArg(const QString &str);
+
     private:
         QString *m_str, m_value;
         int m_pos = 0;
@@ -88,7 +90,8 @@ public:
         OsType m_osType;
     };
 
-    class QTCREATOR_UTILS_EXPORT ConstArgIterator {
+    class QTCREATOR_UTILS_EXPORT ConstArgIterator
+    {
     public:
         ConstArgIterator(const QString &str, OsType osType = HostOsInfo::hostOs())
             : m_str(str), m_ait(&m_str, osType)
@@ -96,6 +99,7 @@ public:
         bool next() { return m_ait.next(); }
         bool isSimple() const { return m_ait.isSimple(); }
         QString value() const { return m_ait.value(); }
+
     private:
         QString m_str;
         ArgIterator m_ait;
@@ -148,19 +152,14 @@ public:
 
     bool isEmpty() const { return m_executable.isEmpty(); }
 
-    friend bool operator==(const CommandLine &first, const CommandLine &second) {
-        return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;
-    }
-
 private:
+    friend QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second);
+    friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const CommandLine &cmd);
+
     FilePath m_executable;
     QString m_arguments;
 };
 
-} // namespace Utils
-
-QT_BEGIN_NAMESPACE
-QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Utils::CommandLine &cmd);
-QT_END_NAMESPACE
+} // Utils
 
 Q_DECLARE_METATYPE(Utils::CommandLine)

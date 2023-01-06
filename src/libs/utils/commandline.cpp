@@ -13,13 +13,6 @@
 #include <QRegularExpression>
 #include <QStack>
 
-QT_BEGIN_NAMESPACE
-QDebug operator<<(QDebug dbg, const Utils::CommandLine &cmd)
-{
-    return dbg << cmd.toUserOutput();
-}
-QT_END_NAMESPACE
-
 // The main state of the Unix shell parser
 enum MxQuoting { MxBasic, MxSingleQuote, MxDoubleQuote, MxParen, MxSubst, MxGroup, MxMath };
 
@@ -1531,4 +1524,14 @@ QStringList CommandLine::splitArguments() const
     return ProcessArgs::splitArgs(m_arguments, m_executable.osType());
 }
 
-} // namespace Utils
+QTCREATOR_UTILS_EXPORT bool operator==(const CommandLine &first, const CommandLine &second)
+{
+    return first.m_executable == second.m_executable && first.m_arguments == second.m_arguments;
+}
+
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const CommandLine &cmd)
+{
+    return dbg << cmd.toUserOutput();
+}
+
+} // Utils
