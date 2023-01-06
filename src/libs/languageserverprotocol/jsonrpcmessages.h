@@ -65,25 +65,25 @@ public:
         return {};
     }
 
-    friend auto qHash(const MessageId &id)
+private:
+    friend size_t qHash(const MessageId &id)
     {
         if (std::holds_alternative<int>(id))
-            return QT_PREPEND_NAMESPACE(qHash(std::get<int>(id)));
+            return qHash(std::get<int>(id));
         if (std::holds_alternative<QString>(id))
-            return QT_PREPEND_NAMESPACE(qHash(std::get<QString>(id)));
-        return QT_PREPEND_NAMESPACE(qHash(0));
+            return qHash(std::get<QString>(id));
+        return qHash(0);
+    }
+
+    friend QDebug operator<<(QDebug stream, const MessageId &id)
+    {
+        if (std::holds_alternative<int>(id))
+            stream << std::get<int>(id);
+        else
+            stream << std::get<QString>(id);
+        return stream;
     }
 };
-
-template <typename Error>
-inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)
-{
-    if (std::holds_alternative<int>(id))
-        stream << std::get<int>(id);
-    else
-        stream << std::get<QString>(id);
-    return stream;
-}
 
 struct ResponseHandler
 {
