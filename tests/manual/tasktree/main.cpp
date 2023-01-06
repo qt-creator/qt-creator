@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
     groupTask_1->setWorkflowPolicy(Tasking::WorkflowPolicy::ContinueOnDone);
     groupTask_4->setWorkflowPolicy(Tasking::WorkflowPolicy::Optional);
-    groupTask_4_3->setExecuteMode(Tasking::ExecuteMode::Parallel);
+    groupTask_4_3->setExecuteMode(ExecuteMode::Parallel);
     groupTask_4_3->setWorkflowPolicy(Tasking::WorkflowPolicy::StopOnError);
 
     // Task layout
@@ -170,14 +170,14 @@ int main(int argc, char *argv[])
         };
 
         const Group root {
-            Execute(rootGroup->executeMode()),
+            rootGroup->executeMode(),
             Workflow(rootGroup->workflowPolicy()),
             OnGroupSetup([rootGroup] { rootGroup->setState(State::Running); }),
             OnGroupDone([rootGroup] { rootGroup->setState(State::Done); }),
             OnGroupError([rootGroup] { rootGroup->setState(State::Error); }),
 
             Group {
-                Execute(groupTask_1->executeMode()),
+                groupTask_1->executeMode(),
                 Workflow(groupTask_1->workflowPolicy()),
                 OnGroupSetup([groupTask_1] { groupTask_1->setState(State::Running); }),
                 OnGroupDone([groupTask_1] { groupTask_1->setState(State::Done); }),
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
             taskItem(task_2),
             taskItem(task_3),
             Group {
-                Execute(groupTask_4->executeMode()),
+                groupTask_4->executeMode(),
                 Workflow(groupTask_4->workflowPolicy()),
                 OnGroupSetup([groupTask_4] { groupTask_4->setState(State::Running); }),
                 OnGroupDone([groupTask_4] { groupTask_4->setState(State::Done); }),
@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
                 taskItem(task_4_1),
                 taskItem(task_4_2),
                 Group {
-                    Execute(groupTask_4_3->executeMode()),
+                    groupTask_4_3->executeMode(),
                     Workflow(groupTask_4_3->workflowPolicy()),
                     OnGroupSetup([groupTask_4_3] { groupTask_4_3->setState(State::Running); }),
                     OnGroupDone([groupTask_4_3] { groupTask_4_3->setState(State::Done); }),

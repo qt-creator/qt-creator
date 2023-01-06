@@ -121,11 +121,11 @@ GroupWidget::GroupWidget()
 {
     m_stateIndicator->setFixedWidth(30);
 
-    m_executeCombo->addItem("Sequential", (int)Tasking::ExecuteMode::Sequential);
-    m_executeCombo->addItem("Parallel", (int)Tasking::ExecuteMode::Parallel);
+    m_executeCombo->addItem("Sequential", (int)ExecuteMode::Sequential);
+    m_executeCombo->addItem("Parallel", (int)ExecuteMode::Parallel);
     updateExecuteMode();
     connect(m_executeCombo, &QComboBox::currentIndexChanged, this, [this](int index) {
-        m_executeMode = (Tasking::ExecuteMode)m_executeCombo->itemData(index).toInt();
+        m_executeMode = (ExecuteMode)m_executeCombo->itemData(index).toInt();
     });
 
     m_workflowCombo->addItem("Stop On Error", (int)Tasking::WorkflowPolicy::StopOnError);
@@ -152,7 +152,7 @@ GroupWidget::GroupWidget()
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 }
 
-void GroupWidget::setExecuteMode(Tasking::ExecuteMode mode)
+void GroupWidget::setExecuteMode(ExecuteMode mode)
 {
     m_executeMode = mode;
     updateExecuteMode();
@@ -163,9 +163,9 @@ void GroupWidget::updateExecuteMode()
     m_executeCombo->setCurrentIndex(m_executeCombo->findData((int)m_executeMode));
 }
 
-Tasking::ExecuteMode GroupWidget::executeMode() const
+Tasking::ParallelLimit GroupWidget::executeMode() const
 {
-    return m_executeMode;
+    return m_executeMode == ExecuteMode::Sequential ? Tasking::sequential : Tasking::parallel;
 }
 
 void GroupWidget::setWorkflowPolicy(Tasking::WorkflowPolicy policy)

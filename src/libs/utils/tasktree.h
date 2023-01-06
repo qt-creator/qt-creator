@@ -85,11 +85,6 @@ private:
     }
 };
 
-enum class ExecuteMode {
-    Sequential, // default
-    Parallel
-};
-
 // 4 policies:
 // 1. When all children finished with done -> report done, otherwise:
 //    a) Report error on first error and stop executing other children (including their subtree)
@@ -134,8 +129,6 @@ public:
     using GroupSimpleHandler = std::function<void()>;
     // Called when group entered
     using GroupSetupHandler = std::function<GroupConfig()>;
-    // Called after group ended with success or failure, passed set of successful children
-//    using GroupEndHandler = std::function<void(const QSet<int> &)>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
@@ -151,7 +144,7 @@ public:
         GroupSetupHandler m_dynamicSetupHandler = {};
     };
 
-    ExecuteMode executeMode() const { return m_executeMode; }
+    int parallelLimit() const { return m_parallelLimit; }
     WorkflowPolicy workflowPolicy() const { return m_workflowPolicy; }
     TaskHandler taskHandler() const { return m_taskHandler; }
     GroupHandler groupHandler() const { return m_groupHandler; }
@@ -162,16 +155,16 @@ protected:
     enum class Type {
         Group,
         Storage,
-        Mode,
+        Limit,
         Policy,
         TaskHandler,
         GroupHandler
     };
 
     TaskItem() = default;
-    TaskItem(ExecuteMode mode)
-        : m_type(Type::Mode)
-        , m_executeMode(mode) {}
+    TaskItem(int parallelLimit)
+        : m_type(Type::Limit)
+        , m_parallelLimit(parallelLimit) {}
     TaskItem(WorkflowPolicy policy)
         : m_type(Type::Policy)
         , m_workflowPolicy(policy) {}
@@ -188,7 +181,7 @@ protected:
 
 private:
     Type m_type = Type::Group;
-    ExecuteMode m_executeMode = ExecuteMode::Sequential;
+    int m_parallelLimit = 1; // 0 means unlimited
     WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     TaskHandler m_taskHandler;
     GroupHandler m_groupHandler;
@@ -209,10 +202,10 @@ public:
     Storage(const TreeStorageBase &storage) : TaskItem(storage) { }
 };
 
-class QTCREATOR_UTILS_EXPORT Execute : public TaskItem
+class QTCREATOR_UTILS_EXPORT ParallelLimit : public TaskItem
 {
 public:
-    Execute(ExecuteMode mode) : TaskItem(mode) {}
+    ParallelLimit(int parallelLimit) : TaskItem(qMax(parallelLimit, 0)) {}
 };
 
 class QTCREATOR_UTILS_EXPORT Workflow : public TaskItem
@@ -245,8 +238,8 @@ public:
     DynamicSetup(const GroupSetupHandler &handler) : TaskItem({{}, {}, {}, handler}) {}
 };
 
-QTCREATOR_UTILS_EXPORT extern Execute sequential;
-QTCREATOR_UTILS_EXPORT extern Execute parallel;
+QTCREATOR_UTILS_EXPORT extern ParallelLimit sequential;
+QTCREATOR_UTILS_EXPORT extern ParallelLimit parallel;
 QTCREATOR_UTILS_EXPORT extern Workflow stopOnError;
 QTCREATOR_UTILS_EXPORT extern Workflow continueOnError;
 QTCREATOR_UTILS_EXPORT extern Workflow stopOnDone;

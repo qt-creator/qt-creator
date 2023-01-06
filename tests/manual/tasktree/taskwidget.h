@@ -22,6 +22,11 @@ enum class State {
     Error
 };
 
+enum class ExecuteMode {
+    Sequential, // default
+    Parallel
+};
+
 class StateWidget : public QWidget
 {
 public:
@@ -54,8 +59,8 @@ class GroupWidget : public StateWidget
 public:
     GroupWidget();
 
-    void setExecuteMode(Utils::Tasking::ExecuteMode mode);
-    Utils::Tasking::ExecuteMode executeMode() const;
+    void setExecuteMode(ExecuteMode mode);
+    Utils::Tasking::ParallelLimit executeMode() const;
 
     void setWorkflowPolicy(Utils::Tasking::WorkflowPolicy policy);
     Utils::Tasking::WorkflowPolicy workflowPolicy() const;
@@ -67,7 +72,7 @@ private:
     QComboBox *m_executeCombo = nullptr;
     QComboBox *m_workflowCombo = nullptr;
 
-    Utils::Tasking::ExecuteMode m_executeMode = Utils::Tasking::ExecuteMode::Sequential;
+    ExecuteMode m_executeMode = ExecuteMode::Sequential;
     Utils::Tasking::WorkflowPolicy m_workflowPolicy = Utils::Tasking::WorkflowPolicy::StopOnError;
 };
 

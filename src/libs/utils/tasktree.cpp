@@ -67,8 +67,8 @@ void TreeStorageBase::activateStorage(int id)
     m_storageData->m_activeStorage = id;
 }
 
-Execute sequential(ExecuteMode::Sequential);
-Execute parallel(ExecuteMode::Parallel);
+ParallelLimit sequential(1);
+ParallelLimit parallel(0);
 Workflow stopOnError(WorkflowPolicy::StopOnError);
 Workflow continueOnError(WorkflowPolicy::ContinueOnError);
 Workflow stopOnDone(WorkflowPolicy::StopOnDone);
@@ -83,10 +83,10 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
         case Type::Group:
             m_children.append(child);
             break;
-        case Type::Mode:
+        case Type::Limit:
             QTC_ASSERT(m_type == Type::Group,
                        qWarning("Mode may only be a child of Group, skipping..."); return);
-            m_executeMode = child.m_executeMode; // TODO: Assert on redefinition?
+            m_parallelLimit = child.m_parallelLimit; // TODO: Assert on redefinition?
             break;
         case Type::Policy:
             QTC_ASSERT(m_type == Type::Group,
@@ -161,7 +161,7 @@ public:
 
     TaskTreePrivate *m_taskTreePrivate = nullptr;
     TaskContainer *m_parentContainer = nullptr;
-    const ExecuteMode m_executeMode = ExecuteMode::Parallel;
+    const int m_parallelLimit = 1;
     WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
     QList<TreeStorageBase> m_storageList;
@@ -314,7 +314,7 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
                              const TaskItem &task)
     : m_taskTreePrivate(taskTreePrivate)
     , m_parentContainer(parentContainer)
-    , m_executeMode(task.executeMode())
+    , m_parallelLimit(task.parallelLimit())
     , m_workflowPolicy(task.workflowPolicy())
     , m_groupHandler(task.groupHandler())
     , m_storageList(taskTreePrivate->addStorages(task.storageList()))
@@ -353,7 +353,8 @@ void TaskContainer::start()
         }
     }
 
-    if (m_groupConfig.action == GroupAction::StopWithDone || m_groupConfig.action == GroupAction::StopWithError) {
+    if (m_groupConfig.action == GroupAction::StopWithDone
+        || m_groupConfig.action == GroupAction::StopWithError) {
         const bool success = m_groupConfig.action == GroupAction::StopWithDone;
         const int skippedTaskCount = taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
@@ -369,17 +370,12 @@ void TaskContainer::start()
         return;
     }
 
-    m_currentIndex = 0;
     resetSuccessBit();
 
-    if (m_executeMode == ExecuteMode::Sequential) {
-        m_selectedChildren.at(m_currentIndex)->start();
-        return;
-    }
-
-    // Parallel case
-    for (TaskNode *child : std::as_const(m_selectedChildren)) {
-        if (!child->start())
+    const int childCount = m_selectedChildren.size();
+    const int startCount = m_parallelLimit ? qMin(m_parallelLimit, childCount) : childCount;
+    for (int i = 0; i < startCount; ++i) {
+        if (!m_selectedChildren.at(i)->start()) // TODO: take m_groupConfig.action into account
             return;
     }
 }
@@ -406,9 +402,9 @@ void TaskContainer::stop()
     if (!isRunning())
         return;
 
-    if (m_executeMode == ExecuteMode::Sequential) {
+    if (m_parallelLimit) { // skip not started tasks
         int skippedTaskCount = 0;
-        for (int i = m_currentIndex + 1; i < m_selectedChildren.size(); ++i)
+        for (int i = m_currentIndex + m_parallelLimit; i < m_selectedChildren.size(); ++i)
             skippedTaskCount += m_selectedChildren.at(i)->taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
     }
@@ -445,8 +441,12 @@ void TaskContainer::childDone(bool success)
         return;
     }
 
-    if (m_executeMode == ExecuteMode::Sequential)
-        m_selectedChildren.at(m_currentIndex)->start();
+    if (m_parallelLimit == 0)
+        return;
+
+    const int nextIndexToRun = m_currentIndex + m_parallelLimit - 1;
+    if (nextIndexToRun < m_selectedChildren.size())
+        m_selectedChildren.at(nextIndexToRun)->start();
 }
 
 void TaskContainer::invokeEndHandler(bool success, bool propagateToParent)
