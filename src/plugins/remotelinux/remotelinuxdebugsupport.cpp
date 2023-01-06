@@ -3,30 +3,57 @@
 
 #include "remotelinuxdebugsupport.h"
 
+#include "remotelinux_constants.h"
+
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+
+#include <debugger/debuggerruncontrol.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
 
 namespace RemoteLinux::Internal {
 
-LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
-    : DebuggerRunTool(runControl, DebuggerRunTool::DoNotAllowTerminal)
+class RemoteLinuxDebugWorker final : public DebuggerRunTool
 {
-    setId("LinuxDeviceDebugSupport");
+public:
+    RemoteLinuxDebugWorker(RunControl *runControl)
+        : DebuggerRunTool(runControl, DoNotAllowTerminal)
+    {
+        setId("RemoteLinuxDebugWorker");
 
-    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
-    addQmlServerInferiorCommandLineArgumentIfNeeded();
+        setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+        addQmlServerInferiorCommandLineArgumentIfNeeded();
 
-    auto debugServer = new DebugServerRunner(runControl, portsGatherer());
-    debugServer->setEssential(true);
+        auto debugServer = new DebugServerRunner(runControl, portsGatherer());
+        debugServer->setEssential(true);
 
-    addStartDependency(debugServer);
+        addStartDependency(debugServer);
 
-    setStartMode(AttachToRemoteServer);
-    setCloseMode(KillAndExitMonitorAtClose);
-    setUseExtendedRemote(true);
-    setLldbPlatform("remote-linux");
+        setStartMode(AttachToRemoteServer);
+        setCloseMode(KillAndExitMonitorAtClose);
+        setUseExtendedRemote(true);
+        setLldbPlatform("remote-linux");
+    }
+};
+
+// Factories
+
+RemoteLinuxRunWorkerFactory::RemoteLinuxRunWorkerFactory(const QList<Utils::Id> &runConfigs)
+{
+    setProduct<SimpleTargetRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
+    addSupportedDeviceType(Constants::GenericLinuxOsType);
+}
+
+RemoteLinuxDebugWorkerFactory::RemoteLinuxDebugWorkerFactory(const QList<Utils::Id> &runConfigs)
+{
+    setProduct<RemoteLinuxDebugWorker>();
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
+    addSupportedDeviceType(Constants::GenericLinuxOsType);
 }
 
 } // Internal::Internal

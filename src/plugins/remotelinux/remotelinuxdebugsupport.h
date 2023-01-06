@@ -3,14 +3,20 @@
 
 #pragma once
 
-#include <debugger/debuggerruncontrol.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace RemoteLinux::Internal {
 
-class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
+class RemoteLinuxRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
+    explicit RemoteLinuxRunWorkerFactory(const QList<Utils::Id> &runConfigs);
+};
+
+class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
+{
+public:
+    explicit RemoteLinuxDebugWorkerFactory(const QList<Utils::Id> &runConfigs);
 };
 
 } // RemoteLinux::Internal

@@ -5,14 +5,12 @@
 
 #include <projectexplorer/runcontrol.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
-class RemoteLinuxQmlToolingSupport : public ProjectExplorer::SimpleTargetRunner
+class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit RemoteLinuxQmlToolingSupport(ProjectExplorer::RunControl *runControl);
+    explicit RemoteLinuxQmlToolingWorkerFactory(const QList<Utils::Id> &runConfigs);
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

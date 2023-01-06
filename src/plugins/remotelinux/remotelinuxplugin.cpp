@@ -68,26 +68,9 @@ public:
         customRunConfigurationFactory.runConfigurationId(),
         "QmlProjectManager.QmlRunConfiguration"
     };
-
-    RunWorkerFactory runnerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
-    RunWorkerFactory debuggerFactory{
-        RunWorkerFactory::make<LinuxDeviceDebugSupport>(),
-        {ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
-    RunWorkerFactory qmlToolingFactory{
-        RunWorkerFactory::make<RemoteLinuxQmlToolingSupport>(),
-        {ProjectExplorer::Constants::QML_PROFILER_RUN_MODE,
-         ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE},
-        supportedRunConfigs,
-        {Constants::GenericLinuxOsType}
-    };
+    RemoteLinuxRunWorkerFactory runWorkerFactory{supportedRunConfigs};
+    RemoteLinuxDebugWorkerFactory debugWorkerFactory{supportedRunConfigs};
+    RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory{supportedRunConfigs};
 };
 
 static RemoteLinuxPluginPrivate *dd = nullptr;
