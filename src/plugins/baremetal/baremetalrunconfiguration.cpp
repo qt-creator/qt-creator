@@ -79,7 +79,7 @@ Tasks BareMetalCustomRunConfiguration::checkForIssues() const
 
 BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 {
-    registerRunConfiguration<BareMetalRunConfiguration>("BareMetalCustom");
+    registerRunConfiguration<BareMetalRunConfiguration>(Constants::BAREMETAL_RUNCONFIG_ID);
     setDecorateDisplayNames(true);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
@@ -89,7 +89,7 @@ BareMetalRunConfigurationFactory::BareMetalRunConfigurationFactory()
 BareMetalCustomRunConfigurationFactory::BareMetalCustomRunConfigurationFactory()
     : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
 {
-    registerRunConfiguration<BareMetalCustomRunConfiguration>("BareMetal");
+    registerRunConfiguration<BareMetalCustomRunConfiguration>(Constants::BAREMETAL_CUSTOMRUNCONFIG_ID);
     addSupportedTargetDeviceType(BareMetal::Constants::BareMetalOsType);
 }
 

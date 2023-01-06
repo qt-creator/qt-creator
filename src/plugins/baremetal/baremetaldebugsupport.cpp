@@ -3,6 +3,7 @@
 
 #include "baremetaldebugsupport.h"
 
+#include "baremetalconstants.h"
 #include "baremetaldevice.h"
 #include "baremetaltr.h"
 
@@ -15,6 +16,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
@@ -30,39 +32,53 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-BareMetalDebugSupport::BareMetalDebugSupport(RunControl *runControl)
-    : Debugger::DebuggerRunTool(runControl)
+class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
 {
-    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
-    if (!dev) {
-        reportFailure(Tr::tr("Cannot debug: Kit has no device."));
-        return;
+public:
+    explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl)
+        : Debugger::DebuggerRunTool(runControl)
+    {
+        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        if (!dev) {
+            reportFailure(Tr::tr("Cannot debug: Kit has no device."));
+            return;
+        }
+
+        const QString providerId = dev->debugServerProviderId();
+        IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
+        if (!p) {
+            reportFailure(Tr::tr("No debug server provider found for %1").arg(providerId));
+            return;
+        }
+
+        if (RunWorker *runner = p->targetRunner(runControl))
+            addStartDependency(runner);
     }
 
-    const QString providerId = dev->debugServerProviderId();
-    IDebugServerProvider *p = DebugServerProviderManager::findProvider(providerId);
-    if (!p) {
-        reportFailure(Tr::tr("No debug server provider found for %1").arg(providerId));
-        return;
+private:
+    void start() final
+    {
+        const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
+        QTC_ASSERT(dev, reportFailure(); return);
+        IDebugServerProvider *p = DebugServerProviderManager::findProvider(
+            dev->debugServerProviderId());
+        QTC_ASSERT(p, reportFailure(); return);
+
+        QString errorMessage;
+        if (!p->aboutToRun(this, errorMessage))
+            reportFailure(errorMessage);
+        else
+            DebuggerRunTool::start();
     }
+};
 
-    if (RunWorker *runner = p->targetRunner(runControl))
-        addStartDependency(runner);
-}
-
-void BareMetalDebugSupport::start()
+BareMetalDebugSupportFactory::BareMetalDebugSupportFactory()
 {
-    const auto dev = qSharedPointerCast<const BareMetalDevice>(device());
-    QTC_ASSERT(dev, reportFailure(); return);
-    IDebugServerProvider *p = DebugServerProviderManager::findProvider(
-                dev->debugServerProviderId());
-    QTC_ASSERT(p, reportFailure(); return);
-
-    QString errorMessage;
-    if (!p->aboutToRun(this, errorMessage))
-        reportFailure(errorMessage);
-    else
-        DebuggerRunTool::start();
+    setProduct<BareMetalDebugSupport>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    addSupportedRunConfig(BareMetal::Constants::BAREMETAL_RUNCONFIG_ID);
+    addSupportedRunConfig(BareMetal::Constants::BAREMETAL_CUSTOMRUNCONFIG_ID);
 }
 
 } // BareMetal::Internal

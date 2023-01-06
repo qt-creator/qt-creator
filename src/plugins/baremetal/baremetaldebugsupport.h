@@ -7,13 +7,11 @@
 
 namespace BareMetal::Internal {
 
-class BareMetalDebugSupport final : public Debugger::DebuggerRunTool
+class BareMetalDebugSupportFactory final
+    : public ProjectExplorer::RunWorkerFactory
 {
 public:
-    explicit BareMetalDebugSupport(ProjectExplorer::RunControl *runControl);
-
-private:
-    void start() final;
+    BareMetalDebugSupportFactory();
 };
 
 } // BareMetal::Internal

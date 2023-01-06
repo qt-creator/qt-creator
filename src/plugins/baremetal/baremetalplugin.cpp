@@ -42,7 +42,6 @@ public:
     }
 };
 
-
 // BareMetalPluginPrivate
 
 class BareMetalPluginPrivate
@@ -57,13 +56,7 @@ public:
     DebugServerProvidersSettingsPage debugServerProviderSettinsPage;
     DebugServerProviderManager debugServerProviderManager;
     BareMetalDeployConfigurationFactory deployConfigurationFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<BareMetalDebugSupport>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {runConfigurationFactory.runConfigurationId(),
-         customRunConfigurationFactory.runConfigurationId()}
-    };
+    BareMetalDebugSupportFactory runWorkerFactory;
 };
 
 // BareMetalPlugin
