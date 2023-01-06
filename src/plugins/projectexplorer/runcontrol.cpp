@@ -100,6 +100,11 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
     m_producer = producer;
 }
 
+void RunWorkerFactory::setSupportedRunConfigs(const QList<Utils::Id> &runConfigs)
+{
+    m_supportedRunConfigurations = runConfigs;
+}
+
 void RunWorkerFactory::addSupportedRunMode(Utils::Id runMode)
 {
     m_supportedRunModes.append(runMode);
@@ -1890,6 +1895,15 @@ QList<OutputLineParser *> OutputFormatterFactory::createFormatters(Target *targe
 void OutputFormatterFactory::setFormatterCreator(const FormatterCreator &creator)
 {
     m_creator = creator;
+}
+
+// SimpleTargetRunnerFactory
+
+SimpleTargetRunnerFactory::SimpleTargetRunnerFactory(const QList<Id> &runConfigs)
+{
+    setProduct<SimpleTargetRunner>();
+    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+    setSupportedRunConfigs(runConfigs);
 }
 
 } // namespace ProjectExplorer

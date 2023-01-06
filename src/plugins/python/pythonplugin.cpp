@@ -20,8 +20,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 static PythonPlugin *m_instance = nullptr;
 
@@ -33,13 +32,7 @@ public:
     PythonRunConfigurationFactory runConfigFactory;
     PySideBuildStepFactory buildStepFactory;
     PySideBuildConfigurationFactory buildConfigFactory;
-
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
-
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
 };
 
@@ -81,5 +74,4 @@ void PythonPlugin::extensionsInitialized()
     TaskHub::addCategory(PythonErrorTaskCategory, "Python", true);
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

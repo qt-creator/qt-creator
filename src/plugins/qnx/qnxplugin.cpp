@@ -102,12 +102,8 @@ public:
     QnxRunConfigurationFactory runConfigFactory;
     QnxSettingsPage settingsPage;
     QnxToolChainFactory toolChainFactory;
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
 
-    RunWorkerFactory runWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {runConfigFactory.runConfigurationId()}
-    };
     RunWorkerFactory debugWorkerFactory{
         RunWorkerFactory::make<QnxDebugSupport>(),
         {ProjectExplorer::Constants::DEBUG_RUN_MODE},

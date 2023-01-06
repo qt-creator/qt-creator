@@ -137,6 +137,7 @@ protected:
     template <typename Worker>
     void setProduct() { setProducer([](RunControl *rc) { return new Worker(rc); }); }
     void setProducer(const WorkerCreator &producer);
+    void setSupportedRunConfigs(const QList<Utils::Id> &runConfigs);
     void addSupportedRunMode(Utils::Id runMode);
     void addSupportedRunConfig(Utils::Id runConfig);
     void addSupportedDeviceType(Utils::Id deviceType);
@@ -296,6 +297,12 @@ private:
     void setRunnable(const Runnable &) = delete;
 
     const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
+};
+
+class PROJECTEXPLORER_EXPORT SimpleTargetRunnerFactory : public RunWorkerFactory
+{
+public:
+    explicit SimpleTargetRunnerFactory(const QList<Utils::Id> &runConfig);
 };
 
 class PROJECTEXPLORER_EXPORT OutputFormatterFactory

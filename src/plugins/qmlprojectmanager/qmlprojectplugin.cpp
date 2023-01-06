@@ -51,8 +51,7 @@
 
 using namespace ProjectExplorer;
 
-namespace QmlProjectManager {
-namespace Internal {
+namespace QmlProjectManager::Internal {
 
 static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
 {
@@ -90,9 +89,7 @@ class QmlProjectPluginPrivate
 {
 public:
     QmlProjectRunConfigurationFactory runConfigFactory;
-    RunWorkerFactory runWorkerFactory{RunWorkerFactory::make<SimpleTargetRunner>(),
-                                      {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-                                      {runConfigFactory.runConfigurationId()}};
+    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     QPointer<QMessageBox> lastMessageBox;
     QdsLandingPage *landingPage = nullptr;
     QdsLandingPageWidget *landingPageWidget = nullptr;
@@ -457,5 +454,4 @@ Utils::FilePath QmlProjectPlugin::projectFilePath()
     return {};
 }
 
-} // namespace Internal
-} // namespace QmlProjectManager
+} // QmlProjectManager::Internal

@@ -719,14 +719,11 @@ public:
     DesktopQmakeRunConfigurationFactory qmakeRunConfigFactory;
     QbsRunConfigurationFactory qbsRunConfigFactory;
     CMakeRunConfigurationFactory cmakeRunConfigFactory;
-
-    RunWorkerFactory desktopRunWorkerFactory{
-        RunWorkerFactory::make<SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE},
-        {qmakeRunConfigFactory.runConfigurationId(),
-         qbsRunConfigFactory.runConfigurationId(),
-         cmakeRunConfigFactory.runConfigurationId()}
-    };
+    SimpleTargetRunnerFactory desktopRunWorkerFactory{{
+        qmakeRunConfigFactory.runConfigurationId(),
+        qbsRunConfigFactory.runConfigurationId(),
+        cmakeRunConfigFactory.runConfigurationId()
+    }};
 
     SanitizerOutputFormatterFactory sanitizerFormatterFactory;
 };
