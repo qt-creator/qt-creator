@@ -51,7 +51,6 @@ struct SdkForQtVersions
 {
     QList<QVersionNumber> versions;
     QStringList essentialPackages;
-    QString ndkPath;
 
 public:
     bool containsVersion(const QVersionNumber &qtVersion) const;
@@ -80,7 +79,7 @@ public:
 
     QUrl sdkToolsUrl() const { return m_sdkToolsUrl; }
     QByteArray getSdkToolsSha256() const { return m_sdkToolsSha256; }
-    QString ndkPathFromQtVersion(const QtSupport::QtVersion &version) const;
+    Utils::FilePath ndkSubPathFromQtVersion(const QtSupport::QtVersion &version) const; // relative!
 
     QStringList defaultEssentials() const;
     QStringList essentialsFromQtVersion(const QtSupport::QtVersion &version) const;

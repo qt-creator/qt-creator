@@ -81,6 +81,7 @@ const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 
 // SDK Tools
 const char cmdlineToolsName[] = "cmdline-tools";
+const char ndkPackageName[] = "ndk";
 
 } // namespace Constants;
 } // namespace Android

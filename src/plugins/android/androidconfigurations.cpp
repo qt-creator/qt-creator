@@ -77,7 +77,7 @@ const char SdkToolsUrlKey[] = "sdk_tools_url";
 const char CommonKey[] = "common";
 const char SdkEssentialPkgsKey[] = "sdk_essential_packages";
 const char VersionsKey[] = "versions";
-const char NdkPathKey[] = "ndk_path";
+const char NdksSubDir[] = "ndk/";
 const char SpecificQtVersionsKey[] = "specific_qt_versions";
 const char DefaultVersionKey[] = "default";
 const char LinuxOsKey[] = "linux";
@@ -122,6 +122,11 @@ namespace {
     static QString sdkSettingsFileName()
     {
         return Core::ICore::installerResourcePath("android.xml").toString();
+    }
+
+    static QString ndkPackageMarker()
+    {
+        return QLatin1String(Constants::ndkPackageName) + ";";
     }
 }
 
@@ -312,7 +317,6 @@ void AndroidConfig::parseDependenciesJson()
         for (const QJsonValue &item : versionsArray) {
             QJsonObject itemObj = item.toObject();
             SdkForQtVersions specificVersion;
-            specificVersion.ndkPath = itemObj[NdkPathKey].toString();
             const auto pkgs = itemObj[SdkEssentialPkgsKey].toArray();
             for (const QJsonValue &pkg : pkgs)
                 specificVersion.essentialPackages.append(pkg.toString());
@@ -850,7 +854,7 @@ FilePath AndroidConfig::ndkLocation(const QtVersion *qtVersion) const
 {
     if (!m_defaultNdk.isEmpty())
         return m_defaultNdk; // A selected default NDK is good for any Qt version
-    return sdkLocation().pathAppended(ndkPathFromQtVersion(*qtVersion));
+    return sdkLocation().resolvePath(ndkSubPathFromQtVersion(*qtVersion));
 }
 
 QVersionNumber AndroidConfig::ndkVersion(const QtVersion *qtVersion) const
@@ -929,8 +933,8 @@ bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
             break;
     }
     if (!m_defaultNdk.isEmpty())
-        essentialPkgs = Utils::filtered(essentialPkgs,
-                                        [](const QString &p){ return !p.startsWith("ndk;"); });
+        essentialPkgs = Utils::filtered(essentialPkgs, [] (const QString &p) {
+            return !p.startsWith(ndkPackageMarker()); });
     return essentialPkgs.isEmpty() ? true : false;
 }
 
@@ -952,13 +956,23 @@ QStringList AndroidConfig::essentialsFromQtVersion(const QtVersion &version) con
     return m_defaultSdkDepends.essentialPackages;
 }
 
-QString AndroidConfig::ndkPathFromQtVersion(const QtVersion &version) const
+static FilePath ndkSubPath(const SdkForQtVersions &packages)
+{
+    const QString ndkPrefix = ndkPackageMarker();
+    for (const QString &package : packages.essentialPackages)
+        if (package.startsWith(ndkPrefix))
+            return FilePath::fromString(NdksSubDir) / package.sliced(ndkPrefix.length());
+
+    return {};
+}
+
+FilePath AndroidConfig::ndkSubPathFromQtVersion(const QtVersion &version) const
 {
     for (const SdkForQtVersions &item : m_specificQtVersions)
         if (item.containsVersion(version.qtVersion()))
-            return item.ndkPath;
+            return ndkSubPath(item);
 
-    return m_defaultSdkDepends.ndkPath;
+    return ndkSubPath(m_defaultSdkDepends);
 }
 
 QStringList AndroidConfig::defaultEssentials() const

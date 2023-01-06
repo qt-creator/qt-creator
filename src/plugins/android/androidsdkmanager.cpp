@@ -295,7 +295,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(MarkerTagsType, markerTags, ({
     {SdkManagerOutputParser::MarkerTag::CmdlineSdkToolsMarker,      Constants::cmdlineToolsName},
     {SdkManagerOutputParser::MarkerTag::PlatformToolsMarker,        "platform-tools"},
     {SdkManagerOutputParser::MarkerTag::EmulatorToolsMarker,        "emulator"},
-    {SdkManagerOutputParser::MarkerTag::NdkMarker,                  "ndk"},
+    {SdkManagerOutputParser::MarkerTag::NdkMarker,                  Constants::ndkPackageName},
     {SdkManagerOutputParser::MarkerTag::ExtrasMarker,               "extras"}
 }));
 

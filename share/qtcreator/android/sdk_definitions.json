@@ -18,28 +18,23 @@
     "specific_qt_versions": [
         {
             "versions": ["default"],
-            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;25.1.8937393"],
-            "ndk_path": "ndk/25.1.8937393"
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;25.1.8937393"]
         },
         {
             "versions": ["6.4"],
-            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;23.1.7779620"],
-            "ndk_path": "ndk/23.1.7779620"
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;23.1.7779620"]
         },
         {
             "versions": ["6.3", "6.2", "5.15.[9-20]"],
-            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"],
-            "ndk_path": "ndk/22.1.7171670"
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;22.1.7171670"]
         },
         {
             "versions": ["5.15.[0-8]", "5.14.[0-2]", "5.13.2", "6.0", "6.1"],
-            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;21.3.6528147"],
-            "ndk_path": "ndk/21.3.6528147"
+            "sdk_essential_packages": ["build-tools;31.0.0", "ndk;21.3.6528147"]
         },
         {
             "versions": ["5.12.[0-5]", "5.13.[0-1]"],
-            "sdk_essential_packages": ["build-tools;28.0.2", "ndk;19.2.5345600"],
-            "ndk_path": "ndk/19.2.5345600"
+            "sdk_essential_packages": ["build-tools;28.0.2", "ndk;19.2.5345600"]
         }
     ]
 }
