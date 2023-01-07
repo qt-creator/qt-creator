@@ -2495,7 +2495,10 @@ class DumperBase():
         try:
             if funcname.startswith('qdump__'):
                 typename = funcname[7:]
-                spec = inspect.getargspec(function)
+                if sys.version_info > (3,):
+                    spec = inspect.getfullargspec(function)
+                else:
+                    spec = inspect.getargspec(function)
                 if len(spec.args) == 2:
                     self.qqDumpers[typename] = function
                 elif len(spec.args) == 3 and len(spec.defaults) == 1:
