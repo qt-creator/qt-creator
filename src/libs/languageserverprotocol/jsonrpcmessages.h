@@ -69,10 +69,10 @@ private:
     friend size_t qHash(const MessageId &id)
     {
         if (std::holds_alternative<int>(id))
-            return qHash(std::get<int>(id));
+            return QT_PREPEND_NAMESPACE(qHash(std::get<int>(id)));
         if (std::holds_alternative<QString>(id))
-            return qHash(std::get<QString>(id));
-        return qHash(0);
+            return QT_PREPEND_NAMESPACE(qHash(std::get<QString>(id)));
+        return QT_PREPEND_NAMESPACE(qHash(0));
     }
 
     friend QDebug operator<<(QDebug stream, const MessageId &id)
