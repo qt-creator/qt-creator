@@ -1004,8 +1004,11 @@ class Dumper(DumperBase):
 
     def importPlainDumpersForObj(self, obj):
         for printers in obj.pretty_printers + gdb.pretty_printers:
-            for printer in printers.subprinters:
-                self.importPlainDumper(printer)
+            if hasattr(printers, "subprinters"):
+                for printer in printers.subprinters:
+                    self.importPlainDumper(printer)
+            else:
+                self.warn('Loading a printer without the subprinters attribute not supported.')
 
     def importPlainDumpers(self):
         for obj in gdb.objfiles():
