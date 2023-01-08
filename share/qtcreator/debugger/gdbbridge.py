@@ -1531,7 +1531,10 @@ class CliDumper(Dumper):
         for n in names:
             while n:
                 toExpand.add(n)
-                n = n[0:n.rfind('.')]
+                try:
+                    n = n[0:n.rindex('.')]
+                except ValueError:
+                    break
 
         args = {}
         args['fancy'] = 1
