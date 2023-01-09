@@ -235,10 +235,10 @@ Section {
 
             ExpandingSpacer {}
         }
-/*
+
         PropertyLabel {
-            text: qsTr("Source Rectangle")
-            tooltip: qsTr("TODO.")
+            text: qsTr("Source rectangle")
+            tooltip: qsTr("Sets the rectangular area of the component that should be rendered into the texture.")
         }
 
         SecondColumnLayout {
@@ -313,6 +313,5 @@ Section {
 
             ExpandingSpacer {}
         }
-*/
     }
 }
