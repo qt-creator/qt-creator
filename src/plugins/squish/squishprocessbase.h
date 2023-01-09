@@ -32,6 +32,7 @@ signals:
 
 protected:
     void setState(SquishProcessState state);
+    virtual void start(const Utils::CommandLine &cmdline, const Utils::Environment &env);
     virtual void onDone() {}
     virtual void onErrorOutput() {}
 

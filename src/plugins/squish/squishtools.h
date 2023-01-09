@@ -92,7 +92,7 @@ private:
     void logAndChangeRunnerState(RunnerState to);
     void logAndChangeToolsState(SquishTools::State to);
     void onServerStateChanged(SquishProcessState state);
-    void onServerStarted();
+    void onServerPortRetrieved();
     void onServerStopped();
     void onServerStartFailed();
     void onServerStopFailed();

@@ -19,8 +19,11 @@ public:
     int port() const { return m_serverPort; }
 
     void start(const Utils::CommandLine &commandLine,
-               const Utils::Environment &environment);
+               const Utils::Environment &environment) override;
     void stop();
+
+signals:
+    void portRetrieved();
 
 private:
     void onStandardOutput();

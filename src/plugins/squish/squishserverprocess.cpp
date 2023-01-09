@@ -18,20 +18,8 @@ void SquishServerProcess::start(const Utils::CommandLine &commandLine,
                                 const Utils::Environment &environment)
 {
     QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
-    // especially when writing server config we re-use the process fast and start the server
-    // several times and may crash as the process may not have been cleanly destructed yet
-    m_process.close();
-
     m_serverPort = -1;
-    m_process.setCommand(commandLine);
-    m_process.setEnvironment(environment);
-
-    setState(Starting);
-    m_process.start();
-    if (!m_process.waitForStarted()) {
-        setState(StartFailed);
-        qWarning() << "squishserver did not start within 30s";
-    }
+    SquishProcessBase::start(commandLine, environment);
 }
 
 void SquishServerProcess::stop()
@@ -68,7 +56,7 @@ void SquishServerProcess::onStandardOutput()
                 int port = trimmed.mid(6).toInt(&ok);
                 if (ok) {
                     m_serverPort = port;
-                    setState(Started);
+                    emit portRetrieved();
                 } else {
                     qWarning() << "could not get port number" << trimmed.mid(6);
                     setState(StartFailed);

@@ -111,6 +111,8 @@ SquishTools::SquishTools(QObject *parent)
             this, &SquishTools::onServerStateChanged);
     connect(&m_serverProcess, &SquishServerProcess::logOutputReceived,
             this, &SquishTools::logOutputReceived);
+    connect(&m_serverProcess, &SquishServerProcess::portRetrieved,
+            this, &SquishTools::onServerPortRetrieved);
 
     s_instance = this;
     m_perspective.initPerspective();
@@ -336,7 +338,6 @@ void SquishTools::onServerStateChanged(SquishProcessState state)
         break;
     case Started:
         logAndChangeToolsState(SquishTools::ServerStarted);
-        onServerStarted();
         break;
     case StartFailed:
         logAndChangeToolsState(SquishTools::ServerStartFailed);
@@ -356,8 +357,9 @@ void SquishTools::onServerStateChanged(SquishProcessState state)
     }
 }
 
-void SquishTools::onServerStarted()
+void SquishTools::onServerPortRetrieved()
 {
+    QTC_ASSERT(m_state == ServerStarted, return);
     if (m_request == RunnerQueryRequested) {
         executeRunnerQuery();
     } else if (m_request == RunTestRequested || m_request == RecordTestRequested) {

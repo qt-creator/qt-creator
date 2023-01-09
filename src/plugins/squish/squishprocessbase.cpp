@@ -22,4 +22,22 @@ void SquishProcessBase::setState(SquishProcessState state)
     emit stateChanged(state);
 }
 
+void SquishProcessBase::start(const Utils::CommandLine &cmdline, const Utils::Environment &env)
+{
+    QTC_ASSERT(m_process.state() == QProcess::NotRunning, return);
+    // avoid crashes on fast re-use
+    m_process.close();
+
+    m_process.setCommand(cmdline);
+    m_process.setEnvironment(env);
+
+    setState(Starting);
+    m_process.start();
+    if (!m_process.waitForStarted()) {
+        setState(StartFailed);
+        qWarning() << "squishprocess did not start within 30s";
+    }
+    setState(Started);
+}
+
 } // namespace Squish::Internal
