@@ -3,10 +3,8 @@
 
 #pragma once
 
-namespace ConanPackageManager {
-namespace Constants {
+namespace Conan::Constants {
 
 const char INSTALL_STEP[]  = "ConanPackageManager.InstallStep";
 
-} // namespace Constants
-} // namespace ConanPackageManager
+} // Conan::Constants

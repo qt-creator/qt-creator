@@ -8561,7 +8561,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ConanPackageManager::Internal::ConanInstallStep</name>
+    <name>Conan</name>
     <message>
         <source>Conan install</source>
         <translation type="unfinished"></translation>

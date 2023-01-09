@@ -47854,7 +47854,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ConanPackageManager::Internal::ConanInstallStep</name>
+    <name>Conan</name>
     <message>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>

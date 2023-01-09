@@ -4,12 +4,8 @@
 #pragma once
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
 
-#include <QSettings>
-
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 class ConanSettings : public Utils::AspectContainer
 {
@@ -19,5 +15,4 @@ public:
     Utils::StringAspect conanFilePath;
 };
 
-} // Internal
-} // ConanPackageManager
+} // Conan::Internal

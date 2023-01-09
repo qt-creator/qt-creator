@@ -52744,7 +52744,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>ConanPackageManager::Internal::ConanInstallStep</name>
+    <name>Conan</name>
     <message>
         <source>Conan install</source>
         <translation type="unfinished"></translation>

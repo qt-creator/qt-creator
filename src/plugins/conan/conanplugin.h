@@ -4,12 +4,11 @@
 #pragma once
 
 #include <extensionsystem/iplugin.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace ProjectExplorer { class Project; }
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 class ConanSettings;
 
@@ -21,7 +20,7 @@ class ConanPlugin final : public ExtensionSystem::IPlugin
 public:
     static ConanSettings *conanSettings();
     static Utils::FilePath conanFilePath(ProjectExplorer::Project *project,
-                           const Utils::FilePath &defaultFilePath = Utils::FilePath());
+                           const Utils::FilePath &defaultFilePath = {});
 
 private:
     ~ConanPlugin() final;
@@ -33,5 +32,4 @@ private:
     class ConanPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ConanPackageManager
+} // Conan::Internal

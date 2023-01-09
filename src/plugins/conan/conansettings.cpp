@@ -7,8 +7,7 @@
 
 using namespace Utils;
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 ConanSettings::ConanSettings()
 {
@@ -22,5 +21,4 @@ ConanSettings::ConanSettings()
     conanFilePath.setDefaultValue(HostOsInfo::withExecutableSuffix("conan"));
 }
 
-} // Internal
-} // ConanPackageManager
+} // Conan::Internal

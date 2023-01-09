@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace ConanPackageManager {
-namespace Internal {
+namespace Conan::Internal {
 
 class ConanInstallStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     ConanInstallStepFactory();
 };
 
-} // namespace Internal
-} // namespace ConanPackageManager
+} // Conan::Internal

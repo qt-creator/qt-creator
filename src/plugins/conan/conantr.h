@@ -12,4 +12,4 @@ struct Tr
     Q_DECLARE_TR_FUNCTIONS(Conan)
 };
 
-} // namespace Conan
+} // Conan
