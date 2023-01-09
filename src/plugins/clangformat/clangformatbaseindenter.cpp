@@ -782,7 +782,7 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
                                   "",
                                   &llvmFileSystemAdapter);
 
-    if (styleFromProjectFolder) {
+    if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);
         return *styleFromProjectFolder;
     }
