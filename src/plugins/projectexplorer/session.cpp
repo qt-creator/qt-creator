@@ -692,8 +692,20 @@ QList<Project *> SessionManager::projectOrder(const Project *project)
 
 Project *SessionManager::projectForFile(const FilePath &fileName)
 {
+    if (Project * const project = Utils::findOrDefault(SessionManager::projects(),
+            [&fileName](const Project *p) { return p->isKnownFile(fileName); })) {
+        return project;
+    }
     return Utils::findOrDefault(SessionManager::projects(),
-                                [&fileName](const Project *p) { return p->isKnownFile(fileName); });
+                                [&fileName](const Project *p) {
+        for (const Target * const target : p->targets()) {
+            for (const BuildConfiguration * const bc : target->buildConfigurations()) {
+                if (fileName.isChildOf(bc->buildDirectory()))
+                    return false;
+            }
+        }
+        return fileName.isChildOf(p->projectDirectory());
+    });
 }
 
 Project *SessionManager::projectWithProjectFilePath(const FilePath &filePath)
