@@ -19,8 +19,9 @@ class LlvmFileAdapter : public File
 {
 public:
     LlvmFileAdapter(const Twine &Path)
-        : m_path(FilePath::fromString(QString::fromStdString(Path.str())))
-    {}
+    {
+        Q_UNUSED(Path);
+    }
     /// Destroy the file after closing it (if open).
     /// Sub-classes should generally call close() inside their destructors. We
     /// cannot do that from the base class, since close is virtual.
@@ -60,13 +61,6 @@ public:
     std::error_code close() override { return {}; }
 
 protected:
-    // Set the file's underlying path.
-    void setPath(const Twine &Path) override
-    {
-        m_path = FilePath::fromString(QString::fromStdString(Path.str()));
-    }
-
-    FilePath m_path;
 };
 
 class LlvmFileSystemAdapter : public FileSystem
