@@ -200,7 +200,7 @@ public:
     {
     }
 
-    bool start();
+    void start();
     void stop();
     bool isRunning() const;
     bool isTask() const;
@@ -375,7 +375,8 @@ void TaskContainer::start()
     const int childCount = m_selectedChildren.size();
     const int startCount = m_parallelLimit ? qMin(m_parallelLimit, childCount) : childCount;
     for (int i = 0; i < startCount; ++i) {
-        if (!m_selectedChildren.at(i)->start()) // TODO: take m_groupConfig.action into account
+        m_selectedChildren.at(i)->start();
+        if (!isRunning())
             return;
     }
 }
@@ -544,19 +545,32 @@ void TaskContainer::deactivateStorages()
         m_parentContainer->deactivateStorages();
 }
 
-bool TaskNode::start()
+void TaskNode::start()
 {
     if (!isTask()) {
         m_container.start();
-        return true;
+        return;
     }
+    const auto finalize = [this](bool success) {
+        m_container.m_taskTreePrivate->advanceProgress(1);
+        m_task.release()->deleteLater();
+        QTC_CHECK(m_container.m_parentContainer);
+        m_container.m_parentContainer->childDone(success);
+    };
     m_task.reset(m_taskHandler.m_createHandler());
     {
-        StorageActivator activator(m_container);
-        GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
-        m_taskHandler.m_setupHandler(*m_task.get());
+        TaskAction action = TaskAction::Continue;
+        {
+            StorageActivator activator(m_container);
+            GuardLocker locker(m_container.m_taskTreePrivate->m_guard);
+            action = m_taskHandler.m_setupHandler(*m_task.get());
+        }
+        if (action != TaskAction::Continue) {
+            finalize(action == TaskAction::StopWithDone);
+            return;
+        }
     }
-    connect(m_task.get(), &TaskInterface::done, this, [this](bool success) {
+    connect(m_task.get(), &TaskInterface::done, this, [=](bool success) {
         {
             StorageActivator activator(m_container);
             if (success && m_taskHandler.m_doneHandler) {
@@ -567,16 +581,10 @@ bool TaskNode::start()
                 m_taskHandler.m_errorHandler(*m_task.get());
             }
         }
-        m_container.m_taskTreePrivate->advanceProgress(1);
-
-        m_task.release()->deleteLater();
-
-        QTC_CHECK(m_container.m_parentContainer);
-        m_container.m_parentContainer->childDone(success);
+        finalize(success);
     });
 
     m_task->start();
-    return m_task.get(); // In case of failed to start, done handler already released process
 }
 
 void TaskNode::stop()

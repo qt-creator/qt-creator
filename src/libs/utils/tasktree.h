@@ -109,6 +109,13 @@ enum class GroupAction
     StopWithError
 };
 
+enum class TaskAction
+{
+    Continue,
+    StopWithDone,
+    StopWithError
+};
+
 class GroupConfig
 {
 public:
@@ -122,7 +129,7 @@ public:
     // Internal, provided by QTC_DECLARE_CUSTOM_TASK
     using TaskCreateHandler = std::function<TaskInterface *(void)>;
     // Called prior to task start, just after createHandler
-    using TaskSetupHandler = std::function<void(TaskInterface &)>;
+    using TaskSetupHandler = std::function<TaskAction(TaskInterface &)>;
     // Called on task done / error
     using TaskEndHandler = std::function<void(const TaskInterface &)>;
     // Called when group entered / after group ended with success or failure
@@ -263,22 +270,47 @@ class CustomTask : public TaskItem
 {
 public:
     using Task = typename Adapter::Type;
-    using SetupHandler = std::function<void(Task &)>;
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
-    CustomTask(const SetupHandler &setup, const EndHandler &done = {}, const EndHandler &error = {})
-        : TaskItem({&createAdapter, wrapSetup(setup),
-                    wrapEnd(done), wrapEnd(error)}) {}
+    template <typename SetupFunction>
+    CustomTask(SetupFunction &&function, const EndHandler &done = {}, const EndHandler &error = {})
+        : TaskItem({&createAdapter, wrapSetup(function), wrapEnd(done), wrapEnd(error)}) {}
 
 private:
-    static TaskSetupHandler wrapSetup(const SetupHandler &handler) {
-        if (!handler)
-            return {};
-        return [handler](TaskInterface &taskInterface) {
+    template<typename SetupFunction>
+    using IsDynamic = typename std::is_same<TaskAction,
+                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+
+    template<typename SetupFunction>
+    using IsVoid = typename std::is_same<void,
+                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+
+    template<typename SetupFunction, std::enable_if_t<IsDynamic<SetupFunction>::value, bool> = true>
+    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
+        return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
-            handler(*adapter.task());
+            return std::invoke(function, *adapter.task());
         };
     };
+
+    template<typename SetupFunction, std::enable_if_t<IsVoid<SetupFunction>::value, bool> = true>
+    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
+        return [=](TaskInterface &taskInterface) {
+            Adapter &adapter = static_cast<Adapter &>(taskInterface);
+            std::invoke(function, *adapter.task());
+            return TaskAction::Continue;
+        };
+    };
+
+    template<typename SetupFunction, std::enable_if_t<!IsDynamic<SetupFunction>::value
+                                                   && !IsVoid<SetupFunction>::value, bool> = true>
+    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&) {
+        static_assert(IsDynamic<SetupFunction>::value || IsVoid<SetupFunction>::value,
+                "Task setup handler needs to take (Task &) as an argument and has to return "
+                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
+        return {};
+    };
+
     static TaskEndHandler wrapEnd(const EndHandler &handler) {
         if (!handler)
             return {};

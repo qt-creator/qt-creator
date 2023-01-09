@@ -163,6 +163,11 @@ void tst_TaskTree::processTree_data()
     const auto rootError = [storage] {
         storage->m_log.append({-1, Handler::GroupError});
     };
+    const auto setupDynamicProcess = [storage](QtcProcess &process, TaskAction action) {
+        Q_UNUSED(process)
+        storage->m_log.append({-1, Handler::Setup});
+        return action;
+    };
 
     const Group emptyRoot {
         Storage(storage),
@@ -170,6 +175,25 @@ void tst_TaskTree::processTree_data()
     };
     const Log emptyLog{{-1, Handler::GroupDone}};
     QTest::newRow("Empty") << emptyRoot << storage << emptyLog << false << true << 0;
+
+    const Group dynamicTaskDoneRoot {
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithDone)),
+        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithDone))
+    };
+    const Log dynamicTaskDoneLog{{-1, Handler::Setup},
+                                 {-1, Handler::Setup}};
+    QTest::newRow("DynamicTaskDone") << dynamicTaskDoneRoot << storage << dynamicTaskDoneLog
+                                     << false << true << 2;
+
+    const Group dynamicTaskErrorRoot {
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithError)),
+        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithError))
+    };
+    const Log dynamicTaskErrorLog{{-1, Handler::Setup}};
+    QTest::newRow("DynamicTaskError") << dynamicTaskErrorRoot << storage << dynamicTaskErrorLog
+                                      << false << false << 2;
 
     const Group nestedRoot {
         Storage(storage),
