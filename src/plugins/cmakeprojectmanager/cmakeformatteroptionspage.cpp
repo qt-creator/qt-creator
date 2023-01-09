@@ -2,9 +2,10 @@
 // Copyright (C) 2022 Xavier BESSON
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "cmakeformatteroptionspage.h"
+
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeformatteroptionspage.h"
 #include "cmakeformattersettings.h"
 
 #include <utils/layoutbuilder.h>
@@ -20,8 +21,6 @@ namespace CMakeProjectManager::Internal {
 
 class CMakeFormatterOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeFormat::Internal::GeneralOptionsPageWidget)
-
 public:
     explicit CMakeFormatterOptionsPageWidget();
 
@@ -40,33 +39,33 @@ CMakeFormatterOptionsPageWidget::CMakeFormatterOptionsPageWidget()
 
     auto settings = CMakeFormatterSettings::instance();
 
-    m_autoFormat = new QCheckBox(tr("Enable auto format on file save"));
+    m_autoFormat = new QCheckBox(Tr::tr("Enable auto format on file save"));
     m_autoFormat->setChecked(settings->autoFormatOnSave());
 
-    auto mimeLabel = new QLabel(tr("Restrict to MIME types:"));
+    auto mimeLabel = new QLabel(Tr::tr("Restrict to MIME types:"));
     mimeLabel->setEnabled(false);
 
     m_autoFormatMime = new QLineEdit(settings->autoFormatMimeAsString());
     m_autoFormatMime->setEnabled(m_autoFormat->isChecked());
 
     m_autoFormatOnlyCurrentProject =
-        new QCheckBox(tr("Restrict to files contained in the current project"));
+        new QCheckBox(Tr::tr("Restrict to files contained in the current project"));
     m_autoFormatOnlyCurrentProject->setEnabled(m_autoFormat->isChecked());
     m_autoFormatOnlyCurrentProject->setChecked(settings->autoFormatOnlyCurrentProject());
 
     m_command = new Utils::PathChooser;
     m_command->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_command->setCommandVersionArguments({"--version"});
-    m_command->setPromptDialogTitle(tr("%1 Command").arg(Tr::Tr::tr("Formatter")));
+    m_command->setPromptDialogTitle(Tr::tr("%1 Command").arg(Tr::tr("Formatter")));
     m_command->setFilePath(settings->command());
 
     using namespace Utils::Layouting;
 
     Column {
         Group {
-            title(tr("Automatic Formatting on File Save")),
+            title(Tr::tr("Automatic Formatting on File Save")),
             Form {
-                tr("CMakeFormat command:"), m_command, br,
+                Tr::tr("CMakeFormat command:"), m_command, br,
                 Span(2, m_autoFormat), br,
                 mimeLabel, m_autoFormatMime, br,
                 Span(2, m_autoFormatOnlyCurrentProject)
@@ -93,7 +92,7 @@ void CMakeFormatterOptionsPageWidget::apply()
 CMakeFormatterOptionsPage::CMakeFormatterOptionsPage()
 {
     setId(Constants::Settings::FORMATTER_ID);
-    setDisplayName(Tr::Tr::tr("Formatter"));
+    setDisplayName(Tr::tr("Formatter"));
     setDisplayCategory("CMake");
     setCategory(Constants::Settings::CATEGORY);
     setWidgetCreator([] { return new CMakeFormatterOptionsPageWidget; });
