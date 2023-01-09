@@ -134,14 +134,6 @@ static QString gdbServerArch(const QString &androidAbi)
     return androidAbi;
 }
 
-static QString lldbServerArch(const QString &androidAbi)
-{
-    if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
-        return {ProjectExplorer::Constants::ANDROID_ABI_ARMEABI};
-    // Correct for arm64-v8a, x86 and x86_64, and best guess at anything that will evolve:
-    return androidAbi; // arm64-v8a, x86, x86_64
-}
-
 static QString lldbServerArch2(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)
