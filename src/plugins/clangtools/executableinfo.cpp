@@ -214,13 +214,22 @@ QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
     return {};
 }
 
-QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
+static QPair<FilePath, QString> clangIncludeDirAndVersion(const FilePath &clangToolPath)
 {
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
     const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
         return {FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
     return {dynamicResourceDir / "include", dynamicVersion};
+}
+
+QPair<FilePath, QString> getClangIncludeDirAndVersion(const FilePath &clangToolPath)
+{
+    static QMap<FilePath, QPair<FilePath, QString>> cache;
+    auto it = cache.find(clangToolPath);
+    if (it == cache.end())
+        it = cache.insert(clangToolPath, clangIncludeDirAndVersion(clangToolPath));
+    return it.value();
 }
 
 QHash<Utils::FilePath, QPair<QDateTime, ClazyStandaloneInfo>> ClazyStandaloneInfo::cache;

@@ -218,30 +218,21 @@ void DocumentClangToolRunner::run()
     runNext();
 }
 
-QPair<FilePath, QString> getClangIncludeDirAndVersion(ClangToolRunner *runner)
-{
-    static QMap<FilePath, QPair<FilePath, QString>> cache;
-    const FilePath tool = runner->executable();
-    auto it = cache.find(tool);
-    if (it == cache.end())
-        it = cache.insert(tool, getClangIncludeDirAndVersion(tool));
-    return it.value();
-}
-
 void DocumentClangToolRunner::runNext()
 {
     if (m_currentRunner)
         m_currentRunner.release()->deleteLater();
     m_currentRunner.reset(m_runnerCreators.isEmpty() ? nullptr : m_runnerCreators.takeFirst()());
     if (m_currentRunner) {
-        auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(m_currentRunner.get());
+        const auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(
+                                                     m_currentRunner->executable());
         qCDebug(LOG) << Q_FUNC_INFO << m_currentRunner->executable() << clangIncludeDir
                      << clangVersion << m_fileInfo.file;
         if (m_currentRunner->executable().isEmpty() || clangIncludeDir.isEmpty() || clangVersion.isEmpty()
             || (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())) {
             runNext();
         } else {
-            AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
+            const AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
             QTC_ASSERT(FilePath::fromString(unit.file).exists(), runNext(); return;);
             m_currentRunner->setVFSOverlay(vfso().overlayFilePath().toString());
             if (!m_currentRunner->run(unit.file, unit.arguments))
