@@ -4,7 +4,7 @@
 /*!
     \page qt-design-viewer.html
     \previouspage creator-live-preview-android.html
-    \nextpage studio-exporting-and-importing.html
+    \nextpage design-viewer-single-page-navigation.html
 
     \title Sharing Applications Online
 
@@ -44,4 +44,8 @@
     applications.
 
     \image share-online-manage.webp
+
+    \section1 Best Practices
+
+    \l {Creating a Single Page Navigation Web Application}
 */
