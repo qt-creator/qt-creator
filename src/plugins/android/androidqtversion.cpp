@@ -137,22 +137,23 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target
                   .arg(displayName));
 }
 
+static int versionFromPlatformString(const QString &string, bool *ok = nullptr)
+{
+    static const QRegularExpression regex("android-(\\d+)");
+    const QRegularExpressionMatch match = regex.match(string);
+    if (ok)
+        *ok = false;
+    return match.hasMatch() ? match.captured(1).toInt(ok) : -1;
+}
+
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     m_androidAbis = evaluator->values("ALL_ANDROID_ABIS");
     if (m_androidAbis.isEmpty())
         m_androidAbis = QStringList{evaluator->value(Constants::ANDROID_TARGET_ARCH)};
     const QString androidPlatform = evaluator->value("ANDROID_PLATFORM");
-    if (!androidPlatform.isEmpty()) {
-        const QRegularExpression regex("android-(\\d+)");
-        const QRegularExpressionMatch match = regex.match(androidPlatform);
-        if (match.hasMatch()) {
-            bool ok = false;
-            int tmp = match.captured(1).toInt(&ok);
-            if (ok)
-                m_minNdk = tmp;
-        }
-    }
+    if (!androidPlatform.isEmpty())
+        m_minNdk = versionFromPlatformString(androidPlatform);
     QtVersion::parseMkSpec(evaluator);
 }
 
