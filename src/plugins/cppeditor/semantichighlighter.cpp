@@ -175,9 +175,12 @@ void SemanticHighlighter::onHighlighterResultAvailable(int from, int to)
             const QTextBlock lastBlockForResult = m_baseTextDocument->document()
                     ->findBlock(endRange);
             const QTextBlock endBlock = lastBlockForResult.next();
-            for (QTextBlock block = firstBlockForResult;
-                 block.isValid() && block != endBlock;
-                 block = block.next()) {
+            for (QTextBlock block = firstBlockForResult; block != endBlock; block = block.next()) {
+                QTC_ASSERT(block.isValid(),
+                           qDebug() << from << to << i << result.line << result.column
+                           << firstBlockForResult.blockNumber() << firstBlockForResult.position()
+                           << lastBlockForResult.blockNumber() << lastBlockForResult.position();
+                        break);
                 Parentheses syntacticParens = getClearedParentheses(block);
 
                 // Remove mis-detected parentheses inserted by syntactic highlighter.
