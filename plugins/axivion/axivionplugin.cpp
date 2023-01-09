@@ -32,6 +32,8 @@
 #include <QMessageBox>
 #include <QTimer>
 
+constexpr char AxivionTextMarkId[] = "AxivionTextMark";
+
 namespace Axivion::Internal {
 
 class AxivionPluginPrivate : public QObject
@@ -272,9 +274,8 @@ void AxivionPluginPrivate::onDocumentClosed(Core::IDocument *doc)
         return;
 
     const TextEditor::TextMarks marks = document->marks();
-    auto axivionId = Utils::Id("AxivionTextMark");
     for (auto m : marks) {
-        if (m->category() == axivionId)
+        if (m->category() == AxivionTextMarkId)
             delete m;
     }
 }
@@ -291,7 +292,7 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
     const Utils::FilePath filePath = project->projectDirectory()
             .pathAppended(issues.issues.first().filePath);
 
-    auto axivionId = Utils::Id("AxivionTextMark");
+    const Utils::Id axivionId(AxivionTextMarkId);
     for (const ShortIssue &issue : std::as_const(issues.issues)) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
