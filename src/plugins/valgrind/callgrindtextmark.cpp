@@ -23,8 +23,11 @@ using namespace Valgrind::Callgrind;
 namespace Constants { const char CALLGRIND_TEXT_MARK_CATEGORY[] = "Callgrind.Textmark"; }
 
 CallgrindTextMark::CallgrindTextMark(const QPersistentModelIndex &index,
-                                     const FilePath &fileName, int lineNumber)
-    : TextEditor::TextMark(fileName, lineNumber, Constants::CALLGRIND_TEXT_MARK_CATEGORY)
+                                     const FilePath &fileName,
+                                     int lineNumber)
+    : TextEditor::TextMark(fileName,
+                           lineNumber,
+                           {Tr::tr("Callgrind"), Constants::CALLGRIND_TEXT_MARK_CATEGORY})
     , m_modelIndex(index)
 {
     setPriority(TextEditor::TextMark::HighPriority);

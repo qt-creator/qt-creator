@@ -4043,8 +4043,9 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
     if (!blockUserData)
         return;
 
-    TextMarks marks = Utils::filtered(blockUserData->marks(), [](const TextMark* mark){
-        return !mark->lineAnnotation().isEmpty() && mark->isVisible();
+    TextMarks marks = Utils::filtered(blockUserData->marks(), [](const TextMark *mark) {
+        return !mark->lineAnnotation().isEmpty() && mark->isVisible()
+               && !TextDocument::marksAnnotationHidden(mark->category().id);
     });
 
     const bool annotationsVisible = !marks.isEmpty();
@@ -6603,7 +6604,7 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QVector<SearchRe
 
 Highlight markToHighlight(TextMark *mark, int lineNumber)
 {
-    return Highlight(mark->category(),
+    return Highlight(mark->category().id,
                      lineNumber,
                      mark->color().value_or(Utils::Theme::TextColorNormal),
                      textMarkPrioToScrollBarPrio(mark->priority()));

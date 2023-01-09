@@ -7,6 +7,7 @@
 #include "debuggeractions.h"
 #include "debuggerengine.h"
 #include "debuggerinternalconstants.h"
+#include "debuggertr.h"
 #include "disassemblerlines.h"
 #include "sourceutils.h"
 
@@ -42,7 +43,10 @@ class DisassemblerBreakpointMarker : public TextMark
 {
 public:
     DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
-        : TextMark(Utils::FilePath(), lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+        : TextMark(Utils::FilePath(),
+                   lineNumber,
+                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        , m_bp(bp)
     {
         setIcon(bp->icon());
         setPriority(TextMark::NormalPriority);

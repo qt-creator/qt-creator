@@ -7,6 +7,7 @@
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditorplugin.h"
+#include "texteditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/documentmanager.h>
@@ -62,7 +63,7 @@ private:
 
 TextMarkRegistry *m_instance = nullptr;
 
-TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category)
+TextMark::TextMark(const FilePath &fileName, int lineNumber, TextMarkCategory category)
     : m_fileName(fileName)
     , m_lineNumber(lineNumber)
     , m_visible(true)
@@ -278,6 +279,23 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     QList<QAction *> actions{m_actions.begin(), m_actions.end()};
     if (m_actionsProvider)
         actions = m_actionsProvider();
+    if (m_category.id.isValid() && !m_lineAnnotation.isEmpty()) {
+        auto visibilityAction = new QAction;
+        const bool isHidden = TextDocument::marksAnnotationHidden(m_category.id);
+        visibilityAction->setIcon(Utils::Icons::EYE_OPEN_TOOLBAR.icon());
+        const QString tooltip = (isHidden ? Tr::tr("Show inline annotations for %1")
+                                          : Tr::tr("Tempoary hide inline annotations for %1"))
+                                    .arg(m_category.displayName);
+        visibilityAction->setToolTip(tooltip);
+        auto callback = [id = m_category.id, isHidden] {
+            if (isHidden)
+                TextDocument::showMarksAnnotation(id);
+            else
+                TextDocument::temporaryHideMarksAnnotation(id);
+        };
+        QObject::connect(visibilityAction, &QAction::triggered, Core::ICore::instance(), callback);
+        actions.append(visibilityAction);
+    }
     if (m_settingsPage.isValid()) {
         auto settingsAction = new QAction;
         settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());

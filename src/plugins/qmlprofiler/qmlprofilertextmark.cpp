@@ -6,6 +6,7 @@
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerviewmanager.h"
 #include "qmlprofilerstatisticsview.h"
+#include "qmlprofilertr.h"
 
 #include <QLabel>
 #include <QLayout>
@@ -18,7 +19,7 @@ namespace Internal {
 
 QmlProfilerTextMark::QmlProfilerTextMark(QmlProfilerViewManager *viewManager, int typeId,
                                          const FilePath &fileName, int lineNumber)
-    : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY)
+    : TextMark(fileName, lineNumber, {Tr::tr("QML Profiler"), Constants::TEXT_MARK_CATEGORY})
     , m_viewManager(viewManager)
 {
     addTypeId(typeId);

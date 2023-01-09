@@ -4,6 +4,7 @@
 #include "diagnosticmark.h"
 
 #include "clangtoolsconstants.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 
@@ -18,7 +19,7 @@ namespace Internal {
 DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
     : TextEditor::TextMark(diagnostic.location.filePath,
                            diagnostic.location.line,
-                           Utils::Id(Constants::DIAGNOSTIC_MARK_ID))
+                           {Tr::tr("Clang Tools"), Utils::Id(Constants::DIAGNOSTIC_MARK_ID)})
     , m_diagnostic(diagnostic)
 {
     setSettingsPage(Constants::SETTINGS_PAGE_ID);

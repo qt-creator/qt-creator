@@ -5,6 +5,7 @@
 
 #include "debuggerinternalconstants.h"
 #include "debuggerengine.h"
+#include "debuggertr.h"
 #include "disassemblerlines.h"
 #include "watchdata.h"
 #include "watchutils.h"
@@ -333,7 +334,9 @@ class DebuggerValueMark : public TextEditor::TextMark
 {
 public:
     DebuggerValueMark(const FilePath &fileName, int lineNumber, const QString &value)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_VALUE)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Debugger Value"), Constants::TEXT_MARK_CATEGORY_VALUE})
     {
         setPriority(TextEditor::TextMark::HighPriority);
         setToolTipProvider([] { return QString(); });

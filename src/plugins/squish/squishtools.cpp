@@ -87,7 +87,7 @@ class SquishLocationMark : public TextEditor::TextMark
 {
 public:
     SquishLocationMark(const FilePath &filePath, int line)
-        : TextEditor::TextMark(filePath, line, Id("Squish.LocationMark"))
+        : TextEditor::TextMark(filePath, line, {Tr::tr("Squish"), Id("Squish.LocationMark")})
     {
         setIsLocationMarker(true);
         setIcon(Debugger::Icons::LOCATION.icon());

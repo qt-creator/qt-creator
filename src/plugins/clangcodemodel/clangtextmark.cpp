@@ -271,9 +271,12 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
                                const Diagnostic &diagnostic,
                                bool isProjectFile,
                                ClangdClient *client)
-    : TextEditor::TextMark(filePath, int(diagnostic.range().start().line() + 1), client->id())
+    : TextEditor::TextMark(filePath,
+                           int(diagnostic.range().start().line() + 1),
+                           {client->name(), client->id()})
     , m_lspDiagnostic(diagnostic)
-    , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath, client->hostPathMapper()))
+    , m_diagnostic(
+          convertDiagnostic(ClangdDiagnostic(diagnostic), filePath, client->hostPathMapper()))
     , m_client(client)
 {
     setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);

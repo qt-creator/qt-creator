@@ -151,9 +151,9 @@ Location::Location(const StackFrame &frame, bool marker)
     m_from = frame.module;
 }
 
-
 LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int line)
-    : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
+    : TextMark(file, line, {Tr::tr("Debugger Location"), Constants::TEXT_MARK_CATEGORY_LOCATION})
+    , m_engine(engine)
 {
     setPriority(TextMark::HighPriority);
     setIsLocationMarker(true);

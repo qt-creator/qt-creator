@@ -1061,8 +1061,11 @@ TextEditor::BaseTextEditor *jsonEditor()
     widget->setCodeFoldingSupported(false);
     QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
         const Utils::Id jsonMarkId("LanguageClient.JsonTextMarkId");
-        qDeleteAll(
-            Utils::filtered(document->marks(), Utils::equal(&TextMark::category, jsonMarkId)));
+        const TextMarks marks = document->marks();
+        for (TextMark *mark : marks) {
+            if (mark->category().id == jsonMarkId)
+                delete mark;
+        }
         const QString content = document->plainText().trimmed();
         if (content.isEmpty())
             return;
@@ -1074,7 +1077,9 @@ TextEditor::BaseTextEditor *jsonEditor()
             = Utils::Text::convertPosition(document->document(), error.offset);
         if (!lineColumn.has_value())
             return;
-        auto mark = new TextMark(Utils::FilePath(), lineColumn->line, jsonMarkId);
+        auto mark = new TextMark(Utils::FilePath(),
+                                 lineColumn->line,
+                                 {Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
         mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());

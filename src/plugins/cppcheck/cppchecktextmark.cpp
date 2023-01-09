@@ -4,6 +4,7 @@
 #include "cppcheckconstants.h"
 #include "cppcheckdiagnostic.h"
 #include "cppchecktextmark.h"
+#include "cppchecktr.h"
 
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -44,11 +45,13 @@ static Visual getVisual(Diagnostic::Severity type)
     return visuals.value(type, {Color::IconsInfoColor, Priority::LowPriority, Icons::INFO.icon()});
 }
 
-CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
-    : TextMark(diagnostic.fileName, diagnostic.lineNumber, Id(Constants::TEXTMARK_CATEGORY_ID)),
-    m_severity(diagnostic.severity),
-    m_checkId(diagnostic.checkId),
-    m_message(diagnostic.message)
+CppcheckTextMark::CppcheckTextMark(const Diagnostic &diagnostic)
+    : TextEditor::TextMark(diagnostic.fileName,
+                           diagnostic.lineNumber,
+                           {Tr::tr("Cppcheck"), Utils::Id(Constants::TEXTMARK_CATEGORY_ID)})
+    , m_severity(diagnostic.severity)
+    , m_checkId(diagnostic.checkId)
+    , m_message(diagnostic.message)
 {
     const Visual visual = getVisual(diagnostic.severity);
     setPriority(visual.priority);

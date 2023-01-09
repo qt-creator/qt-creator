@@ -195,7 +195,9 @@ class BlameMark : public TextEditor::TextMark
 {
 public:
     BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo &info)
-        : TextEditor::TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BLAME)
+        : TextEditor::TextMark(fileName,
+                               lineNumber,
+                               {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
     {
         const QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
 

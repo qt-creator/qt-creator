@@ -11,6 +11,7 @@
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cpphighlighter.h"
 #include "cppquickfixassistant.h"
 
@@ -503,7 +504,7 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
                                    [&category, &diagnostic](TextMark *existing) {
                                        return (diagnostic.line() == existing->lineNumber()
                                                && diagnostic.text() == existing->lineAnnotation()
-                                               && category == existing->category());
+                                               && category == existing->category().id);
                                    });
 
             if (it != std::end(removedMarks)) {
@@ -511,7 +512,9 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
                 continue;
             }
 
-            auto mark = new TextMark(filePath(), diagnostic.line(), category);
+            auto mark = new TextMark(filePath(),
+                                     diagnostic.line(),
+                                     {Tr::tr("C++ Code Model"), category});
             mark->setLineAnnotation(diagnostic.text());
             mark->setToolTip(diagnostic.text());
 
@@ -526,7 +529,7 @@ void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QStr
     }
 
     for (auto it = removedMarks.begin(); it != removedMarks.end(); ++it) {
-        if ((*it)->category() == category) {
+        if ((*it)->category().id == category) {
             removeMark(*it);
             delete *it;
         }

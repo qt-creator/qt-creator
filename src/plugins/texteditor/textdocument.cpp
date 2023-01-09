@@ -1065,6 +1065,47 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
     documentLayout->requestExtraAreaUpdate();
 }
 
+static QSet<Id> &hiddenMarksIds()
+{
+    static QSet<Id> ids;
+    return ids;
+}
+
+void TextDocument::temporaryHideMarksAnnotation(const Utils::Id &category)
+{
+    hiddenMarksIds().insert(category);
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (auto document : documents) {
+        if (auto textDocument = qobject_cast<TextDocument*>(document)) {
+            const TextMarks marks = textDocument->marks();
+            for (const auto mark : marks) {
+                if (mark->category().id == category)
+                    mark->updateMarker();
+            }
+        }
+    }
+}
+
+void TextDocument::showMarksAnnotation(const Utils::Id &category)
+{
+    hiddenMarksIds().remove(category);
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (auto document : documents) {
+        if (auto textDocument = qobject_cast<TextDocument*>(document)) {
+            const TextMarks marks = textDocument->marks();
+            for (const auto mark : marks) {
+                if (mark->category().id == category)
+                    mark->updateMarker();
+            }
+        }
+    }
+}
+
+bool TextDocument::marksAnnotationHidden(const Utils::Id &category)
+{
+    return hiddenMarksIds().contains(category);
+}
+
 void TextDocument::removeMark(TextMark *mark)
 {
     QTextBlock block = d->m_document.findBlockByNumber(mark->lineNumber() - 1);

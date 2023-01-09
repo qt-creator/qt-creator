@@ -33,9 +33,10 @@ static bool isWarning(QmlJS::Severity::Enum kind)
     return false;
 }
 
-static Utils::Id cartegoryForSeverity(QmlJS::Severity::Enum kind)
+static TextMarkCategory cartegoryForSeverity(QmlJS::Severity::Enum kind)
 {
-    return isWarning(kind) ? QMLJS_WARNING : QMLJS_ERROR;
+    return isWarning(kind) ? TextMarkCategory{"QML Warning", QMLJS_WARNING}
+                           : TextMarkCategory{"QML Error", QMLJS_ERROR};
 }
 
 QmlJSTextMark::QmlJSTextMark(const FilePath &fileName,

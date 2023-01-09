@@ -70,7 +70,7 @@ Diagnostics DocumentClangToolRunner::diagnosticsAtLine(int lineNumber) const
     Diagnostics diagnostics;
     if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(m_document)) {
         for (auto mark : textDocument->marksAt(lineNumber)) {
-            if (mark->category() == Constants::DIAGNOSTIC_MARK_ID)
+            if (mark->category().id == Constants::DIAGNOSTIC_MARK_ID)
                 diagnostics << static_cast<DiagnosticMark *>(mark)->diagnostic();
         }
     }

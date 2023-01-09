@@ -3,6 +3,7 @@
 
 #include "taskhub.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <coreplugin/coreicons.h>
 #include <coreplugin/ioutputpane.h>
@@ -25,15 +26,15 @@ const char TASK_MARK_ERROR[] = "Task.Mark.Error";
 static TaskHub *m_instance = nullptr;
 QVector<Utils::Id> TaskHub::m_registeredCategories;
 
-static Utils::Id categoryForType(Task::TaskType type)
+static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
-        return TASK_MARK_ERROR;
+        return {Tr::tr("Taskhub Error", TASK_MARK_ERROR)};
     case Task::Warning:
-        return TASK_MARK_WARNING;
+        return {Tr::tr("Taskhub Warning"), TASK_MARK_WARNING};
     default:
-        return Utils::Id();
+        return {};
     }
 }
 

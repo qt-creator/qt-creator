@@ -28,13 +28,20 @@ namespace TextEditor {
 
 class TextDocument;
 
+class TextMarkCategory
+{
+public:
+    QString displayName;
+    Utils::Id id;
+};
+
 class TEXTEDITOR_EXPORT TextMark
 {
     Q_DECLARE_TR_FUNCTIONS(TextEditor::TextMark)
 public:
     TextMark(const Utils::FilePath &fileName,
              int lineNumber,
-             Utils::Id category);
+             TextMarkCategory category);
     TextMark() = delete;
     virtual ~TextMark();
 
@@ -89,7 +96,7 @@ public:
     void setPriority(Priority prioriy);
     bool isVisible() const;
     void setVisible(bool isVisible);
-    Utils::Id category() const { return m_category; }
+    TextMarkCategory category() const { return m_category; }
 
     std::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
@@ -129,7 +136,7 @@ private:
     std::function<QIcon()> m_iconProvider;
     std::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
-    Utils::Id m_category;
+    TextMarkCategory m_category;
     QString m_lineAnnotation;
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;

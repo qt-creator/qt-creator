@@ -95,6 +95,9 @@ public:
     void updateMark(TextMark *mark);
     void moveMark(TextMark *mark, int previousLine);
     void removeMarkFromMarksCache(TextMark *mark);
+    static void temporaryHideMarksAnnotation(const Utils::Id &category);
+    static void showMarksAnnotation(const Utils::Id &category);
+    static bool marksAnnotationHidden(const Utils::Id &category);
 
     // IDocument implementation.
     bool save(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;

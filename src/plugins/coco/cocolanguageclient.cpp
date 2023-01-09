@@ -131,7 +131,7 @@ class CocoTextMark : public TextEditor::TextMark
 {
 public:
     CocoTextMark(const FilePath &fileName, const CocoDiagnostic &diag, const Id &clientId)
-        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, clientId)
+        : TextEditor::TextMark(fileName, diag.range().start().line() + 1, {"Coco", clientId})
         , m_severity(diag.cocoSeverity())
     {
         setLineAnnotation(diag.message());

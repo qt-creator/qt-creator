@@ -68,7 +68,10 @@ class BreakpointMarker : public TextEditor::TextMark
 {
 public:
     BreakpointMarker(const Breakpoint &bp, const FilePath &fileName, int lineNumber)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_bp(bp)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        , m_bp(bp)
     {
         setColor(Theme::Debugger_Breakpoint_TextMarkColor);
         setDefaultToolTip(Tr::tr("Breakpoint"));
@@ -126,7 +129,10 @@ class GlobalBreakpointMarker : public TextEditor::TextMark
 {
 public:
     GlobalBreakpointMarker(GlobalBreakpoint gbp, const FilePath &fileName, int lineNumber)
-        : TextMark(fileName, lineNumber, Constants::TEXT_MARK_CATEGORY_BREAKPOINT), m_gbp(gbp)
+        : TextMark(fileName,
+                   lineNumber,
+                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        , m_gbp(gbp)
     {
         setDefaultToolTip(Tr::tr("Breakpoint"));
         setPriority(TextEditor::TextMark::NormalPriority);

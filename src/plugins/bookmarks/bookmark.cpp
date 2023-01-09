@@ -16,7 +16,7 @@ using namespace Utils;
 namespace Bookmarks::Internal {
 
 Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
-    TextMark(FilePath(), lineNumber, Constants::BOOKMARKS_TEXT_MARK_CATEGORY),
+    TextMark(FilePath(), lineNumber, {Tr::tr("Bookmark"), Constants::BOOKMARKS_TEXT_MARK_CATEGORY}),
     m_manager(manager)
 {
     setColor(Theme::Bookmarks_TextMarkColor);
