@@ -20,6 +20,7 @@
 #include <utils/temporarydirectory.h>
 
 #include <QLoggingCategory>
+#include <QRegularExpression>
 
 using namespace Utils;
 
