@@ -48204,14 +48204,11 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::DiagnosticsModel</name>
+    <name>Cppcheck</name>
     <message>
         <source>Diagnostic</source>
         <translation>診断</translation>
     </message>
-</context>
-<context>
-    <name>CppcheckOptionsPage</name>
     <message>
         <source>Warnings</source>
         <translation>警告</translation>
@@ -48228,9 +48225,6 @@ Continue?</source>
         <source>Ignored file patterns:</source>
         <translation>無視するファイルパターン:</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckPlugin</name>
     <message>
         <source>Clear</source>
         <translation>クリア</translation>

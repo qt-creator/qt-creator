@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class Diagnostic final
 {
@@ -29,5 +28,4 @@ public:
 
 size_t qHash(const Diagnostic &diagnostic);
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

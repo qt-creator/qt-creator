@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class Diagnostic;
 
@@ -15,5 +14,4 @@ public:
     virtual void add(const Diagnostic &diagnostic) = 0;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

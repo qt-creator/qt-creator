@@ -11,41 +11,41 @@
 #include <QAction>
 #include <QMap>
 
-namespace Cppcheck {
-namespace Internal {
+using namespace TextEditor;
+using namespace Utils;
+
+namespace Cppcheck::Internal {
 
 struct Visual
 {
-    Visual(Utils::Theme::Color color, TextEditor::TextMark::Priority priority,
+    Visual(Utils::Theme::Color color, TextMark::Priority priority,
            const QIcon &icon)
         : color(color),
           priority(priority),
           icon(icon)
     {}
     Utils::Theme::Color color;
-    TextEditor::TextMark::Priority priority;
+    TextMark::Priority priority;
     QIcon icon;
 };
 
 static Visual getVisual(Diagnostic::Severity type)
 {
-    using Color = Utils::Theme::Color;
-    using Priority = TextEditor::TextMark::Priority;
+    using Color = Theme::Color;
+    using Priority = TextMark::Priority;
 
     static const QMap<Diagnostic::Severity, Visual> visuals{
         {Diagnostic::Severity::Error, {Color::IconsErrorColor, Priority::HighPriority,
-                        Utils::Icons::CRITICAL.icon()}},
+                        Icons::CRITICAL.icon()}},
         {Diagnostic::Severity::Warning, {Color::IconsWarningColor, Priority::NormalPriority,
-                        Utils::Icons::WARNING.icon()}},
+                        Icons::WARNING.icon()}},
     };
 
-    return visuals.value(type, {Color::IconsInfoColor, Priority::LowPriority,
-                                Utils::Icons::INFO.icon()});
+    return visuals.value(type, {Color::IconsInfoColor, Priority::LowPriority, Icons::INFO.icon()});
 }
 
 CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
-    : TextEditor::TextMark (diagnostic.fileName, diagnostic.lineNumber,
-                            Utils::Id(Constants::TEXTMARK_CATEGORY_ID)),
+    : TextMark(diagnostic.fileName, diagnostic.lineNumber, Id(Constants::TEXTMARK_CATEGORY_ID)),
     m_severity(diagnostic.severity),
     m_checkId(diagnostic.checkId),
     m_message(diagnostic.message)
@@ -60,7 +60,7 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     setActionsProvider([diagnostic] {
         // Copy to clipboard action
         QAction *action = new QAction;
-        action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
         action->setToolTip(TextMark::tr("Copy to Clipboard"));
         QObject::connect(action, &QAction::triggered, [diagnostic]() {
             const QString text = QString("%1:%2: %3")
@@ -87,5 +87,4 @@ QString CppcheckTextMark::toolTipText(const QString &severityText) const
                 "</table>").arg(m_checkId, severityText, m_message);
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

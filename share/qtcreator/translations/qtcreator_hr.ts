@@ -20134,7 +20134,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppcheckOptionsPage</name>
+    <name>Cppcheck</name>
     <message>
         <source>Warnings</source>
         <translation>Upozorenja</translation>
@@ -20215,23 +20215,14 @@ u kontrolu verzija (%2)
         <source>Ignored file patterns:</source>
         <translation>Zanemari mustre datoteke:</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckOptionsPage</name>
     <message>
         <source>Cppcheck</source>
         <translation>Cppcheck</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckRunner</name>
     <message>
         <source>Cppcheck failed to start: &quot;%1&quot;.</source>
         <translation>Cppcheck se nije uspio pokrenuti: &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckTool</name>
     <message>
         <source>Cppcheck started: &quot;%1&quot;.</source>
         <translation>Cppcheck je pokrenut: &quot;%1&quot;.</translation>

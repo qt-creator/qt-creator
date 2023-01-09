@@ -7,8 +7,7 @@
 
 #include <memory>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckPluginPrivate;
 
@@ -27,5 +26,4 @@ private:
     std::unique_ptr<CppcheckPluginPrivate> d;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck

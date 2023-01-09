@@ -14,18 +14,13 @@
 namespace Utils {
 class FilePath;
 using FilePaths = QList<FilePath>;
-}
+} // Utils
 
-namespace CppEditor {
-class ProjectPart;
-}
+namespace CppEditor { class ProjectPart; }
 
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckRunner;
 class CppcheckDiagnosticManager;
@@ -68,5 +63,4 @@ private:
     Utils::Id m_progressId;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

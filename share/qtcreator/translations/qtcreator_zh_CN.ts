@@ -14006,14 +14006,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::CppcheckOptionsPage</name>
-    <message>
-        <source>Cppcheck</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckPlugin</name>
+    <name>Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation type="unfinished"></translation>
@@ -14034,9 +14027,6 @@ e.g. name = &quot;m_test_foo_&quot;:
         <source>Cppcheck...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckTool</name>
     <message>
         <source>Cppcheck started: &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -14045,23 +14035,14 @@ e.g. name = &quot;m_test_foo_&quot;:
         <source>Cppcheck finished.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::DiagnosticView</name>
     <message>
         <source>Cppcheck Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::DiagnosticsModel</name>
     <message>
         <source>Diagnostic</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::ManualRunDialog</name>
     <message>
         <source>Cppcheck Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -14070,9 +14051,6 @@ e.g. name = &quot;m_test_foo_&quot;:
         <source>Analyze</source>
         <translation type="unfinished">分析</translation>
     </message>
-</context>
-<context>
-    <name>CppcheckOptionsPage</name>
     <message>
         <source>Warnings</source>
         <translation type="unfinished"></translation>

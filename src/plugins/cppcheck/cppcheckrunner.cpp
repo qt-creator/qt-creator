@@ -11,8 +11,7 @@
 
 using namespace Utils;
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 CppcheckRunner::CppcheckRunner(CppcheckTool &tool) : m_tool(tool)
 {
@@ -149,5 +148,4 @@ void CppcheckRunner::handleDone()
         checkQueued();
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

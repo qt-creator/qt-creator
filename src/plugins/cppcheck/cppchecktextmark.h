@@ -7,8 +7,7 @@
 
 #include <texteditor/textmark.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTextMark final : public TextEditor::TextMark
 {
@@ -29,5 +28,4 @@ private:
     QString m_message;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

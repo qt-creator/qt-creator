@@ -3,15 +3,16 @@
 
 #include "cppcheckdiagnosticsmodel.h"
 
+#include "cppchecktr.h"
+
 #include <debugger/analyzer/diagnosticlocation.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/utilsicons.h>
 
-namespace Cppcheck {
-namespace Internal {
-
 using namespace Debugger;
+
+namespace Cppcheck::Internal {
 
 FilePathItem::FilePathItem(const QString &filePath)
     : m_filePath(filePath)
@@ -83,7 +84,7 @@ QVariant DiagnosticItem::data(int column, int role) const
 DiagnosticsModel::DiagnosticsModel(QObject *parent)
     : BaseModel(parent)
 {
-    setHeader({tr("Diagnostic")});
+    setHeader({Tr::tr("Diagnostic")});
 }
 
 void DiagnosticsModel::clear()
@@ -116,5 +117,4 @@ void DiagnosticsModel::add(const Diagnostic &diagnostic)
     filePathItem->appendChild(new DiagnosticItem(diagnostic));
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

@@ -9,15 +9,12 @@
 #include <QHash>
 #include <QTimer>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class CppcheckTool;
 
 class CppcheckRunner final : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit CppcheckRunner(CppcheckTool &tool);
     ~CppcheckRunner() override;
@@ -47,5 +44,4 @@ private:
     int m_maxArgumentsLength = 32767;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

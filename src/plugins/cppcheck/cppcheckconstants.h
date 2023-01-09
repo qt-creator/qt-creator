@@ -3,8 +3,7 @@
 
 #pragma once
 
-namespace Cppcheck {
-namespace Constants {
+namespace Cppcheck::Constants {
 
 const char TEXTMARK_CATEGORY_ID[] = "Cppcheck";
 
@@ -33,5 +32,4 @@ const char MANUAL_CHECK_PROGRESS_ID[] = "Cppcheck.ManualCheckingTask";
 const char MANUAL_RUN_ACTION[] = "Cppcheck.ManualRun";
 const char PERSPECTIVE_ID[] = "Cppcheck.Perspective";
 
-} // namespace Constants
-} // namespace Cppcheck
+} // Cppcheck::Constants

@@ -12897,14 +12897,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::CppcheckOptionsPage</name>
-    <message>
-        <source>Cppcheck</source>
-        <translation>Cppcheck</translation>
-    </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckPlugin</name>
+    <name>Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation>Cppcheck</translation>
@@ -12925,16 +12918,10 @@ Flags: %3</source>
         <source>Cppcheck...</source>
         <translation>Cppcheck...</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckRunner</name>
     <message>
         <source>Cppcheck failed to start: &quot;%1&quot;.</source>
         <translation>Не удалось запустить Cppcheck: «%1».</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckTool</name>
     <message>
         <source>Cppcheck started: &quot;%1&quot;.</source>
         <translation>Cppcheck запустился: «%1».</translation>
@@ -12943,23 +12930,14 @@ Flags: %3</source>
         <source>Cppcheck finished.</source>
         <translation>Cppcheck завершился.</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::DiagnosticView</name>
     <message>
         <source>Cppcheck Diagnostics</source>
         <translation>Проблемы Cppcheck</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::DiagnosticsModel</name>
     <message>
         <source>Diagnostic</source>
         <translation>Проблема</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::ManualRunDialog</name>
     <message>
         <source>Cppcheck Run Configuration</source>
         <translation>Конфигурация запуска Cppcheck</translation>
@@ -12968,9 +12946,6 @@ Flags: %3</source>
         <source>Analyze</source>
         <translation>Анализировать</translation>
     </message>
-</context>
-<context>
-    <name>CppcheckOptionsPage</name>
     <message>
         <source>Warnings</source>
         <translation>Предупреждения</translation>

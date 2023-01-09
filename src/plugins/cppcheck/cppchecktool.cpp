@@ -1,11 +1,13 @@
 // Copyright (C) 2018 Sergey Morozov
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "cppchecktool.h"
+
 #include "cppcheckdiagnostic.h"
 #include "cppcheckoptions.h"
 #include "cppcheckrunner.h"
 #include "cppchecktextmarkmanager.h"
-#include "cppchecktool.h"
+#include "cppchecktr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
@@ -20,8 +22,7 @@
 
 #include <QThread>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager,
                            const Utils::Id &progressId) :
@@ -226,13 +227,13 @@ void CppcheckTool::stop(const Utils::FilePaths &files)
 void CppcheckTool::startParsing()
 {
     if (m_options.showOutput) {
-        const QString message = tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
+        const QString message = Tr::tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
         Core::MessageManager::writeSilently(message);
     }
 
     m_progress = std::make_unique<QFutureInterface<void>>();
     const Core::FutureProgress *progress = Core::ProgressManager::addTask(
-                m_progress->future(), QObject::tr("Cppcheck"), m_progressId);
+                m_progress->future(), Tr::tr("Cppcheck"), m_progressId);
     QObject::connect(progress, &Core::FutureProgress::canceled,
                      this, [this]{stop({});});
     m_progress->setProgressRange(0, 100);
@@ -301,11 +302,10 @@ void CppcheckTool::parseErrorLine(const QString &line)
 void CppcheckTool::finishParsing()
 {
     if (m_options.showOutput)
-        Core::MessageManager::writeSilently(tr("Cppcheck finished."));
+        Core::MessageManager::writeSilently(Tr::tr("Cppcheck finished."));
 
     QTC_ASSERT(m_progress, return);
     m_progress->reportFinished();
 }
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

@@ -9,8 +9,7 @@
 
 #include <unordered_map>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class Diagnostic;
 class CppcheckTextMark;
@@ -29,5 +28,4 @@ private:
     std::unordered_map<Utils::FilePath, std::vector<MarkPtr>> m_marks;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

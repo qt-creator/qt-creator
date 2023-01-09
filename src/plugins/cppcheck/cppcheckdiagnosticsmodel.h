@@ -10,8 +10,7 @@
 
 #include <utils/treemodel.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class DiagnosticsModel;
 
@@ -55,5 +54,4 @@ private:
     QSet<Diagnostic> m_diagnostics;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

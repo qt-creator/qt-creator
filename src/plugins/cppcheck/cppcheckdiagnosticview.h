@@ -5,12 +5,10 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class DiagnosticView : public Debugger::DetailedErrorView
 {
-    Q_OBJECT
 public:
     explicit DiagnosticView(QWidget *parent = nullptr);
     ~DiagnosticView() override;
@@ -23,5 +21,4 @@ private:
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

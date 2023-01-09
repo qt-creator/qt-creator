@@ -8,22 +8,20 @@
 namespace Utils {
 class FilePath;
 using FilePaths = QList<FilePath>;
-} // namespace Utils
+} // Utils
 
 namespace ProjectExplorer {
 class Project;
 class SelectableFilesFromDirModel;
-} // namespace ProjectExplorer
+} // ProjectExplorer
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 class OptionsWidget;
 class CppcheckOptions;
 
 class ManualRunDialog : public QDialog
 {
-    Q_OBJECT
 public:
     ManualRunDialog(const CppcheckOptions &options,
                     const ProjectExplorer::Project *project);
@@ -37,5 +35,4 @@ private:
     ProjectExplorer::SelectableFilesFromDirModel *m_model;
 };
 
-} // namespace Internal
-} // namespace Cppcheck
+} // Cppcheck::Internal

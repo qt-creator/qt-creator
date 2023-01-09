@@ -3,8 +3,7 @@
 
 #include "cppcheckdiagnostic.h"
 
-namespace Cppcheck {
-namespace Internal {
+namespace Cppcheck::Internal {
 
 bool Diagnostic::operator==(const Diagnostic &r) const
 {
@@ -16,5 +15,5 @@ size_t qHash(const Diagnostic &diagnostic)
 {
     return qHash(diagnostic.message) ^ qHash(diagnostic.fileName) ^ diagnostic.lineNumber;
 }
-} // namespace Internal
+
 } // namespace Cppcheck

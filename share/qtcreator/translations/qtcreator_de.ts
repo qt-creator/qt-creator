@@ -43156,14 +43156,11 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::CppcheckOptionsPage</name>
+    <name>Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation>Cppcheck</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckTool</name>
     <message>
         <source>Cppcheck started: &quot;%1&quot;.</source>
         <translation>Cppcheck gestartet: &quot;%1&quot;.</translation>
@@ -43357,7 +43354,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>CppcheckOptionsPage</name>
+    <name>Cppcheck</name>
     <message>
         <source>Warnings</source>
         <translation>Warnungen</translation>
@@ -46119,14 +46116,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::DiagnosticsModel</name>
+    <name>Cppcheck</name>
     <message>
         <source>Diagnostic</source>
         <translation>Diagnose</translation>
     </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::ManualRunDialog</name>
     <message>
         <source>Cppcheck Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -46134,13 +46128,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Analyze</source>
         <translation>Analysieren</translation>
-    </message>
-</context>
-<context>
-    <name>Cppcheck::Internal::CppcheckPlugin</name>
-    <message>
-        <source>Cppcheck</source>
-        <translation>Cppcheck</translation>
     </message>
     <message>
         <source>Go to previous diagnostic.</source>
@@ -53131,7 +53118,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Cppcheck::Internal::DiagnosticView</name>
+    <name>Cppcheck</name>
     <message>
         <source>Cppcheck Diagnostics</source>
         <translation type="unfinished"></translation>
