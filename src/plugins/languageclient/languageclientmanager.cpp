@@ -106,6 +106,13 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
     emit managerInstance->clientAdded(client);
 }
 
+void LanguageClientManager::restartClient(Client *client)
+{
+    QTC_ASSERT(managerInstance, return);
+    managerInstance->m_restartingClients.insert(client);
+    shutdownClient(client);
+}
+
 void LanguageClientManager::clientStarted(Client *client)
 {
     qCDebug(Log) << "client started: " << client->name() << client;
@@ -127,6 +134,13 @@ void LanguageClientManager::clientStarted(Client *client)
 void LanguageClientManager::clientFinished(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
+
+    if (managerInstance->m_restartingClients.remove(client)) {
+        client->reset();
+        client->start();
+        return;
+    }
+
     constexpr int restartTimeoutS = 5;
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;

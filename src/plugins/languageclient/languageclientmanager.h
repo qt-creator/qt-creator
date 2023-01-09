@@ -42,6 +42,7 @@ public:
     static Client *startClient(const BaseSettings *setting, ProjectExplorer::Project *project = nullptr);
     static const QList<Client *> clients();
     static void addClient(Client *client);
+    static void restartClient(Client *client);
 
     static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
     static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
@@ -100,6 +101,7 @@ private:
     QList<Client *> reachableClients();
 
     QList<Client *> m_clients;
+    QSet<Client *> m_restartingClients;
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QList<Client *>> m_clientsForSetting;
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;

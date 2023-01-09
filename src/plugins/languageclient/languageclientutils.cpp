@@ -7,6 +7,7 @@
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
 #include "languageclientoutline.h"
+#include "languageclienttr.h"
 #include "snippet.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
@@ -246,7 +247,7 @@ void updateEditorToolBar(Core::IEditor *editor)
         const QIcon icon = Utils::Icon({{":/languageclient/images/languageclient.png",
                                          Utils::Theme::IconsBaseColor}}).icon();
         extras->m_popupAction = widget->toolBar()->addAction(
-                    icon, client->name(), [document = QPointer(document)] {
+                    icon, client->name(), [document = QPointer(document), client = QPointer<Client>(client)] {
             auto menu = new QMenu;
             auto clientsGroup = new QActionGroup(menu);
             clientsGroup->setExclusive(true);
@@ -265,10 +266,16 @@ void updateEditorToolBar(Core::IEditor *editor)
             menu->addActions(clientsGroup->actions());
             if (!clientsGroup->actions().isEmpty())
                 menu->addSeparator();
-            menu->addAction("Inspect Language Clients", [] {
+            if (client && client->reachable()) {
+                menu->addAction(Tr::tr("Restart %1").arg(client->name()), [client] {
+                    if (client && client->reachable())
+                        LanguageClientManager::restartClient(client);
+                });
+            }
+            menu->addAction(Tr::tr("Inspect Language Clients"), [] {
                 LanguageClientManager::showInspector();
             });
-            menu->addAction("Manage...", [] {
+            menu->addAction(Tr::tr("Manage..."), [] {
                 Core::ICore::showOptionsDialog(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
             });
             menu->popup(QCursor::pos());
