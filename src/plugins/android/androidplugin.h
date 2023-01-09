@@ -27,6 +27,8 @@ private slots:
    void testAndroidSdkManagerProgressParser();
    void testAndroidConfigAvailableNdkPlatforms_data();
    void testAndroidConfigAvailableNdkPlatforms();
+   void testAndroidQtVersionParseBuiltWith_data();
+   void testAndroidQtVersionParseBuiltWith();
 #endif // WITH_TESTS
 };
 

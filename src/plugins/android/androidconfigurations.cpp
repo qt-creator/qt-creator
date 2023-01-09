@@ -953,6 +953,16 @@ bool AndroidConfig::sdkToolsOk() const
 
 QStringList AndroidConfig::essentialsFromQtVersion(const QtVersion &version) const
 {
+    if (auto androidQtVersion = dynamic_cast<const AndroidQtVersion *>(&version)) {
+        bool ok;
+        const AndroidQtVersion::BuiltWith bw = androidQtVersion->builtWith(&ok);
+        if (ok) {
+            const QString ndkPackage = ndkPackageMarker() + bw.ndkVersion.toString();
+            return QStringList(ndkPackage)
+                   + packagesWithoutNdks(m_defaultSdkDepends.essentialPackages);
+        }
+    }
+
     QVersionNumber qtVersion = version.qtVersion();
     for (const SdkForQtVersions &item : m_specificQtVersions)
         if (item.containsVersion(qtVersion))
@@ -973,6 +983,13 @@ static FilePath ndkSubPath(const SdkForQtVersions &packages)
 
 FilePath AndroidConfig::ndkSubPathFromQtVersion(const QtVersion &version) const
 {
+    if (auto androidQtVersion = dynamic_cast<const AndroidQtVersion *>(&version)) {
+        bool ok;
+        const AndroidQtVersion::BuiltWith bw = androidQtVersion->builtWith(&ok);
+        if (ok)
+            return FilePath::fromString(NdksSubDir) / bw.ndkVersion.toString();
+    }
+
     for (const SdkForQtVersions &item : m_specificQtVersions)
         if (item.containsVersion(version.qtVersion()))
             return ndkSubPath(item);
