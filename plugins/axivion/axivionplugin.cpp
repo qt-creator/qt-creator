@@ -49,12 +49,12 @@ public:
     void clearAllMarks();
     void handleIssuesForFile(const IssuesList &issues);
 
-    AxivionSettings axivionSettings;
-    AxivionSettingsPage axivionSettingsPage{&axivionSettings};
-    AxivionOutputPane axivionOutputPane;
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> axivionProjectSettings;
-    ProjectInfo currentProjectInfo;
-    bool runningQuery = false;
+    AxivionSettings m_axivionSettings;
+    AxivionSettingsPage m_axivionSettingsPage{&m_axivionSettings};
+    AxivionOutputPane m_axivionOutputPane;
+    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
+    ProjectInfo m_currentProjectInfo;
+    bool m_runningQuery = false;
 };
 
 static AxivionPlugin *s_instance = nullptr;
@@ -67,9 +67,9 @@ AxivionPlugin::AxivionPlugin()
 
 AxivionPlugin::~AxivionPlugin()
 {
-    if (!dd->axivionProjectSettings.isEmpty()) {
-        qDeleteAll(dd->axivionProjectSettings);
-        dd->axivionProjectSettings.clear();
+    if (!dd->m_axivionProjectSettings.isEmpty()) {
+        qDeleteAll(dd->m_axivionProjectSettings);
+        dd->m_axivionProjectSettings.clear();
     }
     delete dd;
     dd = nullptr;
@@ -94,7 +94,7 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
 #endif // LICENSECHECKER
 
     dd = new AxivionPluginPrivate;
-    dd->axivionSettings.fromSettings(Core::ICore::settings());
+    dd->m_axivionSettings.fromSettings(Core::ICore::settings());
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(250);
@@ -116,7 +116,7 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
 AxivionSettings *AxivionPlugin::settings()
 {
     QTC_ASSERT(dd, return nullptr);
-    return &dd->axivionSettings;
+    return &dd->m_axivionSettings;
 }
 
 AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project *project)
@@ -131,7 +131,7 @@ bool AxivionPlugin::handleCertificateIssue()
 {
     QTC_ASSERT(dd, return false);
 
-    const QString serverHost = QUrl(dd->axivionSettings.server.dashboard).host();
+    const QString serverHost = QUrl(dd->m_axivionSettings.server.dashboard).host();
     if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
                               Tr::tr("Server certificate for %1 cannot be authenticated.\n"
                                      "Do you want to disable SSL verification for this server?\n"
@@ -140,7 +140,7 @@ bool AxivionPlugin::handleCertificateIssue()
             != QMessageBox::Yes) {
         return false;
     }
-    dd->axivionSettings.server.validateCert = false;
+    dd->m_axivionSettings.server.validateCert = false;
     emit s_instance->settingsChanged();
     return true;
 }
@@ -154,12 +154,12 @@ void AxivionPlugin::fetchProjectInfo(const QString &projectName)
 ProjectInfo AxivionPlugin::projectInfo()
 {
     QTC_ASSERT(dd, return {});
-    return dd->currentProjectInfo;
+    return dd->m_currentProjectInfo;
 }
 
 AxivionProjectSettings *AxivionPluginPrivate::projectSettings(ProjectExplorer::Project *project)
 {
-    auto &settings = axivionProjectSettings[project];
+    auto &settings = m_axivionProjectSettings[project];
     if (!settings)
         settings = new AxivionProjectSettings(project);
     return settings;
@@ -170,8 +170,8 @@ void AxivionPluginPrivate::onStartupProjectChanged()
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
     if (!project) {
         clearAllMarks();
-        currentProjectInfo = ProjectInfo();
-        axivionOutputPane.updateDashboard();
+        m_currentProjectInfo = ProjectInfo();
+        m_axivionOutputPane.updateDashboard();
         return;
     }
 
@@ -181,17 +181,17 @@ void AxivionPluginPrivate::onStartupProjectChanged()
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    if (runningQuery) { // re-schedule
+    if (m_runningQuery) { // re-schedule
         QTimer::singleShot(3000, [this, projectName]{ fetchProjectInfo(projectName); });
         return;
     }
     clearAllMarks();
     if (projectName.isEmpty()) {
-        currentProjectInfo = ProjectInfo();
-        axivionOutputPane.updateDashboard();
+        m_currentProjectInfo = ProjectInfo();
+        m_axivionOutputPane.updateDashboard();
         return;
     }
-    runningQuery = true;
+    m_runningQuery = true;
 
     AxivionQuery query(AxivionQuery::ProjectInfo, {projectName});
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
@@ -224,16 +224,16 @@ void AxivionPluginPrivate::clearAllMarks()
 
 void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 {
-    runningQuery = false;
+    m_runningQuery = false;
     if (!info.error.isEmpty()) {
         Core::MessageManager::writeFlashing("Axivion: " + info.error);
         return;
     }
 
-    currentProjectInfo = info;
-    axivionOutputPane.updateDashboard();
+    m_currentProjectInfo = info;
+    m_axivionOutputPane.updateDashboard();
 
-    if (currentProjectInfo.name.isEmpty())
+    if (m_currentProjectInfo.name.isEmpty())
         return;
 
     // handle already opened documents
@@ -248,7 +248,7 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 
 void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 {
-    if (currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
+    if (m_currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
         return;
 
     ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
@@ -257,7 +257,7 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 
     Utils::FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
     // for now only style violations
-    AxivionQuery query(AxivionQuery::IssuesForFileList, {currentProjectInfo.name, "SV",
+    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo.name, "SV",
                                                          relative.path() } );
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
