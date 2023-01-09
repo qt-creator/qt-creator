@@ -403,6 +403,13 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
                                          [[maybe_unused]] const QVariant &data)
 {
     m_currentModelInterface->notifyDataChanged(modelNode);
+
+    if (key == lockedProperty) {
+        // Also notify data changed on child nodes to redraw them
+        const QList<ModelNode> childNodes = modelNode.allSubModelNodes();
+        for (const auto &childNode : childNodes)
+            m_currentModelInterface->notifyDataChanged(childNode);
+    }
 }
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)
