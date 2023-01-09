@@ -5,7 +5,7 @@
 
 #include "remotelinux_export.h"
 
-#include "abstractremotelinuxdeployservice.h"
+#include "abstractremotelinuxdeploystep.h"
 
 #include <QList>
 

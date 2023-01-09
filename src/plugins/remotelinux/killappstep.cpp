@@ -4,7 +4,6 @@
 #include "killappstep.h"
 
 #include "abstractremotelinuxdeploystep.h"
-#include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
