@@ -209,8 +209,7 @@ def runVerify():
     availableConfigs = iterateBuildConfigs()
     if not availableConfigs:
         test.fatal("Haven't found build configurations, quitting")
-        invokeMenuItem("File", "Save All")
-        invokeMenuItem("File", "Exit")
+        saveAndExit()
     for kit, config in availableConfigs:
         selectBuildConfig(kit, config)
         test.log("Using build config '%s'" % config)

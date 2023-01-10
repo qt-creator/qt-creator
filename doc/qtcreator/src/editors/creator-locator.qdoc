@@ -151,6 +151,8 @@
         \li Opening the CMakeLists.txt file for the current run configuration in
             the editor (\c {cmo}). This is the same build target as when you
             select \uicontrol Build > \uicontrol {Build for Run Configuration}.
+        \li Running a particular run configuration (\c {rr} \e {<name>})
+        \li Switching to a particular run configuration (\c {sr} \e {<name>})
         \endif
 
     \endlist

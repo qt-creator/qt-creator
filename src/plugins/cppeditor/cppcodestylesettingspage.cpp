@@ -165,6 +165,9 @@ void CppCodeStylePreferencesWidget::setCodeStyle(CppCodeStylePreferences *codeSt
     setCodeStyleSettings(m_preferences->currentCodeStyleSettings(), false);
     slotCurrentPreferencesChanged(m_preferences->currentPreferences(), false);
 
+    m_originalCppCodeStyleSettings = cppCodeStyleSettings();
+    m_originalTabSettings = tabSettings();
+
     updatePreview();
 }
 
@@ -253,6 +256,12 @@ void CppCodeStylePreferencesWidget::slotCodeStyleSettingsChanged()
     if (m_blockUpdates)
         return;
 
+    if (m_preferences) {
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current)
+            current->setCodeStyleSettings(cppCodeStyleSettings());
+    }
+
     emit codeStyleSettingsChanged(cppCodeStyleSettings());
     updatePreview();
 }
@@ -261,6 +270,12 @@ void CppCodeStylePreferencesWidget::slotTabSettingsChanged(const TabSettings &se
 {
     if (m_blockUpdates)
         return;
+
+    if (m_preferences) {
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
+        if (current)
+            current->setTabSettings(settings);
+    }
 
     emit tabSettingsChanged(settings);
     updatePreview();
@@ -344,19 +359,21 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
 
 void CppCodeStylePreferencesWidget::apply()
 {
-    if (m_preferences) {
-        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentPreferences());
-        if (current) {
-            current->setTabSettings(tabSettings());
-            current->setCodeStyleSettings(cppCodeStyleSettings());
-        }
-    }
+    m_originalTabSettings = tabSettings();
+    m_originalCppCodeStyleSettings = cppCodeStyleSettings();
 
     emit applyEmitted();
 }
 
 void CppCodeStylePreferencesWidget::finish()
 {
+    if (m_preferences) {
+        auto current = qobject_cast<CppCodeStylePreferences *>(m_preferences->currentDelegate());
+        if (current) {
+            current->setCodeStyleSettings(m_originalCppCodeStyleSettings);
+            current->setTabSettings(m_originalTabSettings);
+        }
+    }
     emit finishEmitted();
 }
 

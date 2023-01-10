@@ -336,9 +336,16 @@ def validateSearchResult(expectedCount):
 
 # this function invokes context menu and command from it
 def invokeContextMenuItem(editorArea, command1, command2 = None):
-    ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    snooze(1)
-    item1 = waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000)
+    for _ in range(2):
+        ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
+        snooze(1)
+        try:
+            item1 = waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000)
+            break
+        except:
+            test.warning("Context menu item not ready (%s) - trying once more." % command1)
+            type(editorArea, "<Escape>")
+
     if command2 and platform.system() == 'Darwin':
         mouseMove(item1)
     activateItem(item1)
@@ -393,8 +400,7 @@ def openDocument(treeElement):
 
 def earlyExit(details="No additional information"):
     test.fail("Something went wrong running this test", details)
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
 
 def openDocumentPlaceCursor(doc, line, additionalFunction=None):
     cppEditorStr = ":Qt Creator_CppEditor::Internal::CPPEditorWidget"

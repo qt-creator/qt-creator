@@ -8,13 +8,13 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <texteditor/icodestylepreferencesfactory.h>
+#include <texteditor/tabsettings.h>
 
 #include <QWidget>
 #include <QPointer>
 
 namespace TextEditor {
     class FontSettings;
-    class TabSettings;
     class SnippetEditorWidget;
     class CodeStyleEditor;
     class CodeStyleEditorWidget;
@@ -72,6 +72,8 @@ private:
     CppCodeStylePreferences *m_preferences = nullptr;
     Ui::CppCodeStyleSettingsPage *m_ui;
     QList<TextEditor::SnippetEditorWidget *> m_previews;
+    CppCodeStyleSettings m_originalCppCodeStyleSettings;
+    TextEditor::TabSettings m_originalTabSettings;
     bool m_blockUpdates = false;
 signals:
     void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);

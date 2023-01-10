@@ -33,5 +33,4 @@ def main():
         type(editor, "<Up>")
         test.verify(waitFor('str(lineUnderCursor(editor)).strip() == con[3]', 1000),
                     'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), con[3]))
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()
