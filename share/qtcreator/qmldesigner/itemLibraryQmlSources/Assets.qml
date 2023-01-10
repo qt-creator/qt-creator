@@ -168,6 +168,14 @@ Item {
             visible: !assetsModel.haveFiles && root.__searchBoxEmpty
             clip: true
 
+            MouseArea { // right clicking the empty area of the view
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
+                onClicked: {
+                    contextMenu.openContextMenuForEmpty(assetsModel.rootPath())
+                }
+            }
+
             DropArea { // handles external drop (goes into default folder based on suffix)
                 anchors.fill: parent
 

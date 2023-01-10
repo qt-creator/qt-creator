@@ -73,6 +73,15 @@ StudioControls.Menu {
         root.popup()
     }
 
+    function openContextMenuForEmpty(dirPath)
+    {
+        root.__dirPath = dirPath
+        root.__fileIndex = ""
+        root.__dirIndex = ""
+        root.__isDirectory = false
+        root.popup()
+    }
+
     StudioControls.MenuItem {
         text: qsTr("Expand All")
         enabled: root.__allExpandedState !== "all_expanded"
@@ -156,6 +165,8 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
+        visible: assetsModel.haveFiles
+        height: visible ? implicitHeight : 0
 
         NewFolderDialog {
             id: newFolderDialog
@@ -198,7 +209,7 @@ StudioControls.Menu {
 
         NewEffectDialog {
             id: newEffectDialog
-            parent: root.assetsView
+            parent: root.assetsView.parent
             dirPath: root.__dirPath
         }
 
