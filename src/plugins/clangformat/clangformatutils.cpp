@@ -4,7 +4,6 @@
 #include "clangformatutils.h"
 
 #include "clangformatconstants.h"
-#include "clangformatsettings.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppcodestylesettings.h>
@@ -203,7 +202,58 @@ void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
 static bool useProjectOverriddenSettings()
 {
     const Project *project = SessionManager::startupProject();
-    return project ? project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool() : false;
+    return getProjectOverriddenSettings(project);
+}
+
+bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project)
+{
+    const QVariant projectUseGlobalSettings = project ? project->namedSettings(
+                                                  Constants::USE_GLOBAL_SETTINGS)
+                                                      : QVariant();
+
+    return projectUseGlobalSettings.isValid() ? projectUseGlobalSettings.toBool() : true;
+}
+
+bool getProjectOverriddenSettings(const ProjectExplorer::Project *project)
+{
+    const QVariant projectOverride = project ? project->namedSettings(Constants::OVERRIDE_FILE_ID)
+                                             : QVariant();
+
+    return projectOverride.isValid()
+               ? projectOverride.toBool()
+               : ClangFormatSettings::instance().overrideDefaultFile();
+}
+
+bool getCurrentOverriddenSettings(const Utils::FilePath &filePath)
+{
+    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+        filePath);
+
+    return getProjectUseGlobalSettings(project)
+               ? ClangFormatSettings::instance().overrideDefaultFile()
+               : getProjectOverriddenSettings(project);
+}
+
+ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
+    const ProjectExplorer::Project *project)
+{
+    const QVariant projectIndentationOrFormatting = project
+                                                        ? project->namedSettings(Constants::MODE_ID)
+                                                        : QVariant();
+
+    return projectIndentationOrFormatting.isValid()
+               ? static_cast<ClangFormatSettings::Mode>(projectIndentationOrFormatting.toInt())
+               : ClangFormatSettings::instance().mode();
+}
+
+ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils::FilePath &filePath)
+{
+    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(
+        filePath);
+
+    return getProjectUseGlobalSettings(project)
+               ? ClangFormatSettings::instance().mode()
+               : getProjectIndentationOrFormattingSettings(project);
 }
 
 static Utils::FilePath globalPath()

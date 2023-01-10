@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatindenter.h"
-#include "clangformatconstants.h"
 #include "clangformatsettings.h"
 #include "clangformatutils.h"
 
@@ -60,7 +59,8 @@ ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
 
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
-    return ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting;
+    return getCurrentIndentationOrFormattingSettings(m_fileName)
+           == ClangFormatSettings::Mode::Formatting;
 }
 
 std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
@@ -128,12 +128,7 @@ void ClangFormatForwardingIndenter::setFileName(const Utils::FilePath &fileName)
 
 TextEditor::Indenter *ClangFormatForwardingIndenter::currentIndenter() const
 {
-    const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(m_fileName);
-
-    ClangFormatSettings::Mode mode = projectForFile ? static_cast<ClangFormatSettings::Mode>(
-                                         projectForFile->namedSettings(Constants::MODE_ID).toInt())
-                                                    : ClangFormatSettings::instance().mode();
+    ClangFormatSettings::Mode mode = getCurrentIndentationOrFormattingSettings(m_fileName);
 
     if (mode == ClangFormatSettings::Disable)
         return m_cppIndenter.get();

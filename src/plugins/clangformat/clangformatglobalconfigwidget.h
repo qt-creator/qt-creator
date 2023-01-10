@@ -31,6 +31,7 @@ private:
     void initCheckBoxes();
     void initIndentationOrFormattingCombobox();
     void initOverrideCheckBox();
+    void initUseGlobalSettingsCheckBox();
 
     bool projectClangFormatFileExists();
 
@@ -42,6 +43,7 @@ private:
     QCheckBox *m_formatWhileTyping;
     QCheckBox *m_formatOnSave;
     QCheckBox *m_overrideDefault;
+    QCheckBox *m_useGlobalSettings;
 };
 
 } // namespace ClangFormat

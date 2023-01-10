@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "clangformatbaseindenter.h"
-#include "clangformatconstants.h"
-#include "clangformatsettings.h"
 #include "clangformatutils.h"
 #include "llvmfilesystem.h"
 
@@ -739,8 +737,11 @@ void ClangFormatBaseIndenter::autoIndent(const QTextCursor &cursor,
     }
 }
 
-clang::format::FormatStyle overrideStyle(const ProjectExplorer::Project *projectForFile)
+clang::format::FormatStyle overrideStyle(const Utils::FilePath &fileName)
 {
+    const ProjectExplorer::Project *projectForFile
+        = ProjectExplorer::SessionManager::projectForFile(fileName);
+
     const TextEditor::ICodeStylePreferences *preferences
         = projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
@@ -765,15 +766,8 @@ clang::format::FormatStyle overrideStyle(const ProjectExplorer::Project *project
 
 clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 {
-    const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::SessionManager::projectForFile(m_fileName);
-
-    const bool overrideStyleFile
-        = projectForFile ? projectForFile->namedSettings(Constants::OVERRIDE_FILE_ID).toBool()
-                         : ClangFormatSettings::instance().overrideDefaultFile();
-
-    if (overrideStyleFile)
-        return overrideStyle(projectForFile);
+    if (getCurrentOverriddenSettings(m_fileName))
+        return overrideStyle(m_fileName);
 
     llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder
         = clang::format::getStyle("file",

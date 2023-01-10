@@ -36,13 +36,16 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
     m_formatWhileTyping = new QCheckBox(tr("Format while typing"));
     m_formatOnSave = new QCheckBox(tr("Format edited code on file save"));
     m_overrideDefault = new QCheckBox(tr("Override Clang Format configuration file"));
+    m_useGlobalSettings = new QCheckBox(tr("Use global settings"));
+    m_useGlobalSettings->hide();
 
     using namespace Layouting;
 
     Group globalSettingsGroupBox {
         title(tr("ClangFormat settings:")),
             Column {
-            Row { m_formattingModeLabel, m_indentingOrFormatting, st },
+                m_useGlobalSettings,
+                Row { m_formattingModeLabel, m_indentingOrFormatting, st },
                 m_formatWhileTyping,
                 m_formatOnSave,
                 m_projectHasClangFormat,
@@ -57,11 +60,14 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
     initCheckBoxes();
     initIndentationOrFormattingCombobox();
     initOverrideCheckBox();
+    initUseGlobalSettingsCheckBox();
 
     if (project) {
         m_formattingModeLabel->hide();
         m_formatOnSave->hide();
         m_formatWhileTyping->hide();
+
+        m_useGlobalSettings->show();
         return;
     }
     globalSettingsGroupBox.widget->show();
@@ -94,18 +100,36 @@ void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
                                         tr("Disable"));
 
-    if (m_project) {
-        m_indentingOrFormatting->setCurrentIndex(
-            m_project->namedSettings(Constants::MODE_ID).toInt());
-    } else {
-        m_indentingOrFormatting->setCurrentIndex(
-            static_cast<int>(ClangFormatSettings::instance().mode()));
-    }
+    m_indentingOrFormatting->setCurrentIndex(
+        static_cast<int>(getProjectIndentationOrFormattingSettings(m_project)));
 
     connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, [this](int index) {
         if (m_project)
             m_project->setNamedSettings(Constants::MODE_ID, index);
     });
+}
+
+void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
+{
+    if (!m_project)
+        return;
+
+    const auto enableProjectSettings = [this] {
+        const bool isDisabled = m_project && m_useGlobalSettings->isChecked();
+        m_indentingOrFormatting->setDisabled(isDisabled);
+        m_overrideDefault->setDisabled(isDisabled
+                                       || (m_indentingOrFormatting->currentIndex()
+                                           == static_cast<int>(ClangFormatSettings::Mode::Disable)));
+    };
+
+    m_useGlobalSettings->setChecked(getProjectUseGlobalSettings(m_project));
+    enableProjectSettings();
+
+    connect(m_useGlobalSettings, &QCheckBox::toggled,
+            this, [this, enableProjectSettings] (bool checked) {
+                m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
+                enableProjectSettings();
+            });
 }
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
@@ -128,7 +152,7 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
 
     auto setEnableOverrideCheckBox = [this](int index) {
         bool isDisable = index == static_cast<int>(ClangFormatSettings::Mode::Disable);
-        m_overrideDefault->setEnabled(!isDisable);
+        m_overrideDefault->setDisabled(isDisable);
     };
 
     setEnableOverrideCheckBox(m_indentingOrFormatting->currentIndex());
@@ -138,11 +162,7 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     m_overrideDefault->setToolTip(
         tr("Override Clang Format configuration file with the chosen configuration."));
 
-    if (m_project)
-        m_overrideDefault->setChecked(
-            m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
-    else
-        m_overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
+    m_overrideDefault->setChecked(getProjectOverriddenSettings(m_project));
 
     connect(m_overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
         if (m_project)

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "clangformatsettings.h"
+
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
@@ -13,6 +15,7 @@
 #include <fstream>
 
 namespace TextEditor { class ICodeStylePreferences; }
+namespace ProjectExplorer { class Project; }
 namespace ClangFormat {
 
 // Creates the style for the current project or the global style if needed.
@@ -26,6 +29,15 @@ std::string currentGlobalConfigText();
 clang::format::FormatStyle currentProjectStyle();
 clang::format::FormatStyle currentGlobalStyle();
 std::string readFile(const QString &path);
+
+bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project);
+
+bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
+bool getCurrentOverriddenSettings(const Utils::FilePath &filePath);
+
+ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
+    const ProjectExplorer::Project *project);
+ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils::FilePath &filePath);
 
 // Is the style from the matching .clang-format file or global one if it's not found.
 QString configForFile(Utils::FilePath fileName);
