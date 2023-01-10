@@ -4,11 +4,11 @@
 #include "documentclangtoolrunner.h"
 
 #include "clangfileinfo.h"
-#include "clangtidyclazyrunner.h"
 #include "clangtoolruncontrol.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtoolsprojectsettings.h"
+#include "clangtoolrunner.h"
 #include "clangtoolsutils.h"
 #include "diagnosticmark.h"
 #include "executableinfo.h"
@@ -200,12 +200,12 @@ void DocumentClangToolRunner::run()
                     Environment env = projectBuildEnvironment(project);
                     if (config.isEnabled(ClangToolType::Tidy)) {
                         m_runnerCreators << [this, env, config] {
-                            return createRunner<ClangTidyRunner>(config, env);
+                            return createRunner(ClangToolType::Tidy, config, env);
                         };
                     }
                     if (config.isEnabled(ClangToolType::Clazy)) {
                         m_runnerCreators << [this, env, config] {
-                            return createRunner<ClazyStandaloneRunner>(config, env);
+                            return createRunner(ClangToolType::Clazy, config, env);
                         };
                     }
                 }
@@ -364,12 +364,11 @@ const ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConfig(Project
     return diagnosticConfig(id);
 }
 
-template<class T>
-ClangToolRunner *DocumentClangToolRunner::createRunner(const ClangDiagnosticConfig &config,
+ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool,
+                                                       const ClangDiagnosticConfig &config,
                                                        const Environment &env)
 {
-    auto runner = new T(config, this);
-    runner->init(m_temporaryDir.path(), env);
+    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env}, this);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &DocumentClangToolRunner::onSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

@@ -72,7 +72,7 @@ private:
     void stop() final;
 
     QList<RunnerCreator> runnerCreators();
-    template <class T> ClangToolRunner *createRunner();
+    ClangToolRunner *createRunner(CppEditor::ClangToolType tool);
 
     AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangIncludeDir,
                                 const QString &clangVersion);

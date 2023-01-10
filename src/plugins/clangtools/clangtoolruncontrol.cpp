@@ -3,8 +3,8 @@
 
 #include "clangtoolruncontrol.h"
 
-#include "clangtidyclazyrunner.h"
 #include "clangtool.h"
+#include "clangtoolrunner.h"
 #include "clangtoolssettings.h"
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
@@ -169,8 +169,8 @@ ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
 QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
 {
     if (m_tool == ClangTidyTool::instance())
-        return {[this] { return createRunner<ClangTidyRunner>(); }};
-    return {[this] { return createRunner<ClazyStandaloneRunner>(); }};
+        return {[this] { return createRunner(ClangToolType::Tidy); }};
+    return {[this] { return createRunner(ClangToolType::Clazy); }};
 }
 
 void ClangToolRunWorker::start()
@@ -410,12 +410,11 @@ void ClangToolRunWorker::finalize()
     runControl()->initiateStop();
 }
 
-template<class T>
-ClangToolRunner *ClangToolRunWorker::createRunner()
+ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool)
 {
     using namespace std::placeholders;
-    auto runner = new T(m_diagnosticConfig, this);
-    runner->init(m_temporaryDir.path(), m_environment);
+    auto runner = new ClangToolRunner(
+        {tool, m_diagnosticConfig, m_temporaryDir.path(), m_environment}, this);
     connect(runner, &ClangToolRunner::finishedWithSuccess, this,
             std::bind(&ClangToolRunWorker::onRunnerFinishedWithSuccess, this, runner, _1));
     connect(runner, &ClangToolRunner::finishedWithFailure, this,

@@ -3,6 +3,11 @@
 
 #include "clangtoolrunner.h"
 
+#include "clangtoolsutils.h"
+
+#include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/compileroptionsbuilder.h>
+
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -15,10 +20,49 @@
 
 static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
+using namespace CppEditor;
 using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
+
+static bool isClMode(const QStringList &options)
+{
+    return options.contains("--driver-mode=cl");
+}
+
+static QStringList checksArguments(ClangToolType tool,
+                                   const ClangDiagnosticConfig &diagnosticConfig)
+{
+    if (tool == ClangToolType::Tidy) {
+        const ClangDiagnosticConfig::TidyMode tidyMode = diagnosticConfig.clangTidyMode();
+        // The argument "-config={}" stops stating/evaluating the .clang-tidy file.
+        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseDefaultChecks)
+            return {"-config={}", "-checks=-clang-diagnostic-*"};
+        if (tidyMode == ClangDiagnosticConfig::TidyMode::UseCustomChecks)
+            return {"-config=" + diagnosticConfig.clangTidyChecksAsJson()};
+        return {"--warnings-as-errors=-*", "-checks=-clang-diagnostic-*"};
+    }
+    const QString clazyChecks = diagnosticConfig.checks(ClangToolType::Clazy);
+    if (!clazyChecks.isEmpty())
+        return {"-checks=" + diagnosticConfig.checks(ClangToolType::Clazy)};
+    return {};
+}
+
+static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
+                                  const QStringList &baseOptions)
+{
+    QStringList arguments;
+    arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
+              << (isClMode(baseOptions) ? clangArgsForCl(diagnosticConfig.clangOptions())
+                                        : diagnosticConfig.clangOptions())
+              << baseOptions;
+
+    if (LOG().isDebugEnabled())
+        arguments << QLatin1String("-v");
+
+    return arguments;
+}
 
 static QString generalProcessError(const QString &name)
 {
@@ -35,16 +79,21 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
     return ClangToolRunner::tr("%1 finished with exit code: %2.").arg(name).arg(exitCode);
 }
 
-ClangToolRunner::ClangToolRunner(QObject *parent)
+ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
     : QObject(parent)
-{}
-
-void ClangToolRunner::init(const FilePath &outputDirPath, const Environment &environment)
 {
-    m_outputDirPath = outputDirPath;
+    m_name = input.tool == ClangToolType::Tidy ? tr("Clang-Tidy") : tr("Clazy");
+    m_executable = toolExecutable(input.tool);
+    m_argsCreator = [this, input](const QStringList &baseOptions) {
+        return QStringList() << checksArguments(input.tool, input.config)
+                             << mainToolArguments()
+                             << "--"
+                             << clangArguments(input.config, baseOptions);
+    };
+    m_outputDirPath = input.outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
-    m_process.setEnvironment(environment);
+    m_process.setEnvironment(input.environment);
     m_process.setUseCtrlCStub(true);
     m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
@@ -85,7 +134,7 @@ static QString createOutputFilePath(const FilePath &dirPath, const QString &file
         temporaryFile.close();
         return temporaryFile.fileName();
     }
-    return QString();
+    return {};
 }
 
 bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compilerOptions)

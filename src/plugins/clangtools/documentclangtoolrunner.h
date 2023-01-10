@@ -49,8 +49,8 @@ private:
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
     const CppEditor::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
-    template<class T>
-    ClangToolRunner *createRunner(const CppEditor::ClangDiagnosticConfig &config,
+    ClangToolRunner *createRunner(CppEditor::ClangToolType tool,
+                                  const CppEditor::ClangDiagnosticConfig &config,
                                   const Utils::Environment &env);
 
     QTimer m_runTimer;
