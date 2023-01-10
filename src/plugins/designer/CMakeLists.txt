@@ -1,8 +1,8 @@
 add_qtc_plugin(Designer
   PLUGIN_CLASS FormEditorPlugin
-  CONDITION TARGET Qt::DesignerComponents AND TARGET Qt::Designer
+  CONDITION TARGET Qt::DesignerComponentsPrivate AND TARGET Qt::Designer
   DEPENDS designerintegrationv2
-    Qt::Designer Qt::PrintSupport Qt::DesignerComponents
+    Qt::Designer Qt::PrintSupport Qt::DesignerComponentsPrivate
   DEFINES CPP_ENABLED
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport ResourceEditor TextEditor
   PLUGIN_TEST_DEPENDS CppEditor
@@ -33,7 +33,7 @@ add_qtc_plugin(Designer
 )
 
 extend_qtc_plugin(Designer
-  CONDITION WITH_TESTS AND TARGET Qt::DesignerComponents AND TARGET Qt::Designer
+  CONDITION WITH_TESTS
   SOURCES gotoslot_test.cpp
 )
 
