@@ -180,7 +180,7 @@ static bool copyScriptTemplates(const SuiteConf &suiteConf, const Utils::FilePat
     const Utils::FilePath testFile = destination.pathAppended("test" + extension);
     QTC_ASSERT(!testFile.exists(), return false);
     const Utils::expected_str<void> result = test.copyFile(testFile);
-    QTC_ASSERT_EXPECTED(result, return false)
+    QTC_ASSERT_EXPECTED(result, return false);
 
     if (scripted)
         ok = suiteConf.ensureObjectMapExists();

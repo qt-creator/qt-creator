@@ -31,17 +31,15 @@ constexpr unexpected<std::decay_t<E>> make_unexpected(E &&e)
 
 //! If 'expected' has an error the error will be printed and the 'action' will be executed.
 #define QTC_ASSERT_EXPECTED(expected, action) \
-    { \
-        if (Q_LIKELY(expected)) { \
-        } else { \
-            ::Utils::writeAssertLocation(QString("%1:%2: %3") \
-                                             .arg(__FILE__) \
-                                             .arg(__LINE__) \
-                                             .arg(expected.error()) \
-                                             .toUtf8() \
-                                             .data()); \
-            action; \
-        } \
-        do { \
-        } while (0); \
-    }
+    if (Q_LIKELY(expected)) { \
+    } else { \
+        ::Utils::writeAssertLocation(QString("%1:%2: %3") \
+                                         .arg(__FILE__) \
+                                         .arg(__LINE__) \
+                                         .arg(expected.error()) \
+                                         .toUtf8() \
+                                         .data()); \
+        action; \
+    } \
+    do { \
+    } while (0)
