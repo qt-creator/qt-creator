@@ -46,6 +46,7 @@ struct DirectoryData
 
     QString cmakePresetDisplayname;
     QString cmakePreset;
+    QByteArray cmakePresetDefaultConfigHash;
 
     // Kit Stuff
     FilePath cmakeBinary;
@@ -549,6 +550,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           CMakeConfigItem::STRING,
                                           configurePreset.generator.value().toUtf8());
         }
+        data->cmakePresetDefaultConfigHash = CMakeConfigurationKitAspect::computeDefaultConfigHash(
+            config);
 
         const FilePath qmake = qmakeFromCMakeCache(config);
         if (!qmake.isEmpty())
@@ -685,8 +688,16 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     bool haveCMakePreset = false;
     if (!data->cmakePreset.isEmpty()) {
-        auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
-        if (data->cmakePreset != presetConfigItem.expandedValue(k))
+        const auto presetConfigItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+        const auto kitConfigHashItem = CMakeConfigurationKitAspect::kitDefaultConfigHashItem(k);
+
+        const QString presetName = presetConfigItem.expandedValue(k);
+        const bool haveSameKitConfigHash = kitConfigHashItem.isNull()
+                                               ? true
+                                               : data->cmakePresetDefaultConfigHash
+                                                     == kitConfigHashItem.value;
+
+        if (data->cmakePreset != presetName || !haveSameKitConfigHash)
             return false;
 
         ensureBuildDirectory(*data, k);
@@ -724,15 +735,6 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         CMakeGeneratorKitAspect::setPlatform(k, data->platform);
         CMakeGeneratorKitAspect::setToolset(k, data->toolset);
 
-        if (!data->cmakePresetDisplayname.isEmpty()) {
-            k->setUnexpandedDisplayName(
-                QString("%1 (CMake preset)").arg(data->cmakePresetDisplayname));
-
-            CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
-        }
-        if (!data->cmakePreset.isEmpty())
-            ensureBuildDirectory(*data, k);
-
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
         for (const ToolChainDescription &cmtcd : data->toolChains) {
@@ -746,6 +748,16 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
             ToolChainKitAspect::setToolChain(k, tcd.tcs.at(0));
         }
+
+        if (!data->cmakePresetDisplayname.isEmpty()) {
+            k->setUnexpandedDisplayName(
+                QString("%1 (CMake preset)").arg(data->cmakePresetDisplayname));
+
+            CMakeConfigurationKitAspect::setCMakePreset(k, data->cmakePreset);
+            CMakeConfigurationKitAspect::setKitDefaultConfigHash(k);
+        }
+        if (!data->cmakePreset.isEmpty())
+            ensureBuildDirectory(*data, k);
 
         qCInfo(cmInputLog) << "Temporary Kit created.";
     });

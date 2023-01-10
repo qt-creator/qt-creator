@@ -159,7 +159,7 @@ DebuggerSettings::DebuggerSettings()
     cdbBreakPointCorrection.setSettingsKey(cdbSettingsGroup, "BreakpointCorrection");
     cdbBreakPointCorrection.setDefaultValue(true);
     cdbBreakPointCorrection.setToolTip("<html><head/><body><p>" + Tr::tr(
-        "Attempts to correct the location of a breakpoint based on file and line number should"
+        "Attempts to correct the location of a breakpoint based on file and line number should "
         "it be in a comment or in a line for which no code is generated. "
         "The correction is based on the code model.") + "</p></body></html>");
     cdbBreakPointCorrection.setLabelText(Tr::tr("Correct breakpoint location"));
