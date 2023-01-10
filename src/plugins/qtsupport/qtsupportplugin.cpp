@@ -82,8 +82,8 @@ static void processRunnerCallback(ProcessData *data)
 
     data->exitCode = proc.exitCode();
     data->exitStatus = proc.exitStatus();
-    data->stdErr = proc.readAllStandardError();
-    data->stdOut = proc.readAllStandardOutput();
+    data->stdErr = proc.readAllRawStandardError();
+    data->stdOut = proc.readAllRawStandardOutput();
 }
 
 bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
