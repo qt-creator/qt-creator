@@ -234,7 +234,6 @@ void DocumentClangToolRunner::runNext()
         } else {
             const AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
             QTC_ASSERT(FilePath::fromString(unit.file).exists(), runNext(); return;);
-            m_currentRunner->setVFSOverlay(vfso().overlayFilePath().toString());
             if (!m_currentRunner->run(unit.file, unit.arguments))
                 runNext();
         }
@@ -368,7 +367,8 @@ ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool,
                                                        const ClangDiagnosticConfig &config,
                                                        const Environment &env)
 {
-    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env}, this);
+    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env,
+                                       vfso().overlayFilePath().toString()}, this);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &DocumentClangToolRunner::onSuccess);
     connect(runner, &ClangToolRunner::finishedWithFailure,

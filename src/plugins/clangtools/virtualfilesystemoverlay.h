@@ -21,9 +21,9 @@ public:
 
     void update();
 
-    Utils::FilePath overlayFilePath();
-    Utils::FilePath autoSavedFilePath(Core::IDocument *doc);
-    Utils::FilePath originalFilePath(const Utils::FilePath &file);
+    Utils::FilePath overlayFilePath() const;
+    Utils::FilePath autoSavedFilePath(Core::IDocument *doc) const;
+    Utils::FilePath originalFilePath(const Utils::FilePath &file) const;
 
 private:
     Utils::TemporaryDirectory m_root;

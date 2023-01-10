@@ -22,6 +22,7 @@ struct AnalyzeInputData
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;
+    QString overlayFilePath = {};
 };
 class ClangToolRunner : public QObject
 {
@@ -29,8 +30,6 @@ class ClangToolRunner : public QObject
 
 public:
     ClangToolRunner(const AnalyzeInputData &input, QObject *parent = nullptr);
-
-    void setVFSOverlay(const QString overlayFilePath) { m_overlayFilePath = overlayFilePath; }
 
     QString name() const { return m_name; }
     Utils::FilePath executable() const { return m_executable; }

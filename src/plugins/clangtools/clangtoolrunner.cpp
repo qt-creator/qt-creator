@@ -90,6 +90,7 @@ ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
                              << "--"
                              << clangArguments(input.config, baseOptions);
     };
+    m_overlayFilePath = input.overlayFilePath;
     m_outputDirPath = input.outputDirPath;
     QTC_CHECK(!m_outputDirPath.isEmpty());
 

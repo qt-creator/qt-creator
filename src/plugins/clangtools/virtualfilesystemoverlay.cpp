@@ -92,17 +92,17 @@ void VirtualFileSystemOverlay::update()
     overlayFile.close();
 }
 
-Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() { return m_overlayFilePath; }
+Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() const { return m_overlayFilePath; }
 
-Utils::FilePath VirtualFileSystemOverlay::autoSavedFilePath(Core::IDocument *doc)
+Utils::FilePath VirtualFileSystemOverlay::autoSavedFilePath(Core::IDocument *doc) const
 {
-    auto it = m_saved.find(doc);
-    if (it != m_saved.end())
+    const auto it = m_saved.constFind(doc);
+    if (it != m_saved.constEnd())
         return it.value().path;
     return doc->filePath();
 }
 
-Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath &file)
+Utils::FilePath VirtualFileSystemOverlay::originalFilePath(const Utils::FilePath &file) const
 {
     return m_mapping.value(file, file);
 }
