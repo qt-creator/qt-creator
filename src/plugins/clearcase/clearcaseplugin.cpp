@@ -1548,7 +1548,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
     QString description;
     const QString relPath = QDir::toNativeSeparators(QDir(topLevel.toString())
                                                          .relativeFilePath(source.toString()));
-    const QString id = QString::fromLatin1("%1@@%2").arg(relPath).arg(changeNr);
+    const QString id = QString::fromLatin1("%1@@%2").arg(relPath, changeNr);
 
     QTextCodec *codec = VcsBaseEditor::getCodec(source.toString());
     const CommandResult result = runCleartool(topLevel, {"describe", id}, RunFlags::None, codec);

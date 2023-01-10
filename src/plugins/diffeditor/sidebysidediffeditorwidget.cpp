@@ -588,8 +588,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
                 if (!fileInfo.fileName.isEmpty()) {
                     const QString fileNameText = fileInfo.typeInfo.isEmpty()
                             ? fileInfo.fileName
-                            : tr("[%1] %2").arg(fileInfo.typeInfo)
-                              .arg(fileInfo.fileName);
+                            : tr("[%1] %2").arg(fileInfo.typeInfo, fileInfo.fileName);
                     paintSeparator(painter, m_fileLineForeground,
                                    fileNameText, currentBlock, top);
                 }

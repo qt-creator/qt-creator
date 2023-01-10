@@ -1200,7 +1200,7 @@ void GitClient::archive(const FilePath &workingDirectory, QString commit)
     FilePath archiveName = FileUtils::getSaveFilePath(
                 nullptr,
                 Tr::tr("Generate %1 archive").arg(repoName),
-                repoDirectory.pathAppended(QString("../%1-%2").arg(repoName).arg(commit.left(8))),
+                repoDirectory.pathAppended(QString("../%1-%2").arg(repoName, commit.left(8))),
                 filters.keys().join(";;"),
                 &selectedFilter);
     if (archiveName.isEmpty())
@@ -3671,7 +3671,7 @@ void GitClient::addChangeActions(QMenu *menu, const QString &source, const QStri
     } else {
         const FilePath filePath = FilePath::fromString(source);
         if (!filePath.isDir()) {
-            menu->addAction(Tr::tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName()).arg(change),
+            menu->addAction(Tr::tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName(), change),
                             [workingDir, change, source] {
                 m_instance->openShowEditor(workingDir, change, source);
             });
@@ -3756,7 +3756,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     const QString documentId = QLatin1String(Git::Constants::GIT_PLUGIN)
             + QLatin1String(".GitShow.") + topLevelString
             + QLatin1String(".") + relativePath;
-    QString title = Tr::tr("Git Show %1:%2").arg(ref).arg(relativePath);
+    QString title = Tr::tr("Git Show %1:%2").arg(ref, relativePath);
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
     editor->document()->setTemporary(true);

@@ -133,14 +133,11 @@ void VcsConfigurationPage::initializePage()
 
         d->m_versionControl = VcsManager::versionControl(Id::fromString(vcsId));
         if (!d->m_versionControl) {
-            emit reportError(
-                        //: Do not translate "VcsConfiguration", because it is the id of a page.
-                        tr("\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
-                           "Possible values are: %2.")
-                        .arg(vcsId)
-                        .arg(QStringList(Utils::transform(VcsManager::versionControls(), [](const IVersionControl *vc) {
-                return vc->id().toString();
-            })).join(QLatin1String(", "))));
+            const QString values = Utils::transform(VcsManager::versionControls(),
+                [](const IVersionControl *vc) { return vc->id().toString(); }).join(", ");
+            //: Do not translate "VcsConfiguration", because it is the id of a page.
+            emit reportError(tr("\"vcsId\" (\"%1\") is invalid for \"VcsConfiguration\" page. "
+                                "Possible values are: %2.").arg(vcsId, values));
         }
     }
 
