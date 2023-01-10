@@ -14,6 +14,7 @@
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
@@ -72,7 +73,11 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
                                                        const QString &entry)
 {
     QList<LocatorFilterEntry> entries[int(MatchLevel::Count)];
-    const QFileInfo entryInfo(entry);
+
+    Environment env = Environment::systemEnvironment();
+    const QString expandedEntry = env.expandVariables(entry);
+
+    const QFileInfo entryInfo(expandedEntry);
     const QString entryFileName = entryInfo.fileName();
     QString directory = entryInfo.path();
     if (entryInfo.isRelative()) {
@@ -139,10 +144,10 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
 
     // "create and open" functionality
     const QString fullFilePath = dirInfo.filePath(entryFileName);
-    const bool containsWildcard = entry.contains('?') || entry.contains('*');
+    const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
     if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this,
-                                         tr("Create and Open \"%1\"").arg(entry),
+                                         tr("Create and Open \"%1\"").arg(expandedEntry),
                                          fullFilePath);
         createAndOpen.filePath = FilePath::fromString(fullFilePath);
         createAndOpen.extraInfo = FilePath::fromString(dirInfo.absolutePath()).shortNativePath();
