@@ -409,7 +409,7 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
     if (objectValue->className().isEmpty())
         return propertyList;
 
-    if (rec > 2)
+    if (rec > 4)
         return propertyList;
 
     PropertyMemberProcessor processor(context);
@@ -431,9 +431,14 @@ QVector<PropertyInfo> getQmlTypes(const CppComponentValue *objectValue, const Co
             }
         }
         if (isValueType(objectValue->propertyType(nameAsString))) {
-            const ObjectValue *dotObjectValue = value_cast<ObjectValue>(objectValue->lookupMember(nameAsString, context));
+            const ObjectValue *dotObjectValue = value_cast<ObjectValue>(
+                objectValue->lookupMember(nameAsString, context));
+
             if (dotObjectValue) {
-                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue,
+                                                                           context,
+                                                                           false,
+                                                                           rec + 1);
                 for (const PropertyInfo &propertyInfo : dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
@@ -525,7 +530,7 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
     if (objectValue->className().isEmpty())
         return propertyList;
 
-    if (rec > 2)
+    if (rec > 4)
         return propertyList;
 
     PropertyMemberProcessor processor(context);
@@ -539,6 +544,7 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
 
         if (isValueType(property.second)) {
             const Value *dotValue = objectValue->lookupMember(nameAsString, context);
+
             if (!dotValue)
                 continue;
 
@@ -546,7 +552,10 @@ QVector<PropertyInfo> getObjectTypes(const ObjectValue *objectValue, const Conte
                 dotValue = context->lookupReference(ref);
 
             if (const ObjectValue *dotObjectValue = dotValue->asObjectValue()) {
-                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue, context, false, rec + 1);
+                const QVector<PropertyInfo> dotProperties = getObjectTypes(dotObjectValue,
+                                                                           context,
+                                                                           false,
+                                                                           rec + 1);
                 for (const PropertyInfo &propertyInfo : dotProperties) {
                     const PropertyName dotName = name + '.' + propertyInfo.first;
                     const TypeName type = propertyInfo.second;
