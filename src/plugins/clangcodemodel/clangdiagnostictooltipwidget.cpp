@@ -132,8 +132,8 @@ public:
         if (!source.isEmpty()) {
             text.append(QString::fromUtf8("<tr><td colspan='2' align='left'>"
                                           "<font color='gray'>%1</font></td></tr>")
-                        .arg(QCoreApplication::translate("ClangDiagnosticWidget", "[Source: %1]"))
-                        .arg(source));
+                            .arg(QCoreApplication::translate("ClangDiagnosticWidget",
+                                                             "[Source: %1]").arg(source)));
         }
 
         text.append("</table>");
