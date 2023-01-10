@@ -260,7 +260,7 @@ AppOutputPane::RunControlTab *AppOutputPane::tabFor(const RunControl *rc)
                                  [rc](RunControlTab &t) { return t.runControl == rc; });
     if (it == m_runControlTabs.end())
         return nullptr;
-    return it;
+    return &*it;
 }
 
 AppOutputPane::RunControlTab *AppOutputPane::tabFor(const QWidget *outputWindow)
@@ -269,7 +269,7 @@ AppOutputPane::RunControlTab *AppOutputPane::tabFor(const QWidget *outputWindow)
             [outputWindow](RunControlTab &t) { return t.window == outputWindow; });
     if (it == m_runControlTabs.end())
         return nullptr;
-    return it;
+    return &*it;
 }
 
 const AppOutputPane::RunControlTab *AppOutputPane::tabFor(const QWidget *outputWindow) const
