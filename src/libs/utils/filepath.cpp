@@ -1210,7 +1210,7 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     if (sameDevice)
         return *this;
     // TODO: converting paths between different non local devices is still unsupported
-    QTC_CHECK(!needsDevice());
+    QTC_CHECK(!needsDevice() || !deviceTemplate.needsDevice());
     return fromParts(deviceTemplate.scheme(),
                      deviceTemplate.host(),
                      deviceTemplate.fileAccess()->mapToDevicePath(path()));
