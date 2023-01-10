@@ -1705,8 +1705,9 @@ QString FilePath::withTildeHomePath() const
 
     QString outPath = cleanPath().absoluteFilePath().path();
     if (outPath.startsWith(homePath))
-        outPath = '~' + outPath.mid(homePath.size());
-    return outPath;
+       return '~' + outPath.mid(homePath.size());
+
+    return toString();
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
