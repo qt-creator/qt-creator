@@ -1265,7 +1265,7 @@ void DiagnosticConfigsWidget::syncClazyChecksGroupBox()
 
 QString removeClangTidyCheck(const QString &checks, const QString &check)
 {
-    const ClangTidyInfo tidyInfo(clangTidyExecutable());
+    const ClangTidyInfo tidyInfo(toolExecutable(ClangToolType::Tidy));
     TidyChecksTreeModel model(tidyInfo.supportedChecks);
     model.selectChecks(checks);
     const QModelIndex index = model.indexForName(check);
@@ -1277,7 +1277,7 @@ QString removeClangTidyCheck(const QString &checks, const QString &check)
 
 QString removeClazyCheck(const QString &checks, const QString &check)
 {
-    const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo::getInfo(clazyStandaloneExecutable());
+    const ClazyStandaloneInfo clazyInfo = ClazyStandaloneInfo::getInfo(toolExecutable(ClangToolType::Clazy));
     ClazyChecksTreeModel model(clazyInfo.supportedChecks);
     model.enableChecks(checks.split(',', Qt::SkipEmptyParts));
     const QModelIndex index = model.indexForName(check.mid(QString("clazy-").length()));
@@ -1328,7 +1328,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
             if (config.clazyMode() == ClangDiagnosticConfig::ClazyMode::UseDefaultChecks) {
                 config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
                 const ClazyStandaloneInfo clazyInfo
-                        = ClazyStandaloneInfo::getInfo(clazyStandaloneExecutable());
+                        = ClazyStandaloneInfo::getInfo(toolExecutable(ClangToolType::Clazy));
                 config.setChecks(ClangToolType::Clazy, clazyInfo.defaultChecks.join(','));
             }
             config.setChecks(ClangToolType::Clazy,
@@ -1336,7 +1336,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         } else if (config.clangTidyMode() != ClangDiagnosticConfig::TidyMode::UseConfigFile) {
             if (config.clangTidyMode() == ClangDiagnosticConfig::TidyMode::UseDefaultChecks) {
                 config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
-                const ClangTidyInfo tidyInfo(clangTidyExecutable());
+                const ClangTidyInfo tidyInfo(toolExecutable(ClangToolType::Tidy));
                 config.setChecks(ClangToolType::Tidy, tidyInfo.defaultChecks.join(','));
             }
             config.setChecks(ClangToolType::Tidy,

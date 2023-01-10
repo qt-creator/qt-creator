@@ -145,22 +145,6 @@ void showHintAboutBuildBeforeAnalysis()
         "ClangToolsDisablingBuildBeforeAnalysisHint");
 }
 
-FilePath shippedClangTidyExecutable()
-{
-    const FilePath shippedExecutable = Core::ICore::clangTidyExecutable(CLANG_BINDIR);
-    if (shippedExecutable.isExecutableFile())
-        return shippedExecutable;
-    return {};
-}
-
-FilePath shippedClazyStandaloneExecutable()
-{
-    const FilePath shippedExecutable = Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
-    if (shippedExecutable.isExecutableFile())
-        return shippedExecutable;
-    return {};
-}
-
 FilePath fullPath(const FilePath &executable)
 {
     FilePath candidate = executable;
@@ -190,36 +174,30 @@ static FilePath findValidExecutable(const FilePaths &candidates)
     return {};
 }
 
-FilePath clangTidyFallbackExecutable()
+FilePath toolShippedExecutable(ClangToolType tool)
 {
-    return findValidExecutable({
-        shippedClangTidyExecutable(),
-        Constants::CLANG_TIDY_EXECUTABLE_NAME,
-    });
+    const FilePath shippedExecutable = tool == ClangToolType::Tidy
+                                     ? Core::ICore::clangTidyExecutable(CLANG_BINDIR)
+                                     : Core::ICore::clazyStandaloneExecutable(CLANG_BINDIR);
+    if (shippedExecutable.isExecutableFile())
+        return shippedExecutable;
+    return {};
 }
 
-FilePath clangTidyExecutable()
+FilePath toolExecutable(ClangToolType tool)
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->executable(ClangToolType::Tidy);
+    const FilePath fromSettings = ClangToolsSettings::instance()->executable(tool);
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
-    return clangTidyFallbackExecutable();
+    return toolFallbackExecutable(tool);
 }
 
-FilePath clazyStandaloneFallbackExecutable()
+FilePath toolFallbackExecutable(ClangToolType tool)
 {
-    return findValidExecutable({
-        shippedClazyStandaloneExecutable(),
-        Constants::CLAZY_STANDALONE_EXECUTABLE_NAME,
-    });
-}
-
-FilePath clazyStandaloneExecutable()
-{
-    const FilePath fromSettings = ClangToolsSettings::instance()->executable(ClangToolType::Clazy);
-    if (!fromSettings.isEmpty())
-        return fullPath(fromSettings);
-    return clazyStandaloneFallbackExecutable();
+    const FilePath fallback = tool == ClangToolType::Tidy
+                            ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME)
+                            : FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME);
+    return findValidExecutable({toolShippedExecutable(tool), fallback});
 }
 
 static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)

@@ -36,7 +36,7 @@ SettingsWidget::SettingsWidget()
 
     resize(400, 300);
 
-    QString placeHolderText = shippedClangTidyExecutable().toUserOutput();
+    QString placeHolderText = toolShippedExecutable(ClangToolType::Tidy).toUserOutput();
     FilePath path = m_settings->executable(ClangToolType::Tidy);
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLANG_TIDY_EXECUTABLE_NAME;
@@ -47,7 +47,7 @@ SettingsWidget::SettingsWidget()
     m_clangTidyPathChooser->setFilePath(path);
     m_clangTidyPathChooser->setHistoryCompleter("ClangTools.ClangTidyExecutable.History");
 
-    placeHolderText = shippedClazyStandaloneExecutable().toUserOutput();
+    placeHolderText = toolShippedExecutable(ClangToolType::Clazy).toUserOutput();
     path = m_settings->executable(ClangToolType::Clazy);
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;

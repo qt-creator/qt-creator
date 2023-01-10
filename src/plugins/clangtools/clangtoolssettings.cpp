@@ -203,12 +203,13 @@ static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePa
 
 VersionAndSuffix ClangToolsSettings::clangTidyVersion()
 {
-    return getVersionNumber(instance()->m_clangTidyVersion, Internal::clangTidyExecutable());
+    return getVersionNumber(instance()->m_clangTidyVersion,
+                            Internal::toolExecutable(ClangToolType::Tidy));
 }
 
 QVersionNumber ClangToolsSettings::clazyVersion()
 {
-    return ClazyStandaloneInfo::getInfo(Internal::clazyStandaloneExecutable()).version;
+    return ClazyStandaloneInfo::getInfo(Internal::toolExecutable(ClangToolType::Clazy)).version;
 }
 
 } // namespace Internal

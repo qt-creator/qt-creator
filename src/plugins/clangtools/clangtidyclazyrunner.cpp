@@ -67,7 +67,7 @@ ClangTidyRunner::ClangTidyRunner(const ClangDiagnosticConfig &config, QObject *p
     : ClangToolRunner(parent)
 {
     setName(tr("Clang-Tidy"));
-    setExecutable(clangTidyExecutable());
+    setExecutable(toolExecutable(ClangToolType::Tidy));
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList() << tidyChecksArguments(config)
                              << mainToolArguments()
@@ -80,7 +80,7 @@ ClazyStandaloneRunner::ClazyStandaloneRunner(const ClangDiagnosticConfig &config
     : ClangToolRunner(parent)
 {
     setName(tr("Clazy"));
-    setExecutable(clazyStandaloneExecutable());
+    setExecutable(toolExecutable(ClangToolType::Clazy));
     setArgsCreator([this, config](const QStringList &baseOptions) {
         return QStringList() << clazyChecksArguments(config)
                              << mainToolArguments()

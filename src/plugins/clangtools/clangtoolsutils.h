@@ -43,13 +43,9 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location);
 QString hintAboutBuildBeforeAnalysis();
 void showHintAboutBuildBeforeAnalysis();
 
-Utils::FilePath shippedClazyStandaloneExecutable();
-Utils::FilePath clazyStandaloneExecutable();
-Utils::FilePath clazyStandaloneFallbackExecutable();
-
-Utils::FilePath shippedClangTidyExecutable();
-Utils::FilePath clangTidyExecutable();
-Utils::FilePath clangTidyFallbackExecutable();
+Utils::FilePath toolShippedExecutable(CppEditor::ClangToolType tool);
+Utils::FilePath toolExecutable(CppEditor::ClangToolType tool);
+Utils::FilePath toolFallbackExecutable(CppEditor::ClangToolType tool);
 
 Utils::FilePath fullPath(const Utils::FilePath &executable);
 
