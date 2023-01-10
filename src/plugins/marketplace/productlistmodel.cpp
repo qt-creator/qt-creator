@@ -14,48 +14,19 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QLabel>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPixmapCache>
 #include <QRegularExpression>
-#include <QScrollArea>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
 
+using namespace Core;
+
 namespace Marketplace {
 namespace Internal {
-
-/**
- * @brief AllProductsModel does not own its items. Using this model only to display
- * the same items stored inside other models without the need to duplicate the items.
- */
-class AllProductsModel : public ProductListModel
-{
-public:
-    explicit AllProductsModel(QObject *parent) : ProductListModel(parent) {}
-    ~AllProductsModel() override { m_items.clear(); }
-};
-
-class ProductGridView : public Core::GridView
-{
-public:
-    ProductGridView(QWidget *parent) : Core::GridView(parent) {}
-
-    bool hasHeightForWidth() const override
-    {
-        return true;
-    }
-
-    int heightForWidth(int width) const override
-    {
-        const int columnCount = width / Core::ListItemDelegate::GridItemWidth;
-        const int rowCount = (model()->rowCount() + columnCount - 1) / columnCount;
-        return rowCount * Core::ListItemDelegate::GridItemHeight;
-    }
-};
 
 class ProductItemDelegate : public Core::ListItemDelegate
 {
@@ -68,28 +39,6 @@ public:
         QDesktopServices::openUrl(url);
     }
 };
-
-ProductListModel::ProductListModel(QObject *parent)
-    : Core::ListModel(parent)
-{
-    setPixmapFunction([this](const QString &url) -> QPixmap {
-        if (auto sectionedProducts = qobject_cast<SectionedProducts *>(this->parent()))
-            sectionedProducts->queueImageForDownload(url);
-        return {};
-    });
-}
-
-void ProductListModel::appendItems(const QList<Core::ListItem *> &items)
-{
-    beginInsertRows(QModelIndex(), m_items.size(), m_items.size() + items.size());
-    m_items.append(items);
-    endInsertRows();
-}
-
-const QList<Core::ListItem *> ProductListModel::items() const
-{
-    return m_items;
-}
 
 static const QNetworkRequest constructRequest(const QString &collection)
 {
@@ -128,37 +77,22 @@ static int priority(const QString &collection)
 }
 
 SectionedProducts::SectionedProducts(QWidget *parent)
-    : QStackedWidget(parent)
-    , m_allProductsView(new Core::GridView(this))
-    , m_filteredAllProductsModel(new Core::ListModelFilter(new AllProductsModel(this), this))
+    : SectionedGridView(parent)
     , m_productDelegate(new ProductItemDelegate)
 {
-    auto area = new QScrollArea(this);
-    area->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    area->setFrameShape(QFrame::NoFrame);
-    area->setWidgetResizable(true);
-
-    auto sectionedView = new QWidget;
-    auto layout = new QVBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addStretch();
-    sectionedView->setLayout(layout);
-    area->setWidget(sectionedView);
-
-    addWidget(area);
-
-    m_allProductsView->setItemDelegate(m_productDelegate);
-    m_allProductsView->setModel(m_filteredAllProductsModel);
-    addWidget(m_allProductsView);
-
-    connect(m_productDelegate, &ProductItemDelegate::tagClicked,
-            this, &SectionedProducts::onTagClicked);
+    setItemDelegate(m_productDelegate);
+    setPixmapFunction([this](const QString &url) -> QPixmap {
+        queueImageForDownload(url);
+        return {};
+    });
+    connect(m_productDelegate,
+            &ProductItemDelegate::tagClicked,
+            this,
+            &SectionedProducts::onTagClicked);
 }
 
 SectionedProducts::~SectionedProducts()
 {
-    qDeleteAll(m_gridViews);
     delete m_productDelegate;
 }
 
@@ -286,12 +220,15 @@ void SectionedProducts::queueImageForDownload(const QString &url)
         fetchNextImage();
 }
 
-void SectionedProducts::setSearchString(const QString &searchString)
+static void updateModelIndexesForUrl(ListModel *model, const QString &url)
 {
-    int view = searchString.isEmpty() ? 0  // sectioned view
-                                      : 1; // search view
-    setCurrentIndex(view);
-    m_filteredAllProductsModel->setSearchString(searchString);
+    const QList<ListItem *> items = model->items();
+    for (int row = 0, end = items.size(); row < end; ++row) {
+        if (items.at(row)->imageUrl == url) {
+            const QModelIndex index = model->index(row);
+            emit model->dataChanged(index, index, {ListModel::ItemImageRole, Qt::DisplayRole});
+        }
+    }
 }
 
 void SectionedProducts::fetchNextImage()
@@ -307,8 +244,8 @@ void SectionedProducts::fetchNextImage()
 
     if (QPixmapCache::find(nextUrl, nullptr)) {
         // this image is already cached it might have been added while downloading
-        for (ProductListModel *model : std::as_const(m_productModels))
-            model->updateModelIndexesForUrl(nextUrl);
+        for (ListModel *model : std::as_const(m_productModels))
+            updateModelIndexesForUrl(model, nextUrl);
         fetchNextImage();
         return;
     }
@@ -332,12 +269,13 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
         if (pixmap.loadFromData(data, imageFormat.toLatin1())) {
             const QString url = imageUrl.toString();
             const int dpr = qApp->devicePixelRatio();
-            pixmap = pixmap.scaled(ProductListModel::defaultImageSize * dpr,
-                                   Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap = pixmap.scaled(ListModel::defaultImageSize * dpr,
+                                   Qt::KeepAspectRatio,
+                                   Qt::SmoothTransformation);
             pixmap.setDevicePixelRatio(dpr);
             QPixmapCache::insert(url, pixmap);
-            for (ProductListModel *model : std::as_const(m_productModels))
-                model->updateModelIndexesForUrl(url);
+            for (ListModel *model : std::as_const(m_productModels))
+                updateModelIndexesForUrl(model, url);
         }
     } // handle error not needed - it's okay'ish to have no images as long as the rest works
 
@@ -347,33 +285,7 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
 void SectionedProducts::addNewSection(const Section &section, const QList<Core::ListItem *> &items)
 {
     QTC_ASSERT(!items.isEmpty(), return);
-    ProductListModel *productModel = new ProductListModel(this);
-    productModel->appendItems(items);
-    auto filteredModel = new Core::ListModelFilter(productModel, this);
-    auto gridView = new ProductGridView(this);
-    gridView->setItemDelegate(m_productDelegate);
-    gridView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gridView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gridView->setModel(filteredModel);
-
-    m_productModels.insert(section, productModel);
-    const auto it = m_gridViews.insert(section, gridView);
-
-    auto sectionLabel = new QLabel(section.name);
-    sectionLabel->setContentsMargins(0, Core::WelcomePageHelpers::ItemGap, 0, 0);
-    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
-    auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
-    auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
-
-    // insert new section depending on its priority, but before the last (stretch) item
-    int position = std::distance(m_gridViews.begin(), it) * 2; // a section has a label and a grid
-    QTC_ASSERT(position <= vbox->count() - 1, position = vbox->count() - 1);
-    vbox->insertWidget(position, sectionLabel);
-    vbox->insertWidget(position + 1, gridView);
-
-    // add the items also to the all products model to be able to search correctly
-    auto allProducts = static_cast<ProductListModel *>(m_filteredAllProductsModel->sourceModel());
-    allProducts->appendItems(items);
+    m_productModels.append(addSection(section, items));
 }
 
 void SectionedProducts::onTagClicked(const QString &tag)
@@ -385,17 +297,9 @@ void SectionedProducts::onTagClicked(const QString &tag)
 QList<Core::ListItem *> SectionedProducts::items()
 {
     QList<Core::ListItem *> result;
-    for (const ProductListModel *model : std::as_const(m_productModels))
+    for (const ListModel *model : std::as_const(m_productModels))
         result.append(model->items());
     return result;
-}
-
-void ProductListModel::updateModelIndexesForUrl(const QString &url)
-{
-    for (int row = 0, end = m_items.size(); row < end; ++row) {
-        if (m_items.at(row)->imageUrl == url)
-            emit dataChanged(index(row), index(row), {ItemImageRole, Qt::DisplayRole});
-    }
 }
 
 } // namespace Internal

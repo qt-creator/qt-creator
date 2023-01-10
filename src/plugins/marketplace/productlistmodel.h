@@ -24,34 +24,7 @@ public:
     QString handle;
 };
 
-class ProductListModel : public Core::ListModel
-{
-public:
-    explicit ProductListModel(QObject *parent);
-    void appendItems(const QList<Core::ListItem *> &items);
-    const QList<Core::ListItem *> items() const;
-    void updateModelIndexesForUrl(const QString &url);
-};
-
-struct Section
-{
-    friend bool operator<(const Section &lhs, const Section &rhs)
-    {
-        if (lhs.priority < rhs.priority)
-            return true;
-        return lhs.priority > rhs.priority ? false : lhs.name < rhs.name;
-    }
-
-    friend bool operator==(const Section &lhs, const Section &rhs)
-    {
-        return lhs.priority == rhs.priority && lhs.name == rhs.name;
-    }
-
-    QString name;
-    int priority;
-};
-
-class SectionedProducts : public QStackedWidget
+class SectionedProducts : public Core::SectionedGridView
 {
     Q_OBJECT
 public:
@@ -59,8 +32,6 @@ public:
     ~SectionedProducts() override;
     void updateCollections();
     void queueImageForDownload(const QString &url);
-    void setColumnCount(int columns);
-    void setSearchString(const QString &searchString);
 
 signals:
     void errorOccurred(int errorCode, const QString &errorString);
@@ -74,7 +45,7 @@ private:
 
     void fetchNextImage();
     void onImageDownloadFinished(QNetworkReply *reply);
-    void addNewSection(const Section &section, const QList<Core::ListItem *> &items);
+    void addNewSection(const Core::Section &section, const QList<Core::ListItem *> &items);
     void onTagClicked(const QString &tag);
 
     QList<Core::ListItem *> items();
@@ -82,10 +53,7 @@ private:
     QQueue<QString> m_pendingCollections;
     QSet<QString> m_pendingImages;
     QMap<QString, QString> m_collectionTitles;
-    QMap<Section, ProductListModel *> m_productModels;
-    QMap<Section, Core::GridView *> m_gridViews;
-    Core::GridView *m_allProductsView = nullptr;
-    Core::ListModelFilter *m_filteredAllProductsModel = nullptr;
+    QList<Core::ListModel *> m_productModels;
     ProductItemDelegate *m_productDelegate = nullptr;
     bool m_isDownloadingImage = false;
     int m_columnCount = 1;
