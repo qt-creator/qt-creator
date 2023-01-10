@@ -48,7 +48,6 @@ private:
 
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
-    const CppEditor::ClangDiagnosticConfig getDiagnosticConfig(ProjectExplorer::Project *project);
     ClangToolRunner *createRunner(CppEditor::ClangToolType tool,
                                   const CppEditor::ClangDiagnosticConfig &config,
                                   const Utils::Environment &env);

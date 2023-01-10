@@ -348,20 +348,6 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     return Utils::anyOf(m_suppressed, equalsSuppressed);
 }
 
-const ClangDiagnosticConfig DocumentClangToolRunner::getDiagnosticConfig(Project *project)
-{
-    const auto projectSettings = ClangToolsProjectSettings::getSettings(project);
-    m_projectSettingsUpdate = connect(projectSettings.data(),
-                                      &ClangToolsProjectSettings::changed,
-                                      this,
-                                      &DocumentClangToolRunner::run);
-
-    const Id id = projectSettings->useGlobalSettings()
-            ? ClangToolsSettings::instance()->runSettings().diagnosticConfigId()
-            : projectSettings->runSettings().diagnosticConfigId();
-    return diagnosticConfig(id);
-}
-
 ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool,
                                                        const ClangDiagnosticConfig &config,
                                                        const Environment &env)
