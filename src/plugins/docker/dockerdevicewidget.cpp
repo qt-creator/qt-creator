@@ -8,6 +8,7 @@
 #include "dockertr.h"
 
 #include <utils/algorithm.h>
+#include <utils/clangutils.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -108,6 +109,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_clangdExecutable->setHistoryCompleter("Docker.ClangdExecutable.History");
     m_clangdExecutable->setAllowPathFromDevice(true);
     m_clangdExecutable->setFilePath(m_data.clangdExecutable);
+    m_clangdExecutable->setValidationFunction(
+        [chooser = m_clangdExecutable](FancyLineEdit *, QString *error) {
+            return Utils::checkClangdVersion(chooser->filePath(), error);
+        });
 
     connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice] {
         m_data.clangdExecutable = m_clangdExecutable->filePath();
@@ -177,7 +182,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         logView->clear();
         dockerDevice->updateContainerAccess();
 
-        const FilePath clangdPath = dockerDevice->rootPath().withNewPath("clangd").searchInPath();
+        const FilePath clangdPath = dockerDevice->systemEnvironment()
+                                        .searchInPath("clangd", {}, [](const FilePath &clangd) {
+                                            return Utils::checkClangdVersion(clangd);
+                                        });
         if (!clangdPath.isEmpty())
             m_clangdExecutable->setFilePath(clangdPath);
 

@@ -21,6 +21,7 @@ add_qtc_library(Utils
     changeset.cpp changeset.h
     checkablemessagebox.cpp checkablemessagebox.h
     classnamevalidatinglineedit.cpp classnamevalidatinglineedit.h
+    clangutils.cpp clangutils.h
     codegeneration.cpp codegeneration.h
     commandline.cpp commandline.h
     completinglineedit.cpp completinglineedit.h

@@ -332,38 +332,6 @@ void ClangdSettings::setData(const Data &data)
     }
 }
 
-static QVersionNumber getClangdVersion(const FilePath &clangdFilePath)
-{
-    Utils::QtcProcess clangdProc;
-    clangdProc.setCommand({clangdFilePath, {"--version"}});
-    clangdProc.start();
-    if (!clangdProc.waitForFinished())
-        return{};
-    const QString output = clangdProc.allOutput();
-    static const QString versionPrefix = "clangd version ";
-    const int prefixOffset = output.indexOf(versionPrefix);
-    if (prefixOffset == -1)
-        return {};
-    return QVersionNumber::fromString(output.mid(prefixOffset + versionPrefix.length()));
-}
-
-QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
-{
-    static QHash<Utils::FilePath, QPair<QDateTime, QVersionNumber>> versionCache;
-    const QDateTime timeStamp = clangdFilePath.lastModified();
-    const auto it = versionCache.find(clangdFilePath);
-    if (it == versionCache.end()) {
-        const QVersionNumber version = getClangdVersion(clangdFilePath);
-        versionCache.insert(clangdFilePath, {timeStamp, version});
-        return version;
-    }
-    if (it->first != timeStamp) {
-        it->first = timeStamp;
-        it->second = getClangdVersion(clangdFilePath);
-    }
-    return it->second;
-}
-
 static FilePath getClangHeadersPathFromClang(const FilePath &clangdFilePath)
 {
     const FilePath clangFilePath = clangdFilePath.absolutePath().pathAppended("clang")
@@ -391,7 +359,7 @@ static FilePath getClangHeadersPath(const FilePath &clangdFilePath)
     if (!headersPath.isEmpty())
         return headersPath;
 
-    const QVersionNumber version = ClangdSettings::clangdVersion(clangdFilePath);
+    const QVersionNumber version = Utils::clangdVersion(clangdFilePath);
     QTC_ASSERT(!version.isNull(), return {});
     static const QStringList libDirs{"lib", "lib64"};
     for (const QString &libDir : libDirs) {

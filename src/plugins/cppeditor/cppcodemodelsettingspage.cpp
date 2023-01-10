@@ -441,17 +441,9 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         if (!d->clangdChooser.isValid())
             return;
         const Utils::FilePath clangdPath = d->clangdChooser.filePath();
-        const QVersionNumber clangdVersion = ClangdSettings::clangdVersion(clangdPath);
-        if (clangdVersion.isNull()) {
-            labelSetter.setWarning(Tr::tr("Failed to retrieve clangd version: "
-                                          "Unexpected clangd output."));
-            return;
-        }
-        if (clangdVersion < QVersionNumber(14)) {
-            labelSetter.setWarning(Tr::tr("The clangd version is %1, but %2 or greater is required.")
-                                   .arg(clangdVersion.toString()).arg(14));
-            return;
-        }
+        QString errorMessage;
+        if (!Utils::checkClangdVersion(clangdPath, &errorMessage))
+            labelSetter.setWarning(errorMessage);
     };
     connect(&d->clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
     updateWarningLabel();

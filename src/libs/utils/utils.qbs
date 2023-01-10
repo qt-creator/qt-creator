@@ -64,6 +64,8 @@ Project {
             "changeset.h",
             "checkablemessagebox.cpp",
             "checkablemessagebox.h",
+            "clangutils.cpp",
+            "clangutils.h",
             "classnamevalidatinglineedit.cpp",
             "classnamevalidatinglineedit.h",
             "codegeneration.cpp",

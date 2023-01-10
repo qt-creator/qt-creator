@@ -6,6 +6,7 @@
 #include "clangdiagnosticconfig.h"
 #include "cppeditor_global.h"
 
+#include <utils/clangutils.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
 
@@ -159,8 +160,7 @@ public:
     void setData(const Data &data);
     Data data() const { return m_data; }
 
-    static QVersionNumber clangdVersion(const Utils::FilePath &clangdFilePath);
-    QVersionNumber clangdVersion() const { return clangdVersion(clangdFilePath()); }
+    QVersionNumber clangdVersion() const { return Utils::clangdVersion(clangdFilePath()); }
     Utils::FilePath clangdIncludePath() const;
     static Utils::FilePath clangdUserConfigFilePath();
 
