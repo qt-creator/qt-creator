@@ -910,7 +910,11 @@ void Edit3DView::dropComponent(const ItemLibraryEntry &entry, const QPointF &pos
 {
     m_nodeAtPosReqType = NodeAtPosReqType::ComponentDrop;
     m_droppedEntry = entry;
-    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+    NodeMetaInfo metaInfo = model()->metaInfo(entry.typeName());
+    if (metaInfo.isQtQuick3DNode())
+        emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+    else
+        nodeAtPosReady({}, {}); // No need to actually resolve position for non-node items
 }
 
 } // namespace QmlDesigner
