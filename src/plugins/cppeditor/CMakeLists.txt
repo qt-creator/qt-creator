@@ -20,7 +20,7 @@ add_qtc_plugin(CppEditor
     cppcanonicalsymbol.cpp cppcanonicalsymbol.h
     cppchecksymbols.cpp cppchecksymbols.h
     cppcodeformatter.cpp cppcodeformatter.h
-    cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h cppcodemodelinspectordialog.ui
+    cppcodemodelinspectordialog.cpp cppcodemodelinspectordialog.h
     cppcodemodelinspectordumper.cpp cppcodemodelinspectordumper.h
     cppcodemodelsettings.cpp cppcodemodelsettings.h
     cppcodemodelsettingspage.cpp cppcodemodelsettingspage.h

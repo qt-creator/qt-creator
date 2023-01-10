@@ -61,7 +61,6 @@ QtcPlugin {
         "cppcodeformatter.h",
         "cppcodemodelinspectordialog.cpp",
         "cppcodemodelinspectordialog.h",
-        "cppcodemodelinspectordialog.ui",
         "cppcodemodelinspectordumper.cpp",
         "cppcodemodelinspectordumper.h",
         "cppcodemodelsettings.cpp",
