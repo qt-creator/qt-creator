@@ -478,8 +478,7 @@ expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
     if (QFile::copy(filePath.path(), target.path()))
         return {};
     return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\".")
-                               .arg(filePath.toUserOutput())
-                               .arg(target.toUserOutput()));
+                               .arg(filePath.toUserOutput(), target.toUserOutput()));
 }
 
 bool DesktopDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
@@ -811,9 +810,7 @@ expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
 
     if (result.exitCode != 0) {
         return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
-                                   .arg(filePath.toUserOutput())
-                                   .arg(target.toUserOutput())
-                                   .arg(QString::fromUtf8(result.stdErr)));
+            .arg(filePath.toUserOutput(), target.toUserOutput(), QString::fromUtf8(result.stdErr)));
     }
     return {};
 }
@@ -847,8 +844,7 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
 
     if (r.exitCode != 0)
         return make_unexpected(Tr::tr("Failed reading file \"%1\": %2")
-                                   .arg(filePath.toUserOutput())
-                                   .arg(QString::fromUtf8(r.stdErr)));
+                                   .arg(filePath.toUserOutput(), QString::fromUtf8(r.stdErr)));
 
     return r.stdOut;
 }
@@ -866,8 +862,7 @@ expected_str<qint64> UnixDeviceFileAccess::writeFileContents(const FilePath &fil
 
     if (result.exitCode != 0) {
         return make_unexpected(Tr::tr("Failed writing file \"%1\": %2")
-                                   .arg(filePath.toUserOutput())
-                                   .arg(QString::fromUtf8(result.stdErr)));
+                                   .arg(filePath.toUserOutput(), QString::fromUtf8(result.stdErr)));
     }
     return data.size();
 }

@@ -260,7 +260,7 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
                                         "for instance because they were written by an incompatible "
                                         "version of %2, or because a different settings path "
                                         "was used.</p>")
-                .arg(path.toUserOutput()).arg(applicationDisplayName), Issue::Type::ERROR);
+                .arg(path.toUserOutput(), applicationDisplayName), Issue::Type::ERROR);
         i.buttons.insert(QMessageBox::Ok, DiscardAndContinue);
         result.issue = i;
     }
@@ -544,7 +544,7 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
                                         "version of %2 was used are ignored, and "
                                         "changes made now will <b>not</b> be propagated to "
                                         "the newer version.</p>")
-                .arg(result.path.toUserOutput()).arg(applicationDisplayName), Issue::Type::WARNING);
+                .arg(result.path.toUserOutput(), applicationDisplayName), Issue::Type::WARNING);
         i.buttons.insert(QMessageBox::Ok, Continue);
         result.issue = i;
         return result;
@@ -561,7 +561,7 @@ UpgradingSettingsAccessor::validateVersionRange(const RestoreData &data) const
                                         "<p>Did you work with this project on another machine or "
                                         "using a different settings path before?</p>"
                                         "<p>Do you still want to load the settings file \"%2\"?</p>")
-                .arg(applicationDisplayName).arg(result.path.toUserOutput()), Issue::Type::WARNING);
+                .arg(applicationDisplayName, result.path.toUserOutput()), Issue::Type::WARNING);
         i.defaultButton = QMessageBox::No;
         i.escapeButton = QMessageBox::No;
         i.buttons.clear();
@@ -621,8 +621,8 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
                                     QApplication::translate("Utils::SettingsAccessor",
                                                             "\"%1\" is not supported by %2. "
                                                             "Do you want to try loading it anyway?")
-                                    .arg(secondaryData.path.toUserOutput())
-                                    .arg(applicationDisplayName), Issue::Type::WARNING);
+                                    .arg(secondaryData.path.toUserOutput(), applicationDisplayName),
+                                    Issue::Type::WARNING);
         secondaryData.issue->buttons.clear();
         secondaryData.issue->buttons.insert(QMessageBox::Yes, Continue);
         secondaryData.issue->buttons.insert(QMessageBox::No, DiscardAndContinue);

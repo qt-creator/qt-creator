@@ -109,10 +109,8 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
     const auto it = m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
 
     QMetaObject::invokeMethod(m_shellProcess.get(), [this, id, cmd, stdInData] {
-        const QString command = QString("%1 \"%2\" %3\n")
-                                    .arg(id)
-                                    .arg(QString::fromLatin1(stdInData.toBase64()))
-                                    .arg(cmd.toUserOutput());
+        const QString command = QString("%1 \"%2\" %3\n").arg(id)
+                                .arg(QString::fromLatin1(stdInData.toBase64()), cmd.toUserOutput());
         qCDebug(deviceShellLog) << "Running via shell:" << command;
         m_shellProcess->writeRaw(command.toUtf8());
     });
