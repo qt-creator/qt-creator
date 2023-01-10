@@ -15,6 +15,13 @@
 namespace Autotest {
 namespace Internal {
 
+static QString functionWithDataTagAsArg(const QString &func, const QString &dataTag)
+{
+    if (dataTag.contains(' '))
+        return '"' + func + ':' + dataTag + '"';
+    return func + ':' + dataTag;
+}
+
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
                                const Utils::FilePath &filePath, TestTreeItem::Type type)
     : TestTreeItem(testFramework, name, filePath, type)
@@ -140,9 +147,8 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
         const TestTreeItem *parent = function ? function->parentItem() : nullptr;
         if (!parent)
             return nullptr;
-        const QString functionWithTag = function->name() + ':' + name();
         config = new QtTestConfiguration(framework());
-        config->setTestCases(QStringList(functionWithTag));
+        config->setTestCases(QStringList(functionWithDataTagAsArg(function->name(), name())));
         config->setProjectFile(parent->proFile());
         config->setProject(project);
         break;
@@ -185,7 +191,7 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                 const QString funcName = grandChild->name();
                 grandChild->forFirstLevelChildren([&testCases, &funcName](ITestTreeItem *dataTag) {
                     if (dataTag->checked() == Qt::Checked)
-                        testCases << funcName + ':' + dataTag->name();
+                        testCases << functionWithDataTagAsArg(funcName, dataTag->name());
                 });
             }
         });
@@ -217,7 +223,7 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
         } else {
             func->forFirstLevelChildren([&testCases, func](ITestTreeItem *dataTag) {
                 if (dataTag->data(0, FailedRole).toBool())
-                    testCases << func->name() + ':' + dataTag->name();
+                    testCases << functionWithDataTagAsArg(func->name(), dataTag->name());
             });
         }
     });
