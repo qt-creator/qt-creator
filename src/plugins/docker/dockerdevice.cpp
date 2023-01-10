@@ -1105,10 +1105,19 @@ void DockerDeviceFactory::shutdownExistingDevices()
 
 bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath &containerPath)
 {
-    bool alreadyAdded = anyOf(m_temporaryMounts, [containerPath](const TemporaryMountInfo &info) {
-        return info.containerPath == containerPath;
-    });
+    const bool alreadyAdded = anyOf(m_temporaryMounts,
+                                    [containerPath](const TemporaryMountInfo &info) {
+                                        return info.containerPath == containerPath;
+                                    });
+
     if (alreadyAdded)
+        return false;
+
+    const bool alreadyManuallyAdded = anyOf(m_data.mounts, [path](const QString &mount) {
+        return mount == path.path();
+    });
+
+    if (alreadyManuallyAdded)
         return false;
 
     const TemporaryMountInfo newMount{path, containerPath};
