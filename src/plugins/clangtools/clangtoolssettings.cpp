@@ -174,16 +174,20 @@ void ClangToolsSettings::writeSettings()
     emit changed();
 }
 
-void ClangToolsSettings::setClangTidyExecutable(const FilePath &path)
+FilePath ClangToolsSettings::executable(ClangToolType tool) const
 {
-    m_clangTidyExecutable = path;
-    m_clangTidyVersion = {};
+    return tool == ClangToolType::Tidy ? m_clangTidyExecutable : m_clazyStandaloneExecutable;
 }
 
-void ClangToolsSettings::setClazyStandaloneExecutable(const FilePath &path)
+void ClangToolsSettings::setExecutable(ClangToolType tool, const FilePath &path)
 {
-    m_clazyStandaloneExecutable = path;
-    m_clazyVersion = {};
+    if (tool == ClangToolType::Tidy) {
+        m_clangTidyExecutable = path;
+        m_clangTidyVersion = {};
+    } else {
+        m_clazyStandaloneExecutable = path;
+        m_clazyVersion = {};
+    }
 }
 
 static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePath &toolFilePath)

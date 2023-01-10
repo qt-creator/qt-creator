@@ -200,7 +200,7 @@ FilePath clangTidyFallbackExecutable()
 
 FilePath clangTidyExecutable()
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->clangTidyExecutable();
+    const FilePath fromSettings = ClangToolsSettings::instance()->executable(ClangToolType::Tidy);
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
     return clangTidyFallbackExecutable();
@@ -216,7 +216,7 @@ FilePath clazyStandaloneFallbackExecutable()
 
 FilePath clazyStandaloneExecutable()
 {
-    const FilePath fromSettings = ClangToolsSettings::instance()->clazyStandaloneExecutable();
+    const FilePath fromSettings = ClangToolsSettings::instance()->executable(ClangToolType::Clazy);
     if (!fromSettings.isEmpty())
         return fullPath(fromSettings);
     return clazyStandaloneFallbackExecutable();

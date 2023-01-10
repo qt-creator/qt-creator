@@ -17,6 +17,7 @@
 
 #include <QCoreApplication>
 
+using namespace CppEditor;
 using namespace Utils;
 
 namespace ClangTools::Internal {
@@ -36,7 +37,7 @@ SettingsWidget::SettingsWidget()
     resize(400, 300);
 
     QString placeHolderText = shippedClangTidyExecutable().toUserOutput();
-    FilePath path = m_settings->clangTidyExecutable();
+    FilePath path = m_settings->executable(ClangToolType::Tidy);
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLANG_TIDY_EXECUTABLE_NAME;
     m_clangTidyPathChooser = new PathChooser;
@@ -47,7 +48,7 @@ SettingsWidget::SettingsWidget()
     m_clangTidyPathChooser->setHistoryCompleter("ClangTools.ClangTidyExecutable.History");
 
     placeHolderText = shippedClazyStandaloneExecutable().toUserOutput();
-    path = m_settings->clazyStandaloneExecutable();
+    path = m_settings->executable(ClangToolType::Clazy);
     if (path.isEmpty() && placeHolderText.isEmpty())
         path = Constants::CLAZY_STANDALONE_EXECUTABLE_NAME;
     m_clazyStandalonePathChooser = new PathChooser;
@@ -78,14 +79,14 @@ SettingsWidget::SettingsWidget()
 void SettingsWidget::apply()
 {
     // Executables
-    m_settings->setClangTidyExecutable(clangTidyPath());
-    m_settings->setClazyStandaloneExecutable(clazyStandalonePath());
+    m_settings->setExecutable(ClangToolType::Tidy, clangTidyPath());
+    m_settings->setExecutable(ClangToolType::Clazy, clazyStandalonePath());
 
     // Run options
     m_settings->setRunSettings(m_runSettingsWidget->toSettings());
 
     // Custom configs
-    const CppEditor::ClangDiagnosticConfigs customConfigs
+    const ClangDiagnosticConfigs customConfigs
         = m_runSettingsWidget->diagnosticSelectionWidget()->customConfigs();
     m_settings->setDiagnosticConfigs(customConfigs);
 
