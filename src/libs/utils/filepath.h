@@ -250,7 +250,7 @@ private:
     QTCREATOR_UTILS_EXPORT friend bool operator>=(const FilePath &first, const FilePath &second);
 
     QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a, uint seed);
-    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a) { return qHash(a, 0); }
+    QTCREATOR_UTILS_EXPORT friend size_t qHash(const FilePath &a);
 
     QTCREATOR_UTILS_EXPORT friend QDebug operator<<(QDebug dbg, const FilePath &c);
 

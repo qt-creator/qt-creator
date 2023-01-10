@@ -1995,6 +1995,11 @@ QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath, uint seed)
     return qHash(filePath.path(), seed);
 }
 
+QTCREATOR_UTILS_EXPORT size_t qHash(const FilePath &filePath)
+{
+    return qHash(filePath, 0);
+}
+
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const FilePath &c)
 {
     return dbg << c.toString();
