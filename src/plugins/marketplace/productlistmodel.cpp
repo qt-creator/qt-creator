@@ -3,8 +3,6 @@
 
 #include "productlistmodel.h"
 
-#include "marketplaceplugin.h"
-
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
 #include <utils/networkaccessmanager.h>
@@ -102,12 +100,14 @@ static const QNetworkRequest constructRequest(const QString &collection)
 static const QString plainTextFromHtml(const QString &original)
 {
     QString plainText(original);
-    QRegularExpression breakReturn("<\\s*br/?\\s*>", QRegularExpression::CaseInsensitiveOption);
-
-    plainText.replace(breakReturn, "\n");                       // "translate" <br/> into newline
-    plainText.remove(QRegularExpression("<[^>]*>"));            // remove all tags
+    static const QRegularExpression breakReturn("<\\s*br/?\\s*>",
+                                                QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression allTags("<[^>]*>");
+    static const QRegularExpression moreThan2NewLines("\n{3,}");
+    plainText.replace(breakReturn, "\n"); // "translate" <br/> into newline
+    plainText.remove(allTags);            // remove all tags
     plainText = plainText.trimmed();
-    plainText.replace(QRegularExpression("\n{3,}"), "\n\n");    // consolidate some newlines
+    plainText.replace(moreThan2NewLines, "\n\n"); // consolidate some newlines
 
     // FIXME the description text is usually too long and needs to get elided sensibly
     return (plainText.length() > 157) ? plainText.left(157).append("...") : plainText;
@@ -240,7 +240,8 @@ void SectionedProducts::onFetchSingleCollectionFinished(QNetworkReply *reply)
             product->description = plainTextFromHtml(obj.value("body_html").toString());
 
             product->handle = handle;
-            for (auto val : obj.value("tags").toArray())
+            const QJsonArray tags = obj.value("tags").toArray();
+            for (auto val : tags)
                 product->tags.append(val.toString());
 
             const auto images = obj.value("images").toArray();
@@ -302,7 +303,7 @@ void SectionedProducts::fetchNextImage()
         return;
     }
 
-    const auto it = m_pendingImages.begin();
+    const auto it = m_pendingImages.constBegin();
     const QString nextUrl = *it;
     m_pendingImages.erase(it);
 
