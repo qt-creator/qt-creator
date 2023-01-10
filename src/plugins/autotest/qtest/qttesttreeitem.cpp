@@ -85,6 +85,13 @@ Qt::ItemFlags QtTestTreeItem::flags(int column) const
 
 Qt::CheckState QtTestTreeItem::checked() const
 {
+    switch (type()) {
+    case TestDataFunction:
+    case TestSpecialFunction:
+        return Qt::Unchecked;
+    default:
+        break;
+    }
     return m_multiTest ? Qt::Unchecked : TestTreeItem::checked();
 }
 
