@@ -53,6 +53,8 @@ def pasteFile(sourceFile, protocol):
     typeLines(editor, "// tst_codepasting %s" % datetime.utcnow())
     sourceText = editor.plainText
     invokeMenuItem("Tools", "Code Pasting", "Paste Snippet...")
+    pasteView = waitForObject(":Send to Codepaster_CodePaster::PasteView")
+    waitFor("pasteView.isActiveWindow")
     selectFromCombo(":Send to Codepaster.protocolBox_QComboBox", protocol)
     pasteEditor = waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit")
     test.compare(pasteEditor.plainText, sourceText, "Verify that dialog shows text from the editor")

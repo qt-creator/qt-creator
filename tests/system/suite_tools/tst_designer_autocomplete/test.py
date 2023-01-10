@@ -7,7 +7,9 @@ def main():
     startQC()
     if not startedWithoutPluginError():
         return
-    createProject_Qt_GUI(tempDir(), "DesignerTestApp")
+    projectName = "DesignerTestApp"
+    createProject_Qt_GUI(tempDir(), projectName)
+    invokeMenuItem('Build', 'Build Project "%s"' % projectName)
     selectFromLocator("mainwindow.ui")
     dragAndDrop(waitForObject("{container=':qdesigner_internal::WidgetBoxCategoryListView'"
                               "text='Push Button' type='QModelIndex'}"), 5, 5,
@@ -46,5 +48,4 @@ def main():
                         'Comparing line "%s" to expected "%s"' % (lineUnderCursor(editor), "ui->%s" % buttonName))
             type(editor, "<Shift+Delete>") # Delete line
         selectFromLocator("mainwindow.ui")
-    invokeMenuItem("File", "Save All")
-    invokeMenuItem("File", "Exit")
+    saveAndExit()

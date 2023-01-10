@@ -143,6 +143,9 @@ if [ ! -d "$app_path/Contents/Frameworks/QtCore.framework" ]; then
 
 fi
 
+# clean up unneeded object files that are part of Qt for some static libraries
+find "$app_path" -ipath "*/objects-*" -delete
+
 # clean up after macdeployqt
 # it deploys some plugins (and libs for these) that interfere with what we want
 echo "Cleaning up after macdeployqt..."

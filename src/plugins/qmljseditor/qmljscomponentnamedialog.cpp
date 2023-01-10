@@ -24,6 +24,7 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 {
     setWindowTitle(Tr::tr("Move Component into Separate File"));
     m_componentNameEdit = new Utils::ClassNameValidatingLineEdit;
+    m_componentNameEdit->setObjectName("componentNameEdit");
     m_componentNameEdit->setPlaceholderText(Tr::tr("Component Name"));
     m_messageLabel = new QLabel;
     m_pathEdit = new Utils::PathChooser;

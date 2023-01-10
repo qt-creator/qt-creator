@@ -1,5 +1,5 @@
 // Copyright (C) 2020 Uwe Kindler
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-2.1-or-later OR GPL-3.0-or-later
 
 #include "docksplitter.h"
 
