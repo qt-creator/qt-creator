@@ -42,9 +42,9 @@ static QStringList tidyChecksArguments(const ClangDiagnosticConfig diagnosticCon
 
 static QStringList clazyChecksArguments(const ClangDiagnosticConfig diagnosticConfig)
 {
-    const QString clazyChecks = diagnosticConfig.clazyChecks();
+    const QString clazyChecks = diagnosticConfig.checks(ClangToolType::Clazy);
     if (!clazyChecks.isEmpty())
-        return {"-checks=" + diagnosticConfig.clazyChecks()};
+        return {"-checks=" + diagnosticConfig.checks(ClangToolType::Clazy)};
     return {};
 }
 

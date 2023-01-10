@@ -18,6 +18,8 @@ QT_END_NAMESPACE
 
 namespace CppEditor {
 
+enum class ClangToolType { Tidy, Clazy };
+
 // TODO: Split this class as needed for ClangCodeModel and ClangTools
 class CPPEDITOR_EXPORT ClangDiagnosticConfig
 {
@@ -48,11 +50,7 @@ public:
     TidyMode clangTidyMode() const;
     void setClangTidyMode(TidyMode mode);
 
-    QString clangTidyChecks() const;
     QString clangTidyChecksAsJson() const;
-    void setClangTidyChecks(const QString &checks);
-
-    bool isClangTidyEnabled() const;
 
     using TidyCheckOptions = QMap<QString, QString>;
     void setTidyCheckOptions(const QString &check, const TidyCheckOptions &options);
@@ -69,10 +67,10 @@ public:
     ClazyMode clazyMode() const;
     void setClazyMode(const ClazyMode &clazyMode);
 
-    QString clazyChecks() const;
-    void setClazyChecks(const QString &checks);
+    QString checks(ClangToolType tool) const;
+    void setChecks(ClangToolType tool, const QString &checks);
 
-    bool isClazyEnabled() const;
+    bool isEnabled(ClangToolType tool) const;
 
     bool operator==(const ClangDiagnosticConfig &other) const;
     bool operator!=(const ClangDiagnosticConfig &other) const;

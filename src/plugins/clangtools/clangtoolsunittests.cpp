@@ -68,8 +68,7 @@ void ClangToolsUnitTests::cleanupTestCase()
     delete m_tmpDir;
 }
 
-static ClangDiagnosticConfig configFor(const QString &tidyChecks,
-                                                 const QString &clazyChecks)
+static ClangDiagnosticConfig configFor(const QString &tidyChecks, const QString &clazyChecks)
 {
     ClangDiagnosticConfig config;
     config.setId("Test.MyTestConfig");
@@ -78,8 +77,8 @@ static ClangDiagnosticConfig configFor(const QString &tidyChecks,
     config.setClangOptions(QStringList{QStringLiteral("-Wno-everything")});
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
     const QString theTidyChecks = tidyChecks.isEmpty() ? tidyChecks : "-*," + tidyChecks;
-    config.setClangTidyChecks(theTidyChecks);
-    config.setClazyChecks(clazyChecks);
+    config.setChecks(ClangToolType::Tidy, theTidyChecks);
+    config.setChecks(ClangToolType::Clazy, clazyChecks);
     return config;
 }
 

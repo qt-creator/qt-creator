@@ -75,15 +75,15 @@ void disableDiagnosticInConfig(ClangDiagnosticConfig &config, const ClangDiagnos
         config.setClangOptions(config.clangOptions() + QStringList(diagnostic.disableOption));
         break;
     case DiagnosticType::Tidy:
-        config.setClangTidyChecks(config.clangTidyChecks() + QString(",-")
+        config.setChecks(ClangToolType::Tidy, config.checks(ClangToolType::Tidy) + QString(",-")
                                   + DiagnosticTextInfo(diagnostic.text).option());
         break;
     case DiagnosticType::Clazy: {
         const DiagnosticTextInfo textInfo(diagnostic.text);
         const QString checkName = DiagnosticTextInfo::clazyCheckName(textInfo.option());
-        QStringList newChecks = config.clazyChecks().split(',');
+        QStringList newChecks = config.checks(ClangToolType::Clazy).split(',');
         newChecks.removeOne(checkName);
-        config.setClazyChecks(newChecks.join(','));
+        config.setChecks(ClangToolType::Clazy, newChecks.join(','));
         break;
     }
     }
