@@ -46,6 +46,7 @@ void showHintAboutBuildBeforeAnalysis();
 Utils::FilePath toolShippedExecutable(CppEditor::ClangToolType tool);
 Utils::FilePath toolExecutable(CppEditor::ClangToolType tool);
 Utils::FilePath toolFallbackExecutable(CppEditor::ClangToolType tool);
+QString clangToolName(CppEditor::ClangToolType tool);
 
 bool isVFSOverlaySupported(const Utils::FilePath &executable);
 

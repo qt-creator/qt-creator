@@ -15,12 +15,12 @@
 
 namespace Core { class IDocument; }
 namespace TextEditor { class TextEditorWidget; }
+namespace Utils { class TaskTree; }
 
 namespace ClangTools {
 namespace Internal {
 
 class AnalyzeOutputData;
-class ClangToolRunner;
 class DiagnosticMark;
 
 class DocumentClangToolRunner : public QObject
@@ -36,27 +36,22 @@ public:
 private:
     void scheduleRun();
     void run();
-    void runNext();
 
     void onDone(const AnalyzeOutputData &output);
-
     void finalize();
-
-    void cancel();
 
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
     QTimer m_runTimer;
     Core::IDocument *m_document = nullptr;
     Utils::TemporaryDirectory m_temporaryDir;
-    std::unique_ptr<ClangToolRunner> m_currentRunner;
-    QList<std::function<ClangToolRunner *()>> m_runnerCreators;
     QList<DiagnosticMark *> m_marks;
     FileInfo m_fileInfo;
     QMetaObject::Connection m_projectSettingsUpdate;
     QList<QPointer<TextEditor::TextEditorWidget>> m_editorsWithMarkers;
     SuppressedDiagnosticsList m_suppressed;
     Utils::FilePath m_lastProjectDirectory;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
 };
 
 } // namespace Internal

@@ -8,9 +8,8 @@
 #include <cppeditor/clangdiagnosticconfig.h>
 
 #include <utils/environment.h>
-#include <utils/qtcprocess.h>
 
-#include <memory>
+namespace Utils::Tasking { class TaskItem; }
 
 namespace ClangTools {
 namespace Internal {
@@ -45,35 +44,12 @@ struct AnalyzeOutputData
     QString errorDetails = {};
 };
 
-class ClangToolRunner : public QObject
-{
-    Q_OBJECT
+using AnalyzeSetupHandler = std::function<bool()>;
+using AnalyzeOutputHandler = std::function<void(const AnalyzeOutputData &)>;
 
-public:
-    ClangToolRunner(const AnalyzeInputData &input, QObject *parent = nullptr);
-
-    QString name() const { return m_name; }
-
-    // compilerOptions is expected to contain everything except:
-    //   (1) file to analyze
-    //   (2) -o output-file
-    bool run();
-
-signals:
-    void done(const AnalyzeOutputData &output);
-
-private:
-    void onProcessDone();
-
-    QStringList mainToolArguments() const;
-
-    const AnalyzeInputData m_input;
-    Utils::QtcProcess m_process;
-
-    QString m_name;
-    Utils::FilePath m_executable;
-    QString m_outputFilePath;
-};
+Utils::Tasking::TaskItem clangToolTask(const AnalyzeInputData &input,
+                                       const AnalyzeSetupHandler &setupHandler,
+                                       const AnalyzeOutputHandler &outputHandler);
 
 } // namespace Internal
 } // namespace ClangTools

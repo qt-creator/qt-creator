@@ -13,20 +13,16 @@
 #include <utils/temporarydirectory.h>
 
 #include <QElapsedTimer>
-#include <QFutureInterface>
 #include <QSet>
-#include <QStringList>
+
+namespace Utils { class TaskTree; }
 
 namespace ClangTools {
 namespace Internal {
 
 class AnalyzeOutputData;
-class AnalyzeUnit;
 class ClangTool;
-class ClangToolRunner;
 class ProjectBuilder;
-
-using RunnerCreator = std::function<ClangToolRunner*()>;
 
 class ClangToolRunWorker : public ProjectExplorer::RunWorker
 {
@@ -39,6 +35,7 @@ public:
                        const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
                        const FileInfos &fileInfos,
                        bool buildBeforeAnalysis);
+    ~ClangToolRunWorker();
 
     int filesAnalyzed() const { return m_filesAnalyzed.size(); }
     int filesNotAnalyzed() const { return m_filesNotAnalyzed.size(); }
@@ -53,16 +50,6 @@ private:
     void start() final;
     void stop() final;
     void onDone(const AnalyzeOutputData &output);
-
-    QList<RunnerCreator> runnerCreators(const AnalyzeUnit &unit);
-    ClangToolRunner *createRunner(CppEditor::ClangToolType tool, const AnalyzeUnit &unit);
-
-    void analyzeNextFile();
-    void handleFinished(ClangToolRunner *runner);
-
-    void onProgressCanceled();
-    void updateProgressValue();
-
     void finalize();
 
 private:
@@ -80,11 +67,8 @@ private:
     QString m_targetTriple;
     Utils::Id m_toolChainType;
 
-    QFutureInterface<void> m_progress;
-    QList<RunnerCreator> m_runnerCreators;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
     QSet<Utils::FilePath> m_projectFiles;
-    QSet<ClangToolRunner *> m_runners;
-    int m_initialQueueSize = 0;
     QSet<QString> m_filesAnalyzed;
     QSet<QString> m_filesNotAnalyzed;
 

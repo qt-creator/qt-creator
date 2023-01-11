@@ -7,6 +7,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/cppeditorconstants.h>
@@ -198,6 +199,11 @@ FilePath toolFallbackExecutable(ClangToolType tool)
                             ? FilePath(Constants::CLANG_TIDY_EXECUTABLE_NAME)
                             : FilePath(Constants::CLAZY_STANDALONE_EXECUTABLE_NAME);
     return findValidExecutable({toolShippedExecutable(tool), fallback});
+}
+
+QString clangToolName(CppEditor::ClangToolType tool)
+{
+    return tool == ClangToolType::Tidy ? Tr::tr("Clang-Tidy") : Tr::tr("Clazy");
 }
 
 bool isVFSOverlaySupported(const FilePath &executable)

@@ -3,15 +3,14 @@
 
 #include "clangtoolrunner.h"
 
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cpptoolsreuse.h>
 
-#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/temporaryfile.h>
@@ -25,6 +24,7 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runner", QtWarningMsg)
 
 using namespace CppEditor;
 using namespace Utils;
+using namespace Tasking;
 
 namespace ClangTools {
 namespace Internal {
@@ -85,30 +85,6 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
     return arguments;
 }
 
-ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
-    : QObject(parent)
-    , m_input(input)
-{
-    m_name = input.tool == ClangToolType::Tidy ? tr("Clang-Tidy") : tr("Clazy");
-    m_executable = toolExecutable(input.tool);
-    QTC_CHECK(!m_input.outputDirPath.isEmpty());
-
-    m_process.setEnvironment(input.environment);
-    m_process.setUseCtrlCStub(true);
-    m_process.setWorkingDirectory(m_input.outputDirPath); // Current clang-cl puts log file into working dir.
-    connect(&m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
-}
-
-QStringList ClangToolRunner::mainToolArguments() const
-{
-    QStringList result;
-    result << "-export-fixes=" + m_outputFilePath;
-    if (!m_input.overlayFilePath.isEmpty() && isVFSOverlaySupported(m_executable))
-        result << "--vfsoverlay=" + m_input.overlayFilePath;
-    result << QDir::toNativeSeparators(m_input.unit.file);
-    return result;
-}
-
 static QString createOutputFilePath(const FilePath &dirPath, const QString &fileToAnalyze)
 {
     const QString fileName = QFileInfo(fileToAnalyze).fileName();
@@ -124,52 +100,98 @@ static QString createOutputFilePath(const FilePath &dirPath, const QString &file
     return {};
 }
 
-bool ClangToolRunner::run()
+TaskItem clangToolTask(const AnalyzeInputData &input,
+                       const AnalyzeSetupHandler &setupHandler,
+                       const AnalyzeOutputHandler &outputHandler)
 {
-    QTC_ASSERT(m_executable.isExecutableFile(),
-               qWarning() << "Can't start:" << m_executable << "as" << m_name; return false);
-    QTC_CHECK(!m_input.unit.arguments.contains(QLatin1String("-o")));
-    QTC_CHECK(!m_input.unit.arguments.contains(m_input.unit.file));
-    QTC_ASSERT(FilePath::fromString(m_input.unit.file).exists(), return false);
+    struct ClangToolStorage {
+        QString name;
+        Utils::FilePath executable;
+        QString outputFilePath;
+    };
+    const TreeStorage<ClangToolStorage> storage;
 
-    m_outputFilePath = createOutputFilePath(m_input.outputDirPath, m_input.unit.file);
-    QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
+    const auto mainToolArguments = [=](const ClangToolStorage *data)
+    {
+        QStringList result;
+        result << "-export-fixes=" + data->outputFilePath;
+        if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data->executable))
+            result << "--vfsoverlay=" + input.overlayFilePath;
+        result << QDir::toNativeSeparators(input.unit.file);
+        return result;
+    };
 
-    const QStringList args = checksArguments(m_input.tool, m_input.config)
-                           + mainToolArguments()
-                           + QStringList{"--"}
-                           + clangArguments(m_input.config, m_input.unit.arguments);
-    const CommandLine commandLine = {m_executable, args};
+    const auto onGroupSetup = [=] {
+        const GroupConfig error = GroupConfig{GroupAction::StopWithError};
+        if (setupHandler && !setupHandler())
+            return error;
 
-    qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
-    m_process.setCommand(commandLine);
-    m_process.start();
-    return true;
-}
+        ClangToolStorage *data = storage.activeStorage();
+        data->name = clangToolName(input.tool);
+        data->executable = toolExecutable(input.tool);
+        if (!data->executable.isExecutableFile()) {
+            qWarning() << "Can't start:" << data->executable << "as" << data->name;
+            return error;
+        }
 
-void ClangToolRunner::onProcessDone()
-{
-    if (m_process.result() == ProcessResult::FinishedWithSuccess) {
-        qCDebug(LOG).noquote() << "Output:\n" << m_process.cleanedStdOut();
-        emit done({true, m_input.unit.file, m_outputFilePath, m_name});
-        return;
-    }
+        QTC_CHECK(!input.unit.arguments.contains(QLatin1String("-o")));
+        QTC_CHECK(!input.unit.arguments.contains(input.unit.file));
+        QTC_ASSERT(FilePath::fromString(input.unit.file).exists(), return error);
+        data->outputFilePath = createOutputFilePath(input.outputDirPath, input.unit.file);
+        QTC_ASSERT(!data->outputFilePath.isEmpty(), return error);
 
-    const QString details = tr("Command line: %1\n"
-                               "Process Error: %2\n"
-                               "Output:\n%3")
-                                .arg(m_process.commandLine().toUserOutput())
-                                .arg(m_process.error())
-                                .arg(m_process.cleanedStdOut());
-    QString message;
-    if (m_process.result() == ProcessResult::StartFailed)
-        message = tr("An error occurred with the %1 process.").arg(m_name);
-    else if (m_process.result() == ProcessResult::FinishedWithError)
-        message = tr("%1 finished with exit code: %2.").arg(m_name).arg(m_process.exitCode());
-    else
-        message = tr("%1 crashed.").arg(m_name);
+        return GroupConfig{GroupAction::ContinueAll};
+    };
+    const auto onProcessSetup = [=](QtcProcess &process) {
+        process.setEnvironment(input.environment);
+        process.setUseCtrlCStub(true);
+        process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
-    emit done({false, m_input.unit.file, m_outputFilePath, m_name, message, details});
+        const ClangToolStorage *data = storage.activeStorage();
+
+        const QStringList args = checksArguments(input.tool, input.config)
+                                 + mainToolArguments(data)
+                                 + QStringList{"--"}
+                                 + clangArguments(input.config, input.unit.arguments);
+        const CommandLine commandLine = {data->executable, args};
+
+        qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
+        process.setCommand(commandLine);
+    };
+    const auto onProcessDone = [=](const QtcProcess &process) {
+        qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
+        if (!outputHandler)
+            return;
+        const ClangToolStorage *data = storage.activeStorage();
+        outputHandler({true, input.unit.file, data->outputFilePath, data->name});
+    };
+    const auto onProcessError = [=](const QtcProcess &process) {
+        if (!outputHandler)
+            return;
+        const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
+                                    .arg(process.commandLine().toUserOutput())
+                                    .arg(process.error())
+                                    .arg(process.cleanedStdOut());
+        const ClangToolStorage *data = storage.activeStorage();
+        QString message;
+        if (process.result() == ProcessResult::StartFailed)
+            message = Tr::tr("An error occurred with the %1 process.").arg(data->name);
+        else if (process.result() == ProcessResult::FinishedWithError)
+            message = Tr::tr("%1 finished with exit code: %2.").arg(data->name).arg(process.exitCode());
+        else
+            message = Tr::tr("%1 crashed.").arg(data->name);
+        outputHandler({false, input.unit.file, data->outputFilePath, data->name, message, details});
+    };
+
+    const Group group {
+        Storage(storage),
+        DynamicSetup(onGroupSetup),
+        Group {
+            optional,
+            Process(onProcessSetup, onProcessDone, onProcessError)
+        }
+    };
+    return group;
 }
 
 } // namespace Internal

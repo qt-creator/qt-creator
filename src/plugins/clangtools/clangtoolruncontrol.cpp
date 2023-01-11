@@ -5,40 +5,25 @@
 
 #include "clangtool.h"
 #include "clangtoolrunner.h"
-#include "clangtoolssettings.h"
 #include "executableinfo.h"
 
-#include <debugger/analyzer/analyzerconstants.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 
-#include <clangcodemodel/clangutils.h>
-
-#include <coreplugin/progressmanager/futureprogress.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-
-#include <cppeditor/clangdiagnosticconfigsmodel.h>
-#include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cppprojectfile.h>
-#include <cppeditor/projectinfo.h>
 
-#include <projectexplorer/abi.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
-#include <utils/environment.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
+#include <utils/tasktree.h>
 
-#include <QAction>
 #include <QLoggingCategory>
 
 using namespace CppEditor;
@@ -98,7 +83,6 @@ static QDebug operator<<(QDebug debug, const AnalyzeUnits &analyzeUnits)
     return debug;
 }
 
-
 ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
                                        const RunSettings &runSettings,
                                        const CppEditor::ClangDiagnosticConfig &diagnosticConfig,
@@ -134,12 +118,7 @@ ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
     m_toolChainType = toolChain->typeId();
 }
 
-QList<RunnerCreator> ClangToolRunWorker::runnerCreators(const AnalyzeUnit &unit)
-{
-    if (m_tool == ClangTidyTool::instance())
-        return {[=] { return createRunner(ClangToolType::Tidy, unit); }};
-    return {[=] { return createRunner(ClangToolType::Clazy, unit); }};
-}
+ClangToolRunWorker::~ClangToolRunWorker() = default;
 
 void ClangToolRunWorker::start()
 {
@@ -196,81 +175,48 @@ void ClangToolRunWorker::start()
     qCDebug(LOG) << Q_FUNC_INFO << runControl()->commandLine().executable()
                  << includeDir << clangVersion;
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
+    qCDebug(LOG) << "Environment:" << m_environment;
 
-    m_runnerCreators.clear();
-    for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
-        for (const RunnerCreator &creator : runnerCreators(unit))
-            m_runnerCreators << creator;
-    }
-    m_initialQueueSize = m_runnerCreators.count();
     m_filesAnalyzed.clear();
     m_filesNotAnalyzed.clear();
 
-    // Set up progress information
-    using namespace Core;
-    m_progress = QFutureInterface<void>();
-    FutureProgress *futureProgress
-        = ProgressManager::addTask(m_progress.future(), tr("Analyzing"),
-                                   toolName.toStdString().c_str());
-    connect(futureProgress, &FutureProgress::canceled,
-            this, &ClangToolRunWorker::onProgressCanceled);
-    m_progress.setProgressRange(0, m_initialQueueSize);
-    m_progress.reportStarted();
-
-    // Start process(es)
-    qCDebug(LOG) << "Environment:" << m_environment;
-    m_runners.clear();
-    const int parallelRuns = m_runSettings.parallelJobs();
-    QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
-
-    if (m_runnerCreators.isEmpty()) {
-        finalize();
-        return;
+    const ClangToolType tool = m_tool == ClangTidyTool::instance() ? ClangToolType::Tidy
+                                                                   : ClangToolType::Clazy;
+    using namespace Tasking;
+    QList<TaskItem> tasks{ParallelLimit(qMax(1, m_runSettings.parallelJobs()))};
+    for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
+        const AnalyzeInputData input{tool, m_diagnosticConfig, m_temporaryDir.path(),
+                                     m_environment, unit};
+        const auto setupHandler = [this, unit, tool] {
+            const QString filePath = FilePath::fromString(unit.file).toUserOutput();
+            appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, clangToolName(tool)),
+                          Utils::StdOutFormat);
+            return true;
+        };
+        const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
+        tasks.append(clangToolTask(input, setupHandler, outputHandler));
     }
 
+    m_taskTree.reset(new TaskTree(tasks));
+    connect(m_taskTree.get(), &TaskTree::done, this, &ClangToolRunWorker::finalize);
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &ClangToolRunWorker::finalize);
+    auto progress = new Core::TaskProgress(m_taskTree.get());
+    progress->setDisplayName(tr("Analyzing"));
     reportStarted();
     m_elapsed.start();
-
-    while (m_runners.size() < parallelRuns && !m_runnerCreators.isEmpty())
-        analyzeNextFile();
+    m_taskTree->start();
 }
 
 void ClangToolRunWorker::stop()
 {
-    for (ClangToolRunner *runner : std::as_const(m_runners)) {
-        QObject::disconnect(runner, nullptr, this, nullptr);
-        delete runner;
-    }
+    m_taskTree.reset();
     m_projectFiles.clear();
-    m_runners.clear();
-    m_runnerCreators.clear();
-    m_progress.reportFinished();
 
     reportStopped();
 
     // Print elapsed time since start
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
     appendMessage(elapsedTime, NormalMessageFormat);
-}
-
-void ClangToolRunWorker::analyzeNextFile()
-{
-    if (m_progress.isFinished())
-        return; // The previous call already reported that we are finished.
-
-    if (m_runnerCreators.isEmpty()) {
-        if (m_runners.isEmpty())
-            finalize();
-        return;
-    }
-
-    const RunnerCreator runnerCreator = m_runnerCreators.takeFirst();
-    ClangToolRunner *runner = runnerCreator();
-    m_runners.insert(runner);
-    if (!runner->run()) {
-        reportFailure(tr("Failed to start runner \"%1\".").arg(runner->name()));
-        stop();
-    }
 }
 
 void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
@@ -314,27 +260,10 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
     }
 }
 
-void ClangToolRunWorker::handleFinished(ClangToolRunner *runner)
-{
-    m_runners.remove(runner);
-    updateProgressValue();
-    runner->deleteLater();
-    analyzeNextFile();
-}
-
-void ClangToolRunWorker::onProgressCanceled()
-{
-    m_progress.reportCanceled();
-    runControl()->initiateStop();
-}
-
-void ClangToolRunWorker::updateProgressValue()
-{
-    m_progress.setProgressValue(m_initialQueueSize - m_runnerCreators.size());
-}
-
 void ClangToolRunWorker::finalize()
 {
+    if (m_taskTree)
+        m_taskTree.release()->deleteLater();
     const QString toolName = m_tool->name();
     if (m_filesNotAnalyzed.size() != 0) {
         appendMessage(tr("Error: Failed to analyze %n files.", nullptr, m_filesNotAnalyzed.size()),
@@ -356,22 +285,7 @@ void ClangToolRunWorker::finalize()
                       .arg(m_filesNotAnalyzed.size()),
                   Utils::NormalMessageFormat);
 
-    m_progress.reportFinished();
     runControl()->initiateStop();
-}
-
-ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool, const AnalyzeUnit &unit)
-{
-    auto runner = new ClangToolRunner(
-        {tool, m_diagnosticConfig, m_temporaryDir.path(), m_environment, unit}, this);
-    connect(runner, &ClangToolRunner::done, this, [this, runner](const AnalyzeOutputData &output) {
-        onDone(output);
-        handleFinished(runner);
-    });
-    const QString filePath = FilePath::fromString(unit.file).toUserOutput();
-    appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, runner->name()),
-                  Utils::StdOutFormat);
-    return runner;
 }
 
 } // namespace Internal
