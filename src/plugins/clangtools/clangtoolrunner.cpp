@@ -133,7 +133,8 @@ static QString createOutputFilePath(const FilePath &dirPath, const QString &file
 
 bool ClangToolRunner::run()
 {
-    QTC_ASSERT(!m_executable.isEmpty(), return false);
+    QTC_ASSERT(m_executable.isExecutableFile(),
+               qWarning() << "Can't start:" << m_executable << "as" << m_name; return false);
     QTC_CHECK(!m_input.unit.arguments.contains(QLatin1String("-o")));
     QTC_CHECK(!m_input.unit.arguments.contains(m_input.unit.file));
     QTC_ASSERT(FilePath::fromString(m_input.unit.file).exists(), return false);

@@ -203,7 +203,7 @@ void DocumentClangToolRunner::run()
                         const FilePath executable = toolExecutable(tool);
                         const auto [includeDir, clangVersion]
                             = getClangIncludeDirAndVersion(executable);
-                        if (executable.isEmpty() || includeDir.isEmpty() || clangVersion.isEmpty())
+                        if (!executable.isExecutableFile() || includeDir.isEmpty() || clangVersion.isEmpty())
                             return;
                         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
                         m_runnerCreators << [this, tool, unit, config, env] {
