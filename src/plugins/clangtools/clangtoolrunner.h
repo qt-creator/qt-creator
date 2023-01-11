@@ -32,7 +32,6 @@ public:
     ClangToolRunner(const AnalyzeInputData &input, QObject *parent = nullptr);
 
     QString name() const { return m_name; }
-    Utils::FilePath executable() const { return m_executable; }
     QString fileToAnalyze() const { return m_input.unit.file; }
     QString outputFilePath() const { return m_outputFilePath; }
     bool supportsVFSOverlay() const;
