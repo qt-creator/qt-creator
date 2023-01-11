@@ -4,13 +4,11 @@
 #include "dockmanager.h"
 
 #include "ads_globals.h"
-#include "dockareatitlebar.h"
 #include "dockareawidget.h"
 #include "dockfocuscontroller.h"
 #include "dockingstatereader.h"
 #include "dockoverlay.h"
 #include "dockwidget.h"
-#include "dockwidgettab.h"
 #include "floatingdockcontainer.h"
 #include "iconprovider.h"
 
@@ -39,7 +37,9 @@
 #include <QVariant>
 #include <QXmlStreamWriter>
 
-static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg)
+static Q_LOGGING_CATEGORY(adsLog, "qtc.qmldesigner.advanceddockingsystem", QtWarningMsg);
+
+using namespace Utils;
 
 namespace ADS
 {
@@ -645,12 +645,12 @@ namespace ADS
         return d->m_workspaceDateTimes.value(workspace);
     }
 
-    Utils::FilePath DockManager::workspaceNameToFilePath(const QString &workspaceName) const
+    FilePath DockManager::workspaceNameToFilePath(const QString &workspaceName) const
     {
         QTC_ASSERT(d->m_settings, return {});
-        return Utils::FilePath::fromString(
-            QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/') + m_dirName
-            + QLatin1Char('/') + workspaceNameToFileName(workspaceName));
+        return FilePath::fromString(QFileInfo(d->m_settings->fileName()).path() + QLatin1Char('/')
+                                    + m_dirName + QLatin1Char('/')
+                                    + workspaceNameToFileName(workspaceName));
     }
 
     QString DockManager::fileNameToWorkspaceName(const QString &fileName) const
@@ -774,7 +774,7 @@ namespace ADS
             return false;
 
         // Remove corresponding workspace file
-        const Utils::FilePath file = workspaceNameToFilePath(workspace);
+        const FilePath file = workspaceNameToFilePath(workspace);
         if (file.exists()) {
             if (file.removeFile()) {
                 d->m_workspaces.removeOne(workspace);
@@ -798,8 +798,8 @@ namespace ADS
         if (!d->m_workspaces.contains(original))
             return false;
 
-        const Utils::FilePath originalPath = workspaceNameToFilePath(original);
-        const Utils::FilePath clonePath = workspaceNameToFilePath(clone);
+        const FilePath originalPath = workspaceNameToFilePath(original);
+        const FilePath clonePath = workspaceNameToFilePath(clone);
 
         // If the file does not exist, we can still clone
         if (!originalPath.exists() || originalPath.copyFile(clonePath)) {
@@ -827,7 +827,7 @@ namespace ADS
         if (!isWorkspacePreset(workspace))
             return false;
 
-        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
+        const FilePath fileName = workspaceNameToFilePath(workspace);
 
         if (!fileName.removeFile())
             return false;
@@ -895,7 +895,7 @@ namespace ADS
     {
         // If we came this far the user decided that in case the target already exists to overwrite it.
         // We first need to remove the existing file, otherwise QFile::copy() will fail.
-        const Utils::FilePath targetFile = Utils::FilePath::fromUserInput(target);
+        const FilePath targetFile = FilePath::fromUserInput(target);
 
         // Remove the file which supposed to be overwritten
         if (targetFile.exists()) {
@@ -913,7 +913,7 @@ namespace ADS
         }
 
         // Check if the workspace exists
-        Utils::FilePath workspaceFile = workspaceNameToFilePath(workspace);
+        FilePath workspaceFile = workspaceNameToFilePath(workspace);
         if (!workspaceFile.exists()) {
             qCInfo(adsLog) << QString("Workspace doesn't exist '%1'")
                                   .arg(workspaceFile.toUserOutput());
@@ -921,7 +921,7 @@ namespace ADS
         }
 
         // Finally copy the workspace to the target
-        const Utils::expected_str<void> copyResult = workspaceFile.copyFile(targetFile);
+        const expected_str<void> copyResult = workspaceFile.copyFile(targetFile);
         if (!copyResult) {
             qCInfo(adsLog) << QString("Could not copy '%1' to '%2' error: %3")
                                   .arg(workspace, workspaceFile.toUserOutput(), copyResult.error());
@@ -930,11 +930,11 @@ namespace ADS
 
     bool DockManager::write(const QString &workspace, const QByteArray &data, QString *errorString) const
     {
-        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
+        const FilePath fileName = workspaceNameToFilePath(workspace);
 
         QDir tmp;
         tmp.mkpath(fileName.toFileInfo().path());
-        Utils::FileSaver fileSaver(fileName, QIODevice::Text);
+        FileSaver fileSaver(fileName, QIODevice::Text);
         if (!fileSaver.hasError())
             fileSaver.write(data);
 
@@ -959,9 +959,9 @@ namespace ADS
 
     QByteArray DockManager::loadWorkspace(const QString &workspace) const
     {
-        Utils::FilePath fileName = workspaceNameToFilePath(workspace);
+        const FilePath fileName = workspaceNameToFilePath(workspace);
         if (fileName.exists()) {
-            const Utils::expected_str<QByteArray> data = fileName.fileContents();
+            const expected_str<QByteArray> data = fileName.fileContents();
 
             if (!data) {
                 QMessageBox::warning(parentWidget(),
