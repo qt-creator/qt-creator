@@ -20,6 +20,7 @@ add_qtc_plugin(Squish
     squishplugin.cpp squishplugin.h
     squishprocessbase.cpp squishprocessbase.h
     squishresultmodel.cpp squishresultmodel.h
+    squishrunnerprocess.cpp squishrunnerprocess.h
     squishsettings.cpp squishsettings.h
     squishserverprocess.cpp squishserverprocess.h
     squishtesttreemodel.cpp squishtesttreemodel.h

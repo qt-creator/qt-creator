@@ -253,8 +253,6 @@ void SquishPerspective::initPerspective()
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
             this, &SquishPerspective::onLocalsUpdated);
-    connect(SquishTools::instance(), &SquishTools::symbolUpdated,
-            this, &SquishPerspective::onLocalsUpdated);
     connect(localsView, &QTreeView::expanded, this, [this](const QModelIndex &idx) {
         LocalsItem *item = m_localsModel.itemForIndex(idx);
         if (QTC_GUARD(item)) {

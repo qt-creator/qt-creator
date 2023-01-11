@@ -4,11 +4,11 @@
 #pragma once
 
 #include "squishperspective.h"
+#include "squishrunnerprocess.h"
 #include "squishserverprocess.h"
 #include "suiteconf.h"
 
 #include <utils/environment.h>
-#include <utils/link.h>
 #include <utils/qtcprocess.h>
 
 #include <QObject>
@@ -71,7 +71,6 @@ signals:
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
-    void symbolUpdated(const QString &output);
     void shutdownFinished();
 
 private:
@@ -96,7 +95,9 @@ private:
     void onServerStopped();
     void onServerStartFailed();
     void onServerStopFailed();
-    void setState(State state);
+    void onRunnerStateChanged(SquishProcessState state);
+    void onRunnerStopped();
+    void onRunnerError(SquishRunnerProcess::RunnerError error);
     void setIdle();
     void startSquishServer(Request request);
     void stopSquishServer();
@@ -106,13 +107,10 @@ private:
     void queryServer(RunnerQuery query);
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
-    void handleQueryDone();
+    void handleQueryDone(const QString &stdOut, const QString &error);
     void onRunnerFinished();
     void onRecorderFinished();
     void onRunnerOutput();                              // runner's results file
-    void onRunnerErrorOutput();                         // runner's error stream
-    void onRunnerStdOutput(const QString &line);        // runner's output stream
-    Utils::Links setBreakpoints();
     void handlePrompt(const QString &fileName = {}, int line = -1, int column = -1);
     void onResultsDirChanged(const QString &filePath);
     static void logrotateTestResults();
@@ -131,13 +129,12 @@ private:
     void setupAndStartSquishRunnerProcess(const Utils::CommandLine &cmdLine);
     void setupRunnerForQuery();
     void setupRunnerForRun();
-    void startPrimaryRunner();
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
     SquishServerProcess m_serverProcess;
 
-    Utils::QtcProcess *m_primaryRunner = nullptr;
+    SquishRunnerProcess *m_primaryRunner = nullptr;
     Utils::QtcProcess *m_secondaryRunner = nullptr;
 
     QString m_serverHost;
@@ -160,12 +157,10 @@ private:
     class SquishLocationMark *m_locationMarker = nullptr;
     QTimer *m_requestVarsTimer = nullptr;
     qint64 m_readResultsCount;
-    int m_autId = 0;
     QueryCallback m_queryCallback;
     RunnerQuery m_query = ServerInfo;
     bool m_shutdownInitiated = false;
     bool m_closeRunnerOnEndRecord = false;
-    bool m_licenseIssues = false;
 };
 
 } // namespace Internal
