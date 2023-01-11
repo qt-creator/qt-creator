@@ -49,7 +49,7 @@ class LANGUAGECLIENT_EXPORT Client : public QObject
     Q_OBJECT
 
 public:
-    explicit Client(BaseClientInterface *clientInterface); // takes ownership
+    explicit Client(BaseClientInterface *clientInterface, const Utils::Id &id = {}); // takes ownership
      ~Client() override;
 
     Client(const Client &) = delete;

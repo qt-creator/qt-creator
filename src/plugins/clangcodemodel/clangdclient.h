@@ -41,7 +41,9 @@ class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
 public:
-    ClangdClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
+    ClangdClient(ProjectExplorer::Project *project,
+                 const Utils::FilePath &jsonDbDir,
+                 const Utils::Id &id = {});
     ~ClangdClient() override;
 
     bool isFullyIndexed() const;

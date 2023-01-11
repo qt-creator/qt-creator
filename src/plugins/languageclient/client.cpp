@@ -130,9 +130,9 @@ class ClientPrivate : public QObject
 {
     Q_OBJECT
 public:
-    ClientPrivate(Client *client, BaseClientInterface *clientInterface)
+    ClientPrivate(Client *client, BaseClientInterface *clientInterface, const Utils::Id &id)
         : q(client)
-        , m_id(Utils::Id::fromString(QUuid::createUuid().toString()))
+        , m_id(id.isValid() ? id : Utils::Id::fromString(QUuid::createUuid().toString()))
         , m_clientCapabilities(q->defaultClientCapabilities())
         , m_clientInterface(new InterfaceController(clientInterface))
         , m_documentSymbolCache(q)
@@ -333,8 +333,8 @@ public:
     const Utils::FilePath m_serverDeviceTemplate;
 };
 
-Client::Client(BaseClientInterface *clientInterface)
-    : d(new ClientPrivate(this, clientInterface))
+Client::Client(BaseClientInterface *clientInterface, const Utils::Id &id)
+    : d(new ClientPrivate(this, clientInterface, id))
 {}
 
 Id Client::id() const

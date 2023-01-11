@@ -494,9 +494,12 @@ void ClangModelManagerSupport::updateLanguageClient(ProjectExplorer::Project *pr
                         .arg(result.error));
             return;
         }
-        if (Client * const oldClient = clientForProject(project))
+        Utils::Id previousId;
+        if (Client * const oldClient = clientForProject(project)) {
+            previousId = oldClient->id();
             LanguageClientManager::shutdownClient(oldClient);
-        ClangdClient * const client = new ClangdClient(project, jsonDbDir);
+        }
+        ClangdClient * const client = new ClangdClient(project, jsonDbDir, previousId);
         connect(client, &Client::shadowDocumentSwitched, this, [](const Utils::FilePath &fp) {
             ClangdClient::handleUiHeaderChange(fp.fileName());
         });

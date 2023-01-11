@@ -355,8 +355,8 @@ static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
     parentObject.insert("compilationDatabaseChanges", cdb);
 }
 
-ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
-    : Client(clientInterface(project, jsonDbDir)), d(new Private(this, project))
+ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, const Id &id)
+    : Client(clientInterface(project, jsonDbDir), id), d(new Private(this, project))
 {
     setName(tr("clangd"));
     LanguageFilter langFilter;
