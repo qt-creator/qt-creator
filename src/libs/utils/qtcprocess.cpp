@@ -1224,15 +1224,15 @@ void QtcProcess::setRemoteProcessHooks(const DeviceProcessHooks &hooks)
     s_deviceHooks = hooks;
 }
 
-static bool askToKill(const QString &command)
+static bool askToKill(const CommandLine &command)
 {
 #ifdef QT_GUI_LIB
     if (!isMainThread())
         return true;
     const QString title = QtcProcess::tr("Process Not Responding");
-    QString msg = command.isEmpty() ?
-                QtcProcess::tr("The process is not responding.") :
-                QtcProcess::tr("The process \"%1\" is not responding.").arg(command);
+    QString msg = command.isEmpty() ? QtcProcess::tr("The process is not responding.")
+                                    : QtcProcess::tr("The process \"%1\" is not responding.")
+                                          .arg(command.executable().toUserOutput());
     msg += ' ';
     msg += QtcProcess::tr("Terminate the process?");
     // Restore the cursor that is set to wait while running.
@@ -1287,7 +1287,7 @@ bool QtcProcess::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int
         }
         // Prompt user, pretend we have data if says 'No'.
         const bool hang = !hasData && !finished;
-        hasData = hang && !askToKill(d->m_setup.m_commandLine.executable().path());
+        hasData = hang && !askToKill(d->m_setup.m_commandLine);
     } while (hasData && !finished);
     if (syncDebug)
         qDebug() << "<readDataFromProcess" << finished;
@@ -1924,8 +1924,7 @@ void QtcProcessPrivate::slotTimeout()
         if (debug)
             qDebug() << Q_FUNC_INFO << "HANG detected, killing";
         m_waitingForUser = true;
-        const bool terminate = !m_timeOutMessageBoxEnabled
-            || askToKill(m_setup.m_commandLine.executable().toString());
+        const bool terminate = !m_timeOutMessageBoxEnabled || askToKill(m_setup.m_commandLine);
         m_waitingForUser = false;
         if (terminate) {
             q->stop();
