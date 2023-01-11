@@ -53,7 +53,6 @@ public:
     ClangToolRunner(const AnalyzeInputData &input, QObject *parent = nullptr);
 
     QString name() const { return m_name; }
-    QString fileToAnalyze() const { return m_input.unit.file; }
 
     // compilerOptions is expected to contain everything except:
     //   (1) file to analyze

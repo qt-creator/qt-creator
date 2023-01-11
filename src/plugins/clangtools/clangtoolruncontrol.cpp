@@ -265,15 +265,9 @@ void ClangToolRunWorker::analyzeNextFile()
     }
 
     const RunnerCreator runnerCreator = m_runnerCreators.takeFirst();
-
     ClangToolRunner *runner = runnerCreator();
     m_runners.insert(runner);
-
-    if (runner->run()) {
-        const QString filePath = FilePath::fromString(runner->fileToAnalyze()).toUserOutput();
-        appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, runner->name()),
-                      Utils::StdOutFormat);
-    } else {
+    if (!runner->run()) {
         reportFailure(tr("Failed to start runner \"%1\".").arg(runner->name()));
         stop();
     }
@@ -374,6 +368,9 @@ ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool, const Anal
         onDone(output);
         handleFinished(runner);
     });
+    const QString filePath = FilePath::fromString(unit.file).toUserOutput();
+    appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, runner->name()),
+                  Utils::StdOutFormat);
     return runner;
 }
 
