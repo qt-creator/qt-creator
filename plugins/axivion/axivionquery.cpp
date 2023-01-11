@@ -75,9 +75,9 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
                 start();
                 return;
             }
-            emit resultRetrieved(m_process.readAllStandardError());
+            emit resultRetrieved(m_process.readAllRawStandardError());
         } else {
-            emit resultRetrieved(m_process.readAllStandardOutput());
+            emit resultRetrieved(m_process.readAllRawStandardOutput());
         }
         emit finished();
     });
