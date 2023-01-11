@@ -1493,7 +1493,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
     const int start = file->startOf(literal);
     const char * const str = numeric->chars();
 
-    const bool isBinary = numberLength > 2 && str[0] == '0' && tolower(str[1]) == 'b';
+    const bool isBinary = numberLength > 2 && str[0] == '0' && (str[1] == 'b' || str[1] == 'B');
     const bool isOctal = numberLength >= 2 && str[0] == '0' && str[1] >= '0' && str[1] <= '7';
     const bool isDecimal = !(isBinary || isOctal || numeric->isHex());
 
