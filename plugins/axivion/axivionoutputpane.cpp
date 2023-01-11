@@ -11,11 +11,12 @@
 
 #include <QFormLayout>
 #include <QLabel>
+#include <QScrollArea>
 #include <QStackedWidget>
 
 namespace Axivion::Internal {
 
-class DashboardWidget : public QWidget
+class DashboardWidget : public QScrollArea
 {
 public:
     explicit DashboardWidget(QWidget *parent = nullptr);
@@ -28,9 +29,10 @@ private:
 };
 
 DashboardWidget::DashboardWidget(QWidget *parent)
-    : QWidget(parent)
+    : QScrollArea(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QWidget *widget = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(widget);
     QFormLayout *projectLayout = new QFormLayout;
     m_project = new QLabel(this);
     projectLayout->addRow(Tr::tr("Project:"), m_project);
@@ -39,6 +41,9 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     layout->addLayout(projectLayout);
     m_formLayout = new QFormLayout;
     layout->addLayout(m_formLayout);
+    setWidget(widget);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setWidgetResizable(true);
 }
 
 void DashboardWidget::updateUi()
