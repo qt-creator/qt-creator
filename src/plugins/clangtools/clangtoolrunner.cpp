@@ -103,23 +103,10 @@ QStringList ClangToolRunner::mainToolArguments() const
 {
     QStringList result;
     result << "-export-fixes=" + m_outputFilePath;
-    if (!m_input.overlayFilePath.isEmpty() && supportsVFSOverlay())
+    if (!m_input.overlayFilePath.isEmpty() && isVFSOverlaySupported(m_executable))
         result << "--vfsoverlay=" + m_input.overlayFilePath;
     result << QDir::toNativeSeparators(m_input.unit.file);
     return result;
-}
-
-bool ClangToolRunner::supportsVFSOverlay() const
-{
-    static QMap<FilePath, bool> vfsCapabilities;
-    auto it = vfsCapabilities.find(m_executable);
-    if (it == vfsCapabilities.end()) {
-        QtcProcess p;
-        p.setCommand({m_executable, {"--help"}});
-        p.runBlocking();
-        it = vfsCapabilities.insert(m_executable, p.allOutput().contains("vfsoverlay"));
-    }
-    return it.value();
 }
 
 static QString createOutputFilePath(const FilePath &dirPath, const QString &fileToAnalyze)

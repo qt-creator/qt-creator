@@ -7,22 +7,19 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
 #include <QTimer>
 
 namespace Core { class IDocument; }
-namespace CppEditor { class ClangDiagnosticConfig; }
 namespace TextEditor { class TextEditorWidget; }
 
 namespace ClangTools {
-
 namespace Internal {
 
 class AnalyzeOutputData;
-class AnalyzeUnit;
 class ClangToolRunner;
 class DiagnosticMark;
 
@@ -48,10 +45,6 @@ private:
     void cancel();
 
     bool isSuppressed(const Diagnostic &diagnostic) const;
-
-    ClangToolRunner *createRunner(CppEditor::ClangToolType tool, const AnalyzeUnit &unit,
-                                  const CppEditor::ClangDiagnosticConfig &config,
-                                  const Utils::Environment &env);
 
     QTimer m_runTimer;
     Core::IDocument *m_document = nullptr;

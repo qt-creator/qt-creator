@@ -206,8 +206,14 @@ void DocumentClangToolRunner::run()
                         if (!executable.isExecutableFile() || includeDir.isEmpty() || clangVersion.isEmpty())
                             return;
                         const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
-                        m_runnerCreators << [this, tool, unit, config, env] {
-                            return createRunner(tool, unit, config, env);
+                        m_runnerCreators << [=]() -> ClangToolRunner * {
+                            if (m_document->isModified() && !isVFSOverlaySupported(executable))
+                                return nullptr;
+                            auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(),
+                                          env, unit, vfso().overlayFilePath().toString()}, this);
+                            connect(runner, &ClangToolRunner::done,
+                                    this, &DocumentClangToolRunner::onDone);
+                            return runner;
                         };
                     };
                     addClangTool(ClangToolType::Tidy);
@@ -226,15 +232,14 @@ void DocumentClangToolRunner::runNext()
 {
     if (m_currentRunner)
         m_currentRunner.release()->deleteLater();
-    m_currentRunner.reset(m_runnerCreators.isEmpty() ? nullptr : m_runnerCreators.takeFirst()());
-    if (m_currentRunner) {
-        if (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())
-            runNext();
-        else if (!m_currentRunner->run())
-            runNext();
-    } else {
+
+    if (m_runnerCreators.isEmpty()) {
         finalize();
+        return;
     }
+    m_currentRunner.reset(m_runnerCreators.takeFirst()());
+    if (!m_currentRunner || !m_currentRunner->run())
+        runNext();
 }
 
 static void updateLocation(Debugger::DiagnosticLocation &location)
@@ -342,16 +347,6 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
         return filePath == diagnostic.location.filePath;
     };
     return Utils::anyOf(m_suppressed, equalsSuppressed);
-}
-
-ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool, const AnalyzeUnit &unit,
-                                                       const ClangDiagnosticConfig &config,
-                                                       const Environment &env)
-{
-    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env, unit,
-                                       vfso().overlayFilePath().toString()}, this);
-    connect(runner, &ClangToolRunner::done, this, &DocumentClangToolRunner::onDone);
-    return runner;
 }
 
 } // namespace Internal
