@@ -14,6 +14,7 @@
 
 QT_BEGIN_NAMESPACE
 class QLayout;
+class QSplitter;
 class QTabWidget;
 class QWidget;
 QT_END_NAMESPACE
@@ -193,6 +194,13 @@ public:
     PushButton(std::initializer_list<LayoutItem> items);
 };
 
+class QTCREATOR_UTILS_EXPORT Splitter : public LayoutBuilder::LayoutItem
+{
+public:
+    Splitter(std::initializer_list<LayoutItem> items);
+    Splitter(QSplitter *splitter, std::initializer_list<LayoutItem> items);
+};
+
 class QTCREATOR_UTILS_EXPORT TabWidget : public LayoutBuilder::LayoutItem
 {
 public:
@@ -233,13 +241,6 @@ class QTCREATOR_UTILS_EXPORT Stack : public LayoutBuilder
 public:
     Stack() : LayoutBuilder(StackLayout) {}
     Stack(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
-};
-
-class QTCREATOR_UTILS_EXPORT Splitter : public LayoutBuilder
-{
-public:
-    Splitter() : LayoutBuilder(StackLayout) {}
-    Splitter(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
 
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;

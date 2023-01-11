@@ -11,6 +11,7 @@
 #include <QGroupBox>
 #include <QPushButton>
 #include <QStackedLayout>
+#include <QSplitter>
 #include <QStyle>
 #include <QTabWidget>
 #include <QWidget>
@@ -494,6 +495,16 @@ PushButton::PushButton(std::initializer_list<LayoutItem> items)
 {
     widget = new QPushButton;
     applyItems(widget, items);
+}
+
+Splitter::Splitter(std::initializer_list<LayoutItem> items)
+    : Splitter(new QSplitter(Qt::Vertical), items) {}
+
+Splitter::Splitter(QSplitter *splitter, std::initializer_list<LayoutItem> items)
+{
+    widget = splitter;
+    for (const LayoutItem &item : items)
+        splitter->addWidget(item.widget);
 }
 
 TabWidget::TabWidget(std::initializer_list<Tab> tabs)
