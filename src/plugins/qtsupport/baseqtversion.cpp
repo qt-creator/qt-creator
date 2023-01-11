@@ -1637,7 +1637,7 @@ bool QtVersion::hasQmlDumpWithRelocatableFlag() const
             || qtVersion() >= QVersionNumber(5, 1, 0));
 }
 
-Tasks QtVersion::reportIssuesImpl(const QString &proFile, const QString &buildDir) const
+Tasks QtVersion::reportIssuesImpl(const FilePath &proFile, const FilePath &buildDir) const
 {
     Q_UNUSED(proFile)
     Q_UNUSED(buildDir)
@@ -1665,7 +1665,7 @@ bool QtVersion::supportsMultipleQtAbis() const
     return false;
 }
 
-Tasks QtVersion::reportIssues(const QString &proFile, const QString &buildDir) const
+Tasks QtVersion::reportIssues(const FilePath &proFile, const FilePath &buildDir) const
 {
     return Utils::sorted(reportIssuesImpl(proFile, buildDir));
 }

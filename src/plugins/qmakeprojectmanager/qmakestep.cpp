@@ -240,10 +240,8 @@ bool QMakeStep::init()
     if (qmakeBc->subNodeBuild())
         node = qmakeBc->subNodeBuild();
     QTC_ASSERT(node, return false);
-    QString proFile = node->filePath().toString();
 
-    const Tasks tasks = Utils::sorted(
-                qtVersion->reportIssues(proFile, workingDirectory.toString()));
+    const Tasks tasks = Utils::sorted(qtVersion->reportIssues(node->filePath(), workingDirectory));
     if (!tasks.isEmpty()) {
         bool canContinue = true;
         for (const Task &t : tasks) {

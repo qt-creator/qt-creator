@@ -72,7 +72,8 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
 
     static QString unalignedBuildDirWarning();
-    static bool isBuildDirAtSafeLocation(const QString &sourceDir, const QString &buildDir);
+    static bool isBuildDirAtSafeLocation(const Utils::FilePath &sourceDir,
+                                         const Utils::FilePath &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
     Utils::TriState separateDebugInfo() const;

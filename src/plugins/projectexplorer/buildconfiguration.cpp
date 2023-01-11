@@ -643,8 +643,8 @@ BuildConfigurationFactory::~BuildConfigurationFactory()
     g_buildConfigurationFactories.removeOne(this);
 }
 
-const Tasks BuildConfigurationFactory::reportIssues(ProjectExplorer::Kit *kit, const QString &projectPath,
-                                                          const QString &buildDir) const
+const Tasks BuildConfigurationFactory::reportIssues(Kit *kit, const FilePath &projectPath,
+                                                    const FilePath &buildDir) const
 {
     if (m_issueReporter)
         return m_issueReporter(kit, projectPath, buildDir);

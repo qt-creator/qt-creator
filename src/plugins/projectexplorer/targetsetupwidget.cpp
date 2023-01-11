@@ -340,10 +340,9 @@ QPair<Task::TaskType, QString> TargetSetupWidget::findIssues(const BuildInfo &in
     if (m_projectPath.isEmpty() || !info.factory)
         return {Task::Unknown, {}};
 
-    QString buildDir = info.buildDirectory.toString();
     Tasks issues;
     if (info.factory)
-        issues = info.factory->reportIssues(m_kit, m_projectPath.toString(), buildDir);
+        issues = info.factory->reportIssues(m_kit, m_projectPath, info.buildDirectory);
 
     QString text;
     Task::TaskType highestType = Task::Unknown;

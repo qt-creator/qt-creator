@@ -155,10 +155,12 @@ public:
     static BuildConfigurationFactory *find(const Kit *k, const Utils::FilePath &projectPath);
     static BuildConfigurationFactory *find(Target *parent);
 
-    using IssueReporter = std::function<Tasks(Kit *, const QString &, const QString &)>;
+    using IssueReporter
+        = std::function<Tasks(Kit *, const Utils::FilePath &, const Utils::FilePath &)>;
     void setIssueReporter(const IssueReporter &issueReporter);
     const Tasks reportIssues(ProjectExplorer::Kit *kit,
-                             const QString &projectPath, const QString &buildDir) const;
+                             const Utils::FilePath &projectPath,
+                             const Utils::FilePath &buildDir) const;
 
 protected:
     using BuildGenerator

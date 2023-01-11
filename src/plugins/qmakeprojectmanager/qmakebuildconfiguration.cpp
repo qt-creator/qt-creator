@@ -226,7 +226,6 @@ void QmakeBuildConfiguration::kitChanged()
 void QmakeBuildConfiguration::updateProblemLabel()
 {
     ProjectExplorer::Kit * const k = kit();
-    const QString proFileName = project()->projectFilePath().toString();
 
     // Check for Qt version:
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
@@ -274,7 +273,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
 
     if (allGood) {
         const Tasks issues = Utils::sorted(
-                    version->reportIssues(proFileName, buildDirectory().toString()));
+            version->reportIssues(project()->projectFilePath(), buildDirectory()));
         if (!issues.isEmpty()) {
             QString text = QLatin1String("<nobr>");
             for (const ProjectExplorer::Task &task : issues) {
@@ -376,16 +375,15 @@ QString QmakeBuildConfiguration::unalignedBuildDirWarning()
     return Tr::tr("The build directory should be at the same level as the source directory.");
 }
 
-bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const QString &sourceDir,
-                                                       const QString &buildDir)
+bool QmakeBuildConfiguration::isBuildDirAtSafeLocation(const FilePath &sourceDir,
+                                                       const FilePath &buildDir)
 {
-    return buildDir.count('/') == sourceDir.count('/');
+    return buildDir.path().count('/') == sourceDir.path().count('/');
 }
 
 bool QmakeBuildConfiguration::isBuildDirAtSafeLocation() const
 {
-    return isBuildDirAtSafeLocation(project()->projectDirectory().toString(),
-                                    buildDirectory().toString());
+    return isBuildDirAtSafeLocation(project()->projectDirectory(), buildDirectory());
 }
 
 TriState QmakeBuildConfiguration::separateDebugInfo() const
@@ -749,14 +747,14 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
     registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
     setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
-    setIssueReporter([](Kit *k, const QString &projectPath, const QString &buildDir) {
+    setIssueReporter([](Kit *k, const FilePath &projectPath, const FilePath &buildDir) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         Tasks issues;
         if (version)
             issues << version->reportIssues(projectPath, buildDir);
         if (QmakeSettings::warnAgainstUnalignedBuildDir()
                 && !QmakeBuildConfiguration::isBuildDirAtSafeLocation(
-                    QFileInfo(projectPath).absoluteDir().path(), QDir(buildDir).absolutePath())) {
+                    projectPath.absolutePath(), buildDir.absoluteFilePath())) {
             issues.append(BuildSystemTask(Task::Warning,
                                           QmakeBuildConfiguration::unalignedBuildDirWarning()));
         }
