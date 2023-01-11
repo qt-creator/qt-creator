@@ -5,8 +5,11 @@
 
 #include "clangtoolsutils.h"
 
+#include <coreplugin/icore.h>
+
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compileroptionsbuilder.h>
+#include <cppeditor/cpptoolsreuse.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -25,6 +28,24 @@ using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
+
+AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
+                         const FilePath &clangIncludeDir,
+                         const QString &clangVersion)
+{
+    const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
+        clangVersion, clangIncludeDir);
+    CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
+                                          UseSystemHeader::No,
+                                          UseTweakedHeaderPaths::Tools,
+                                          UseLanguageDefines::No,
+                                          UseBuildSystemWarnings::No,
+                                          actualClangIncludeDir);
+    file = fileInfo.file.toString();
+    arguments = extraClangToolsPrependOptions();
+    arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));
+    arguments.append(extraClangToolsAppendOptions());
+}
 
 static bool isClMode(const QStringList &options)
 {
@@ -62,21 +83,6 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
         arguments << QLatin1String("-v");
 
     return arguments;
-}
-
-static QString generalProcessError(const QString &name)
-{
-    return ClangToolRunner::tr("An error occurred with the %1 process.").arg(name);
-}
-
-static QString finishedDueToCrash(const QString &name)
-{
-    return ClangToolRunner::tr("%1 crashed.").arg(name);
-}
-
-static QString finishedWithBadExitCode(const QString &name, int exitCode)
-{
-    return ClangToolRunner::tr("%1 finished with exit code: %2.").arg(name).arg(exitCode);
 }
 
 ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
@@ -156,27 +162,27 @@ bool ClangToolRunner::run()
 
 void ClangToolRunner::onProcessDone()
 {
-    if (m_process.result() == ProcessResult::StartFailed) {
-        emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
-    } else if (m_process.result() == ProcessResult::FinishedWithSuccess) {
+    if (m_process.result() == ProcessResult::FinishedWithSuccess) {
         qCDebug(LOG).noquote() << "Output:\n" << m_process.cleanedStdOut();
-        emit finishedWithSuccess(m_input.unit.file);
-    } else if (m_process.result() == ProcessResult::FinishedWithError) {
-        emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process.exitCode()),
-                                 commandlineAndOutput());
-    } else { // == QProcess::CrashExit
-        emit finishedWithFailure(finishedDueToCrash(m_name), commandlineAndOutput());
+        emit done({true, m_input.unit.file, m_outputFilePath, m_name});
+        return;
     }
-}
 
-QString ClangToolRunner::commandlineAndOutput() const
-{
-    return tr("Command line: %1\n"
-              "Process Error: %2\n"
-              "Output:\n%3")
-        .arg(m_process.commandLine().toUserOutput())
-        .arg(m_process.error())
-        .arg(m_process.cleanedStdOut());
+    const QString details = tr("Command line: %1\n"
+                               "Process Error: %2\n"
+                               "Output:\n%3")
+                                .arg(m_process.commandLine().toUserOutput())
+                                .arg(m_process.error())
+                                .arg(m_process.cleanedStdOut());
+    QString message;
+    if (m_process.result() == ProcessResult::StartFailed)
+        message = tr("An error occurred with the %1 process.").arg(m_name);
+    else if (m_process.result() == ProcessResult::FinishedWithError)
+        message = tr("%1 finished with exit code: %2.").arg(m_name).arg(m_process.exitCode());
+    else
+        message = tr("%1 crashed.").arg(m_name);
+
+    emit done({false, m_input.unit.file, m_outputFilePath, m_name, message, details});
 }
 
 } // namespace Internal

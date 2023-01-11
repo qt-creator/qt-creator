@@ -6,14 +6,12 @@
 #include "clangtool.h"
 #include "clangtoolrunner.h"
 #include "clangtoolssettings.h"
-#include "clangtoolsutils.h"
 #include "executableinfo.h"
 
 #include <debugger/analyzer/analyzerconstants.h>
 
 #include <clangcodemodel/clangutils.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
@@ -21,7 +19,6 @@
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppprojectfile.h>
-#include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/abi.h>
@@ -86,35 +83,6 @@ private:
 private:
      bool m_success = false;
 };
-
-AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
-                         const FilePath &clangIncludeDir,
-                         const QString &clangVersion)
-{
-    const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
-                clangVersion, clangIncludeDir);
-    CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
-                                          UseSystemHeader::No,
-                                          UseTweakedHeaderPaths::Tools,
-                                          UseLanguageDefines::No,
-                                          UseBuildSystemWarnings::No,
-                                          actualClangIncludeDir);
-    file = fileInfo.file.toString();
-    arguments = extraClangToolsPrependOptions();
-    arguments.append(optionsBuilder.build(fileInfo.kind, CppEditor::getPchUsage()));
-    arguments.append(extraClangToolsAppendOptions());
-}
-
-AnalyzeUnits ClangToolRunWorker::unitsToAnalyze(const FilePath &clangIncludeDir,
-                                                const QString &clangVersion)
-{
-    QTC_ASSERT(m_projectInfo, return AnalyzeUnits());
-
-    AnalyzeUnits units;
-    for (const FileInfo &fileInfo : m_fileInfos)
-        units << AnalyzeUnit(fileInfo, clangIncludeDir, clangVersion);
-    return units;
-}
 
 static QDebug operator<<(QDebug debug, const Utils::Environment &environment)
 {
@@ -218,16 +186,19 @@ void ClangToolRunWorker::start()
                   Utils::NormalMessageFormat);
 
     // Collect files
-    const auto clangIncludeDirAndVersion =
-            getClangIncludeDirAndVersion(runControl()->commandLine().executable());
-    const AnalyzeUnits unitsToProcess = unitsToAnalyze(clangIncludeDirAndVersion.first,
-                                                       clangIncludeDirAndVersion.second);
+    const auto [includeDir, clangVersion]
+        = getClangIncludeDirAndVersion(runControl()->commandLine().executable());
+
+    AnalyzeUnits unitsToProcess;
+    for (const FileInfo &fileInfo : m_fileInfos)
+        unitsToProcess.append({fileInfo, includeDir, clangVersion});
+
     qCDebug(LOG) << Q_FUNC_INFO << runControl()->commandLine().executable()
-                 << clangIncludeDirAndVersion.first << clangIncludeDirAndVersion.second;
+                 << includeDir << clangVersion;
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
 
     m_runnerCreators.clear();
-    for (const AnalyzeUnit &unit : unitsToProcess) {
+    for (const AnalyzeUnit &unit : std::as_const(unitsToProcess)) {
         for (const RunnerCreator &creator : runnerCreators(unit))
             m_runnerCreators << creator;
     }
@@ -308,27 +279,38 @@ void ClangToolRunWorker::analyzeNextFile()
     }
 }
 
-void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
-                                                     const QString &filePath)
+void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
 {
-    const QString outputFilePath = runner->outputFilePath();
-    qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << outputFilePath;
-
     emit runnerFinished();
 
+    if (!output.success) {
+        qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:" << output.errorMessage << '\n'
+                               << output.errorDetails;
+        m_filesAnalyzed.remove(output.fileToAnalyze);
+        m_filesNotAnalyzed.insert(output.fileToAnalyze);
+
+        const QString message = tr("Failed to analyze \"%1\": %2")
+                                    .arg(output.fileToAnalyze, output.errorMessage);
+        appendMessage(message, Utils::StdErrFormat);
+        appendMessage(output.errorDetails, Utils::StdErrFormat);
+        return;
+    }
+
+    qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << output.outputFilePath;
+
     QString errorMessage;
-    const Diagnostics diagnostics = m_tool->read(outputFilePath, m_projectFiles, &errorMessage);
+    const Diagnostics diagnostics = m_tool->read(output.outputFilePath, m_projectFiles,
+                                                 &errorMessage);
 
     if (!errorMessage.isEmpty()) {
-        m_filesAnalyzed.remove(filePath);
-        m_filesNotAnalyzed.insert(filePath);
+        m_filesAnalyzed.remove(output.fileToAnalyze);
+        m_filesNotAnalyzed.insert(output.fileToAnalyze);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        const QString filePath = runner->fileToAnalyze();
-        appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
+        appendMessage(tr("Failed to analyze \"%1\": %2").arg(output.fileToAnalyze, errorMessage),
                       Utils::StdErrFormat);
     } else {
-        if (!m_filesNotAnalyzed.contains(filePath))
-            m_filesAnalyzed.insert(filePath);
+        if (!m_filesNotAnalyzed.contains(output.fileToAnalyze))
+            m_filesAnalyzed.insert(output.fileToAnalyze);
         if (!diagnostics.isEmpty()) {
             // do not generate marks when we always analyze open files since marks from that
             // analysis should be more up to date
@@ -336,28 +318,6 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
             m_tool->onNewDiagnosticsAvailable(diagnostics, generateMarks);
         }
     }
-
-    handleFinished(runner);
-}
-
-void ClangToolRunWorker::onRunnerFinishedWithFailure(ClangToolRunner *runner,
-                                                     const QString &errorMessage,
-                                                     const QString &errorDetails)
-{
-    qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:" << errorMessage
-                           << '\n' << errorDetails;
-
-    emit runnerFinished();
-
-    const QString fileToAnalyze = runner->fileToAnalyze();
-
-    m_filesAnalyzed.remove(fileToAnalyze);
-    m_filesNotAnalyzed.insert(fileToAnalyze);
-
-    const QString message = tr("Failed to analyze \"%1\": %2").arg(fileToAnalyze, errorMessage);
-    appendMessage(message, Utils::StdErrFormat);
-    appendMessage(errorDetails, Utils::StdErrFormat);
-    handleFinished(runner);
 }
 
 void ClangToolRunWorker::handleFinished(ClangToolRunner *runner)
@@ -408,13 +368,12 @@ void ClangToolRunWorker::finalize()
 
 ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool, const AnalyzeUnit &unit)
 {
-    using namespace std::placeholders;
     auto runner = new ClangToolRunner(
         {tool, m_diagnosticConfig, m_temporaryDir.path(), m_environment, unit}, this);
-    connect(runner, &ClangToolRunner::finishedWithSuccess, this,
-            std::bind(&ClangToolRunWorker::onRunnerFinishedWithSuccess, this, runner, _1));
-    connect(runner, &ClangToolRunner::finishedWithFailure, this,
-            std::bind(&ClangToolRunWorker::onRunnerFinishedWithFailure, this, runner, _1, _2));
+    connect(runner, &ClangToolRunner::done, this, [this, runner](const AnalyzeOutputData &output) {
+        onDone(output);
+        handleFinished(runner);
+    });
     return runner;
 }
 

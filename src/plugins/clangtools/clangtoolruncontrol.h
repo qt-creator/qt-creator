@@ -19,19 +19,12 @@
 
 namespace ClangTools {
 namespace Internal {
+
+class AnalyzeOutputData;
+class AnalyzeUnit;
 class ClangTool;
 class ClangToolRunner;
 class ProjectBuilder;
-
-struct AnalyzeUnit {
-    AnalyzeUnit(const FileInfo &fileInfo,
-                const Utils::FilePath &clangResourceDir,
-                const QString &clangVersion);
-
-    QString file;
-    QStringList arguments; // without file itself and "-o somePath"
-};
-using AnalyzeUnits = QList<AnalyzeUnit>;
 
 using RunnerCreator = std::function<ClangToolRunner*()>;
 
@@ -56,22 +49,15 @@ signals:
     void runnerFinished();
     void startFailed();
 
-protected:
-    void onRunnerFinishedWithSuccess(ClangToolRunner *runner, const QString &filePath);
-    void onRunnerFinishedWithFailure(ClangToolRunner *runner, const QString &errorMessage,
-                                     const QString &errorDetails);
-
 private:
     void start() final;
     void stop() final;
+    void onDone(const AnalyzeOutputData &output);
 
     QList<RunnerCreator> runnerCreators(const AnalyzeUnit &unit);
     ClangToolRunner *createRunner(CppEditor::ClangToolType tool, const AnalyzeUnit &unit);
 
-    AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangIncludeDir,
-                                const QString &clangVersion);
     void analyzeNextFile();
-
     void handleFinished(ClangToolRunner *runner);
 
     void onProgressCanceled();

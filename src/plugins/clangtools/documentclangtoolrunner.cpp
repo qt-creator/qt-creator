@@ -242,14 +242,19 @@ static void updateLocation(Debugger::DiagnosticLocation &location)
     location.filePath = vfso().originalFilePath(location.filePath);
 }
 
-void DocumentClangToolRunner::onSuccess()
+void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 {
-    QString errorMessage;
-    FilePath mappedPath = vfso().autoSavedFilePath(m_document);
+    if (!output.success) {
+        qCDebug(LOG) << "Failed to analyze " << m_fileInfo.file
+                     << ":" << output.errorMessage << output.errorDetails;
+        runNext();
+        return;
+    }
+
+    const FilePath mappedPath = vfso().autoSavedFilePath(m_document);
     Diagnostics diagnostics = readExportedDiagnostics(
-        FilePath::fromString(m_currentRunner->outputFilePath()),
-        [&](const FilePath &path) { return path == mappedPath; },
-        &errorMessage);
+        FilePath::fromString(output.outputFilePath),
+        [&](const FilePath &path) { return path == mappedPath; });
 
     for (Diagnostic &diag : diagnostics) {
         updateLocation(diag.location);
@@ -260,9 +265,10 @@ void DocumentClangToolRunner::onSuccess()
         }
     }
 
+    const QString toolName = output.toolName;
     // remove outdated marks of the current runner
-    auto [toDelete, newMarks] = Utils::partition(m_marks, [this](DiagnosticMark *mark) {
-        return mark->source == m_currentRunner->name();
+    auto [toDelete, newMarks] = Utils::partition(m_marks, [toolName](DiagnosticMark *mark) {
+        return mark->source == toolName; // TODO: comparison on translatable string
     });
     m_marks = newMarks;
     qDeleteAll(toDelete);
@@ -271,12 +277,12 @@ void DocumentClangToolRunner::onSuccess()
 
     TextEditor::RefactorMarkers markers;
 
-    for (const Diagnostic &diagnostic : diagnostics) {
+    for (const Diagnostic &diagnostic : std::as_const(diagnostics)) {
         if (isSuppressed(diagnostic))
             continue;
 
         auto mark = new DiagnosticMark(diagnostic);
-        mark->source = m_currentRunner->name();
+        mark->source = toolName;
 
         if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
             TextEditor::RefactorMarker marker;
@@ -306,12 +312,6 @@ void DocumentClangToolRunner::onSuccess()
         }
     }
 
-    runNext();
-}
-
-void DocumentClangToolRunner::onFailure(const QString &errorMessage, const QString &errorDetails)
-{
-    qCDebug(LOG) << "Failed to analyze " << m_fileInfo.file << ":" << errorMessage << errorDetails;
     runNext();
 }
 
@@ -350,10 +350,7 @@ ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool, const
 {
     auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env, unit,
                                        vfso().overlayFilePath().toString()}, this);
-    connect(runner, &ClangToolRunner::finishedWithSuccess,
-            this, &DocumentClangToolRunner::onSuccess);
-    connect(runner, &ClangToolRunner::finishedWithFailure,
-            this, &DocumentClangToolRunner::onFailure);
+    connect(runner, &ClangToolRunner::done, this, &DocumentClangToolRunner::onDone);
     return runner;
 }
 

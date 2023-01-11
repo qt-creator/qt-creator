@@ -4,7 +4,6 @@
 #pragma once
 
 #include "clangfileinfo.h"
-#include "clangtoolruncontrol.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -22,6 +21,8 @@ namespace ClangTools {
 
 namespace Internal {
 
+class AnalyzeOutputData;
+class AnalyzeUnit;
 class ClangToolRunner;
 class DiagnosticMark;
 
@@ -40,8 +41,7 @@ private:
     void run();
     void runNext();
 
-    void onSuccess();
-    void onFailure(const QString &errorMessage, const QString &errorDetails);
+    void onDone(const AnalyzeOutputData &output);
 
     void finalize();
 

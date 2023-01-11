@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "clangtoolruncontrol.h"
+#include "clangfileinfo.h"
 
 #include <cppeditor/clangdiagnosticconfig.h>
 
@@ -15,6 +15,16 @@
 namespace ClangTools {
 namespace Internal {
 
+struct AnalyzeUnit {
+    AnalyzeUnit(const FileInfo &fileInfo,
+                const Utils::FilePath &clangResourceDir,
+                const QString &clangVersion);
+
+    QString file;
+    QStringList arguments; // without file itself and "-o somePath"
+};
+using AnalyzeUnits = QList<AnalyzeUnit>;
+
 struct AnalyzeInputData
 {
     CppEditor::ClangToolType tool = CppEditor::ClangToolType::Tidy;
@@ -24,6 +34,17 @@ struct AnalyzeInputData
     AnalyzeUnit unit;
     QString overlayFilePath = {};
 };
+
+struct AnalyzeOutputData
+{
+    bool success = true;
+    QString fileToAnalyze;
+    QString outputFilePath;
+    QString toolName;
+    QString errorMessage = {};
+    QString errorDetails = {};
+};
+
 class ClangToolRunner : public QObject
 {
     Q_OBJECT
@@ -33,7 +54,6 @@ public:
 
     QString name() const { return m_name; }
     QString fileToAnalyze() const { return m_input.unit.file; }
-    QString outputFilePath() const { return m_outputFilePath; }
     bool supportsVFSOverlay() const;
 
     // compilerOptions is expected to contain everything except:
@@ -42,22 +62,18 @@ public:
     bool run();
 
 signals:
-    void finishedWithSuccess(const QString &fileToAnalyze);
-    void finishedWithFailure(const QString &errorMessage, const QString &errorDetails);
+    void done(const AnalyzeOutputData &output);
 
 private:
-    void onProcessOutput();
     void onProcessDone();
 
     QStringList mainToolArguments() const;
-    QString commandlineAndOutput() const;
 
     const AnalyzeInputData m_input;
     Utils::QtcProcess m_process;
 
     QString m_name;
     Utils::FilePath m_executable;
-
     QString m_outputFilePath;
 };
 
