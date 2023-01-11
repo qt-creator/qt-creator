@@ -15,6 +15,8 @@
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QLayout>
+
 using namespace Utils;
 using namespace TextEditor;
 using namespace LanguageServerProtocol;
