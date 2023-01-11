@@ -81,6 +81,7 @@ static QString finishedWithBadExitCode(const QString &name, int exitCode)
 
 ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
     : QObject(parent)
+    , m_input(input)
 {
     m_name = input.tool == ClangToolType::Tidy ? tr("Clang-Tidy") : tr("Clazy");
     m_executable = toolExecutable(input.tool);
@@ -90,13 +91,11 @@ ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
                              << "--"
                              << clangArguments(input.config, baseOptions);
     };
-    m_overlayFilePath = input.overlayFilePath;
-    m_outputDirPath = input.outputDirPath;
-    QTC_CHECK(!m_outputDirPath.isEmpty());
+    QTC_CHECK(!m_input.outputDirPath.isEmpty());
 
     m_process.setEnvironment(input.environment);
     m_process.setUseCtrlCStub(true);
-    m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
+    m_process.setWorkingDirectory(m_input.outputDirPath); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
 }
 
@@ -104,9 +103,9 @@ QStringList ClangToolRunner::mainToolArguments() const
 {
     QStringList result;
     result << "-export-fixes=" + m_outputFilePath;
-    if (!m_overlayFilePath.isEmpty() && supportsVFSOverlay())
-        result << "--vfsoverlay=" + m_overlayFilePath;
-    result << QDir::toNativeSeparators(m_fileToAnalyze);
+    if (!m_input.overlayFilePath.isEmpty() && supportsVFSOverlay())
+        result << "--vfsoverlay=" + m_input.overlayFilePath;
+    result << QDir::toNativeSeparators(m_input.unit.file);
     return result;
 }
 
@@ -138,20 +137,19 @@ static QString createOutputFilePath(const FilePath &dirPath, const QString &file
     return {};
 }
 
-bool ClangToolRunner::run(const QString &fileToAnalyze, const QStringList &compilerOptions)
+bool ClangToolRunner::run()
 {
     QTC_ASSERT(!m_executable.isEmpty(), return false);
-    QTC_CHECK(!compilerOptions.contains(QLatin1String("-o")));
-    QTC_CHECK(!compilerOptions.contains(fileToAnalyze));
+    QTC_CHECK(!m_input.unit.arguments.contains(QLatin1String("-o")));
+    QTC_CHECK(!m_input.unit.arguments.contains(m_input.unit.file));
+    QTC_ASSERT(FilePath::fromString(m_input.unit.file).exists(), return false);
 
-    m_fileToAnalyze = fileToAnalyze;
-
-    m_outputFilePath = createOutputFilePath(m_outputDirPath, fileToAnalyze);
+    m_outputFilePath = createOutputFilePath(m_input.outputDirPath, m_input.unit.file);
     QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
-    m_commandLine = {m_executable, m_argsCreator(compilerOptions)};
+    const CommandLine commandLine = {m_executable, m_argsCreator(m_input.unit.arguments)};
 
-    qCDebug(LOG).noquote() << "Starting" << m_commandLine.toUserOutput();
-    m_process.setCommand(m_commandLine);
+    qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
+    m_process.setCommand(commandLine);
     m_process.start();
     return true;
 }
@@ -162,7 +160,7 @@ void ClangToolRunner::onProcessDone()
         emit finishedWithFailure(generalProcessError(m_name), commandlineAndOutput());
     } else if (m_process.result() == ProcessResult::FinishedWithSuccess) {
         qCDebug(LOG).noquote() << "Output:\n" << m_process.cleanedStdOut();
-        emit finishedWithSuccess(m_fileToAnalyze);
+        emit finishedWithSuccess(m_input.unit.file);
     } else if (m_process.result() == ProcessResult::FinishedWithError) {
         emit finishedWithFailure(finishedWithBadExitCode(m_name, m_process.exitCode()),
                                  commandlineAndOutput());
@@ -176,7 +174,7 @@ QString ClangToolRunner::commandlineAndOutput() const
     return tr("Command line: %1\n"
               "Process Error: %2\n"
               "Output:\n%3")
-        .arg(m_commandLine.toUserOutput())
+        .arg(m_process.commandLine().toUserOutput())
         .arg(m_process.error())
         .arg(m_process.cleanedStdOut());
 }

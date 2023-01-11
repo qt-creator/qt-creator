@@ -193,20 +193,25 @@ void DocumentClangToolRunner::run()
                 if (runSettings.analyzeOpenFiles()) {
                     vfso().update();
 
-                    ClangDiagnosticConfig config = diagnosticConfig(
-                        runSettings.diagnosticConfigId());
+                    const ClangDiagnosticConfig config
+                        = diagnosticConfig(runSettings.diagnosticConfigId());
 
-                    Environment env = projectBuildEnvironment(project);
-                    if (config.isEnabled(ClangToolType::Tidy)) {
-                        m_runnerCreators << [this, env, config] {
-                            return createRunner(ClangToolType::Tidy, config, env);
+                    const Environment env = projectBuildEnvironment(project);
+                    const auto addClangTool = [this, config, env](ClangToolType tool) {
+                        if (!config.isEnabled(tool))
+                            return;
+                        const FilePath executable = toolExecutable(tool);
+                        const auto [includeDir, clangVersion]
+                            = getClangIncludeDirAndVersion(executable);
+                        if (executable.isEmpty() || includeDir.isEmpty() || clangVersion.isEmpty())
+                            return;
+                        const AnalyzeUnit unit(m_fileInfo, includeDir, clangVersion);
+                        m_runnerCreators << [this, tool, unit, config, env] {
+                            return createRunner(tool, unit, config, env);
                         };
-                    }
-                    if (config.isEnabled(ClangToolType::Clazy)) {
-                        m_runnerCreators << [this, env, config] {
-                            return createRunner(ClangToolType::Clazy, config, env);
-                        };
-                    }
+                    };
+                    addClangTool(ClangToolType::Tidy);
+                    addClangTool(ClangToolType::Clazy);
                 }
             }
         }
@@ -223,19 +228,10 @@ void DocumentClangToolRunner::runNext()
         m_currentRunner.release()->deleteLater();
     m_currentRunner.reset(m_runnerCreators.isEmpty() ? nullptr : m_runnerCreators.takeFirst()());
     if (m_currentRunner) {
-        const auto [clangIncludeDir, clangVersion] = getClangIncludeDirAndVersion(
-                                                     m_currentRunner->executable());
-        qCDebug(LOG) << Q_FUNC_INFO << m_currentRunner->executable() << clangIncludeDir
-                     << clangVersion << m_fileInfo.file;
-        if (m_currentRunner->executable().isEmpty() || clangIncludeDir.isEmpty() || clangVersion.isEmpty()
-            || (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())) {
+        if (m_document->isModified() && !m_currentRunner->supportsVFSOverlay())
             runNext();
-        } else {
-            const AnalyzeUnit unit(m_fileInfo, clangIncludeDir, clangVersion);
-            QTC_ASSERT(FilePath::fromString(unit.file).exists(), runNext(); return;);
-            if (!m_currentRunner->run(unit.file, unit.arguments))
-                runNext();
-        }
+        else if (!m_currentRunner->run())
+            runNext();
     } else {
         finalize();
     }
@@ -348,11 +344,11 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
     return Utils::anyOf(m_suppressed, equalsSuppressed);
 }
 
-ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool,
+ClangToolRunner *DocumentClangToolRunner::createRunner(ClangToolType tool, const AnalyzeUnit &unit,
                                                        const ClangDiagnosticConfig &config,
                                                        const Environment &env)
 {
-    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env,
+    auto runner = new ClangToolRunner({tool, config, m_temporaryDir.path(), env, unit,
                                        vfso().overlayFilePath().toString()}, this);
     connect(runner, &ClangToolRunner::finishedWithSuccess,
             this, &DocumentClangToolRunner::onSuccess);

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "clangfileinfo.h"
+#include "clangtoolruncontrol.h"
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 
@@ -48,7 +49,7 @@ private:
 
     bool isSuppressed(const Diagnostic &diagnostic) const;
 
-    ClangToolRunner *createRunner(CppEditor::ClangToolType tool,
+    ClangToolRunner *createRunner(CppEditor::ClangToolType tool, const AnalyzeUnit &unit,
                                   const CppEditor::ClangDiagnosticConfig &config,
                                   const Utils::Environment &env);
 

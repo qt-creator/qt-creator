@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include "clangtoolruncontrol.h"
+
 #include <cppeditor/clangdiagnosticconfig.h>
 
-#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
@@ -22,6 +23,7 @@ struct AnalyzeInputData
     CppEditor::ClangDiagnosticConfig config;
     Utils::FilePath outputDirPath;
     Utils::Environment environment;
+    AnalyzeUnit unit;
     QString overlayFilePath = {};
 };
 class ClangToolRunner : public QObject
@@ -33,14 +35,14 @@ public:
 
     QString name() const { return m_name; }
     Utils::FilePath executable() const { return m_executable; }
-    QString fileToAnalyze() const { return m_fileToAnalyze; }
+    QString fileToAnalyze() const { return m_input.unit.file; }
     QString outputFilePath() const { return m_outputFilePath; }
     bool supportsVFSOverlay() const;
 
     // compilerOptions is expected to contain everything except:
     //   (1) file to analyze
     //   (2) -o output-file
-    bool run(const QString &fileToAnalyze, const QStringList &compilerOptions = {});
+    bool run();
 
 signals:
     void finishedWithSuccess(const QString &fileToAnalyze);
@@ -53,17 +55,14 @@ private:
     QStringList mainToolArguments() const;
     QString commandlineAndOutput() const;
 
-    QString m_overlayFilePath;
-    Utils::FilePath m_outputDirPath;
+    const AnalyzeInputData m_input;
     Utils::QtcProcess m_process;
 
     QString m_name;
     Utils::FilePath m_executable;
     ArgsCreator m_argsCreator;
 
-    QString m_fileToAnalyze;
     QString m_outputFilePath;
-    Utils::CommandLine m_commandLine;
 };
 
 } // namespace Internal

@@ -35,12 +35,6 @@ using AnalyzeUnits = QList<AnalyzeUnit>;
 
 using RunnerCreator = std::function<ClangToolRunner*()>;
 
-struct QueueItem {
-    AnalyzeUnit unit;
-    RunnerCreator runnerCreator;
-};
-using QueueItems = QList<QueueItem>;
-
 class ClangToolRunWorker : public ProjectExplorer::RunWorker
 {
     Q_OBJECT
@@ -71,8 +65,8 @@ private:
     void start() final;
     void stop() final;
 
-    QList<RunnerCreator> runnerCreators();
-    ClangToolRunner *createRunner(CppEditor::ClangToolType tool);
+    QList<RunnerCreator> runnerCreators(const AnalyzeUnit &unit);
+    ClangToolRunner *createRunner(CppEditor::ClangToolType tool, const AnalyzeUnit &unit);
 
     AnalyzeUnits unitsToAnalyze(const Utils::FilePath &clangIncludeDir,
                                 const QString &clangVersion);
@@ -101,7 +95,7 @@ private:
     Utils::Id m_toolChainType;
 
     QFutureInterface<void> m_progress;
-    QueueItems m_queue;
+    QList<RunnerCreator> m_runnerCreators;
     QSet<Utils::FilePath> m_projectFiles;
     QSet<ClangToolRunner *> m_runners;
     int m_initialQueueSize = 0;

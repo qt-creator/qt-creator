@@ -166,11 +166,11 @@ ClangToolRunWorker::ClangToolRunWorker(ClangTool *tool, RunControl *runControl,
     m_toolChainType = toolChain->typeId();
 }
 
-QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
+QList<RunnerCreator> ClangToolRunWorker::runnerCreators(const AnalyzeUnit &unit)
 {
     if (m_tool == ClangTidyTool::instance())
-        return {[this] { return createRunner(ClangToolType::Tidy); }};
-    return {[this] { return createRunner(ClangToolType::Clazy); }};
+        return {[=] { return createRunner(ClangToolType::Tidy, unit); }};
+    return {[=] { return createRunner(ClangToolType::Clazy, unit); }};
 }
 
 void ClangToolRunWorker::start()
@@ -228,12 +228,12 @@ void ClangToolRunWorker::start()
                  << clangIncludeDirAndVersion.first << clangIncludeDirAndVersion.second;
     qCDebug(LOG) << "Files to process:" << unitsToProcess;
 
-    m_queue.clear();
+    m_runnerCreators.clear();
     for (const AnalyzeUnit &unit : unitsToProcess) {
-        for (const RunnerCreator &creator : runnerCreators())
-            m_queue << QueueItem{unit, creator};
+        for (const RunnerCreator &creator : runnerCreators(unit))
+            m_runnerCreators << creator;
     }
-    m_initialQueueSize = m_queue.count();
+    m_initialQueueSize = m_runnerCreators.count();
     m_filesAnalyzed.clear();
     m_filesNotAnalyzed.clear();
 
@@ -254,7 +254,7 @@ void ClangToolRunWorker::start()
     const int parallelRuns = m_runSettings.parallelJobs();
     QTC_ASSERT(parallelRuns >= 1, reportFailure(); return);
 
-    if (m_queue.isEmpty()) {
+    if (m_runnerCreators.isEmpty()) {
         finalize();
         return;
     }
@@ -262,7 +262,7 @@ void ClangToolRunWorker::start()
     reportStarted();
     m_elapsed.start();
 
-    while (m_runners.size() < parallelRuns && !m_queue.isEmpty())
+    while (m_runners.size() < parallelRuns && !m_runnerCreators.isEmpty())
         analyzeNextFile();
 }
 
@@ -274,7 +274,7 @@ void ClangToolRunWorker::stop()
     }
     m_projectFiles.clear();
     m_runners.clear();
-    m_queue.clear();
+    m_runnerCreators.clear();
     m_progress.reportFinished();
 
     reportStopped();
@@ -289,21 +289,19 @@ void ClangToolRunWorker::analyzeNextFile()
     if (m_progress.isFinished())
         return; // The previous call already reported that we are finished.
 
-    if (m_queue.isEmpty()) {
+    if (m_runnerCreators.isEmpty()) {
         if (m_runners.isEmpty())
             finalize();
         return;
     }
 
-    const QueueItem queueItem = m_queue.takeFirst();
-    const AnalyzeUnit unit = queueItem.unit;
-    qCDebug(LOG) << "analyzeNextFile:" << unit.file;
+    const RunnerCreator runnerCreator = m_runnerCreators.takeFirst();
 
-    ClangToolRunner *runner = queueItem.runnerCreator();
+    ClangToolRunner *runner = runnerCreator();
     m_runners.insert(runner);
 
-    if (runner->run(unit.file, unit.arguments)) {
-        const QString filePath = FilePath::fromString(unit.file).toUserOutput();
+    if (runner->run()) {
+        const QString filePath = FilePath::fromString(runner->fileToAnalyze()).toUserOutput();
         appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, runner->name()),
                       Utils::StdOutFormat);
     } else {
@@ -380,7 +378,7 @@ void ClangToolRunWorker::onProgressCanceled()
 
 void ClangToolRunWorker::updateProgressValue()
 {
-    m_progress.setProgressValue(m_initialQueueSize - m_queue.size());
+    m_progress.setProgressValue(m_initialQueueSize - m_runnerCreators.size());
 }
 
 void ClangToolRunWorker::finalize()
@@ -410,11 +408,11 @@ void ClangToolRunWorker::finalize()
     runControl()->initiateStop();
 }
 
-ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool)
+ClangToolRunner *ClangToolRunWorker::createRunner(ClangToolType tool, const AnalyzeUnit &unit)
 {
     using namespace std::placeholders;
     auto runner = new ClangToolRunner(
-        {tool, m_diagnosticConfig, m_temporaryDir.path(), m_environment}, this);
+        {tool, m_diagnosticConfig, m_temporaryDir.path(), m_environment, unit}, this);
     connect(runner, &ClangToolRunner::finishedWithSuccess, this,
             std::bind(&ClangToolRunWorker::onRunnerFinishedWithSuccess, this, runner, _1));
     connect(runner, &ClangToolRunner::finishedWithFailure, this,
