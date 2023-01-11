@@ -1276,7 +1276,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Display General Messages after sending a post</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Allgemeine Ausgaben&quot; nach dem Senden anzeigen</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -6652,7 +6652,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Signals and Slots Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Signals und Slots</translation>
     </message>
     <message>
         <source>Edit Widgets</source>
@@ -6958,7 +6958,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiert bereits existierende Projekte, die weder qmake, CMake, Qbs, Meson oder Autotools verwenden. Dadurch kann %1 als Code-Editor benutzt werden.</translation>
     </message>
 </context>
 <context>
@@ -9836,7 +9836,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Triggers a Perforce version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Perforce-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+P,Meta+F</source>
@@ -10141,7 +10141,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Cannot request scenario &quot;%1&quot; as it was already requested.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Szenario &quot;%1&quot; nicht anfordern, da es schon angefordert wurde.</translation>
     </message>
     <message>
         <source>Unknown option %1</source>
@@ -12001,7 +12001,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Triggers a Subversion version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Subversion-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+S,Meta+D</source>
@@ -12799,7 +12799,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Incomplete version number (dot but no minor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige Versionsnummer (Punkt, aber fehlende Minor-Version)</translation>
     </message>
     <message>
         <source>File import requires a qualifier</source>
@@ -12990,7 +12990,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Triggers a Mercurial version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Mercurial-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Alt+G,Alt+L</source>
@@ -14919,7 +14919,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Qt version has no QML utility.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version hat kein QML-Werkzeug.</translation>
     </message>
     <message>
         <source>Non-desktop Qt is used with a desktop device.</source>
@@ -16791,7 +16791,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Runs a text editing macro that was recorded with Tools &gt; Text Editing Macros &gt; Record Macro.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt ein Textbearbeitungs-Makro aus, das mit Extras &gt; Textbearbeitungs-Makros &gt; Makroaufnahme aufgenommen wurde.</translation>
     </message>
 </context>
 <context>
@@ -17178,7 +17178,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Bazaar-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -25566,7 +25566,10 @@ the manifest file by overriding your settings. Allow override?</source>
 Deploying to that directory will remove any files already present.
 
 Are you sure you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Das entfernte Verzeichnis &quot;%1&quot; existiert bereits.
+Das Deployment in dieses Verzeichnis wird alle darin befindlichen Dateien löschen.
+
+Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
@@ -26010,7 +26013,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Triggers a ClearCase version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des ClearCase-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>C&amp;learCase</source>
@@ -26609,7 +26612,7 @@ wirklich löschen?</translation>
     <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice, previous definition at %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaft ist doppelt definiert, vorherige Definition ist bei %1:%2</translation>
     </message>
 </context>
 <context>
@@ -30051,7 +30054,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
     <message>
         <source>Deploy to iOS device</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf iOS-Gerät</translation>
     </message>
 </context>
 <context>
@@ -31143,7 +31146,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     <message>
         <source>Format &amp;Line(s)</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zeilen formatieren</translation>
     </message>
     <message>
         <source>&amp;Disable Formatting for Selected Text</source>
@@ -36916,7 +36919,7 @@ Error:
     <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Failed to retrieve data.</source>
-        <translation type="unfinished">Es konnten keine Daten empfangen werden.</translation>
+        <translation>Es konnten keine Daten empfangen werden.</translation>
     </message>
     <message>
         <source>Working...</source>
