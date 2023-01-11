@@ -85,12 +85,6 @@ ClangToolRunner::ClangToolRunner(const AnalyzeInputData &input, QObject *parent)
 {
     m_name = input.tool == ClangToolType::Tidy ? tr("Clang-Tidy") : tr("Clazy");
     m_executable = toolExecutable(input.tool);
-    m_argsCreator = [this, input](const QStringList &baseOptions) {
-        return QStringList() << checksArguments(input.tool, input.config)
-                             << mainToolArguments()
-                             << "--"
-                             << clangArguments(input.config, baseOptions);
-    };
     QTC_CHECK(!m_input.outputDirPath.isEmpty());
 
     m_process.setEnvironment(input.environment);
@@ -146,7 +140,12 @@ bool ClangToolRunner::run()
 
     m_outputFilePath = createOutputFilePath(m_input.outputDirPath, m_input.unit.file);
     QTC_ASSERT(!m_outputFilePath.isEmpty(), return false);
-    const CommandLine commandLine = {m_executable, m_argsCreator(m_input.unit.arguments)};
+
+    const QStringList args = checksArguments(m_input.tool, m_input.config)
+                           + mainToolArguments()
+                           + QStringList{"--"}
+                           + clangArguments(m_input.config, m_input.unit.arguments);
+    const CommandLine commandLine = {m_executable, args};
 
     qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
     m_process.setCommand(commandLine);

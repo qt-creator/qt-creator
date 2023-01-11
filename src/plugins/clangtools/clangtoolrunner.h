@@ -15,8 +15,6 @@
 namespace ClangTools {
 namespace Internal {
 
-using ArgsCreator = std::function<QStringList(const QStringList &baseOptions)>;
-
 struct AnalyzeInputData
 {
     CppEditor::ClangToolType tool = CppEditor::ClangToolType::Tidy;
@@ -60,7 +58,6 @@ private:
 
     QString m_name;
     Utils::FilePath m_executable;
-    ArgsCreator m_argsCreator;
 
     QString m_outputFilePath;
 };
