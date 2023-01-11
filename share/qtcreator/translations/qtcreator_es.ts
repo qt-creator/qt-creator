@@ -2127,7 +2127,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Ordenar alfabeticamente</translation>
@@ -2148,9 +2148,6 @@ Would you like to overwrite them?</source>
         <source>Reformat Document</source>
         <translation type="obsolete">Reformatear documento</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation>Introduzca nombre de clase</translation>
@@ -2163,30 +2160,18 @@ Would you like to overwrite them?</source>
         <source>Configure...</source>
         <translation>Configurar...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Error generando el contenido del archivo.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Asistente de Clases C++</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation>Sin filtro</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++</source>
         <translation></translation>

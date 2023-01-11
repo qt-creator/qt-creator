@@ -2196,13 +2196,9 @@ Chcete je nechat přepsat?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
-        <translation type="obsolete">Roztřídit podle abecedy</translation>
-    </message>
-    <message>
-        <source>Sort Alphabetically</source>
         <translation type="obsolete">Roztřídit podle abecedy</translation>
     </message>
     <message>
@@ -2213,13 +2209,6 @@ Chcete je nechat přepsat?</translation>
         <source>Yes, I know what I am doing.</source>
         <translation type="obsolete">Ano, vím, co dělám.</translation>
     </message>
-    <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Nepoužívaná proměnná</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation type="obsolete">Zadejte název třídy</translation>
@@ -2236,16 +2225,10 @@ Chcete je nechat přepsat?</translation>
         <source>Configure...</source>
         <translation type="obsolete">Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Chyba při vytváření souboru.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Průvodce pro novou třídu C++</translation>
@@ -2254,23 +2237,9 @@ Chcete je nechat přepsat?</translation>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation type="obsolete">Nezpracovaný</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
-    <message>
-        <source>C++</source>
-        <translation type="obsolete">C++</translation>
-    </message>
-    <message>
-        <source>C++ Header File</source>
-        <translation type="obsolete">Hlavičkový soubor C++</translation>
     </message>
     <message>
         <source>Creates a C++ header file.</source>
@@ -2279,14 +2248,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Creates a C++ source file.</source>
         <translation type="obsolete">Vytvoří nový zdrojový soubor C++.</translation>
-    </message>
-    <message>
-        <source>C++ Source File</source>
-        <translation type="obsolete">Zdrojový soubor C++</translation>
-    </message>
-    <message>
-        <source>C++ Class</source>
-        <translation type="obsolete">Třída C++</translation>
     </message>
     <message>
         <source>Creates a header and a source file for a new class.</source>
@@ -2301,68 +2262,8 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Přepínání mezi prohlášením a vymezením postupu</translation>
     </message>
     <message>
-        <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří hlavičku C++ a zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ source file that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří zdrojový soubor pro novou třídu, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
-        <source>Creates a C++ header file that you can add to a C++ project.</source>
-        <translation type="obsolete">Vytvoří hlavičkový soubor C++, který můžete přidat do projektu C++.</translation>
-    </message>
-    <message>
         <source>Follow Symbol Under Cursor</source>
         <translation type="obsolete">Následovat symbol pod ukazovátkem</translation>
-    </message>
-    <message>
-        <source>Switch Between Method Declaration/Definition</source>
-        <translation type="obsolete">Přepínání mezi deklarací a definicí metody</translation>
-    </message>
-    <message>
-        <source>Shift+F2</source>
-        <translation type="obsolete">Shift+F2</translation>
-    </message>
-    <message>
-        <source>Open Method Declaration/Definition in Next Split</source>
-        <translation type="obsolete">Otevřít deklaraci/definici metody v dalším rozdělení</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Shift+F2</source>
-        <translation type="obsolete">Ctrl+E, Shift+F2</translation>
-    </message>
-    <message>
-        <source>Find Usages</source>
-        <translation type="obsolete">Najít použití</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+U</source>
-        <translation type="obsolete">Ctrl+Shift+U</translation>
-    </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation type="obsolete">Otevřít hierarchii tříd</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+T</source>
-        <translation type="obsolete">Ctrl+Shift+T</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+T</source>
-        <translation type="obsolete">Meta+Shift+T</translation>
-    </message>
-    <message>
-        <source>Rename Symbol Under Cursor</source>
-        <translation type="obsolete">Přejmenovat symbol pod ukazovátkem</translation>
-    </message>
-    <message>
-        <source>CTRL+SHIFT+R</source>
-        <translation type="obsolete">Ctrl+Shift+R</translation>
-    </message>
-    <message>
-        <source>Update Code Model</source>
-        <translation type="obsolete">Obnovit model kódu</translation>
     </message>
     <message>
         <source>Rename Symbol under Cursor</source>
@@ -33119,7 +33020,7 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Roztřídit podle abecedy</translation>
@@ -33132,16 +33033,10 @@ správy verzí (%2)</translation>
         <source>Unused variable</source>
         <translation>Nepoužívaná proměnná</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Přidat deklaraci pro %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Přidat definici v %1</translation>
@@ -33158,9 +33053,6 @@ správy verzí (%2)</translation>
         <source>Add Definition Outside Class</source>
         <translation>Přidat definici vně třídy</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
@@ -33169,9 +33061,6 @@ správy verzí (%2)</translation>
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Rozbalit vše</translation>
@@ -33180,16 +33069,6 @@ správy verzí (%2)</translation>
         <source>Collapse All</source>
         <translation>Složit vše</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Není dostupná žádná hierarchie tříd</translation>
@@ -33202,9 +33081,6 @@ správy verzí (%2)</translation>
         <source>Derived</source>
         <translation>Odvozené</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Hierarchie tříd</translation>
@@ -46967,7 +46843,7 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Vytáhnout funkci</translation>
@@ -49989,7 +49865,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Změny se nepodařilo použít, protože cílový soubor byl změněn</translation>
@@ -53315,7 +53191,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation>Jen virtuální metody lze označit jako &apos;final&apos;</translation>
@@ -55559,7 +55435,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>CppEditor</name>
     <message>
         <source>C++ Class</source>
         <translation>Třída C++</translation>
@@ -55689,7 +55565,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::QuickFix</name>
+    <name>CppEditor</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Přesunout definice vně třídy</translation>
@@ -55706,9 +55582,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Vložit virtuální funkce základních tříd</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Vložit virtuální funkce</translation>
@@ -56700,7 +56573,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatečné příkazy pro preprocesor</translation>
@@ -57675,21 +57548,15 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Není dostupná žádná hierarchie hlavičkových souborů</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Hierarchie hlavičkových souborů</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Hlavičkové soubory</translation>
@@ -57719,7 +57586,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...Hledají se přepsání</translation>

@@ -9,8 +9,6 @@ namespace CppEditor::Internal {
 
 class CppIncludesFilter : public Core::BaseFileFilter
 {
-    Q_OBJECT
-
 public:
     CppIncludesFilter();
 

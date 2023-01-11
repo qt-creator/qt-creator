@@ -537,7 +537,7 @@ void CppModelManager::findUnusedFunctions(const FilePath &folder)
     QTC_ASSERT(functionsFilter, return);
     const QPointer<Core::SearchResult> search
             = Core::SearchResultWindow::instance()
-            ->startNewSearch(tr("Find Unused Functions"),
+            ->startNewSearch(Tr::tr("Find Unused Functions"),
                              {},
                              {},
                              Core::SearchResultWindow::SearchOnly,
@@ -1253,9 +1253,8 @@ static QSet<QString> filteredFilesRemoved(const QSet<QString> &files, int fileSi
             for (const QRegularExpression &rx: std::as_const(regexes)) {
                 QRegularExpressionMatch match = rx.match(filePath.absoluteFilePath().path());
                 if (match.hasMatch()) {
-                    const QString msg = QCoreApplication::translate(
-                                "CppIndexer",
-                                "C++ Indexer: Skipping file \"%1\" because its path matches the ignore pattern.")
+                    const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" "
+                                               "because its path matches the ignore pattern.")
                                     .arg(filePath.displayName());
                     QMetaObject::invokeMethod(Core::MessageManager::instance(),
                                               [msg]() { Core::MessageManager::writeSilently(msg); });

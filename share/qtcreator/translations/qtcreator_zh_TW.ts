@@ -1746,7 +1746,7 @@
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::ClassNamePage</name>
+    <name>CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>輸入類別名稱</translation>
@@ -1755,16 +1755,10 @@
         <source>The header and source file names will be derived from the class name</source>
         <translation>標頭檔和源碼檔名將取自類別名稱</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>產生檔案內容時發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>C++ 類別精靈</translation>
@@ -1773,9 +1767,6 @@
         <source>Details</source>
         <translation>詳情</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++ Header File</source>
         <translation>C++ 標頭檔</translation>
@@ -16001,21 +15992,15 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::InsertDeclOperation</name>
+    <name>CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>新增 %1 宣告</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>在 %1 新增定義</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>沒有可用的型態階層</translation>
@@ -16028,9 +16013,6 @@ Server list was %2.</source>
         <source>Derived</source>
         <translation>衍生</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>型態階層</translation>
@@ -19354,7 +19336,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>按字母排序</translation>
@@ -19367,9 +19349,6 @@ to version control (%2)
         <source>Unused variable</source>
         <translation>未使用的變數</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">產生遺失的 Q_PROPERTY 成員...</translation>
@@ -19378,9 +19357,6 @@ to version control (%2)
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>全部展開</translation>
@@ -19388,13 +19364,6 @@ to version control (%2)
     <message>
         <source>Collapse All</source>
         <translation>全部摺疊</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
 </context>
 <context>
@@ -28204,7 +28173,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>展開函式</translation>
@@ -30813,7 +30782,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation type="unfinished">目標檔案改變，無法套用變更</translation>

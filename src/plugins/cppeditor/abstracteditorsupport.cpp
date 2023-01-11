@@ -4,6 +4,7 @@
 #include "abstracteditorsupport.h"
 
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
 
@@ -42,9 +43,9 @@ QString AbstractEditorSupport::licenseTemplate(const FilePath &filePath, const Q
 {
     const QString license = Internal::CppFileSettings::licenseTemplate();
     Utils::MacroExpander expander;
-    expander.registerVariable("Cpp:License:FileName", tr("The file name."),
+    expander.registerVariable("Cpp:License:FileName", Tr::tr("The file name."),
                               [filePath] { return filePath.fileName(); });
-    expander.registerVariable("Cpp:License:ClassName", tr("The class name."),
+    expander.registerVariable("Cpp:License:ClassName", Tr::tr("The class name."),
                               [className] { return className; });
 
     return Utils::TemplateEngine::processText(&expander, license, nullptr);

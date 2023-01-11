@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppquickfixsettingswidget.h"
+
+#include "cppeditortr.h"
 #include "cppquickfixsettings.h"
 
 #include <utils/layoutbuilder.h>
@@ -48,10 +50,10 @@ LineCountSpinBox::LineCountSpinBox(QWidget *parent)
     : QWidget(parent)
 {
     m_checkBox = new QCheckBox;
-    m_opLabel = new QLabel(QCoreApplication::translate("CppEditor::Internal::CppQuickFixSettingsWidget", "\342\211\245"));
+    m_opLabel = new QLabel(Tr::tr("\342\211\245"));
     m_spinBox = new QSpinBox;
     m_spinBox->setMinimum(1);
-    m_unitLabel = new QLabel(QCoreApplication::translate("CppEditor::Internal::CppQuickFixSettingsWidget", "lines"));
+    m_unitLabel = new QLabel(Tr::tr("lines"));
 
     using namespace Layouting;
     Row { m_checkBox, m_opLabel, m_spinBox, m_unitLabel, }.attachTo(this, WithoutMargins);
@@ -103,8 +105,8 @@ CppQuickFixSettingsWidget::CppQuickFixSettingsWidget(QWidget *parent)
         return label;
     };
 
-    const QString placeHolderTect = tr("See tool tip for more information");
-    const QString toolTip = tr(
+    const QString placeHolderTect = Tr::tr("See tool tip for more information");
+    const QString toolTip = Tr::tr(
 R"==(Use <name> for the variable
 Use <camel> for camel case
 Use <snake> for snake case
@@ -115,7 +117,7 @@ e.g. name = "m_test_foo_":
 "set<Camel> => "setTestFoo")==");
 
     m_lineEdit_getterAttribute = new QLineEdit;
-    m_lineEdit_getterAttribute->setPlaceholderText(tr("For example, [[nodiscard]]"));
+    m_lineEdit_getterAttribute->setPlaceholderText(Tr::tr("For example, [[nodiscard]]"));
     m_lineEdit_getterName = new QLineEdit;
     m_lineEdit_getterName->setPlaceholderText(placeHolderTect);
     m_lineEdit_getterName->setToolTip(toolTip);
@@ -123,34 +125,34 @@ e.g. name = "m_test_foo_":
     m_lineEdit_setterName->setPlaceholderText(placeHolderTect);
     m_lineEdit_setterName->setToolTip(toolTip);
     m_lineEdit_setterParameter = new QLineEdit;
-    m_lineEdit_setterParameter->setPlaceholderText(tr("For example, new<Name>"));
+    m_lineEdit_setterParameter->setPlaceholderText(Tr::tr("For example, new<Name>"));
     m_lineEdit_setterParameter->setToolTip(toolTip);
-    m_checkBox_setterSlots = new QCheckBox(tr("Setters should be slots"));
+    m_checkBox_setterSlots = new QCheckBox(Tr::tr("Setters should be slots"));
     m_lineEdit_resetName = new QLineEdit;
-    m_lineEdit_resetName->setPlaceholderText(tr("Normally reset<Name>"));
+    m_lineEdit_resetName->setPlaceholderText(Tr::tr("Normally reset<Name>"));
     m_lineEdit_resetName->setToolTip(toolTip);
     m_lineEdit_signalName = new QLineEdit;
-    m_lineEdit_signalName->setPlaceholderText(tr("Normally <name>Changed"));
+    m_lineEdit_signalName->setPlaceholderText(Tr::tr("Normally <name>Changed"));
     m_lineEdit_signalName->setToolTip(toolTip);
     m_checkBox_signalWithNewValue = new QCheckBox(
-                tr("Generate signals with the new value as parameter"));
+                Tr::tr("Generate signals with the new value as parameter"));
     m_lineEdit_memberVariableName = new QLineEdit;
-    m_lineEdit_memberVariableName->setPlaceholderText(tr("For example, m_<name>"));
+    m_lineEdit_memberVariableName->setPlaceholderText(Tr::tr("For example, m_<name>"));
     m_lineEdit_memberVariableName->setToolTip(toolTip);
 
-    m_radioButton_generateMissingNamespace = new QRadioButton(tr("Generate missing namespaces"));
-    m_radioButton_addUsingnamespace = new QRadioButton(tr("Add \"using namespace ...\""));
+    m_radioButton_generateMissingNamespace = new QRadioButton(Tr::tr("Generate missing namespaces"));
+    m_radioButton_addUsingnamespace = new QRadioButton(Tr::tr("Add \"using namespace ...\""));
     m_radioButton_rewriteTypes = new QRadioButton(
-                tr("Rewrite types to match the existing namespaces"));
+                Tr::tr("Rewrite types to match the existing namespaces"));
 
     m_useAutoCheckBox = new QCheckBox(this);
-    m_useAutoCheckBox->setToolTip(tr("<html><head/><body><p>Uncheck this to make Qt Creator try to "
-                                     "derive the type of expression in the &quot;Assign to Local "
-                                     "Variable&quot; quickfix.</p><p>Note that this might fail for "
-                                     "more complex types.</p></body></html>"));
-    m_useAutoCheckBox->setText(tr("Use type \"auto\" when creating new variables"));
+    m_useAutoCheckBox->setToolTip(Tr::tr("<html><head/><body><p>Uncheck this to make Qt Creator try to "
+                                         "derive the type of expression in the &quot;Assign to Local "
+                                         "Variable&quot; quickfix.</p><p>Note that this might fail for "
+                                         "more complex types.</p></body></html>"));
+    m_useAutoCheckBox->setText(Tr::tr("Use type \"auto\" when creating new variables"));
 
-    m_groupBox_customTemplate = new QGroupBox(tr("Template"));
+    m_groupBox_customTemplate = new QGroupBox(Tr::tr("Template"));
     m_groupBox_customTemplate->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_groupBox_customTemplate->setEnabled(false);
     m_listWidget_customTemplates = new QListWidget;
@@ -158,34 +160,34 @@ e.g. name = "m_test_foo_":
     m_listWidget_customTemplates->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     m_lineEdit_customTemplateTypes = new QLineEdit;
-    m_lineEdit_customTemplateTypes->setToolTip(tr("Separate the types by comma."));
+    m_lineEdit_customTemplateTypes->setToolTip(Tr::tr("Separate the types by comma."));
     m_lineEdit_customTemplateComparison = new QLineEdit;
     m_lineEdit_customTemplateAssignment = new QLineEdit;
     m_lineEdit_customTemplateReturnExpression = new QLineEdit;
     m_lineEdit_customTemplateReturnType = new QLineEdit;
-    auto customTemplateLabel = new QLabel(tr("Use <new> and <cur> to access the parameter and "
-                                             "current value. Use <type> to access the type and <T> "
-                                             "for the template parameter."));
+    auto customTemplateLabel = new QLabel(Tr::tr("Use <new> and <cur> to access the parameter and "
+                                                 "current value. Use <type> to access the type and <T> "
+                                                 "for the template parameter."));
     customTemplateLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     customTemplateLabel->setWordWrap(true);
 
     auto pushButton_addCustomTemplate = new QPushButton;
-    pushButton_addCustomTemplate->setText(tr("Add"));
-    m_pushButton_removeCustomTemplate = new QPushButton(tr("Remove"));
+    pushButton_addCustomTemplate->setText(Tr::tr("Add"));
+    m_pushButton_removeCustomTemplate = new QPushButton(Tr::tr("Remove"));
     m_pushButton_removeCustomTemplate->setEnabled(false);
 
     m_valueTypes = new QListWidget(this);
-    m_valueTypes->setToolTip(tr("Normally arguments get passed by const reference. If the Type is "
-                                "one of the following ones, the argument gets passed by value. "
-                                "Namespaces and template arguments are removed. The real Type must "
-                                "contain the given Type. For example, \"int\" matches \"int32_t\" "
-                                "but not \"vector<int>\". \"vector\" matches "
-                                "\"std::pmr::vector<int>\" but not "
-                                "\"std::optional<vector<int>>\""));
-    auto pushButton_addValueType = new QPushButton(tr("Add"));
-    auto pushButton_removeValueType = new QPushButton(tr("Remove"));
+    m_valueTypes->setToolTip(Tr::tr("Normally arguments get passed by const reference. If the Type is "
+                                    "one of the following ones, the argument gets passed by value. "
+                                    "Namespaces and template arguments are removed. The real Type must "
+                                    "contain the given Type. For example, \"int\" matches \"int32_t\" "
+                                    "but not \"vector<int>\". \"vector\" matches "
+                                    "\"std::pmr::vector<int>\" but not "
+                                    "\"std::optional<vector<int>>\""));
+    auto pushButton_addValueType = new QPushButton(Tr::tr("Add"));
+    auto pushButton_removeValueType = new QPushButton(Tr::tr("Remove"));
 
-    m_returnByConstRefCheckBox = new QCheckBox(tr("Return non-value types by const reference"));
+    m_returnByConstRefCheckBox = new QCheckBox(Tr::tr("Return non-value types by const reference"));
     m_returnByConstRefCheckBox->setChecked(false);
 
     connect(m_listWidget_customTemplates, &QListWidget::currentItemChanged,
@@ -217,45 +219,45 @@ e.g. name = "m_test_foo_":
     using namespace Layouting;
 
     Grid {
-        empty, ulLabel(tr("Generate Setters")), ulLabel(tr("Generate Getters")), br,
-        tr("Inside class:"), tr("Default"), tr("Default"), br,
-        tr("Outside class:"), m_lines_setterOutsideClass, m_lines_getterOutsideClass, br,
-        tr("In .cpp file:"), m_lines_setterInCppFile, m_lines_getterInCppFile, br,
+        empty, ulLabel(Tr::tr("Generate Setters")), ulLabel(Tr::tr("Generate Getters")), br,
+        Tr::tr("Inside class:"), Tr::tr("Default"), Tr::tr("Default"), br,
+        Tr::tr("Outside class:"), m_lines_setterOutsideClass, m_lines_getterOutsideClass, br,
+        Tr::tr("In .cpp file:"), m_lines_setterInCppFile, m_lines_getterInCppFile, br,
     }.attachTo(functionLocationsGrid, WithoutMargins);
 
     if (QGridLayout *gl = qobject_cast<QGridLayout*>(functionLocationsGrid->layout()))
         gl->setHorizontalSpacing(48);
 
     Form {
-        tr("Types:"), m_lineEdit_customTemplateTypes, br,
-        tr("Comparison:"), m_lineEdit_customTemplateComparison, br,
-        tr("Assignment:"), m_lineEdit_customTemplateAssignment, br,
-        tr("Return expression:"), m_lineEdit_customTemplateReturnExpression, br,
-        tr("Return type:"), m_lineEdit_customTemplateReturnType, br,
+        Tr::tr("Types:"), m_lineEdit_customTemplateTypes, br,
+        Tr::tr("Comparison:"), m_lineEdit_customTemplateComparison, br,
+        Tr::tr("Assignment:"), m_lineEdit_customTemplateAssignment, br,
+        Tr::tr("Return expression:"), m_lineEdit_customTemplateReturnExpression, br,
+        Tr::tr("Return type:"), m_lineEdit_customTemplateReturnType, br,
         customTemplateLabel, br,
     }.attachTo(m_groupBox_customTemplate);
 
     Column {
         Group {
-            title(tr("Generated Function Locations")),
+            title(Tr::tr("Generated Function Locations")),
             Row { functionLocationsGrid, st, },
         },
         Group {
-            title(tr("Getter Setter Generation Properties")),
+            title(Tr::tr("Getter Setter Generation Properties")),
             Form {
-                tr("Getter attributes:"), m_lineEdit_getterAttribute, br,
-                tr("Getter name:"), m_lineEdit_getterName, br,
-                tr("Setter name:"), m_lineEdit_setterName, br,
-                tr("Setter parameter name:"), m_lineEdit_setterParameter, br,
+                Tr::tr("Getter attributes:"), m_lineEdit_getterAttribute, br,
+                Tr::tr("Getter name:"), m_lineEdit_getterName, br,
+                Tr::tr("Setter name:"), m_lineEdit_setterName, br,
+                Tr::tr("Setter parameter name:"), m_lineEdit_setterParameter, br,
                 m_checkBox_setterSlots, br,
-                tr("Reset name:"), m_lineEdit_resetName, br,
-                tr("Signal name:"), m_lineEdit_signalName, br,
+                Tr::tr("Reset name:"), m_lineEdit_resetName, br,
+                Tr::tr("Signal name:"), m_lineEdit_signalName, br,
                 m_checkBox_signalWithNewValue, br,
-                tr("Member variable name:"), m_lineEdit_memberVariableName, br,
+                Tr::tr("Member variable name:"), m_lineEdit_memberVariableName, br,
             },
         },
         Group {
-            title(tr("Missing Namespace Handling")),
+            title(Tr::tr("Missing Namespace Handling")),
             Form {
                 m_radioButton_generateMissingNamespace, br,
                 m_radioButton_addUsingnamespace, br,
@@ -264,7 +266,7 @@ e.g. name = "m_test_foo_":
         },
         m_useAutoCheckBox,
         Group {
-            title(tr("Custom Getter Setter Templates")),
+            title(Tr::tr("Custom Getter Setter Templates")),
             Row {
                 Column {
                     m_listWidget_customTemplates,
@@ -274,7 +276,7 @@ e.g. name = "m_test_foo_":
             },
         },
         Group {
-            title(tr("Value types:")),
+            title(Tr::tr("Value types:")),
             Row {
                 m_valueTypes,
                 Column { pushButton_addValueType, pushButton_removeValueType, st, },

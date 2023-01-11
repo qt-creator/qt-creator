@@ -7,6 +7,7 @@
 #include "cppcodestylepreferences.h"
 #include "cppcodestylesnippets.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolssettings.h"
 
@@ -82,78 +83,84 @@ static void applyRefactorings(QTextDocument *textDocument, TextEditorWidget *edi
 
 class CppCodeStylePreferencesWidgetPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::CppCodeStyleSettingsPage)
-
 public:
     CppCodeStylePreferencesWidgetPrivate(CppCodeStylePreferencesWidget *widget)
         : q(widget)
-        , m_indentAccessSpecifiers(createCheckBox(tr("\"public\", \"protected\" and\n"
-                                                     "\"private\" within class body")))
+        , m_indentAccessSpecifiers(createCheckBox(Tr::tr("\"public\", \"protected\" and\n"
+                                                         "\"private\" within class body")))
         , m_indentDeclarationsRelativeToAccessSpecifiers(
-              createCheckBox(tr("Declarations relative to \"public\",\n"
+              createCheckBox(Tr::tr("Declarations relative to \"public\",\n"
                                 "\"protected\" and \"private\"")))
-        , m_indentFunctionBody(createCheckBox(tr("Statements within function body")))
-        , m_indentBlockBody(createCheckBox(tr("Statements within blocks")))
-        , m_indentNamespaceBody(createCheckBox(tr("Declarations within\n"
+        , m_indentFunctionBody(createCheckBox(Tr::tr("Statements within function body")))
+        , m_indentBlockBody(createCheckBox(Tr::tr("Statements within blocks")))
+        , m_indentNamespaceBody(createCheckBox(Tr::tr("Declarations within\n"
                                                   "\"namespace\" definition")))
-        , m_indentClassBraces(createCheckBox(tr("Class declarations")))
-        , m_indentNamespaceBraces(createCheckBox(tr("Namespace declarations")))
-        , m_indentEnumBraces(createCheckBox(tr("Enum declarations")))
-        , m_indentFunctionBraces(createCheckBox(tr("Function declarations")))
-        , m_indentBlockBraces(createCheckBox(tr("Blocks")))
-        , m_indentSwitchLabels(createCheckBox(tr("\"case\" or \"default\"")))
-        , m_indentCaseStatements(createCheckBox(tr("Statements relative to\n"
+        , m_indentClassBraces(createCheckBox(Tr::tr("Class declarations")))
+        , m_indentNamespaceBraces(createCheckBox(Tr::tr("Namespace declarations")))
+        , m_indentEnumBraces(createCheckBox(Tr::tr("Enum declarations")))
+        , m_indentFunctionBraces(createCheckBox(Tr::tr("Function declarations")))
+        , m_indentBlockBraces(createCheckBox(Tr::tr("Blocks")))
+        , m_indentSwitchLabels(createCheckBox(Tr::tr("\"case\" or \"default\"")))
+        , m_indentCaseStatements(createCheckBox(Tr::tr("Statements relative to\n"
                                                    "\"case\" or \"default\"")))
-        , m_indentCaseBlocks(createCheckBox(tr("Blocks relative to\n"
+        , m_indentCaseBlocks(createCheckBox(Tr::tr("Blocks relative to\n"
                                                "\"case\" or \"default\"")))
-        , m_indentCaseBreak(createCheckBox(tr("\"break\" statement relative to\n"
+        , m_indentCaseBreak(createCheckBox(Tr::tr("\"break\" statement relative to\n"
                                               "\"case\" or \"default\"")))
-        , m_alignAssignments(createCheckBox(tr("Align after assignments"),
-                                            tr("<html><head/><body>\n"
-                                               "Enables alignment to tokens after =, += etc. When the option is disabled, regular continuation line indentation will be used.<br>\n"
-                                               "<br>\n"
-                                               "With alignment:\n"
-                                               "<pre>\n"
-                                               "a = a +\n"
-                                               "    b\n"
-                                               "</pre>\n"
-                                               "Without alignment:\n"
-                                               "<pre>\n"
-                                               "a = a +\n"
-                                               "        b\n"
-                                               "</pre>\n"
-                                               "</body></html>")))
-        , m_extraPaddingConditions(createCheckBox(tr("Add extra padding to conditions\n"
-                                                     "if they would align to the next line"),
-                                                  tr("<html><head/><body>\n"
-                                                     "Adds an extra level of indentation to multiline conditions in the switch, if, while and foreach statements if they would otherwise have the same or less indentation than a nested statement.\n"
-                                                     "\n"
-                                                     "For four-spaces indentation only if statement conditions are affected. Without extra padding:\n"
-                                                     "<pre>\n"
-                                                     "if (a &&\n"
-                                                     "    b)\n"
-                                                     "    c;\n"
-                                                     "</pre>\n"
-                                                     "With extra padding:\n"
-                                                     "<pre>\n"
-                                                     "if (a &&\n"
-                                                     "        b)\n"
-                                                     "    c;\n"
-                                                     "</pre>\n"
-                                                     "</body></html>")))
-        , m_bindStarToIdentifier(createCheckBox(tr("Identifier"),
-                                                tr("<html><head/><body>This does not apply to the star and reference symbol in pointer/reference to functions and arrays, e.g.:\n"
-                                                   "<pre>   int (&rf)() = ...;\n"
-                                                   "   int (*pf)() = ...;\n"
-                                                   "\n"
-                                                   "   int (&ra)[2] = ...;\n"
-                                                   "   int (*pa)[2] = ...;\n"
-                                                   "\n"
-                                                   "</pre></body></html>")))
-        , m_bindStarToTypeName(createCheckBox(tr("Type name")))
-        , m_bindStarToLeftSpecifier(createCheckBox(tr("Left const/volatile")))
-        , m_bindStarToRightSpecifier(createCheckBox(tr("Right const/volatile"),
-                                                    tr("This does not apply to references.")))
+        , m_alignAssignments(createCheckBox(
+            Tr::tr("Align after assignments"),
+            Tr::tr("<html><head/><body>\n"
+                   "Enables alignment to tokens after =, += etc. When the option is disabled, "
+                     "regular continuation line indentation will be used.<br>\n"
+                   "<br>\n"
+                   "With alignment:\n"
+                   "<pre>\n"
+                   "a = a +\n"
+                   "    b\n"
+                   "</pre>\n"
+                   "Without alignment:\n"
+                   "<pre>\n"
+                   "a = a +\n"
+                   "        b\n"
+                   "</pre>\n"
+                   "</body></html>")))
+        , m_extraPaddingConditions(createCheckBox(
+            Tr::tr("Add extra padding to conditions\n"
+                   "if they would align to the next line"),
+            Tr::tr("<html><head/><body>\n"
+                   "Adds an extra level of indentation to multiline conditions in the switch, "
+                     "if, while and foreach statements if they would otherwise have the same or "
+                     "less indentation than a nested statement.\n"
+                   "\n"
+                   "For four-spaces indentation only if statement conditions are affected. "
+                     "Without extra padding:\n"
+                   "<pre>\n"
+                   "if (a &&\n"
+                   "    b)\n"
+                   "    c;\n"
+                   "</pre>\n"
+                   "With extra padding:\n"
+                   "<pre>\n"
+                   "if (a &&\n"
+                   "        b)\n"
+                   "    c;\n"
+                   "</pre>\n"
+                   "</body></html>")))
+        , m_bindStarToIdentifier(createCheckBox(
+            Tr::tr("Identifier"),
+            Tr::tr("<html><head/><body>This does not apply to the star and reference symbol "
+                     "in pointer/reference to functions and arrays, e.g.:\n"
+               "<pre>   int (&rf)() = ...;\n"
+               "   int (*pf)() = ...;\n"
+               "\n"
+               "   int (&ra)[2] = ...;\n"
+               "   int (*pa)[2] = ...;\n"
+               "\n"
+               "</pre></body></html>")))
+        , m_bindStarToTypeName(createCheckBox(Tr::tr("Type name")))
+        , m_bindStarToLeftSpecifier(createCheckBox(Tr::tr("Left const/volatile")))
+        , m_bindStarToRightSpecifier(createCheckBox(Tr::tr("Right const/volatile"),
+                                                    Tr::tr("This does not apply to references.")))
         , m_categoryTab(new QTabWidget)
         , m_tabSettingsWidget(new TabSettingsWidget)
     {
@@ -178,12 +185,12 @@ public:
             },
             createPreview(0)
         }.attachTo(generalTab);
-        m_categoryTab->addTab(generalTab, tr("General"));
+        m_categoryTab->addTab(generalTab, Tr::tr("General"));
         m_controllers.append(m_tabSettingsWidget);
 
         QWidget *contentTab = new QWidget;
         Group contentGroup {
-            title(tr("Indent")),
+            title(Tr::tr("Indent")),
             Column {
                 m_indentAccessSpecifiers,
                 m_indentDeclarationsRelativeToAccessSpecifiers,
@@ -197,12 +204,12 @@ public:
             contentGroup,
             createPreview(1)
         }.attachTo(contentTab);
-        m_categoryTab->addTab(contentTab, tr("Content"));
+        m_categoryTab->addTab(contentTab, Tr::tr("Content"));
         m_controllers.append(contentGroup.widget);
 
         QWidget *bracesTab = new QWidget;
         Group bracesGroup {
-            title(tr("Indent Braces")),
+            title(Tr::tr("Indent Braces")),
             Column {
                 m_indentClassBraces,
                 m_indentNamespaceBraces,
@@ -216,12 +223,12 @@ public:
             bracesGroup,
             createPreview(2)
         }.attachTo(bracesTab);
-        m_categoryTab->addTab(bracesTab, tr("Braces"));
+        m_categoryTab->addTab(bracesTab, Tr::tr("Braces"));
         m_controllers.append(bracesGroup.widget);
 
         QWidget *switchTab = new QWidget;
         Group switchGroup {
-            title(tr("Indent within \"switch\"")),
+            title(Tr::tr("Indent within \"switch\"")),
             Column {
                 m_indentSwitchLabels,
                 m_indentCaseStatements,
@@ -234,12 +241,12 @@ public:
             switchGroup,
             createPreview(3)
         }.attachTo(switchTab);
-        m_categoryTab->addTab(switchTab, tr("\"switch\""));
+        m_categoryTab->addTab(switchTab, Tr::tr("\"switch\""));
         m_controllers.append(switchGroup.widget);
 
         QWidget *alignmentTab = new QWidget;
         Group alignmentGroup {
-            title(tr("Align")),
+            title(Tr::tr("Align")),
             Column {
                 m_alignAssignments,
                 m_extraPaddingConditions,
@@ -250,12 +257,12 @@ public:
             alignmentGroup,
             createPreview(4)
         }.attachTo(alignmentTab);
-        m_categoryTab->addTab(alignmentTab, tr("Alignment"));
+        m_categoryTab->addTab(alignmentTab, Tr::tr("Alignment"));
         m_controllers.append(alignmentGroup.widget);
 
         QWidget *typesTab = new QWidget;
         Group typesGroup {
-            title(tr("Bind '*' and '&&' in types/declarations to")),
+            title(Tr::tr("Bind '*' and '&&' in types/declarations to")),
             Column {
                 m_bindStarToIdentifier,
                 m_bindStarToTypeName,
@@ -268,7 +275,7 @@ public:
             typesGroup,
             createPreview(5)
         }.attachTo(typesTab);
-        m_categoryTab->addTab(typesTab, tr("Pointers and References"));
+        m_categoryTab->addTab(typesTab, Tr::tr("Pointers and References"));
         m_controllers.append(typesGroup.widget);
 
         Row { m_categoryTab }.attachTo(q);
@@ -574,7 +581,7 @@ void CppCodeStylePreferencesWidget::finish()
 CppCodeStyleSettingsPage::CppCodeStyleSettingsPage()
 {
     setId(Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppEditor", Constants::CPP_CODE_STYLE_SETTINGS_NAME));
+    setDisplayName(Tr::tr("Code Style"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
 }
 

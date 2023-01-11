@@ -13034,7 +13034,7 @@ Lista serwera: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Brak dostępnej hierarchii typów</translation>
@@ -13047,9 +13047,6 @@ Lista serwera: %2.</translation>
         <source>Derived</source>
         <translation>Klasy pochodne</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Hierarchia typów</translation>
@@ -13865,14 +13862,11 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::InsertDeclOperation</name>
+    <name>CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Dodaj deklarację %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Dodaj definicję w %1</translation>
@@ -15045,7 +15039,7 @@ do systemu kontroli wersji (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
+    <name>CppEditor</name>
     <message>
         <source>Expand All</source>
         <translation>Rozwiń wszystko</translation>
@@ -21191,7 +21185,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Plik docelowy uległ zmianie, nie można zastosować zmian</translation>
@@ -21208,9 +21202,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Apply Function Signature Changes</source>
         <translation>Zastosuj zmiany w sygnaturze funkcji</translation>
     </message>
-</context>
-<context>
-    <name>QuickFix::ExtractFunction</name>
     <message>
         <source>Extract Function</source>
         <translation type="unfinished"></translation>
@@ -24804,7 +24795,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>CppEditor</name>
     <message>
         <source>Shift+F2</source>
         <translation>Shift+F2</translation>
@@ -24890,9 +24881,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Shift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Przenieś definicję na zewnątrz klasy</translation>
@@ -24917,9 +24905,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Wstaw wirtualne metody klas bazowych</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Wstaw wirtualne metody</translation>
@@ -24984,7 +24969,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Jedynie funkcje wirtualne mogą być opatrzone &quot;final&quot;</translation>
@@ -26318,7 +26303,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatkowe dyrektywy preprocesora C++</translation>
@@ -27077,14 +27062,11 @@ Czy odinstalować istniejący pakiet?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
+    <name>CppEditor</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Hierarchia dołączeń</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Dołączenia</translation>
@@ -27101,9 +27083,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <source>(cyclic)</source>
         <translation>(cykl)</translation>
     </message>
-</context>
-<context>
-    <name>VirtualFunctionsAssistProcessor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...wyszukiwanie nadpisań</translation>
@@ -30448,14 +30427,11 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>&amp;Refaktoryzacja</translation>
     </message>
-</context>
-<context>
-    <name>CppSourceProcessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Brak pliku lub katalogu</translation>
@@ -33758,7 +33734,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Posortuj alfabetycznie</translation>
@@ -37332,7 +37308,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Warnings for questionable constructs</source>
         <translation>Ostrzeżenia o niejasnych konstrukcjach</translation>
@@ -38448,7 +38424,7 @@ Komunikat:
     </message>
 </context>
 <context>
-    <name>CppEditor::CppIncludeHierarchy</name>
+    <name>CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Brak dostępnej hierarchii dołączeń</translation>
@@ -39408,7 +39384,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>CppIndexer</name>
+    <name>CppEditor</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation>Indekser C++: plik &quot;%1&quot; posiada zbyt duży rozmiar, zostanie on pominięty.</translation>
@@ -41229,14 +41205,11 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
+    <name>CppEditor</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>File is not part of any project.</source>
         <translation>Plik nie jest częścią żadnego projektu.</translation>
@@ -41257,16 +41230,10 @@ Błąd: %2</translation>
         <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to slow or incorrect code completion and highlighting, for example.</source>
         <translation>&lt;b&gt;Ostrzeżenie&lt;/b&gt;: Model kodu nie mógł przeparsować dołączonego pliku, może to spowodować powolne lub niepoprawne działanie uzupełniania bądź podświetlania kodu.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation type="unfinished"></translation>

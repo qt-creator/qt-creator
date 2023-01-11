@@ -5,6 +5,7 @@
 
 #include "cppcodestylesettings.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cpplocalsymbols.h"
 #include "cppquickfixassistant.h"
@@ -270,7 +271,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
         newTargetFile->apply();
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
-                     tr("Target file was changed, could not apply changes"));
+                      Tr::tr("Target file was changed, could not apply changes"));
     }
 }
 
@@ -305,9 +306,9 @@ void FunctionDeclDefLink::showMarker(CppEditorWidget *editor)
 
     QString message;
     if (targetDeclaration->asFunctionDefinition())
-        message = tr("Apply changes to definition");
+        message = Tr::tr("Apply changes to definition");
     else
-        message = tr("Apply changes to declaration");
+        message = Tr::tr("Apply changes to declaration");
 
     Core::Command *quickfixCommand = Core::ActionManager::command(TextEditor::Constants::QUICKFIX_THIS);
     if (quickfixCommand)

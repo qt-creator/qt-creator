@@ -3,6 +3,7 @@
 
 #include "cppprojectupdater.h"
 
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppprojectinfogenerator.h"
 #include "generatedcodemodelsupport.h"
@@ -102,7 +103,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
     m_taskTree.reset(new TaskTree(root));
     auto progress = new Core::TaskProgress(m_taskTree.get());
-    progress->setDisplayName(tr("Preparing C++ Code Model"));
+    progress->setDisplayName(Tr::tr("Preparing C++ Code Model"));
     m_taskTree->start();
 }
 

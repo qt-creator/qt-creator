@@ -5,8 +5,9 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "cppcodemodelinspectordumper.h"
-#include "cppeditorwidget.h"
 #include "cppeditordocument.h"
+#include "cppeditorwidget.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
@@ -1433,7 +1434,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
             Row {
                 m_partGeneralView,
                 Column {
-                    tr("Compiler Flags"),
+                    Tr::tr("Compiler Flags"),
                     m_partGeneralCompilerFlagsEdit,
                 },
             }

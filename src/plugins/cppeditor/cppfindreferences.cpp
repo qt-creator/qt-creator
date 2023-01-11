@@ -5,6 +5,7 @@
 
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
@@ -55,13 +56,13 @@ QWidget *CppSearchResultFilter::createWidget()
     const auto widget = new QWidget;
     const auto layout = new QVBoxLayout(widget);
     layout->setContentsMargins(0, 0, 0, 0);
-    const auto readsCheckBox = new QCheckBox(Internal::CppFindReferences::tr("Reads"));
+    const auto readsCheckBox = new QCheckBox(Tr::tr("Reads"));
     readsCheckBox->setChecked(m_showReads);
-    const auto writesCheckBox = new QCheckBox(Internal::CppFindReferences::tr("Writes"));
+    const auto writesCheckBox = new QCheckBox(Tr::tr("Writes"));
     writesCheckBox->setChecked(m_showWrites);
-    const auto declsCheckBox = new QCheckBox(Internal::CppFindReferences::tr("Declarations"));
+    const auto declsCheckBox = new QCheckBox(Tr::tr("Declarations"));
     declsCheckBox->setChecked(m_showDecls);
-    const auto otherCheckBox = new QCheckBox(Internal::CppFindReferences::tr("Other"));
+    const auto otherCheckBox = new QCheckBox(Tr::tr("Other"));
     otherCheckBox->setChecked(m_showOther);
     layout->addWidget(readsCheckBox);
     layout->addWidget(writesCheckBox);
@@ -376,7 +377,7 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                    bool replace)
 {
     CPlusPlus::Overview overview;
-    SearchResult *search = SearchResultWindow::instance()->startNewSearch(tr("C++ Usages:"),
+    SearchResult *search = SearchResultWindow::instance()->startNewSearch(Tr::tr("C++ Usages:"),
                                                 QString(),
                                                 overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(symbol)),
                                                 replace ? SearchResultWindow::SearchAndReplace
@@ -435,8 +436,8 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
                              workingCopy, context, symbol, categorize);
     createWatcher(result, search);
 
-    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
-                                                              CppEditor::Constants::TASK_SEARCH);
+    FutureProgress *progress = ProgressManager::addTask(result, Tr::tr("Searching for Usages"),
+                                                        CppEditor::Constants::TASK_SEARCH);
 
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
@@ -601,8 +602,8 @@ static void searchFinished(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
 
         auto renameCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
         if (renameCheckBox) {
-            renameCheckBox->setText(CppFindReferences::tr("Re&name %n files", nullptr, filesToRename.size()));
-            renameCheckBox->setToolTip(CppFindReferences::tr("Files:\n%1").arg(filesToRename.join('\n')));
+            renameCheckBox->setText(Tr::tr("Re&name %n files", nullptr, filesToRename.size()));
+            renameCheckBox->setToolTip(Tr::tr("Files:\n%1").arg(filesToRename.join('\n')));
             renameCheckBox->setVisible(true);
         }
     }
@@ -727,7 +728,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                                       bool replace)
 {
     SearchResult *search = SearchResultWindow::instance()->startNewSearch(
-                tr("C++ Macro Usages:"),
+                Tr::tr("C++ Macro Usages:"),
                 QString(),
                 macro.nameToQString(),
                 replace ? SearchResultWindow::SearchAndReplace
@@ -769,8 +770,8 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                              workingCopy, snapshot, macro);
     createWatcher(result, search);
 
-    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching for Usages"),
-                                                              CppEditor::Constants::TASK_SEARCH);
+    FutureProgress *progress = ProgressManager::addTask(result, Tr::tr("Searching for Usages"),
+                                                        CppEditor::Constants::TASK_SEARCH);
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 

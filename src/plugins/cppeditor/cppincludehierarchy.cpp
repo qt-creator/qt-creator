@@ -4,13 +4,14 @@
 #include "cppincludehierarchy.h"
 
 #include "baseeditordocumentprocessor.h"
-#include "editordocumenthandle.h"
-#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
+#include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppmodelmanager.h"
+#include "editordocumenthandle.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
@@ -160,9 +161,9 @@ QVariant CppIncludeHierarchyItem::data(int column, int role) const
     Q_UNUSED(column)
     if (role == Qt::DisplayRole) {
         if (isPhony() && childCount() == 0)
-            return QString(m_fileName + ' ' + CppIncludeHierarchyModel::tr("(none)"));
+            return QString(m_fileName + ' ' + Tr::tr("(none)"));
         if (m_isCyclic)
-            return QString(m_fileName + ' ' + CppIncludeHierarchyModel::tr("(cyclic)"));
+            return QString(m_fileName + ' ' + Tr::tr("(cyclic)"));
         return m_fileName;
     }
 
@@ -224,9 +225,9 @@ void CppIncludeHierarchyModel::buildHierarchy(const FilePath &document)
 {
     m_editorFilePath = document;
     rootItem()->removeChildren();
-    rootItem()->createChild(FilePath::fromPathPart(tr("Includes")),
+    rootItem()->createChild(FilePath::fromPathPart(Tr::tr("Includes")),
                             CppIncludeHierarchyItem::InIncludes);
-    rootItem()->createChild(FilePath::fromPathPart(tr("Included by")),
+    rootItem()->createChild(FilePath::fromPathPart(Tr::tr("Included by")),
                             CppIncludeHierarchyItem::InIncludedBy);
 }
 
@@ -368,7 +369,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     m_treeView->setItemDelegate(&m_delegate);
     connect(m_treeView, &QAbstractItemView::activated, this, &CppIncludeHierarchyWidget::onItemActivated);
 
-    m_includeHierarchyInfoLabel = new QLabel(tr("No include hierarchy available"), this);
+    m_includeHierarchyInfoLabel = new QLabel(Tr::tr("No include hierarchy available"), this);
     m_includeHierarchyInfoLabel->setAlignment(Qt::AlignCenter);
     m_includeHierarchyInfoLabel->setAutoFillBackground(true);
     m_includeHierarchyInfoLabel->setBackgroundRole(QPalette::Base);
@@ -383,7 +384,7 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget()
     m_toggleSync = new QToolButton(this);
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
-    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    m_toggleSync->setToolTip(Tr::tr("Synchronize with Editor"));
     connect(m_toggleSync, &QToolButton::clicked,
             this, &CppIncludeHierarchyWidget::syncFromEditorManager);
 
@@ -496,7 +497,7 @@ void CppIncludeHierarchyWidget::syncFromEditorManager()
 
 CppIncludeHierarchyFactory::CppIncludeHierarchyFactory()
 {
-    setDisplayName(tr("Include Hierarchy"));
+    setDisplayName(Tr::tr("Include Hierarchy"));
     setPriority(800);
     setId(Constants::INCLUDE_HIERARCHY_ID);
 }

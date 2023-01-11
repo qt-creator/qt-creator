@@ -1913,7 +1913,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>追加C++プリプロセッサディレクティブ</translation>
@@ -14672,7 +14672,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>CppEditor</name>
     <message>
         <source>C++</source>
         <comment>SnippetProvider</comment>
@@ -14773,9 +14773,6 @@ to version control (%2)
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Shift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>ターゲットファイルが変更された為、変更内容を適用できません</translation>
@@ -14792,23 +14789,14 @@ to version control (%2)
         <source>Apply Function Signature Changes</source>
         <translation>関数シグネチャの変更を適用します</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppIncludeHierarchy</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>インクルード階層は利用できません</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>階層を含める</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>インクルード</translation>
@@ -14825,9 +14813,6 @@ to version control (%2)
         <source>(cyclic)</source>
         <translation>(循環)</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -14981,14 +14966,11 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::InsertDeclOperation</name>
+    <name>CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>%1 の宣言を追加</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>%1 に定義を追加</translation>
@@ -15034,7 +15016,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>関数の抽出</translation>
@@ -15051,9 +15033,6 @@ to version control (%2)
         <source>Access</source>
         <translation>アクセス</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>定義をクラスの外へ移動する</translation>
@@ -15078,9 +15057,6 @@ to version control (%2)
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>基底クラスの仮想関数を追加する</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>仮想関数の追加</translation>
@@ -15129,16 +15105,10 @@ to version control (%2)
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>型階層は利用できません</translation>
@@ -15159,16 +15129,10 @@ to version control (%2)
         <source>Evaluating type hierarchy...</source>
         <translation>型階層を評価する...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>型階層</translation>
     </message>
-</context>
-<context>
-    <name>VirtualFunctionsAssistProcessor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...オーバーライドの検索中</translation>
@@ -15189,7 +15153,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>仮想関数のみが &apos;final&apos; としてマークすることができます</translation>
@@ -34985,7 +34949,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>CppSourceProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: そのようなファイルもしくはディレクトリはありません</translation>
@@ -39194,7 +39158,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>リファクタリング(&amp;R)</translation>
@@ -39212,7 +39176,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Warnings for questionable constructs</source>
         <translation>問題の原因と思われる記述への警告</translation>
@@ -39231,7 +39195,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>アルファベット順にソート</translation>
@@ -45433,7 +45397,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppQuickFixSettingsWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>Form</source>
         <translation type="vanished">フォーム</translation>
@@ -48231,25 +48195,15 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
-    <message>
-        <source>No include hierarchy available</source>
-        <translation>インクルード階層は利用できません</translation>
-    </message>
+    <name>CppEditor</name>
     <message>
         <source>Synchronize with Editor</source>
         <translation>エディタと同期</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>Minimize</source>
         <translation>最小化</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppQuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>ゲッター及びセッターメンバ関数を作成する</translation>
@@ -48279,7 +48233,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::ConstructorParams</name>
+    <name>CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>コンストラクタでの初期化</translation>

@@ -3,12 +3,13 @@
 
 #include "cppsourceprocessor.h"
 
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
@@ -65,16 +66,14 @@ inline QByteArray generateFingerPrint(const QList<CPlusPlus::Macro> &definedMacr
 
 inline Message messageNoSuchFile(Document::Ptr &document, const FilePath &filePath, unsigned line)
 {
-    const QString text = QCoreApplication::translate(
-        "CppSourceProcessor", "%1: No such file or directory").arg(filePath.displayName());
+    const QString text = Tr::tr("%1: No such file or directory").arg(filePath.displayName());
     return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 
 inline Message messageNoFileContents(Document::Ptr &document, const FilePath &filePath,
                                      unsigned line)
 {
-    const QString text = QCoreApplication::translate(
-        "CppSourceProcessor", "%1: Could not get file contents").arg(filePath.displayName());
+    const QString text = Tr::tr("%1: Could not get file contents").arg(filePath.displayName());
     return Message(Message::Warning, document->filePath(), line, /*column =*/ 0, text);
 }
 

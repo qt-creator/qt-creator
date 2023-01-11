@@ -1682,7 +1682,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::ClassNamePage</name>
+    <name>CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Vnesite ime razreda</translation>
@@ -1695,16 +1695,10 @@ Ali jih želite nadomestiti?</translation>
         <source>Configure...</source>
         <translation type="obsolete">Nastavi …</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Napaka med ustvarjanjem vsebine datotek.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Čarovnik razreda C++</translation>
@@ -1713,9 +1707,6 @@ Ali jih želite nadomestiti?</translation>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++ Header File</source>
         <translation>Datoteka z glavo C++</translation>
@@ -22930,7 +22921,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Razvrsti po abecedi</translation>
@@ -22943,30 +22934,18 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Unused variable</source>
         <translation>Neuporabljena spremenljivka</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Dodaj deklaracijo za %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Dodaj definicijo v %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertQtPropertyMembers</name>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation>Ustvari manjkajoče člane Q_PROPERTY ...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Razširi vse</translation>
@@ -22975,23 +22954,10 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Collapse All</source>
         <translation>Skrči vse</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Hierarhija tipov ni na voljo</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Hierarhija tipov</translation>
@@ -29808,11 +29774,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
-    <message>
-        <source>Sort Alphabetically</source>
-        <translation type="obsolete">Razvrsti po abecedi</translation>
-    </message>
+    <name>CppEditor</name>
     <message>
         <source>This change cannot be undone.</source>
         <translation type="obsolete">Te spremembe ni moč razveljaviti.</translation>
@@ -29820,10 +29782,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>Yes, I know what I am doing.</source>
         <translation type="obsolete">Da, vem kaj počnem.</translation>
-    </message>
-    <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Neuporabljena spremenljivka</translation>
     </message>
 </context>
 <context>

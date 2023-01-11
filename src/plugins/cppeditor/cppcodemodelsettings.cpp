@@ -5,6 +5,7 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
@@ -218,10 +219,10 @@ QString ClangdSettings::priorityToString(const IndexingPriority &priority)
 QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority)
 {
     switch (priority) {
-    case IndexingPriority::Background: return tr("Background Priority");
-    case IndexingPriority::Normal: return tr("Normal Priority");
-    case IndexingPriority::Low: return tr("Low Priority");
-    case IndexingPriority::Off: return tr("Off");
+    case IndexingPriority::Background: return Tr::tr("Background Priority");
+    case IndexingPriority::Normal: return Tr::tr("Normal Priority");
+    case IndexingPriority::Low: return Tr::tr("Low Priority");
+    case IndexingPriority::Off: return Tr::tr("Off");
     }
     return {};
 }

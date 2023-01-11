@@ -16103,7 +16103,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Keine Klassenhierarchie verfügbar</translation>
@@ -16124,9 +16124,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Evaluating type hierarchy...</source>
         <translation>Werte Typ-Hierarchie aus...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Klassenhierarchie</translation>
@@ -16373,7 +16370,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::InsertDefOperation</name>
+    <name>CppEditor</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Definition in %1 hinzufügen</translation>
@@ -16390,9 +16387,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Add Definition Outside Class</source>
         <translation>Definition außerhalb der Klasse erstellen</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Deklaration für %1 hinzufügen</translation>
@@ -16761,7 +16755,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
+    <name>CppEditor</name>
     <message>
         <source>Expand All</source>
         <translation>Alle aufklappen</translation>
@@ -25054,7 +25048,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Funktion herausziehen</translation>
@@ -25688,7 +25682,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Die Änderungen konnten nicht vorgenommen werden, da die Zieldatei geändert wurde</translation>
@@ -26615,7 +26609,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Nur virtuelle Funktionen können als &apos;final&apos; gekennzeichnet werden</translation>
@@ -28435,7 +28429,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>CppEditor::QuickFix</name>
+    <name>CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Unter Verwendung von %1 umschreiben</translation>
@@ -28596,9 +28590,6 @@ The affected files are:
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Virtuelle Funktionen der Basisklasse einfügen</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>Shift+F2</source>
         <translation>Shift+F2</translation>
@@ -28751,9 +28742,6 @@ The affected files are:
         <source>Clangd</source>
         <translation>Clangd</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Virtuelle Funktionen einfügen</translation>
@@ -29956,14 +29944,11 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
+    <name>CppEditor</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Include-Hierarchie</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Include-Dateien</translation>
@@ -29980,9 +29965,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>(cyclic)</source>
         <translation>(zyklisch)</translation>
     </message>
-</context>
-<context>
-    <name>VirtualFunctionsAssistProcessor</name>
     <message>
         <source>collecting overrides ...</source>
         <translation type="unfinished"></translation>
@@ -30619,7 +30601,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Zusätzliche Präprozessor-Anweisungen für %1:</translation>
@@ -31761,7 +31743,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>CppSourceProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Es existiert keine Datei oder kein Verzeichnis dieses Namens</translation>
@@ -38724,7 +38706,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Checks for questionable constructs</source>
         <translation>Prüft auf fragwürdige Konstrukte</translation>
@@ -40704,7 +40686,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
+    <name>CppEditor</name>
     <message>
         <source>&lt;b&gt;Warning&lt;/b&gt;: This file is not part of any project. The code model might have issues parsing this file properly.</source>
         <translation>&lt;b&gt;Warnung&lt;/b&gt;: Diese Datei ist in keinem Projekt enthalten. Das Codemodell könnte Probleme haben, die Datei korrekt auszuwerten.</translation>
@@ -40713,23 +40695,14 @@ Zeile: %4, Spalte: %5
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation>Hinweis: Für diese Datei sind mehrere Auswertungskontexte verfügbar. Wählen Sie den bevorzugten in der Editorwerkzeugleiste aus.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Aktiver Auswertungskontext&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Für diese Datei sind mehrere Auswertungskontexte (Kombinationen aus Defines, Include-Verzeichnissen usw.) verfügbar.&lt;/p&gt;&lt;p&gt;Wählen Sie einen bevorzugten Auswertungskontext aus. Sie können diese Einstellung über das Kontextmenü zurücksetzen.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation>Bevorzugten Auswertungskontext aufheben</translation>
     </message>
-</context>
-<context>
-    <name>CppIndexer</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation>C++-Indexer: Überspringe Datei &quot;%1&quot;, weil sie zu groß ist.</translation>
@@ -42272,7 +42245,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::CppQuickFixFactory</name>
+    <name>CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Getter- und Setter-Funktionen erzeugen</translation>
@@ -44321,7 +44294,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Keine Include-Hierarchie verfügbar</translation>
@@ -51245,7 +51218,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppCodeStyleSettingsPage</name>
+    <name>CppEditor</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -51471,9 +51444,6 @@ ausgerichtet werden würden</translation>
         <source>Right const/volatile</source>
         <translation>Rechtes const/volatile</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>Header-Dateien</translation>
@@ -53132,7 +53102,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>CppEditor::AbstractEditorSupport</name>
+    <name>CppEditor</name>
     <message>
         <source>The file name.</source>
         <translation>Der Dateiname.</translation>
@@ -53141,23 +53111,14 @@ in &quot;%2&quot; aus.
         <source>The class name.</source>
         <translation>Der Klassenname.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation>Werte C/C++-Dateien aus</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic configuration:</source>
         <translation>Diagnosekonfiguration:</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Diagnostic Configurations</source>
         <translation>Diagnosekonfigurationen</translation>
@@ -53215,9 +53176,6 @@ in &quot;%2&quot; aus.
         <source>%1</source>
         <translation>%1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ConfigsModel</name>
     <message>
         <source>Built-in</source>
         <translation>Integriert</translation>
@@ -53226,9 +53184,6 @@ in &quot;%2&quot; aus.
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>Für passende Optionen lesen Sie das GCC- oder Clang-Handbuch oder auch die &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC-Onlinedokumentation&lt;/a&gt;.</translation>
@@ -53237,9 +53192,6 @@ in &quot;%2&quot; aus.
         <source>Use diagnostic flags from build system</source>
         <translation>Diagnose-Flags des Build-Systems verwenden</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor</name>
     <message>
         <source>Follow Symbol to Type is only available when using clangd</source>
         <translation>Symbol unter Einfügemarke zum Typ verfolgen steht nur mit Clangd zur Verfügung</translation>
@@ -53259,10 +53211,6 @@ in &quot;%2&quot; aus.
     <message>
         <source>File Naming</source>
         <translation>Namenskonventionen für Dateien</translation>
-    </message>
-    <message>
-        <source>Diagnostic Configurations</source>
-        <translation>Diagnosekonfigurationen</translation>
     </message>
     <message>
         <source>C++ Symbols in Current Document</source>
@@ -53322,9 +53270,6 @@ in &quot;%2&quot; aus.
         <source>The project contains C++ source files, but the currently active kit has no C++ compiler. The code model will not be fully functional.</source>
         <translation>Das Projekt enthält C++-Quelldateien, aber das aktive Kit hat keinen C++-Compiler. Das Codemodell wird nur eingeschränkt funktionieren.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangdSettings</name>
     <message>
         <source>Background Priority</source>
         <translation>Hintergrund-Priorität</translation>
@@ -53341,9 +53286,6 @@ in &quot;%2&quot; aus.
         <source>Off</source>
         <translation>Aus</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppCodeModelSettingsWidget</name>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
         <translation>Mehrdeutige Header als C-Header behandeln</translation>
@@ -53373,16 +53315,9 @@ in &quot;%2&quot; aus.
         <translation>Wählen Sie dies ab, um den Compiler zum Anzeigen von vorverarbeiteten Dateien zu benutzen.</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
-    </message>
-    <message>
         <source>Code Model</source>
         <translation>Codemodell</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClangdSettingsWidget</name>
     <message>
         <source>If background indexing is enabled, global symbol searches will yield
 more accurate results, at the cost of additional CPU load when
@@ -53485,10 +53420,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <translation>Hinzufügen...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
         <source>Choose a session:</source>
         <translation>Sitzung wählen:</translation>
     </message>
@@ -53505,27 +53436,14 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <translation>Die Clangd-Version ist %1, aber %2 oder neuer wird benötigt.</translation>
     </message>
     <message>
-        <source>Clangd</source>
-        <translation>Clangd</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorOutline</name>
-    <message>
         <source>Sort Alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translatorcomment>https://de.wikipedia.org/wiki/Refactoring</translatorcomment>
         <translation>&amp;Refactoring</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -53550,9 +53468,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>Choose Location for New License Template File</source>
         <translation>Dateiname für eine neue Lizenzvorlage</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFindReferences</name>
     <message>
         <source>Reads</source>
         <translation>Lesezugriffe</translation>
@@ -53594,16 +53509,10 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>C++ Macro Usages:</source>
         <translation>C++ Macro-Referenzen:</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludesFilter</name>
     <message>
         <source>Matches all files that are included by all C++ files in all projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation>Filtert alle Dateien die von allen C++-Dateien aller Projekte eingebunden werden. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Symbol auswählen&gt;</translation>
@@ -53612,16 +53521,10 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Keine Symbole&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppProjectUpdater</name>
     <message>
         <source>Preparing C++ Code Model</source>
         <translation>Bereite das C++-Codemodell vor</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Quickfix</name>
     <message>
         <source>Add Class Member &quot;%1&quot;</source>
         <translation>Klassen-Member &quot;%1&quot; hinzufügen</translation>
@@ -53714,7 +53617,7 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::ConstructorParams</name>
+    <name>CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>Im Konstruktor initialisieren</translation>
@@ -53758,7 +53661,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppQuickFixProjectsSettings</name>
+    <name>CppEditor</name>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
         <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei benutzt, oder eine neue Datei erstellt werden?</translation>
@@ -53775,9 +53678,6 @@ Use drag and drop to change the order of the parameters.</source>
         <source>Create New</source>
         <translation>Neue erstellen</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppQuickFixProjectSettingsWidget</name>
     <message>
         <source>Custom settings are saved in a file. If you use the global settings, you can delete that file.</source>
         <translation>Benutzerdefinierte Einstellungen werden in einer Datei gespeichert. Wenn Sie die globalen Einstellungen benutzen, können Sie diese Datei löschen.</translation>
@@ -53794,9 +53694,6 @@ Use drag and drop to change the order of the parameters.</source>
         <source>Reset to Global</source>
         <translation>Auf globale Einstellungen zurücksetzen</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -53835,7 +53732,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::SymbolsFindFilter</name>
+    <name>CppEditor</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Suche nach Symbol</translation>
@@ -53857,10 +53754,6 @@ Use drag and drop to change the order of the parameters.</source>
         <translation>Enumerationen</translation>
     </message>
     <message>
-        <source>Declarations</source>
-        <translation>Deklarationen</translation>
-    </message>
-    <message>
         <source>Scope: %1
 Types: %2
 Flags: %3</source>
@@ -53876,28 +53769,9 @@ Flags: %3</translation>
         <source>Projects</source>
         <translation>Projekte</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Typen:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Klassen</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funktionen</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Enumerationen</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklarationen</translation>
     </message>
     <message>
         <source>Projects only</source>

@@ -3,6 +3,7 @@
 
 #include "cppparsecontext.h"
 
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 
 #include <QAction>
@@ -30,12 +31,12 @@ QString ParseContextModel::currentToolTip() const
     if (!index.isValid())
         return QString();
 
-    return tr("<p><b>Active Parse Context</b>:<br/>%1</p>"
-              "<p>Multiple parse contexts (set of defines, include paths, and so on) "
-              "are available for this file.</p>"
-              "<p>Choose a parse context to set it as the preferred one. "
-              "Clear the preference from the context menu.</p>")
-                .arg(data(index, Qt::ToolTipRole).toString());
+    return Tr::tr("<p><b>Active Parse Context</b>:<br/>%1</p>"
+                  "<p>Multiple parse contexts (set of defines, include paths, and so on) "
+                  "are available for this file.</p>"
+                  "<p>Choose a parse context to set it as the preferred one. "
+                  "Clear the preference from the context menu.</p>")
+                    .arg(data(index, Qt::ToolTipRole).toString());
 }
 
 void ParseContextModel::setPreferred(int index)
@@ -120,7 +121,7 @@ ParseContextWidget::ParseContextWidget(ParseContextModel &parseContextModel, QWi
     setSizePolicy(policy);
     // Set up context menu with a clear action
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_clearPreferredAction = new QAction(tr("Clear Preferred Parse Context"), this);
+    m_clearPreferredAction = new QAction(Tr::tr("Clear Preferred Parse Context"), this);
     connect(m_clearPreferredAction, &QAction::triggered, this, [this] {
         m_parseContextModel.clearPreferred();
     });

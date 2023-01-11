@@ -43,7 +43,6 @@ private:
 
 class FunctionDeclDefLink
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::FunctionDeclDefLink)
     Q_DISABLE_COPY(FunctionDeclDefLink)
     FunctionDeclDefLink() = default;
 public:

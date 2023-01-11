@@ -6,6 +6,7 @@
 #include "baseeditordocumentprocessor.h"
 #include "cppcodestylesettings.h"
 #include "cppeditordocument.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppinsertvirtualmethods.h"
@@ -332,7 +333,7 @@ public:
 
     QString description() const override
     {
-        return QApplication::translate("CppEditor::QuickFix", "Rewrite Using %1").arg(replacement);
+        return Tr::tr("Rewrite Using %1").arg(replacement);
     }
 
     void perform() override
@@ -424,9 +425,9 @@ public:
     QString description() const override
     {
         if (replacement.isEmpty())
-            return QApplication::translate("CppEditor::QuickFix", "Swap Operands");
+            return Tr::tr("Swap Operands");
         else
-            return QApplication::translate("CppEditor::QuickFix", "Rewrite Using %1").arg(replacement);
+            return Tr::tr("Rewrite Using %1").arg(replacement);
     }
 
     void perform() override
@@ -567,8 +568,7 @@ void RewriteLogicalAnd::match(const CppQuickFixInterface &interface, QuickFixOpe
             file->tokenAt(op->pattern->binary_op_token).is(T_AMPER_AMPER) &&
             file->tokenAt(op->left->unary_op_token).is(T_EXCLAIM) &&
             file->tokenAt(op->right->unary_op_token).is(T_EXCLAIM)) {
-        op->setDescription(QApplication::translate("CppEditor::QuickFix",
-                                                   "Rewrite Condition Using ||"));
+        op->setDescription(Tr::tr("Rewrite Condition Using ||"));
         op->setPriority(index);
         result.append(op);
     }
@@ -601,8 +601,7 @@ public:
         : CppQuickFixOperation(interface, priority)
         , declaration(decl)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Split Declaration"));
+        setDescription(Tr::tr("Split Declaration"));
     }
 
     void perform() override
@@ -693,7 +692,7 @@ public:
         : CppQuickFixOperation(interface, priority)
         , _statement(statement)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix", "Add Curly Braces"));
+        setDescription(Tr::tr("Add Curly Braces"));
     }
 
     void perform() override
@@ -759,8 +758,7 @@ public:
     MoveDeclarationOutOfIfOp(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Move Declaration out of Condition"));
+        setDescription(Tr::tr("Move Declaration out of Condition"));
 
         reset();
     }
@@ -834,8 +832,7 @@ public:
     MoveDeclarationOutOfWhileOp(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Move Declaration out of Condition"));
+        setDescription(Tr::tr("Move Declaration out of Condition"));
         reset();
     }
 
@@ -920,8 +917,7 @@ public:
         , pattern(pattern)
         , condition(condition)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Split if Statement"));
+        setDescription(Tr::tr("Split if Statement"));
     }
 
     void perform() override
@@ -1085,7 +1081,7 @@ static QByteArray charToStringEscapeSequences(const QByteArray &content)
 
 static QString msgQtStringLiteralDescription(const QString &replacement)
 {
-    return QApplication::translate("CppEditor::QuickFix", "Enclose in %1(...)").arg(replacement);
+    return Tr::tr("Enclose in %1(...)").arg(replacement);
 }
 
 static QString stringLiteralReplacement(unsigned actions)
@@ -1256,8 +1252,7 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
             const QByteArray contents(file->tokenAt(charLiteral->literal_token).identifier->chars());
             if (!charToStringEscapeSequences(contents).isEmpty()) {
                 actions = DoubleQuoteAction | ConvertEscapeSequencesToStringAction;
-                description = QApplication::translate("CppEditor::QuickFix",
-                              "Convert to String Literal");
+                description = Tr::tr("Convert to String Literal");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
             }
@@ -1271,13 +1266,12 @@ void WrapStringLiteral::match(const CppQuickFixInterface &interface, QuickFixOpe
             if (!stringToCharEscapeSequences(contents).isEmpty()) {
                 actions = EncloseInQLatin1CharAction | SingleQuoteAction
                           | ConvertEscapeSequencesToCharAction | objectiveCActions;
-                QString description = QApplication::translate("CppEditor::QuickFix",
-                                      "Convert to Character Literal and Enclose in QLatin1Char(...)");
+                QString description =
+                    Tr::tr("Convert to Character Literal and Enclose in QLatin1Char(...)");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
                 actions &= ~EncloseInQLatin1CharAction;
-                description = QApplication::translate("CppEditor::QuickFix",
-                              "Convert to Character Literal");
+                description = Tr::tr("Convert to Character Literal");
                 result << new WrapStringLiteralOp(interface, priority, actions,
                                                   description, literal);
             }
@@ -1310,7 +1304,7 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
     const Name *trName = control->identifier("tr");
 
     // Check whether we are in a function:
-    const QString description = QApplication::translate("CppEditor::QuickFix", "Mark as Translatable");
+    const QString description = Tr::tr("Mark as Translatable");
     for (int i = path.size() - 1; i >= 0; --i) {
         if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
             Function *function = definition->symbol;
@@ -1365,8 +1359,7 @@ public:
         , stringLiteral(stringLiteral)
         , qlatin1Call(qlatin1Call)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Convert to Objective-C String Literal"));
+        setDescription(Tr::tr("Convert to Objective-C String Literal"));
     }
 
     void perform() override
@@ -1510,7 +1503,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("0x%lX", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Hexadecimal"));
+        op->setDescription(Tr::tr("Convert to Hexadecimal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1527,7 +1520,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("0%lo", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Octal"));
+        op->setDescription(Tr::tr("Convert to Octal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1544,7 +1537,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
         */
         const QString replacement = QString::asprintf("%lu", value);
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Decimal"));
+        op->setDescription(Tr::tr("Convert to Decimal"));
         op->setPriority(priority);
         result << op;
     }
@@ -1568,7 +1561,7 @@ void ConvertNumericLiteral::match(const CppQuickFixInterface &interface, QuickFi
             replacement.append(QString::fromStdString(b.to_string()).remove(re));
         }
         auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);
-        op->setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Binary"));
+        op->setDescription(Tr::tr("Convert to Binary"));
         op->setPriority(priority);
         result << op;
     }
@@ -1587,7 +1580,7 @@ public:
         , binaryAST(binaryAST)
         , simpleNameAST(simpleNameAST)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix", "Add Local Declaration"));
+        setDescription(Tr::tr("Add Local Declaration"));
     }
 
     void perform() override
@@ -1701,7 +1694,7 @@ public:
         , m_isAllUpper(name.isUpper())
         , m_test(test)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix", "Convert to Camel Case"));
+        setDescription(Tr::tr("Convert to Camel Case"));
     }
 
     void perform() override
@@ -1783,7 +1776,7 @@ AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
     : CppQuickFixOperation(interface, priority)
     , m_include(include)
 {
-    setDescription(QApplication::translate("CppEditor::QuickFix", "Add #include %1").arg(m_include));
+    setDescription(Tr::tr("Add #include %1").arg(m_include));
 }
 
 void AddIncludeForUndefinedIdentifierOp::perform()
@@ -1801,8 +1794,7 @@ AddForwardDeclForUndefinedIdentifierOp::AddForwardDeclForUndefinedIdentifierOp(
         int symbolPos)
     : CppQuickFixOperation(interface, priority), m_className(fqClassName), m_symbolPos(symbolPos)
 {
-    setDescription(QApplication::translate("CppEditor::QuickFix",
-                                           "Add forward declaration for %1").arg(m_className));
+    setDescription(Tr::tr("Add forward declaration for %1").arg(m_className));
 }
 
 void AddForwardDeclForUndefinedIdentifierOp::perform()
@@ -2056,7 +2048,7 @@ void AddIncludeForUndefinedIdentifier::match(const CppQuickFixInterface &interfa
     QList<Core::LocatorFilterEntry> matches;
     const QString currentDocumentFilePath = interface.semanticInfo().doc->filePath().toString();
     const ProjectExplorer::HeaderPaths headerPaths = relevantHeaderPaths(currentDocumentFilePath);
-    QList<Utils::FilePath> headers;
+    FilePaths headers;
 
     // Find an include file through the locator
     if (matchName(nameAst->name, &matches, &className)) {
@@ -2149,11 +2141,9 @@ public:
     {
         QString targetString;
         if (target == TargetPrevious)
-            targetString = QApplication::translate("CppEditor::QuickFix",
-                                                   "Switch with Previous Parameter");
+            targetString = Tr::tr("Switch with Previous Parameter");
         else
-            targetString = QApplication::translate("CppEditor::QuickFix",
-                                                   "Switch with Next Parameter");
+            targetString = Tr::tr("Switch with Next Parameter");
         setDescription(targetString);
     }
 
@@ -2228,11 +2218,10 @@ public:
     {
         QString description;
         if (m_change.operationList().size() == 1) {
-            description = QApplication::translate("CppEditor::QuickFix",
+            description = Tr::tr(
                 "Reformat to \"%1\"").arg(m_change.operationList().constFirst().text);
         } else { // > 1
-            description = QApplication::translate("CppEditor::QuickFix",
-                "Reformat Pointers or References");
+            description = Tr::tr("Reformat Pointers or References");
         }
         setDescription(description);
     }
@@ -2395,8 +2384,7 @@ public:
         , compoundStatement(compoundStatement)
         , values(values)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Complete Switch Statement"));
+        setDescription(Tr::tr("Complete Switch Statement"));
     }
 
     void perform() override
@@ -2533,8 +2521,7 @@ public:
         , m_xsSpec(xsSpec)
         , m_decl(decl)
     {
-        setDescription(QCoreApplication::translate("CppEditor::InsertDeclOperation",
-                                                   "Add %1 Declaration")
+        setDescription(Tr::tr("Add %1 Declaration")
                        .arg(InsertionPointLocator::accessSpecToString(xsSpec)));
     }
 
@@ -2696,19 +2683,14 @@ public:
             const FilePath targetFile =  m_loc.isValid() ? m_loc.filePath() : m_targetFilePath;
             const FilePath resolved = targetFile.relativePathFrom(declFile.parentDir());
             setPriority(2);
-            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                       "Add Definition in %1")
-                           .arg(resolved.displayName()));
+            setDescription(Tr::tr("Add Definition in %1").arg(resolved.displayName()));
         } else if (freeFunction) {
-            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                       "Add Definition Here"));
+            setDescription(Tr::tr("Add Definition Here"));
         } else if (m_defpos == DefPosInsideClass) {
-            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                       "Add Definition Inside Class"));
+            setDescription(Tr::tr("Add Definition Inside Class"));
         } else if (m_defpos == DefPosOutsideClass) {
             setPriority(1);
-            setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
-                                                       "Add Definition Outside Class"));
+            setDescription(Tr::tr("Add Definition Outside Class"));
         }
     }
 
@@ -2959,8 +2941,7 @@ public:
             const QString &type)
         : CppQuickFixOperation(interface), m_class(theClass), m_member(member), m_type(type)
     {
-        setDescription(QCoreApplication::translate("CppEditor::Quickfix",
-                                                   "Add Class Member \"%1\"").arg(m_member));
+        setDescription(Tr::tr("Add Class Member \"%1\"").arg(m_member));
     }
 
 private:
@@ -2970,8 +2951,8 @@ private:
         if (type.isEmpty()) {
             type = QInputDialog::getText(
                         Core::ICore::dialogParent(),
-                        QCoreApplication::translate("CppEditor::Quickfix","Provide the type"),
-                        QCoreApplication::translate("CppEditor::Quickfix","Data type:"),
+                        Tr::tr("Provide the type"),
+                        Tr::tr("Data type:"),
                         QLineEdit::Normal);
         }
         if (type.isEmpty())
@@ -3101,15 +3082,14 @@ using MemberFunctionImplSettings = QList<MemberFunctionImplSetting>;
 
 class AddImplementationsDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(AddImplementationsDialog)
 public:
-    AddImplementationsDialog(const QList<Symbol *> &candidates, const Utils::FilePath &implFile)
+    AddImplementationsDialog(const QList<Symbol *> &candidates, const FilePath &implFile)
         : QDialog(Core::ICore::dialogParent()), m_candidates(candidates)
     {
-        setWindowTitle(tr("Member Function Implementations"));
+        setWindowTitle(Tr::tr("Member Function Implementations"));
 
         const auto defaultImplTargetComboBox = new QComboBox;
-        QStringList implTargetStrings{tr("None"), tr("Inline"), tr("Outside Class")};
+        QStringList implTargetStrings{Tr::tr("None"), Tr::tr("Inline"), Tr::tr("Outside Class")};
         if (!implFile.isEmpty())
             implTargetStrings.append(implFile.fileName());
         defaultImplTargetComboBox->insertItems(0, implTargetStrings);
@@ -3121,7 +3101,7 @@ public:
             }
         });
         const auto defaultImplTargetLayout = new QHBoxLayout;
-        defaultImplTargetLayout->addWidget(new QLabel(tr("Default implementation location:")));
+        defaultImplTargetLayout->addWidget(new QLabel(Tr::tr("Default implementation location:")));
         defaultImplTargetLayout->addWidget(defaultImplTargetComboBox);
 
         const auto candidatesLayout = new QGridLayout;
@@ -3149,7 +3129,7 @@ public:
         defaultImplTargetComboBox->setCurrentIndex(implTargetStrings.size() - 1);
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addLayout(defaultImplTargetLayout);
-        mainLayout->addWidget(Utils::Layouting::createHr(this));
+        mainLayout->addWidget(Layouting::createHr(this));
         mainLayout->addLayout(candidatesLayout);
         mainLayout->addWidget(buttonBox);
     }
@@ -3182,7 +3162,7 @@ public:
     InsertDefsOperation(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(CppQuickFixFactory::tr("Create Implementations for Member Functions"));
+        setDescription(Tr::tr("Create Implementations for Member Functions"));
 
         m_classAST = astForClassOperations(interface);
         if (!m_classAST)
@@ -3742,38 +3722,37 @@ public:
         // of the enum 'GenerateFlag'
         int p = 0;
         if (possibleFlags & HaveExistingQProperty) {
-            const auto desc = CppQuickFixFactory::tr("Generate Missing Q_PROPERTY Members");
+            const QString desc = Tr::tr("Generate Missing Q_PROPERTY Members");
             results << new GenerateGetterSetterOp(interface, data, possibleFlags, ++p, desc);
         } else {
             if (possibleFlags & GenerateSetter) {
-                const auto desc = CppQuickFixFactory::tr("Generate Setter");
+                const QString desc = Tr::tr("Generate Setter");
                 results << new GenerateGetterSetterOp(interface, data, GenerateSetter, ++p, desc);
             }
             if (possibleFlags & GenerateGetter) {
-                const auto desc = CppQuickFixFactory::tr("Generate Getter");
+                const QString desc = Tr::tr("Generate Getter");
                 results << new GenerateGetterSetterOp(interface, data, GenerateGetter, ++p, desc);
             }
             if (possibleFlags & GenerateGetter && possibleFlags & GenerateSetter) {
-                const auto desc = CppQuickFixFactory::tr("Generate Getter and Setter");
-                const auto flags = GenerateGetter | GenerateSetter;
+                const QString desc = Tr::tr("Generate Getter and Setter");
+                const int flags = GenerateGetter | GenerateSetter;
                 results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
             }
 
             if (possibleFlags & GenerateConstantProperty) {
-                const auto desc = CppQuickFixFactory::tr(
-                    "Generate Constant Q_PROPERTY and Missing Members");
-                const auto flags = possibleFlags & ~(GenerateSetter | GenerateSignal | GenerateReset);
+                const QString desc = Tr::tr("Generate Constant Q_PROPERTY and Missing Members");
+                const int flags = possibleFlags & ~(GenerateSetter | GenerateSignal | GenerateReset);
                 results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
             }
             if (possibleFlags & GenerateProperty) {
                 if (possibleFlags & GenerateReset) {
-                    const auto desc = CppQuickFixFactory::tr(
+                    const QString desc = Tr::tr(
                         "Generate Q_PROPERTY and Missing Members with Reset Function");
-                    const auto flags = possibleFlags & ~GenerateConstantProperty;
+                    const int flags = possibleFlags & ~GenerateConstantProperty;
                     results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
                 }
-                const auto desc = CppQuickFixFactory::tr("Generate Q_PROPERTY and Missing Members");
-                const auto flags = possibleFlags & ~GenerateConstantProperty & ~GenerateReset;
+                const QString desc = Tr::tr("Generate Q_PROPERTY and Missing Members");
+                const int flags = possibleFlags & ~GenerateConstantProperty & ~GenerateReset;
                 results << new GenerateGetterSetterOp(interface, data, flags, ++p, desc);
             }
         }
@@ -4402,7 +4381,7 @@ public:
 };
 using GetterSetterCandidates = std::vector<MemberInfo>;
 
-class CandidateTreeItem : public Utils::TreeItem
+class CandidateTreeItem : public TreeItem
 {
 public:
     enum Column {
@@ -4499,8 +4478,6 @@ private:
 
 class GenerateGettersSettersDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(GenerateGettersSettersDialog)
-
     static constexpr CandidateTreeItem::Column CheckBoxColumn[4]
         = {CandidateTreeItem::Column::GetterColumn,
            CandidateTreeItem::Column::SetterColumn,
@@ -4513,20 +4490,20 @@ public:
         , m_candidates(candidates)
     {
         using Flags = GenerateGetterSetterOp::GenerateFlag;
-        setWindowTitle(tr("Getters and Setters"));
-        const auto model = new Utils::TreeModel<Utils::TreeItem, CandidateTreeItem>(this);
+        setWindowTitle(Tr::tr("Getters and Setters"));
+        const auto model = new TreeModel<TreeItem, CandidateTreeItem>(this);
         model->setHeader(QStringList({
-            tr("Member"),
-            tr("Getter"),
-            tr("Setter"),
-            tr("Signal"),
-            tr("Reset"),
-            tr("QProperty"),
-            tr("Constant QProperty"),
+            Tr::tr("Member"),
+            Tr::tr("Getter"),
+            Tr::tr("Setter"),
+            Tr::tr("Signal"),
+            Tr::tr("Reset"),
+            Tr::tr("QProperty"),
+            Tr::tr("Constant QProperty"),
         }));
         for (MemberInfo &candidate : m_candidates)
             model->rootItem()->appendChild(new CandidateTreeItem(&candidate));
-        const auto view = new Utils::BaseTreeView(this);
+        const auto view = new BaseTreeView(this);
         view->setModel(model);
         int optimalWidth = 0;
         for (int i = 0; i < model->columnCount(QModelIndex{}); ++i) {
@@ -4566,13 +4543,13 @@ public:
                 })) {
                 const Column column = CheckBoxColumn[i];
                 if (column == Column::GetterColumn)
-                    checkBoxes[i] = new QCheckBox(tr("Create getters for all members"));
+                    checkBoxes[i] = new QCheckBox(Tr::tr("Create getters for all members"));
                 else if (column == Column::SetterColumn)
-                    checkBoxes[i] = new QCheckBox(tr("Create setters for all members"));
+                    checkBoxes[i] = new QCheckBox(Tr::tr("Create setters for all members"));
                 else if (column == Column::SignalColumn)
-                    checkBoxes[i] = new QCheckBox(tr("Create signals for all members"));
+                    checkBoxes[i] = new QCheckBox(Tr::tr("Create signals for all members"));
                 else if (column == Column::QPropertyColumn)
-                    checkBoxes[i] = new QCheckBox(tr("Create Q_PROPERTY for all members"));
+                    checkBoxes[i] = new QCheckBox(Tr::tr("Create Q_PROPERTY for all members"));
 
                 createConnections(checkBoxes[i], column);
             }
@@ -4605,8 +4582,8 @@ public:
         });
 
         const auto mainLayout = new QVBoxLayout(this);
-        mainLayout->addWidget(new QLabel(tr("Select the getters and setters "
-                                            "to be created.")));
+        mainLayout->addWidget(new QLabel(Tr::tr("Select the getters and setters "
+                                                "to be created.")));
         for (auto checkBox : checkBoxes) {
             if (checkBox)
                 mainLayout->addWidget(checkBox);
@@ -4631,7 +4608,7 @@ public:
     GenerateGettersSettersOperation(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(CppQuickFixFactory::tr("Create Getter and Setter Member Functions"));
+        setDescription(Tr::tr("Create Getter and Setter Member Functions"));
 
         m_classAST = astForClassOperations(interface);
         if (!m_classAST)
@@ -4786,7 +4763,7 @@ public:
         , m_relevantDecls(relevantDecls)
         , m_functionNameGetter(functionNameGetter)
     {
-        setDescription(QCoreApplication::translate("QuickFix::ExtractFunction", "Extract Function"));
+        setDescription(Tr::tr("Extract Function"));
     }
 
     void perform() override
@@ -4952,16 +4929,14 @@ public:
     ExtractFunctionOptions getOptions() const
     {
         QDialog dlg(Core::ICore::dialogParent());
-        dlg.setWindowTitle(QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                       "Extract Function Refactoring"));
+        dlg.setWindowTitle(Tr::tr("Extract Function Refactoring"));
         auto layout = new QFormLayout(&dlg);
 
-        auto funcNameEdit = new Utils::FancyLineEdit;
-        funcNameEdit->setValidationFunction([](Utils::FancyLineEdit *edit, QString *) {
+        auto funcNameEdit = new FancyLineEdit;
+        funcNameEdit->setValidationFunction([](FancyLineEdit *edit, QString *) {
             return ExtractFunctionOptions::isValidFunctionName(edit->text());
         });
-        layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                   "Function name"), funcNameEdit);
+        layout->addRow(Tr::tr("Function name"), funcNameEdit);
 
         auto accessCombo = new QComboBox;
         accessCombo->addItem(
@@ -4982,8 +4957,7 @@ public:
         accessCombo->addItem(
                     InsertionPointLocator::accessSpecToString(InsertionPointLocator::PrivateSlot),
                     InsertionPointLocator::PrivateSlot);
-        layout->addRow(QCoreApplication::translate("QuickFix::ExtractFunction",
-                                                   "Access"), accessCombo);
+        layout->addRow(Tr::tr("Access"), accessCombo);
 
         auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
         QObject::connect(buttonBox, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
@@ -5424,8 +5398,7 @@ public:
           m_literal(literal),
           m_functionDefinition(function)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Extract Constant as Function Parameter"));
+        setDescription(Tr::tr("Extract Constant as Function Parameter"));
     }
 
     struct FoundDeclaration
@@ -5691,8 +5664,8 @@ public:
     {
         setDescription(
                 mode == FromPointer
-                ? CppQuickFixFactory::tr("Convert to Stack Variable")
-                : CppQuickFixFactory::tr("Convert to Pointer"));
+                ? Tr::tr("Convert to Stack Variable")
+                : Tr::tr("Convert to Pointer"));
     }
 
     void perform() override
@@ -6220,7 +6193,7 @@ void ApplyDeclDefLinkChanges::match(const CppQuickFixInterface &interface,
         return;
 
     auto op = new ApplyDeclDefLinkOperation(interface, link);
-    op->setDescription(FunctionDeclDefLink::tr("Apply Function Signature Changes"));
+    op->setDescription(Tr::tr("Apply Function Signature Changes"));
     result << op;
 }
 
@@ -6367,13 +6340,10 @@ public:
         , m_headerFilePath(funcDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move Definition Outside Class"));
+            setDescription(Tr::tr("Move Definition Outside Class"));
         } else {
             const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move Definition to %1")
-                           .arg(resolved.displayName()));
+            setDescription(Tr::tr("Move Definition to %1").arg(resolved.displayName()));
         }
     }
 
@@ -6463,12 +6433,10 @@ public:
         , m_headerFilePath(classDef->symbol->filePath())
     {
         if (m_type == MoveFuncDefRefactoringHelper::MoveOutside) {
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix", "Move All Function "
-                                                       "Definitions Outside Class"));
+            setDescription(Tr::tr("Definitions Outside Class"));
         } else {
             const FilePath resolved = m_cppFilePath.relativePathFrom(m_headerFilePath.parentDir());
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move All Function Definitions to %1")
+            setDescription(Tr::tr("Move All Function Definitions to %1")
                            .arg(resolved.displayName()));
         }
     }
@@ -6543,13 +6511,10 @@ public:
         , m_toRange(toRange)
     {
         if (m_toFilePath == m_fromFilePath) {
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move Definition to Class"));
+            setDescription(Tr::tr("Move Definition to Class"));
         } else {
             const FilePath resolved = m_toFilePath.relativePathFrom(m_fromFilePath.parentDir());
-            setDescription(QCoreApplication::translate("CppEditor::QuickFix",
-                                                       "Move Definition to %1")
-                           .arg(resolved.displayName()));
+            setDescription(Tr::tr("Move Definition to %1").arg(resolved.displayName()));
         }
     }
 
@@ -6725,7 +6690,7 @@ public:
         , m_originalName(m_oo.prettyName(m_name))
         , m_file(CppRefactoringChanges(snapshot()).file(filePath()))
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix", "Assign to Local Variable"));
+        setDescription(Tr::tr("Assign to Local Variable"));
     }
 
 private:
@@ -6944,7 +6909,7 @@ public:
         , m_expression(expression)
         , m_type(type)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix", "Optimize for-Loop"));
+        setDescription(Tr::tr("Optimize for-Loop"));
     }
 
     void perform() override
@@ -7123,11 +7088,9 @@ public:
         , m_escape(escape)
     {
         if (m_escape) {
-            setDescription(QApplication::translate("CppEditor::QuickFix",
-                                                   "Escape String Literal as UTF-8"));
+            setDescription(Tr::tr("Escape String Literal as UTF-8"));
         } else {
-            setDescription(QApplication::translate("CppEditor::QuickFix",
-                                                   "Unescape String Literal as UTF-8"));
+            setDescription(Tr::tr("Unescape String Literal as UTF-8"));
         }
     }
 
@@ -7306,8 +7269,7 @@ public:
     ConvertQt4ConnectOperation(const CppQuickFixInterface &interface, const ChangeSet &changes)
         : CppQuickFixOperation(interface, 1), m_changes(changes)
     {
-        setDescription(QApplication::translate("CppEditor::QuickFix",
-                                               "Convert connect() to Qt 5 Style"));
+        setDescription(Tr::tr("Convert connect() to Qt 5 Style"));
     }
 
 private:
@@ -7992,15 +7954,13 @@ public:
     {
         const QString name = Overview{}.prettyName(usingDirective->name->name);
         if (m_removeAllAtGlobalScope) {
-            setDescription(QApplication::translate(
-                               "CppEditor::QuickFix",
+            setDescription(Tr::tr(
                                "Remove All Occurrences of \"using namespace %1\" in Global Scope "
                                "and Adjust Type Names Accordingly")
                                .arg(name));
         } else {
-            setDescription(QApplication::translate("CppEditor::QuickFix",
-                                                   "Remove \"using namespace %1\" and "
-                                                   "Adjust Type Names Accordingly")
+            setDescription(Tr::tr("Remove \"using namespace %1\" and "
+                                  "Adjust Type Names Accordingly")
                                .arg(name));
         }
     }
@@ -8354,13 +8314,13 @@ public:
         if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
             switch (section) {
             case ShouldInitColumn:
-                return tr("Initialize in Constructor");
+                return Tr::tr("Initialize in Constructor");
             case MemberNameColumn:
-                return tr("Member Name");
+                return Tr::tr("Member Name");
             case ParameterNameColumn:
-                return tr("Parameter Name");
+                return Tr::tr("Parameter Name");
             case DefaultValueColumn:
-                return tr("Default Value");
+                return Tr::tr("Default Value");
             }
         }
         return {};
@@ -8628,7 +8588,7 @@ public:
         if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
             switch (section) {
             case 0:
-                return CppQuickFixFactory::tr("Base Class Constructors");
+                return Tr::tr("Base Class Constructors");
             }
         }
         return {};
@@ -8651,12 +8611,11 @@ public:
 
 class GenerateConstructorDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(GenerateConstructorDialog)
 public:
     GenerateConstructorDialog(ConstructorParams *constructorParamsModel,
                               ParentClassConstructors &constructors)
     {
-        setWindowTitle(tr("Constructor"));
+        setWindowTitle(Tr::tr("Constructor"));
 
         const auto treeModel = new ParentClassesModel(this, constructors);
         const auto treeView = new QTreeView(this);
@@ -8688,7 +8647,7 @@ public:
         connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
         const auto errorLabel = new QLabel(
-            tr("Parameters without default value must come before parameters with default value."));
+            Tr::tr("Parameters without default value must come before parameters with default value."));
         errorLabel->setStyleSheet("color: #ff0000");
         errorLabel->setVisible(false);
         QSizePolicy labelSizePolicy = errorLabel->sizePolicy();
@@ -8702,7 +8661,7 @@ public:
                 });
 
         // setup select all/none checkbox
-        QCheckBox *const checkBox = new QCheckBox(tr("Initialize all members"));
+        QCheckBox *const checkBox = new QCheckBox(Tr::tr("Initialize all members"));
         checkBox->setChecked(true);
         connect(checkBox, &QCheckBox::stateChanged, [model = constructorParamsModel](int state) {
             if (state != Qt::PartiallyChecked) {
@@ -8739,14 +8698,14 @@ public:
         for (auto a : {A::Public, A::Protected, A::Private})
             accessCombo->addItem(InsertionPointLocator::accessSpecToString(a), a);
         const auto row = new QHBoxLayout();
-        row->addWidget(new QLabel(tr("Access") + ":"));
+        row->addWidget(new QLabel(Tr::tr("Access") + ":"));
         row->addWidget(accessCombo);
         row->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addWidget(
-            new QLabel(tr("Select the members to be initialized in the constructor.\n"
-                          "Use drag and drop to change the order of the parameters.")));
+            new QLabel(Tr::tr("Select the members to be initialized in the constructor.\n"
+                              "Use drag and drop to change the order of the parameters.")));
         mainLayout->addLayout(row);
         mainLayout->addWidget(checkBox);
         mainLayout->addWidget(view);
@@ -8771,7 +8730,7 @@ public:
     GenerateConstructorOperation(const CppQuickFixInterface &interface)
         : CppQuickFixOperation(interface)
     {
-        setDescription(CppQuickFixFactory::tr("Generate Constructor"));
+        setDescription(Tr::tr("Generate Constructor"));
 
         m_classAST = astForClassOperations(interface);
         if (!m_classAST)

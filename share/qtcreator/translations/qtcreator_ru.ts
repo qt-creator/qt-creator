@@ -6197,7 +6197,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Только виртуальные функции могут иметь атрибут «final»</translation>
@@ -6538,7 +6538,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Checks for questionable constructs</source>
         <translation>Проверки на сомнительные конструкции</translation>
@@ -11639,7 +11639,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::CppQuickFixFactory</name>
+    <name>CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Создать методы получения и установки значения</translation>
@@ -11664,16 +11664,10 @@ to version control (%2)
         <source>Generate Missing Q_PROPERTY Members</source>
         <translation>Создание отсутствующих членов Q_PROPERTY</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Добавление объявления %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Добавить реализацию в %1</translation>
@@ -11690,16 +11684,10 @@ to version control (%2)
         <source>Add Definition Outside Class</source>
         <translation>Добавить реализацию вне класса</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation>Несколько контекстов разбора доступно для этого файла. Выберите предпочтительный в панели инструментов редактора.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>Shift+F2</source>
         <translation>Shift+F2</translation>
@@ -11784,23 +11772,14 @@ to version control (%2)
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Shift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>&amp;Рефакторинг</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Иерархия включений</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Включения</translation>
@@ -11817,9 +11796,6 @@ to version control (%2)
         <source>(cyclic)</source>
         <translation>(циклически)</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Нет доступных иерархий включений</translation>
@@ -11828,9 +11804,6 @@ to version control (%2)
         <source>Synchronize with Editor</source>
         <translation>Согласовывать с редактором</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Развернуть всё</translation>
@@ -11839,9 +11812,6 @@ to version control (%2)
         <source>Collapse All</source>
         <translation>Свернуть всё</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Дополнительные директивы препроцессора C++</translation>
@@ -11850,16 +11820,10 @@ to version control (%2)
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Дополнительные директивы препроцессора C++ для %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Иерархия типов</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Иерархия типов недоступна</translation>
@@ -11872,9 +11836,6 @@ to version control (%2)
         <source>Derived</source>
         <translation>Производные</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Невозможно применить изменения, так как целевой файл изменился</translation>
@@ -11891,9 +11852,6 @@ to version control (%2)
         <source>Apply Function Signature Changes</source>
         <translation>Применить изменения сигнатуры функции</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Вставка виртуальных методов</translation>
@@ -11942,9 +11900,6 @@ to version control (%2)
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation>Удаление аналогов «override»</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>File is not part of any project.</source>
         <translation>Файл не является частью проекта.</translation>
@@ -11965,23 +11920,14 @@ to version control (%2)
         <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to incorrect code completion and highlighting, for example.</source>
         <translation>&lt;b&gt;Внимание!&lt;/b&gt; Модель кода не сможет обрабатывать включённый файл, который, например, может приводить к неверному дополнению кода и подсветки.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Активный контекст разбора&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Для этого файла доступно несколько контекстов разбора (набор определений, путей включения и пр.).&lt;/p&gt;&lt;p&gt;Выберите контекст разбора и задайте его предпочтительным. Убрать предпочтение можно через контекстное меню.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation>Убрать предпочтительный контекст разбора</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Вынести реализацию из класса</translation>
@@ -12006,16 +11952,10 @@ to version control (%2)
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Вставить виртуальные методы базовых классов</translation>
     </message>
-</context>
-<context>
-    <name>CppIndexer</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation>Индексатор C++: Пропускается файл «%1», так как слишком большой.</translation>
     </message>
-</context>
-<context>
-    <name>CppSourceProcessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Нет такого файла или каталога</translation>
@@ -12180,7 +12120,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
@@ -42543,7 +42483,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Извлечь функцию</translation>
@@ -51099,7 +51039,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>... поиск переопределений</translation>

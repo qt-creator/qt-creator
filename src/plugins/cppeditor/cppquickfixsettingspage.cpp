@@ -4,18 +4,19 @@
 #include "cppquickfixsettingspage.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppquickfixsettings.h"
 #include "cppquickfixsettingswidget.h"
 
 #include <QCoreApplication>
 #include <QtDebug>
 
-using namespace CppEditor::Internal;
+namespace CppEditor::Internal {
 
 CppQuickFixSettingsPage::CppQuickFixSettingsPage()
 {
     setId(Constants::QUICK_FIX_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppEditor", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+    setDisplayName(Tr::tr("CppEditor", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
 }
 
@@ -35,7 +36,9 @@ void CppQuickFixSettingsPage::apply()
     s->saveAsGlobalSettings();
 }
 
-void CppEditor::Internal::CppQuickFixSettingsPage::finish()
+void CppQuickFixSettingsPage::finish()
 {
     delete m_widget;
 }
+
+} // CppEditor::Internal

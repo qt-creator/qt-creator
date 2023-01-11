@@ -4,6 +4,7 @@
 #include "cpppreprocessordialog.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <projectexplorer/session.h>
@@ -23,7 +24,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const FilePath &filePath, QWidget *
     , m_filePath(filePath)
 {
     resize(400, 300);
-    setWindowTitle(tr("Additional C++ Preprocessor Directives"));
+    setWindowTitle(Tr::tr("Additional C++ Preprocessor Directives"));
 
     const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath.toString();
     const QString directives = ProjectExplorer::SessionManager::value(key).toString();
@@ -38,7 +39,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const FilePath &filePath, QWidget *
     using namespace Layouting;
 
     Column {
-        tr("Additional C++ Preprocessor Directives for %1:").arg(m_filePath.fileName()),
+        Tr::tr("Additional C++ Preprocessor Directives for %1:").arg(m_filePath.fileName()),
         m_editWidget,
         buttonBox,
     }.attachTo(this);

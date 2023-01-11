@@ -6,6 +6,7 @@
 #include "builtineditordocumentparser.h"
 #include "cppchecksymbols.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppsourceprocessor.h"
 #include "searchsymbols.h"
 
@@ -328,7 +329,7 @@ QFuture<void> CppIndexingSupport::refreshSourceFiles(const QSet<QString> &source
     m_synchronizer.addFuture(result);
 
     if (mode == CppModelManager::ForcedProgressNotification || sourceFiles.count() > 1) {
-        Core::ProgressManager::addTask(result, QCoreApplication::translate("CppEditor::Internal::BuiltinIndexingSupport", "Parsing C/C++ Files"),
+        Core::ProgressManager::addTask(result, Tr::tr("Parsing C/C++ Files"),
                                        CppEditor::Constants::TASK_INDEX);
     }
 

@@ -2146,7 +2146,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CPPEditor</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Ordine alfabetico</translation>
@@ -2159,9 +2159,6 @@ Vuoi sovrascriverli?</translation>
         <source>Yes, I know what I am doing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation>Inserisci il nome della classe</translation>
@@ -2174,30 +2171,18 @@ Vuoi sovrascriverli?</translation>
         <source>Configure...</source>
         <translation>Configura...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Errore durante la generazione del contenuto dei file.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>Assistente alla creazione Classe C++</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation>Non filtrato</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>

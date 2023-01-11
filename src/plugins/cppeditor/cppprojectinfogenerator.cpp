@@ -3,6 +3,7 @@
 
 #include "cppprojectinfogenerator.h"
 
+#include "cppeditortr.h"
 #include "cppprojectfilecategorizer.h"
 
 #include <projectexplorer/headerpath.h>
@@ -47,12 +48,12 @@ ProjectInfo::ConstPtr ProjectInfoGenerator::generate()
         });
     };
     if (m_cToolchainMissing) {
-        showWarning(QCoreApplication::translate("CppEditor",
+        showWarning(Tr::tr(
                 "The project contains C source files, but the currently active kit "
                 "has no C compiler. The code model will not be fully functional."));
     }
     if (m_cxxToolchainMissing) {
-        showWarning(QCoreApplication::translate("CppEditor",
+        showWarning(Tr::tr(
                 "The project contains C++ source files, but the currently active kit "
                 "has no C++ compiler. The code model will not be fully functional."));
     }

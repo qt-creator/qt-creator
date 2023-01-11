@@ -4,6 +4,7 @@
 #include "cpptypehierarchy.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppeditorplugin.h"
 #include "cppelementevaluator.h"
@@ -84,20 +85,20 @@ void CppTypeHierarchyTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    QAction *action = contextMenu.addAction(tr("Open in Editor"));
+    QAction *action = contextMenu.addAction(Tr::tr("Open in Editor"));
     connect(action, &QAction::triggered, this, [this] () {
         emit activated(currentIndex());
     });
-    action = contextMenu.addAction(tr("Open Type Hierarchy"));
+    action = contextMenu.addAction(Tr::tr("Open Type Hierarchy"));
     connect(action, &QAction::triggered, this, [this] () {
         emit doubleClicked(currentIndex());
     });
 
     contextMenu.addSeparator();
 
-    action = contextMenu.addAction(tr("Expand All"));
+    action = contextMenu.addAction(Tr::tr("Expand All"));
     connect(action, &QAction::triggered, this, &QTreeView::expandAll);
-    action = contextMenu.addAction(tr("Collapse All"));
+    action = contextMenu.addAction(Tr::tr("Collapse All"));
     connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
 
     contextMenu.exec(event->globalPos());
@@ -182,7 +183,7 @@ void CppTypeHierarchyWidget::perform()
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(m_future);
 
-    Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
+    Core::ProgressManager::addTask(m_future, Tr::tr("Evaluating Type Hierarchy"), "TypeHierarchy");
 }
 
 void CppTypeHierarchyWidget::performFromExpression(const QString &expression, const FilePath &filePath)
@@ -198,7 +199,7 @@ void CppTypeHierarchyWidget::performFromExpression(const QString &expression, co
     m_futureWatcher.setFuture(QFuture<void>(m_future));
     m_synchronizer.addFuture(m_future);
 
-    Core::ProgressManager::addTask(m_future, tr("Evaluating Type Hierarchy"), "TypeHierarchy");
+    Core::ProgressManager::addTask(m_future, Tr::tr("Evaluating Type Hierarchy"), "TypeHierarchy");
 }
 
 void CppTypeHierarchyWidget::displayHierarchy()
@@ -224,10 +225,10 @@ void CppTypeHierarchyWidget::displayHierarchy()
 
     m_inspectedClass->setText(cppClass->name);
     m_inspectedClass->setLink(cppClass->link);
-    QStandardItem *bases = new QStandardItem(tr("Bases"));
+    QStandardItem *bases = new QStandardItem(Tr::tr("Bases"));
     m_model->invisibleRootItem()->appendRow(bases);
     QStandardItem *selectedItem1 = buildHierarchy(*cppClass, bases, true, &CppClass::bases);
-    QStandardItem *derived = new QStandardItem(tr("Derived"));
+    QStandardItem *derived = new QStandardItem(Tr::tr("Derived"));
     m_model->invisibleRootItem()->appendRow(derived);
     QStandardItem *selectedItem2 = buildHierarchy(*cppClass, derived, true, &CppClass::derived);
     m_treeView->expandAll();
@@ -263,7 +264,7 @@ QStandardItem *CppTypeHierarchyWidget::buildHierarchy(const CppClass &cppClass, 
 
 void CppTypeHierarchyWidget::showNoTypeHierarchyLabel()
 {
-    m_infoLabel->setText(tr("No type hierarchy available"));
+    m_infoLabel->setText(Tr::tr("No type hierarchy available"));
     m_stackLayout->setCurrentWidget(m_infoLabel);
 }
 
@@ -274,7 +275,7 @@ void CppTypeHierarchyWidget::showTypeHierarchy()
 
 void CppTypeHierarchyWidget::showProgress()
 {
-    m_infoLabel->setText(tr("Evaluating type hierarchy..."));
+    m_infoLabel->setText(Tr::tr("Evaluating type hierarchy..."));
     if (!m_progressIndicator) {
         m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         m_progressIndicator->attachToWidget(this);
@@ -326,7 +327,7 @@ void CppTypeHierarchyWidget::onItemDoubleClicked(const QModelIndex &index)
 // CppTypeHierarchyFactory
 CppTypeHierarchyFactory::CppTypeHierarchyFactory()
 {
-    setDisplayName(tr("Type Hierarchy"));
+    setDisplayName(Tr::tr("Type Hierarchy"));
     setPriority(700);
     setId(Constants::TYPE_HIERARCHY_ID);
 }

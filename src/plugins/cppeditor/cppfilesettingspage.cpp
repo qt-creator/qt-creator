@@ -4,6 +4,7 @@
 #include "cppfilesettingspage.h"
 
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 
 #include <app/app_version.h>
 
@@ -38,7 +39,7 @@ const char sourceSearchPathsKeyC[] = "SourceSearchPaths";
 const char headerPragmaOnceC[] = "HeaderPragmaOnce";
 const char licenseTemplatePathKeyC[] = "LicenseTemplate";
 
-const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppEditor::Internal::CppFileSettingsWidget",
+const char *licenseTemplateTemplate = QT_TRANSLATE_NOOP("CppEditor",
 "/**************************************************************************\n"
 "** %1 license header template\n"
 "**   Special keywords: %USER% %DATE% %YEAR%\n"
@@ -234,8 +235,6 @@ QString CppFileSettings::licenseTemplate()
 
 class CppFileSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::CppFileSettingsPage)
-
 public:
     explicit CppFileSettingsWidget(CppFileSettings *settings);
 
@@ -265,29 +264,29 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     , m_headerSuffixComboBox(new QComboBox)
     , m_headerSearchPathsEdit(new QLineEdit)
     , m_headerPrefixesEdit(new QLineEdit)
-    , m_headerPragmaOnceCheckBox(new QCheckBox(tr("Use \"#pragma once\" instead of \"#ifndef\" guards")))
+    , m_headerPragmaOnceCheckBox(new QCheckBox(Tr::tr("Use \"#pragma once\" instead of \"#ifndef\" guards")))
     , m_sourceSuffixComboBox(new QComboBox)
     , m_sourceSearchPathsEdit(new QLineEdit)
     , m_sourcePrefixesEdit(new QLineEdit)
-    , m_lowerCaseFileNamesCheckBox(new QCheckBox(tr("&Lower case file names")))
+    , m_lowerCaseFileNamesCheckBox(new QCheckBox(Tr::tr("&Lower case file names")))
     , m_licenseTemplatePathChooser(new PathChooser)
 {
-    m_headerSearchPathsEdit->setToolTip(tr("Comma-separated list of header paths.\n"
+    m_headerSearchPathsEdit->setToolTip(Tr::tr("Comma-separated list of header paths.\n"
         "\n"
         "Paths can be absolute or relative to the directory of the current open document.\n"
         "\n"
         "These paths are used in addition to current directory on Switch Header/Source."));
-    m_headerPrefixesEdit->setToolTip(tr("Comma-separated list of header prefixes.\n"
+    m_headerPrefixesEdit->setToolTip(Tr::tr("Comma-separated list of header prefixes.\n"
         "\n"
         "These prefixes are used in addition to current file name on Switch Header/Source."));
     m_headerPragmaOnceCheckBox->setToolTip(
-        tr("Uses \"#pragma once\" instead of \"#ifndef\" include guards."));
-    m_sourceSearchPathsEdit->setToolTip(tr("Comma-separated list of source paths.\n"
+        Tr::tr("Uses \"#pragma once\" instead of \"#ifndef\" include guards."));
+    m_sourceSearchPathsEdit->setToolTip(Tr::tr("Comma-separated list of source paths.\n"
         "\n"
         "Paths can be absolute or relative to the directory of the current open document.\n"
         "\n"
         "These paths are used in addition to current directory on Switch Header/Source."));
-    m_sourcePrefixesEdit->setToolTip(tr("Comma-separated list of source prefixes.\n"
+    m_sourcePrefixesEdit->setToolTip(Tr::tr("Comma-separated list of source prefixes.\n"
         "\n"
         "These prefixes are used in addition to current file name on Switch Header/Source."));
 
@@ -297,23 +296,23 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
         Group {
             title("Headers"),
             Form {
-                tr("&Suffix:"), m_headerSuffixComboBox, st, br,
-                tr("S&earch paths:"), m_headerSearchPathsEdit, br,
-                tr("&Prefixes:"), m_headerPrefixesEdit, br,
-                tr("Include guards"), m_headerPragmaOnceCheckBox
+                Tr::tr("&Suffix:"), m_headerSuffixComboBox, st, br,
+                Tr::tr("S&earch paths:"), m_headerSearchPathsEdit, br,
+                Tr::tr("&Prefixes:"), m_headerPrefixesEdit, br,
+                Tr::tr("Include guards"), m_headerPragmaOnceCheckBox
             }
         },
         Group {
             title("Sources"),
             Form {
-                tr("S&uffix:"), m_sourceSuffixComboBox, st, br,
-                tr("Se&arch paths:"), m_sourceSearchPathsEdit, br,
-                tr("P&refixes:"), m_sourcePrefixesEdit
+                Tr::tr("S&uffix:"), m_sourceSuffixComboBox, st, br,
+                Tr::tr("Se&arch paths:"), m_sourceSearchPathsEdit, br,
+                Tr::tr("P&refixes:"), m_sourcePrefixesEdit
             }
         },
         m_lowerCaseFileNamesCheckBox,
         Form {
-            tr("License &template:"), m_licenseTemplatePathChooser
+            Tr::tr("License &template:"), m_licenseTemplatePathChooser
         },
         st
     }.attachTo(this);
@@ -334,7 +333,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     }
     m_licenseTemplatePathChooser->setExpectedKind(PathChooser::File);
     m_licenseTemplatePathChooser->setHistoryCompleter(QLatin1String("Cpp.LicenseTemplate.History"));
-    m_licenseTemplatePathChooser->addButton(tr("Edit..."), this, [this] { slotEdit(); });
+    m_licenseTemplatePathChooser->addButton(Tr::tr("Edit..."), this, [this] { slotEdit(); });
 
     setSettings(*m_settings);
 }
@@ -404,11 +403,11 @@ void CppFileSettingsWidget::slotEdit()
     FilePath path = licenseTemplatePath();
     if (path.isEmpty()) {
         // Pick a file name and write new template, edit with C++
-        path = FileUtils::getSaveFilePath(this, tr("Choose Location for New License Template File"));
+        path = FileUtils::getSaveFilePath(this, Tr::tr("Choose Location for New License Template File"));
         if (path.isEmpty())
             return;
         FileSaver saver(path, QIODevice::Text);
-        saver.write(tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
+        saver.write(Tr::tr(licenseTemplateTemplate).arg(Core::Constants::IDE_DISPLAY_NAME).toUtf8());
         if (!saver.finalize(this))
             return;
         setLicenseTemplatePath(path);
@@ -422,7 +421,7 @@ void CppFileSettingsWidget::slotEdit()
 CppFileSettingsPage::CppFileSettingsPage(CppFileSettings *settings)
 {
     setId(Constants::CPP_FILE_SETTINGS_ID);
-    setDisplayName(QCoreApplication::translate("CppEditor", Constants::CPP_FILE_SETTINGS_NAME));
+    setDisplayName(Tr::tr("File Naming"));
     setCategory(Constants::CPP_SETTINGS_CATEGORY);
     setWidgetCreator([settings] { return new CppFileSettingsWidget(settings); });
 }

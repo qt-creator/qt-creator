@@ -9,6 +9,7 @@
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
@@ -344,9 +345,7 @@ bool fileSizeExceedsLimit(const FilePath &filePath, int sizeLimitInMb)
 
     const qint64 fileSizeInMB = filePath.fileSize() / (1000 * 1000);
     if (fileSizeInMB > sizeLimitInMb) {
-        const QString msg = QCoreApplication::translate(
-                    "CppIndexer",
-                    "C++ Indexer: Skipping file \"%1\" because it is too big.")
+        const QString msg = Tr::tr("C++ Indexer: Skipping file \"%1\" because it is too big.")
                         .arg(filePath.displayName());
 
         QMetaObject::invokeMethod(Core::MessageManager::instance(),
@@ -373,9 +372,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     // Questionable constructs
     config = ClangDiagnosticConfig();
     config.setId(Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE);
-    config.setDisplayName(QCoreApplication::translate(
-                              "ClangDiagnosticConfigsModel",
-                              "Checks for questionable constructs"));
+    config.setDisplayName(Tr::tr("Checks for questionable constructs"));
     config.setIsReadOnly(true);
     config.setClangOptions({
         "-Wall",
@@ -388,8 +385,7 @@ static void addBuiltinConfigs(ClangDiagnosticConfigsModel &model)
     // Warning flags from build system
     config = ClangDiagnosticConfig();
     config.setId(Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM);
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Build-system warnings"));
+    config.setDisplayName(Tr::tr("Build-system warnings"));
     config.setIsReadOnly(true);
     config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);

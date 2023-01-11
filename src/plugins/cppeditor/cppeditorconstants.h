@@ -11,7 +11,6 @@ namespace Constants {
 const char M_CONTEXT[] = "CppEditor.ContextMenu";
 const char G_CONTEXT_FIRST[] = "CppEditor.GFirst";
 const char CPPEDITOR_ID[] = "CppEditor.C++Editor";
-const char CPPEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "C++ Editor");
 const char SWITCH_DECLARATION_DEFINITION[] = "CppEditor.SwitchDeclarationDefinition";
 const char OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT[] = "CppEditor.OpenDeclarationDefinitionInNextSplit";
 const char FOLLOW_SYMBOL_TO_TYPE[] = "TextEditor.FollowSymbolToType";
@@ -96,12 +95,9 @@ const char CPP_CLANG_DIAG_CONFIG_QUESTIONABLE[] = "Builtin.Questionable";
 const char CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM[] = "Builtin.BuildSystem";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Cpp.Code Style";
-const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Code Style");
 const char CPP_FILE_SETTINGS_ID[] = "B.Cpp.File Naming";
-const char CPP_FILE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "File Naming");
 const char CPP_CODE_MODEL_SETTINGS_ID[] = "C.Cpp.Code Model";
 const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_ID[] = "C.Cpp.Diagnostic Config";
-const char CPP_DIAGNOSTIC_CONFIG_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppEditor", "Diagnostic Configurations");
 const char CPP_CLANGD_SETTINGS_ID[] = "K.Cpp.Clangd";
 const char CPP_SETTINGS_CATEGORY[] = "I.C++";
 

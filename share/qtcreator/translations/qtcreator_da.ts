@@ -4600,7 +4600,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Kun virtuelle funktioner kan mærkes &apos;final&apos;</translation>
@@ -4749,7 +4749,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation>Clang-kun tjek for tvivlsomme constructs</translation>
@@ -8629,21 +8629,15 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::CppIncludeHierarchy</name>
+    <name>CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Intet tilgængeligt inkluderhierarki</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>Tilføj %1 erklæring</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Tilføj definition i %1</translation>
@@ -8660,16 +8654,10 @@ til versionsstyring (%2)
         <source>Add Definition Outside Class</source>
         <translation>Tilføj definition udenfor klasse</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation>Bemærk: Flere parse-kontekster er tilgængelige for denne fil. Vælg den foretrukne fra redigeringsværktøjslinjen.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>C++</source>
         <comment>SnippetProvider</comment>
@@ -8755,23 +8743,14 @@ til versionsstyring (%2)
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Skift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>&amp;Genfaktor</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Inkluderhierarki</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Inkluderer</translation>
@@ -8788,9 +8767,6 @@ til versionsstyring (%2)
         <source>(cyclic)</source>
         <translation>(cyklisk)</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Udfold alle</translation>
@@ -8799,9 +8775,6 @@ til versionsstyring (%2)
         <source>Collapse All</source>
         <translation>Sammenfold alle</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Yderligere C++ præprocessor-direktiver</translation>
@@ -8810,16 +8783,10 @@ til versionsstyring (%2)
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Yderligere C++ præprocessor-direktiver for %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Typehierarki</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Intet tilgængeligt typehierarki</translation>
@@ -8832,9 +8799,6 @@ til versionsstyring (%2)
         <source>Derived</source>
         <translation>Afledt</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Mål-fil blev ændret, kunne ikke anvende ændringer</translation>
@@ -8851,9 +8815,6 @@ til versionsstyring (%2)
         <source>Apply Function Signature Changes</source>
         <translation>Anvend funktion-signatur ændringer</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Indsæt virtuelle funktioner</translation>
@@ -8902,9 +8863,6 @@ til versionsstyring (%2)
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation>Ryd tilføjet &quot;tilsidesæt&quot;-tilsvarender</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>File is not part of any project.</source>
         <translation>Filen er ikke en del af noget projekt.</translation>
@@ -8925,23 +8883,14 @@ til versionsstyring (%2)
         <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to incorrect code completion and highlighting, for example.</source>
         <translation>&lt;b&gt;Advarsel&lt;/b&gt;: Kodemodellen kunne ikke parse en inkluderet fil, hvilket f.eks. kan lede til ukorrekt kodefuldførsel og -fremhævning.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Aktive parse-kontekst&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Flere parse-kontekster (sæt af defines, inkluder-sti osv.) er tilgængelige for denne fil.&lt;/p&gt;&lt;p&gt;Vælg en parse-kontekst for at sætte den som den foretrukne . Ryd præferencen fra genvejsmenuen.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation>Ryd foretrukne parse-kontekst</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Indsæt virtuelle funktioner af grundklasser</translation>
@@ -8966,16 +8915,10 @@ til versionsstyring (%2)
         <source>Move Definition to Class</source>
         <translation>Flyt definition til klasse</translation>
     </message>
-</context>
-<context>
-    <name>CppIndexer</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation>C++-indekser: Spring over filen &quot;%1&quot; fordi den er for stor.</translation>
     </message>
-</context>
-<context>
-    <name>CppSourceProcessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: ingen sådan fil eller mappe</translation>
@@ -9115,7 +9058,7 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Sortér alfabetisk</translation>
@@ -33077,7 +33020,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Udtræk funktion</translation>
@@ -40801,7 +40744,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...søger blandt tilsidesætninger</translation>
@@ -42510,7 +42453,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::CppQuickFixFactory</name>
+    <name>CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Opret henter- og sætter-medlemsfunktioner</translation>

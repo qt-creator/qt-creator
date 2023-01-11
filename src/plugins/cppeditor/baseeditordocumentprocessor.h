@@ -28,7 +28,8 @@ namespace TextEditor { class TextDocument; }
 namespace CppEditor {
 
 // For clang code model only, move?
-struct CPPEDITOR_EXPORT ToolTipInfo {
+struct CPPEDITOR_EXPORT ToolTipInfo
+{
     QString text;
     QString briefComment;
 

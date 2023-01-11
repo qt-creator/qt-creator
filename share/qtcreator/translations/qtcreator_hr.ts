@@ -3027,7 +3027,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatne C++ predprocesorske direktive</translation>
@@ -20233,14 +20233,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
+    <name>CppEditor</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>C++</source>
         <comment>SnippetProvider</comment>
@@ -20333,16 +20330,10 @@ u kontrolu verzija (%2)
         <source>Ctrl+Shift+F12</source>
         <translation>Ctrl+Shift+F12</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation type="unfinished"></translation>
@@ -20359,9 +20350,6 @@ u kontrolu verzija (%2)
         <source>Apply Function Signature Changes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>(none)</source>
         <translation>(bez)</translation>
@@ -20378,9 +20366,6 @@ u kontrolu verzija (%2)
         <source>Included by</source>
         <translation>Uključeno od</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
     <message>
         <source>No include hierarchy available</source>
         <translation type="unfinished"></translation>
@@ -20389,16 +20374,10 @@ u kontrolu verzija (%2)
         <source>Synchronize with Editor</source>
         <translation>Sinkroniziraj s uređivačem</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Uključi hijerarhiju</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Umetni virtualnu funkciju osnovnih klasa</translation>
@@ -20423,9 +20402,6 @@ u kontrolu verzija (%2)
         <source>Move Definition to Class</source>
         <translation>Premjesti definiciju u klasu</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Umetni virtualnu funkciju</translation>
@@ -20474,9 +20450,6 @@ u kontrolu verzija (%2)
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::MinimizableInfoBars</name>
     <message>
         <source>File is not part of any project.</source>
         <translation>Datoteka nije dio bilo kojeg projekta.</translation>
@@ -20497,9 +20470,6 @@ u kontrolu verzija (%2)
         <source>&lt;b&gt;Warning&lt;/b&gt;: The code model could not parse an included file, which might lead to incorrect code completion and highlighting, for example.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Rasklopi sve</translation>
@@ -20508,16 +20478,10 @@ u kontrolu verzija (%2)
         <source>Collapse All</source>
         <translation>Sklopi sve</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation type="unfinished"></translation>
@@ -20651,14 +20615,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor::InsertDeclOperation</name>
+    <name>CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation type="unfinished"></translation>
@@ -20675,9 +20636,6 @@ u kontrolu verzija (%2)
         <source>Add Definition Outside Class</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppQuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation type="unfinished"></translation>
@@ -20702,9 +20660,6 @@ u kontrolu verzija (%2)
         <source>Generate Missing Q_PROPERTY Members</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QuickFix::ExtractFunction</name>
     <message>
         <source>Extract Function</source>
         <translation type="unfinished"></translation>
@@ -20721,9 +20676,6 @@ u kontrolu verzija (%2)
         <source>Access</source>
         <translation>Pristup</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation type="unfinished"></translation>
@@ -20736,9 +20688,6 @@ u kontrolu verzija (%2)
         <source>Derived</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation type="unfinished"></translation>
@@ -20763,7 +20712,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation type="unfinished"></translation>
@@ -20861,7 +20810,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -20930,7 +20879,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation type="unfinished"></translation>
@@ -20998,7 +20947,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppSourceProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished"></translation>
@@ -21044,7 +20993,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppIndexer</name>
+    <name>CppEditor</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
@@ -21071,7 +21020,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation type="unfinished"></translation>

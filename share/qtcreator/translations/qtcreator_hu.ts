@@ -3210,7 +3210,7 @@ p {
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::0</name>
+    <name>CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation type="obsolete">Rendezés betűrendbe</translation>
@@ -3287,9 +3287,6 @@ p {
         <source>Switch between Method Declaration/Definition</source>
         <translation type="obsolete">Deklaráció/definíció közötti váltás.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CPPEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Rendezés betűrendbe</translation>
@@ -3302,9 +3299,6 @@ p {
         <source>Yes, I know what I am doing.</source>
         <translation>Igen, tudom, hogy mit csinálok.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter class name</source>
         <translation>Osztály nevének bevitele</translation>
@@ -3317,30 +3311,18 @@ p {
         <source>Configure...</source>
         <translation>Konfigurálás...</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation>Hiba történt a fájl tartalmak legenerálása közben.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation>C++ osztály varázsló</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppHoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation>Szűrés nélküli</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPlugin</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>

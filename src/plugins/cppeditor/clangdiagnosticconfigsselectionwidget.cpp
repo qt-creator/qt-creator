@@ -5,6 +5,7 @@
 
 #include "clangdiagnosticconfigswidget.h"
 #include "cppcodemodelsettings.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/icore.h>
@@ -55,7 +56,7 @@ ClangDiagnosticConfigs ClangDiagnosticConfigsSelectionWidget::customConfigs() co
 
 QString ClangDiagnosticConfigsSelectionWidget::label() const
 {
-    return tr("Diagnostic configuration:");
+    return Tr::tr("Diagnostic configuration:");
 }
 
 void ClangDiagnosticConfigsSelectionWidget::setUpUi(bool withLabel)
@@ -80,7 +81,7 @@ void ClangDiagnosticConfigsSelectionWidget::onButtonClicked()
     widget->layout()->setContentsMargins(0, 0, 0, 0);
 
     QDialog dialog;
-    dialog.setWindowTitle(ClangDiagnosticConfigsWidget::tr("Diagnostic Configurations"));
+    dialog.setWindowTitle(Tr::tr("Diagnostic Configurations"));
     dialog.setLayout(new QVBoxLayout);
     dialog.layout()->addWidget(widget);
     auto *buttonsBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

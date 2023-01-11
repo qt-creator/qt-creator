@@ -4,6 +4,7 @@
 #include "cppeditoroutline.h"
 
 #include "cppeditordocument.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
@@ -95,7 +96,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     m_combo->setMaxVisibleItems(40);
 
     m_combo->setContextMenuPolicy(Qt::ActionsContextMenu);
-    m_sortAction = new QAction(tr("Sort Alphabetically"), m_combo);
+    m_sortAction = new QAction(Tr::tr("Sort Alphabetically"), m_combo);
     m_sortAction->setCheckable(true);
     m_sortAction->setChecked(isSorted());
     connect(m_sortAction, &QAction::toggled,

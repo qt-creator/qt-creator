@@ -3,8 +3,9 @@
 
 #include "cppoutline.h"
 
-#include "cppeditoroutline.h"
 #include "cppeditordocument.h"
+#include "cppeditoroutline.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
 
@@ -37,9 +38,9 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    QAction *action = contextMenu.addAction(tr("Expand All"));
+    QAction *action = contextMenu.addAction(Tr::tr("Expand All"));
     connect(action, &QAction::triggered, this, &QTreeView::expandAll);
-    action = contextMenu.addAction(tr("Collapse All"));
+    action = contextMenu.addAction(Tr::tr("Collapse All"));
     connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
 
     contextMenu.exec(event->globalPos());

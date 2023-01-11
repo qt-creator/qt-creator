@@ -3650,19 +3650,9 @@ to version control (%2)
 <context>
     <name>CppEditor</name>
     <message>
-        <source>C++</source>
-        <translation type="vanished">C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
-    <message>
         <source>Add %1 Declaration</source>
         <translation>Додати оголошення %1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Додати визначення %1</translation>
@@ -3679,24 +3669,14 @@ to version control (%2)
         <source>Add Definition Outside Class</source>
         <translation>Додати визначення поза класом</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CPPEditorWidget</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation type="vanished">Сортувати за абеткою</translation>
     </message>
     <message>
-        <source>&amp;Refactor</source>
-        <translation type="vanished">&amp;Рефакторинг</translation>
-    </message>
-    <message>
         <source>Unused variable</source>
         <translation type="vanished">Невикористана змінна</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClassNamePage</name>
     <message>
         <source>Enter Class Name</source>
         <translation type="vanished">Введіть назву класу</translation>
@@ -3709,27 +3689,14 @@ to version control (%2)
         <source>Details</source>
         <translation type="vanished">Деталі</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizard</name>
     <message>
         <source>Error while generating file contents.</source>
         <translation type="vanished">Помилка під час генерування змісту файлу.</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppClassWizardDialog</name>
     <message>
         <source>C++ Class Wizard</source>
         <translation type="vanished">Майстер класу C++</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Розгорнути все</translation>
@@ -3738,23 +3705,14 @@ to version control (%2)
         <source>Collapse All</source>
         <translation>Згорнути все</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppSnippetProvider</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>Ієрархія типів</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Ієрархія типів не доступна</translation>
@@ -26278,7 +26236,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Виділити функцію</translation>
@@ -29482,7 +29440,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
+    <name>CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Не вдалось застосувати зміни, оскільки цільовий файл було змінено</translation>
@@ -29512,7 +29470,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation type="vanished">Лише віртуальні методи можуть бути позначені як &apos;final&apos;</translation>
@@ -35145,7 +35103,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
+    <name>CppEditor</name>
     <message>
         <source>C++ Class</source>
         <translation type="vanished">Клас C++</translation>
@@ -35262,9 +35220,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>Update Code Model</source>
         <translation type="vanished">Оновити модель коду</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Перенести визначення поза клас</translation>
@@ -35289,9 +35244,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation>Вставка віртуальних функцій базових класів</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation>Вставка віртуальних функцій</translation>
@@ -36358,7 +36310,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <name>CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Додаткові директиви препроцесора C++</translation>
@@ -37417,21 +37369,15 @@ Do you want to uninstall the existing package next time?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Ієрархія заголовків не доступна</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Ієрархія заголовків</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>Includes</source>
         <translation>Включає</translation>
@@ -37448,9 +37394,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>(cyclic)</source>
         <translation>(циклічно)</translation>
     </message>
-</context>
-<context>
-    <name>VirtualFunctionsAssistProcessor</name>
     <message>
         <source>...searching overrides</source>
         <translation>...пошук замін</translation>
@@ -41102,14 +41045,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorOutline</name>
-    <message>
-        <source>Sort Alphabetically</source>
-        <translation type="vanished">Сортувати за абеткою</translation>
-    </message>
-</context>
-<context>
-    <name>CppSourceProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Файл чи тека не існують</translation>
@@ -43305,7 +43241,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>CppEditor::Internal::CppEditorWidget</name>
+    <name>CppEditor</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>&amp;Рефакторинг</translation>
@@ -46006,7 +45942,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>CppTools::CppEditorOutline</name>
+    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортувати за абеткою</translation>
@@ -50198,7 +50134,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Warnings for questionable constructs</source>
         <translation>Попередження про сумнівні конструкції</translation>

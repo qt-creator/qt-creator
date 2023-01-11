@@ -5,20 +5,21 @@
 
 #include "cppcodeformatter.h"
 #include "cppcompletionassistprovider.h"
-#include "doxygengenerator.h"
 #include "cppeditorconstants.h"
 #include "cppeditordocument.h"
 #include "cppeditoroutline.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppfunctiondecldeflink.h"
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
-#include "cppsemanticinfo.h"
-#include "cppselectionchanger.h"
 #include "cppquickfixassistant.h"
+#include "cppselectionchanger.h"
+#include "cppsemanticinfo.h"
 #include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
+#include "doxygengenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -47,6 +48,7 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/FastPreprocessor.h>
 #include <cplusplus/MatchingText.h>
+
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -1017,8 +1019,6 @@ static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> 
 
 class ProgressIndicatorMenuItem : public QWidgetAction
 {
-    Q_OBJECT
-
 public:
     ProgressIndicatorMenuItem(QObject *parent) : QWidgetAction(parent) {}
 
@@ -1031,7 +1031,7 @@ protected:
 
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
-    auto *menu = new QMenu(tr("&Refactor"), parent);
+    auto *menu = new QMenu(Tr::tr("&Refactor"), parent);
     menu->addAction(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action());
 
     // ### enable
@@ -1411,5 +1411,3 @@ void CppEditorWidget::enableTestMode() { d->inTestMode = true; }
 #endif
 
 } // namespace CppEditor
-
-#include "cppeditorwidget.moc"

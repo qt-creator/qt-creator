@@ -7,6 +7,7 @@
 #include "cppcodeformatter.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
@@ -110,8 +111,8 @@ CppEditorDocument::CppEditorDocument()
     minimizableInfoBars()->setSettingsGroup(Constants::CPPEDITOR_SETTINGSGROUP);
     minimizableInfoBars()->setPossibleInfoBarEntries(
         {{NO_PROJECT_CONFIGURATION,
-          tr("<b>Warning</b>: This file is not part of any project. "
-             "The code model might have issues parsing this file properly.")}});
+          Tr::tr("<b>Warning</b>: This file is not part of any project. "
+                 "The code model might have issues parsing this file properly.")}});
 
     // See also onFilePathChanged() for more initialization
 }
@@ -343,8 +344,8 @@ void CppEditorDocument::showHideInfoBarAboutMultipleParseContexts(bool show)
 
     if (show) {
         InfoBarEntry info(id,
-                          tr("Note: Multiple parse contexts are available for this file. "
-                             "Choose the preferred one from the editor toolbar."),
+                          Tr::tr("Note: Multiple parse contexts are available for this file. "
+                                 "Choose the preferred one from the editor toolbar."),
                           InfoBarEntry::GlobalSuppression::Enabled);
         info.removeCancelButton();
         if (infoBar()->canInfoBeAdded(id))

@@ -12,6 +12,7 @@
 #include <QRegularExpression>
 
 namespace CppEditor {
+
 CppQuickFixSettings::CppQuickFixSettings(bool loadGlobalSettings)
 {
     setDefaultSettings();

@@ -5,10 +5,11 @@
 
 #include "cpplocalsymbols.h"
 
+#include "cppeditortr.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 
 // This is for experimeting highlighting ctors/dtors as functions (instead of types).
@@ -503,11 +504,9 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         // Add a diagnostic message if non-virtual function has override/final marker
                         if ((_usages.back().kind != SemanticHighlighter::VirtualFunctionDeclarationUse)) {
                             if (funTy->isOverride())
-                                warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusplus::CheckSymbols", "Only virtual functions can be marked 'override'"));
+                                warning(declrIdNameAST, Tr::tr("Only virtual functions can be marked 'override'"));
                             else if (funTy->isFinal())
-                                warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusPlus::CheckSymbols", "Only virtual functions can be marked 'final'"));
+                                warning(declrIdNameAST, Tr::tr("Only virtual functions can be marked 'final'"));
                         }
                     }
                 }
@@ -776,8 +775,7 @@ void CheckSymbols::checkNamespace(NameAST *name)
 
     const unsigned length = tokenAt(name->lastToken() - 1).utf16charsEnd()
             - tokenAt(name->firstToken()).utf16charsBegin();
-    warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols",
-                                                      "Expected a namespace-name"), length);
+    warning(line, column, Tr::tr( "Expected a namespace-name"), length);
 }
 
 bool CheckSymbols::hasVirtualDestructor(Class *klass) const
@@ -1398,9 +1396,9 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         // Add a diagnostic message if argument count does not match
         if (matchType == Match_TooFewArgs)
-            warning(line, column, QCoreApplication::translate("CplusPlus::CheckSymbols", "Too few arguments"), length);
+            warning(line, column, Tr::tr("Too few arguments"), length);
         else if (matchType == Match_TooManyArgs)
-            warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols", "Too many arguments"), length);
+            warning(line, column, Tr::tr("Too many arguments"), length);
 
         const Result use(line, column, length, kind);
         addUse(use);

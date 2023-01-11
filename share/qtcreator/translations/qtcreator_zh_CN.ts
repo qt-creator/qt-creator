@@ -6481,7 +6481,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>CPlusPlus::CheckSymbols</name>
+    <name>CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -7009,7 +7009,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfigsModel</name>
+    <name>CppEditor</name>
     <message>
         <source>Default Clang-Tidy and Clazy checks</source>
         <translation type="unfinished"></translation>
@@ -12342,9 +12342,6 @@ to version control (%2)
         <source>The project contains C++ source files, but the currently active kit has no C++ compiler. The code model will not be fully functional.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation type="unfinished"></translation>
@@ -12353,9 +12350,6 @@ to version control (%2)
         <source>The class name.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
@@ -12364,18 +12358,8 @@ to version control (%2)
         <source>Use diagnostic flags from build system</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::ClangDiagnosticConfigsWidget</name>
-    <message>
-        <source>Diagnostic Configurations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -12430,9 +12414,6 @@ to version control (%2)
         <source>%1</source>
         <translation type="unfinished">%1</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ClangdSettings</name>
     <message>
         <source>Background Priority</source>
         <translation type="unfinished"></translation>
@@ -12449,9 +12430,6 @@ to version control (%2)
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::ConfigsModel</name>
     <message>
         <source>Built-in</source>
         <translation type="unfinished"></translation>
@@ -12460,23 +12438,14 @@ to version control (%2)
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppEditorWidget</name>
     <message>
         <source>&amp;Refactor</source>
         <translation type="unfinished">重构(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppProjectUpdater</name>
     <message>
         <source>Preparing C++ Code Model</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppQuickFixFactory</name>
     <message>
         <source>Create Implementations for Member Functions</source>
         <translation type="unfinished"></translation>
@@ -12529,9 +12498,6 @@ to version control (%2)
         <source>Generate Constructor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -12549,16 +12515,10 @@ to version control (%2)
         <source>Old Creator</source>
         <translation type="unfinished">旧的 Creator</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDeclOperation</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>添加%1声明</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::InsertDefOperation</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>在%1添加定义</translation>
@@ -12575,16 +12535,10 @@ to version control (%2)
         <source>Add Definition Outside Class</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ClangdSettingsWidget</name>
     <message>
         <source>If background indexing is enabled, global symbol searches will yield
 more accurate results, at the cost of additional CPU load when
@@ -12673,10 +12627,6 @@ managed by the same clangd process, add them here.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
         <source>Choose a session:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12696,9 +12646,6 @@ managed by the same clangd process, add them here.</source>
         <source>Clangd</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ConstructorParams</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation type="unfinished"></translation>
@@ -12715,9 +12662,6 @@ managed by the same clangd process, add them here.</source>
         <source>Default Value</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppCodeModelSettingsWidget</name>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
         <translation type="unfinished"></translation>
@@ -12753,13 +12697,6 @@ managed by the same clangd process, add them here.</source>
     <message>
         <source>Code Model</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">概要</translation>
     </message>
     <message>
         <source>Content</source>
@@ -12973,9 +12910,6 @@ if they would align to the next line</source>
         <source>Right const/volatile</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorDocument</name>
     <message>
         <source>&lt;b&gt;Warning&lt;/b&gt;: This file is not part of any project. The code model might have issues parsing this file properly.</source>
         <translation type="unfinished"></translation>
@@ -12984,16 +12918,10 @@ if they would align to the next line</source>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorOutline</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation type="unfinished">按字母排序</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppEditorPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation type="unfinished">C++(&amp;C)</translation>
@@ -13143,13 +13071,6 @@ if they would align to the next line</source>
         <translation type="unfinished">Ctrl+Shift+F12</translation>
     </message>
     <message>
-        <source>Clangd</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFileSettingsPage</name>
-    <message>
         <source>Headers</source>
         <translation type="unfinished">头文件</translation>
     </message>
@@ -13229,9 +13150,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>License &amp;template:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -13250,9 +13168,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Choose Location for New License Template File</source>
         <translation type="unfinished">为新的版权许可模板文件选择一个存储位置</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppFindReferences</name>
     <message>
         <source>Reads</source>
         <translation type="unfinished"></translation>
@@ -13292,16 +13207,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>C++ Macro Usages:</source>
         <translation type="unfinished">C++ 宏的使用:</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
     <message>
         <source>Include Hierarchy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
     <message>
         <source>(none)</source>
         <translation type="unfinished"></translation>
@@ -13318,9 +13227,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Included by</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
     <message>
         <source>No include hierarchy available</source>
         <translation type="unfinished"></translation>
@@ -13329,16 +13235,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Synchronize with Editor</source>
         <translation type="unfinished">与编辑器同步</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppIncludesFilter</name>
     <message>
         <source>Matches all files that are included by all C++ files in all projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>展开全部</translation>
@@ -13347,9 +13247,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Collapse All</source>
         <translation>折叠全部</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppPreProcessorDialog</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation type="unfinished"></translation>
@@ -13358,9 +13255,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppQuickFixProjectSettingsWidget</name>
     <message>
         <source>Custom settings are saved in a file. If you use the global settings, you can delete that file.</source>
         <translation type="unfinished"></translation>
@@ -13377,9 +13271,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Reset to Global</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppQuickFixProjectsSettings</name>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
         <translation type="unfinished"></translation>
@@ -13396,16 +13287,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Create New</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyFactory</name>
     <message>
         <source>Type Hierarchy</source>
         <translation>类型层次</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::CppTypeHierarchyWidget</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>没有可用的类型层次</translation>
@@ -13426,9 +13311,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Evaluating type hierarchy...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::FunctionDeclDefLink</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>目标文件改变, 无法应用修改</translation>
@@ -13445,9 +13327,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Apply Function Signature Changes</source>
         <translation>应用函数签名的更改</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::InsertVirtualMethodsDialog</name>
     <message>
         <source>Insert Virtual Functions</source>
         <translation type="unfinished"></translation>
@@ -13496,23 +13375,14 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextModel</name>
     <message>
         <source>&lt;p&gt;&lt;b&gt;Active Parse Context&lt;/b&gt;:&lt;br/&gt;%1&lt;/p&gt;&lt;p&gt;Multiple parse contexts (set of defines, include paths, and so on) are available for this file.&lt;/p&gt;&lt;p&gt;Choose a parse context to set it as the preferred one. Clear the preference from the context menu.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::ParseContextWidget</name>
     <message>
         <source>Clear Preferred Parse Context</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
         <translation type="unfinished"></translation>
@@ -13534,10 +13404,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <translation type="unfinished">枚举</translation>
     </message>
     <message>
-        <source>Declarations</source>
-        <translation type="unfinished">声明</translation>
-    </message>
-    <message>
         <source>Scope: %1
 Types: %2
 Flags: %3</source>
@@ -13553,28 +13419,9 @@ Flags: %3</source>
         <source>Projects</source>
         <translation type="unfinished">项目</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation type="unfinished">类型:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation type="unfinished">类</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation type="unfinished">枚举</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation type="unfinished">声明</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -13584,9 +13431,6 @@ Flags: %3</source>
         <source>All files</source>
         <translation type="unfinished">所有文件</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="unfinished"></translation>
@@ -13595,9 +13439,6 @@ Flags: %3</source>
         <source>&lt;No Symbols&gt;</source>
         <translation type="unfinished">&lt;没有符号&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::QuickFix</name>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
         <translation type="unfinished"></translation>
@@ -13758,9 +13599,6 @@ Flags: %3</source>
         <source>Remove &quot;using namespace %1&quot; and Adjust Type Names Accordingly</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppEditor::Quickfix</name>
     <message>
         <source>Add Class Member &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -13773,9 +13611,6 @@ Flags: %3</source>
         <source>Data type:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppIndexer</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
@@ -13976,7 +13811,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>CppSourceProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished">%1: 没有文件或者目录</translation>
@@ -41764,7 +41599,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickFix::ExtractFunction</name>
+    <name>CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>解压缩函数</translation>
@@ -51018,7 +50853,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>VirtualFunctionsAssistProcessor</name>
+    <name>CppEditor</name>
     <message>
         <source>collecting overrides ...</source>
         <translation type="unfinished"></translation>
