@@ -364,36 +364,32 @@ static TextDocument *currentTextDocument()
 
 DiffEditorServiceImpl::DiffEditorServiceImpl() = default;
 
+template <typename Controller, typename... Args>
+void reload(const QString &vcsId, const QString &displayName, Args &&...args)
+{
+    auto const document = qobject_cast<DiffEditorDocument *>(
+        DiffEditorController::findOrCreateDocument(vcsId, displayName));
+    if (!document)
+        return;
+    if (!DiffEditorController::controller(document))
+        new Controller(document, std::forward<Args>(args)...);
+    EditorManager::activateEditorForDocument(document);
+    document->reload();
+}
+
 void DiffEditorServiceImpl::diffFiles(const QString &leftFileName, const QString &rightFileName)
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN
             + QLatin1String(".DiffFiles.") + leftFileName + QLatin1Char('.') + rightFileName;
     const QString title = tr("Diff Files");
-    auto const document = qobject_cast<DiffEditorDocument *>(
-                DiffEditorController::findOrCreateDocument(documentId, title));
-    if (!document)
-        return;
-
-    if (!DiffEditorController::controller(document))
-        new DiffExternalFilesController(document, leftFileName, rightFileName);
-    EditorManager::activateEditorForDocument(document);
-    document->reload();
+    reload<DiffExternalFilesController>(documentId, title, leftFileName, rightFileName);
 }
 
 void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
 {
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
-            + QLatin1String(".DiffModifiedFiles");
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffModifiedFiles");
     const QString title = tr("Diff Modified Files");
-    auto const document = qobject_cast<DiffEditorDocument *>(
-                DiffEditorController::findOrCreateDocument(documentId, title));
-    if (!document)
-        return;
-
-    if (!DiffEditorController::controller(document))
-        new DiffModifiedFilesController(document, fileNames);
-    EditorManager::activateEditorForDocument(document);
-    document->reload();
+    reload<DiffModifiedFilesController>(documentId, title, fileNames);
 }
 
 class DiffEditorPluginPrivate : public QObject
@@ -482,38 +478,19 @@ void DiffEditorPluginPrivate::diffCurrentFile()
         return;
 
     const QString fileName = textDocument->filePath().toString();
-
     if (fileName.isEmpty())
         return;
 
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
-            + QLatin1String(".Diff.") + fileName;
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".Diff.") + fileName;
     const QString title = tr("Diff \"%1\"").arg(fileName);
-    auto const document = qobject_cast<DiffEditorDocument *>(
-                DiffEditorController::findOrCreateDocument(documentId, title));
-    if (!document)
-        return;
-
-    if (!DiffEditorController::controller(document))
-        new DiffCurrentFileController(document, fileName);
-    EditorManager::activateEditorForDocument(document);
-    document->reload();
+    reload<DiffCurrentFileController>(documentId, title, fileName);
 }
 
 void DiffEditorPluginPrivate::diffOpenFiles()
 {
-    const QString documentId = Constants::DIFF_EDITOR_PLUGIN
-            + QLatin1String(".DiffOpenFiles");
+    const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffOpenFiles");
     const QString title = tr("Diff Open Files");
-    auto const document = qobject_cast<DiffEditorDocument *>(
-                DiffEditorController::findOrCreateDocument(documentId, title));
-    if (!document)
-        return;
-
-    if (!DiffEditorController::controller(document))
-        new DiffOpenFilesController(document);
-    EditorManager::activateEditorForDocument(document);
-    document->reload();
+    reload<DiffOpenFilesController>(documentId, title);
 }
 
 void DiffEditorPluginPrivate::diffExternalFiles()
@@ -523,7 +500,6 @@ void DiffEditorPluginPrivate::diffExternalFiles()
         return;
     if (EditorManager::skipOpeningBigTextFile(filePath1))
         return;
-
     const FilePath filePath2 = FileUtils::getOpenFilePath(nullptr, tr("Select Second File for Diff"));
     if (filePath2.isEmpty())
         return;
@@ -533,15 +509,7 @@ void DiffEditorPluginPrivate::diffExternalFiles()
     const QString documentId = QLatin1String(Constants::DIFF_EDITOR_PLUGIN)
             + ".DiffExternalFiles." + filePath1.toString() + '.' + filePath2.toString();
     const QString title = tr("Diff \"%1\", \"%2\"").arg(filePath1.toString(), filePath2.toString());
-    auto const document = qobject_cast<DiffEditorDocument *>(
-                DiffEditorController::findOrCreateDocument(documentId, title));
-    if (!document)
-        return;
-
-    if (!DiffEditorController::controller(document))
-        new DiffExternalFilesController(document, filePath1.toString(), filePath2.toString());
-    EditorManager::activateEditorForDocument(document);
-    document->reload();
+    reload<DiffExternalFilesController>(documentId, title, filePath1.toString(), filePath2.toString());
 }
 
 static DiffEditorPlugin *s_instance = nullptr;
