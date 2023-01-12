@@ -69,6 +69,11 @@ WidgetInfo AssetsLibraryView::widgetInfo()
                 m_createTextures.execute(filePaths, mode, m_sceneId);
             });
         });
+
+        connect(m_widget, &AssetsLibraryWidget::hasMaterialLibraryUpdateRequested, this, [&] () {
+            m_widget->setHasMaterialLibrary(model() && materialLibraryNode().isValid()
+                                            && model()->hasImport("QtQuick3D"));
+        });
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));

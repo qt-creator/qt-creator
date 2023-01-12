@@ -160,6 +160,25 @@ void AssetsLibraryWidget::addLightProbe(const QString &filePath)
     emit addTexturesRequested({filePath}, AddTextureMode::LightProbe);
 }
 
+void AssetsLibraryWidget::updateHasMaterialLibrary()
+{
+    emit hasMaterialLibraryUpdateRequested();
+}
+
+bool AssetsLibraryWidget::hasMaterialLibrary() const
+{
+    return m_hasMaterialLibrary;
+}
+
+void AssetsLibraryWidget::setHasMaterialLibrary(bool enable)
+{
+    if (m_hasMaterialLibrary == enable)
+        return;
+
+    m_hasMaterialLibrary = enable;
+    emit hasMaterialLibraryChanged();
+}
+
 void AssetsLibraryWidget::invalidateThumbnail(const QString &id)
 {
     m_assetsIconProvider->invalidateThumbnail(id);

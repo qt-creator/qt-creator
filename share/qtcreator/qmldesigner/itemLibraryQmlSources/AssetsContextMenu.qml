@@ -25,6 +25,8 @@ StudioControls.Menu {
 
     function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
     {
+        rootView.updateHasMaterialLibrary()
+
         root.__onFolderCreated = onFolderCreated
         root.__fileIndex = ""
         root.__dirPath = dirPath
@@ -37,6 +39,8 @@ StudioControls.Menu {
     function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState,
                                    onFolderCreated, onFolderRenamed)
     {
+        rootView.updateHasMaterialLibrary()
+
         root.__onFolderCreated = onFolderCreated
         root.__onFolderRenamed = onFolderRenamed
         root.__dirPath = dirPath
@@ -57,6 +61,8 @@ StudioControls.Menu {
             deleteFileItem.text = qsTr("Delete File")
             addTexturesItem.text = qsTr("Add Texture")
         }
+
+        rootView.updateHasMaterialLibrary()
 
         root.__onFolderCreated = onFolderCreated
         root.__selectedAssetPathsList = selectedAssetPathsList
@@ -91,6 +97,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         id: addTexturesItem
         text: qsTr("Add Texture")
+        enabled: rootView.hasMaterialLibrary
         visible: root.__fileIndex && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
         height: addTexturesItem.visible ? addTexturesItem.implicitHeight : 0
         onTriggered: rootView.addTextures(root.__selectedAssetPathsList)
@@ -99,6 +106,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         id: addLightProbes
         text: qsTr("Add Light Probe")
+        enabled: rootView.hasMaterialLibrary
         visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
                  && assetsModel.allFilePathsAreImages(root.__selectedAssetPathsList)
         height: addLightProbes.visible ? addLightProbes.implicitHeight : 0

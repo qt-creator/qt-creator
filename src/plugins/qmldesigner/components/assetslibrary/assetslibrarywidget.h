@@ -41,6 +41,8 @@ class AssetsLibraryWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache);
@@ -57,6 +59,9 @@ public:
     void setResourcePath(const QString &resourcePath);
     void setModel(Model *model);
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
+
+    bool hasMaterialLibrary() const;
+    void setHasMaterialLibrary(bool enable);
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
@@ -80,6 +85,7 @@ public:
 
     Q_INVOKABLE void addTextures(const QStringList &filePaths);
     Q_INVOKABLE void addLightProbe(const QString &filePaths);
+    Q_INVOKABLE void updateHasMaterialLibrary();
 
 signals:
     void itemActivated(const QString &itemName);
@@ -88,6 +94,8 @@ signals:
                       const QString &targetDirPath);
     void directoryCreated(const QString &path);
     void addTexturesRequested(const QStringList &filePaths, QmlDesigner::AddTextureMode mode);
+    void hasMaterialLibraryUpdateRequested();
+    void hasMaterialLibraryChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -114,6 +122,7 @@ private:
     bool m_updateRetry = false;
     QString m_filterText;
     QPoint m_dragStartPoint;
+    bool m_hasMaterialLibrary = false;
 };
 
 } // namespace QmlDesigner
