@@ -237,7 +237,8 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
         return;
 
     // handle already opened documents
-    if (!ProjectExplorer::SessionManager::startupBuildSystem()->isParsing()) {
+    if (auto buildSystem = ProjectExplorer::SessionManager::startupBuildSystem();
+            !buildSystem || !buildSystem->isParsing()) {
         handleOpenedDocs(nullptr);
     } else {
         connect(ProjectExplorer::SessionManager::instance(),
