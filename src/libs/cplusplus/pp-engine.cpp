@@ -1106,7 +1106,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         }
     }
 
-    m_state.pushTokenBuffer(body.constBegin(), body.constEnd(), macro);
+    const PPToken *start = body.constData();
+    m_state.pushTokenBuffer(start, start + body.size(), macro);
 
     if (m_client && !idTk.generated())
         m_client->stopExpandingMacro(idTk.byteOffset, *macro);

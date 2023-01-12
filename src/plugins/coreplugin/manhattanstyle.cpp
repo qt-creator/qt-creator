@@ -391,8 +391,10 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
             ret = 0;
         break;
     case QStyle::SH_ComboBox_AllowWheelScrolling:
-        // Turn this off completely to prevent accidental current index change on a scroll view
-        ret = false;
+        // Turn this on only when simultaneously pressing Ctrl, to prevent accidental current
+        // index change, e.g. on a scroll view
+        ret = QGuiApplication::keyboardModifiers()
+              == (HostOsInfo::isMacHost() ? Qt::MetaModifier : Qt::ControlModifier);
         break;
     default:
         break;

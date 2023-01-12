@@ -1276,7 +1276,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Display General Messages after sending a post</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;Allgemeine Ausgaben&quot; nach dem Senden anzeigen</translation>
     </message>
     <message>
         <source>%1: %2</source>
@@ -2130,7 +2130,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Download of remote file failed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Herunterladen der entfernten Datei ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Select Executable or Symbol File</source>
@@ -2436,7 +2436,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>&amp;Condition:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Bedingung:</translation>
     </message>
     <message>
         <source>Disable Selected Locations</source>
@@ -2652,19 +2652,19 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Catches runtime error messages caused by assert(), for example.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fängt Laufzeit-Fehlermeldungen ab, zum Beispiel bei assert().</translation>
     </message>
     <message>
         <source>Uses CDB&apos;s native console for console applications. This overrides the setting in Environment &gt; System. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in the configured console and the subsequent attach fails.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet die native CDB-Konsole für Konsolenanwendungen. Dies hebt die Einstellung in Umgebung &gt; System auf. Die native CDB-Konsole schließt sich nach dem Beenden der Anwendung ohne Nachfrage. Sie kann zum Untersuchen von Anwendungen verwendet werden, die in der konfigurierten Konsole nicht starten und bei denen das darauffolgende Anhängen des Debuggers fehlschlägt.</translation>
     </message>
     <message>
-        <source>Attempts to correct the location of a breakpoint based on file and line number shouldit be in a comment or in a line for which no code is generated. The correction is based on the code model.</source>
-        <translation type="unfinished"></translation>
+        <source>Attempts to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.</source>
+        <translation>Versucht, die Position eines zeilenbasierten Haltepunkts zu korrigieren, sofern er sich in einem Kommentar oder in einer Zeile, die keinen Code generiert, befindet. Die Korrektur basiert auf dem Codemodell.</translation>
     </message>
     <message>
         <source>Show &quot;std::&quot; Namespace in Types</source>
@@ -2740,11 +2740,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Force logging to console</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwinge Protokollierung in die Konsole</translation>
     </message>
     <message>
         <source>Sets QT_LOGGING_TO_CONSOLE=1 in the environment of the debugged program, preventing storing debug output in system logs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt QT_LOGGING_TO_CONSOLE=1 in der Umgebung des zu debuggenden Programms, um zu verhindern, dass Debug-Ausgaben in System-Protokolldateien gespeichert werden.</translation>
     </message>
     <message>
         <source>Adjust Breakpoint Locations</source>
@@ -2768,11 +2768,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>GDB commands entered here will be executed after GDB has been started, but before the debugged program is started or attached, and before the debugging helpers are initialized.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hier angegebene GDB-Kommandos werden ausgeführt, nachdem GDB gestartet wurde und bevor das zu debuggende Programm gestartet (beziehungsweise der Debugger angehängt) und die Ausgabe-Hilfsbibliothek initialisiert wird.</translation>
     </message>
     <message>
         <source>GDB commands entered here will be executed after GDB has successfully attached to remote targets.&lt;/p&gt;&lt;p&gt;You can add commands to further set up the target here, such as &quot;monitor reset&quot; or &quot;load&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hier angegebene GDB-Kommandos werden ausgeführt, nachdem GDB erfolgreich an entfernte Ziele angehängt wurde.&lt;/p&gt;&lt;p&gt;Sie können Kommandos hinzufügen, um das Ziel noch weiter einzurichten, wie &quot;monitor reset&quot; oder &quot;load&quot;.</translation>
     </message>
     <message>
         <source>Automatically Quit Debugger</source>
@@ -3285,7 +3285,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>The options below give access to advanced or experimental functions of GDB.&lt;br&gt;Enabling them may negatively impact your debugging experience.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die untenstehenden Einstellungen betreffen spezielle oder experimentelle Funktionalität von GDB. Ihre Verwendung kann das Debuggen negativ beeinflussen.</translation>
     </message>
     <message>
         <source>Uses the default GDB pretty printers installed in your system or linked to the libraries your application uses.</source>
@@ -3361,7 +3361,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>A group of registers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Gruppe Register.</translation>
     </message>
     <message>
         <source>Value</source>
@@ -3385,23 +3385,23 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>RO</source>
-        <translation type="unfinished"></translation>
+        <translation>RO</translation>
     </message>
     <message>
         <source>WO</source>
-        <translation type="unfinished"></translation>
+        <translation>WO</translation>
     </message>
     <message>
         <source>RW</source>
-        <translation type="unfinished"></translation>
+        <translation>RW</translation>
     </message>
     <message>
         <source>[%1..%2]</source>
-        <translation type="unfinished"></translation>
+        <translation>[%1..%2]</translation>
     </message>
     <message>
         <source>View Groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Gruppen anzeigen</translation>
     </message>
     <message>
         <source>Hexadecimal</source>
@@ -3465,7 +3465,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Copy Selection to Clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl in Zwischenablage kopieren</translation>
     </message>
     <message>
         <source>Copy Contents to Clipboard</source>
@@ -3652,7 +3652,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle</translation>
     </message>
     <message>
         <source>&lt;empty&gt;</source>
@@ -4060,7 +4060,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Char Code Integer</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeichencode Ganzzahl</translation>
     </message>
     <message>
         <source>Compact Float</source>
@@ -4072,11 +4072,11 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Hexadecimal Float</source>
-        <translation type="unfinished"></translation>
+        <translation>Hexadezimaler Gleitkommawert</translation>
     </message>
     <message>
         <source>Normalized, with Power-of-Two Exponent</source>
-        <translation type="unfinished"></translation>
+        <translation>Normalisiert mit Zweierpotenz als Exponent</translation>
     </message>
     <message>
         <source>%1 Object at %2</source>
@@ -4088,7 +4088,7 @@ markers in the source code editor.</source>
     </message>
     <message>
         <source>Size: %1x%2, %3 byte, format: %4, depth: %5</source>
-        <translation type="unfinished">Größe: %1x%2, %3 Bytes, Format: %4, Tiefe: %5</translation>
+        <translation>Größe: %1x%2, %3 Bytes, Format: %4, Tiefe: %5</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all expression evaluators?</source>
@@ -4182,11 +4182,14 @@ Wenn Sie %2 aus den Quelltexten erstellen und eine ausführbare CDB-Datei mit ei
 Locals and Expression might not be able to display all Qt types in a human readable format.
 
 Install the &quot;Qt Debug Information Files&quot; Package from the Maintenance Tool for this Qt installation to get all relevant symbols for the debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im installierten %1 fehlen Debug-Informationen.
+Lokale Variablen und Ausdrücke sind möglicherweise nicht in der Lage, alle Qt-Typen in menschenlesbarem Format darzustellen.
+
+Installieren Sie das Paket &quot;Qt Debug Information Files&quot; für diese Qt-Installation im Maintenance Tool, um alle relevanten Symbole für den Debugger zu erhalten.</translation>
     </message>
     <message>
         <source>Missing Qt Debug Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehlende Qt Debug-Information</translation>
     </message>
     <message>
         <source>Value %1 obtained from evaluating the condition of breakpoint %2, stopping.</source>
@@ -4518,7 +4521,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Breakpoint Preset</source>
-        <translation>voreingestellte Haltepunkte</translation>
+        <translation>Voreingestellte Haltepunkte</translation>
     </message>
     <message>
         <source>Running Debuggers</source>
@@ -4590,11 +4593,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Ctrl+F8</source>
-        <translation type="unfinished">Ctrl+F8</translation>
+        <translation>Ctrl+F8</translation>
     </message>
     <message>
         <source>Ctrl+F9</source>
-        <translation type="unfinished">Ctrl+F9</translation>
+        <translation>Ctrl+F9</translation>
     </message>
     <message>
         <source>Start debugging of startup project</source>
@@ -4602,11 +4605,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Start Debugging of Startup Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt starten und debuggen</translation>
     </message>
     <message>
         <source>Reload debugging helpers skipped as no engine is running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erneutes Laden der Ausgabe-Hilfsbibliothek wurde übersprungen, da keine Engine läuft.</translation>
     </message>
     <message>
         <source>Edit Breakpoint...</source>
@@ -4768,7 +4771,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
     <message>
         <source>Break On</source>
-        <translation type="unfinished"></translation>
+        <translation>Halte bei</translation>
     </message>
     <message>
         <source>&amp;Port:</source>
@@ -4820,115 +4823,115 @@ Soll es noch einmal versucht werden?</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Nein</translation>
+        <translation>Nein</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Ja</translation>
+        <translation>Ja</translation>
     </message>
     <message>
         <source>Plain</source>
-        <translation type="unfinished">Einfach</translation>
+        <translation>Einfach</translation>
     </message>
     <message>
         <source>Fast</source>
-        <translation type="unfinished">Schnell</translation>
+        <translation>Schnell</translation>
     </message>
     <message>
         <source>debuglnk</source>
-        <translation type="unfinished">debuglnk</translation>
+        <translation>debuglnk</translation>
     </message>
     <message>
         <source>buildid</source>
-        <translation type="unfinished">buildid</translation>
+        <translation>buildid</translation>
     </message>
     <message>
         <source>It is unknown whether this module contains debug information.
 Use &quot;Examine Symbols&quot; from the context menu to initiate a check.</source>
-        <translation type="unfinished">Es ist nicht bekannt, ob dieses Modul Debuginformation enthält.
+        <translation>Es ist nicht bekannt, ob dieses Modul Debuginformation enthält.
 Verwenden Sie die Option &quot;Symbole untersuchen&quot; des Kontextmenüs, um eine Prüfung zu starten.</translation>
     </message>
     <message>
         <source>This module neither contains nor references debug information.
 Stepping into the module or setting breakpoints by file and line will not work.</source>
-        <translation type="unfinished">Dieses Modul enthält keine Debuginformation und auch keinen Verweis auf eine Quelle.
-Einzelschritt in das Modul oder das Setzen von Haltepunkten nach Datei und Zeilennummer wird nicht funktionieren.</translation>
+        <translation>Dieses Modul enthält keine Debuginformation und auch keinen Verweis auf eine Quelle.
+Einzelschritte in das Modul oder das Setzen von Haltepunkten nach Datei und Zeilennummer wird nicht funktionieren.</translation>
     </message>
     <message>
         <source>This module contains debug information.
 Stepping into the module or setting breakpoints by file and line is expected to work.</source>
-        <translation type="unfinished">Dieses Modul enthält Debuginformation.
-Einzelschritt in das Modul und das Setzen von Haltepunkten nach Datei und Zeilennummer sollten funktionieren.</translation>
+        <translation>Dieses Modul enthält Debuginformationen.
+Einzelschritte in das Modul und das Setzen von Haltepunkten nach Datei und Zeilennummer sollten funktionieren.</translation>
     </message>
     <message>
         <source>This module does not contain debug information itself, but contains a reference to external debug information.</source>
-        <translation type="unfinished">Dieses Modul enthält selbst keine Debuginformation, aber einen Verweis auf eine externe Quelle.</translation>
+        <translation>Dieses Modul enthält selbst keine Debuginformation, aber einen Verweis auf eine externe Quelle.</translation>
     </message>
     <message>
         <source>&lt;unknown&gt;</source>
         <comment>address</comment>
         <extracomment>End address of loaded module</extracomment>
-        <translation type="unfinished">&lt;unbekannt&gt;</translation>
+        <translation>&lt;unbekannt&gt;</translation>
     </message>
     <message>
         <source>Update Module List</source>
-        <translation type="unfinished">Modulliste aktualisieren</translation>
+        <translation>Modulliste aktualisieren</translation>
     </message>
     <message>
         <source>Show Source Files for Module &quot;%1&quot;</source>
-        <translation type="unfinished">Quelldateien des Moduls &quot;%1&quot; anzeigen</translation>
+        <translation>Quelldateien des Moduls &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show Source Files for Module</source>
-        <translation type="unfinished">Quelldateien des Moduls anzeigen</translation>
+        <translation>Quelldateien des Moduls anzeigen</translation>
     </message>
     <message>
         <source>Show Dependencies of &quot;%1&quot;</source>
-        <translation type="unfinished">Abhängigkeiten von &quot;%1&quot; anzeigen</translation>
+        <translation>Abhängigkeiten von &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show Dependencies</source>
-        <translation type="unfinished">Abhängigkeiten anzeigen</translation>
+        <translation>Abhängigkeiten anzeigen</translation>
     </message>
     <message>
         <source>Load Symbols for All Modules</source>
-        <translation type="unfinished">Symbole aller Module laden</translation>
+        <translation>Symbole aller Module laden</translation>
     </message>
     <message>
         <source>Examine All Modules</source>
-        <translation type="unfinished">Alle Module untersuchen</translation>
+        <translation>Alle Module untersuchen</translation>
     </message>
     <message>
         <source>Load Symbols for Module &quot;%1&quot;</source>
-        <translation type="unfinished">Symbole des Moduls &quot;%1&quot; laden</translation>
+        <translation>Symbole des Moduls &quot;%1&quot; laden</translation>
     </message>
     <message>
         <source>Load Symbols for Module</source>
-        <translation type="unfinished">Symbole des Moduls laden</translation>
+        <translation>Symbole des Moduls laden</translation>
     </message>
     <message>
         <source>Edit File &quot;%1&quot;</source>
-        <translation type="unfinished">Datei &quot;%1&quot; bearbeiten</translation>
+        <translation>Datei &quot;%1&quot; bearbeiten</translation>
     </message>
     <message>
         <source>Edit File</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei bearbeiten</translation>
     </message>
     <message>
         <source>Show Symbols in File &quot;%1&quot;</source>
-        <translation type="unfinished">Symbole der Datei &quot;%1&quot; anzeigen</translation>
+        <translation>Symbole der Datei &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show Symbols</source>
-        <translation type="unfinished">Symbole anzeigen</translation>
+        <translation>Symbole anzeigen</translation>
     </message>
     <message>
         <source>Show Sections in File &quot;%1&quot;</source>
-        <translation type="unfinished">Sektionen der Datei &quot;%1&quot; anzeigen</translation>
+        <translation>Sektionen der Datei &quot;%1&quot; anzeigen</translation>
     </message>
     <message>
         <source>Show Sections</source>
-        <translation type="unfinished">Sektionen anzeigen</translation>
+        <translation>Sektionen anzeigen</translation>
     </message>
     <message>
         <source>Module Name</source>
@@ -5045,7 +5048,7 @@ Einzelschritt in das Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     </message>
     <message>
         <source>&amp;Working directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Arbeits&amp;verzeichnis:</translation>
     </message>
     <message>
         <source>Run in &amp;terminal:</source>
@@ -5057,7 +5060,7 @@ Einzelschritt in das Modul und das Setzen von Haltepunkten nach Datei und Zeilen
     </message>
     <message>
         <source>Use target extended-remote to connect:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mit &quot;target extended-remote&quot; verbinden:</translation>
     </message>
     <message>
         <source>Debug &amp;information:</source>
@@ -5188,7 +5191,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Pfad</translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -5229,15 +5232,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Searching debuggers...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche Debugger...</translation>
     </message>
     <message>
         <source>Detected %1 at %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 in %2 gefunden</translation>
     </message>
     <message>
         <source>Found: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Gefunden: &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Auto-detected uVision at %1</source>
@@ -5245,15 +5248,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Removing debugger entries...</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferne Debugger-Einträge...</translation>
     </message>
     <message>
         <source>Removed &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; entfernt</translation>
     </message>
     <message>
         <source>Debuggers:</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugger:</translation>
     </message>
     <message>
         <source>Attach to Process Not Yet Started</source>
@@ -5317,7 +5320,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Extra Debugging Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Ausgabe-Hilfsbibliothek</translation>
     </message>
     <message>
         <source>Debugging Helper Customization</source>
@@ -5587,11 +5590,11 @@ Bitte wählen Sie einen 64-bit-Debugger in den Kit-Einstellungen für dieses Kit
     </message>
     <message>
         <source>Set or Remove Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkt setzen oder entfernen</translation>
     </message>
     <message>
         <source>Enable or Disable Breakpoint</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltepunkt aktivieren oder deaktivieren</translation>
     </message>
     <message>
         <source>Loading finished.</source>
@@ -5876,15 +5879,15 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Global</source>
-        <translation type="unfinished">Global</translation>
+        <translation>Global</translation>
     </message>
     <message>
         <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <source>Restore Global</source>
-        <translation type="unfinished">Globale Einstellungen wiederherstellen</translation>
+        <translation>Globale Einstellungen wiederherstellen</translation>
     </message>
     <message>
         <source>Use Customized Settings</source>
@@ -5953,7 +5956,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>The kit does not have a debugger set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kit hat keinen Debugger.</translation>
     </message>
     <message>
         <source>Unpacking core file to %1</source>
@@ -5973,7 +5976,7 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Specify Debugger settings in Projects &gt; Run.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie Einstellungen für den Debugger in Projekte &gt; Ausführen an.</translation>
     </message>
     <message>
         <source>%1 - Snapshot %2</source>
@@ -5981,11 +5984,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.&lt;p&gt;Affected are breakpoints %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Einige Haltepunkte werden von den aktuell aktiven Debugger-Sprachen nicht unterstützt und werden daher nicht berücksichtigt.&lt;p&gt;Dies betrifft die Haltepunkte %1</translation>
     </message>
     <message>
         <source>QML debugging needs to be enabled both in the Build and the Run settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Debuggen muss in den Einstellungen sowohl für das Erstellen als auch für das Ausführen aktiviert sein.</translation>
     </message>
     <message>
         <source>&amp;Show this message again.</source>
@@ -5993,15 +5996,15 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Debugging %1 ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Debugge %1 ...</translation>
     </message>
     <message>
         <source>Debugging of %1 has finished with exit code %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Debuggen von %1 wurde mit Rückgabewert %2 beendet.</translation>
     </message>
     <message>
         <source>Debugging of %1 has finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Debuggen von %1 wurde beendet.</translation>
     </message>
     <message>
         <source>Starting debugger &quot;%1&quot; for ABI &quot;%2&quot;...</source>
@@ -6125,47 +6128,47 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>GDB shows by default AT&amp;&amp;T style disassembly.</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB zeigt Disassembler standardmäßig im AT&amp;&amp;T-Stil an.</translation>
     </message>
     <message>
         <source>Use annotations in main editor when debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>Annotationen im Haupt-Editor beim Debuggen benutzen</translation>
     </message>
     <message>
         <source>&lt;p&gt;Shows simple variable values as annotations in the main editor during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Zeigt Werte von einfachen Variablen als Annotation im Haupt-Editor beim Debuggen.</translation>
     </message>
     <message>
         <source>Use pseudo message tracepoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Pseudo-Message Tracepoints verwenden</translation>
     </message>
     <message>
         <source>Uses Python to extend the ordinary GDB breakpoint class.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwendet Python, um die gewöhnliche GDB Haltepunkt-Klasse zu erweitern.</translation>
     </message>
     <message>
         <source>Use automatic symbol cache</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatischen Symbolcache verwenden</translation>
     </message>
     <message>
         <source>It is possible for GDB to automatically save a copy of its symbol index in a cache on disk and retrieve it from there when loading the same binary in the future.</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB kann automatisch eine Kopie seines Symbolindexes in einem Cache auf der Festplatte erstellen und ihn von dort wiederherstellen, wenn derselbe Binärcode in der Zukunft geladen wird.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Enables tooltips for variable values during debugging. Since this can slow down debugging and does not provide reliable information as it does not use scope information, it is switched off by default.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Aktiviert Tooltips für Variablenwerte beim Debuggen. Da dies das Debuggen verlangsamen kann und wegen der fehlenden Gültigkeitsinformationen nicht zuverlässig ist, ist es standardmäßig deaktiviert.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Enables tooltips in the locals view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Lokale Variablen&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Enables tooltips in the breakpoints view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Haltepunkte&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
         <source>&lt;p&gt;Enables tooltips in the stack view during debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Aktiviert Tooltips für die Anzeige &amp;quot;Stack&amp;quot; beim Debuggen.</translation>
     </message>
     <message>
         <source>Shows QML object tree in Locals and Expressions when connected and not stepping.</source>
@@ -6309,185 +6312,187 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Unknown error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannter Fehler.</translation>
     </message>
     <message>
         <source>Connection is not open.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung ist nicht offen.</translation>
     </message>
     <message>
         <source>&amp;Views</source>
-        <translation type="unfinished">&amp;Ansichten</translation>
+        <translation>&amp;Ansichten</translation>
     </message>
     <message>
         <source>Leave Debug Mode</source>
-        <translation type="unfinished">Debug-Modus verlassen</translation>
+        <translation>Debug-Modus verlassen</translation>
     </message>
     <message>
         <source>Toolbar</source>
-        <translation type="unfinished">Werkzeugleiste</translation>
+        <translation>Werkzeugleiste</translation>
     </message>
     <message>
         <source>Editor</source>
-        <translation type="unfinished">Editor</translation>
+        <translation>Editor</translation>
     </message>
     <message>
         <source>Next Item</source>
-        <translation type="unfinished">Nächster Eintrag</translation>
+        <translation>Nächster Eintrag</translation>
     </message>
     <message>
         <source>Previous Item</source>
-        <translation type="unfinished">Vorangehender Eintrag</translation>
+        <translation>Vorangehender Eintrag</translation>
     </message>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
-        <translation type="unfinished">Farbe bei %1,%2: rot: %3 grün: %4 blau: %5 alpha: %6</translation>
+        <translation>Farbe bei %1,%2: rot: %3 grün: %4 blau: %5 alpha: %6</translation>
     </message>
     <message>
         <source>&lt;Click to display color&gt;</source>
-        <translation type="unfinished">&lt;Klicken Sie, um die Farbe anzuzeigen&gt;</translation>
+        <translation>&lt;Klicken Sie, um die Farbe anzuzeigen&gt;</translation>
     </message>
     <message>
         <source>Copy Image</source>
-        <translation type="unfinished">Bild kopieren</translation>
+        <translation>Bild kopieren</translation>
     </message>
     <message>
         <source>Open Image Viewer</source>
-        <translation type="unfinished">Bildbetrachter öffnen</translation>
+        <translation>Bildbetrachter öffnen</translation>
     </message>
     <message>
         <source>Internal error: Invalid TCP/IP port specified %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Ungültiger TCP/IP-Port %1 angegeben.</translation>
     </message>
     <message>
         <source>Internal error: No uVision executable specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Keine ausführbare Datei für uVision angegeben.</translation>
     </message>
     <message>
         <source>Internal error: The specified uVision executable does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Die angegebene ausführbare Datei für uVision existiert nicht.</translation>
     </message>
     <message>
         <source>Internal error: Cannot resolve the library: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kann Bibliothek nicht auflösen: %1.</translation>
     </message>
     <message>
         <source>UVSC Version: %1, UVSOCK Version: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC-Version: %1, UVSOCK-Version: %2.</translation>
     </message>
     <message>
         <source>Internal error: Cannot open the session: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kann die Sitzung nicht öffnen: %1.</translation>
     </message>
     <message>
         <source>Internal error: Failed to start the debugger: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Debugger konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>UVSC: Starting execution failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Starten ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Stopping execution failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Stoppen ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Setting local value failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Setzen eines lokalen Werts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Setting watcher value failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Setzen des Werts des Beobachters ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Disassembling by address failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Disassemblieren über die Adresse ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Changing memory at address 0x%1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Ändern des Speichers an der Adresse 0x%1 ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Fetching memory at address 0x%1 failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Abrufen des Speichers an der Adresse 0x%1 ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Internal error: The specified uVision project options file does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Die angegebene Datei für uVision Projekt-Einstellungen existiert nicht.</translation>
     </message>
     <message>
         <source>Internal error: The specified uVision project file does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Die angegebene uVision Projektdatei existiert nicht.</translation>
     </message>
     <message>
         <source>Internal error: Unable to open the uVision project %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kann das uVision Projekt %1 nicht öffnen: %2.</translation>
     </message>
     <message>
         <source>Internal error: Unable to set the uVision debug target: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kann das uVision Debugziel nicht setzen: %1.</translation>
     </message>
     <message>
         <source>Internal error: The specified output file does not exist.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Die angegebene Ausgabedatei existiert nicht.</translation>
     </message>
     <message>
         <source>Internal error: Unable to set the uVision output file %1: %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Interner Fehler: Kann die uVision Ausgabedatei %1 nicht setzen: %2.</translation>
     </message>
     <message>
         <source>UVSC: Reading registers failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Lesen der Register ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Fetching peripheral register failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Abrufen des peripheren Registers ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Locals enumeration failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Aufzählen der lokalen Symbole ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Watchers enumeration failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Aufzählen der Beobachter ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Inserting breakpoint failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Einfügen des Haltepunkts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Removing breakpoint failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Entfernen des Haltepunkts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Enabling breakpoint failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Aktivieren des Haltepunkts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>UVSC: Disabling breakpoint failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC: Deaktivieren des Haltepunkts ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Failed to initialize the UVSC.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC konnte nicht initialisiert werden.</translation>
     </message>
     <message>
         <source>Failed to de-initialize the UVSC.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC konnte nicht deinitialisiert werden.</translation>
     </message>
     <message>
         <source>Failed to run the UVSC.</source>
-        <translation type="unfinished"></translation>
+        <translation>UVSC konnte nicht ausgeführt werden.</translation>
     </message>
     <message>
         <source>Cannot continue debugged process:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Der zu debuggende Prozess kann nicht fortgesetzt werden:
+</translation>
     </message>
     <message>
         <source>Cannot stop debugged process:
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Der zu debuggende Prozess kann nicht angehalten werden:
+</translation>
     </message>
 </context>
 <context>
@@ -6647,7 +6652,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Signals and Slots Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Signals und Slots</translation>
     </message>
     <message>
         <source>Edit Widgets</source>
@@ -6953,7 +6958,7 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
-        <translation type="unfinished"></translation>
+        <translation>Importiert bereits existierende Projekte, die weder qmake, CMake, Qbs, Meson oder Autotools verwenden. Dadurch kann %1 als Code-Editor benutzt werden.</translation>
     </message>
 </context>
 <context>
@@ -9831,7 +9836,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Triggers a Perforce version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Perforce-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+P,Meta+F</source>
@@ -10136,7 +10141,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Cannot request scenario &quot;%1&quot; as it was already requested.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kann Szenario &quot;%1&quot; nicht anfordern, da es schon angefordert wurde.</translation>
     </message>
     <message>
         <source>Unknown option %1</source>
@@ -11996,7 +12001,7 @@ Rename %2 to %3 anyway?</source>
     </message>
     <message>
         <source>Triggers a Subversion version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Subversion-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+S,Meta+D</source>
@@ -12794,7 +12799,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Incomplete version number (dot but no minor)</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige Versionsnummer (Punkt, aber fehlende Minor-Version)</translation>
     </message>
     <message>
         <source>File import requires a qualifier</source>
@@ -12985,7 +12990,7 @@ Was möchten Sie tun?</translation>
     </message>
     <message>
         <source>Triggers a Mercurial version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Mercurial-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Alt+G,Alt+L</source>
@@ -14914,7 +14919,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Qt version has no QML utility.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Qt-Version hat kein QML-Werkzeug.</translation>
     </message>
     <message>
         <source>Non-desktop Qt is used with a desktop device.</source>
@@ -16786,7 +16791,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Runs a text editing macro that was recorded with Tools &gt; Text Editing Macros &gt; Record Macro.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt ein Textbearbeitungs-Makro aus, das mit Extras &gt; Textbearbeitungs-Makros &gt; Makroaufnahme aufgenommen wurde.</translation>
     </message>
 </context>
 <context>
@@ -17173,7 +17178,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
     <message>
         <source>Triggers a Bazaar version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Bazaar-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>Meta+Z,Meta+D</source>
@@ -25561,7 +25566,10 @@ the manifest file by overriding your settings. Allow override?</source>
 Deploying to that directory will remove any files already present.
 
 Are you sure you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Das entfernte Verzeichnis &quot;%1&quot; existiert bereits.
+Das Deployment in dieses Verzeichnis wird alle darin befindlichen Dateien löschen.
+
+Möchten Sie fortfahren?</translation>
     </message>
     <message>
         <source>Connection failed: %1</source>
@@ -26005,7 +26013,7 @@ wirklich löschen?</translation>
     </message>
     <message>
         <source>Triggers a ClearCase version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des ClearCase-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>C&amp;learCase</source>
@@ -26604,7 +26612,7 @@ wirklich löschen?</translation>
     <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice, previous definition at %1:%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigenschaft ist doppelt definiert, vorherige Definition ist bei %1:%2</translation>
     </message>
 </context>
 <context>
@@ -30046,7 +30054,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
     <message>
         <source>Deploy to iOS device</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment auf iOS-Gerät</translation>
     </message>
 </context>
 <context>
@@ -31138,7 +31146,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     <message>
         <source>Format &amp;Line(s)</source>
         <extracomment>Menu entry</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Zeilen formatieren</translation>
     </message>
     <message>
         <source>&amp;Disable Formatting for Selected Text</source>
@@ -36911,7 +36919,7 @@ Error:
     <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Failed to retrieve data.</source>
-        <translation type="unfinished">Es konnten keine Daten empfangen werden.</translation>
+        <translation>Es konnten keine Daten empfangen werden.</translation>
     </message>
     <message>
         <source>Working...</source>
