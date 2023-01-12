@@ -1356,18 +1356,17 @@ QList<Diff> Differ::merge(const QList<Diff> &diffList)
     return squashedDiffList;
 }
 
-struct EqualityData
-{
-    int equalityIndex;
-    int textCount;
-    int deletesBefore;
-    int insertsBefore;
-    int deletesAfter;
-    int insertsAfter;
-};
-
 QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
 {
+    struct EqualityData
+    {
+        int equalityIndex = 0;
+        int textCount = 0;
+        int deletesBefore = 0;
+        int insertsBefore = 0;
+        int deletesAfter = 0;
+        int insertsAfter = 0;
+    };
     int deletes = 0;
     int inserts = 0;
     // equality index, equality data
@@ -1390,7 +1389,6 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
                 data.deletesBefore = deletes;
                 data.insertsBefore = inserts;
                 equalities.append(data);
-
                 deletes = 0;
                 inserts = 0;
             }
