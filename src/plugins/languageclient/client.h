@@ -42,6 +42,7 @@ class InterfaceController;
 class LanguageClientCompletionAssistProvider;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
+class ProgressManager;
 class SymbolSupport;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
@@ -199,10 +200,7 @@ signals:
 
 protected:
     void setError(const QString &message);
-    void setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
-                                  const QString &message);
-    void setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
-                                 const std::function<void()> &handler);
+    ProgressManager *progressManager();
     void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();

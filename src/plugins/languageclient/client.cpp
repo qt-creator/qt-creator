@@ -1572,16 +1572,9 @@ void Client::setError(const QString &message)
     d->m_state = Error;
 }
 
-void Client::setProgressTitleForToken(const LanguageServerProtocol::ProgressToken &token,
-                                      const QString &message)
+ProgressManager *Client::progressManager()
 {
-    d->m_progressManager.setTitleForToken(token, message);
-}
-
-void Client::setClickHandlerForToken(const LanguageServerProtocol::ProgressToken &token,
-                                     const std::function<void()> &handler)
-{
-    d->m_progressManager.setClickHandlerForToken(token, handler);
+    return &d->m_progressManager;
 }
 
 void Client::handleMessage(const LanguageServerProtocol::JsonRpcMessage &message)

@@ -38,6 +38,7 @@
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageclient/languageclientutils.h>
+#include <languageclient/progressmanager.h>
 #include <languageserverprotocol/clientcapabilities.h>
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -413,10 +414,10 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
-    setProgressTitleForToken(indexingToken(),
+    progressManager()->setTitleForToken(indexingToken(),
                              project ? tr("Indexing %1 with clangd").arg(project->displayName())
                                      : tr("Indexing session with clangd"));
-    setClickHandlerForToken(indexingToken(), [] {
+    progressManager()->setClickHandlerForToken(indexingToken(), [] {
         // don't directly open modal dialog from click handler, because that would mess
         // up the stack
         QMetaObject::invokeMethod(

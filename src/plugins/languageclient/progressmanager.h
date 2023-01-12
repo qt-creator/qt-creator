@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "languageclient_global.h"
+
 #include <coreplugin/progressmanager/futureprogress.h>
 
 #include <QElapsedTimer>
@@ -19,7 +21,7 @@ class WorkDoneProgressEnd;
 
 namespace LanguageClient {
 
-class ProgressManager
+class LANGUAGECLIENT_EXPORT ProgressManager
 {
 public:
     ProgressManager();
