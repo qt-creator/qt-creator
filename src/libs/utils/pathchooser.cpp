@@ -354,20 +354,6 @@ FilePath PathChooser::absoluteFilePath() const
     return d->m_baseDirectory.resolvePath(filePath());
 }
 
-// FIXME: try to remove again
-QString PathChooser::expandedDirectory(const QString &input, const Environment &env,
-                                       const QString &baseDir)
-{
-    if (input.isEmpty())
-        return input;
-    const QString path = QDir::cleanPath(env.expandVariables(input));
-    if (path.isEmpty())
-        return path;
-    if (!baseDir.isEmpty() && QFileInfo(path).isRelative())
-        return QFileInfo(baseDir + '/' + path).absoluteFilePath();
-    return path;
-}
-
 void PathChooser::setPath(const QString &path)
 {
     QTC_ASSERT(!d->m_callGuard.isLocked(), return);

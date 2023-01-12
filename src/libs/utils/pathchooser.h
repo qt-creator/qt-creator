@@ -73,9 +73,6 @@ public:
 
     FilePath rawFilePath() const; // The raw unexpanded input as FilePath.
 
-    static QString expandedDirectory(const QString &input, const Environment &env,
-                                     const QString &baseDir);
-
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);
 
