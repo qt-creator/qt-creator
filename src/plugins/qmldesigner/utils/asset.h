@@ -8,7 +8,7 @@ namespace QmlDesigner {
 class Asset
 {
 public:
-    enum Type { Unknown, Image, FragmentShader, Font, Audio, Video, Texture3D, Effect, Shader };
+    enum Type { Unknown, Image, MissingImage, FragmentShader, Font, Audio, Video, Texture3D, Effect, Shader };
 
     Asset(const QString &filePath);
 
@@ -34,6 +34,7 @@ public:
     bool isAudio() const;
     bool isVideo() const;
     bool isTexture3D() const;
+    bool isHdrFile() const;
     bool isEffect() const;
     bool isSupported() const;
 

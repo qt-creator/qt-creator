@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "edit3dwidget.h"
-#include "designdocumentview.h"
+#include "designdocument.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
@@ -10,10 +10,10 @@
 #include "metainfo.h"
 #include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
+#include "nodehints.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
-#include "timelineactions.h"
 #include "viewmanager.h"
 
 #include <auxiliarydataproperties.h>
@@ -249,6 +249,16 @@ bool Edit3DWidget::isPasteAvailable() const
     return QApplication::clipboard()->text().startsWith(Constants::HEADER_3DPASTE_CONTENT);
 }
 
+bool Edit3DWidget::isSceneLocked() const
+{
+    if (m_view && m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
+        ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
+        if (ModelNode::isThisOrAncestorLocked(node))
+            return true;
+    }
+    return false;
+}
+
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
 void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
                                        const QHash<QString, QList<ItemLibraryEntry>> &entriesMap)
@@ -287,7 +297,7 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
 void Edit3DWidget::onCreateAction()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    if (!action || !m_view || !m_view->model())
+    if (!action || !m_view || !m_view->model() || isSceneLocked())
         return;
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
@@ -374,6 +384,9 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     const bool anyNodeSelected = view()->hasSelectedModelNodes();
     const bool selectionExcludingRoot = anyNodeSelected && !view()->rootModelNode().isSelected();
 
+    if (m_createSubMenu)
+        m_createSubMenu->setEnabled(!isSceneLocked());
+
     m_editComponentAction->setEnabled(isSingleComponent);
     m_editMaterialAction->setEnabled(isModel);
     m_duplicateAction->setEnabled(selectionExcludingRoot);
@@ -407,6 +420,15 @@ Edit3DView *Edit3DWidget::view() const
 
 void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 {
+    // Block all drags if scene root node is locked
+    if (m_view->hasModelNodeForInternalId(m_canvas->activeScene())) {
+        ModelNode node = m_view->modelNodeForInternalId(m_canvas->activeScene());
+        if (ModelNode::isThisOrAncestorLocked(node))
+            return;
+    }
+
+    m_draggedEntry = {};
+
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
@@ -414,6 +436,14 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)
         || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
         dragEnterEvent->acceptProposedAction();
+    } else if (dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        QByteArray data = dragEnterEvent->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
+        if (!data.isEmpty()) {
+            QDataStream stream(data);
+            stream >> m_draggedEntry;
+            if (NodeHints::fromItemLibraryEntry(m_draggedEntry).canBeDroppedInView3D())
+                dragEnterEvent->acceptProposedAction();
+        }
     }
 }
 
@@ -440,6 +470,13 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         m_view->dropBundleMaterial(pos);
+        return;
+    }
+
+    // handle dropping from component view
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
+        if (!m_draggedEntry.name().isEmpty())
+            m_view->dropComponent(m_draggedEntry, pos);
         return;
     }
 

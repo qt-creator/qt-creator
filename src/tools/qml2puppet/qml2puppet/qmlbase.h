@@ -40,18 +40,22 @@ public:
         , m_args({argc, argv})
     {
         m_argParser.setApplicationDescription("QML Runtime Provider for QDS");
-        m_argParser.addOptions(
-            {{"qml-puppet", "Run QML Puppet (default)"},
-             {"qml-runtime", "Run QML Runtime"},
-             {"appinfo", "Print build information"},
-             {"test", "Run test mode"}
-             });
+        m_argParser.addOptions({{"qml-puppet", "Run QML Puppet (default)"},
+                                {"qml-runtime", "Run QML Runtime"},
+                                {"appinfo", "Print build information"},
+                                {"test", "Run test mode"}});
     }
 
     int run()
     {
         populateParser();
         initCoreApp();
+
+        if (!m_coreApp) { //default to QGuiApplication
+            createCoreApp<QGuiApplication>();
+            qWarning() << "CoreApp is not initialized! Falling back to QGuiApplication!";
+        }
+
         initParser();
         initQmlRunner();
         return m_coreApp->exec();
@@ -87,11 +91,6 @@ private:
     {
         QCommandLineOption optHelp = m_argParser.addHelpOption();
         QCommandLineOption optVers = m_argParser.addVersionOption();
-
-        if (!m_coreApp) {
-            qCritical() << "Cannot initialize coreapp!";
-            m_argParser.showHelp();
-        }
 
         if (!m_argParser.parse(m_coreApp->arguments())) {
             std::cout << "Error: " << m_argParser.errorText().toStdString() << std::endl

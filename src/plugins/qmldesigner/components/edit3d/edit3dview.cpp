@@ -16,6 +16,7 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
+#include "qmlvisualnode.h"
 #include "seekerslider.h"
 
 #include <coreplugin/icore.h>
@@ -304,6 +305,16 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
         if (modelNode.isValid() && !modelNode.isSelected())
             setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::ComponentDrop) {
+        ModelNode createdNode;
+        executeInTransaction(__FUNCTION__, [&] {
+            createdNode = QmlVisualNode::createQml3DNode(
+                this, m_droppedEntry, edit3DWidget()->canvas()->activeScene(), pos3d).modelNode();
+            if (createdNode.metaInfo().isQtQuick3DModel())
+                assignMaterialTo3dModel(createdNode);
+        });
+        if (createdNode.isValid())
+            setSelectedModelNode(createdNode);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (m_droppedModelNode.isValid() && modelNode.isValid() && isModel) {
@@ -892,6 +903,13 @@ void Edit3DView::dropTexture(const ModelNode &textureNode, const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::TextureDrop;
     m_droppedModelNode = textureNode;
+    emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+void Edit3DView::dropComponent(const ItemLibraryEntry &entry, const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::ComponentDrop;
+    m_droppedEntry = entry;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 

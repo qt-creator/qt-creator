@@ -199,6 +199,7 @@ protected:
 
     void initializePropertyWatcher(const ObjectNodeInstance::Pointer &objectNodeInstance);
     void ensureVector3DDotProperties(PropertyNameList &list) const;
+    void ensureValueTypeProperties(PropertyNameList &list) const;
 
 private:
     QString m_id;

@@ -100,6 +100,7 @@ public:
     bool isAlias() const;
     bool isBool() const;
     bool isColor() const;
+    bool isEffectMaker() const;
     bool isFloat() const;
     bool isFlowViewFlowActionArea() const;
     bool isFlowViewFlowDecision() const;
@@ -129,7 +130,6 @@ public:
     bool isQtQuick3DNode() const;
     bool isQtQuick3DParticles3DAffector3D() const;
     bool isQtQuick3DParticles3DAttractor3D() const;
-    bool isQtQuick3DParticles3DModel() const;
     bool isQtQuick3DParticles3DParticle3D() const;
     bool isQtQuick3DParticles3DParticleEmitter3D() const;
     bool isQtQuick3DParticles3DSpriteParticle3D() const;

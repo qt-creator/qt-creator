@@ -91,6 +91,11 @@ QString AssetsLibraryModel::currentProjectDirPath() const
     return DocumentManager::currentProjectDirPath().toString().append('/');
 }
 
+QString AssetsLibraryModel::contentDirPath() const
+{
+    return DocumentManager::currentResourcePath().toString().append('/');
+}
+
 bool AssetsLibraryModel::requestDeleteFiles(const QStringList &filePaths)
 {
     bool askBeforeDelete = QmlDesignerPlugin::settings()

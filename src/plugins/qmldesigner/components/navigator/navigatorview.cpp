@@ -7,6 +7,8 @@
 #include "qmldesignerconstants.h"
 #include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
+#include "assetslibrarywidget.h"
+#include "commontypecache.h"
 
 #include "nameitemdelegate.h"
 #include "iconcheckboxitemdelegate.h"
@@ -266,6 +268,18 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
 
         m_widget->setDragType(bundleMatType);
         m_widget->update();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QStringList assetsPaths = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',');
+        if (assetsPaths.count() > 0) {
+            auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
+            QString assetType = assetTypeAndData.first;
+            if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                // We use arbitrary type name because at this time we don't have effect maker
+                // specific type
+                m_widget->setDragType(Storage::Info::EffectMaker);
+                m_widget->update();
+            }
+        }
     }
 }
 
@@ -389,6 +403,13 @@ void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
                                          [[maybe_unused]] const QVariant &data)
 {
     m_currentModelInterface->notifyDataChanged(modelNode);
+
+    if (key == lockedProperty) {
+        // Also notify data changed on child nodes to redraw them
+        const QList<ModelNode> childNodes = modelNode.allSubModelNodes();
+        for (const auto &childNode : childNodes)
+            m_currentModelInterface->notifyDataChanged(childNode);
+    }
 }
 
 void NavigatorView::instanceErrorChanged(const QVector<ModelNode> &errorNodeList)

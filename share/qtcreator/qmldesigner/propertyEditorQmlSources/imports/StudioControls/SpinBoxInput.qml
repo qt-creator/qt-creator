@@ -51,33 +51,6 @@ TextInput {
         border.width: 0
     }
 
-    DragHandler {
-        id: dragHandler
-        target: null
-        acceptedDevices: PointerDevice.Mouse
-        enabled: true
-
-        property int initialValue: 0
-
-        onActiveChanged: {
-            if (active) {
-                initialValue = myControl.value
-                mouseArea.cursorShape = Qt.ClosedHandCursor
-                myControl.drag = true
-            } else {
-                mouseArea.cursorShape = Qt.PointingHandCursor
-                myControl.drag = false
-            }
-        }
-        onTranslationChanged: {
-            var currValue = myControl.value
-            myControl.value = initialValue + translation.x
-
-            if (currValue !== myControl.value)
-                myControl.valueModified()
-        }
-    }
-
     Item {
         id: dragModifierWorkaround
         Keys.onPressed: function(event) {
@@ -86,17 +59,20 @@ TextInput {
             if (event.modifiers & Qt.ControlModifier) {
                 mouseArea.stepSize = myControl.minStepSize
                 mouseArea.calcValue()
+                myControl.valueModified()
             }
 
             if (event.modifiers & Qt.ShiftModifier) {
                 mouseArea.stepSize = myControl.maxStepSize
                 mouseArea.calcValue()
+                myControl.valueModified()
             }
         }
         Keys.onReleased: function(event) {
             event.accepted = true
-            mouseArea.stepSize = myControl.realStepSize
+            mouseArea.stepSize = myControl.stepSize
             mouseArea.calcValue()
+            myControl.valueModified()
         }
     }
 
@@ -117,13 +93,13 @@ TextInput {
 
         property int initialValue: myControl.value // value on drag operation starts
 
-        property int pressStartX: 0
-        property int dragStartX: 0
-        property int translationX: 0
+        property real pressStartX: 0.0
+        property real dragStartX: 0.0
+        property real translationX: 0.0
 
-        property int dragDirection: 0
-        property int totalUnits: 0 // total number of units dragged
-        property int units: 0
+        property real dragDirection: 0.0
+        property real totalUnits: 0.0 // total number of units dragged
+        property real units: 0.0
 
         property real __pixelsPerUnit: textInput.devicePixelRatio * textInput.pixelsPerUnit
 
@@ -176,7 +152,7 @@ TextInput {
 
             mouseArea.translationX += translationX
             mouseArea.calcValue()
-            //myControl.realValueModified()
+            myControl.valueModified()
         }
 
         onClicked: function(mouse) {

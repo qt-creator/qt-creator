@@ -3,6 +3,7 @@
 
 #include "timelineview.h"
 
+#include "designericons.h"
 #include "easingcurve.h"
 #include "timelineactions.h"
 #include "timelineconstants.h"
@@ -584,6 +585,7 @@ void TimelineView::registerActions()
 
     actionManager.addDesignerAction(new ActionGroup(TimelineConstants::timelineCategoryDisplayName,
                                                     TimelineConstants::timelineCategory,
+                                                    actionManager.contextIcon(DesignerIcons::TimelineIcon),
                                                     ComponentCoreConstants::Priorities::TimelineCategory,
                                                     timelineEnabled,
                                                     &SelectionContextFunctors::always));

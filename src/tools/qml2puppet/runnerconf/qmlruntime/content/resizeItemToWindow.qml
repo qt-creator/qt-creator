@@ -4,22 +4,46 @@ import QtQuick.Window 2.0
 import QtQuick 2.0
 
 Window {
+    id: window
     property Item containedObject: null
-    property bool __resizeGuard: false
+
+    readonly property Item firstChild: window.contentItem.children.length > 0 ? window.contentItem.children[0] : null
+
+    property bool writeGuard: false
+
+    onFirstChildChanged: {
+        window.writeGuard = true
+        window.containedObject = window.firstChild
+        window.writeGuard = false
+    }
+
     onContainedObjectChanged: {
+        if (window.writeGuard)
+            return
+
         if (containedObject == undefined || containedObject == null) {
             visible = false
             return
         }
-        __resizeGuard = true
-        width = containedObject.width
-        height = containedObject.height
+
+        window.width = containedObject.width
+        window.height = containedObject.height
+
         containedObject.parent = contentItem
-        visible = true
-        __resizeGuard = false
+        window.visible = true
     }
-    onWidthChanged: if (!__resizeGuard && containedObject)
-                        containedObject.width = width
-    onHeightChanged: if (!__resizeGuard && containedObject)
-                         containedObject.height = height
+
+    Binding {
+        target: window.firstChild
+        when: window.firstChild
+        property: "height"
+        value: window.height
+    }
+
+    Binding {
+        target: window.firstChild
+        when: window.firstChild
+        property: "width"
+        value: window.width
+    }
 }

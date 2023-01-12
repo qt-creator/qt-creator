@@ -38,12 +38,21 @@ SecondColumnLayout {
 
     property alias spacer: spacer
 
+    property bool __block: false
+
     function resetShapeColor() {
         colorEditor.backendValue.resetValue()
     }
 
     function initEditor() {
+        colorEditor.syncColor()
+    }
+
+    // Syncing color from backend to frontend and block reflection
+    function syncColor() {
+        colorEditor.__block = true
         colorEditor.color = colorEditor.value
+        colorEditor.__block = false
     }
 
     Connections {
@@ -52,12 +61,12 @@ SecondColumnLayout {
 
         function onValueChanged() {
             if (popupLoader.isNotInGradientMode())
-                colorEditor.color = colorEditor.value
+                colorEditor.syncColor()
         }
 
         function onBackendValueChanged() {
             if (popupLoader.isNotInGradientMode())
-                colorEditor.color = colorEditor.value
+                colorEditor.syncColor()
         }
     }
 
@@ -83,6 +92,9 @@ SecondColumnLayout {
     }
 
     onColorChanged: {
+        if (colorEditor.__block)
+            return
+
         if (!popupLoader.isInValidState)
             return
 
@@ -211,24 +223,20 @@ SecondColumnLayout {
                 if (popupLoader.active && popupLoader.dialog)
                     popupLoader.dialog.determineActiveColorMode()
                 else
-                    colorEditor.color = colorEditor.value
+                    colorEditor.syncColor()
             }
 
             property alias active: popupLoader.loader.active
             property Loader loader: Loader {
-                parent: colorEditor
+                parent: preview
                 active: colorEditor.supportGradient
-                anchors.left: parent.left
-                anchors.leftMargin: 0
 
                 sourceComponent: ColorEditorPopup {
                     id: cePopup
                     x: cePopup.__defaultX
                     y: cePopup.__defaultY
                 }
-                onLoaded: {
-                    popupLoader.dialog.initEditor()
-                }
+                onLoaded: popupLoader.dialog.initEditor()
             }
         }
     }

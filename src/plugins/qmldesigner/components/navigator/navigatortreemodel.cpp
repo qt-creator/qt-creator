@@ -1019,7 +1019,8 @@ ModelNode NavigatorTreeModel::handleItemLibraryEffectDrop(const QString &effectP
     ModelNode targetNode(modelNodeForIndex(rowModelIndex));
     ModelNode newModelNode;
 
-    if (targetNode.hasParentProperty() && targetNode.parentProperty().name() == "layer.effect")
+    if ((targetNode.hasParentProperty() && targetNode.parentProperty().name() == "layer.effect")
+            || !targetNode.metaInfo().isQtQuickItem())
         return newModelNode;
 
     if (ModelNodeOperations::validateEffect(effectPath)) {

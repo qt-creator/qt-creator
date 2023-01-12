@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "itemlibraryinfo.h"
-
 #include <QtWidgets/qwidget.h>
 #include <QtGui/qimage.h>
 #include <QtGui/qevent.h>
@@ -38,8 +36,6 @@ protected:
     void keyReleaseEvent(QKeyEvent *e) override;
     void paintEvent(QPaintEvent *e) override;
     void resizeEvent(QResizeEvent *e) override;
-    void dragEnterEvent(QDragEnterEvent *e) override;
-    void dropEvent(QDropEvent *e) override;
     void focusOutEvent(QFocusEvent *focusEvent) override;
     void focusInEvent(QFocusEvent *focusEvent) override;
 
@@ -49,7 +45,6 @@ private:
     QPointer<Edit3DWidget> m_parent;
     QImage m_image;
     qint32 m_activeScene = -1;
-    ItemLibraryEntry m_itemLibraryEntry;
     QElapsedTimer m_usageTimer;
     qreal m_opacity = 1.0;
     QWidget *m_busyIndicator = nullptr;

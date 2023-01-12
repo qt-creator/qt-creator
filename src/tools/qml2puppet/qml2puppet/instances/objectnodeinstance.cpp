@@ -567,6 +567,15 @@ void ObjectNodeInstance::doResetProperty(const PropertyName &propertyName)
     QmlPrivateGate::doResetProperty(object(), context(), propertyName);
 }
 
+static bool isPropertyBlackListed(const PropertyName &propertyName)
+{
+    if (propertyName.contains(".") && propertyName.contains("__"))
+        return true;
+    if (propertyName.count(".") > 2)
+        return true;
+    return false;
+}
+
 QVariant ObjectNodeInstance::property(const PropertyName &name) const
 {
     if (ignoredProperties().contains(name))
@@ -574,7 +583,7 @@ QVariant ObjectNodeInstance::property(const PropertyName &name) const
 
     // TODO: handle model nodes
 
-    if (QmlPrivateGate::isPropertyBlackListed(name))
+    if (isPropertyBlackListed(name))
         return QVariant();
 
     QQmlProperty property(object(), QString::fromUtf8(name), context());
@@ -612,6 +621,37 @@ void ObjectNodeInstance::ensureVector3DDotProperties(PropertyNameList &list) con
     }
 }
 
+void ObjectNodeInstance::ensureValueTypeProperties(PropertyNameList &list) const
+{
+    const PropertyNameList pointDotProperties = {"x", "y"};
+    const PropertyNameList sizeDotProperties = {"width", "height"};
+    const PropertyNameList rectDotProperties = {"x", "y", "width", "height"};
+
+    PropertyNameList valueTypeProperties;
+
+    for (const auto &property : list) {
+        const QString name = instanceType(property);
+        PropertyNameList dotProperties;
+
+        if (name == "QPoint" || name == "QPointF")
+            dotProperties = pointDotProperties;
+
+        if (name == "QSize" || name == "QSizeF")
+            dotProperties = sizeDotProperties;
+
+        if (name == "QRect" || name == "QRectF")
+            dotProperties = rectDotProperties;
+
+        for (const auto &dotProperty : dotProperties)
+            valueTypeProperties.append(property + "." + dotProperty);
+    }
+
+    for (const auto &valueTypeProperty : valueTypeProperties) {
+        if (!list.contains(valueTypeProperty))
+            list.append(valueTypeProperty);
+    }
+}
+
 PropertyNameList ObjectNodeInstance::propertyNames() const
 {
     PropertyNameList list;
@@ -619,13 +659,14 @@ PropertyNameList ObjectNodeInstance::propertyNames() const
         list = QmlPrivateGate::allPropertyNames(object());
 
     ensureVector3DDotProperties(list);
+    ensureValueTypeProperties(list);
 
     return list;
 }
 
 QString ObjectNodeInstance::instanceType(const PropertyName &name) const
 {
-    if (QmlPrivateGate::isPropertyBlackListed(name))
+    if (isPropertyBlackListed(name))
         return QLatin1String("undefined");
 
     QQmlProperty property(object(), QString::fromUtf8(name), context());

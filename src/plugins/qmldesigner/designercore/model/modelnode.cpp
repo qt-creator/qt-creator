@@ -1392,8 +1392,7 @@ ModelNode ModelNode::lowestCommonAncestor(const QList<ModelNode> &nodes)
 
     ModelNode accumulatedNode = nodes.first();
     int accumulatedNodeDepth = -1;
-    Utils::span<const ModelNode> nodesExceptFirst(nodes.constBegin() + 1, nodes.constEnd());
-    for (const ModelNode &node : nodesExceptFirst) {
+    for (const ModelNode &node : Utils::span<const ModelNode>(nodes).subspan(1)) {
         accumulatedNode = QmlDesigner::lowestCommonAncestor(accumulatedNode,
                                                             node,
                                                             accumulatedNodeDepth,

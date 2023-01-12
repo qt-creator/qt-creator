@@ -5,9 +5,6 @@
 #include "edit3dview.h"
 #include "edit3dwidget.h"
 
-#include "nodehints.h"
-#include "qmlvisualnode.h"
-
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <nodelistproperty.h>
@@ -141,41 +138,6 @@ void Edit3DCanvas::resizeEvent(QResizeEvent *e)
 {
     positionBusyInidicator();
     m_parent->view()->edit3DViewResized(e->size());
-}
-
-void Edit3DCanvas::dragEnterEvent(QDragEnterEvent *e)
-{
-    // Block all drags if scene root node is locked
-    ModelNode node;
-    if (m_parent->view()->hasModelNodeForInternalId(m_activeScene))
-        node = m_parent->view()->modelNodeForInternalId(m_activeScene);
-
-    // Allow drop when there is no valid active scene, as the drop goes under the root node of
-    // the document in that case.
-    if (!ModelNode::isThisOrAncestorLocked(node)) {
-        QByteArray data = e->mimeData()->data(Constants::MIME_TYPE_ITEM_LIBRARY_INFO);
-        if (!data.isEmpty()) {
-            QDataStream stream(data);
-            stream >> m_itemLibraryEntry;
-            if (NodeHints::fromItemLibraryEntry(m_itemLibraryEntry).canBeDroppedInView3D())
-                e->accept();
-        }
-    }
-}
-
-void Edit3DCanvas::dropEvent(QDropEvent *e)
-{
-    m_parent->view()->executeInTransaction(__FUNCTION__, [&] {
-        auto modelNode = QmlVisualNode::createQml3DNode(m_parent->view(), m_itemLibraryEntry, m_activeScene).modelNode();
-        QTC_ASSERT(modelNode.isValid(), return);
-
-        e->accept();
-        m_parent->view()->setSelectedModelNode(modelNode);
-
-        // if added node is a Model, assign it a material
-        if (modelNode.metaInfo().isQtQuick3DModel())
-            m_parent->view()->assignMaterialTo3dModel(modelNode);
-    });
 }
 
 void Edit3DCanvas::focusOutEvent(QFocusEvent *focusEvent)

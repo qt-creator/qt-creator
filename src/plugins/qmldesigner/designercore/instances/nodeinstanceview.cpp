@@ -640,14 +640,12 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
     case AuxiliaryDataType::Document:
         if ((key == lockedProperty || key == invisibleProperty) && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid()) {
-                PropertyValueContainer container{instance.instanceId(),
-                                                 PropertyName{key.name},
-                                                 value,
-                                                 TypeName(),
-                                                 key.type};
-                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-            }
+            PropertyValueContainer container{instance.instanceId(),
+                                             PropertyName{key.name},
+                                             value,
+                                             TypeName(),
+                                             key.type};
+            m_nodeInstanceServer->changeAuxiliaryValues({{container}});
         };
         break;
 

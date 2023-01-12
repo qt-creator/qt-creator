@@ -60,7 +60,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
                    || actionInterface->type() == ActionInterface::FormEditorAction) {
            QAction* action = actionInterface->action();
            actionInterface->currentContextChanged(selectionContext);
-           action->setIconVisibleInMenu(false);
+           action->setIconVisibleInMenu(true);
            menu->addAction(action);
        }
     }

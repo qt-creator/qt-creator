@@ -535,7 +535,7 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQml.Component"
+        name: "QML.Component"
         icon: ":/qtquickplugin/images/component-icon16.png"
 
         Hints {
@@ -547,7 +547,7 @@ MetaInfo {
             name: "Component"
             category: "e.Qt Quick - Component"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
-            version: "2.0"
+            version: "1.0"
 
             QmlSource { source: ":/qtquickplugin/source/component.qml" }
             toolTip: qsTr("Allows you to define components inline, within a QML document.")
@@ -555,7 +555,7 @@ MetaInfo {
     }
 
     Type {
-        name: "QtQml.Component"
+        name: "QML.Component"
         icon: ":/qtquickplugin/images/component-icon16.png"
 
         Hints {
@@ -567,7 +567,7 @@ MetaInfo {
             name: "Component 3D"
             category: "Qt Quick 3D Component"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
-            version: "2.0"
+            version: "1.0"
             requiredImport: "QtQuick3D"
 
             QmlSource { source: ":/qtquickplugin/source/component3d.qml" }

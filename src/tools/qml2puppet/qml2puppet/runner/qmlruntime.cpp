@@ -241,7 +241,8 @@ void QmlRuntime::initQmlRunner()
     loadConf(confFile, !m_verboseMode);
 
     // Load files
-    QScopedPointer<LoadWatcher> lw(new LoadWatcher(m_qmlEngine.data(), files.size(), m_conf.data()));
+    LoadWatcher *lw = new LoadWatcher(m_qmlEngine.data(), files.size(), m_conf.data());
+    lw->setParent(this);
 
     for (const QString &path : std::as_const(files)) {
         QUrl url = QUrl::fromUserInput(path, QDir::currentPath(), QUrl::AssumeLocalFile);

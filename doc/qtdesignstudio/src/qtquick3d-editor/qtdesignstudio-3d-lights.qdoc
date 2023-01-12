@@ -181,7 +181,7 @@
     Aside from the size, an area light has the same properties as a directional
     light.
 
-    The image below shows an example on how to light a component with different
+    The image shows an example on how to light a component with different
     colors using two different area lights.
 
     You can rotate, scale, and move area lights.

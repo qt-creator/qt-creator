@@ -4,13 +4,16 @@
 #include "materialeditorcontextobject.h"
 
 #include <abstractview.h>
+#include <bindingproperty.h>
+#include <documentmanager.h>
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
-#include <documentmanager.h>
+#include <qmltimelinekeyframegroup.h>
+#include <variantproperty.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
@@ -129,6 +132,48 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
                 incompatibleProperties.append(property.name());
         }
 
+        // When switching between material types, copy base (diffuse) color and map properties of
+        // source type into corresponding properties of the target type.
+        const QList<PropertyName> baseColors = {"baseColor", "diffuseColor", "albedoColor"};
+        const QList<PropertyName> baseMaps = {"baseColorMap", "diffuseMap", "albedoMap"};
+        int sourceIndex = -1;
+        int targetIndex = -1;
+        NodeMetaInfo oldMetaInfo = m_selectedMaterial.metaInfo();
+        struct CopyData {
+            CopyData() {};
+            CopyData(PropertyName n) : name(n) {}
+            PropertyName name;
+            QVariant value;
+            bool isBinding = false;
+        };
+        QHash<PropertyName, CopyData> copyMap;
+
+        if (oldMetaInfo.isQtQuick3DPrincipledMaterial())
+            sourceIndex = 0;
+        else if (oldMetaInfo.isQtQuick3DDefaultMaterial())
+            sourceIndex = 1;
+        else if (oldMetaInfo.isQtQuick3DSpecularGlossyMaterial())
+            sourceIndex = 2;
+
+        if (metaInfo.isQtQuick3DPrincipledMaterial())
+            targetIndex = 0;
+        else if (metaInfo.isQtQuick3DDefaultMaterial())
+            targetIndex = 1;
+        else if (metaInfo.isQtQuick3DSpecularGlossyMaterial())
+            targetIndex = 2;
+
+        if (sourceIndex >= 0 && targetIndex >= 0) {
+            if (incompatibleProperties.contains(baseColors[sourceIndex])) {
+                copyMap.insert(baseColors[sourceIndex], baseColors[targetIndex]);
+                incompatibleProperties.removeOne(baseColors[sourceIndex]);
+            }
+            if (incompatibleProperties.contains(baseMaps[sourceIndex])) {
+                copyMap.insert(baseMaps[sourceIndex], baseMaps[targetIndex]);
+                incompatibleProperties.removeOne(baseMaps[sourceIndex]);
+            }
+        }
+        const auto &copyKeys = copyMap.keys();
+
         Utils::sort(incompatibleProperties);
 
         // Create a dialog showing incompatible properties and signals
@@ -159,10 +204,47 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
                 m_selectedMaterial.removeProperty(p);
         }
 
+        if (!copyKeys.isEmpty()) {
+            // Copy mapped properties to new name. Note that this will only copy the base
+            // property value and adjust the keyframe groups. Any other bindings related
+            // to the property will be ignored.
+            const QList<ModelNode> timeLines = QmlObjectNode(m_selectedMaterial).allTimelines();
+            for (const auto &key : std::as_const(copyKeys)) {
+                CopyData &copyData = copyMap[key];
+                for (const auto &timeLineNode : timeLines) {
+                    QmlTimeline timeLine(timeLineNode);
+                    if (timeLine.hasKeyframeGroup(m_selectedMaterial, key)) {
+                        QmlTimelineKeyframeGroup group = timeLine.keyframeGroup(m_selectedMaterial,
+                                                                                key);
+                        group.setPropertyName(copyData.name);
+                    }
+                }
+                // Property value itself cannot be copied until type has been changed, so store it
+                AbstractProperty prop = m_selectedMaterial.property(key);
+                if (prop.isValid()) {
+                    if (prop.isBindingProperty()) {
+                        copyData.isBinding = true;
+                        copyData.value = prop.toBindingProperty().expression();
+                    } else {
+                        copyData.value = prop.toVariantProperty().value();
+                    }
+                }
+                m_selectedMaterial.removeProperty(key);
+            }
+        }
+
         if (m_selectedMaterial.isRootNode())
             rewriterView->changeRootNodeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
         else
             m_selectedMaterial.changeType(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+
+        for (const auto &key : copyKeys) {
+            const CopyData &copyData = copyMap[key];
+            if (copyData.isBinding)
+                m_selectedMaterial.bindingProperty(copyData.name).setExpression(copyData.value.toString());
+            else
+                m_selectedMaterial.variantProperty(copyData.name).setValue(copyData.value);
+        }
     });
 }
 

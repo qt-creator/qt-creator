@@ -52,6 +52,7 @@ private:
     void createContextMenu();
 
     bool isPasteAvailable() const;
+    bool isSceneLocked() const;
 
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
@@ -77,6 +78,7 @@ private:
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
+    ItemLibraryEntry m_draggedEntry;
 };
 
 } // namespace QmlDesigner
