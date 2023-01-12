@@ -30,7 +30,7 @@ private slots:
 private:
     Utils::FilePath semicolonFilePath() const;
     Utils::FilePath compareFilePath() const;
-    QString fileContent(const QByteArray &relFilePath) const;
+    QString fileContent(const QString &relFilePath) const;
 
     ClangFixIt semicolonFixIt() const;
 

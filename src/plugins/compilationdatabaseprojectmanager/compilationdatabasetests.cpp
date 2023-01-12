@@ -25,8 +25,7 @@ using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 CompilationDatabaseTests::CompilationDatabaseTests(QObject *parent)
     : QObject(parent)
@@ -57,7 +56,7 @@ void CompilationDatabaseTests::cleanupTestCase()
 
 void CompilationDatabaseTests::testProject()
 {
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
 
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     const CppEditor::ProjectInfo::ConstPtr projectInfo = projectManager.open(projectFilePath, true);
@@ -263,12 +262,11 @@ void CompilationDatabaseTests::testSkipOutputFiles()
     QVERIFY(testData.getFilteredFlags().isEmpty());
 }
 
-void CompilationDatabaseTests::addTestRow(const QByteArray &relativeFilePath)
+void CompilationDatabaseTests::addTestRow(const QString &relativeFilePath)
 {
-    const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
+    const FilePath absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
 
-    QTest::newRow(relativeFilePath.constData()) << absoluteFilePath;
+    QTest::newRow(qPrintable(relativeFilePath)) << absoluteFilePath;
 }
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

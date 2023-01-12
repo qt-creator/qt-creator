@@ -391,11 +391,11 @@ ProjectOpenerAndCloser::~ProjectOpenerAndCloser()
         QCoreApplication::processEvents();
 }
 
-ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const QString &projectFile,
+ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const FilePath &projectFile,
         bool configureAsExampleProject, Kit *kit)
 {
     ProjectExplorerPlugin::OpenProjectResult result =
-            ProjectExplorerPlugin::openProject(FilePath::fromString(projectFile));
+            ProjectExplorerPlugin::openProject(projectFile);
     if (!result) {
         qWarning() << result.errorMessage() << result.alreadyOpen();
         return {};
@@ -476,9 +476,9 @@ TemporaryCopiedDir::TemporaryCopiedDir(const QString &sourceDirPath)
     }
 }
 
-QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
+FilePath TemporaryCopiedDir::absolutePath(const QString &relativePath) const
 {
-    return m_temporaryDir.filePath(QString::fromUtf8(relativePath)).path();
+    return m_temporaryDir.filePath(relativePath);
 }
 
 int clangdIndexingTimeout()

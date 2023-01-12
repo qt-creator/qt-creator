@@ -267,8 +267,8 @@ QString ReadExportedDiagnosticsTest::createFile(const QString &yamlFilePath,
                                                 const QString &filePathToInject) const
 {
     QTC_ASSERT(QDir::isAbsolutePath(filePathToInject), return QString());
-    const Utils::FilePath newFileName = FilePath::fromString(m_baseDir->absolutePath(
-                QFileInfo(yamlFilePath).fileName().toLocal8Bit()));
+    const Utils::FilePath newFileName = m_baseDir->absolutePath(
+                QFileInfo(yamlFilePath).fileName());
 
     Utils::FileReader reader;
     if (QTC_GUARD(reader.fetch(Utils::FilePath::fromString(yamlFilePath),
@@ -286,7 +286,7 @@ QString ReadExportedDiagnosticsTest::createFile(const QString &yamlFilePath,
 
 FilePath ReadExportedDiagnosticsTest::filePath(const QString &fileName) const
 {
-    return FilePath::fromString(m_baseDir->absolutePath(fileName.toUtf8()));
+    return m_baseDir->absolutePath(fileName);
 }
 
 } // namespace ClangTools::Internal

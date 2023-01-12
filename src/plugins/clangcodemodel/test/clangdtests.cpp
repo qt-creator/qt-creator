@@ -64,9 +64,9 @@ namespace Tests {
 
 const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
 
-static QString qrcPath(const QByteArray &relativeFilePath)
+static QString qrcPath(const QString &relativeFilePath)
 {
-    return QLatin1String(":/unittests/ClangCodeModel/") + QString::fromUtf8(relativeFilePath);
+    return ":/unittests/ClangCodeModel/" + relativeFilePath;
 }
 
 ClangdTest::~ClangdTest()
@@ -79,7 +79,7 @@ ClangdTest::~ClangdTest()
 
 Utils::FilePath ClangdTest::filePath(const QString &fileName) const
 {
-    return Utils::FilePath::fromString(m_projectDir->absolutePath(fileName.toLocal8Bit()));
+    return m_projectDir->absolutePath(fileName);
 }
 
 void ClangdTest::waitForNewClient(bool withIndex)
@@ -133,11 +133,10 @@ void ClangdTest::initTestCase()
         QSKIP("The test requires at least one valid kit with a valid Qt");
 
     // Copy project out of qrc file, open it, and set up target.
-    m_projectDir = new TemporaryCopiedDir(qrcPath(QFileInfo(m_projectFileName)
-                                                  .baseName().toLocal8Bit()));
+    m_projectDir = new TemporaryCopiedDir(qrcPath(QFileInfo(m_projectFileName).baseName()));
     QVERIFY(m_projectDir->isValid());
     const auto openProjectResult = ProjectExplorerPlugin::openProject(
-            Utils::FilePath::fromString(m_projectDir->absolutePath(m_projectFileName.toUtf8())));
+            m_projectDir->absolutePath(m_projectFileName));
     QVERIFY2(openProjectResult, qPrintable(openProjectResult.errorMessage()));
     m_project = openProjectResult.project();
     m_project->configureAsExampleProject(m_kit);
@@ -147,8 +146,7 @@ void ClangdTest::initTestCase()
 
     // Open cpp documents.
     for (const QString &sourceFileName : std::as_const(m_sourceFileNames)) {
-        const auto sourceFilePath = Utils::FilePath::fromString(
-                    m_projectDir->absolutePath(sourceFileName.toLocal8Bit()));
+        const auto sourceFilePath = m_projectDir->absolutePath(sourceFileName);
         QVERIFY2(sourceFilePath.exists(), qPrintable(sourceFilePath.toUserOutput()));
         IEditor * const editor = EditorManager::openEditor(sourceFilePath);
         QVERIFY(editor);

@@ -84,7 +84,7 @@ static ClangDiagnosticConfig configFor(const QString &tidyChecks, const QString 
 
 void ClangToolsUnitTests::testProject()
 {
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
     QFETCH(int, expectedDiagCountClangTidy);
     QFETCH(int, expectedDiagCountClazy);
     QFETCH(ClangDiagnosticConfig, diagnosticConfig);
@@ -119,7 +119,7 @@ void ClangToolsUnitTests::testProject()
 
 void ClangToolsUnitTests::testProject_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
     QTest::addColumn<int>("expectedDiagCountClangTidy");
     QTest::addColumn<int>("expectedDiagCountClazy");
     QTest::addColumn<ClangDiagnosticConfig>("diagnosticConfig");
@@ -161,8 +161,8 @@ void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
                                      int expectedDiagCountClazy,
                                      const ClangDiagnosticConfig &diagnosticConfig)
 {
-    const QString absoluteFilePath = m_tmpDir->absolutePath(relativeFilePath);
-    const QString fileName = QFileInfo(absoluteFilePath).fileName();
+    const FilePath absoluteFilePath = m_tmpDir->absolutePath(QString::fromUtf8(relativeFilePath));
+    const QString fileName = absoluteFilePath.fileName();
 
     QTest::newRow(fileName.toUtf8().constData())
         << absoluteFilePath << expectedDiagCountClangTidy << expectedDiagCountClazy

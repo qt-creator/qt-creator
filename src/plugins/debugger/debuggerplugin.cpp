@@ -2351,7 +2351,7 @@ void DebuggerUnitTests::cleanupTestCase()
 
 void DebuggerUnitTests::testStateMachine()
 {
-    QString proFile = m_tmpDir->absolutePath("simple/simple.pro");
+    FilePath proFile = m_tmpDir->absolutePath("simple/simple.pro");
 
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(proFile, true));

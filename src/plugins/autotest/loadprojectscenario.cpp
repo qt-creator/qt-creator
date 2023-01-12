@@ -68,7 +68,7 @@ bool LoadProjectScenario::init()
 
 bool LoadProjectScenario::loadProject()
 {
-    const QString projectFilePath = m_tmpDir->path() + "/plain/plain.pro";
+    const FilePath projectFilePath = m_tmpDir->filePath() / "/plain/plain.pro";
 
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     // This code must trigger a call to PluginManager::finishScenario() at some later point.

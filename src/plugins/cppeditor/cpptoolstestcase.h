@@ -167,7 +167,7 @@ public:
     ~ProjectOpenerAndCloser(); // Closes opened projects
 
     ProjectInfo::ConstPtr open(
-            const QString &projectFile,
+            const Utils::FilePath &projectFile,
             bool configureAsExampleProject = false,
             ProjectExplorer::Kit *kit = nullptr);
 
@@ -197,7 +197,7 @@ class CPPEDITOR_EXPORT TemporaryCopiedDir : public TemporaryDir
 {
 public:
     explicit TemporaryCopiedDir(const QString &sourceDirPath);
-    QString absolutePath(const QByteArray &relativePath) const;
+    Utils::FilePath absolutePath(const QString &relativePath) const;
 
 private:
     TemporaryCopiedDir();

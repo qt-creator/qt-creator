@@ -29,21 +29,20 @@ void ClangFixItTest::testDescription()
 
 Utils::FilePath ClangFixItTest::semicolonFilePath() const
 {
-    return Utils::FilePath::fromString(m_dataDir->absolutePath("diagnostic_semicolon_fixit.cpp"));
+    return m_dataDir->absolutePath("diagnostic_semicolon_fixit.cpp");
 }
 
 Utils::FilePath ClangFixItTest::compareFilePath() const
 {
-    return Utils::FilePath::fromString(m_dataDir->absolutePath("diagnostic_comparison_fixit.cpp"));
+    return m_dataDir->absolutePath("diagnostic_comparison_fixit.cpp");
 }
 
-QString ClangFixItTest::fileContent(const QByteArray &relFilePath) const
+QString ClangFixItTest::fileContent(const QString &relFilePath) const
 {
-    QFile file(m_dataDir->absolutePath(relFilePath));
-    const bool isOpen = file.open(QFile::ReadOnly | QFile::Text);
-    if (!isOpen)
-        qDebug() << "File with the unsaved content cannot be opened!";
-    return QString::fromUtf8(file.readAll());
+    Utils::expected_str<QByteArray> data = m_dataDir->absolutePath(relFilePath).fileContents();
+    if (!data)
+        qDebug() << "File with the unsaved content cannot be opened!" << data.error();
+    return QString::fromUtf8(*data);
 }
 
 ClangFixIt ClangFixItTest::semicolonFixIt() const

@@ -81,7 +81,7 @@ void AutoTestUnitTests::cleanupTestCase()
 
 void AutoTestUnitTests::testCodeParser()
 {
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
     QFETCH(int, expectedAutoTestsCount);
     QFETCH(int, expectedNamedQuickTestsCount);
     QFETCH(int, expectedUnnamedQuickTestsCount);
@@ -106,30 +106,30 @@ void AutoTestUnitTests::testCodeParser()
 
 void AutoTestUnitTests::testCodeParser_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
     QTest::addColumn<int>("expectedAutoTestsCount");
     QTest::addColumn<int>("expectedNamedQuickTestsCount");
     QTest::addColumn<int>("expectedUnnamedQuickTestsCount");
     QTest::addColumn<int>("expectedDataTagsCount");
 
-
+    const FilePath base = m_tmpDir->filePath();
     QTest::newRow("plainAutoTest")
-            << QString(m_tmpDir->path() + "/plain/plain.pro")
+            << base / "plain/plain.pro"
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTests")
-            << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.pro")
+            << base / "mixed_atp/mixed_atp.pro"
             << 4 << 10 << 5 << 10;
     QTest::newRow("plainAutoTestQbs")
-            << QString(m_tmpDir->path() + "/plain/plain.qbs")
+            << base / "plain/plain.qbs"
             << 1 << 0 << 0 << 0;
     QTest::newRow("mixedAutoTestAndQuickTestsQbs")
-            << QString(m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs")
+            << base / "mixed_atp/mixed_atp.qbs"
             << 4 << 10 << 5 << 10;
 }
 
 void AutoTestUnitTests::testCodeParserSwitchStartup()
 {
-    QFETCH(QStringList, projectFilePaths);
+    QFETCH(FilePaths, projectFilePaths);
     QFETCH(QList<int>, expectedAutoTestsCount);
     QFETCH(QList<int>, expectedNamedQuickTestsCount);
     QFETCH(QList<int>, expectedUnnamedQuickTestsCount);
@@ -157,16 +157,19 @@ void AutoTestUnitTests::testCodeParserSwitchStartup()
 
 void AutoTestUnitTests::testCodeParserSwitchStartup_data()
 {
-    QTest::addColumn<QStringList>("projectFilePaths");
+    QTest::addColumn<FilePaths>("projectFilePaths");
     QTest::addColumn<QList<int> >("expectedAutoTestsCount");
     QTest::addColumn<QList<int> >("expectedNamedQuickTestsCount");
     QTest::addColumn<QList<int> >("expectedUnnamedQuickTestsCount");
     QTest::addColumn<QList<int> >("expectedDataTagsCount");
 
-    QStringList projects = QStringList({m_tmpDir->path() + "/plain/plain.pro",
-            m_tmpDir->path() + "/mixed_atp/mixed_atp.pro",
-            m_tmpDir->path() + "/plain/plain.qbs",
-            m_tmpDir->path() + "/mixed_atp/mixed_atp.qbs"});
+    const FilePath base = m_tmpDir->filePath();
+    FilePaths projects {
+        base / "plain/plain.pro",
+        base / "mixed_atp/mixed_atp.pro",
+        base / "plain/plain.qbs",
+        base / "mixed_atp/mixed_atp.qbs"
+    };
 
     QList<int> expectedAutoTests = QList<int>()         << 1 << 4 << 1 << 4;
     QList<int> expectedNamedQuickTests = QList<int>()   << 0 << 10 << 0 << 10;
@@ -183,7 +186,7 @@ void AutoTestUnitTests::testCodeParserGTest()
     if (qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     QVERIFY(projectManager.open(projectFilePath, true, m_kit));
 
@@ -219,11 +222,11 @@ void AutoTestUnitTests::testCodeParserGTest()
 
 void AutoTestUnitTests::testCodeParserGTest_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
     QTest::newRow("simpleGoogletest")
-        << QString(m_tmpDir->path() + "/simple_gt/simple_gt.pro");
+        << m_tmpDir->filePath() / "simple_gt/simple_gt.pro";
     QTest::newRow("simpleGoogletestQbs")
-        << QString(m_tmpDir->path() + "/simple_gt/simple_gt.qbs");
+        << m_tmpDir->filePath() / "simple_gt/simple_gt.qbs";
 }
 
 void AutoTestUnitTests::testCodeParserBoostTest()
@@ -231,7 +234,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
     if (!m_checkBoost)
         QSKIP("This test needs boost - set BOOST_INCLUDE_DIR (or have it installed)");
 
-    QFETCH(QString, projectFilePath);
+    QFETCH(FilePath, projectFilePath);
     QFETCH(QString, extension);
     CppEditor::Tests::ProjectOpenerAndCloser projectManager;
     const CppEditor::ProjectInfo::ConstPtr projectInfo
