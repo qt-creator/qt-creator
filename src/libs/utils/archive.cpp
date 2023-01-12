@@ -126,7 +126,7 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
     if (!anyOf(tools, [tools](const Tool &t) { return resolveTool(t); })) {
         if (reason) {
             const QStringList execs = transform<QStringList>(tools, [](const Tool &tool) {
-                return tool.command.executable().toString();
+                return tool.command.executable().toUserOutput();
             });
             *reason = tr("Could not find any unarchiving executable in PATH (%1).")
                           .arg(execs.join(", "));
