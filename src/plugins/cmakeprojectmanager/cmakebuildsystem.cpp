@@ -10,7 +10,6 @@
 #include "cmakekitinformation.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
-#include "cmakeprojectnodes.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
@@ -24,14 +23,11 @@
 
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppprojectupdater.h>
-#include <cppeditor/generatedcodemodelsupport.h>
 
-#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -45,15 +41,11 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/runextensions.h>
 
 #include <QClipboard>
-#include <QDir>
 #include <QGuiApplication>
-#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -191,7 +183,6 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
 
 CMakeBuildSystem::~CMakeBuildSystem()
 {
-    m_futureSynchronizer.waitForFinished();
     if (!m_treeScanner.isFinished()) {
         auto future = m_treeScanner.future();
         future.cancel();
@@ -914,26 +905,15 @@ void CMakeBuildSystem::runCTest()
     const BuildDirParameters parameters(this);
     QTC_ASSERT(parameters.isValid(), return);
 
-    const CommandLine cmd { m_ctestPath, { "-N", "--show-only=json-v1" } };
     ensureBuildDirectory(parameters);
-    const FilePath workingDirectory = parameters.buildDirectory;
-    const Environment environment = buildConfiguration()->environment();
-
-    auto future = Utils::runAsync([cmd, workingDirectory, environment]
-                                  (QFutureInterface<QByteArray> &futureInterface) {
-        QtcProcess process;
-        process.setEnvironment(environment);
-        process.setWorkingDirectory(workingDirectory);
-        process.setCommand(cmd);
-        process.start();
-        if (!process.waitForFinished() || process.result() != ProcessResult::FinishedWithSuccess)
-            return;
-        futureInterface.reportResult(process.readAllRawStandardOutput());
-    });
-
-    Utils::onFinished(future, this, [this](const QFuture<QByteArray> &future) {
-        if (future.resultCount()) {
-            const QJsonDocument json = QJsonDocument::fromJson(future.result());
+    m_ctestProcess.reset(new QtcProcess);
+    m_ctestProcess->setEnvironment(buildConfiguration()->environment());
+    m_ctestProcess->setWorkingDirectory(parameters.buildDirectory);
+    m_ctestProcess->setCommand({m_ctestPath, { "-N", "--show-only=json-v1"}});
+    connect(m_ctestProcess.get(), &QtcProcess::done, this, [this] {
+        if (m_ctestProcess->result() == ProcessResult::FinishedWithSuccess) {
+            const QJsonDocument json
+                = QJsonDocument::fromJson(m_ctestProcess->readAllRawStandardOutput());
             if (!json.isEmpty() && json.isObject()) {
                 const QJsonObject jsonObj = json.object();
                 const QJsonObject btGraph = jsonObj.value("backtraceGraph").toObject();
@@ -972,8 +952,7 @@ void CMakeBuildSystem::runCTest()
         }
         emit testInformationUpdated();
     });
-
-    m_futureSynchronizer.addFuture(future);
+    m_ctestProcess->start();
 }
 
 CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
@@ -981,7 +960,7 @@ CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
     return static_cast<CMakeBuildConfiguration *>(BuildSystem::buildConfiguration());
 }
 
-static Utils::FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
+static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
 {
     const CMakeBuildTarget cmakeBuildTarget
         = Utils::findOrDefault(bs->buildTargets(), Utils::equal(&CMakeBuildTarget::title, buildKey));
@@ -1359,7 +1338,7 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
     return result;
 }
 
-void CMakeBuildSystem::runGenerator(Utils::Id id)
+void CMakeBuildSystem::runGenerator(Id id)
 {
     QTC_ASSERT(cmakeBuildConfiguration(), return);
     const auto showError = [](const QString &detail) {
