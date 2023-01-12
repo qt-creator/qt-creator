@@ -36,7 +36,7 @@ FilePaths FSEngine::registeredDeviceRoots()
 
 void FSEngine::addDevice(const FilePath &deviceRoot)
 {
-    if (deviceRoot.exists())
+    if (deviceRoot.hasFileAccess())
         deviceRoots().append(deviceRoot);
 }
 
@@ -53,7 +53,7 @@ FilePaths &FSEngine::deviceRoots()
 
 QStringList &FSEngine::deviceSchemes()
 {
-    static QStringList g_deviceSchemes {"device"};
+    static QStringList g_deviceSchemes{"device"};
     return g_deviceSchemes;
 }
 

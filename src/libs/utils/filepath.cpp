@@ -932,9 +932,9 @@ void FilePath::setFromString(const QStringView fileNameView)
     setParts({}, {}, fileNameView);
 }
 
-DeviceFileAccess *FilePath::fileAccess() const
+expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
 {
-    if (!needsDevice())
+    if (!filePath.needsDevice())
         return DesktopDeviceFileAccess::instance();
 
     if (!s_deviceHooks.fileAccess) {
@@ -943,10 +943,21 @@ DeviceFileAccess *FilePath::fileAccess() const
         return DesktopDeviceFileAccess::instance();
     }
 
+    return s_deviceHooks.fileAccess(filePath);
+}
+
+DeviceFileAccess *FilePath::fileAccess() const
+{
     static DeviceFileAccess dummy;
-    const expected_str<DeviceFileAccess *> access = s_deviceHooks.fileAccess(*this);
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     QTC_ASSERT_EXPECTED(access, return &dummy);
     return *access ? *access : &dummy;
+}
+
+bool FilePath::hasFileAccess() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    return access && access.value();
 }
 
 /*!
