@@ -163,7 +163,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
         if (!outputHandler)
             return;
         const ClangToolStorage *data = storage.activeStorage();
-        outputHandler({true, input.unit.file, data->outputFilePath, data->name});
+        outputHandler({true, input.unit.file, data->outputFilePath, input.tool});
     };
     const auto onProcessError = [=](const QtcProcess &process) {
         if (!outputHandler)
@@ -180,7 +180,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
             message = Tr::tr("%1 finished with exit code: %2.").arg(data->name).arg(process.exitCode());
         else
             message = Tr::tr("%1 crashed.").arg(data->name);
-        outputHandler({false, input.unit.file, data->outputFilePath, data->name, message, details});
+        outputHandler({false, input.unit.file, data->outputFilePath, input.tool, message, details});
     };
 
     const Group group {

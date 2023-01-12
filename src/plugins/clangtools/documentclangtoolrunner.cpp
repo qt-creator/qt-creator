@@ -245,10 +245,10 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
         }
     }
 
-    const QString toolName = output.toolName;
+    const CppEditor::ClangToolType toolType = output.toolType;
     // remove outdated marks of the current runner
-    auto [toDelete, newMarks] = Utils::partition(m_marks, [toolName](DiagnosticMark *mark) {
-        return mark->source == toolName; // TODO: comparison on translatable string
+    const auto [toDelete, newMarks] = Utils::partition(m_marks, [toolType](DiagnosticMark *mark) {
+        return mark->toolType == toolType;
     });
     m_marks = newMarks;
     qDeleteAll(toDelete);
@@ -262,7 +262,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
             continue;
 
         auto mark = new DiagnosticMark(diagnostic);
-        mark->source = toolName;
+        mark->toolType = toolType;
 
         if (doc && Utils::anyOf(diagnostic.explainingSteps, &ExplainingStep::isFixIt)) {
             TextEditor::RefactorMarker marker;

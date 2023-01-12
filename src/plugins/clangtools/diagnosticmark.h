@@ -5,11 +5,11 @@
 
 #include "clangtoolsdiagnostic.h"
 
+#include <cppeditor/clangdiagnosticconfig.h>
 #include <texteditor/textmark.h>
 
 namespace ClangTools {
 namespace Internal {
-
 
 class DiagnosticMark : public TextEditor::TextMark
 {
@@ -22,7 +22,7 @@ public:
 
     Diagnostic diagnostic() const;
 
-    QString source;
+    std::optional<CppEditor::ClangToolType> toolType;
 
 private:
     const Diagnostic m_diagnostic;
