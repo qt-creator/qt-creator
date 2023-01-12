@@ -637,29 +637,6 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath, QStrin
     return sources;
 }
 
-QString prefixForItem(const ExampleItem *item)
-{
-    QTC_ASSERT(item, return {});
-    if (item->isHighlighted)
-        return QLatin1String("0000 ");
-    return QString();
-}
-
-QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= m_items.count())
-        return QVariant();
-
-    ExampleItem *item = static_cast<ExampleItem *>(m_items.at(index.row()));
-    switch (role)
-    {
-    case Qt::DisplayRole: // for search only
-        return QString(prefixForItem(item) + item->name + ' ' + item->tags.join(' '));
-    default:
-        return ListModel::data(index, role);
-    }
-}
-
 void ExampleSetModel::selectExampleSet(int index)
 {
     if (index != m_selectedExampleSetIndex) {

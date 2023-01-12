@@ -106,8 +106,6 @@ class ExamplesListModel : public Core::ListModel
 public:
     explicit ExamplesListModel(QObject *parent);
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const final;
-
     void updateExamples();
 
     QStringList exampleSets() const;
