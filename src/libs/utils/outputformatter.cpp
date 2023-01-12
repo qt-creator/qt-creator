@@ -115,13 +115,13 @@ FilePath OutputLineParser::absoluteFilePath(const FilePath &filePath) const
 {
     if (filePath.isEmpty())
         return filePath;
-    if (filePath.toFileInfo().isAbsolute())
+    if (filePath.isAbsolutePath())
         return filePath.cleanPath();
     FilePaths candidates;
     for (const FilePath &dir : searchDirectories()) {
-        FilePath candidate = dir.pathAppended(filePath.toString());
+        FilePath candidate = dir.resolvePath(filePath);
         if (candidate.exists() || d->skipFileExistsCheck) {
-            candidate = FilePath::fromString(QDir::cleanPath(candidate.toString()));
+            candidate = candidate.cleanPath();
             if (!candidates.contains(candidate))
                 candidates << candidate;
         }
