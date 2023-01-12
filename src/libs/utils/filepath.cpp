@@ -826,6 +826,12 @@ DeviceFileAccess *FilePath::fileAccess() const
     return access;
 }
 
+bool FilePath::hasFileAccess() const
+{
+    DeviceFileAccess *access = s_deviceHooks.fileAccess(*this);
+    return access;
+}
+
 /// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
 /// to \a filename if that does not have an extension already.
 /// \a filePath is not checked for validity.

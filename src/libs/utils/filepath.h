@@ -207,6 +207,7 @@ public:
     // There are usually other means available. E.g. distinguishing based
     // on FilePath::osType().
     bool needsDevice() const;
+    bool hasFileAccess() const;
 
     bool isSameDevice(const FilePath &other) const;
     bool isSameFile(const FilePath &other) const;
