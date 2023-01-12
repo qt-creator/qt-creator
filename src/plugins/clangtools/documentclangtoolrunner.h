@@ -20,7 +20,7 @@ namespace Utils { class TaskTree; }
 namespace ClangTools {
 namespace Internal {
 
-class AnalyzeOutputData;
+struct AnalyzeOutputData;
 class DiagnosticMark;
 
 class DocumentClangToolRunner : public QObject
