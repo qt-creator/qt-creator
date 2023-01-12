@@ -237,8 +237,8 @@ struct JsonMap<QMap<Key, Value>>
     static QJsonObject json(const QMap<Key, Value> &map)
     {
         QJsonObject output;
-        for (const auto &[key, val] : map.asKeyValueRange())
-            output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+        for (auto it = map.cbegin(), end = map.cend(); it != end; ++it)
+            output[DesignerIconEnums<Key>::toString(it.key())] = JsonMap<Value>::json(it.value());
 
         return output;
     }
