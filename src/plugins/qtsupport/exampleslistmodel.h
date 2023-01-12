@@ -111,8 +111,6 @@ public:
     QStringList exampleSets() const;
     ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
 
-    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
-
 signals:
     void selectedExampleSetChanged(int);
 

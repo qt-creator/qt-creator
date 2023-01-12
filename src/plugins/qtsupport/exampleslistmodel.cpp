@@ -223,6 +223,45 @@ int ExampleSetModel::getExtraExampleSetIndex(int i) const
     return variant.toInt();
 }
 
+static QString resourcePath()
+{
+    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
+    return Core::ICore::resourcePath().normalizedPathName().toString();
+}
+
+static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
+{
+    QPixmap pixmap;
+    if (QPixmapCache::find(url, &pixmap))
+        return pixmap;
+
+    if (url.startsWith("qthelp://")) {
+        QByteArray fetchedData = Core::HelpManager::fileData(url);
+        if (!fetchedData.isEmpty()) {
+            QBuffer imgBuffer(&fetchedData);
+            imgBuffer.open(QIODevice::ReadOnly);
+            QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
+            QImage img = reader.read();
+            img.convertTo(QImage::Format_RGB32);
+            const int dpr = qApp->devicePixelRatio();
+            // boundedTo -> don't scale thumbnails up
+            const QSize scaledSize = Core::ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
+            pixmap = QPixmap::fromImage(
+                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            pixmap.setDevicePixelRatio(dpr);
+        }
+    } else {
+        pixmap.load(url);
+
+        if (pixmap.isNull())
+            pixmap.load(resourcePath() + "/welcomescreen/widgets/" + url);
+    }
+
+    QPixmapCache::insert(url, pixmap);
+
+    return pixmap;
+}
+
 ExamplesListModel::ExamplesListModel(QObject *parent)
     : Core::ListModel(parent)
 {
@@ -232,6 +271,7 @@ ExamplesListModel::ExamplesListModel(QObject *parent)
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &ExamplesListModel::updateExamples);
+    setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
 }
 
 static QString fixStringForTags(const QString &string)
@@ -435,12 +475,6 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
     }
 }
 
-static QString resourcePath()
-{
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Core::ICore::resourcePath().normalizedPathName().toString();
-}
-
 void ExamplesListModel::updateExamples()
 {
     QString examplesInstallPath;
@@ -489,39 +523,6 @@ void ExamplesListModel::updateExamples()
         }
     }
     endResetModel();
-}
-
-QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) const
-{
-    QPixmap pixmap;
-    if (QPixmapCache::find(url, &pixmap))
-        return pixmap;
-
-    if (url.startsWith("qthelp://")) {
-        QByteArray fetchedData = Core::HelpManager::fileData(url);
-        if (!fetchedData.isEmpty()) {
-            QBuffer imgBuffer(&fetchedData);
-            imgBuffer.open(QIODevice::ReadOnly);
-            QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
-            QImage img = reader.read();
-            img.convertTo(QImage::Format_RGB32);
-            const int dpr = qApp->devicePixelRatio();
-            // boundedTo -> don't scale thumbnails up
-            const QSize scaledSize = ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
-            pixmap = QPixmap::fromImage(
-                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-            pixmap.setDevicePixelRatio(dpr);
-        }
-    } else {
-        pixmap.load(url);
-
-        if (pixmap.isNull())
-            pixmap.load(resourcePath() + "/welcomescreen/widgets/" + url);
-    }
-
-    QPixmapCache::insert(url, pixmap);
-
-    return pixmap;
 }
 
 void ExampleSetModel::updateQtVersionList()

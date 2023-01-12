@@ -31,9 +31,6 @@ public:
     void appendItems(const QList<Core::ListItem *> &items);
     const QList<Core::ListItem *> items() const;
     void updateModelIndexesForUrl(const QString &url);
-
-protected:
-    QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const override;
 };
 
 struct Section

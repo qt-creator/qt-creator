@@ -12,6 +12,7 @@
 #include <QStyledItemDelegate>
 #include <QListView>
 
+#include <functional>
 #include <optional>
 
 namespace Utils { class FancyLineEdit; }
@@ -58,23 +59,22 @@ public:
 class CORE_EXPORT ListModel : public QAbstractListModel
 {
 public:
-    enum ListDataRole {
-        ItemRole = Qt::UserRole,
-        ItemImageRole,
-        ItemTagsRole
-    };
+    enum ListDataRole { ItemRole = Qt::UserRole, ItemImageRole, ItemTagsRole };
+
+    using PixmapFunction = std::function<QPixmap(QString)>;
 
     explicit ListModel(QObject *parent);
     ~ListModel() override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    virtual QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url) const = 0;
+    void setPixmapFunction(const PixmapFunction &fetchPixmapAndUpdatePixmapCache);
 
     static const QSize defaultImageSize;
 
 protected:
     QList<ListItem *> m_items;
+    PixmapFunction m_fetchPixmapAndUpdatePixmapCache;
 };
 
 class CORE_EXPORT ListModelFilter : public QSortFilterProxyModel

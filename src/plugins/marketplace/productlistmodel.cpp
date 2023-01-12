@@ -72,6 +72,11 @@ public:
 ProductListModel::ProductListModel(QObject *parent)
     : Core::ListModel(parent)
 {
+    setPixmapFunction([this](const QString &url) -> QPixmap {
+        if (auto sectionedProducts = qobject_cast<SectionedProducts *>(this->parent()))
+            sectionedProducts->queueImageForDownload(url);
+        return {};
+    });
 }
 
 void ProductListModel::appendItems(const QList<Core::ListItem *> &items)
@@ -163,13 +168,6 @@ void SectionedProducts::updateCollections()
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(constructRequest({}));
     connect(reply, &QNetworkReply::finished,
             this, [this, reply]() { onFetchCollectionsFinished(reply); });
-}
-
-QPixmap ProductListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) const
-{
-    if (auto sectionedProducts = qobject_cast<SectionedProducts *>(parent()))
-        sectionedProducts->queueImageForDownload(url);
-    return QPixmap();
 }
 
 void SectionedProducts::onFetchCollectionsFinished(QNetworkReply *reply)
