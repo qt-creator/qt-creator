@@ -14,7 +14,6 @@
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
-class QTabWidget;
 class QToolButton;
 class QAction;
 class QPoint;
@@ -123,7 +122,6 @@ private:
     void loadSettings();
     void storeSettings() const;
 
-    QWidget *m_mainWidget;
     TabWidget *m_tabWidget;
     QVector<RunControlTab> m_runControlTabs;
     int m_runControlCount = 0;

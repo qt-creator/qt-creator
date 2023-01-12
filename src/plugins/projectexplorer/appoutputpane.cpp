@@ -135,7 +135,6 @@ AppOutputPane::RunControlTab::RunControlTab(RunControl *runControl, Core::Output
 }
 
 AppOutputPane::AppOutputPane() :
-    m_mainWidget(new QWidget),
     m_tabWidget(new TabWidget),
     m_stopAction(new QAction(tr("Stop"), this)),
     m_closeCurrentTabAction(new QAction(tr("Close Tab"), this)),
@@ -200,20 +199,16 @@ AppOutputPane::AppOutputPane() :
 
     // Spacer (?)
 
-    auto *layout = new QVBoxLayout;
-    layout->setContentsMargins(0, 0, 0, 0);
     m_tabWidget->setDocumentMode(true);
     m_tabWidget->setTabsClosable(true);
     m_tabWidget->setMovable(true);
     connect(m_tabWidget, &QTabWidget::tabCloseRequested,
             this, [this](int index) { closeTab(index); });
-    layout->addWidget(m_tabWidget);
 
-    connect(m_tabWidget, &QTabWidget::currentChanged, this, &AppOutputPane::tabChanged);
+    connect(m_tabWidget, &QTabWidget::currentChanged,
+            this, &AppOutputPane::tabChanged);
     connect(m_tabWidget, &TabWidget::contextMenuRequested,
             this, &AppOutputPane::contextMenuRequested);
-
-    m_mainWidget->setLayout(layout);
 
     connect(SessionManager::instance(), &SessionManager::aboutToUnloadSession,
             this, &AppOutputPane::aboutToUnloadSession);
@@ -221,7 +216,7 @@ AppOutputPane::AppOutputPane() :
     setupFilterUi("AppOutputPane.Filter");
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
-    setupContext("Core.AppOutputPane", m_mainWidget);
+    setupContext("Core.AppOutputPane", m_tabWidget);
 }
 
 AppOutputPane::~AppOutputPane()
@@ -232,7 +227,7 @@ AppOutputPane::~AppOutputPane()
         delete rt.window;
         delete rt.runControl;
     }
-    delete m_mainWidget;
+    delete m_tabWidget;
     ExtensionSystem::PluginManager::removeObject(m_handler);
     delete m_handler;
 }
@@ -299,7 +294,7 @@ void AppOutputPane::aboutToUnloadSession()
 
 QWidget *AppOutputPane::outputWidget(QWidget *)
 {
-    return m_mainWidget;
+    return m_tabWidget;
 }
 
 QList<QWidget*> AppOutputPane::toolBarWidgets() const
