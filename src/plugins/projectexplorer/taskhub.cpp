@@ -30,7 +30,7 @@ static TextEditor::TextMarkCategory categoryForType(Task::TaskType type)
 {
     switch (type) {
     case Task::Error:
-        return {Tr::tr("Taskhub Error", TASK_MARK_ERROR)};
+        return {Tr::tr("Taskhub Error"), TASK_MARK_ERROR};
     case Task::Warning:
         return {Tr::tr("Taskhub Warning"), TASK_MARK_WARNING};
     default:
