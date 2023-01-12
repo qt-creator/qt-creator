@@ -6,10 +6,10 @@
 #include "clangformat.h"
 
 #include "clangformatconstants.h"
-#include "clangformatoptionspage.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -31,13 +31,12 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ClangFormat::ClangFormat()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
-    menu->menu()->setTitle(tr("&ClangFormat"));
+    menu->menu()->setTitle(Tr::tr("&ClangFormat"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -224,5 +223,4 @@ Command ClangFormat::command(int offset, int length) const
     return c;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

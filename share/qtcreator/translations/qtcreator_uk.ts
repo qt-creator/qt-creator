@@ -38575,7 +38575,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>::Beautifier</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -38613,24 +38613,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Use customized style:</source>
         <translation>Використовувати власний стиль:</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Конфігурація</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Команда Clang Format:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Опції</translation>
     </message>
     <message>
         <source>Use Predefined Style:</source>
@@ -38653,10 +38638,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Використовувати існуючий стиль:</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>Використовувати власний стиль:</translation>
-    </message>
-    <message>
         <source>For action Format Selected Text</source>
         <translation>Для дії &quot;Форматувати виділений текст&quot;</translation>
     </message>
@@ -38664,9 +38645,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Format entire file if no text was selected</source>
         <translation>Форматувати увесь файл при порожньому виділенні</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Назва</translation>
@@ -38686,13 +38664,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Документація для &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -38714,24 +38685,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Edit Configuration</source>
         <translation>Редагувати конфігурацію</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Конфігурація</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Команда Uncrustify:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Опції</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -38743,24 +38699,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Використовувати файл uncrustify.cfg з HOME</translation>
     </message>
     <message>
-        <source>Use self-defined style:</source>
-        <translation type="vanished">Використовувати власний стиль:</translation>
-    </message>
-    <message>
         <source>Uncrustify</source>
         <translation>Uncrustify</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Використовувати власний стиль:</translation>
-    </message>
-    <message>
-        <source>For action Format Selected Text</source>
-        <translation>Для дії &quot;Форматувати виділений текст&quot;</translation>
-    </message>
-    <message>
-        <source>Format entire file if no text was selected</source>
-        <translation>Форматувати увесь файл при порожньому виділенні</translation>
     </message>
 </context>
 <context>
@@ -39209,9 +39149,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Beautifier</source>
         <translation>Форматування коду</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation type="vanished">Неможливо створити тимчасовий файл &quot;%1&quot;: %2.</translation>
@@ -39265,7 +39202,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>ClangFormatSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>No description available.</source>
         <translation>Опис відсутній.</translation>

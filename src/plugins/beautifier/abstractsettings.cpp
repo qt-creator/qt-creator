@@ -5,6 +5,7 @@
 
 #include "beautifierconstants.h"
 #include "beautifierplugin.h"
+#include "beautifiertr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -274,20 +275,20 @@ void AbstractSettings::save()
 
         const QFileInfo fi(styleFileName(iStyles.key()));
         if (!(m_styleDir.mkpath(fi.absolutePath()))) {
-            BeautifierPlugin::showError(tr("Cannot save styles. %1 does not exist.")
+            BeautifierPlugin::showError(Tr::tr("Cannot save styles. %1 does not exist.")
                                         .arg(fi.absolutePath()));
             continue;
         }
 
         FileSaver saver(FilePath::fromUserInput(fi.absoluteFilePath()));
         if (saver.hasError()) {
-            BeautifierPlugin::showError(tr("Cannot open file \"%1\": %2.")
+            BeautifierPlugin::showError(Tr::tr("Cannot open file \"%1\": %2.")
                                         .arg(saver.filePath().toUserOutput())
                                         .arg(saver.errorString()));
         } else {
             saver.write(iStyles.value().toLocal8Bit());
             if (!saver.finalize()) {
-                BeautifierPlugin::showError(tr("Cannot save file \"%1\": %2.")
+                BeautifierPlugin::showError(Tr::tr("Cannot save file \"%1\": %2.")
                                             .arg(saver.filePath().toUserOutput())
                                             .arg(saver.errorString()));
             }
@@ -337,7 +338,7 @@ void AbstractSettings::readDocumentation()
 {
     const QString filename = documentationFilePath();
     if (filename.isEmpty()) {
-        BeautifierPlugin::showError(tr("No documentation file specified."));
+        BeautifierPlugin::showError(Tr::tr("No documentation file specified."));
         return;
     }
 
@@ -346,7 +347,7 @@ void AbstractSettings::readDocumentation()
         createDocumentationFile();
 
     if (!file.open(QIODevice::ReadOnly)) {
-        BeautifierPlugin::showError(tr("Cannot open documentation file \"%1\".").arg(filename));
+        BeautifierPlugin::showError(Tr::tr("Cannot open documentation file \"%1\".").arg(filename));
         return;
     }
 
@@ -354,7 +355,7 @@ void AbstractSettings::readDocumentation()
     if (!xml.readNextStartElement())
         return;
     if (xml.name() != QLatin1String(Constants::DOCUMENTATION_XMLROOT)) {
-        BeautifierPlugin::showError(tr("The file \"%1\" is not a valid documentation file.")
+        BeautifierPlugin::showError(Tr::tr("The file \"%1\" is not a valid documentation file.")
                                     .arg(filename));
         return;
     }
@@ -385,7 +386,7 @@ void AbstractSettings::readDocumentation()
     }
 
     if (xml.hasError()) {
-        BeautifierPlugin::showError(tr("Cannot read documentation file \"%1\": %2.")
+        BeautifierPlugin::showError(Tr::tr("Cannot read documentation file \"%1\": %2.")
                                     .arg(filename).arg(xml.errorString()));
     }
 }

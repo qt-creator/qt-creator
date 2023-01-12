@@ -5,10 +5,8 @@
 
 #include <QtGlobal>
 
-namespace Beautifier {
-namespace Constants {
+namespace Beautifier::Constants {
 
-const char CLANGFORMAT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("Beautifier::Internal::ClangFormat", "ClangFormat");
+const char CLANGFORMAT_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "ClangFormat");
 
-} // namespace Constants
-} // namespace Beautifier
+} // Beautifier::Constants

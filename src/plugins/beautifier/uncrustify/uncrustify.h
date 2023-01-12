@@ -8,13 +8,10 @@
 #include "uncrustifyoptionspage.h"
 #include "uncrustifysettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class Uncrustify : public BeautifierAbstractTool
 {
-    Q_OBJECT
-
 public:
     Uncrustify();
 
@@ -35,5 +32,4 @@ private:
     UncrustifyOptionsPage m_page{&m_settings};
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

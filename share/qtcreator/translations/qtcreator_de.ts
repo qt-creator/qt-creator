@@ -30793,7 +30793,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
+    <name>::Beautifier</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -30810,9 +30810,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Dokumentation für &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation>Bearbeiten</translation>
@@ -31099,9 +31096,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>Bea&amp;utifier</source>
         <translation>Bea&amp;utifier</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Error in Beautifier: %1</source>
         <translation>Fehler im Beautifier: %1</translation>
@@ -39350,7 +39344,7 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Die Stile konnten nicht gespeichert werden. %1 existiert nicht.</translation>
@@ -45435,7 +45429,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle</name>
+    <name>::Beautifier</name>
     <message>
         <source>Options</source>
         <translation type="unfinished">Einstellungen</translation>
@@ -45480,17 +45474,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>&amp;Artistic Style</source>
         <translation>&amp;Artistic Style</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat</name>
-    <message>
-        <source>Options</source>
-        <translation type="unfinished">Einstellungen</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation type="unfinished">Verwende angepassten Stil:</translation>
-    </message>
     <message>
         <source>Use predefined style:</source>
         <translation type="unfinished">Verwende vorgegebenen Stil:</translation>
@@ -45500,16 +45483,8 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation type="unfinished">Fallback-Stil:</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation type="unfinished">Konfiguration</translation>
-    </message>
-    <message>
         <source>Clang Format command:</source>
         <translation type="unfinished">Ausführbare Datei von Clang Format:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation type="unfinished">Auf MIME-Typen beschränken:</translation>
     </message>
     <message>
         <source>Clang Format</source>
@@ -47402,7 +47377,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::GeneralOptionsPageWidget</name>
+    <name>::Beautifier</name>
     <message>
         <source>Enable auto format on file save</source>
         <translation type="unfinished">Beim Speichern einer Datei automatisch formatieren</translation>
@@ -47410,10 +47385,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Tool:</source>
         <translation type="unfinished">Werkzeug:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation type="unfinished">Auf MIME-Typen beschränken:</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
@@ -48090,25 +48061,11 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal</name>
-    <message>
-        <source>Artistic Style</source>
-        <translation>Artistic Style</translation>
-    </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>No description available.</source>
         <translation>Keine Beschreibung verfügbar.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>

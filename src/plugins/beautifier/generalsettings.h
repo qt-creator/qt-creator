@@ -7,8 +7,7 @@
 
 #include <QList>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class GeneralSettings
 {
@@ -40,5 +39,4 @@ private:
     QList<Utils::MimeType> m_autoFormatMime;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

@@ -8,13 +8,10 @@
 #include "artisticstyleoptionspage.h"
 #include "artisticstylesettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ArtisticStyle : public BeautifierAbstractTool
 {
-    Q_OBJECT
-
 public:
     ArtisticStyle();
 
@@ -33,5 +30,4 @@ private:
     ArtisticStyleOptionsPage m_page{&m_settings};
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

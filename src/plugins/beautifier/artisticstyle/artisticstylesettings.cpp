@@ -3,8 +3,6 @@
 
 #include "artisticstylesettings.h"
 
-#include "artisticstyleconstants.h"
-
 #include "../beautifierconstants.h"
 
 #include <coreplugin/icore.h>
@@ -21,8 +19,7 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 const char USE_OTHER_FILES[]          = "useOtherFiles";
 const char USE_SPECIFIC_CONFIG_FILE[] = "useSpecificConfigFile";
@@ -187,5 +184,4 @@ void ArtisticStyleSettings::createDocumentationFile() const
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

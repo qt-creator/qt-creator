@@ -6,10 +6,10 @@
 #include "artisticstyle.h"
 
 #include "artisticstyleconstants.h"
-#include "artisticstyleoptionspage.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -35,13 +35,12 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ArtisticStyle::ArtisticStyle()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
-    menu->menu()->setTitle(tr("&Artistic Style"));
+    menu->menu()->setTitle(Tr::tr("&Artistic Style"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
@@ -68,7 +67,7 @@ void ArtisticStyle::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+                                        Tr::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
     } else {
         formatCurrentFile(command(cfgFileName));
     }
@@ -143,5 +142,4 @@ Command ArtisticStyle::command(const QString &cfgFile) const
     return command;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

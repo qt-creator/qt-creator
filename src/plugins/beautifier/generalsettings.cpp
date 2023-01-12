@@ -3,21 +3,17 @@
 
 #include "generalsettings.h"
 
-#include "beautifierconstants.h"
-
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/mimeutils.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
-namespace {
 const char AUTO_FORMAT_TOOL[]                 = "autoFormatTool";
 const char AUTO_FORMAT_MIME[]                 = "autoFormatMime";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "autoFormatOnlyCurrentProject";
-}
 
 static GeneralSettings *m_instance;
 
@@ -117,5 +113,4 @@ void GeneralSettings::setAutoFormatOnlyCurrentProject(bool autoFormatOnlyCurrent
     m_autoFormatOnlyCurrentProject = autoFormatOnlyCurrentProject;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

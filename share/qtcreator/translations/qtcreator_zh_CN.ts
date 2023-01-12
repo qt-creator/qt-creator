@@ -4766,9 +4766,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Beautifier</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal</name>
     <message>
         <source>Artistic Style</source>
         <translation type="unfinished"></translation>
@@ -4777,9 +4774,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Uncrustify</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::AbstractSettings</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation type="unfinished"></translation>
@@ -4808,9 +4802,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle</name>
     <message>
         <source>&amp;Artistic Style</source>
         <translation type="unfinished"></translation>
@@ -4852,13 +4843,6 @@ Local pulls are not applied to the master branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
-    <message>
         <source>Error in Beautifier: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4896,23 +4880,12 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat</name>
     <message>
         <source>&amp;ClangFormat</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>ClangFormat</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="unfinished">选项</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4924,15 +4897,7 @@ Local pulls are not applied to the master branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation type="unfinished">配置</translation>
-    </message>
-    <message>
         <source>Clang Format command:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4968,19 +4933,9 @@ Local pulls are not applied to the master branch.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Uncrustify</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatSettings</name>
-    <message>
         <source>No description available.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation type="unfinished"></translation>
@@ -4997,9 +4952,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Documentation for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation type="unfinished">编辑</translation>
@@ -5020,19 +4972,12 @@ Local pulls are not applied to the master branch.</source>
         <source>Edit Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPageWidget</name>
     <message>
         <source>Enable auto format on file save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Tool:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5047,9 +4992,6 @@ Local pulls are not applied to the master branch.</source>
         <source>General</source>
         <translation type="unfinished">概要</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation type="unfinished"></translation>

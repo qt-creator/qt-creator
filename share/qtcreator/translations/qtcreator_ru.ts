@@ -4588,9 +4588,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Bea&amp;utifier</source>
         <translation>Стили&amp;затор</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal</name>
     <message>
         <source>Artistic Style</source>
         <translation>Artistic Style</translation>
@@ -4599,9 +4596,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Uncrustify</source>
         <translation>Uncrustify</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::AbstractSettings</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Невозможно сохранить стили. %1 не существует.</translation>
@@ -4630,24 +4624,14 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Невозможно прочитать файл документации «%1»: %2.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle</name>
     <message>
         <source>AStyle (*.astylerc)</source>
         <translation>AStyle (*.astylerc)</translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation>Artistic Style</translation>
-    </message>
-    <message>
         <source>&amp;Artistic Style</source>
         <translation>&amp;Artistic Style</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyleOptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфигурация</translation>
@@ -4681,9 +4665,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Use customized style:</source>
         <translation>Использовать особый стиль:</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Error in Beautifier: %1</source>
         <translation>Ошибка стилизатора: %1</translation>
@@ -4717,9 +4698,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>Команда %1</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat</name>
     <message>
         <source>Clang Format</source>
         <translation>Clang Format</translation>
@@ -4729,27 +4707,12 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Файл Uncrustify (*.cfg)</translation>
     </message>
     <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-    <message>
         <source>&amp;ClangFormat</source>
         <translation>&amp;ClangFormat</translation>
     </message>
     <message>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatOptionsPage</name>
-    <message>
-        <source>Options</source>
-        <translation>Параметры</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Использовать особый стиль:</translation>
     </message>
     <message>
         <source>Use predefined style:</source>
@@ -4760,27 +4723,13 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Резервный стиль:</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Конфигурация</translation>
-    </message>
-    <message>
         <source>Clang Format command:</source>
         <translation>Команда Clang Format:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Только для MIME-типов:</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatSettings</name>
-    <message>
         <source>No description available.</source>
         <translation>Описание недоступно.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Имя</translation>
@@ -4797,9 +4746,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Описание «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation>Изменить</translation>
@@ -4820,9 +4766,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Edit Configuration</source>
         <translation>Изменение конфигурации</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Автоматическое форматирование при сохранении</translation>
@@ -4836,45 +4779,20 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Утилита:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Только для MIME-типов:</translation>
-    </message>
-    <message>
         <source>Restrict to files contained in the current project</source>
         <translation>Только для файлов текущего проекта</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPageWidget</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::UncrustifyOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>Конфигурация</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Команда Uncrustify:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Только для MIME-типов:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Параметры</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -4888,10 +4806,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Use file uncrustify.cfg in HOME</source>
         <extracomment>HOME is replaced by the user&apos;s home directory</extracomment>
         <translation>Использовать uncrustify.cfg из HOME</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Использовать особый стиль:</translation>
     </message>
     <message>
         <source>For action Format Selected Text</source>

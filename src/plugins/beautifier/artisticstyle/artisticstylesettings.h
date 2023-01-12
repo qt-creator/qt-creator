@@ -7,13 +7,10 @@
 
 #include <utils/fileutils.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ArtisticStyleSettings : public AbstractSettings
 {
-    Q_OBJECT
-
 public:
     ArtisticStyleSettings();
 
@@ -39,5 +36,4 @@ public:
     void createDocumentationFile() const override;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

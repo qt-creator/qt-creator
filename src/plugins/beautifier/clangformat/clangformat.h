@@ -8,13 +8,10 @@
 #include "clangformatoptionspage.h"
 #include "clangformatsettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ClangFormat : public BeautifierAbstractTool
 {
-    Q_OBJECT
-
 public:
     ClangFormat();
 
@@ -39,5 +36,4 @@ private:
     ClangFormatOptionsPage m_page{&m_settings};
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

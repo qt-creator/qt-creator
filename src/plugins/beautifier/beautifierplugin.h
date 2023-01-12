@@ -6,8 +6,7 @@
 #include <extensionsystem/iplugin.h>
 #include <texteditor/command.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class BeautifierPlugin : public ExtensionSystem::IPlugin
 {
@@ -30,5 +29,4 @@ private:
     ShutdownFlag aboutToShutdown() override;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

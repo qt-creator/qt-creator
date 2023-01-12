@@ -12,13 +12,10 @@ class IDocument;
 class IEditor;
 }
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal  {
 
 class BeautifierAbstractTool : public QObject
 {
-    Q_OBJECT
-
 public:
     BeautifierAbstractTool() = default;
 
@@ -35,5 +32,4 @@ public:
     virtual bool isApplicable(const Core::IDocument *document) const = 0;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

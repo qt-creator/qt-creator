@@ -5,10 +5,8 @@
 
 #include <QtGlobal>
 
-namespace Beautifier {
-namespace Constants {
+namespace Beautifier::Constants {
 
-const char UNCRUSTIFY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("Beautifier::Internal", "Uncrustify");
+const char UNCRUSTIFY_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "Uncrustify");
 
-} // namespace Constants
-} // namespace Beautifier
+} // Beautifier::Constants

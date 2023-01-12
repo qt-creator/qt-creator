@@ -1581,7 +1581,7 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>::Beautifier</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -1616,21 +1616,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Koristi prilagođeni stil:</translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation>Artistic Style</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Koristi prilagođeni stil:</translation>
-    </message>
-    <message>
         <source>Use predefined style:</source>
         <translation>Koristi predefinirani stil:</translation>
     </message>
@@ -1639,24 +1624,13 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Rezervni stil:</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>Konfiguracija</translation>
-    </message>
-    <message>
         <source>Clang Format command:</source>
         <translation>Naredba za Clang format:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
     </message>
     <message>
         <source>Clang Format</source>
         <translation>Clang format</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -1673,9 +1647,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Dokumentacija za &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation>Uredi</translation>
@@ -1696,9 +1667,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>Edit Configuration</source>
         <translation>Uredi konfiguraciju</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Automatsko formatiranje prilikom spremanja datoteke</translation>
@@ -1712,10 +1680,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <translation>Alat:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
-    </message>
-    <message>
         <source>Restrict to files contained in the current project</source>
         <translation>Ograniči na datoteke koje su sadržane u ovom projektu</translation>
     </message>
@@ -1723,24 +1687,9 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguracija</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Naredba za uncrustify:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Ograniči na MIME vrste:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -1754,10 +1703,6 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
         <source>Use file uncrustify.cfg in HOME</source>
         <extracomment>HOME is replaced by the user&apos;s home directory</extracomment>
         <translation>Koristi datoteku uncrustify.cfg u tvom osnovnom direktoriju</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Koristi prilagođeni stil:</translation>
     </message>
     <message>
         <source>For action Format Selected Text</source>
@@ -15844,7 +15789,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Nemoguće spremiti stil. %1 ne postoji.</translation>
@@ -15873,9 +15818,6 @@ Check the test environment.</source>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
     <message>
         <source>&amp;Artistic Style</source>
         <translation type="unfinished"></translation>
@@ -15884,9 +15826,6 @@ Check the test environment.</source>
         <source>Artistic Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPageWidget</name>
     <message>
         <source>AStyle (*.astylerc)</source>
         <translation type="unfinished"></translation>
@@ -15902,9 +15841,6 @@ Check the test environment.</source>
         <source>Beautifier</source>
         <translation>Beautifier</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Error in Beautifier: %1</source>
         <translation>Beautifier greška: %1</translation>
@@ -15938,9 +15874,6 @@ Check the test environment.</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>%1 naredba</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
     <message>
         <source>&amp;ClangFormat</source>
         <translation>&amp;ClangFormat</translation>
@@ -15949,27 +15882,14 @@ Check the test environment.</source>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>Opis nije dostupan.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>
     </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPageWidget</name>
     <message>
         <source>Uncrustify file (*.cfg)</source>
         <translation>Uncrustify datoteka (*.cfg)</translation>

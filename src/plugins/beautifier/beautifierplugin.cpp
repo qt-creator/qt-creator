@@ -37,8 +37,6 @@
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QScrollBar>
@@ -46,8 +44,7 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 bool isAutoFormatApplicable(const Core::IDocument *document,
                             const QList<Utils::MimeType> &allowedMimeTypes)
@@ -176,49 +173,48 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 
 void BeautifierPlugin::showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(tr("Error in Beautifier: %1").arg(error.trimmed()));
+    Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
 }
 
 QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
 {
-    return tr("Cannot get configuration file for %1.").arg(command);
+    return Tr::tr("Cannot get configuration file for %1.").arg(command);
 }
 
 QString BeautifierPlugin::msgFormatCurrentFile()
 {
     //: Menu entry
-    return tr("Format &Current File");
+    return Tr::tr("Format &Current File");
 }
 
 QString BeautifierPlugin::msgFormatSelectedText()
 {
     //: Menu entry
-    return tr("Format &Selected Text");
+    return Tr::tr("Format &Selected Text");
 }
 
 QString BeautifierPlugin::msgFormatAtCursor()
 {
     //: Menu entry
-    return tr("&Format at Cursor");
+    return Tr::tr("&Format at Cursor");
 }
 
 QString BeautifierPlugin::msgFormatLines()
 {
     //: Menu entry
-    return tr("Format &Line(s)");
+    return Tr::tr("Format &Line(s)");
 }
 
 QString BeautifierPlugin::msgDisableFormattingSelectedText()
 {
     //: Menu entry
-    return tr("&Disable Formatting for Selected Text");
+    return Tr::tr("&Disable Formatting for Selected Text");
 }
 
 QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
 {
     //: File dialog title for path chooser when choosing binary
-    return tr("%1 Command").arg(command);
+    return Tr::tr("%1 Command").arg(command);
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

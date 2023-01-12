@@ -3,8 +3,6 @@
 
 #include "uncrustifysettings.h"
 
-#include "uncrustifyconstants.h"
-
 #include "../beautifierconstants.h"
 
 #include <coreplugin/icore.h>
@@ -18,8 +16,7 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 const char USE_OTHER_FILES[]               = "useOtherFiles";
 const char USE_HOME_FILE[]                 = "useHomeFile";
@@ -188,5 +185,4 @@ void UncrustifySettings::createDocumentationFile() const
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

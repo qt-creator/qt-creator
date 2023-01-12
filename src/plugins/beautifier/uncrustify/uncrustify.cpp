@@ -6,10 +6,10 @@
 #include "uncrustify.h"
 
 #include "uncrustifyconstants.h"
-#include "uncrustifyoptionspage.h"
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../beautifiertr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -18,12 +18,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/formattexteditor.h>
 #include <texteditor/texteditor.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 
 #include <QAction>
 #include <QMenu>
@@ -31,13 +34,12 @@
 
 using namespace TextEditor;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 Uncrustify::Uncrustify()
 {
     Core::ActionContainer *menu = Core::ActionManager::createMenu("Uncrustify.Menu");
-    menu->menu()->setTitle(tr("&Uncrustify"));
+    menu->menu()->setTitle(Tr::tr("&Uncrustify"));
 
     m_formatFile = new QAction(BeautifierPlugin::msgFormatCurrentFile(), this);
     Core::Command *cmd
@@ -73,7 +75,7 @@ void Uncrustify::formatFile()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
+                                        Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
     } else {
         formatCurrentFile(command(cfgFileName));
     }
@@ -84,7 +86,7 @@ void Uncrustify::formatSelectedText()
     const QString cfgFileName = configurationFile();
     if (cfgFileName.isEmpty()) {
         BeautifierPlugin::showError(BeautifierPlugin::msgCannotGetConfigurationFile(
-                                        tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
+                                        Tr::tr(Constants::UNCRUSTIFY_DISPLAY_NAME)));
         return;
     }
 
@@ -175,5 +177,4 @@ Command Uncrustify::command(const QString &cfgFile, bool fragment) const
     return command;
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

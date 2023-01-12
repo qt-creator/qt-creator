@@ -16,15 +16,12 @@ class QStringListModel;
 class QTextDocument;
 QT_END_NAMESPACE
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class AbstractSettings;
 
 class ConfigurationSyntaxHighlighter : public QSyntaxHighlighter
 {
-    Q_OBJECT
-
 public:
     explicit ConfigurationSyntaxHighlighter(QTextDocument *parent);
     void setKeywords(const QStringList &keywords);
@@ -68,5 +65,4 @@ private:
     QString m_lastDocumentation;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

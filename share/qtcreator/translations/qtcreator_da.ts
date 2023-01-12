@@ -3106,9 +3106,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Bea&amp;utifier</source>
         <translation>Bea&amp;utifier</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::AbstractSettings</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Kan ikke gemme stile. %1 findes ikke.</translation>
@@ -3137,9 +3134,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Kan ikke læse dokumentationsfilen &quot;%1&quot;: %2.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
     <message>
         <source>&amp;Artistic Style</source>
         <translation>&amp;Artistic Style</translation>
@@ -3148,9 +3142,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Artistic Style</source>
         <translation>Artistic Style</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -3177,10 +3168,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Brug brugerdefineret stil:</translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation>Artistic Style</translation>
-    </message>
-    <message>
         <source>Restrict to MIME types:</source>
         <translation>Begræns til MIME-typer:</translation>
     </message>
@@ -3188,16 +3175,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Use specific config file:</source>
         <translation>Brug specifik konfigurationsfil:</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPageWidget</name>
     <message>
         <source>AStyle (*.astylerc)</source>
         <translation>AStyle (*.astylerc)</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Kan ikke oprette midlertidig fil: &quot;%1&quot;: %2.</translation>
@@ -3263,9 +3244,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>%1-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
     <message>
         <source>&amp;ClangFormat</source>
         <translation>&amp;ClangFormat</translation>
@@ -3274,28 +3252,13 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguration</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Clang format-kommando:</translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Valgmuligheder</translation>
-    </message>
-    <message>
         <source>Use predefined style:</source>
         <translation>Brug foruddefineret stil:</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>Brug brugerdefineret stil:</translation>
     </message>
     <message>
         <source>Clang Format</source>
@@ -3306,19 +3269,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Fallback-stil:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Begræns til MIME-typer:</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
-    <message>
         <source>No description available.</source>
         <translation>Ingen tilgængelig beskrivelse.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
@@ -3335,9 +3288,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Dokumentation for &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
     <message>
         <source>Edit</source>
         <translation>Rediger</translation>
@@ -3358,9 +3308,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Edit Configuration</source>
         <translation>Rediger konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Automatisk formatering når fil gemmes</translation>
@@ -3374,10 +3321,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Værktøj:</translation>
     </message>
     <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Begræns til MIME-typer:</translation>
-    </message>
-    <message>
         <source>Restrict to files contained in the current project</source>
         <translation>Begræns til filer som er i det aktuelle projekt</translation>
     </message>
@@ -3385,9 +3328,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>General</source>
         <translation>Generelt</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>
@@ -3396,20 +3336,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Uncrustify</source>
         <translation>Uncrustify</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguration</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Uncrustify-kommando:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Valgmuligheder</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -3421,10 +3350,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Brug filen uncrustify.cfg i Hjem</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>Brug brugerdefineret stil:</translation>
-    </message>
-    <message>
         <source>For action Format Selected Text</source>
         <translation>Til handlingen Formatér markeret tekst</translation>
     </message>
@@ -3433,20 +3358,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Formatér hele filen hvis ingen tekst var markeret</translation>
     </message>
     <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Begræns til MIME-typer:</translation>
-    </message>
-    <message>
         <source>Use file specific uncrustify.cfg</source>
         <translation>Brug filspecifik uncrustify.cfg</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPageWidget</name>
     <message>
         <source>Uncrustify file (*.cfg)</source>
         <translation>Uncrustify-fil (*.cfg)</translation>

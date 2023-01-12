@@ -5,10 +5,8 @@
 
 #include <QtGlobal>
 
-namespace Beautifier {
-namespace Constants {
+namespace Beautifier::Constants {
 
-const char ARTISTICSTYLE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("Beautifier::Internal", "Artistic Style");
+const char ARTISTICSTYLE_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("::Beautifier", "Artistic Style");
 
-} // namespace Constants
-} // namespace Beautifier
+} // Beautifier::Constants

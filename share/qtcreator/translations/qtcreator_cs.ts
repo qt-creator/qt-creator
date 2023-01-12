@@ -58872,7 +58872,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>::Beautifier</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -58905,24 +58905,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Artistic Style</source>
         <translation>Umělecký styl</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Nastavení</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Příkaz pro formátování Clang:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
     </message>
     <message>
         <source>Use Predefined Style:</source>
@@ -58940,9 +58925,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Clang Format</source>
         <translation>Formát Clang</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -58958,13 +58940,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Documentation for &apos;%1&apos;</source>
         <translation>Dokumentace pro &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -58986,24 +58961,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Edit Configuration</source>
         <translation>Upravit nastavení</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Nastavení</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation type="unfinished">Příkaz Uncrustify:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -59012,10 +58972,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Use $HOME/uncrustify.cfg</source>
         <translation>Použít $HOME/uncrustify.cfg</translation>
-    </message>
-    <message>
-        <source>Use self-defined style:</source>
-        <translation>Použít vlastní styl:</translation>
     </message>
     <message>
         <source>Uncrustify</source>
@@ -59495,9 +59451,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Beautifier</source>
         <translation>Zkrášlovadlo</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nepodařilo se vytvořit žádný dočasný soubor v &quot;%1&quot;: %2.</translation>
@@ -59535,7 +59488,7 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>ClangFormatSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>No description available.</source>
         <translation>Popis nedostupný.</translation>

@@ -33133,7 +33133,7 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>::Beautifier</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -33171,24 +33171,9 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Restrict to MIME types:</source>
         <translation>制限する MIME タイプ:</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>設定</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Clang フォーマットコマンド:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
     </message>
     <message>
         <source>Clang Format</source>
@@ -33199,10 +33184,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <translation>定義済みスタイルを使用する:</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>カスタムスタイルを使用する:</translation>
-    </message>
-    <message>
         <source>For action Format Selected Text</source>
         <translation>選択された文字列を整形するアクション用</translation>
     </message>
@@ -33210,13 +33191,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Format entire file if no text was selected</source>
         <translation>未選択時にはファイル全体を整形する</translation>
     </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>名前</translation>
@@ -33232,13 +33206,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
     <message>
         <source>Documentation for &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のドキュメント</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -33260,24 +33227,9 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Edit Configuration</source>
         <translation>設定の編集</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>設定</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation>Uncrustify コマンド:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>
@@ -33291,22 +33243,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Use file uncrustify.cfg in HOME</source>
         <extracomment>HOME is replaced by the user&apos;s home directory</extracomment>
         <translation>HOME にある uncrustify.cfg ファイルを使用する</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>カスタムスタイルを使用する:</translation>
-    </message>
-    <message>
-        <source>For action Format Selected Text</source>
-        <translation>選択された文字列を整形するアクション用</translation>
-    </message>
-    <message>
-        <source>Format entire file if no text was selected</source>
-        <translation>未選択時にはファイル全体を整形する</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
     </message>
 </context>
 <context>
@@ -33636,7 +33572,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>スタイルを保存できません。%1 が存在しません。</translation>
@@ -33672,9 +33608,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Beautifier</source>
         <translation>コード整形</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>一時ファイル &quot;%1&quot; を作成できません: %2.</translation>
@@ -33730,9 +33663,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>%1 コマンド</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>記述が見つかりません。</translation>
@@ -44167,11 +44097,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
+    <name>::Beautifier</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>ファイル保存時に自動的に整形する</translation>
@@ -44183,10 +44109,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Tool:</source>
         <translation>ツール:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
@@ -44388,24 +44310,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
-    <message>
-        <source>Artistic Style</source>
-        <translation>Artistic スタイル</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
+    <name>::Beautifier</name>
     <message>
         <source>ClangFormat</source>
         <translation>Clang フォーマット</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
     </message>
 </context>
 <context>
@@ -45158,110 +45066,14 @@ Output:
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyleOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>設定</translation>
-    </message>
-    <message>
-        <source>Artistic Style command:</source>
-        <translation>Artistic スタイルコマンド:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
-    </message>
-    <message>
-        <source>Use file *.astylerc defined in project files</source>
-        <translation>プロジェクトファイルに定義されている *.astylerc ファイルを使用する</translation>
-    </message>
-    <message>
-        <source>Use file .astylerc or astylerc in HOME</source>
-        <extracomment>HOME is replaced by the user&apos;s home directory</extracomment>
-        <translation>HOME にある .astylerc か astylerc ファイルを使用する</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>カスタムスタイルを使用する:</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatOptionsPage</name>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>カスタムスタイルを使用する:</translation>
-    </message>
-    <message>
-        <source>Use predefined style:</source>
-        <translation>定義済みスタイルを使用する:</translation>
-    </message>
+    <name>::Beautifier</name>
     <message>
         <source>Fallback style:</source>
         <translation>フォールバックスタイル:</translation>
     </message>
     <message>
-        <source>Configuration</source>
-        <translation>設定</translation>
-    </message>
-    <message>
-        <source>Clang Format command:</source>
-        <translation>Clang Format コマンド:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::UncrustifyOptionsPage</name>
-    <message>
-        <source>Configuration</source>
-        <translation>設定</translation>
-    </message>
-    <message>
-        <source>Uncrustify command:</source>
-        <translation>Uncrustify コマンド:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>制限する MIME タイプ:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
-    </message>
-    <message>
-        <source>Use file uncrustify.cfg defined in project files</source>
-        <translation>プロジェクトファイルに定義されている uncrustify.cfg ファイルを使用する</translation>
-    </message>
-    <message>
         <source>Use file specific uncrustify.cfg</source>
         <translation>ファイル固有のuncrustify.cfgを使用する</translation>
-    </message>
-    <message>
-        <source>Use file uncrustify.cfg in HOME</source>
-        <extracomment>HOME is replaced by the user&apos;s home directory</extracomment>
-        <translation>HOME にある uncrustify.cfg ファイルを使用する</translation>
-    </message>
-    <message>
-        <source>Use customized style:</source>
-        <translation>カスタムスタイルを使用する:</translation>
-    </message>
-    <message>
-        <source>For action Format Selected Text</source>
-        <translation>選択した文字列を整形するアクション用</translation>
-    </message>
-    <message>
-        <source>Format entire file if no text was selected</source>
-        <translation>未選択時にはファイル全体を整形する</translation>
     </message>
 </context>
 <context>
@@ -47296,7 +47108,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle</name>
+    <name>::Beautifier</name>
     <message>
         <source>&amp;Artistic Style</source>
         <translation>&amp;Artistic スタイル</translation>
@@ -47306,60 +47118,13 @@ The name of the release build configuration created by default for a qmake proje
         <translation>AStyle (*.astylerc)</translation>
     </message>
     <message>
-        <source>Artistic Style</source>
-        <translation>Artistic スタイル</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal</name>
-    <message>
-        <source>Artistic Style</source>
-        <translation>Artistic スタイル</translation>
-    </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat</name>
-    <message>
         <source>&amp;ClangFormat</source>
         <translation>&amp;Clang フォーマット</translation>
-    </message>
-    <message>
-        <source>ClangFormat</source>
-        <translation>Clang フォーマット</translation>
-    </message>
-    <message>
-        <source>Clang Format</source>
-        <translation>Clang フォーマット</translation>
     </message>
     <message>
         <source>Uncrustify file (*.cfg)</source>
         <translation>Uncrustifyファイル (*.cfg)</translation>
     </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation>Uncrustify</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormatSettings</name>
-    <message>
-        <source>No description available.</source>
-        <translation>記述が見つかりません。</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::GeneralOptionsPageWidget</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify</name>
     <message>
         <source>&amp;Uncrustify</source>
         <translation>&amp;Uncrustify</translation>

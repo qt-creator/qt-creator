@@ -19,8 +19,6 @@ class ConfigurationEditor;
 
 class ConfigurationDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     explicit ConfigurationDialog(QWidget *parent = nullptr);
     ~ConfigurationDialog() override;

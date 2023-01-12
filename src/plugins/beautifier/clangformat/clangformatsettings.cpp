@@ -3,17 +3,15 @@
 
 #include "clangformatsettings.h"
 
-#include "clangformatconstants.h"
-
 #include "../beautifierconstants.h"
+#include "../beautifiertr.h"
 
 #include <QDateTime>
 #include <QXmlStreamWriter>
 
 #include <coreplugin/icore.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 const char USE_PREDEFINED_STYLE[]        = "usePredefinedStyle";
 const char PREDEFINED_STYLE[]            = "predefinedStyle";
@@ -111,7 +109,7 @@ void ClangFormatSettings::createDocumentationFile() const
         const QString options = line.right(line.size() - firstSpace).trimmed();
         const QString text = "<p><span class=\"option\">" + keyword
                 + "</span> <span class=\"param\">" + options
-                + "</span></p><p>" + tr("No description available.") + "</p>";
+                + "</span></p><p>" + Tr::tr("No description available.") + "</p>";
         stream.writeStartElement(Constants::DOCUMENTATION_XMLENTRY);
         stream.writeTextElement(Constants::DOCUMENTATION_XMLKEY, keyword);
         stream.writeTextElement(Constants::DOCUMENTATION_XMLDOC, text);
@@ -215,5 +213,4 @@ void ClangFormatSettings::readStyles()
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

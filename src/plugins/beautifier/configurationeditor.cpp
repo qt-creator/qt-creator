@@ -14,8 +14,7 @@
 #include <QScrollBar>
 #include <QStringListModel>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 ConfigurationSyntaxHighlighter::ConfigurationSyntaxHighlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
@@ -233,5 +232,4 @@ void ConfigurationEditor::updateDocumentation()
     emit documentationChanged(word, doc);
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

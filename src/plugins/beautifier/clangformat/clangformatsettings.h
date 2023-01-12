@@ -5,13 +5,10 @@
 
 #include "../abstractsettings.h"
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ClangFormatSettings : public AbstractSettings
 {
-    Q_OBJECT
-
 public:
     explicit ClangFormatSettings();
 
@@ -40,5 +37,4 @@ private:
     void readStyles() override;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

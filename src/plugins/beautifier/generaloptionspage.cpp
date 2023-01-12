@@ -19,8 +19,6 @@ namespace Beautifier::Internal {
 
 class GeneralOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Beautifier::Internal::GeneralOptionsPageWidget)
-
 public:
     explicit GeneralOptionsPageWidget(const QStringList &toolIds);
 
@@ -39,20 +37,20 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
 
     auto settings = GeneralSettings::instance();
 
-    m_autoFormat = new QCheckBox(tr("Enable auto format on file save"));
+    m_autoFormat = new QCheckBox(Tr::tr("Enable auto format on file save"));
     m_autoFormat->setChecked(settings->autoFormatOnSave());
 
-    auto toolLabel = new QLabel(tr("Tool:"));
+    auto toolLabel = new QLabel(Tr::tr("Tool:"));
     toolLabel->setEnabled(false);
 
-    auto mimeLabel = new QLabel(tr("Restrict to MIME types:"));
+    auto mimeLabel = new QLabel(Tr::tr("Restrict to MIME types:"));
     mimeLabel->setEnabled(false);
 
     m_autoFormatMime = new QLineEdit(settings->autoFormatMimeAsString());
     m_autoFormatMime->setEnabled(false);
 
     m_autoFormatOnlyCurrentProject =
-        new QCheckBox(tr("Restrict to files contained in the current project"));
+        new QCheckBox(Tr::tr("Restrict to files contained in the current project"));
     m_autoFormatOnlyCurrentProject->setEnabled(false);
     m_autoFormatOnlyCurrentProject->setChecked(settings->autoFormatOnlyCurrentProject());
 
@@ -66,7 +64,7 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
 
     Column {
         Group {
-            title(tr("Automatic Formatting on File Save")),
+            title(Tr::tr("Automatic Formatting on File Save")),
             Form {
                 Span(2, m_autoFormat), br,
                 toolLabel, m_autoFormatTool, br,
@@ -97,7 +95,7 @@ void GeneralOptionsPageWidget::apply()
 GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds)
 {
     setId(Constants::OPTION_GENERAL_ID);
-    setDisplayName(GeneralOptionsPageWidget::tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
     setDisplayCategory(Tr::tr("Beautifier"));
     setWidgetCreator([toolIds] { return new GeneralOptionsPageWidget(toolIds); });

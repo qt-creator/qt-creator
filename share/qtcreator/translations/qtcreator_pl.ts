@@ -27929,7 +27929,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPage</name>
+    <name>::Beautifier</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -27971,24 +27971,9 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Use specific config file:</source>
         <translation>Używaj szczególnego pliku konfiguracyjnego:</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguracja</translation>
-    </message>
     <message>
         <source>Clang Format command:</source>
         <translation>Komenda formatowania Clang:</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcje</translation>
     </message>
     <message>
         <source>Clang Format</source>
@@ -27999,16 +27984,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Używaj predefiniowanego stylu:</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>Używaj własnego stylu:</translation>
-    </message>
-    <message>
         <source>Format entire file if no text was selected</source>
         <translation>Sformatuj cały plik, jeśli nie zaznaczono w nim tekstu</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Zastosuj jedynie do typów MIME:</translation>
     </message>
     <message>
         <source>Fallback style:</source>
@@ -28018,9 +27995,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>For action Format Selected Text.</source>
         <translation>Dla akcji: &quot;Sformatuj zaznaczony tekst&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationDialog</name>
     <message>
         <source>Name</source>
         <translation>Nazwa</translation>
@@ -28036,13 +28010,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Documentation for &quot;%1&quot;</source>
         <translation>Dokumentacja dla &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ConfigurationPanel</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -28064,32 +28031,13 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Edit Configuration</source>
         <translation>Zmodyfikuj konfigurację</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-    <message>
-        <source>Configuration</source>
-        <translation>Konfiguracja</translation>
-    </message>
     <message>
         <source>Uncrustify command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Opcje</translation>
-    </message>
-    <message>
         <source>Use file uncrustify.cfg defined in project files</source>
         <translation>Używaj plików uncrustify.cfg zdefiniowanych w plikach projektów</translation>
-    </message>
-    <message>
-        <source>Uncrustify</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg in HOME</source>
@@ -28098,20 +28046,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Uźywaj pliku uncrustify.cfg w HOME</translation>
     </message>
     <message>
-        <source>Use customized style:</source>
-        <translation>Używaj własnego stylu:</translation>
-    </message>
-    <message>
         <source>For action Format Selected Text</source>
         <translation>Dla akcji: &quot;Sformatuj zaznaczony tekst&quot;</translation>
-    </message>
-    <message>
-        <source>Format entire file if no text was selected</source>
-        <translation>Sformatuj cały plik, jeśli nie zaznaczono w nim tekstu</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Zastosuj jedynie do typów MIME:</translation>
     </message>
     <message>
         <source>Use file specific uncrustify.cfg</source>
@@ -28396,9 +28332,6 @@ Zbuduj aplikację qmldump na stronie z opcjami wersji Qt.</translation>
         <source>Bea&amp;utifier</source>
         <translation>U&amp;piększacz</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::BeautifierPlugin</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nie można utworzyć tymczasowego pliku &quot;%1&quot;: %2.</translation>
@@ -37819,11 +37752,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::GeneralOptionsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>::Beautifier</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>Automatyczne formatowanie przy zachowywaniu plików</translation>
@@ -37835,10 +37764,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>Tool:</source>
         <translation>Narzędzie:</translation>
-    </message>
-    <message>
-        <source>Restrict to MIME types:</source>
-        <translation>Zastosuj jedynie do typów MIME:</translation>
     </message>
     <message>
         <source>Restrict to files contained in the current project</source>
@@ -38216,7 +38141,7 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Nie można zachować stylów. %1 nie istnieje.</translation>
@@ -38245,20 +38170,10 @@ po naciśnięciu klawisza backspace</translation>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Nie można odczytać pliku z dokumentacją &quot;%1&quot;: %2.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyle</name>
-    <message>
-        <source>Artistic Style</source>
-        <translation>Styl Artistic</translation>
-    </message>
     <message>
         <source>&amp;Artistic Style</source>
         <translation>Styl &amp;Artistic</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormat</name>
     <message>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>
@@ -38267,16 +38182,10 @@ po naciśnięciu klawisza backspace</translation>
         <source>&amp;ClangFormat</source>
         <translation>&amp;ClangFormat</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::ClangFormat::ClangFormatSettings</name>
     <message>
         <source>No description available.</source>
         <translation>Brak opisu.</translation>
     </message>
-</context>
-<context>
-    <name>Beautifier::Internal::Uncrustify::Uncrustify</name>
     <message>
         <source>Uncrustify</source>
         <translation>Uncrustify</translation>
@@ -40942,7 +40851,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::Uncrustify::UncrustifyOptionsPageWidget</name>
+    <name>::Beautifier</name>
     <message>
         <source>Uncrustify file (*.cfg)</source>
         <translation>Plik uncrustify (*.cfg)</translation>
@@ -41832,7 +41741,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Beautifier::Internal::ArtisticStyle::ArtisticStyleOptionsPageWidget</name>
+    <name>::Beautifier</name>
     <message>
         <source>AStyle (*.astylerc)</source>
         <translation>AStyle (*.astylerc)</translation>
