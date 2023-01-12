@@ -46,7 +46,7 @@ static bool isUrlValid(const QString &in)
     return hostValid(url.host()) && url.scheme() == "https" || url.scheme() == "http";
 }
 
-DashboardWidget::DashboardWidget(Mode mode, QWidget *parent)
+DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent)
     : QWidget(parent)
     , m_mode(mode)
 {
@@ -91,7 +91,7 @@ DashboardWidget::DashboardWidget(Mode mode, QWidget *parent)
     }
 }
 
-AxivionServer DashboardWidget::dashboardServer() const
+AxivionServer DashboardSettingsWidget::dashboardServer() const
 {
     AxivionServer result;
     if (m_id.isValid())
@@ -104,7 +104,7 @@ AxivionServer DashboardWidget::dashboardServer() const
     return result;
 }
 
-void DashboardWidget::setDashboardServer(const AxivionServer &server)
+void DashboardSettingsWidget::setDashboardServer(const AxivionServer &server)
 {
     m_id = server.id;
     m_dashboardUrl.setValue(server.dashboard);
@@ -112,7 +112,7 @@ void DashboardWidget::setDashboardServer(const AxivionServer &server)
     m_token.setValue(server.token);
 }
 
-bool DashboardWidget::isValid() const
+bool DashboardSettingsWidget::isValid() const
 {
     return !m_token.value().isEmpty() && !m_description.value().isEmpty()
             && isUrlValid(m_dashboardUrl.value());
@@ -130,7 +130,7 @@ private:
     AxivionSettings *m_settings;
 
     Utils::StringAspect m_curlPC;
-    DashboardWidget *m_dashboardDisplay = nullptr;
+    DashboardSettingsWidget *m_dashboardDisplay = nullptr;
     QPushButton *m_edit = nullptr;
 };
 
@@ -139,7 +139,7 @@ AxivionSettingsWidget::AxivionSettingsWidget(AxivionSettings *settings)
 {
     using namespace Layouting;
 
-    m_dashboardDisplay = new DashboardWidget(DashboardWidget::Display, this);
+    m_dashboardDisplay = new DashboardSettingsWidget(DashboardSettingsWidget::Display, this);
     m_dashboardDisplay->setDashboardServer(m_settings->server);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     m_curlPC.setLabelText(Tr::tr("curl:"));
@@ -170,7 +170,7 @@ void AxivionSettingsWidget::showEditServerDialog()
     QDialog d;
     d.setWindowTitle(Tr::tr("Edit Dashboard Configuration"));
     QVBoxLayout *layout = new QVBoxLayout;
-    DashboardWidget *dashboardWidget = new DashboardWidget(DashboardWidget::Edit, this);
+    DashboardSettingsWidget *dashboardWidget = new DashboardSettingsWidget(DashboardSettingsWidget::Edit, this);
     dashboardWidget->setDashboardServer(old);
     layout->addWidget(dashboardWidget);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, this);
@@ -178,7 +178,7 @@ void AxivionSettingsWidget::showEditServerDialog()
     ok->setEnabled(m_dashboardDisplay->isValid());
     connect(buttons->button(QDialogButtonBox::Cancel), &QPushButton::clicked, &d, &QDialog::reject);
     connect(ok, &QPushButton::clicked, &d, &QDialog::accept);
-    connect(dashboardWidget, &DashboardWidget::validChanged,
+    connect(dashboardWidget, &DashboardSettingsWidget::validChanged,
             ok, &QPushButton::setEnabled);
     layout->addWidget(buttons);
     d.setLayout(layout);

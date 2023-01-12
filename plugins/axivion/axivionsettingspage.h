@@ -16,12 +16,12 @@ class AxivionServer;
 class AxivionSettings;
 class AxivionSettingsWidget;
 
-class DashboardWidget : public QWidget
+class DashboardSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
     enum Mode { Display, Edit };
-    explicit DashboardWidget(Mode m = Display, QWidget *parent = nullptr);
+    explicit DashboardSettingsWidget(Mode m = Display, QWidget *parent = nullptr);
 
     AxivionServer dashboardServer() const;
     void setDashboardServer(const AxivionServer &server);
