@@ -7,27 +7,21 @@
 #include "diffeditordocument.h"
 #include "diffeditorfactory.h"
 
-#include <QAction>
-#include <QFutureWatcher>
-#include <QMenu>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 
-#include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/differ.h>
+#include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
-#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
+
+#include <QAction>
+#include <QMenu>
 
 using namespace Core;
 using namespace TextEditor;
@@ -158,7 +152,9 @@ class DiffCurrentFileController : public DiffFilesController
 {
     Q_OBJECT
 public:
-    DiffCurrentFileController(IDocument *document, const QString &fileName);
+    DiffCurrentFileController(IDocument *document, const QString &fileName)
+        : DiffFilesController(document)
+        , m_fileName(fileName) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
@@ -167,15 +163,11 @@ private:
     const QString m_fileName;
 };
 
-DiffCurrentFileController::DiffCurrentFileController(IDocument *document, const QString &fileName) :
-    DiffFilesController(document), m_fileName(fileName)
-{ }
-
 QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
 {
     QList<ReloadInput> result;
 
-    auto textDocument = qobject_cast<TextEditor::TextDocument *>(
+    auto textDocument = qobject_cast<TextDocument *>(
         DocumentModel::documentForFilePath(FilePath::fromString(m_fileName)));
 
     if (textDocument && textDocument->isModified()) {
@@ -183,9 +175,8 @@ QList<ReloadInput> DiffCurrentFileController::reloadInputList() const
         TextFileFormat format = textDocument->format();
 
         QString leftText;
-        const TextFileFormat::ReadResult leftResult
-            = TextFileFormat::readFile(FilePath::fromString(m_fileName), format.codec,
-                                        &leftText, &format, &errorString);
+        const TextFileFormat::ReadResult leftResult = TextFileFormat::readFile(
+            FilePath::fromString(m_fileName), format.codec, &leftText, &format, &errorString);
 
         const QString rightText = textDocument->plainText();
 
@@ -211,15 +202,11 @@ class DiffOpenFilesController : public DiffFilesController
 {
     Q_OBJECT
 public:
-    DiffOpenFilesController(IDocument *document);
+    DiffOpenFilesController(IDocument *document) : DiffFilesController(document) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
 };
-
-DiffOpenFilesController::DiffOpenFilesController(IDocument *document) :
-    DiffFilesController(document)
-{ }
 
 QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 {
@@ -229,7 +216,7 @@ QList<ReloadInput> DiffOpenFilesController::reloadInputList() const
 
     for (IDocument *doc : openedDocuments) {
         QTC_ASSERT(doc, continue);
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(doc);
+        auto textDocument = qobject_cast<TextDocument *>(doc);
 
         if (textDocument && textDocument->isModified()) {
             QString errorString;
@@ -265,7 +252,9 @@ class DiffModifiedFilesController : public DiffFilesController
 {
     Q_OBJECT
 public:
-    DiffModifiedFilesController(IDocument *document, const QStringList &fileNames);
+    DiffModifiedFilesController(IDocument *document, const QStringList &fileNames)
+        : DiffFilesController(document)
+        , m_fileNames(fileNames) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
@@ -274,16 +263,12 @@ private:
     const QStringList m_fileNames;
 };
 
-DiffModifiedFilesController::DiffModifiedFilesController(IDocument *document, const QStringList &fileNames) :
-    DiffFilesController(document), m_fileNames(fileNames)
-{ }
-
 QList<ReloadInput> DiffModifiedFilesController::reloadInputList() const
 {
     QList<ReloadInput> result;
 
     for (const QString &fileName : m_fileNames) {
-        auto textDocument = qobject_cast<TextEditor::TextDocument *>(
+        auto textDocument = qobject_cast<TextDocument *>(
             DocumentModel::documentForFilePath(FilePath::fromString(fileName)));
 
         if (textDocument && textDocument->isModified()) {
@@ -321,7 +306,10 @@ class DiffExternalFilesController : public DiffFilesController
     Q_OBJECT
 public:
     DiffExternalFilesController(IDocument *document, const QString &leftFileName,
-                       const QString &rightFileName);
+                                const QString &rightFileName)
+        : DiffFilesController(document)
+        , m_leftFileName(leftFileName)
+        , m_rightFileName(rightFileName) {}
 
 protected:
     QList<ReloadInput> reloadInputList() const final;
@@ -330,11 +318,6 @@ private:
     const QString m_leftFileName;
     const QString m_rightFileName;
 };
-
-DiffExternalFilesController::DiffExternalFilesController(IDocument *document, const QString &leftFileName,
-                                       const QString &rightFileName) :
-    DiffFilesController(document), m_leftFileName(leftFileName), m_rightFileName(rightFileName)
-{ }
 
 QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 {
@@ -374,10 +357,9 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 /////////////////
 
 
-static TextEditor::TextDocument *currentTextDocument()
+static TextDocument *currentTextDocument()
 {
-    return qobject_cast<TextEditor::TextDocument *>(
-                EditorManager::currentDocument());
+    return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
 DiffEditorServiceImpl::DiffEditorServiceImpl() = default;
@@ -439,8 +421,7 @@ DiffEditorPluginPrivate::DiffEditorPluginPrivate()
 {
     m_futureSynchronizer.setCancelOnWait(true);
     //register actions
-    ActionContainer *toolsContainer
-            = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, Constants::G_TOOLS_DIFF);
     ActionContainer *diffContainer = ActionManager::createMenu("Diff");
     diffContainer->menu()->setTitle(tr("&Diff"));
@@ -466,13 +447,13 @@ DiffEditorPluginPrivate::DiffEditorPluginPrivate()
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &DiffEditorPluginPrivate::updateDiffCurrentFileAction);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
-        this, &DiffEditorPluginPrivate::updateDiffCurrentFileAction);
+            this, &DiffEditorPluginPrivate::updateDiffCurrentFileAction);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-        this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
-        this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
     connect(EditorManager::instance(), &EditorManager::documentStateChanged,
-        this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
 
     updateDiffCurrentFileAction();
     updateDiffOpenFilesAction();
@@ -489,7 +470,7 @@ void DiffEditorPluginPrivate::updateDiffOpenFilesAction()
 {
     const bool enabled = anyOf(DocumentModel::openedDocuments(), [](IDocument *doc) {
             QTC_ASSERT(doc, return false);
-            return doc->isModified() && qobject_cast<TextEditor::TextDocument *>(doc);
+            return doc->isModified() && qobject_cast<TextDocument *>(doc);
         });
     m_diffOpenFilesAction->setEnabled(enabled);
 }
