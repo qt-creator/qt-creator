@@ -276,7 +276,7 @@ void AxivionPluginPrivate::onDocumentClosed(Core::IDocument *doc)
 
     const TextEditor::TextMarks marks = document->marks();
     for (auto m : marks) {
-        if (m->category() == AxivionTextMarkId)
+        if (m->category().id == AxivionTextMarkId)
             delete m;
     }
 }
@@ -298,7 +298,8 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
-        auto mark = new TextEditor::TextMark(filePath, issue.lineNumber, axivionId);
+        auto mark = new TextEditor::TextMark(filePath, issue.lineNumber,
+                                             {Tr::tr("Axivion"), axivionId});
         const QString markText = issue.entity.isEmpty() ? issue.message
                                                         : issue.entity + ": " + issue.message;
         mark->setToolTip(issue.errorNumber + " " + markText);
