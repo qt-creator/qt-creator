@@ -65,12 +65,10 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
-                QByteArray data;
                 QMimeData *mimeData = new QMimeData;
-                QDataStream stream(&data, QIODevice::WriteOnly);
-                stream << m_textureToDrag->path();
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, data);
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {});
                 mimeData->removeFormat("text/plain");
+                mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->path())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
                 model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
