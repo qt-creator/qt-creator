@@ -190,6 +190,8 @@ public:
     bool useGlobalSettings() const { return m_useGlobalSettings; }
     void setUseGlobalSettings(bool useGlobal);
     void setDiagnosticConfigId(Utils::Id configId);
+    void blockIndexing();
+    void unblockIndexing();
 
 private:
     void loadSettings();
@@ -198,6 +200,7 @@ private:
     ProjectExplorer::Project * const m_project;
     ClangdSettings::Data m_customSettings;
     bool m_useGlobalSettings = true;
+    bool m_blockIndexing = false;
 };
 
 } // namespace CppEditor

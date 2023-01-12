@@ -14,6 +14,7 @@
 #include "clangdquickfixes.h"
 #include "clangdsemantichighlighting.h"
 #include "clangdswitchdecldef.h"
+#include "clangmodelmanagersupport.h"
 #include "clangtextmark.h"
 #include "clangutils.h"
 #include "tasktimers.h"
@@ -170,6 +171,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     const bool indexingEnabled = indexingPriority != ClangdSettings::IndexingPriority::Off;
     if (!indexingEnabled)
         indexingOption += "=0";
+    CppEditor::ClangdProjectSettings(project).unblockIndexing();
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
@@ -416,15 +418,12 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
     progressManager()->setTitleForToken(indexingToken(),
-                             project ? Tr::tr("Indexing %1 with clangd").arg(project->displayName())
-                                     : Tr::tr("Indexing session with clangd"));
-    progressManager()->setClickHandlerForToken(indexingToken(), [] {
-        // don't directly open modal dialog from click handler, because that would mess
-        // up the stack
-        QMetaObject::invokeMethod(
-            ICore::instance(),
-            [] { ICore::showOptionsDialog(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID); },
-            Qt::QueuedConnection);
+                             project ? tr("Indexing %1 with clangd").arg(project->displayName())
+                                     : tr("Indexing session with clangd"));
+    progressManager()->setCancelHandlerForToken(indexingToken(), [this, project]() {
+        CppEditor::ClangdProjectSettings projectSettings(project);
+        projectSettings.blockIndexing();
+        progressManager()->endProgressReport(indexingToken());
     });
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);

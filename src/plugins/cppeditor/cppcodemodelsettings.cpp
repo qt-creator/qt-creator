@@ -69,6 +69,7 @@ static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocume
 static QString clangdSizeThresholdEnabledKey() { return QLatin1String("ClangdSizeThresholdEnabled"); }
 static QString clangdSizeThresholdKey() { return QLatin1String("ClangdSizeThreshold"); }
 static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSettings"); }
+static QString clangdblockIndexingSettingsKey() { return QLatin1String("blockIndexing"); }
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 static QString diagnosticConfigIdKey() { return QLatin1String("diagnosticConfigId"); }
 static QString checkedHardwareKey() { return QLatin1String("checkedHardware"); }
@@ -436,16 +437,18 @@ ClangdProjectSettings::ClangdProjectSettings(ProjectExplorer::Project *project) 
 
 ClangdSettings::Data ClangdProjectSettings::settings() const
 {
-    if (m_useGlobalSettings)
-        return ClangdSettings::instance().data();
-    ClangdSettings::Data data = m_customSettings;
-
+    const ClangdSettings::Data globalData = ClangdSettings::instance().data();
+    ClangdSettings::Data data = globalData;
+    if (!m_useGlobalSettings) {
+        data = m_customSettings;
     // This property is global by definition.
     data.sessionsWithOneClangd = ClangdSettings::instance().data().sessionsWithOneClangd;
 
     // This list exists only once.
     data.customDiagnosticConfigs = ClangdSettings::instance().data().customDiagnosticConfigs;
-
+}
+    if (m_blockIndexing)
+        data.indexingPriority = ClangdSettings::IndexingPriority::Off;
     return data;
 }
 
@@ -470,12 +473,31 @@ void ClangdProjectSettings::setDiagnosticConfigId(Utils::Id configId)
     saveSettings();
 }
 
+void ClangdProjectSettings::blockIndexing()
+{
+    if (m_blockIndexing)
+        return;
+    m_blockIndexing = true;
+    saveSettings();
+    emit ClangdSettings::instance().changed();
+}
+
+void ClangdProjectSettings::unblockIndexing()
+{
+    if (!m_blockIndexing)
+        return;
+    m_blockIndexing = false;
+    saveSettings();
+    // Do not emit changed here since that would restart clients with blocked indexing
+}
+
 void ClangdProjectSettings::loadSettings()
 {
     if (!m_project)
         return;
     const QVariantMap data = m_project->namedSettings(clangdSettingsKey()).toMap();
     m_useGlobalSettings = data.value(clangdUseGlobalSettingsKey(), true).toBool();
+    m_blockIndexing = data.value(clangdblockIndexingSettingsKey(), false).toBool();
     if (!m_useGlobalSettings)
         m_customSettings.fromMap(data);
 }
@@ -488,6 +510,7 @@ void ClangdProjectSettings::saveSettings()
     if (!m_useGlobalSettings)
         data = m_customSettings.toMap();
     data.insert(clangdUseGlobalSettingsKey(), m_useGlobalSettings);
+    data.insert(clangdblockIndexingSettingsKey(), m_blockIndexing);
     m_project->setNamedSettings(clangdSettingsKey(), data);
 }
 
