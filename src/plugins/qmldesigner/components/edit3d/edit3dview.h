@@ -33,7 +33,6 @@ class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
 
 public:
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
-    ~Edit3DView() override;
 
     WidgetInfo widgetInfo() override;
 
@@ -82,7 +81,6 @@ private:
     };
 
     void registerEdit3DAction(Edit3DAction *action);
-    void unregisterEdit3DAction(Edit3DAction *action);
 
     void createEdit3DWidget();
     void checkImports();
@@ -99,7 +97,8 @@ private:
     QVector<Edit3DAction *> m_rightActions;
     QVector<Edit3DAction *> m_visibilityToggleActions;
     QVector<Edit3DAction *> m_backgroundColorActions;
-    QMap<View3DActionType, Edit3DAction *> m_edit3DActions;
+
+    QMap<View3DActionType, QSharedPointer<Edit3DAction>> m_edit3DActions;
     Edit3DAction *m_selectionModeAction = nullptr;
     Edit3DAction *m_moveToolAction = nullptr;
     Edit3DAction *m_rotateToolAction = nullptr;

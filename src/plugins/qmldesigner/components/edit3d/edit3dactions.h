@@ -44,8 +44,6 @@ public:
                  SelectionContextOperation selectionAction = nullptr,
                  const QString &toolTip = {});
 
-    virtual ~Edit3DAction();
-
     QByteArray category() const override;
 
     int priority() const override

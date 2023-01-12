@@ -38,11 +38,6 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
 }
 
-Edit3DView::~Edit3DView()
-{
-    qDeleteAll(m_edit3DActions);
-}
-
 void Edit3DView::createEdit3DWidget()
 {
     createEdit3DActions();
@@ -202,27 +197,8 @@ void Edit3DView::onEntriesChanged()
 
 void Edit3DView::registerEdit3DAction(Edit3DAction *action)
 {
-    View3DActionType actionType = action->actionType();
-    if (actionType == View3DActionType::Empty)
-        return;
-
-    if (m_edit3DActions.contains(actionType)) {
-        Edit3DAction *formerAction = m_edit3DActions.value(actionType);
-        if (formerAction == action)
-            return;
-
-        qWarning() << Q_FUNC_INFO << __LINE__ << "Reregistering action for" << int(actionType);
-        delete formerAction;
-    }
-
-    m_edit3DActions.insert(actionType, action);
-}
-
-void Edit3DView::unregisterEdit3DAction(Edit3DAction *action)
-{
-    View3DActionType actionType = action->actionType();
-    if (m_edit3DActions.value(actionType, nullptr) == action)
-        m_edit3DActions.remove(actionType);
+    if (action->actionType() != View3DActionType::Empty)
+        m_edit3DActions.insert(action->actionType(), QSharedPointer<Edit3DAction>(action));
 }
 
 void Edit3DView::handleEntriesChanged()
@@ -852,7 +828,7 @@ QVector<Edit3DAction *> Edit3DView::backgroundColorActions() const
 
 Edit3DAction *Edit3DView::edit3DAction(View3DActionType type) const
 {
-    return m_edit3DActions.value(type, nullptr);
+    return m_edit3DActions.value(type, nullptr).data();
 }
 
 void Edit3DView::addQuick3DImport()

@@ -74,11 +74,6 @@ Edit3DAction::Edit3DAction(const QByteArray &menuId,
     }
 }
 
-Edit3DAction::~Edit3DAction()
-{
-    m_actionTemplate->m_view->unregisterEdit3DAction(this);
-}
-
 QByteArray Edit3DAction::category() const
 {
     return QByteArray();
