@@ -38,6 +38,70 @@ Item {
         searchBox.clear();
     }
 
+    Keys.enabled: true
+    Keys.onDownPressed: {
+        if (rootView.materialSectionFocused) {
+            if (!materialBrowserTexturesModel.isEmpty
+                && materialBrowserModel.selectedIndex >= materialBrowserModel.rowCount() - gridMaterials.columns) {
+                rootView.materialSectionFocused = false
+                materialBrowserTexturesModel.selectTexture(materialBrowserModel.selectedIndex % gridMaterials.columns)
+            } else {
+                let targetIdx = materialBrowserModel.selectedIndex + gridMaterials.columns
+                if (targetIdx < materialBrowserModel.rowCount())
+                    materialBrowserModel.selectMaterial(targetIdx)
+            }
+        } else {
+            let targetIdx = materialBrowserTexturesModel.selectedIndex + gridTextures.columns
+            if (targetIdx < materialBrowserTexturesModel.rowCount())
+                materialBrowserTexturesModel.selectTexture(targetIdx)
+        }
+    }
+
+    Keys.onUpPressed: {
+        if (rootView.materialSectionFocused) {
+            let targetIdx = materialBrowserModel.selectedIndex - gridMaterials.columns
+            if (targetIdx >= 0)
+                materialBrowserModel.selectMaterial(targetIdx)
+        } else {
+            if (!materialBrowserModel.isEmpty && materialBrowserTexturesModel.selectedIndex < gridTextures.columns) {
+                rootView.materialSectionFocused = true
+                materialBrowserModel.selectMaterial(materialBrowserTexturesModel.selectedIndex % gridTextures.columns)
+            } else {
+                let targetIdx = materialBrowserTexturesModel.selectedIndex - gridTextures.columns
+                if (targetIdx >= 0)
+                    materialBrowserTexturesModel.selectTexture(targetIdx)
+            }
+        }
+    }
+
+    Keys.onLeftPressed: {
+        if (rootView.materialSectionFocused) {
+            if (materialBrowserModel.selectedIndex > 0)
+                materialBrowserModel.selectMaterial(materialBrowserModel.selectedIndex - 1)
+        } else {
+            if (materialBrowserTexturesModel.selectedIndex > 0) {
+                materialBrowserTexturesModel.selectTexture(materialBrowserTexturesModel.selectedIndex - 1)
+            } else if (materialBrowserModel.rowCount() > 0) {
+                rootView.materialSectionFocused = true
+                materialBrowserModel.selectMaterial(materialBrowserModel.rowCount() - 1)
+            }
+        }
+    }
+
+    Keys.onRightPressed: {
+        if (rootView.materialSectionFocused) {
+            if (materialBrowserModel.selectedIndex < materialBrowserModel.rowCount() - 1) {
+                materialBrowserModel.selectMaterial(materialBrowserModel.selectedIndex + 1)
+            } else if (materialBrowserTexturesModel.rowCount() > 0) {
+                rootView.materialSectionFocused = false
+                materialBrowserTexturesModel.selectMaterial(0)
+            }
+        } else {
+            if (materialBrowserTexturesModel.selectedIndex < materialBrowserTexturesModel.rowCount() - 1)
+                materialBrowserTexturesModel.selectTexture(materialBrowserTexturesModel.selectedIndex + 1)
+        }
+    }
+
     MouseArea {
         id: focusGrabber
         anchors.fill: parent
@@ -166,7 +230,7 @@ Item {
                         }
 
                         Grid {
-                            id: grid
+                            id: gridMaterials
 
                             width: scrollView.width
                             leftPadding: 5
@@ -251,6 +315,8 @@ Item {
                         }
 
                         Grid {
+                            id: gridTextures
+
                             width: scrollView.width
                             leftPadding: 5
                             rightPadding: 5
