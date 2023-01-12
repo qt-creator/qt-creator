@@ -8,6 +8,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/genericconstants.h>
@@ -22,13 +23,10 @@
 
 using namespace Utils;
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
-namespace {
 const char COMMAND[]        = "command";
 const char SUPPORTED_MIME[] = "supportedMime";
-}
 
 class VersionUpdater
 {
@@ -160,10 +158,10 @@ QString AbstractSettings::styleFileName(const QString &key) const
 
 FilePath AbstractSettings::command() const
 {
-    return FilePath::fromString(m_command);
+    return m_command;
 }
 
-void AbstractSettings::setCommand(const QString &cmd)
+void AbstractSettings::setCommand(const FilePath &cmd)
 {
     if (cmd == m_command)
         return;
@@ -248,7 +246,7 @@ void AbstractSettings::save()
         s->setValue(iSettings.key(), iSettings.value());
         ++iSettings;
     }
-    s->setValue(COMMAND, m_command);
+    s->setValue(COMMAND, m_command.toSettings());
     s->setValue(SUPPORTED_MIME, supportedMimeTypesAsString());
     s->endGroup();
     s->endGroup();
@@ -318,7 +316,7 @@ void AbstractSettings::read()
     const QStringList keys = s->allKeys();
     for (const QString &key : keys) {
         if (key == COMMAND)
-            setCommand(s->value(key).toString());
+            setCommand(FilePath::fromSettings(s->value(key)));
         else if (key == SUPPORTED_MIME)
             setSupportedMimeTypes(s->value(key).toString());
         else if (m_settings.contains(key))
@@ -413,5 +411,4 @@ void AbstractSettings::readStyles()
     }
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

@@ -112,7 +112,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
 void ArtisticStyleOptionsPageWidget::apply()
 {
-    m_settings->setCommand(m_command->filePath().toString());
+    m_settings->setCommand(m_command->filePath());
     m_settings->setSupportedMimeTypes(m_mime->text());
     m_settings->setUseOtherFiles(m_useOtherFiles->isChecked());
     m_settings->setUseSpecificConfigFile(m_useSpecificConfigFile->isChecked());

@@ -123,7 +123,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
 
 void ClangFormatOptionsPageWidget::apply()
 {
-    m_settings->setCommand(m_command->filePath().toString());
+    m_settings->setCommand(m_command->filePath());
     m_settings->setSupportedMimeTypes(m_mime->text());
     m_settings->setUsePredefinedStyle(m_usePredefinedStyle->isChecked());
     m_settings->setPredefinedStyle(m_predefinedStyle->currentText());
