@@ -13,6 +13,7 @@
 #include <QLabel>
 #include <QScrollArea>
 #include <QStackedWidget>
+#include <QTextBrowser>
 
 namespace Axivion::Internal {
 
@@ -98,6 +99,8 @@ AxivionOutputPane::AxivionOutputPane(QObject *parent)
     m_outputWidget = new QStackedWidget;
     DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
     m_outputWidget->addWidget(dashboardWidget);
+    QTextBrowser *browser = new QTextBrowser(m_outputWidget);
+    m_outputWidget->addWidget(browser);
 }
 
 AxivionOutputPane::~AxivionOutputPane()
@@ -179,6 +182,17 @@ void AxivionOutputPane::updateDashboard()
         m_outputWidget->setCurrentIndex(0);
         if (dashboard->hasProject())
             flash();
+    }
+}
+
+void AxivionOutputPane::updateAndShowRule(const QString &ruleHtml)
+{
+    if (auto browser = static_cast<QTextBrowser *>(m_outputWidget->widget(1))) {
+        browser->setText(ruleHtml);
+        if (!ruleHtml.isEmpty()) {
+            m_outputWidget->setCurrentIndex(1);
+            popup(Core::IOutputPane::NoModeSwitch);
+        }
     }
 }
 

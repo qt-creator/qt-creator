@@ -24,11 +24,13 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #ifdef LICENSECHECKER
 #  include <licensechecker/licensecheckerplugin.h>
 #endif
 
+#include <QAction>
 #include <QMessageBox>
 #include <QTimer>
 
@@ -48,6 +50,7 @@ public:
     void onDocumentClosed(Core::IDocument * doc);
     void clearAllMarks();
     void handleIssuesForFile(const IssuesList &issues);
+    void fetchRuleInfo(const QString &id);
 
     AxivionSettings m_axivionSettings;
     AxivionSettingsPage m_axivionSettingsPage{&m_axivionSettings};
@@ -78,6 +81,14 @@ AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIss
     setToolTip(issue.errorNumber + " " + markText);
     setPriority(TextEditor::TextMark::NormalPriority);
     setLineAnnotation(markText);
+    setActionsProvider([this]{
+       auto action = new QAction;
+       action->setIcon(Utils::Icons::INFO.icon());
+       action->setToolTip(Tr::tr("Show rule details"));
+       QObject::connect(action, &QAction::triggered,
+                        dd, [this]{ dd->fetchRuleInfo(m_id); });
+       return QList{action};
+    });
 }
 
 AxivionPlugin::AxivionPlugin()
@@ -217,6 +228,26 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
         handleProjectInfo(ResultParser::parseProjectInfo(result));
+    });
+    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
+    runner->start();
+}
+
+void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
+{
+    if (m_runningQuery) {
+        QTimer::singleShot(3000, [this, id]{ fetchRuleInfo(id); });
+        return;
+    }
+
+    const QStringList args = id.split(':');
+    QTC_ASSERT(args.size() == 2, return);
+    m_runningQuery = true;
+    AxivionQuery query(AxivionQuery::RuleInfo, args);
+    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
+    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
+        m_runningQuery = false;
+        m_axivionOutputPane.updateAndShowRule(ResultParser::parseRuleInfo(result));
     });
     connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
     runner->start();

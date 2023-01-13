@@ -23,7 +23,7 @@ AxivionQuery::AxivionQuery(QueryType type, const QStringList &parameters)
 
 QString AxivionQuery::toString() const
 {
-    QString query = "/api"; // common for all
+    QString query = "/api"; // common for all except RuleInfo
     switch (m_type) {
     case NoQuery:
         return {};
@@ -39,6 +39,11 @@ QString AxivionQuery::toString() const
         query += "/projects/" + QUrl::toPercentEncoding(m_parameters.first())
                 + "/issues?kind=" + m_parameters.at(1) + "&filter_path="
                 + QUrl::toPercentEncoding(m_parameters.at(2)) + "&format=csv";
+        return query;
+    case RuleInfo:
+        QTC_ASSERT(m_parameters.size() == 2, return {});
+        query = "/projects/" + QUrl::toPercentEncoding(m_parameters.first())
+                + "/issues/" + m_parameters.at(1) + "/rule";
         return query;
     }
 

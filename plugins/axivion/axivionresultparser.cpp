@@ -333,6 +333,15 @@ IssuesList parseIssuesList(const QByteArray &input)
     return result;
 }
 
+QString parseRuleInfo(const QByteArray &input) // html result!
+{
+    auto [header, body] = splitHeaderAndBody(input);
+    BaseResult headerResult = prehandleHeader(header, body);
+    if (!headerResult.error.isEmpty())
+        return QString();
+    return QString::fromLocal8Bit(body);
+}
+
 } // ResultParser
 
 } // Axivion::Internal

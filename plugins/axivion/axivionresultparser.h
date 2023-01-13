@@ -94,6 +94,7 @@ namespace ResultParser {
 DashboardInfo parseDashboardInfo(const QByteArray &input);
 ProjectInfo parseProjectInfo(const QByteArray &input);
 IssuesList parseIssuesList(const QByteArray &input);
+QString parseRuleInfo(const QByteArray &input);
 
 } // ResultParser
 

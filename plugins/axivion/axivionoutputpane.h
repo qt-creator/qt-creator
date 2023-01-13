@@ -34,6 +34,7 @@ public:
     void goToPrev() override;
 
     void updateDashboard();
+    void updateAndShowRule(const QString &ruleHtml);
 private:
     QStackedWidget *m_outputWidget = nullptr;
 };
