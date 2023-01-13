@@ -8,37 +8,30 @@
 namespace Utils {
 
 /*!
-    Returns the Link to \a fileName.
+    Returns the Link to \a filePath.
     If \a canContainLineNumber is true the line number, and column number components
-    are extracted from \a fileName and the found \a postfix is set.
+    are extracted from the \a filePath's \c path() and the found \a postfix is set.
 
     The following patterns are supported: \c {filepath.txt:19},
     \c{filepath.txt:19:12}, \c {filepath.txt+19},
     \c {filepath.txt+19+12}, and \c {filepath.txt(19)}.
 */
-Link Link::fromString(const QString &fileName, bool canContainLineNumber, QString *postfix)
-{
-    if (!canContainLineNumber)
-        return {FilePath::fromString(fileName)};
-    int postfixPos = -1;
-    const LineColumn lineColumn = LineColumn::extractFromFileName(fileName, postfixPos);
-    if (postfix && postfixPos >= 0)
-        *postfix = fileName.mid(postfixPos);
-    return {FilePath::fromString(fileName.left(postfixPos)),
-            lineColumn.line,
-            lineColumn.column};
-}
 
-Link Link::fromFilePath(const FilePath &filePath, bool canContainLineNumber, QString *postfix)
+Link Link::fromString(const QString &filePathWithNumbers, bool canContainLineNumber, QString *postfix)
 {
-    if (!canContainLineNumber)
-        return {filePath};
-    int postfixPos = -1;
-    QString fileName = filePath.path();
-    const LineColumn lineColumn = LineColumn::extractFromFileName(fileName, postfixPos);
-    if (postfix && postfixPos >= 0)
-        *postfix = fileName.mid(postfixPos);
-    return Link{filePath.withNewPath(fileName.left(postfixPos)), lineColumn.line, lineColumn.column};
+    Link link;
+    if (!canContainLineNumber) {
+        link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers);
+    } else {
+        int postfixPos = -1;
+        const LineColumn lineColumn = LineColumn::extractFromFileName(filePathWithNumbers, postfixPos);
+        if (postfix && postfixPos >= 0)
+            *postfix = filePathWithNumbers.mid(postfixPos);
+        link.targetFilePath = FilePath::fromUserInput(filePathWithNumbers.left(postfixPos));
+        link.targetLine = lineColumn.line;
+        link.targetColumn = lineColumn.column;
+    }
+    return link;
 }
 
 } // namespace Utils
