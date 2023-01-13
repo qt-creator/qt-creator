@@ -308,9 +308,10 @@ void PythonRunConfiguration::updateExtraCompilers()
             }
         }
     }
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
-    if (auto client = PyLSClient::clientForPython(python))
-        client->updateExtraCompilers(project(), m_extraCompilers);
+    for (LanguageClient::Client *client : LanguageClient::LanguageClientManager::clients()) {
+        if (auto pylsClient = qobject_cast<PyLSClient *>(client))
+            pylsClient->updateExtraCompilers(project(), m_extraCompilers);
+    }
     qDeleteAll(oldCompilers);
 }
 
