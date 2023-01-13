@@ -343,14 +343,12 @@ ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
 
 void AutotestPluginPrivate::onRunAllTriggered(TestRunMode mode)
 {
-    m_testRunner.setSelectedTests(m_testTreeModel.getAllTestCases());
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, m_testTreeModel.getAllTestCases());
 }
 
 void AutotestPluginPrivate::onRunSelectedTriggered(TestRunMode mode)
 {
-    m_testRunner.setSelectedTests(m_testTreeModel.getSelectedTests());
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, m_testTreeModel.getSelectedTests());
 }
 
 void AutotestPluginPrivate::onRunFailedTriggered()
@@ -358,8 +356,7 @@ void AutotestPluginPrivate::onRunFailedTriggered()
     const QList<ITestConfiguration *> failed = m_testTreeModel.getFailedTests();
     if (failed.isEmpty()) // the framework might not be able to provide them
         return;
-    m_testRunner.setSelectedTests(failed);
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.runTests(TestRunMode::Run, failed);
 }
 
 void AutotestPluginPrivate::onRunFileTriggered()
@@ -376,8 +373,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (tests.isEmpty())
         return;
 
-    m_testRunner.setSelectedTests(tests);
-    m_testRunner.prepareToRunTests(TestRunMode::Run);
+    m_testRunner.runTests(TestRunMode::Run, tests);
 }
 
 static QList<ITestConfiguration *> testItemsToTestConfigurations(const QList<ITestTreeItem *> &items,
@@ -442,8 +438,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
         return;
     }
 
-    m_testRunner.setSelectedTests(testsToRun);
-    m_testRunner.prepareToRunTests(mode);
+    m_testRunner.runTests(mode, testsToRun);
 }
 
 void AutotestPlugin::updateMenuItemsEnabledState()

@@ -93,23 +93,13 @@ TestRunner::~TestRunner()
     s_instance = nullptr;
 }
 
-void TestRunner::setSelectedTests(const QList<ITestConfiguration *> &selected)
-{
-    QTC_ASSERT(!m_executingTests, return);
-    qDeleteAll(m_selectedTests);
-    m_selectedTests.clear();
-    m_selectedTests.append(selected);
-}
-
 void TestRunner::runTest(TestRunMode mode, const ITestTreeItem *item)
 {
     QTC_ASSERT(!m_executingTests, return);
     ITestConfiguration *configuration = item->asConfiguration(mode);
 
-    if (configuration) {
-        setSelectedTests({configuration});
-        prepareToRunTests(mode);
-    }
+    if (configuration)
+        runTests(mode, {configuration});
 }
 
 static QString processInformation(const QtcProcess *proc)
@@ -346,9 +336,13 @@ void TestRunner::resetInternalPointers()
     m_currentConfig = nullptr;
 }
 
-void TestRunner::prepareToRunTests(TestRunMode mode)
+void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests)
 {
     QTC_ASSERT(!m_executingTests, return);
+    qDeleteAll(m_selectedTests);
+    m_selectedTests.clear();
+    m_selectedTests.append(selectedTests);
+
     m_skipTargetsCheck = false;
     m_runMode = mode;
     const ProjectExplorerSettings projectExplorerSettings
@@ -504,7 +498,7 @@ void TestRunner::onBuildSystemUpdated()
     }
 }
 
-void TestRunner::runTests()
+void TestRunner::runTestsHelper()
 {
     QList<ITestConfiguration *> toBeRemoved;
     bool projectChanged = false;
@@ -716,7 +710,7 @@ void TestRunner::runOrDebugTests()
     case TestRunMode::Run:
     case TestRunMode::RunWithoutDeploy:
     case TestRunMode::RunAfterBuild:
-        runTests();
+        runTestsHelper();
         return;
     case TestRunMode::Debug:
     case TestRunMode::DebugWithoutDeploy:
@@ -789,9 +783,9 @@ void TestRunner::onBuildQueueFinished(bool success)
     if (!testTreeModel->hasTests())
         return;
 
-    setSelectedTests(mode == RunAfterBuildMode::All ? testTreeModel->getAllTestCases()
-                                                    : testTreeModel->getSelectedTests());
-    prepareToRunTests(TestRunMode::RunAfterBuild);
+    const QList<ITestConfiguration *> tests = mode == RunAfterBuildMode::All
+            ? testTreeModel->getAllTestCases() : testTreeModel->getSelectedTests();
+    runTests(TestRunMode::RunAfterBuild, tests);
 }
 
 void TestRunner::onFinished()

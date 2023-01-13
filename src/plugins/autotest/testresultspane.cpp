@@ -465,15 +465,13 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
 void TestResultsPane::onRunAllTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(TestTreeModel::instance()->getAllTestCases());
-    runner->prepareToRunTests(TestRunMode::Run);
+    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getAllTestCases());
 }
 
 void TestResultsPane::onRunSelectedTriggered()
 {
     TestRunner *runner = TestRunner::instance();
-    runner->setSelectedTests(TestTreeModel::instance()->getSelectedTests());
-    runner->prepareToRunTests(TestRunMode::Run);
+    runner->runTests(TestRunMode::Run, TestTreeModel::instance()->getSelectedTests());
 }
 
 void TestResultsPane::initializeFilterMenu()

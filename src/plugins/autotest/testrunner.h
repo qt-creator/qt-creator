@@ -42,11 +42,9 @@ public:
 
     static TestRunner* instance();
 
-    void setSelectedTests(const QList<ITestConfiguration *> &selected);
+    void runTests(TestRunMode mode, const QList<ITestConfiguration *> &selectedTests);
     void runTest(TestRunMode mode, const ITestTreeItem *item);
     bool isTestRunning() const { return m_executingTests; }
-
-    void prepareToRunTests(TestRunMode mode);
 
 signals:
     void testRunStarted();
@@ -71,7 +69,7 @@ private:
     void onProcessDone();
     void resetInternalPointers();
 
-    void runTests();
+    void runTestsHelper();
     void debugTests();
     void runOrDebugTests();
     void reportResult(ResultType type, const QString &description);
