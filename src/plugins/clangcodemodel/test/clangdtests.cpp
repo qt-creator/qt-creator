@@ -3,7 +3,6 @@
 
 #include "clangdtests.h"
 
-#include "clangbatchfileprocessor.h"
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
 
@@ -67,6 +66,27 @@ const Usage::Tags Initialization{Usage::Tag::Declaration, Usage::Tag::Write};
 static QString qrcPath(const QString &relativeFilePath)
 {
     return ":/unittests/ClangCodeModel/" + relativeFilePath;
+}
+
+static Q_LOGGING_CATEGORY(debug, "qtc.clangcodemodel.batch", QtWarningMsg);
+
+static int timeOutFromEnvironmentVariable()
+{
+    bool isConversionOk = false;
+    const int intervalAsInt = Utils::qtcEnvironmentVariableIntValue("QTC_CLANG_BATCH_TIMEOUT",
+                                                                    &isConversionOk);
+    if (!isConversionOk) {
+        qCDebug(debug, "Environment variable QTC_CLANG_BATCH_TIMEOUT is not set, assuming 30000.");
+        return 30000;
+    }
+
+    return intervalAsInt;
+}
+
+int timeOutInMs()
+{
+    static int timeOut = timeOutFromEnvironmentVariable();
+    return timeOut;
 }
 
 ClangdTest::~ClangdTest()

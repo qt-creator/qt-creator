@@ -24,8 +24,6 @@ public:
     void initialize() override;
 
 private:
-    void maybeHandleBatchFileAndExit() const;
-
     void generateCompilationDB();
     void createCompilationDBAction();
 

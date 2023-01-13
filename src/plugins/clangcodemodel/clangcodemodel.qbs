@@ -101,8 +101,6 @@ QtcPlugin {
         files: [
             "activationsequenceprocessortest.cpp",
             "activationsequenceprocessortest.h",
-            "clangbatchfileprocessor.cpp",
-            "clangbatchfileprocessor.h",
             "clangdtests.cpp",
             "clangdtests.h",
             "clangfixittest.cpp",

@@ -10,7 +10,6 @@
 
 #ifdef WITH_TESTS
 #  include "test/activationsequenceprocessortest.h"
-#  include "test/clangbatchfileprocessor.h"
 #  include "test/clangdtests.h"
 #  include "test/clangfixittest.h"
 #endif
@@ -80,15 +79,8 @@ void ClangCodeModelPlugin::initialize()
 {
     TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
                                           Tr::tr("Clang Code Model"));
-
-    connect(ProjectExplorerPlugin::instance(),
-            &ProjectExplorerPlugin::finishedInitialization,
-            this,
-            &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
-
     CppEditor::CppModelManager::instance()->activateClangCodeModel(
                 std::make_unique<ClangModelManagerSupport>());
-
     createCompilationDBAction();
 }
 
@@ -164,18 +156,6 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                                    m_generateCompilationDBAction->text(),
                                    [this] { m_generateCompilationDBAction->trigger(); });
     });
-}
-
-// For e.g. creation of profile-guided optimization builds.
-void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
-{
-#ifdef WITH_TESTS
-    const QString batchFilePath = qtcEnvironmentVariable("QTC_CLANG_BATCH");
-    if (!batchFilePath.isEmpty() && QTC_GUARD(QFileInfo::exists(batchFilePath))) {
-        const bool runSucceeded = runClangBatchFile(batchFilePath);
-        QCoreApplication::exit(!runSucceeded);
-    }
-#endif
 }
 
 #ifdef WITH_TESTS
