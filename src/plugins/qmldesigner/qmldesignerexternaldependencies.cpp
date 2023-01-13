@@ -213,7 +213,7 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 
     data.puppetPath = puppetPath.toString();
     data.workingDirectoryPath = workingDirectory.toString();
-    data.environment = PuppetEnvironmentBuilder::createEnvironment(target, m_designerSettings, model);
+    data.environment = PuppetEnvironmentBuilder::createEnvironment(target, m_designerSettings, model, qmlPuppetPath());
     data.debugPuppet = m_designerSettings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     data.freeTypeOption = createFreeTypeOption(target);
     data.forwardOutput = m_designerSettings.value(DesignerSettingsKey::FORWARD_PUPPET_OUTPUT).toString();
@@ -224,6 +224,13 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 bool ExternalDependencies::instantQmlTextUpdate() const
 {
     return false;
+}
+
+Utils::FilePath ExternalDependencies::qmlPuppetPath() const
+{
+    auto target = ProjectExplorer::SessionManager::startupTarget();
+    auto [workingDirectory, puppetPath] = qmlPuppetPaths(target, m_designerSettings);
+    return puppetPath;
 }
 
 } // namespace QmlDesigner

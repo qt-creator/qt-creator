@@ -4,6 +4,7 @@
 #pragma once
 
 #include <instances/puppetstartdata.h>
+#include <utils/filepath.h>
 
 namespace QmlDesigner {
 
@@ -38,6 +39,7 @@ public:
     virtual bool hasStartupTarget() const = 0;
     virtual PuppetStartData puppetStartData(const class Model &model) const = 0;
     virtual bool instantQmlTextUpdate() const = 0;
+    virtual Utils::FilePath qmlPuppetPath() const = 0;
 };
 
 } // namespace QmlDesigner

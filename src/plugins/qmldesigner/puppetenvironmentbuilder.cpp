@@ -33,22 +33,6 @@ void filterOutQtBaseImportPath(QStringList *stringList)
                && !dir.entryInfoList(QStringList("QtTest"), QDir::Dirs).isEmpty();
     });
 }
-
-Utils::FilePath pathForBinPuppet(ProjectExplorer::Target *target)
-{
-    if (!target || !target->kit())
-        return {};
-
-    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-
-    if (currentQtVersion)
-        return currentQtVersion->binPath()
-            .pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
-            .withExecutableSuffix();
-
-    return {};
-}
-
 } // namespace
 
 QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
@@ -74,9 +58,12 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
 }
 
 QProcessEnvironment PuppetEnvironmentBuilder::createEnvironment(
-    ProjectExplorer::Target *target, const DesignerSettings &designerSettings, const Model &model)
+    ProjectExplorer::Target *target,
+    const DesignerSettings &designerSettings,
+    const Model &model,
+    const Utils::FilePath &qmlPuppetPath)
 {
-    PuppetEnvironmentBuilder builder{target, designerSettings, model};
+    PuppetEnvironmentBuilder builder{target, designerSettings, model, qmlPuppetPath};
     return builder.processEnvironment();
 }
 
@@ -244,7 +231,7 @@ void PuppetEnvironmentBuilder::addCustomFileSelectors() const
 PuppetType PuppetEnvironmentBuilder::determinePuppetType() const
 {
     if (m_target && m_target->kit() && m_target->kit()->isValid()) {
-        if (pathForBinPuppet(m_target).isExecutableFile())
+        if (m_qmlPuppetPath.isExecutableFile())
             return PuppetType::Kit;
     }
 

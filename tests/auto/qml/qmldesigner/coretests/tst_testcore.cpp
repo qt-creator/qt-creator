@@ -159,6 +159,7 @@ public:
     bool hasStartupTarget() const override { return true; }
     PuppetStartData puppetStartData(const class Model &) const override { return {}; }
     bool instantQmlTextUpdate() const override { return true; }
+    Utils::FilePath qmlPuppetPath() const override { return {}; }
 
 public:
     QSettings qsettings;
