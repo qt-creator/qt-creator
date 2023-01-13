@@ -806,7 +806,14 @@ void InterpreterAspect::setDefaultInterpreter(const Interpreter &interpreter)
 
 void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
 {
-    m_currentId = interpreter.id;
+    if (m_comboBox) {
+        const int index = m_interpreters.indexOf(interpreter);
+        if (index < 0 || index >= m_comboBox->count())
+            return;
+        m_comboBox->setCurrentIndex(index);
+    } else {
+        m_currentId = interpreter.id;
+    }
     emit changed();
 }
 
@@ -853,13 +860,12 @@ void InterpreterAspect::updateComboBox()
 {
     int currentIndex = -1;
     int defaultIndex = -1;
-    const QString currentId = m_currentId;
     m_comboBox->clear();
     for (const Interpreter &interpreter : std::as_const(m_interpreters)) {
         int index = m_comboBox->count();
         m_comboBox->addItem(interpreter.name);
         m_comboBox->setItemData(index, interpreter.command.toUserOutput(), Qt::ToolTipRole);
-        if (interpreter.id == currentId)
+        if (interpreter.id == m_currentId)
             currentIndex = index;
         if (interpreter.id == m_defaultId)
             defaultIndex = index;

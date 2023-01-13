@@ -10,6 +10,7 @@ namespace Python::Internal {
 enum class ReplType { Unmodified, Import, ImportToplevel };
 void openPythonRepl(QObject *parent, const Utils::FilePath &file, ReplType type);
 Utils::FilePath detectPython(const Utils::FilePath &documentPath);
+void definePythonForDocument(const Utils::FilePath &documentPath, const Utils::FilePath &python);
 QString pythonName(const Utils::FilePath &pythonPath);
 
 class PythonProject;

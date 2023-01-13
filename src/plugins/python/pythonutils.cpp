@@ -22,6 +22,12 @@ using namespace Utils;
 
 namespace Python::Internal {
 
+static QHash<FilePath, FilePath> &userDefinedPythonsForDocument()
+{
+    static QHash<FilePath, FilePath> userDefines;
+    return userDefines;
+}
+
 FilePath detectPython(const FilePath &documentPath)
 {
     Project *project = documentPath.isEmpty() ? nullptr
@@ -41,6 +47,10 @@ FilePath detectPython(const FilePath &documentPath)
             }
         }
     }
+
+    const FilePath userDefined = userDefinedPythonsForDocument().value(documentPath);
+    if (userDefined.exists())
+        return userDefined;
 
     // check whether this file is inside a python virtual environment
     const QList<Interpreter> venvInterpreters = PythonSettings::detectPythonVenvs(documentPath);
@@ -69,6 +79,11 @@ FilePath detectPython(const FilePath &documentPath)
         return fromPath;
 
     return PythonSettings::interpreters().value(0).command;
+}
+
+void definePythonForDocument(const FilePath &documentPath, const FilePath &python)
+{
+    userDefinedPythonsForDocument()[documentPath] = python;
 }
 
 static QStringList replImportArgs(const FilePath &pythonFile, ReplType type)
