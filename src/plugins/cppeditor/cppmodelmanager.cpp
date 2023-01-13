@@ -358,7 +358,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     };
     static const auto saveAndOpen = [](const FilePath &filePath, const QByteArray &contents,
                                        bool inNextSplit) {
-        SaveFile f(filePath.toString());
+        SaveFile f(filePath);
         if (!f.open()) {
             showError(Tr::tr("Failed to open output file \"%1\".").arg(filePath.toUserOutput()));
             return;

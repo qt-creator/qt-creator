@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QFile>
 
 QT_BEGIN_NAMESPACE
@@ -17,10 +19,8 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT SaveFile : public QFile
 {
-    Q_OBJECT
-
 public:
-    explicit SaveFile(const QString &filename);
+    explicit SaveFile(const FilePath &filePath);
     ~SaveFile() override;
 
     bool open(OpenMode flags = QIODevice::WriteOnly) override;
@@ -31,9 +31,9 @@ public:
     static void initializeUmask();
 
 private:
-    const QString m_finalFileName;
+    const FilePath m_finalFilePath;
     std::unique_ptr<QTemporaryFile> m_tempFile;
     bool m_finalized = true;
 };
 
-} // namespace Utils
+} // Utils

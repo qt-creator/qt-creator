@@ -192,7 +192,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
         m_file.reset(new QFile{filePath.path()});
         m_isSafe = false;
     } else {
-        m_file.reset(new SaveFile{filePath.path()});
+        m_file.reset(new SaveFile(filePath));
         m_isSafe = true;
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {

@@ -20,8 +20,8 @@ namespace Utils {
 
 static QFile::Permissions m_umask;
 
-SaveFile::SaveFile(const QString &filename) :
-    m_finalFileName(filename)
+SaveFile::SaveFile(const FilePath &filePath) :
+    m_finalFilePath(filePath)
 {
 }
 
@@ -32,16 +32,16 @@ SaveFile::~SaveFile()
 
 bool SaveFile::open(OpenMode flags)
 {
-    QTC_ASSERT(!m_finalFileName.isEmpty(), return false);
+    QTC_ASSERT(!m_finalFilePath.isEmpty(), return false);
 
-    QFile ofi(m_finalFileName);
+    QFile ofi(m_finalFilePath.toFSPathString());
     // Check whether the existing file is writable
     if (ofi.exists() && !ofi.open(QIODevice::ReadWrite)) {
         setErrorString(ofi.errorString());
         return false;
     }
 
-    m_tempFile = std::make_unique<QTemporaryFile>(m_finalFileName);
+    m_tempFile = std::make_unique<QTemporaryFile>(m_finalFilePath.toFSPathString());
     m_tempFile->setAutoRemove(false);
     if (!m_tempFile->open())
         return false;
@@ -100,7 +100,7 @@ bool SaveFile::commit()
         return false;
     }
 
-    QString finalFileName = FilePath::fromString(m_finalFileName).resolveSymlinks().toString();
+    QString finalFileName = m_finalFilePath.resolveSymlinks().toString();
 
 #ifdef Q_OS_WIN
     // Release the file lock
@@ -200,4 +200,4 @@ void SaveFile::initializeUmask()
 #endif
 }
 
-} // namespace Utils
+} //  Utils
