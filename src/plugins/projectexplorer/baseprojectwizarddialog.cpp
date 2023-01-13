@@ -3,6 +3,8 @@
 
 #include "baseprojectwizarddialog.h"
 
+#include "projectexplorertr.h"
+
 #include <coreplugin/documentmanager.h>
 #include <utils/projectintropage.h>
 
@@ -141,7 +143,7 @@ QString BaseProjectWizardDialog::uniqueProjectName(const FilePath &path)
     //: File path suggestion for a new project. If you choose
     //: to translate it, make sure it is a valid path name without blanks
     //: and using only ascii chars.
-    const QString prefix = tr("untitled");
+    const QString prefix = Tr::tr("untitled");
     for (unsigned i = 0; ; ++i) {
         QString name = prefix;
         if (i)

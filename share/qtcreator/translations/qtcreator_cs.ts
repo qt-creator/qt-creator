@@ -4634,7 +4634,7 @@ informacemi o ladění.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation type="obsolete">Nepodařilo se přidat závislost</translation>
@@ -9760,7 +9760,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -9809,9 +9809,6 @@ ve svém .pro souboru.</translation>
         <source>Could not start process &quot;%1&quot;</source>
         <translation type="obsolete">Proces &quot;%1&quot; se nepodařilo spustit</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Sestavování zrušeno.&lt;/font&gt;</translation>
@@ -9851,10 +9848,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Canceled build.</source>
         <translation type="obsolete">Zrušené sestavování.</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Sestavování</translation>
     </message>
     <message>
         <source>Error while building project %1 (target: %2)</source>
@@ -9947,9 +9940,6 @@ ve svém .pro souboru.</translation>
         <source>Skipping disabled step %1.</source>
         <translation>Přeskakuje se zakázaný krok %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation type="obsolete">Uživatelsky stanovený spustitelný soubor</translation>
@@ -9958,32 +9948,6 @@ ve svém .pro souboru.</translation>
         <source>Could not find the executable, please specify one.</source>
         <translation type="obsolete">Nepodařilo se najít spustitelný soubor; nějaký, prosím, zadejte.</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Vyčistit prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">Spustit %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">Uživatelsky stanovený spustitelný soubor</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="obsolete">&lt;NENÍ NASTAVENO&gt;</translation>
@@ -10014,9 +9978,6 @@ ve svém .pro souboru.</translation>
         <source>&lt;VALUE&gt;</source>
         <translation type="obsolete">&lt;HODNOTA&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Upravit</translation>
@@ -10075,9 +10036,6 @@ ve svém .pro souboru.</translation>
         <source>Summary: No changes to Environment</source>
         <translation type="obsolete">Shrnutí: Prostředí nezměněno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Soubory ze všech projektů</translation>
@@ -10086,9 +10044,6 @@ ve svém .pro souboru.</translation>
         <source>Files in Any Project</source>
         <translation>Soubory ze všech projektů</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Všechny projekty</translation>
@@ -10111,23 +10066,13 @@ ve svém .pro souboru.</translation>
         <source>File &amp;pattern:</source>
         <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation type="obsolete">Nastavení sestavování</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>&amp;Zdvojit výběr</translation>
-    </message>
-    <message>
-        <source>Build Steps</source>
-        <translation type="obsolete">Postup sestavování</translation>
     </message>
     <message>
         <source>Edit Build Configuration:</source>
@@ -10140,14 +10085,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Edit build configuration:</source>
         <translation>Upravit nastavení sestavování:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>New Configuration</source>
@@ -10211,10 +10148,6 @@ ve svém .pro souboru.</translation>
         <translation>Název nového nastavení:</translation>
     </message>
     <message>
-        <source>Clean Steps</source>
-        <translation type="obsolete">Kroky k očistění</translation>
-    </message>
-    <message>
         <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Udělat %1 činným.&lt;/a&gt;</translation>
     </message>
@@ -10225,13 +10158,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Clone configuration</source>
         <translation type="obsolete">Zdvojit nastavení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
-    <message>
-        <source>No Build Steps</source>
-        <translation type="obsolete">Žádné kroky sestavování</translation>
     </message>
     <message>
         <source>Add clean step</source>
@@ -10258,22 +10184,6 @@ ve svém .pro souboru.</translation>
         <translation>Postup pročišťování</translation>
     </message>
     <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Posunout nahoru</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Posunout dolů</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <translation type="obsolete">Odstranit položku</translation>
-    </message>
-    <message>
-        <source>Removing Step failed</source>
-        <translation type="obsolete">Odstranění kroku sestavování se nezdařilo</translation>
-    </message>
-    <message>
         <source>Can&apos;t remove build step while building</source>
         <translation type="obsolete">Během sestavování nelze krok sestavování odstranit</translation>
     </message>
@@ -10285,35 +10195,14 @@ ve svém .pro souboru.</translation>
         <source>Add Build Step</source>
         <translation type="obsolete">Přidat krok sestavovaní</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Výstup překladače</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation type="obsolete">Zrušit sestavování a zavřít</translation>
     </message>
-    <message>
-        <source>A project is currently being built.</source>
-        <translation type="obsolete">Právě je sestavován nějaký projekt.</translation>
-    </message>
-    <message>
-        <source>Close Qt Creator?</source>
-        <translation type="obsolete">Zavřít Qt Creator?</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation type="obsolete">Chcete zrušit sestavování a každopádně zavřít Qt Creator?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation type="obsolete">Soubory v nynějším projektu</translation>
@@ -10322,9 +10211,6 @@ ve svém .pro souboru.</translation>
         <source>Files in Current Project</source>
         <translation>Soubory v nynějším projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Nynější projekt</translation>
@@ -10334,87 +10220,9 @@ ve svém .pro souboru.</translation>
         <translation>Projekt &apos;%1&apos;:</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
-    <message>
         <source>Executable:</source>
         <translation type="obsolete">Spustitelný soubor:</translation>
     </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenty:</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;Terminal</source>
-        <translation type="obsolete">Spustit v &amp;terminálu</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Ladič:</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Prováděcí prostředí</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal</source>
-        <translation type="obsolete">Spustit v &amp;terminálu</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>No Executable specified.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor.
-</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Běží spustitelný soubor: &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="obsolete">Závislosti</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="obsolete">%1 nemá žádné závislosti.</translation>
@@ -10428,9 +10236,6 @@ ve svém .pro souboru.</translation>
         <source>%1 depends on: %2.</source>
         <translation type="obsolete">%1 závisí na: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation type="obsolete">%1 z projektu %2</translation>
@@ -10443,16 +10248,10 @@ ve svém .pro souboru.</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation type="obsolete">Soubor %1 se nepodařilo přejmenovat na %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation type="obsolete">Nastavení editoru</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation type="obsolete">Výchozí kódování souborů:</translation>
@@ -10510,33 +10309,10 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
-    <message>
-        <source>New session name</source>
-        <translation type="obsolete">Název nového sezení</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the new session:</source>
         <translation type="obsolete">Zadejte název nového sezení:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
-    <message>
-        <source>Re-run this run-configuration</source>
-        <translation type="obsolete">Nastavení spuštění spustit ještě jednou</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Zastavit</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Výstup programu</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Okno s výstupem programu</translation>
     </message>
     <message>
         <source>The application is still running.</source>
@@ -10547,10 +10323,6 @@ ve svém .pro souboru.</translation>
         <translation type="obsolete">Vynutit ukončení?</translation>
     </message>
     <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Ukončit vynuceně</translation>
-    </message>
-    <message>
         <source>The application is still running. Close it first.</source>
         <translation type="obsolete">Program ještě běží. Nejprve jej ukončete.</translation>
     </message>
@@ -10558,46 +10330,20 @@ ve svém .pro souboru.</translation>
         <source>Unable to close</source>
         <translation type="obsolete">Nepodařilo se zavřít</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Okno s výstupem programu</translation>
-    </message>
     <message>
         <source>Additional output omitted
 </source>
         <translation type="obsolete">Dodatečný výstup opomenut
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Uživatelsky stanovený krok</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <comment>item in combobox</comment>
         <translation>Uživatelsky stanovený krok</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Název:</translation>
-    </message>
     <message>
         <source>Command:</source>
         <translation>Příkaz:</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Pracovní adresář:</translation>
     </message>
     <message>
         <source>Command Arguments:</source>
@@ -10623,44 +10369,15 @@ ve svém .pro souboru.</translation>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>Build and Run</source>
-        <translation type="obsolete">Sestavování a spuštění</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
-    </message>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>Project File Factory</translation>
     </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Všechny projekty</translation>
-    </message>
-    <message>
-        <source>Could not open the following project: &apos;%1&apos;</source>
-        <translation type="obsolete">Projekt &apos;%1&apos; se nepodařilo otevřít</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Přidat implicitně&gt;</translation>
@@ -10707,9 +10424,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>&apos;%1&apos; se nepodařilo přidat do verzovacího systému.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation type="obsolete">Zjednodušit strom</translation>
@@ -10730,9 +10444,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Synchronize with Editor</source>
         <translation>Seřídit s editorem</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projekty</translation>
@@ -10753,20 +10464,10 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Filter tree</source>
         <translation type="obsolete">Přefiltrovat strom</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Active Build and Run Configurations</source>
         <translation type="obsolete">Činná nastavení pro sestavování a spouštění</translation>
     </message>
-    <message>
-        <source>No project loaded.</source>
-        <translation type="obsolete">Není nahrán žádný projekt.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation type="obsolete">Přidat do verzovacího &amp;systému (%1)</translation>
@@ -10791,9 +10492,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Files to be added in</source>
         <translation>Soubory k přidání v</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation type="obsolete">Odstranit soubor</translation>
@@ -10810,16 +10508,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>File to remove:</source>
         <translation type="obsolete">Soubor k odstranění:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>+</source>
         <translation type="obsolete">+</translation>
@@ -10831,10 +10519,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Edit run configuration:</source>
         <translation type="obsolete">Upravit nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="obsolete">Nastavení spuštění:</translation>
     </message>
     <message>
         <source>Deployment:</source>
@@ -10849,16 +10533,9 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Odstranit</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
-    </message>
-    <message>
         <source>Rename ...</source>
         <translation type="obsolete">Přejmenovat...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Správce sezení</translation>
@@ -10870,10 +10547,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Clone Session</source>
         <translation type="obsolete">Zdvojit sezení</translation>
-    </message>
-    <message>
-        <source>Delete Session</source>
-        <translation type="obsolete">Smazat sezení</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
@@ -10927,13 +10600,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Automatically restores the last session when Qt Creator is started.</source>
         <translation>Automaticky obnovit minulé sezení při spuštění Qt Creatoru.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Sezení</translation>
-    </message>
     <message>
         <source>Failed to open project</source>
         <translation type="obsolete">Nepodařilo se otevřít projekt</translation>
@@ -10943,16 +10609,10 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <comment>default file name to display</comment>
         <translation type="obsolete">Bez názvu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Soubor nenalezen: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation type="obsolete">Potíže při sestavování</translation>
@@ -10962,10 +10622,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Potíže</translation>
     </message>
     <message>
-        <source>Filter by categories</source>
-        <translation>Filtrovat podle skupin</translation>
-    </message>
-    <message>
         <source>&amp;Copy</source>
         <translation type="obsolete">&amp;Kopírovat</translation>
     </message>
@@ -10973,9 +10629,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Show Warnings</source>
         <translation>Ukázat varování</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation type="obsolete">Proces se nepodařilo spustit!</translation>
@@ -10984,9 +10637,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation type="obsolete">Nepodařilo se získat žádný výstup ladění!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation type="obsolete">Správa projektu</translation>
@@ -11016,35 +10666,12 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>Přidat do &amp;projektu:</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>Přidat do správy &amp;verzí:</translation>
     </message>
     <message>
         <source>Project Management</source>
         <translation>Správa projektu</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation type="obsolete">Řídit</translation>
-    </message>
-    <message>
-        <source>Manage ...</source>
-        <translation type="obsolete">Spravovat...</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -11111,10 +10738,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Zavřít všechny projekty</translation>
     </message>
     <message>
-        <source>Session</source>
-        <translation type="obsolete">Sezení</translation>
-    </message>
-    <message>
         <source>Set Build Configuration</source>
         <translation type="obsolete">Nastavit nastavení sestavování</translation>
     </message>
@@ -11151,10 +10774,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Pročistit projekt</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
-    </message>
-    <message>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -11185,10 +10804,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Remove File...</source>
         <translation>Odstranit soubor...</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
     </message>
     <message>
         <source>Load Project</source>
@@ -11256,16 +10871,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Spuštění bez nasazení</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Sestavení</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>Sestavit znovu</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation>Pročistit</translation>
     </message>
     <message>
         <source>Build Without Dependencies</source>
@@ -11284,10 +10891,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>Pročistit s vyloučením závislostí</translation>
     </message>
     <message>
-        <source>Deploy</source>
-        <translation>Nasazení</translation>
-    </message>
-    <message>
         <source>Add Existing Directory...</source>
         <translation>Přidat existující adresář...</translation>
     </message>
@@ -11303,10 +10906,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Delete File...</source>
         <translation>Smazat soubor...</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Přejmenovat...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -11391,10 +10990,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Name of current session.</source>
         <translation>Název nynějšího sezení.</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Unload</source>
@@ -11591,10 +11186,6 @@ Chcete je přehlížet?</translation>
 </translation>
     </message>
     <message>
-        <source>Cancel Build &amp;&amp; Close</source>
-        <translation>Zrušit sestavování a zavřít</translation>
-    </message>
-    <message>
         <source>Do Not Close</source>
         <translation>Nezavírat</translation>
     </message>
@@ -11764,9 +11355,6 @@ přidat do správy verzí (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>Soubor %1 se nepodařilo smazat.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Při obnově sezení se vyskytla chyba</translation>
@@ -11800,10 +11388,6 @@ přidat do správy verzí (%2)?</translation>
         <translation>Odstranit projekty ze sezení</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation>Nepodařilo se otevřít projekt</translation>
-    </message>
-    <message>
         <source>Session</source>
         <translation>Sezení</translation>
     </message>
@@ -11814,10 +11398,6 @@ přidat do správy verzí (%2)?</translation>
     <message>
         <source>Could not save session to file %1</source>
         <translation>Sezení se nepodařilo uložit do souboru %1</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -16882,7 +16462,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Sestavování a spuštění</translation>
@@ -17000,10 +16580,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Výchozí adresář pro sestavování:</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-    <message>
         <source>Open Compile Output pane when building</source>
         <translation>Při sestavování ukázat výstup překladače</translation>
     </message>
@@ -17018,13 +16594,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Asks before terminating the running application in response to clicking the stop button in Application Output.</source>
         <translation>Po klepnutí na zastavovací tlačítko ve výstupním panelu běžícího programu se nejprve zeptá, a teprve pak ukončí běh.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
     </message>
     <message>
         <source>Manage Sessions...</source>
@@ -17049,22 +16618,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>%1 (current session)</source>
         <translation type="obsolete">%1 (nynější sezení)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nový projekt</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation type="obsolete">Nový projekt...</translation>
-    </message>
-    <message>
-        <source>Recent Sessions</source>
-        <translation type="obsolete">Naposledy otevřená sezení</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Naposledy otevřené projekty</translation>
     </message>
     <message>
         <source>Open Project...</source>
@@ -19195,7 +18748,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Program se nepodařilo spustit. Možná nesouhlasí cesta, nebo nejsou dostatečná oprávnění?</translation>
@@ -19218,16 +18771,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Nepodařilo se získat žádný výstup ladění.
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Spustit</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.</source>
         <translation>Nebyl zadán žádný spustitelný soubor.</translation>
@@ -19271,9 +18814,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>%1 ukončen. Vrácená hodnota %2
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Cílový adresář %1 se nepodařilo vytvořit.</translation>
@@ -19306,12 +18846,6 @@ Důvod: %2</translation>
 </translation>
     </message>
     <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Provádí se %1 %2...
-</translation>
-    </message>
-    <message>
         <source>%1 not found in PATH
 </source>
         <translation>%1 se v CESTĚ (PATH) nepodařilo najít
@@ -19323,9 +18857,6 @@ Důvod: %2</translation>
         <translation type="obsolete">Provádí se %1...
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
@@ -19343,16 +18874,9 @@ Důvod: %2</translation>
         <extracomment>%1 is the custom process step summary</extracomment>
         <translation type="obsolete">%1 (vypnuto)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Změnit nastavení sestavování &amp;&amp; pokračovat</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Zrušit</translation>
     </message>
     <message>
         <source>Continue anyway</source>
@@ -19382,16 +18906,6 @@ Důvod: %2</translation>
         <source>Choose build configuration:</source>
         <translation type="obsolete">Vybrat nastavení sestavování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Činné nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>Vývoj</translation>
@@ -19401,13 +18915,6 @@ Důvod: %2</translation>
         <translation>Nový projekt</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Projekty</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
-    <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="obsolete">Upravit projektová nastavení pro projekt &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
@@ -19415,27 +18922,9 @@ Důvod: %2</translation>
         <source>No Project loaded</source>
         <translation type="obsolete">Nenahrán žádný projekt</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation type="obsolete">Vybrat projekt</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Udělat %1 činným.&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
@@ -19444,10 +18933,6 @@ Důvod: %2</translation>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Opravdu chcete odstranit nastavení spuštění &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Přejmenovat...</translation>
     </message>
     <message>
         <source>Run Settings</source>
@@ -19462,16 +18947,8 @@ Důvod: %2</translation>
         <translation>Metoda:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
-    </message>
-    <message>
         <source>Run configuration:</source>
         <translation>Nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>&amp;Clone Selected</source>
-        <translation>&amp;Zdvojit výběr</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -19480,10 +18957,6 @@ Důvod: %2</translation>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Zrušit sestavování a odstranit nastavení nasazení</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Neodstraňovat</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -21091,7 +20564,7 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Přidat cíl</translation>
@@ -21100,16 +20573,10 @@ Můžete si vybrat mezi odložením změn nebo jejich vyhozením.</translation>
         <source>Target:</source>
         <translation type="obsolete">Cíl:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
@@ -24847,7 +24314,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -24856,14 +24323,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>Bez názvu</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Sestavení</translation>
     </message>
     <message>
         <source>Clean</source>
@@ -24878,9 +24337,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Clean Environment</source>
         <translation>Smazat prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Vyprázdnit prostředí systému</translation>
@@ -24905,7 +24361,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -24962,10 +24418,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Qt Creator plugin</source>
         <translation type="obsolete">Přídavný modul pro Qt Creator</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="obsolete">Jiný projekt</translation>
     </message>
     <message>
         <source>Creates an application descriptor file.</source>
@@ -25223,23 +24675,14 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Qt Creator build:</source>
         <translation>Adresář se sestavením Qt Creatoru:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Cesta:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;Žádné další projekty v tomto sezení&gt;</translation>
@@ -25253,17 +24696,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Závislosti</translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Nastavení editoru</translation>
     </message>
     <message>
         <source>Editor</source>
@@ -25405,7 +24841,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation type="obsolete">Vybrat nastavení sestavení</translation>
@@ -25422,9 +24858,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Run:</source>
         <translation type="obsolete">Spuštění:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projekt</translation>
@@ -25440,14 +24873,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Kit</source>
         <translation>Sada</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Nasazení</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Spustit</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -25522,14 +24947,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation type="obsolete">Vybrat projekt</translation>
     </message>
     <message>
-        <source>Build:</source>
-        <translation type="obsolete">Sestavení:</translation>
-    </message>
-    <message>
-        <source>Run:</source>
-        <translation type="obsolete">Spuštění:</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Projekt:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Spuštění:&lt;/b&gt; %4%5&lt;/html&gt;</translation>
     </message>
@@ -25545,19 +24962,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>&lt;br/&gt;%1</source>
         <translation type="obsolete">&lt;br/&gt;%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
     </message>
     <message>
         <source>Build &amp; Run</source>
@@ -25570,14 +24977,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Applications</source>
         <translation>Programy</translation>
-    </message>
-    <message>
-        <source>Libraries</source>
-        <translation>Knihovny</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>Projekty C/C++ (bez Qt)</translation>
     </message>
     <message>
         <source>Import Project</source>
@@ -25618,7 +25017,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Zadejte název sezení:</translation>
@@ -25627,20 +25026,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Switch to</source>
         <translation>Přepnout na</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
     <message>
         <source>Run</source>
         <translation>Spuštění</translation>
     </message>
-    <message>
-        <source>Build</source>
-        <translation>Sestavení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">Není stanoven cíl.</translation>
@@ -25704,10 +25093,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Zrušit sestavování a odstranit sadu</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Neodstraňovat</translation>
-    </message>
-    <message>
         <source>Remove Kit %1?</source>
         <translation>Odstranit sadu %1?</translation>
     </message>
@@ -25766,29 +25151,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
 &quot;%1&quot; target?</source>
         <translation type="obsolete">Opravdu chcete odstranit cíl
 &quot;%1&quot;?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Potíže při sestavování</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Kopírovat</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate</source>
-        <translation type="obsolete">&amp;Opatřit vysvětlivkami</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation type="obsolete">Ukázat varování</translation>
-    </message>
-    <message>
-        <source>Filter by categories</source>
-        <translation type="obsolete">Filtrovat podle skupin</translation>
     </message>
 </context>
 <context>
@@ -27412,7 +26774,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Symbian SDK a projekt se musí nacházet na stejné diskové jednotce.</translation>
@@ -29351,18 +28713,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CodeStyleSettingsPropertiesPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="obsolete">Jazyk:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>Výběr průvodce pro zveřejnění</translation>
@@ -29378,21 +28729,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
         <translation>Projekt &apos;%1&apos; nyní nelze zveřejnit.</translation>
-    </message>
-</context>
-<context>
-    <name>ToolChainOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="obsolete">Klonovat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -31797,7 +31133,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Proces:&quot;%1&quot; se nepodařilo spustit</translation>
@@ -31836,12 +31172,6 @@ With cache simulation, further event counters are enabled:
         <source>Running %1 %2 ...
 </source>
         <translation>Provádí se %1 %2 ...
-</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 se v CESTĚ (PATH) nepodařilo najít
 </translation>
     </message>
 </context>
@@ -34843,14 +34173,11 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;vlastní&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Připojit ladicí program k tomuto procesu</translation>
@@ -34887,9 +34214,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Application Output Window</source>
         <translation>Okno s výstupem programu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Disable</source>
         <translation>Zakázat</translation>
@@ -34931,9 +34255,6 @@ když bude zavolán mimo git bash.</translation>
         <source>No Build Steps</source>
         <translation>Prázdný postup sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation type="obsolete">Nastavení stylu kódování</translation>
@@ -34955,7 +34276,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error</extracomment>
@@ -34985,9 +34306,6 @@ když bude zavolán mimo git bash.</translation>
         <extracomment>Task is of type: warning</extracomment>
         <translation>Varování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -34999,20 +34317,9 @@ když bude zavolán mimo git bash.</translation>
         <translation>Nasadit místně</translation>
     </message>
     <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">Žádné nasazení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
         <source>Deploy Configuration</source>
         <translation>Nastavení nasazení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -35023,16 +34330,10 @@ když bude zavolán mimo git bash.</translation>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Projekt %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Cesta k &amp;překladači:</translation>
@@ -35049,37 +34350,22 @@ když bude zavolán mimo git bash.</translation>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Inicializace:</translation>
@@ -35098,13 +34384,6 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekty</translation>
-    </message>
-</context>
-<context>
     <name>::Welcome</name>
     <message>
         <source>%1 (last session)</source>
@@ -35116,7 +34395,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::RunControl</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -35146,9 +34425,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Do not ask again</source>
         <translation>Neptat se znovu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="obsolete">&amp;Ukázat v editoru</translation>
@@ -35161,9 +34437,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Show task location in an editor.</source>
         <translation>Ukázat umístění úkolu v editoru.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Ukázat &amp;výstup</translation>
@@ -35176,16 +34449,6 @@ když bude zavolán mimo git bash.</translation>
         <source>O</source>
         <translation>O - Výstup</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Ladič:</translation>
@@ -35210,9 +34473,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Name:</source>
         <translation>Název:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Automaticky zjištěno</translation>
@@ -35265,9 +34525,6 @@ když bude zavolán mimo git bash.</translation>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="obsolete">Následující sady nástrojů již byly nastaveny:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Nebyly nastaveny znovu ještě jednou.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Tool Chains</source>
         <translation type="obsolete">Sady nástrojů</translation>
@@ -35277,20 +34534,9 @@ když bude zavolán mimo git bash.</translation>
         <translation>Překladače</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>Klonovat</translation>
     </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation type="obsolete">Používá se soubor s nastavením projektu nějaké starší verze</translation>
@@ -35315,9 +34561,6 @@ Soubory s nastavením .user obsahují nastavení zvláštní pro prostředí. Ne
 
 Chcete přesto soubor s nastavením nahrát?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Žádné nasazení</translation>
@@ -35330,9 +34573,6 @@ Chcete přesto soubor s nastavením nahrát?</translation>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">Nasazení na zařízení Symbian</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Opatřit anotacemi</translation>
@@ -37888,7 +37128,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -37919,11 +37159,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Cílový adresář %1 se nepodařilo vytvořit.</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -39397,7 +38633,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Zastavit sledování</translation>
@@ -39406,9 +38642,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Stop monitoring task files.</source>
         <translation>Zastavit sledování souborů s úkoly.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>Soubor s úkolem</translation>
@@ -39417,9 +38650,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>File Error</source>
         <translation>Chyba souboru</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Soubor s úkolem %1 nelze otevřít: %2</translation>
@@ -41461,19 +40691,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Používá se soubor s nastavením projektu nějaké starší verze</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Použije se verzovaná zajišťovací kopie souboru s nastavením .user, protože nynější soubor byl vytvořen novější, neslučitelnou verzí Qt Creatoru.&lt;/p&gt;&lt;p&gt;Na změny v nastavení projektu, které byly provedeny po posledním použití této verze Qt Creatoru pro tento projekt, nebude brán zřetel, a nyní následující změny &lt;b&gt;nebudou&lt;/b&gt; na novou verzi přeneseny.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Soubor s nastavením projektu z jiného prostředí?</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No valid .user file found for &apos;%1&apos;</source>
         <translation>Nepodařilo se najít žádný platný soubor .user pro &apos;%1&apos;</translation>
@@ -41502,18 +40720,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Settings File for &apos;%1&apos; from a different Environment?</source>
         <translation>Soubor s nastavením pro &apos;%1&apos; z jiného prostředí?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator zjistil, že soubor s uživatelským nastavením .user byl vytvořen pro jiné vývojářské nastavení, možná pochází z jiného stroje.
-
-Soubory s nastavením .user obsahují nastavení zvláštní pro prostředí. Neměly by se kopírovat do jiného prostředí.
-
-Chcete přesto soubor s nastavením nahrát?</translation>
     </message>
     <message>
         <source>Unsupported Shared Settings File</source>
@@ -43971,7 +43177,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -43980,9 +43186,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Language:</source>
         <translation>Jazyk:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Výběr průvodce pro nastavení zařízení</translation>
@@ -43992,27 +43195,12 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <translation>Dostupné typy zařízení:</translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation>Spustit průvodce</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
         <translation>Nastavení linuxového zařízení</translation>
     </message>
     <message>
         <source>&amp;Device:</source>
         <translation>&amp;Zařízení:</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Typ:</translation>
     </message>
     <message>
         <source>&amp;Name:</source>
@@ -47814,43 +47002,15 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Local PC</source>
         <translation>Místní PC</translation>
     </message>
     <message>
-        <source>Desktop</source>
-        <translation>Stolní počítač</translation>
-    </message>
-    <message>
-        <source>Run locally</source>
-        <translation type="obsolete">Spustit místně</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Stolní počítač</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
-    <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (výchozí pro %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation>Zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Zařízení</translation>
@@ -47865,44 +47025,22 @@ Chcete jej ukončit?</translation>
         <extracomment>Device is not connected</extracomment>
         <translation type="obsolete">Připojeno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
     <message>
         <source>Edit Environment</source>
         <translation>Upravit prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>Název nového sezení</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation type="obsolete">Nastavení ladiče</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -50525,7 +49663,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot run: Device is not able to create processes.</source>
         <translation>Nelze spustit: Zařízení nedokáže vytvořit procesy.</translation>
@@ -50578,9 +49716,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Remote application finished with exit code 0.</source>
         <translation>Vzdálený program byl ukončen. Vrácená hodnota 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>Sada:</translation>
@@ -50609,16 +49744,10 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>&amp;Attach to Process</source>
         <translation>&amp;Připojit k procesu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>Vzdálená chyba</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>ID procesu</translation>
@@ -50627,9 +49756,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Command Line</source>
         <translation>Příkazový řádek</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Chyba ve spojení: %1</translation>
@@ -50656,9 +49782,6 @@ Remote error output was: %1</source>
         <translation>
 Vzdálený chybový výstup byl: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation>Nelze ukončit proces %1: %2</translation>
@@ -50667,9 +49790,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Cannot open process %1: %2</source>
         <translation>Nelze otevřít proces %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Chyba při vytváření spojení: %1</translation>
@@ -50712,16 +49832,9 @@ Remote stderr was: %1</source>
         <translation>
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Bez názvu</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -50731,9 +49844,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Warning:</source>
         <translation>Varování:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>Sys Root &quot;%1&quot; není adresář.</translation>
@@ -50742,9 +49852,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Sys Root</source>
         <translation>Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>Překladač</translation>
@@ -50757,9 +49864,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>No compiler set in kit.</source>
         <translation>V sadě není nastaven žádný překladač.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Neznámý typ zařízení</translation>
@@ -50768,9 +49872,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device type</source>
         <translation>Typ zařízení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation>Zařízení neodpovídá typu zařízení.</translation>
@@ -50784,17 +49885,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <translation>Není nastaveno žádné zařízení.</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Zařízení</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nenastaveno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Kořenový adresář obrazu systému k použití.&lt;br&gt;Ponechte prázdné, když sestavujete pro desktop.</translation>
     </message>
@@ -50802,16 +49892,9 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation>Překladač k použití pro sestavování.&lt;br&gt;Ujistěte se, že bude překladač vytvářet spustitelné soubory slučitelné s cílovým zařízením, verzí Qt a jinými použitými knihovnami.</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
     </message>
     <message>
         <source>Compiler:</source>
@@ -50821,9 +49904,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>&lt;No compiler available&gt;</source>
         <translation>&lt;Žádný překladač není dostupný&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Typ zařízení pro spuštění programů.</translation>
@@ -50832,9 +49912,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device type:</source>
         <translation>Typ zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Manage</source>
         <translation>Spravovat</translation>
@@ -50851,19 +49928,9 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Device:</source>
         <translation>Zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
     <message>
         <source>Desktop</source>
         <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -50881,62 +49948,22 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Obrázky (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Automaticky zjištěno</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Ručně</translation>
-    </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (výchozí)</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
         <source>Kits</source>
         <translation>Sady</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klonovat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Udělat výchozí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation>Neznámá chyba.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation>Výchozí sestavení</translation>
@@ -53513,14 +52540,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>Vlastní</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
+    <name>::ProjectExplorer</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -53533,9 +52553,6 @@ Vzdálený: %4</translation>
         <source>Empty</source>
         <translation>Prázdný</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Vlastní nastavení syntaktického analyzátoru...</translation>
@@ -53561,16 +52578,8 @@ Vzdálený: %4</translation>
         <translation>Čárkou oddělený seznam mkspecs.</translation>
     </message>
     <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Cesta k &amp;překladači:</translation>
-    </message>
-    <message>
         <source>&amp;Make path:</source>
         <translation>Cesta k &amp;Make:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
@@ -53592,16 +52601,10 @@ Vzdálený: %4</translation>
         <source>&amp;Error parser:</source>
         <translation>&amp;Chyba syntaktického analyzátoru:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1 (%2 %3 v %4)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -54777,11 +53780,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Machine type:</source>
         <translation>Typ stroje:</translation>
@@ -55811,7 +54810,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No device configured.</source>
         <translation>Nebylo nastaveno žádné zařízení.</translation>
@@ -55828,34 +54827,13 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Check for a configured device</source>
         <translation>Prověřit, zda je nastaveno zařízení</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>Prováděcí prostředí</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Základní prostředí pro toto nastavení spuštění:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Prostředí pro sestavování</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
     </message>
 </context>
 <context>
@@ -56691,7 +55669,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Vlastní syntaktický analyzátor</translation>
@@ -56721,10 +55699,6 @@ monitor reset</source>
         <translation>&amp;Zpráva:</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Zkouška</translation>
-    </message>
-    <message>
         <source>E&amp;rror message:</source>
         <translation>Hlášení o &amp;chybě:</translation>
     </message>
@@ -56735,10 +55709,6 @@ monitor reset</source>
     <message>
         <source>File name:</source>
         <translation>Název souboru:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Textový štítek</translation>
     </message>
     <message>
         <source>Line number:</source>
@@ -56760,9 +55730,6 @@ monitor reset</source>
         <source>Pattern does not match the error message.</source>
         <translation>Vzor neodpovídá zprávě o chybě.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Zkouška zařízení</translation>
@@ -57995,30 +56962,11 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>ICC</source>
         <translation>ICC</translation>
     </message>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Vlastní</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Nelze ukončit proces s PID %1: %2</translation>
@@ -58055,9 +57003,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>could not break the process.</source>
         <translation>Proces se nepodařilo přerušit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Nepodařilo se zabít vzdálený proces: %1</translation>
@@ -58070,9 +57015,6 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Terminated by request.</source>
         <translation>Ukončeno na požádání.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Importovat sestavení z...</translation>
@@ -58081,25 +57023,12 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
         <source>Import</source>
         <translation>Importovat</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Proces nemůže přistupovat k souboru, protože tento je používán jiným procesem.
 Zavřete, prosím, všechny běžící instance své aplikace, předtím než začnete se sestavováním.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 - dočasný</translation>
@@ -58109,7 +57038,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     <name>::QmakeProjectManager</name>
 </context>
 <context>
-    <name>ProjectExplorer::TargetSetupPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Nenalezeny žádné platné sady.&lt;/span&gt;</translation>
@@ -58131,13 +57060,6 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
         <comment>%1: Project name</comment>
         <translation>Qt Creator může pro projekt &lt;b&gt;%1&lt;/b&gt; použít následující sady:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -58148,16 +57070,6 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Varování:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Nastavit projekt</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Nastavit projekt</translation>
@@ -60054,14 +58966,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::KitConfigWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Spravovat...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Edit Files</source>
         <translation>Upravit soubory</translation>
@@ -60098,9 +59003,6 @@ Tyto soubory jsou zachovány.</numerusform>
 Tyto soubory jsou zachovány.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation>Přidat existující adresář</translation>

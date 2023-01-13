@@ -5,6 +5,7 @@
 
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "session.h"
 #include "taskhub.h"
 
@@ -104,7 +105,7 @@ static bool parseTaskFile(QString *errorString, const FilePath &name)
 {
     QFile tf(name.toString());
     if (!tf.open(QIODevice::ReadOnly)) {
-        *errorString = TaskFile::tr("Cannot open task file %1: %2")
+        *errorString = Tr::tr("Cannot open task file %1: %2")
                            .arg(name.toUserOutput(), tf.errorString());
         return false;
     }
@@ -192,7 +193,7 @@ TaskFile *TaskFile::openTasks(const FilePath &filePath)
         file = new TaskFile(ProjectExplorerPlugin::instance());
 
         if (!file->load(&errorString, filePath)) {
-            QMessageBox::critical(Core::ICore::dialogParent(), tr("File Error"), errorString);
+            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("File Error"), errorString);
             delete file;
             return nullptr;
         }
@@ -219,12 +220,8 @@ void StopMonitoringHandler::handle(const ProjectExplorer::Task &task)
 
 QAction *StopMonitoringHandler::createAction(QObject *parent) const
 {
-    const QString text =
-            QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
-                                        "Stop Monitoring");
-    const QString toolTip =
-            QCoreApplication::translate("TaskList::Internal::StopMonitoringHandler",
-                                        "Stop monitoring task files.");
+    const QString text = Tr::tr("Stop Monitoring");
+    const QString toolTip = Tr::tr("Stop monitoring task files.");
     auto stopMonitoringAction = new QAction(text, parent);
     stopMonitoringAction->setToolTip(toolTip);
     return stopMonitoringAction;

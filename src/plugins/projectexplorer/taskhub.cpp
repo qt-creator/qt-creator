@@ -47,12 +47,12 @@ public:
     {
         setColor(task.type == Task::Error ? Utils::Theme::ProjectExplorer_TaskError_TextMarkColor
                                           : Utils::Theme::ProjectExplorer_TaskWarn_TextMarkColor);
-        setDefaultToolTip(task.type == Task::Error ? QApplication::translate("TaskHub", "Error")
-                                                   : QApplication::translate("TaskHub", "Warning"));
+        setDefaultToolTip(task.type == Task::Error ? Tr::tr("Error")
+                                                   : Tr::tr("Warning"));
         setPriority(task.type == Task::Error ? TextEditor::TextMark::NormalPriority
                                              : TextEditor::TextMark::LowPriority);
         if (task.category == Constants::TASK_CATEGORY_COMPILE) {
-            setToolTip("<html><body><b>" + QApplication::translate("TaskHub", "Build Issue")
+            setToolTip("<html><body><b>" + Tr::tr("Build Issue")
                        + "</b><br/><code style=\"white-space:pre;font-family:monospace\">"
                        + task.description().toHtmlEscaped() + "</code></body></html>");
         } else {

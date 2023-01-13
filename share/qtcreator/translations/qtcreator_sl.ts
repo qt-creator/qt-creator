@@ -3800,7 +3800,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Ni moč dodati odvisnosti</translation>
@@ -7086,7 +7086,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Zaganjanje: »%1« %2</translation>
@@ -7117,9 +7117,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Could not start process &quot;%1&quot;</source>
         <translation type="obsolete">Procesa »%1« ni bilo moč zagnati</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n build steps</source>
         <translation>
@@ -7148,10 +7145,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Gradnja preklicana.</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Gradnja</translation>
-    </message>
-    <message>
         <source>Error while building project %1 (target: %2)</source>
         <translation>Napaka med gradnjo projekta %1 (cilj: %2)</translation>
     </message>
@@ -7163,9 +7156,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Running build steps for project %1...</source>
         <translation>Zaganjanje korakov gradnje za projekt %1 …</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Izvršljiva datoteka po meri</translation>
@@ -7190,16 +7180,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Run %1</source>
         <translation>Zaženi %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Izvršljiva datoteka po meri</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Urejanje</translation>
@@ -7240,9 +7220,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Set &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
         <translation type="obsolete">Nastavi &lt;b&gt;%1&lt;/b&gt; na &lt;b&gt;%2&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Datoteke v kateremkoli projektu</translation>
@@ -7251,20 +7228,10 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Files in any project</source>
         <translation type="obsolete">Datoteke v kateremkoli projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Vsi projekti</translation>
     </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation>Datotečni &amp;vzorec:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>Po&amp;dvoji izbrano</translation>
@@ -7276,18 +7243,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Edit build configuration:</source>
         <translation>Urejanje nastavitev za gradnjo:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Preimenuj</translation>
     </message>
     <message>
         <source>Remove Build Configuration</source>
@@ -7317,50 +7272,11 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <source>Build Steps</source>
-        <translation type="obsolete">Koraki gradnje</translation>
-    </message>
-    <message>
-        <source>Clean Steps</source>
-        <translation type="obsolete">Koraki čiščenja</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <translation type="obsolete">Ime nove nastavitve:</translation>
-    </message>
-    <message>
-        <source>Clone configuration</source>
-        <translation type="obsolete">Podvoji nastavitev</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
-    <message>
-        <source>Build Steps</source>
         <translation>Koraki gradnje</translation>
     </message>
     <message>
         <source>Clean Steps</source>
         <translation>Koraki čiščenja</translation>
-    </message>
-    <message>
-        <source>No Build Steps</source>
-        <translation type="obsolete">Brez korakov gradnje</translation>
-    </message>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Premakni gor</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Premakni dol</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <translation type="obsolete">Odstrani postavko</translation>
-    </message>
-    <message>
-        <source>Removing Step failed</source>
-        <translation type="obsolete">Odstranitev koraka gradnje ni uspela</translation>
     </message>
     <message>
         <source>Can&apos;t remove build step while building</source>
@@ -7374,16 +7290,10 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Add Build Step</source>
         <translation type="obsolete">Dodaj korak gradnje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Izhod prevajanja</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Datoteke v trenutnem projektu</translation>
@@ -7392,9 +7302,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Files in current project</source>
         <translation type="obsolete">Datoteke v trenutnem projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Trenutni projekt</translation>
@@ -7403,9 +7310,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>File &amp;pattern:</source>
         <translation type="obsolete">Datotečni &amp;vzorec:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
@@ -7413,10 +7317,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Delovna mapa:</translation>
     </message>
     <message>
         <source>Run in &amp;Terminal</source>
@@ -7435,18 +7335,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Osnovno okolje za te nastavitve zagona:</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okolje</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okolje za gradnjo</translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation type="obsolete">Ime:</translation>
     </message>
@@ -7462,9 +7350,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="obsolete">Zaganjanje programa: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>Nastavitve urejevalnika:</translation>
@@ -7501,7 +7386,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>Upravljalnik sej</translation>
@@ -7553,23 +7438,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Restore last session on startup</source>
         <translation>Ob zagonu obnovi zadnjo sejo</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name
-</extracomment>
-        <translation>Korak postopka po meri</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation>Korak postopka po meri</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Korak postopka po meri</translation>
@@ -7588,9 +7456,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>(disabled)</source>
         <translation type="obsolete">(onemogočen)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>Ukaz:</translation>
@@ -7611,35 +7476,18 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Argumenti za ukaz:</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation type="obsolete">Ime:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
         <source>General</source>
         <translation>Splošno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>Tovarna datotek za projekt</translation>
     </message>
     <message>
-        <source>All Projects</source>
-        <translation>Vsi projekti</translation>
-    </message>
-    <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation type="obsolete">Ni bilo moč odpreti naslednjega projekta: »%1«</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;dodaj brez vprašanj&gt;</translation>
@@ -7676,9 +7524,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Dodajanje »%1« v sistem za nadzor različic ni uspelo.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>Poenostavi drevo</translation>
@@ -7699,13 +7544,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>Hide generated files</source>
         <translation type="obsolete">Skrij samodejno ustvarjene datoteke</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekti</translation>
-    </message>
     <message>
         <source>Filter Tree</source>
         <translation>Filtriraj drevo</translation>
@@ -7714,9 +7552,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>Filter tree</source>
         <translation type="obsolete">Filtriraj drevo</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>Povzetek</translation>
@@ -7729,9 +7564,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>Files to be added in</source>
         <translation>Datoteke za dodati v</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Odstrani datoteko</translation>
@@ -7751,9 +7583,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>File to remove:</source>
         <translation>Datoteka za odstraniti:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
         <source>Remove Run Configuration?</source>
         <translation>Odstranim nastavitev za zagon?</translation>
@@ -7761,10 +7590,6 @@ v projekt »%2« ni uspelo.</translation>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Ali res želite izbrisati nastavitev za zagon &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Preimenuj ...</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -7782,17 +7607,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Novo ime nastavitve za razmestitev &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstrani</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>Run configuration:</source>
         <translation>Nastavitev za zagon:</translation>
@@ -7818,35 +7632,9 @@ v projekt »%2« ni uspelo.</translation>
         <translation>Preimenuj ...</translation>
     </message>
     <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
-    <message>
-        <source>Session</source>
-        <translation>Seja</translation>
-    </message>
-    <message>
-        <source>Untitled</source>
-        <comment>default file name to display</comment>
-        <translation type="obsolete">Neimenovana</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
-    <message>
         <source>File not found: %1</source>
         <translation>Datoteka ni bila najdena: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>The following files will be added:
 
@@ -7883,9 +7671,6 @@ v projekt »%2« ni uspelo.</translation>
         <source>Project management</source>
         <translation type="obsolete">Upravljanje projektov</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>&amp;Gradnja</translation>
@@ -7925,10 +7710,6 @@ v projekt »%2« ni uspelo.</translation>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>
-    </message>
-    <message>
-        <source>Recent Sessions</source>
-        <translation>Nedavne seje</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -8143,10 +7924,6 @@ v projekt »%2« ni uspelo.</translation>
         <translation>Izbriši datoteko ...</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation>Preimenuj</translation>
-    </message>
-    <message>
         <source>Set as Active Project</source>
         <translation>Nastavi kot aktivni projekt</translation>
     </message>
@@ -8285,9 +8062,6 @@ v sistem za nadzor različic (%2)?</translation>
         <source>Delete file failed</source>
         <translation type="obsolete">Izbris datoteke ni uspel</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Napaka med obnavljanjem seje</translation>
@@ -8323,14 +8097,6 @@ v sistem za nadzor različic (%2)?</translation>
     <message>
         <source>Untitled</source>
         <translation>Neimenovano</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Session (&apos;%1&apos;)</source>
-        <translation type="obsolete">Seja (%1)</translation>
     </message>
 </context>
 <context>
@@ -11377,7 +11143,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Gradnja in zagon</translation>
@@ -12902,7 +12668,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Zagon programa ni uspel. Morda je napačna pot ali pa dovoljenja.</translation>
@@ -12921,16 +12687,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <translation>Razhroščevalnega izhoda ni moč pridobiti.
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation>Zaženi</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.
 </source>
@@ -12957,9 +12713,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 je končal s kodo %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Ciljne mape %1 ni bilo moč ustvariti.</translation>
@@ -12992,27 +12745,6 @@ Razlog: %2</translation>
         <translation>%1 v PATH ni bil najden
 </translation>
     </message>
-    <message>
-        <source>Building debugging helper library in %1
-</source>
-        <translation type="obsolete">Grajenje knjižnice razhroščevalnega pomočnika v %1
-</translation>
-    </message>
-    <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Zaganjanje %1 %2 …
-</translation>
-    </message>
-    <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Zaganjanje %1 …
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>Razvoj</translation>
@@ -13840,14 +13572,11 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
@@ -16323,7 +16052,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -16334,15 +16063,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
 </extracomment>
         <translation>neimenovan</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.
-</extracomment>
-        <translation>Gradnja</translation>
-    </message>
     <message>
         <source>Clean</source>
         <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.
@@ -16350,23 +16070,8 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <translation>Čiščenje</translation>
     </message>
     <message>
-        <source>System Environment</source>
-        <translation>Sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okolje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
-    <message>
         <source>Clear system environment</source>
         <translation>Počisti sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okolje za gradnjo</translation>
     </message>
 </context>
 <context>
@@ -16384,7 +16089,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -16470,23 +16175,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Example Object Class-name:</source>
         <translation type="obsolete">Ime razreda primera razreda:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>Projekta %1 ni bilo moč odpreti.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Pot:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;v tej seji ni nobenega drugega projekta&gt;</translation>
@@ -16500,14 +16196,11 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Odvisnosti</translation>
     </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
     <message>
         <source>Editor Settings</source>
         <translation>Nastavitve urejevalnika</translation>
@@ -16632,7 +16325,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation>Izberite aktivne nastavitve gradnje</translation>
@@ -16649,9 +16342,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Run:</source>
         <translation>Zagon:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projekt</translation>
@@ -16659,14 +16349,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     <message>
         <source>Select active project</source>
         <translation>Izberite aktivni projekt</translation>
-    </message>
-    <message>
-        <source>Build:</source>
-        <translation>Gradnja:</translation>
-    </message>
-    <message>
-        <source>Run:</source>
-        <translation>Zagon:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
@@ -16684,23 +16366,9 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>&lt;br/&gt;%1</source>
         <translation>&lt;br/&gt;%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
     <message>
         <source>Clone of %1</source>
         <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekti</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>Drugi projekt</translation>
     </message>
 </context>
 <context>
@@ -16725,25 +16393,15 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Vnesite ime seje:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>Zaženi</translation>
     </message>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation>Določenega ni nobenega cilja.</translation>
@@ -19440,19 +19098,12 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CodeStyleSettingsPropertiesPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <location/>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>Izbor čarovnika za objavo</translation>
@@ -21888,7 +21539,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Procesa ni moč zagnati: %1</translation>
@@ -21927,12 +21578,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>Running %1 %2 ...
 </source>
         <translation>Zaganjanje %1 ...
-</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 v PATH ni bil najden
 </translation>
     </message>
 </context>
@@ -24562,14 +24207,11 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;po meri&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Priklopi razhroščevalnik na ta proces</translation>
@@ -24594,9 +24236,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Application Output Window</source>
         <translation>Podokno z izhodom programa</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Move Up</source>
         <translation>Premakni gor</translation>
@@ -24635,9 +24274,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>No Build Steps</source>
         <translation>Brez korakov gradnje</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation>Nastavitve sloga kode</translation>
@@ -24651,7 +24287,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error
@@ -24673,9 +24309,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Copy task to clipboard</source>
         <translation>Skopiraj opravilo na odložišče</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.
@@ -24683,23 +24316,11 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <translation>Razmestitev</translation>
     </message>
     <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name
-</extracomment>
-        <translation>Brez razmestitve</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
         <source>Deploy Configuration</source>
         <extracomment>Display name of the default deploy configuration
 </extracomment>
         <translation>Nastavitev razmestitve</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -24710,16 +24331,10 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Projekt %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
     <message>
         <source>GCC</source>
         <translation>GNU Compiler Collection (GCC)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Pot do prevajalnika:</translation>
@@ -24728,37 +24343,22 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.
@@ -24773,9 +24373,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>32-bit version</source>
         <translation>32-bitna različica</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Inicializacija:</translation>
@@ -24783,13 +24380,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     <message>
         <source>The CDB debugger could not be found in %1</source>
         <translation>Razhroščevalnika CDB v %1 ni bilo moč najti</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekti</translation>
     </message>
 </context>
 <context>
@@ -24808,7 +24398,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::RunControl</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -24839,9 +24429,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Do not ask again</source>
         <translation>Ne vprašaj več</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in editor</source>
         <translation>&amp;Prikaži v urejevalniku</translation>
@@ -24850,9 +24437,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Show task location in an editor</source>
         <translation>Mesto opravila prikaži v urejevalniku</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Prikaži &amp;izhod</translation>
@@ -24861,31 +24445,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Show output generating this issue.</source>
         <translation>Prikaži izhod, ki je ustvaril to težavo.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation>Težave pri gradnji</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation>Prikaži opozorila</translation>
-    </message>
-    <message>
-        <source>Filter by categories</source>
-        <translation>Filtriraj po kategorijah</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation>&amp;Razhroščevalnik:</translation>
@@ -24894,9 +24453,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Autodetect</source>
         <translation>Samozaznava</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Zaznaj samodejno</translation>
@@ -24937,16 +24493,10 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Naslednja zaporedja orodij so že bila nastavljena:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Niso bila nastavljena še enkrat.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Tool Chains</source>
         <translation>Zaporedja orodij</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation>Uporaba stare datoteke z nastavitvami projekta</translation>
@@ -24971,9 +24521,6 @@ Nastavitvene datoteke ».user« vsebujejo nastavitve, ki so za neko okolje poseb
 
 Ali še vedno želite naložiti nastavitveno datoteko?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Brez razmestitve</translation>
@@ -24985,13 +24532,6 @@ Ali še vedno želite naložiti nastavitveno datoteko?</translation>
     <message>
         <source>Deploy to Symbian device</source>
         <translation>Razmesti na napravo Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
-    <message>
-        <source>&amp;Annotate</source>
-        <translation>Dodaj &amp;opombo</translation>
     </message>
 </context>
 <context>
@@ -26871,7 +26411,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -26902,11 +26442,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Ciljne mape %1 ni bilo moč ustvariti.</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -28579,7 +28115,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop monitoring</source>
         <translation>Ustavi nadziranje</translation>
@@ -28588,9 +28124,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Stop monitoring task files.</source>
         <translation>Ustavi nadziranje datotek z opravili.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>Bralnik datotek z opravili</translation>
@@ -28599,9 +28132,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>File Error</source>
         <translation>Napaka glede datoteke</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Datoteke %1 z opravili ni moč odpreti: %2</translation>
@@ -30171,7 +29701,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="obsolete">&lt;ni nastavljeno&gt;</translation>
@@ -30197,84 +29727,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>&lt;VARIABLE&gt;</source>
         <translation type="obsolete">&lt;spremenljivka&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
-    <message>
-        <source>Cancel Build &amp;&amp; Close</source>
-        <translation type="obsolete">Prekliči gradnjo in zapri</translation>
-    </message>
-    <message>
-        <source>A project is currently being built.</source>
-        <translation type="obsolete">Projekt se trenutno gradi.</translation>
-    </message>
-    <message>
-        <source>Close Qt Creator?</source>
-        <translation type="obsolete">Ali zaprem Qt Creatorja?</translation>
-    </message>
-    <message>
-        <source>Do not Close</source>
-        <translation type="obsolete">Ne zapri</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation type="obsolete">Ali vseeno želite preklicati gradnjo in zapreti Qt Creatorja?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
-    <message>
-        <source>Re-run this run-configuration</source>
-        <translation type="obsolete">Znova zaženi te nastavitve za zagon</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Ustavi</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Okno z izhodom programa</translation>
-    </message>
-    <message>
-        <source>The application is still running.</source>
-        <translation type="obsolete">Program še vedno teče.</translation>
-    </message>
-    <message>
-        <source>Force it to quit?</source>
-        <translation type="obsolete">Ali ga želite prisilno končati?</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Prisilno končaj</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Izhod programa</translation>
-    </message>
-    <message>
-        <source>Unable to close</source>
-        <translation type="obsolete">Ni moč zapreti</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
-    <message>
-        <source>Additional output omitted
-</source>
-        <translation type="obsolete">Nekaj izhoda je bilo izpuščenega
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
-    <message>
-        <source>The process could not be started!</source>
-        <translation type="obsolete">Procesa ni bilo moč zagnati.</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve debugging output!</source>
-        <translation type="obsolete">Ni moč pridobiti izhoda razhroščevanja.</translation>
     </message>
 </context>
 <context>
@@ -30686,7 +30138,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Obrazec</translation>
@@ -31303,7 +30755,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Dodaj cilj</translation>
@@ -32174,7 +31626,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Spremeni nastavitve za gradnjo in nadaljuj</translation>
@@ -32211,9 +31663,6 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <source>Choose build configuration:</source>
         <translation type="obsolete">Izberite nastavitve za gradnjo</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation type="obsolete">Težave pri gradnji</translation>

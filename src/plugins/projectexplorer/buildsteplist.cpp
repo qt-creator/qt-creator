@@ -6,6 +6,7 @@
 #include "buildmanager.h"
 #include "buildstep.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -81,15 +82,15 @@ QString BuildStepList::displayName() const
 {
     if (m_id == Constants::BUILDSTEPS_BUILD) {
         //: Display name of the build build step list. Used as part of the labels in the project window.
-        return tr("Build");
+        return Tr::tr("Build");
     }
     if (m_id == Constants::BUILDSTEPS_CLEAN) {
         //: Display name of the clean build step list. Used as part of the labels in the project window.
-        return tr("Clean");
+        return Tr::tr("Clean");
     }
     if (m_id == Constants::BUILDSTEPS_DEPLOY) {
         //: Display name of the deploy build step list. Used as part of the labels in the project window.
-        return tr("Deploy");
+        return Tr::tr("Deploy");
     }
     QTC_CHECK(false);
     return {};

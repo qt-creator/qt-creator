@@ -3,6 +3,8 @@
 
 #include "importwidget.h"
 
+#include "projectexplorertr.h"
+
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 
@@ -23,7 +25,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
     vboxLayout->setContentsMargins(0, 0, 0, 0);
     auto detailsWidget = new Utils::DetailsWidget(this);
     detailsWidget->setUseCheckBox(false);
-    detailsWidget->setSummaryText(tr("Import Build From..."));
+    detailsWidget->setSummaryText(Tr::tr("Import Build From..."));
     detailsWidget->setSummaryFontBold(true);
     // m_detailsWidget->setIcon(); // FIXME: Set icon!
     vboxLayout->addWidget(detailsWidget);
@@ -35,7 +37,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
 
     m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     m_pathChooser->setHistoryCompleter(QLatin1String("Import.SourceDir.History"));
-    auto importButton = new QPushButton(tr("Import"), widget);
+    auto importButton = new QPushButton(Tr::tr("Import"), widget);
     layout->addWidget(importButton);
 
     connect(importButton, &QAbstractButton::clicked, this, &ImportWidget::handleImportRequest);

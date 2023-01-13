@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "projectconfigurationmodel.h"
 #include "target.h"
 
 #include "buildconfiguration.h"
@@ -12,17 +11,17 @@
 #include "deployconfiguration.h"
 #include "deploymentdata.h"
 #include "devicesupport/devicemanager.h"
-#include "environmentaspect.h"
 #include "kit.h"
 #include "kitinformation.h"
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
 #include "project.h"
+#include "projectconfigurationmodel.h"
 #include "projectexplorer.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "runconfiguration.h"
-#include "runconfigurationaspects.h"
 #include "session.h"
 
 #include <coreplugin/coreconstants.h>
@@ -132,21 +131,21 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     connect(km, &KitManager::kitUpdated, this, &Target::handleKitUpdates);
     connect(km, &KitManager::kitRemoved, this, &Target::handleKitRemoval);
 
-    d->m_macroExpander.setDisplayName(tr("Target Settings"));
+    d->m_macroExpander.setDisplayName(Tr::tr("Target Settings"));
     d->m_macroExpander.setAccumulating(true);
 
     d->m_macroExpander.registerSubProvider([this] { return kit()->macroExpander(); });
 
-    d->m_macroExpander.registerVariable("sourceDir", tr("Source directory"),
+    d->m_macroExpander.registerVariable("sourceDir", Tr::tr("Source directory"),
             [project] { return project->projectDirectory().toUserOutput(); });
-    d->m_macroExpander.registerVariable("BuildSystem:Name", tr("Build system"), [this] {
+    d->m_macroExpander.registerVariable("BuildSystem:Name", Tr::tr("Build system"), [this] {
         if (const BuildSystem * const bs = buildSystem())
             return bs->name();
         return QString();
     });
 
     d->m_macroExpander.registerVariable("Project:Name",
-            QCoreApplication::translate("::ProjectExplorer", "Name of current project"),
+            Tr::tr("Name of current project"),
             [project] { return project->displayName(); });
 }
 

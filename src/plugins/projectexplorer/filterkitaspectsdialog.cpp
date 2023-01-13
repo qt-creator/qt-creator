@@ -4,6 +4,7 @@
 #include "filterkitaspectsdialog.h"
 
 #include "kitmanager.h"
+#include "projectexplorertr.h"
 
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
@@ -80,7 +81,7 @@ class FilterKitAspectsModel : public TreeModel<TreeItem, FilterTreeItem>
 public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
-        setHeader({FilterKitAspectsDialog::tr("Setting"), FilterKitAspectsDialog::tr("Visible")});
+        setHeader({Tr::tr("Setting"), Tr::tr("Visible")});
         for (const KitAspect * const aspect : KitManager::kitAspects()) {
             if (kit && !aspect->isApplicableToKit(kit))
                 continue;

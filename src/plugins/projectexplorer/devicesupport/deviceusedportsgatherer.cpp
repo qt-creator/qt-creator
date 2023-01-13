@@ -3,9 +3,10 @@
 
 #include "deviceusedportsgatherer.h"
 
+#include "idevice.h"
 #include "sshparameters.h"
+#include "../projectexplorertr.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
 #include <utils/port.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -110,7 +111,7 @@ void DeviceUsedPortsGatherer::handleProcessDone()
         const QByteArray stdErr = d->process->readAllRawStandardError();
         if (!stdErr.isEmpty()) {
             errMsg += QLatin1Char('\n');
-            errMsg += tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));
+            errMsg += Tr::tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));
         }
         emitError(errMsg);
     }
@@ -133,7 +134,7 @@ PortsGatherer::PortsGatherer(RunControl *runControl)
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::error, this, &PortsGatherer::reportFailure);
     connect(&m_portsGatherer, &DeviceUsedPortsGatherer::portListReady, this, [this] {
         m_portList = device()->freePorts();
-        appendMessage(tr("Found %n free ports.", nullptr, m_portList.count()), NormalMessageFormat);
+        appendMessage(Tr::tr("Found %n free ports.", nullptr, m_portList.count()), NormalMessageFormat);
         reportStarted();
     });
 }
@@ -142,7 +143,7 @@ PortsGatherer::~PortsGatherer() = default;
 
 void PortsGatherer::start()
 {
-    appendMessage(tr("Checking available ports..."), NormalMessageFormat);
+    appendMessage(Tr::tr("Checking available ports..."), NormalMessageFormat);
     m_portsGatherer.setDevice(device());
     m_portsGatherer.start();
 }

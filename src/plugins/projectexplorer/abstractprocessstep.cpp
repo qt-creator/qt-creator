@@ -2,11 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "abstractprocessstep.h"
+
 #include "buildconfiguration.h"
 #include "buildstep.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
@@ -101,7 +103,7 @@ AbstractProcessStep::~AbstractProcessStep()
 
 void AbstractProcessStep::emitFaultyConfigurationMessage()
 {
-    emit addOutput(tr("Configuration is faulty. Check the Issues view for details."),
+    emit addOutput(Tr::tr("Configuration is faulty. Check the Issues view for details."),
                    OutputFormat::NormalMessage);
 }
 
@@ -191,7 +193,7 @@ bool AbstractProcessStep::checkWorkingDirectory()
     const FilePath wd = d->m_param.effectiveWorkingDirectory();
     if (!wd.exists()) {
         if (!wd.createDir()) {
-            emit addOutput(tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
+            emit addOutput(Tr::tr("Could not create directory \"%1\"").arg(wd.toUserOutput()),
                            OutputFormat::ErrorMessage);
             finish(ProcessResult::StartFailed);
             return false;
@@ -232,7 +234,7 @@ void AbstractProcessStep::setupProcess(QtcProcess *process)
     });
     connect(process, &QtcProcess::started, this, [this] {
         ProcessParameters *params = displayedParameters();
-        emit addOutput(tr("Starting: \"%1\" %2")
+        emit addOutput(Tr::tr("Starting: \"%1\" %2")
                        .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                        OutputFormat::NormalMessage);
     });
@@ -269,7 +271,7 @@ void AbstractProcessStep::doCancel()
     }
     if (d->m_taskTree) {
         d->m_taskTree.reset();
-        emit addOutput(tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("The build step was ended forcefully."), OutputFormat::ErrorMessage);
         emit finished(false);
     }
 }
@@ -323,14 +325,14 @@ void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus st
 {
     const QString command = q->displayedParameters()->effectiveCommand().toUserOutput();
     if (status == QProcess::NormalExit && exitCode == 0) {
-        emit q->addOutput(tr("The process \"%1\" exited normally.").arg(command),
+        emit q->addOutput(Tr::tr("The process \"%1\" exited normally.").arg(command),
                           OutputFormat::NormalMessage);
     } else if (status == QProcess::NormalExit) {
-        emit q->addOutput(tr("The process \"%1\" exited with code %2.")
+        emit q->addOutput(Tr::tr("The process \"%1\" exited with code %2.")
                           .arg(command, QString::number(exitCode)),
                           OutputFormat::ErrorMessage);
     } else {
-        emit q->addOutput(tr("The process \"%1\" crashed.").arg(command),
+        emit q->addOutput(Tr::tr("The process \"%1\" crashed.").arg(command),
                           OutputFormat::ErrorMessage);
     }
 
@@ -351,7 +353,7 @@ void AbstractProcessStep::Private::cleanUp(int exitCode, QProcess::ExitStatus st
 void AbstractProcessStep::processStartupFailed()
 {
     ProcessParameters *params = displayedParameters();
-    emit addOutput(tr("Could not start process \"%1\" %2.")
+    emit addOutput(Tr::tr("Could not start process \"%1\" %2.")
                    .arg(params->effectiveCommand().toUserOutput(), params->prettyArguments()),
                    OutputFormat::ErrorMessage);
 

@@ -4082,7 +4082,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -4091,9 +4091,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Language:</source>
         <translation>言語:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
     <message>
         <source>Custom Parser</source>
         <translation>カスタムパーサー</translation>
@@ -4186,20 +4183,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Warning message:</source>
         <translation>警告メッセージ:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>Machine type:</source>
         <translation>マシンタイプ:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>テキストラベル</translation>
     </message>
     <message>
         <source>Free ports:</source>
@@ -4213,9 +4199,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>You will need at least one port for QML debugging.</source>
         <translation>QML のデバッグには少なくとも一つの空きポートが必要です。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>デバイス設定ウィザードを選択</translation>
@@ -4228,9 +4211,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Start Wizard</source>
         <translation>ウィザード開始</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation>Linux デバイス設定</translation>
@@ -4284,10 +4264,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>いいえ</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>テスト</translation>
-    </message>
-    <message>
         <source>Show Running Processes...</source>
         <translation>実行中のプロセスを表示...</translation>
     </message>
@@ -4295,9 +4271,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Devices</source>
         <translation>デバイス</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>デバイステスト</translation>
@@ -4314,16 +4287,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Device test failed.</source>
         <translation>デバイステストに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>エディタ設定:</translation>
@@ -4356,9 +4323,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Use context-specific margin</source>
         <translation>文脈に応じたマージンを使用する</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>コマンド:</translation>
@@ -4371,9 +4335,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Working directory:</source>
         <translation>作業ディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
     <message>
         <source>Projects Directory</source>
         <translation>プロジェクトディレクトリ</translation>
@@ -4538,9 +4499,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Deduced from Project</source>
         <translation>プロジェクトから推測する</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project Management</source>
         <translation>プロジェクト管理</translation>
@@ -4565,9 +4523,6 @@ Add, modify, and remove document filters, which determine the documentation set 
 
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>セッションマネージャ</translation>
@@ -4612,9 +4567,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>&amp;Open</source>
         <translation>開く(&amp;O)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>Add Kit</source>
         <translation>キットを追加</translation>
@@ -10584,7 +10536,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>ターゲットディレクトリ %1 を作成できませんでした。</translation>
@@ -10603,9 +10555,6 @@ with a password, which you can enter below.</source>
         <translation>%1 が PATH に見つかりません
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>プロセスを起動できません: %1</translation>
@@ -10644,12 +10593,6 @@ with a password, which you can enter below.</source>
         <source>Running %1 %2 ...
 </source>
         <translation>%1 %2 を実行中...
-</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 が PATH に見つかりません
 </translation>
     </message>
 </context>
@@ -17539,7 +17482,7 @@ Qt Creator はアタッチできません。</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>プロセスにアタッチ(&amp;A)</translation>
@@ -22764,14 +22707,11 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;カスタム&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>設定が不完全です。詳細は問題ペインで確認してください。</translation>
@@ -22800,16 +22740,10 @@ instead of its installation directory when run outside git bash.</source>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>プロセス &quot;%1&quot; を開始できません %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>いずれかのプロジェクトに含まれるファイル</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>すべてのプロジェクト</translation>
@@ -22836,9 +22770,6 @@ Excluding: %2
         <source>Fi&amp;le pattern:</source>
         <translation>ファイルパターン(&amp;L):</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation>ユーザーが停止を要求しました。シャットダウンします...</translation>
@@ -22883,9 +22814,6 @@ Excluding: %2
         <source>Application finished with exit code 0.</source>
         <translation>アプリケーションは終了コード 0 で終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>デバッガでこのプロセスにアタッチします</translation>
@@ -22942,26 +22870,10 @@ Excluding: %2
         <source>Application Output Window</source>
         <translation>アプリケーション出力ウィンドウ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>無題</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>ビルド</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>クリーン</translation>
     </message>
     <message>
         <source>Build Settings</source>
@@ -23019,9 +22931,6 @@ Excluding: %2
         <source>Variables in the active build environment of the active project.</source>
         <translation>アクティブなプロジェクトのアクティブなビルド環境の変数。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>システム環境変数を非表示にする</translation>
@@ -23030,9 +22939,6 @@ Excluding: %2
         <source>Build Environment</source>
         <translation>ビルド時の環境変数</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -23075,11 +22981,6 @@ Excluding: %2
         <source>Clean</source>
         <extracomment>Displayed name for a &quot;cleaning&quot; build step</extracomment>
         <translation>クリーン</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Displayed name for a deploy step</extracomment>
-        <translation>デプロイ</translation>
     </message>
     <message>
         <source>Build</source>
@@ -23127,7 +23028,7 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No build settings available</source>
         <translation>有効なビルド設定がありません</translation>
@@ -23169,11 +23070,6 @@ Excluding: %2
         <translation>ビルド設定 &lt;b&gt;%1&lt;/b&gt; の新しい名前:</translation>
     </message>
     <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>設定を複製</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
         <translation>ビルドを中止してビルド設定を削除</translation>
     </message>
@@ -23201,9 +23097,6 @@ Excluding: %2
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>本当にビルド設定 &lt;b&gt;%1&lt;/b&gt; を削除しますか？</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Disable</source>
         <translation>無効化</translation>
@@ -23249,9 +23142,6 @@ Excluding: %2
         <source>No Build Steps</source>
         <translation>ビルドステップなし</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>ビルドステップ</translation>
@@ -23260,35 +23150,14 @@ Excluding: %2
         <source>Clean Steps</source>
         <translation>クリーンステップ</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>コンパイル出力</translation>
     </message>
-    <message>
-        <source>Increase Font Size</source>
-        <translation>フォントを大きく</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation>フォントを小さく</translation>
-    </message>
-    <message>
-        <source>Open Settings Page</source>
-        <translation>設定画面を開く</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -23299,16 +23168,10 @@ Excluding: %2
         <extracomment>Task is of type: warning</extracomment>
         <translation>警告:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>現在のプロジェクトに含まれるファイル</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>プロジェクト &quot;%1&quot;</translation>
@@ -23321,16 +23184,6 @@ Excluding: %2
         <source>Project &quot;%1&quot;:</source>
         <translation>プロジェクト &quot;%1&quot;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>カスタム</translation>
-    </message>
-</context>
-<context>
-    <name>CustomToolChain</name>
     <message>
         <source>Parser for toolchain %1</source>
         <translation>ツールチェーン %1 用のパーサー</translation>
@@ -23351,13 +23204,6 @@ Excluding: %2
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-    <message>
-        <source>Custom</source>
-        <translation>カスタム</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -23368,9 +23214,6 @@ Excluding: %2
         <source>Empty</source>
         <translation>空</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>カスタムパーサ設定...</translation>
@@ -23427,9 +23270,6 @@ Excluding: %2
         <source>&amp;Error parser:</source>
         <translation>エラーパーサ(&amp;E):</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomWizard</name>
     <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
         <translation>コードのテンプレートを入力可能な qmake ベースのテストプロジェクトを作成します。</translation>
@@ -23445,10 +23285,6 @@ Excluding: %2
     <message>
         <source>Code:</source>
         <translation>コード:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>型:</translation>
     </message>
     <message>
         <source>Console application</source>
@@ -23473,10 +23309,6 @@ Excluding: %2
     <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator プラグイン</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>その他のプロジェクト</translation>
     </message>
     <message>
         <source>Library</source>
@@ -23562,23 +23394,14 @@ Excluding: %2
         <source>Qt Quick 2 Extension Plugin</source>
         <translation>Qt Quick 2 拡張プラグイン</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>パス:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;このセッション内に他のプロジェクトはありません&gt;</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesModel</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>依存関係の追加不可</translation>
@@ -23587,16 +23410,10 @@ Excluding: %2
         <source>This would create a circular dependency.</source>
         <translation>循環依存を作り出してしまいます。</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesPanelFactory</name>
     <message>
         <source>Dependencies</source>
         <translation>依存関係</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -23616,16 +23433,6 @@ Excluding: %2
         <source>Deploy Settings</source>
         <translation>デプロイ設定</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
-        <source>Deploy Configuration</source>
-        <translation>デプロイ設定</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Local PC</source>
         <translation>ローカル PC</translation>
@@ -23634,16 +23441,6 @@ Excluding: %2
         <source>Desktop</source>
         <translation>デスクトップ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>デスクトップ</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>PID %1 のプロセスを KILL できません: %2</translation>
@@ -23684,40 +23481,6 @@ Excluding: %2
         <source>could not break the process.</source>
         <translation>プロセスをブレークできませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
-    <message>
-        <source>Cannot run: No device.</source>
-        <translation>実行エラー: デバイスがありません。</translation>
-    </message>
-    <message>
-        <source>Cannot run: Device is not able to create processes.</source>
-        <translation>実行エラー: デバイスがプロセスを作成できません。</translation>
-    </message>
-    <message>
-        <source>Cannot run: No command given.</source>
-        <translation>実行エラー: コマンドが渡されていません。</translation>
-    </message>
-    <message>
-        <source>User requested stop. Shutting down...</source>
-        <translation>ユーザーが停止を要求しました。シャットダウンします...</translation>
-    </message>
-    <message>
-        <source>Application failed to start: %1</source>
-        <translation>アプリケーションの開始に失敗しました: %1</translation>
-    </message>
-    <message>
-        <source>Application finished with exit code %1.</source>
-        <translation>アプリケーションは終了コード %1 で終了しました。</translation>
-    </message>
-    <message>
-        <source>Application finished with exit code 0.</source>
-        <translation>アプリケーションは終了コード 0 で終了しました。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
     <message>
         <source>No device configured.</source>
         <translation>デバイスが設定されていません。</translation>
@@ -23734,23 +23497,14 @@ Excluding: %2
         <source>Check for a configured device</source>
         <translation>設定されたデバイスの確認</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (%2 向けの既定)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>リモートエラー</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>プロセス ID</translation>
@@ -23758,20 +23512,6 @@ Excluding: %2
     <message>
         <source>Command Line</source>
         <translation>コマンドライン</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation>デバイス</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Devices</source>
-        <translation>デバイス</translation>
     </message>
     <message>
         <source>Build &amp; Run</source>
@@ -23782,20 +23522,8 @@ Excluding: %2
         <translation>他のプロジェクト</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation>ライブラリ</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>プロジェクトのインポート</translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation>現在のビルドの名前</translation>
     </message>
     <message>
         <source>Main file of current project</source>
@@ -23828,10 +23556,6 @@ Excluding: %2
         <translation>プロジェクトの有効なビルド構成の型</translation>
     </message>
     <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation type="vanished">現在アクティブな実行設定の名前です。</translation>
-    </message>
-    <message>
         <source>SSH</source>
         <translation>SSH</translation>
     </message>
@@ -23855,9 +23579,6 @@ Excluding: %2
         <source>Manual</source>
         <translation>手動</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>接続エラー: %1</translation>
@@ -23878,16 +23599,10 @@ Excluding: %2
         <source>Remote error output was: %1</source>
         <translation>リモートのエラー出力: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>デバイス</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Internal error</source>
         <translation>内部エラー</translation>
@@ -23904,9 +23619,6 @@ Excluding: %2
         <source>Terminated by request.</source>
         <translation>要求により終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>接続エラー: %1</translation>
@@ -23931,9 +23643,6 @@ Excluding: %2
         <source>Remote stderr was: %1</source>
         <translation>リモート側標準エラー出力: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project %1</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
@@ -23944,16 +23653,10 @@ Excluding: %2
         <comment>Settings</comment>
         <translation>プロジェクト</translation>
     </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
     <message>
         <source>Editor</source>
         <translation>エディタ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>実行時の環境変数</translation>
@@ -23962,16 +23665,10 @@ Excluding: %2
         <source>Environment</source>
         <translation>環境</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>この実行構成用の基本環境:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
@@ -23995,10 +23692,6 @@ Excluding: %2
     <message>
         <source>&amp;Unset</source>
         <translation>解除(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation>無効化</translation>
     </message>
     <message>
         <source>Append Path...</source>
@@ -24057,10 +23750,6 @@ Excluding: %2
     <message>
         <source>Choose Directory</source>
         <translation>ディレクトリを選択してください</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation>有効</translation>
     </message>
 </context>
 <context>
@@ -24182,32 +23871,14 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::GccToolChain</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1(%2 %3 パス: %4)</translation>
     </message>
     <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
         <source>%1 (%2, %3 %4 in %5)</source>
         <translation>%1(%2 %3 %4 パス: %5)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>コンパイラのパス(&amp;C):</translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -24218,33 +23889,13 @@ Excluding: %2
         <translation>プラットフォーム用リンクオプション:</translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
-    <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>ビルドをインポート...</translation>
@@ -24253,9 +23904,6 @@ Excluding: %2
         <source>Import</source>
         <translation>インポート</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>無名</translation>
@@ -24308,9 +23956,6 @@ Excluding: %2
         <source>Warning:</source>
         <translation>警告:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
         <translation>ファイルシステム上に Sys Root &quot;%1&quot; が存在しません。</translation>
@@ -24327,16 +23972,9 @@ Excluding: %2
         <source>Sys Root</source>
         <translation>Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>コンパイラ</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>なし</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -24346,9 +23984,6 @@ Excluding: %2
         <source>No compiler set in kit.</source>
         <translation>キットにコンパイラが設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>不明なデバイス種類</translation>
@@ -24357,9 +23992,6 @@ Excluding: %2
         <source>Device type</source>
         <translation>デバイス種類</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>No device set.</source>
         <translation>デバイスが設定されていません。</translation>
@@ -24367,10 +23999,6 @@ Excluding: %2
     <message>
         <source>Device is incompatible with this kit.</source>
         <translation>デバイスとこのキットに互換性がありません。</translation>
-    </message>
-    <message>
-        <source>Device</source>
-        <translation>デバイス</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -24392,9 +24020,6 @@ Excluding: %2
         <source>Private key file</source>
         <translation>秘密鍵ファイル</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
     <message>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
@@ -24403,9 +24028,6 @@ Excluding: %2
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>システムイメージが使用するルートディレクトリ。&lt;br&gt;デスクトップ用ビルドの場合は空のままにしてください。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>Compiler:</source>
         <translation>コンパイラ:</translation>
@@ -24418,9 +24040,6 @@ Excluding: %2
         <source>&lt;No compiler&gt;</source>
         <translation>&lt;コンパイラなし&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>Device type:</source>
         <translation>デバイス種類:</translation>
@@ -24429,9 +24048,6 @@ Excluding: %2
         <source>The type of device to run applications on.</source>
         <translation>アプリケーションを実行するデバイスの種類です。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Device:</source>
         <translation>デバイス:</translation>
@@ -24440,20 +24056,10 @@ Excluding: %2
         <source>The device to run the applications on.</source>
         <translation>アプリケーションを実行するデバイスです。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
     <message>
         <source>Desktop (%1)</source>
         <translation>デスクトップ (%1)</translation>
     </message>
-    <message>
-        <source>Desktop</source>
-        <translation>デスクトップ</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;キットの名前は生成されるディレクトリ名に対応します。この値は変数 &lt;i&gt;%1&lt;/i&gt; に使用され、例えばシャドウビルドディレクトリの名前を決定するのに用いられます。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -24502,17 +24108,6 @@ Excluding: %2
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>画像 (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>自動検出</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手動</translation>
-    </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (既定)</translation>
@@ -24522,38 +24117,12 @@ Excluding: %2
         <translation>名前</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation>%1 を複製</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Kits</source>
-        <translation>キット</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>複製</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Make Default</source>
         <translation>既定にする</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
-    <message>
-        <source>No executable specified.</source>
-        <translation>実行ファイルが指定されていません。</translation>
     </message>
     <message>
         <source>Executable %1 does not exist.</source>
@@ -24571,54 +24140,17 @@ Excluding: %2
         <source>%1 exited with code %2</source>
         <translation>%1 は終了コード %2 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>ビルド時の環境変数</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>システム環境変数</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>環境変数なし</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>プロジェクト</translation>
     </message>
     <message>
-        <source>Kit</source>
-        <translation>キット</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>デプロイ</translation>
-    </message>
-    <message>
         <source>Run</source>
         <translation>実行</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
@@ -24676,16 +24208,6 @@ Excluding: %2
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;プロジェクト &lt;b&gt;%1&lt;/b&gt; は、まだ設定されていません。&lt;br/&gt;&lt;br/&gt;&lt;a href=&quot;projectmode&quot;&gt;プロジェクトモード&lt;/a&gt;で設定できます。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
@@ -24698,9 +24220,6 @@ Please close all running instances of your application before starting a build.<
         <translation>ファイルが他のプロセスで使用されているためこのプロセスからアクセスできません。
 ビルドを開始する前にすべての実行中のアプリケーションを閉じてください。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
@@ -24711,13 +24230,6 @@ Please close all running instances of your application before starting a build.<
         <translation>プロジェクトを開くのに失敗しました</translation>
     </message>
     <message>
-        <source>All Projects</source>
-        <translation>すべてのプロジェクト</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
         <source>Custom Process Step</source>
         <extracomment>Default ProcessStep display name</extracomment>
         <translation>独自プロセスステップ</translation>
@@ -24727,30 +24239,10 @@ Please close all running instances of your application before starting a build.<
         <comment>item in combobox</comment>
         <translation>独自プロセスステップ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
-    <message>
-        <source>Custom Process Step</source>
-        <translation>独自プロセスステップ</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 を複製</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
     <message>
         <source>Projects</source>
         <translation>プロジェクト</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>ビルド(&amp;B)</translation>
@@ -24762,10 +24254,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>&amp;Start Debugging</source>
         <translation>デバッグ開始(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>実行</translation>
     </message>
     <message>
         <source>Open With</source>
@@ -24790,14 +24278,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>ビルド時の環境変数</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation>実行時の環境変数</translation>
     </message>
     <message>
         <source>Recent P&amp;rojects</source>
@@ -24896,16 +24376,8 @@ Please close all running instances of your application before starting a build.<
         <translation>デプロイせずに実行</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>リビルド</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation>クリーン</translation>
     </message>
     <message>
         <source>The name of the currently active kit as a filesystem-friendly version.</source>
@@ -24914,10 +24386,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>The ID of the currently active kit.</source>
         <translation>現在アクティブなキットの ID です。</translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation>現在アクティブな実行設定の名前です。</translation>
     </message>
     <message>
         <source>The file %1 could not be renamed %2.</source>
@@ -24948,10 +24416,6 @@ Please close all running instances of your application before starting a build.<
         <translation>セッション(&amp;E)</translation>
     </message>
     <message>
-        <source>Deploy</source>
-        <translation>デプロイ</translation>
-    </message>
-    <message>
         <source>Add New...</source>
         <translation>新しいファイルを追加...</translation>
     </message>
@@ -24979,10 +24443,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Delete File...</source>
         <translation>ファイルを削除...</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>名前を変更...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -25055,10 +24515,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>The name of the current project.</source>
         <translation>現在のプロジェクトの名前です。</translation>
-    </message>
-    <message>
-        <source>The name of the currently active kit.</source>
-        <translation>現在アクティブなキットの名前です。</translation>
     </message>
     <message>
         <source>The currently active build configuration&apos;s name.</source>
@@ -25299,10 +24755,6 @@ Please try again.</source>
         <translation>ファイルの複製...</translation>
     </message>
     <message>
-        <source>All Projects</source>
-        <translation>すべてのプロジェクト</translation>
-    </message>
-    <message>
         <source>Parse Build Output...</source>
         <translation>ビルドの出力を解析する...</translation>
     </message>
@@ -25361,18 +24813,6 @@ Do you want to ignore them?</source>
         <source>Build</source>
         <comment>Build step</comment>
         <translation>ビルド</translation>
-    </message>
-    <message>
-        <source>Stop Applications</source>
-        <translation>アプリケーションの停止</translation>
-    </message>
-    <message>
-        <source>Stop these applications before building?</source>
-        <translation>ビルド前に以下のアプリケーションを停止しますか？</translation>
-    </message>
-    <message>
-        <source>The project %1 is not configured, skipping it.</source>
-        <translation>プロジェクト %1 は設定されていないため、スキップします。</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -25532,16 +24972,6 @@ Rename %2 to %3 anyway?</source>
         <source>The file %1 was renamed to %2, but the project file %3 could not be automatically changed.</source>
         <translation>ファイル %1 が %2 に名前変更されましたが、プロジェクトファイル %3 で、自動的に変更できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Open project anyway?</source>
         <translation>それでもプロジェクトを開きますか？</translation>
@@ -25562,9 +24992,6 @@ to project &quot;%2&quot;.</source>
         <translation>1つ以上のファイルをプロジェクト &quot;%1&quot; に追加できませんでした
 (%2).</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 - テンポラリ</translation>
@@ -25589,9 +25016,6 @@ to project &quot;%2&quot;.</source>
         <source>Imported Kit</source>
         <translation>インポートされたキット</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>簡易ツリー</translation>
@@ -25624,13 +25048,6 @@ to project &quot;%2&quot;.</source>
         <source>Synchronize with Editor</source>
         <translation>エディタと同期</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation>プロジェクト</translation>
-    </message>
     <message>
         <source>Meta+X</source>
         <translation>Meta+X</translation>
@@ -25643,9 +25060,6 @@ to project &quot;%2&quot;.</source>
         <source>Filter Tree</source>
         <translation>フィルタツリー</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>New session name</source>
         <translation>新しいセッションの名前</translation>
@@ -25657,10 +25071,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Last Modified</source>
         <translation>最終変更日</translation>
-    </message>
-    <message>
-        <source>New Session Name</source>
-        <translation>新しいセッション名</translation>
     </message>
     <message>
         <source>&amp;Create</source>
@@ -25679,20 +25089,9 @@ to project &quot;%2&quot;.</source>
         <translation>クローンして開く(&amp;O)</translation>
     </message>
     <message>
-        <source>Rename Session</source>
-        <translation>セッションの名前変更</translation>
-    </message>
-    <message>
-        <source>&amp;Rename</source>
-        <translation>名前を変更(&amp;R)</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>名前変更して開く(&amp;O)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>New Project</source>
         <translation>新しいプロジェクト</translation>
@@ -25739,10 +25138,6 @@ to project &quot;%2&quot;.</source>
         <translation>%1 (現在のセッション)</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
         <source>Rename</source>
         <translation>名前を変更</translation>
     </message>
@@ -25779,10 +25174,6 @@ to project &quot;%2&quot;.</source>
         <source>Sessions</source>
         <translation>セッション</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>プロジェクト</translation>
-    </message>
 </context>
 <context>
     <name>TargetSettingsPanelFactory</name>
@@ -25792,7 +25183,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -25800,10 +25191,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Add as a subproject to project:</source>
         <translation>サブプロジェクトとしてプロジェクトに追加:</translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation>プロジェクトに追加(&amp;P):</translation>
     </message>
     <message>
         <source>&lt;None&gt;</source>
@@ -25825,9 +25212,6 @@ to project &quot;%2&quot;.</source>
         <source>Files to be added in</source>
         <translation>ファイルの追加先</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -25837,9 +25221,6 @@ to project &quot;%2&quot;.</source>
         <source>Remove task from the task list.</source>
         <translation>タスクリストからタスクを削除します。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -25874,10 +25255,6 @@ to project &quot;%2&quot;.</source>
         <translation>起動中 %1 %2...</translation>
     </message>
     <message>
-        <source>No executable specified.</source>
-        <translation>実行ファイルが指定されていません。</translation>
-    </message>
-    <message>
         <source>Force Quit</source>
         <translation>強制終了</translation>
     </message>
@@ -25885,9 +25262,6 @@ to project &quot;%2&quot;.</source>
         <source>Keep Running</source>
         <translation>そのままにする</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Run Settings</source>
         <translation>実行時の設定</translation>
@@ -25915,32 +25289,9 @@ to project &quot;%2&quot;.</source>
         <source>Unknown error.</source>
         <translation>不明なエラーです。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>実行時の設定</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>名前を変更...</translation>
-    </message>
     <message>
         <source>Add...</source>
         <translation>追加...</translation>
-    </message>
-    <message>
-        <source>Clone...</source>
-        <translation>複製...</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -25951,25 +25302,13 @@ to project &quot;%2&quot;.</source>
         <translation>メソッド:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>実行</translation>
-    </message>
-    <message>
         <source>Run configuration:</source>
         <translation>実行構成:</translation>
-    </message>
-    <message>
-        <source>&amp;Clone Selected</source>
-        <translation>選択された設定を複製(&amp;C)</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>設定を複製</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>新しい設定名:</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
@@ -25986,10 +25325,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>ビルドを中止してデプロイ設定を削除</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>削除しない</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -26015,9 +25350,6 @@ to project &quot;%2&quot;.</source>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>デプロイ設定 &lt;b&gt;%1&lt;/b&gt; の新しい名前:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while saving session</source>
         <translation>セッションの保存中にエラー</translation>
@@ -26080,9 +25412,6 @@ to project &quot;%2&quot;.</source>
         <source>Loading Session</source>
         <translation>セッション読込中</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>セッションの名前を入力してください:</translation>
@@ -26091,9 +25420,6 @@ to project &quot;%2&quot;.</source>
         <source>Switch To</source>
         <translation>切替</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SettingsAccessor</name>
     <message>
         <source>Unsupported Shared Settings File</source>
         <translation>共有設定ファイルは未サポート</translation>
@@ -26146,7 +25472,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::UserFileHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No deployment</source>
         <translation>デプロイしない</translation>
@@ -26155,9 +25481,6 @@ to project &quot;%2&quot;.</source>
         <source>Deploy to Maemo device</source>
         <translation>Maemo デバイスにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation>エディタで表示</translation>
@@ -26166,9 +25489,6 @@ to project &quot;%2&quot;.</source>
         <source>Show task location in an editor.</source>
         <translation>エディタ内にタスクの位置を表示します。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>出力を表示(&amp;O)</translation>
@@ -26181,20 +25501,6 @@ to project &quot;%2&quot;.</source>
         <source>O</source>
         <translation>O</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>実行</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>Import existing build...</source>
         <translation>既存のビルドをインポート...</translation>
@@ -26206,10 +25512,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Cancel Build &amp;&amp; Remove Kit</source>
         <translation>ビルド中止 &amp;&amp; キット削除</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>削除しない</translation>
     </message>
     <message>
         <source>Remove Kit %1?</source>
@@ -26250,9 +25552,6 @@ to project &quot;%2&quot;.</source>
         <source>Import directory</source>
         <translation>インポートするディレクトリ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;有効なキットがありません。&lt;/span&gt;</translation>
@@ -26286,10 +25585,6 @@ to project &quot;%2&quot;.</source>
         <translation>キットの選択</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>キット</translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>以下のキットは、プロジェクト&lt;b&gt;%1&lt;/b&gt;に使用することができます:</translation>
@@ -26299,9 +25594,6 @@ to project &quot;%2&quot;.</source>
         <comment>%1: Project name</comment>
         <translation>Qt Creator は以下のキットをプロジェクト &lt;b&gt;%1&lt;/b&gt; で使用できます:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -26312,9 +25604,6 @@ to project &quot;%2&quot;.</source>
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;警告:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>問題</translation>
@@ -26327,37 +25616,13 @@ to project &quot;%2&quot;.</source>
         <source>Filter by categories</source>
         <translation>カテゴリでフィルタします</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>ファイルが見つかりません: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 を複製</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Compilers</source>
         <translation>コンパイラ</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
     </message>
     <message>
         <source>This toolchain is invalid.</source>
@@ -26388,28 +25653,8 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
 専用のクロス・コンパイラを使用せずに 32 ビット x86 バイナリを作成する場合は、この機能を有効にしてください。</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>タイプ</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation>自動検出</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手動</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Remove All</source>
@@ -26435,13 +25680,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>以下のコンパイラは既に設定済みです。&lt;br&gt;&amp;nbsp;%1&lt;br&gt;重複した設定は行いません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>プロジェクトの設定</translation>
-    </message>
     <message>
         <source>Cancel</source>
         <translation>キャンセル</translation>
@@ -26458,9 +25696,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
         <translation>プロジェクト &lt;b&gt;%1&lt;/b&gt; はまだ設定されていません。&lt;br/&gt;Qt Creator はこのプロジェクトの解析に&lt;b&gt;無効な&lt;/b&gt;キット &lt;b&gt;%2&lt;/b&gt; を使用します。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>アノテーション(&amp;A)</translation>
@@ -26469,16 +25704,10 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Annotate using version control system.</source>
         <translation>バージョン管理システムを使ってアノテーションします。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -29728,25 +28957,15 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
     </message>
     <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableDialog</name>
-    <message>
         <source>Could not find the executable, please specify one.</source>
         <translation>実行ファイルが見つかりません。実行ファイルを指定してください。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>No executable.</source>
         <translation>実行可能ファイルがありません。</translation>
@@ -29764,19 +28983,8 @@ cannot be found in the path.</source>
         <translation>カスタム実行ファイル</translation>
     </message>
     <message>
-        <source>Run %1</source>
-        <translation>%1 を実行</translation>
-    </message>
-    <message>
         <source>You need to set an executable in the custom run configuration.</source>
         <translation>カスタム実行構成に実行ファイルを設定する必要があります。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>カスタム実行ファイル</translation>
     </message>
 </context>
 <context>
@@ -30987,7 +30195,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>モニタリングを停止</translation>
@@ -34154,21 +33362,15 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::KitConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation>ファイルの編集</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation>既存のディレクトリの追加</translation>
@@ -34500,11 +33702,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeploymentDataView</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Files to deploy:</source>
         <translation>デプロイするファイル:</translation>
@@ -35114,7 +34312,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeploymentDataModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Local File Path</source>
         <translation>ローカルファイルのパス</translation>
@@ -35123,9 +34321,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>Remote Directory</source>
         <translation>リモートディレクトリ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>これらのファイルは自動的にプロジェクトに追加されます:</translation>
@@ -35133,10 +34328,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;自動的に追加&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation>&lt;なし&gt;</translation>
     </message>
 </context>
 <context>
@@ -35159,7 +34350,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentIdAccessor</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;p&gt;No .user settings file created by this instance of Qt Creator was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%1&quot;?&lt;/p&gt;</source>
         <translation>&lt;p&gt;この Qt Creator で作成された .user 設定ファイルが見つかりません。&lt;/p&gt;&lt;p&gt;他のマシン上でこのプロジェクトの作業を行ったか、以前は異なるパスでこの設定ファイルを使用していましたか？&lt;/p&gt;&lt;p&gt;この設定ファイル &quot;%1&quot; を読み込みますか？&lt;/p&gt;</translation>
@@ -35168,9 +34359,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>Settings File for &quot;%1&quot; from a different Environment?</source>
         <translation>設定ファイル &quot;%1&quot; は他の環境由来のものですか？</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Task</name>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
         <translation>ビルドする為にはコンパイラの設定が必要です。キットオプションでコンパイラを設定してください。</translation>
@@ -35187,9 +34375,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>%1 needs a compiler set up to build. Configure a compiler in the kit options.</source>
         <translation>%1 をビルドする為にはコンパイラの設定が必要です。キットオプションでコンパイラを設定してください。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
     <message>
         <source>Replacing signature</source>
         <translation>署名を交換しています</translation>
@@ -35363,7 +34548,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::TaskListPlugin</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>タスクファイル %1 を開けません: %2</translation>
@@ -39863,14 +39048,10 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation>&quot;Form&quot; ページの &quot;data&quot; は未設定か空オブジェクトである必要があります。</translation>
-    </message>
-    <message>
-        <source>Choose Project File</source>
-        <translation type="unfinished">プロジェクトファイルを選択する</translation>
     </message>
     <message>
         <source>Check whether a variable exists.&lt;br&gt;Returns &quot;true&quot; if it does and an empty string if not.</source>
@@ -40043,10 +39224,6 @@ Affected are breakpoints %1</source>
         <translation>ソースファイル:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>パス:</translation>
-    </message>
-    <message>
         <source>Define Class</source>
         <translation>クラスの定義</translation>
     </message>
@@ -40055,20 +39232,8 @@ Affected are breakpoints %1</source>
         <translation>詳細</translation>
     </message>
     <message>
-        <source>Project Management</source>
-        <translation>プロジェクト管理</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation>概要</translation>
-    </message>
-    <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
         <translation>プロジェクトへ追加する C++ の新しいクラス用のヘッダとソースファイルを作成します。</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>C++ Class</source>
@@ -40275,10 +39440,6 @@ Affected are breakpoints %1</source>
         <translation>一時ファイルを使ってスクラッチバッファを作成します。</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-    <message>
         <source>Scratch Buffer</source>
         <translation>スクラッチバッファ</translation>
     </message>
@@ -40335,14 +39496,6 @@ Affected are breakpoints %1</source>
         <translation>ビルドシステム</translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation>キットの選択</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>キット</translation>
-    </message>
-    <message>
         <source>Creates a simple C application using either qmake, CMake, or Qbs to build.</source>
         <translation>qmake や CMake、Qbs をビルドに使用するシンプルな C アプリケーションを作成します。</translation>
     </message>
@@ -40375,10 +39528,6 @@ Preselects a desktop Qt for building the application if available.</source>
 デスクトップ用 Qt が存在する場合、アプリケーションのビルド用に選択します。</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>アプリケーション</translation>
-    </message>
-    <message>
         <source>Qt Console Application</source>
         <translation>Qt コンソールアプリケーション</translation>
     </message>
@@ -40389,10 +39538,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>ファイルを持たない qmake プロジェクトを作成します。既定のクラスを一切持たないアプリケーションが作成できます。</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>他のプロジェクト</translation>
     </message>
     <message>
         <source>Empty qmake Project</source>
@@ -40527,10 +39672,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Core</translation>
     </message>
     <message>
-        <source>Library</source>
-        <translation>ライブラリ</translation>
-    </message>
-    <message>
         <source>C++ Library</source>
         <translation>C++ ライブラリ</translation>
     </message>
@@ -40541,10 +39682,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Author:</source>
         <translation>作成者:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>説明:</translation>
     </message>
     <message>
         <source>0.1.0</source>
@@ -40559,32 +39696,12 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished">その他</translation>
     </message>
     <message>
-        <source>License:</source>
-        <translation>ライセンス:</translation>
-    </message>
-    <message>
-        <source>C</source>
-        <translation type="unfinished">C</translation>
-    </message>
-    <message>
         <source>1.0.0</source>
         <translation>1.0.0</translation>
     </message>
     <message>
         <source>Project file:</source>
         <translation>プロジェクトファイル:</translation>
-    </message>
-    <message>
-        <source>Object class-name:</source>
-        <translation>オブジェクトクラス名:</translation>
-    </message>
-    <message>
-        <source>URI:</source>
-        <translation>URI:</translation>
-    </message>
-    <message>
-        <source>Qt Quick 2 Extension Plugin</source>
-        <translation>Qt Quick 2 拡張プラグイン</translation>
     </message>
     <message>
         <source>Qt 5.15</source>
@@ -40641,34 +39758,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; exists in the filesystem.</source>
         <translation>&quot;%{JS: Util.toNativeSeparators(&apos;%{TargetPath}&apos;)}&quot; は既にファイルシステムに存在しています。</translation>
-    </message>
-    <message>
-        <source>Plugin name:</source>
-        <translation>プラグイン名:</translation>
-    </message>
-    <message>
-        <source>Vendor name:</source>
-        <translation>ベンダ名:</translation>
-    </message>
-    <message>
-        <source>Copyright:</source>
-        <translation>Copyright:</translation>
-    </message>
-    <message>
-        <source>URL:</source>
-        <translation>URL:</translation>
-    </message>
-    <message>
-        <source>Qt Creator build:</source>
-        <translation>Qt Creator ビルド:</translation>
-    </message>
-    <message>
-        <source>Creates a custom Qt Creator plugin.</source>
-        <translation>独自の Qt Creator プラグインを作成します。</translation>
-    </message>
-    <message>
-        <source>Qt Creator Plugin</source>
-        <translation>Qt Creator プラグイン</translation>
     </message>
     <message>
         <source>This wizard creates a simple Qmake based project with additional auto test skeleton.</source>
@@ -40859,16 +39948,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Bazaar ブランチの実行中...</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Bazaar ブランチを複製し、プロジェクトとして読み込みます。</translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation>プロジェクトのインポート</translation>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
@@ -41825,7 +40906,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>設定を同期する</translation>
@@ -41834,16 +40915,6 @@ Would you like to overwrite it?</source>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation>アクティブなキットやビルド、デプロイ設定をプロジェクト間で同期します。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentValidator</name>
-    <message>
-        <source>Variable already exists.</source>
-        <translation>変数は既に存在しています。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Field is not an object.</source>
         <translation>フィールドがオブジェクトではありません。</translation>
@@ -41956,9 +41027,6 @@ Would you like to overwrite it?</source>
         <source>Source and target are both empty.</source>
         <translation>source と target の双方を空にすることはできません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>Feature list is set and not of type list.</source>
         <translation>feature リストが設定されていますがリスト型ではありません。</translation>
@@ -41971,17 +41039,6 @@ Would you like to overwrite it?</source>
         <source>Feature list element is not a string or object.</source>
         <translation>feature リストが文字列やオブジェクトではありません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>無題</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation>バージョン管理システムへのコミットに失敗</translation>
@@ -41995,27 +41052,9 @@ Would you like to overwrite it?</source>
         <translation>プロジェクトへの追加に失敗</translation>
     </message>
     <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation>サブプロジェクト &quot;%1&quot; を
-プロジェクト &quot;%2&quot; に追加できませんでした。</translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation>ファイルをプロジェクト &quot;%1&quot; に追加できませんでした
-(%2).</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
-    <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation>オプションオブジェクトに &apos;key&apos; が見つかりません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation>&quot;generators&quot; がオブジェクトではありません。</translation>
@@ -42156,9 +41195,6 @@ to project &quot;%2&quot;.</source>
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation>&quot;pages&quot; 解析中のエラー: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation>%1 [フォルダ]</translation>
@@ -42177,9 +41213,6 @@ to project &quot;%2&quot;.</source>
         <translation>ディレクトリ %1 に上書き不可能なファイルが存在します:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation>鍵がオブジェクトではありません。</translation>
@@ -42192,16 +41225,10 @@ to project &quot;%2&quot;.</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation>ScannerGenerator: 無効なバイナリパターン &quot;%1&quot; です。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitInformation</name>
     <message>
         <source>The environment setting value is invalid.</source>
         <translation>環境変数の設定に無効な値が含まれています。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitEnvironmentConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>変更...</translation>
@@ -42218,49 +41245,17 @@ to project &quot;%2&quot;.</source>
         <source>No changes to apply.</source>
         <translation>変更しません。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>初期化:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
     <message>
         <source>LLVM:</source>
         <translation>LLVM:</translation>
     </message>
     <message>
-        <source>Initialization:</source>
-        <translation>初期化:</translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>コンパイラのパス(&amp;C):</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation>プロジェクト</translation>
-    </message>
-    <message>
         <source>Project Name</source>
         <translation>プロジェクト名</translation>
-    </message>
-    <message>
-        <source>Kit is not valid.</source>
-        <translation>無効なキット。</translation>
     </message>
     <message>
         <source>Incompatible Kit</source>
@@ -42290,16 +41285,10 @@ to project &quot;%2&quot;.</source>
         <source>Some configurations could not be copied.</source>
         <translation>いくつかの設定がコピーできませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
         <translation>&lt;b&gt;警告:&lt;/b&gt; このファイルはプロジェクトディレクトリの外部にあります。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation>ターミナル</translation>
@@ -42308,9 +41297,6 @@ to project &quot;%2&quot;.</source>
         <source>Run in terminal</source>
         <translation>ターミナルで実行</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation>作業ディレクトリ</translation>
@@ -42324,13 +41310,6 @@ to project &quot;%2&quot;.</source>
         <translation>既定に戻す</translation>
     </message>
     <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
-    <message>
         <source>Arguments</source>
         <translation>引数</translation>
     </message>
@@ -42338,13 +41317,6 @@ to project &quot;%2&quot;.</source>
         <source>Command line arguments:</source>
         <translation>コマンドライン引数:</translation>
     </message>
-    <message>
-        <source>Reset to Default</source>
-        <translation>既定に戻す</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation>ソースディレクトリ:</translation>
@@ -42381,9 +41353,6 @@ These files are preserved.</source>
 これらのファイルは維持されます。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation>ターゲット設定</translation>
@@ -42396,16 +41365,9 @@ These files are preserved.</source>
         <source>The currently active run configuration&apos;s name.</source>
         <translation>現在アクティブな実行構成の名前です。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>アプリケーションの停止まで待機中</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
     </message>
     <message>
         <source>Waiting for applications to stop.</source>
@@ -49052,11 +48014,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddRunConfigDialog</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Source</source>
         <translation>ソース</translation>
@@ -49065,24 +48023,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Create</source>
         <translation>生成</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputSettingsPage</name>
-    <message>
-        <source>Merge stderr and stdout</source>
-        <translation>標準エラー出力と標準出力をマージする</translation>
-    </message>
     <message>
         <source>Never</source>
         <translation>実行しない</translation>
     </message>
-    <message>
-        <source>Application Output</source>
-        <translation>アプリケーション出力</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildDirectoryAspect</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -49091,122 +48035,18 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Shadow build:</source>
         <translation>シャドウビルド:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildEnvironmentWidget</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>ビルド時の環境変数</translation>
-    </message>
-    <message>
-        <source>Clear system environment</source>
-        <translation>システム環境変数を非表示にする</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildPropertiesSettingsPage</name>
-    <message>
-        <source>Enable</source>
-        <translation>有効化</translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation>無効化</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-    <message>
-        <source>Default build directory:</source>
-        <translation>既定のビルドディレクトリ:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStepList</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>ビルド</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>クリーン</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>デプロイ</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputSettingsPage</name>
-    <message>
-        <source>Compile Output</source>
-        <translation>コンパイル出力</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersSettingsPage</name>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeploymentDataView</name>
-    <message>
-        <source>Local File Path</source>
-        <translation>ローカルファイルのパス</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation>リモートディレクトリ</translation>
-    </message>
-    <message>
-        <source>Files to deploy:</source>
-        <translation>デプロイするファイル:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation>Qt 実行構成</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::PortsGatherer</name>
     <message>
         <source>Checking available ports...</source>
         <translation>使用可能なポートを確認中...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsWidget</name>
-    <message>
-        <source>SSH</source>
-        <translation type="unfinished">SSH</translation>
-    </message>
-</context>
-<context>
-    <name>EnvironmentWidget</name>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
     </message>
     <message>
         <source>Edit...</source>
         <translation>編集...</translation>
     </message>
-    <message>
-        <source>Choose Directory</source>
-        <translation>ディレクトリを選択してください</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilterKitAspectsDialog</name>
     <message>
         <source>Setting</source>
         <translation>設定</translation>
@@ -49215,179 +48055,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Visible</source>
         <translation>可視性</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChain</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::MingwToolChain</name>
-    <message>
-        <source>MinGW</source>
-        <translation>MinGW</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LinuxIccToolChain</name>
-    <message>
-        <source>ICC</source>
-        <translation>ICC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitAspect</name>
-    <message>
-        <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
-        <translation>システムイメージが使用するルートディレクトリ。&lt;br&gt;デスクトップ用ビルドの場合は空のままにしてください。</translation>
-    </message>
-    <message>
-        <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
-        <translation>ファイルシステム上に Sys Root &quot;%1&quot; が存在しません。</translation>
-    </message>
-    <message>
-        <source>Sys Root &quot;%1&quot; is not a directory.</source>
-        <translation>Sys Root &quot;%1&quot; はディレクトリではありません。</translation>
-    </message>
-    <message>
-        <source>Sys Root &quot;%1&quot; is empty.</source>
-        <translation>Sys Root &quot;%1&quot; が空です。</translation>
-    </message>
-    <message>
-        <source>Sys Root</source>
-        <translation>Sys Root</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitAspect</name>
-    <message>
-        <source>&lt;No compiler&gt;</source>
-        <translation>&lt;コンパイラなし&gt;</translation>
-    </message>
-    <message>
-        <source>Compiler</source>
-        <translation>コンパイラ</translation>
-    </message>
-    <message>
-        <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
-        <translation>選択したコンパイラがビルド時に使用されます。&lt;br&gt;コンパイラが対象となるデバイスや選択したバージョンの Qt、その他の使用しているライブラリとバイナリ互換があることを確認してください。</translation>
-    </message>
-    <message>
-        <source>Path to the compiler executable</source>
-        <translation>コンパイラの実行ファイルのパス</translation>
-    </message>
-    <message>
-        <source>No compiler set in kit.</source>
-        <translation>キットにコンパイラが設定されていません。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitAspect</name>
-    <message>
-        <source>Device type</source>
-        <translation>デバイス種類</translation>
-    </message>
-    <message>
-        <source>The type of device to run applications on.</source>
-        <translation>アプリケーションを実行するデバイスの種類です。</translation>
-    </message>
-    <message>
-        <source>Unknown device type</source>
-        <translation>不明なデバイス種類</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitAspect</name>
-    <message>
-        <source>Device</source>
-        <translation>デバイス</translation>
-    </message>
-    <message>
-        <source>The device to run the applications on.</source>
-        <translation>アプリケーションを実行するデバイスです。</translation>
-    </message>
-    <message>
-        <source>No device set.</source>
-        <translation>デバイスが設定されていません。</translation>
-    </message>
-    <message>
-        <source>Device is incompatible with this kit.</source>
-        <translation>デバイスとこのキットに互換性がありません。</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
-    </message>
-    <message>
-        <source>Host address</source>
-        <translation>ホストアドレス</translation>
-    </message>
-    <message>
-        <source>SSH port</source>
-        <translation>SSH ポート</translation>
-    </message>
-    <message>
-        <source>User name</source>
-        <translation>ユーザー名</translation>
-    </message>
-    <message>
-        <source>Private key file</source>
-        <translation>秘密鍵ファイル</translation>
-    </message>
     <message>
         <source>Device name</source>
         <translation>デバイス名</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
-    </message>
-    <message>
-        <source>No changes to apply.</source>
-        <translation>変更しません。</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation>環境</translation>
-    </message>
-    <message>
-        <source>Additional build environment settings when using this kit.</source>
-        <translation>このキット使用時に追加するビルド用環境変数です。</translation>
-    </message>
-    <message>
-        <source>The environment setting value is invalid.</source>
-        <translation>環境変数の設定に無効な値が含まれています。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitAspectWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjextExplorer::Internal::KitOptionsPageWidget</name>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Make Default</source>
-        <translation>既定にする</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>キット</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make の引数:</translation>
@@ -49429,115 +48100,22 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MsvcToolChain</name>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;空&gt;</translation>
     </message>
     <message>
-        <source>Initialization:</source>
-        <translation>初期化:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ParseIssuesDialog</name>
-    <message>
         <source>Choose File</source>
         <translation>ファイルを選択してください</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProcessStep</name>
-    <message>
-        <source>Command:</source>
-        <translation>コマンド:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>作業ディレクトリ:</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>独自プロセスステップ</translation>
-    </message>
-</context>
-<context>
-    <name>EnvironmentPanelFactory</name>
-    <message>
-        <source>Environment</source>
-        <translation>環境</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorerPluginPrivate</name>
-    <message>
-        <source>Building &quot;%1&quot; is disabled: %2&lt;br&gt;</source>
-        <translation>&quot;%1&quot; のビルドは無効化されています: %2&lt;br&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjextExplorer::Internal::ProjectExplorerSettings</name>
-    <message>
-        <source>All</source>
-        <translation>すべて</translation>
-    </message>
-    <message>
-        <source>Same Project</source>
-        <translation>同一プロジェクト</translation>
-    </message>
-    <message>
-        <source>Same Build Directory</source>
-        <translation>同一ビルドディレクトリ</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>ビルドと実行</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>プロジェクト</translation>
-    </message>
-    <message>
-        <source>Manage Kits...</source>
-        <translation>キットの管理...</translation>
     </message>
     <message>
         <source>Active Project</source>
         <translation>アクティブプロジェクト</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;不明&gt;</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>実行ファイル:</translation>
     </message>
     <message>
         <source>Alternate executable on device:</source>
@@ -49547,9 +48125,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Use this command instead</source>
         <translation>代わりにこのコマンドを使う</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation>DYLD_LIBRARY_PATH と DYLD_FRAMEWORK_PATH にビルドライブラリ検索パスを追加する</translation>
@@ -49562,52 +48137,22 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>LD_LIBRARY_PATH にビルドライブラリ検索パスを追加する</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>デバッグ版のフレームワークを使用する (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunAsRootAspect</name>
     <message>
         <source>Run as root user</source>
         <translation>管理者として実行する</translation>
-    </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SimpleTargetRunner</name>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 がクラッシュしました。</translation>
     </message>
     <message>
         <source>%2 exited with code %1</source>
         <translation>%2 はコード %1 で終了しました</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>既存プロジェクトのインポート</translation>
@@ -49621,46 +48166,8 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>プロジェクト名:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>パス:</translation>
-    </message>
-    <message>
         <source>File Selection</source>
         <translation>ファイル選択</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>削除しない</translation>
-    </message>
-    <message>
-        <source>The kit &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation>キット &lt;b&gt;%1&lt;/b&gt; をビルドしています。</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and remove the kit anyway?</source>
-        <translation>強制的にビルドプロセスを中止してキットを削除しますか？</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>実行</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelItem</name>
-    <message>
-        <source>No kit defined in this project.</source>
-        <translation>このプロジェクトには、キットが定義されていません。</translation>
-    </message>
-    <message>
-        <source>Configure Project</source>
-        <translation>プロジェクトの設定</translation>
     </message>
 </context>
 <context>

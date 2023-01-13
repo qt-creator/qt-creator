@@ -13,6 +13,7 @@
 #include "kitinformation.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "runconfiguration.h"
 #include "runconfigurationaspects.h"
@@ -204,8 +205,8 @@ Project::Project(const QString &mimeType, const FilePath &fileName)
     d->m_document = std::make_unique<ProjectDocument>(mimeType, fileName, this);
     DocumentManager::addDocument(d->m_document.get());
 
-    d->m_macroExpander.setDisplayName(tr("Project"));
-    d->m_macroExpander.registerVariable("Project:Name", tr("Project Name"),
+    d->m_macroExpander.setDisplayName(Tr::tr("Project"));
+    d->m_macroExpander.registerVariable("Project:Name", Tr::tr("Project Name"),
             [this] { return displayName(); });
 
     // Only set up containernode after d is set so that it will find the project directory!
@@ -417,7 +418,7 @@ Tasks Project::projectIssues(const Kit *k) const
 {
     Tasks result;
     if (!k->isValid())
-        result.append(createProjectTask(Task::TaskType::Error, tr("Kit is not valid.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit is not valid.")));
     return {};
 }
 
@@ -498,8 +499,8 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     if (fatalError) {
         // That could be a more granular error message
         QMessageBox::critical(ICore::dialogParent(),
-                              tr("Incompatible Kit"),
-                              tr("Kit %1 is incompatible with kit %2.")
+                              Tr::tr("Incompatible Kit"),
+                              Tr::tr("Kit %1 is incompatible with kit %2.")
                                   .arg(sourceTarget->kit()->displayName())
                                   .arg(newTarget->kit()->displayName()));
     } else if (!buildconfigurationError.isEmpty()
@@ -508,27 +509,27 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
         QString error;
         if (!buildconfigurationError.isEmpty())
-            error += tr("Build configurations:") + QLatin1Char('\n')
+            error += Tr::tr("Build configurations:") + QLatin1Char('\n')
                     + buildconfigurationError.join(QLatin1Char('\n'));
 
         if (!deployconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
-            error += tr("Deploy configurations:") + QLatin1Char('\n')
+            error += Tr::tr("Deploy configurations:") + QLatin1Char('\n')
                     + deployconfigurationError.join(QLatin1Char('\n'));
         }
 
         if (!runconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
-            error += tr("Run configurations:") + QLatin1Char('\n')
+            error += Tr::tr("Run configurations:") + QLatin1Char('\n')
                     + runconfigurationError.join(QLatin1Char('\n'));
         }
 
         QMessageBox msgBox(ICore::dialogParent());
         msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setWindowTitle(tr("Partially Incompatible Kit"));
-        msgBox.setText(tr("Some configurations could not be copied."));
+        msgBox.setWindowTitle(Tr::tr("Partially Incompatible Kit"));
+        msgBox.setText(Tr::tr("Some configurations could not be copied."));
         msgBox.setDetailedText(error);
         msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
         fatalError = msgBox.exec() != QDialog::Accepted;
@@ -704,7 +705,7 @@ void Project::changeRootProjectDirectory()
 {
     FilePath rootPath = FileUtils::getExistingDirectory(
           nullptr,
-          tr("Select the Root Directory"),
+          Tr::tr("Select the Root Directory"),
           rootProjectDirectory(),
           QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     if (rootPath != d->m_rootProjectDirectory) {
@@ -792,8 +793,8 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
         k = KitManager::registerKit([deviceTypeId, &formerKitName](Kit *kit) {
-                const QString kitNameSuggestion = formerKitName.contains(tr("Replacement for"))
-                        ? formerKitName : tr("Replacement for \"%1\"").arg(formerKitName);
+                const QString kitNameSuggestion = formerKitName.contains(Tr::tr("Replacement for"))
+                        ? formerKitName : Tr::tr("Replacement for \"%1\"").arg(formerKitName);
                 const QString tempKitName = makeUniquelyNumbered(kitNameSuggestion,
                         transform(KitManager::kits(), &Kit::unexpandedDisplayName));
                 kit->setUnexpandedDisplayName(tempKitName);
@@ -802,7 +803,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
                 kit->setup();
         }, id);
         QTC_ASSERT(k, return);
-        TaskHub::addTask(BuildSystemTask(Task::Warning, tr("Project \"%1\" was configured for "
+        TaskHub::addTask(BuildSystemTask(Task::Warning, Tr::tr("Project \"%1\" was configured for "
             "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
             "created in its place, in an attempt not to lose custom project settings.")
                 .arg(displayName(), formerKitName, id.toString(), k->displayName())));
@@ -1027,7 +1028,7 @@ QStringList Project::availableQmlPreviewTranslations(QString *errorMessage)
     const QDir languageDirectory(projectDirectory + "/i18n");
     const auto qmFiles = languageDirectory.entryList({"qml_*.qm"});
     if (qmFiles.isEmpty() && errorMessage)
-        errorMessage->append(tr("Could not find any qml_*.qm file at \"%1\"").arg(languageDirectory.absolutePath()));
+        errorMessage->append(Tr::tr("Could not find any qml_*.qm file at \"%1\"").arg(languageDirectory.absolutePath()));
     return transform(qmFiles, [](const QString &qmFile) {
         const int localeStartPosition = qmFile.lastIndexOf("_") + 1;
         const int localeEndPosition = qmFile.size() - QString(".qm").size();
@@ -1113,7 +1114,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
     const QByteArray prefixWithoutColon = fullPrefix.chopped(1);
     expander->registerVariable(fullPrefix + "Name",
                                //: %1 is something like "Active project"
-                               tr("%1: Name.").arg(descriptor),
+                               Tr::tr("%1: Name.").arg(descriptor),
                                [projectGetter]() -> QString {
                                    if (const Project *const project = projectGetter())
                                        return project->displayName();
@@ -1121,7 +1122,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
     expander->registerFileVariables(prefixWithoutColon,
                                     //: %1 is something like "Active project"
-                                    tr("%1: Full path to main file.").arg(descriptor),
+                                    Tr::tr("%1: Full path to main file.").arg(descriptor),
                                     [projectGetter]() -> FilePath {
                                         if (const Project *const project = projectGetter())
                                             return project->projectFilePath();
@@ -1129,7 +1130,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                     });
     expander->registerVariable(fullPrefix + "Kit:Name",
                                //: %1 is something like "Active project"
-                               tr("%1: The name the active kit.").arg(descriptor),
+                               Tr::tr("%1: The name the active kit.").arg(descriptor),
                                [targetGetter]() -> QString {
                                    if (const Target *const target = targetGetter())
                                        return target->kit()->displayName();
@@ -1137,7 +1138,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
     expander->registerVariable(fullPrefix + "BuildConfig:Name",
                                //: %1 is something like "Active project"
-                               tr("%1: Name of the active build configuration.").arg(descriptor),
+                               Tr::tr("%1: Name of the active build configuration.").arg(descriptor),
                                [bcGetter]() -> QString {
                                    if (const BuildConfiguration *const bc = bcGetter())
                                        return bc->displayName();
@@ -1145,7 +1146,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
     expander->registerVariable(fullPrefix + "BuildConfig:Type",
                                //: %1 is something like "Active project"
-                               tr("%1: Type of the active build configuration.").arg(descriptor),
+                               Tr::tr("%1: Type of the active build configuration.").arg(descriptor),
                                [bcGetter]() -> QString {
                                    const BuildConfiguration *const bc = bcGetter();
                                    const BuildConfiguration::BuildType type
@@ -1155,7 +1156,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
     expander
         ->registerVariable(fullPrefix + "BuildConfig:Path",
                            //: %1 is something like "Active project"
-                           tr("%1: Full build path of active build configuration.").arg(descriptor),
+                           Tr::tr("%1: Full build path of active build configuration.").arg(descriptor),
                            [bcGetter]() -> QString {
                                if (const BuildConfiguration *const bc = bcGetter())
                                    return bc->buildDirectory().toUserOutput();
@@ -1163,7 +1164,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                            });
     expander->registerPrefix(fullPrefix + "BuildConfig:Env",
                              //: %1 is something like "Active project"
-                             tr("%1: Variables in the active build environment.").arg(descriptor),
+                             Tr::tr("%1: Variables in the active build environment.").arg(descriptor),
                              [bcGetter](const QString &var) {
                                  if (BuildConfiguration *const bc = bcGetter())
                                      return bc->environment().expandedValueForKey(var);
@@ -1172,7 +1173,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
 
     expander->registerVariable(fullPrefix + "RunConfig:Name",
                                //: %1 is something like "Active project"
-                               tr("%1: Name of the active run configuration.").arg(descriptor),
+                               Tr::tr("%1: Name of the active run configuration.").arg(descriptor),
                                [rcGetter]() -> QString {
                                    if (const RunConfiguration *const rc = rcGetter())
                                        return rc->displayName();
@@ -1180,7 +1181,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                });
     expander->registerFileVariables(fullPrefix + "RunConfig:Executable",
                                     //: %1 is something like "Active project"
-                                    tr("%1: Executable of the active run configuration.")
+                                    Tr::tr("%1: Executable of the active run configuration.")
                                         .arg(descriptor),
                                     [rcGetter]() -> FilePath {
                                         if (const RunConfiguration *const rc = rcGetter())
@@ -1189,7 +1190,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                     });
     expander->registerPrefix(fullPrefix + "RunConfig:Env",
                              //: %1 is something like "Active project"
-                             tr("%1: Variables in the environment of the active run configuration.")
+                             Tr::tr("%1: Variables in the environment of the active run configuration.")
                                  .arg(descriptor),
                              [rcGetter](const QString &var) {
                                  if (const RunConfiguration *const rc = rcGetter()) {
@@ -1200,7 +1201,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                              });
     expander->registerVariable(fullPrefix + "RunConfig:WorkingDir",
                                //: %1 is something like "Active project"
-                               tr("%1: Working directory of the active run configuration.")
+                               Tr::tr("%1: Working directory of the active run configuration.")
                                    .arg(descriptor),
                                [rcGetter] {
                                    if (const RunConfiguration *const rc = rcGetter()) {

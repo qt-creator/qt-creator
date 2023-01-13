@@ -4,7 +4,7 @@
 #include "environmentaspect.h"
 
 #include "environmentaspectwidget.h"
-#include "target.h"
+#include "projectexplorertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -22,7 +22,7 @@ namespace ProjectExplorer {
 
 EnvironmentAspect::EnvironmentAspect()
 {
-    setDisplayName(tr("Environment"));
+    setDisplayName(Tr::tr("Environment"));
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);

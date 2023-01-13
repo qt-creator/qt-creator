@@ -4,6 +4,7 @@
 #include "filesinallprojectsfind.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
 #include "session.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -24,7 +25,7 @@ QString FilesInAllProjectsFind::id() const
 
 QString FilesInAllProjectsFind::displayName() const
 {
-    return tr("Files in All Project Directories");
+    return Tr::tr("Files in All Project Directories");
 }
 
 const char kSettingsKey[] = "FilesInAllProjectDirectories";
@@ -62,7 +63,7 @@ Utils::FileIterator *FilesInAllProjectsFind::files(const QStringList &nameFilter
 
 QString FilesInAllProjectsFind::label() const
 {
-    return tr("Files in All Project Directories:");
+    return Tr::tr("Files in All Project Directories:");
 }
 
 } // namespace Internal

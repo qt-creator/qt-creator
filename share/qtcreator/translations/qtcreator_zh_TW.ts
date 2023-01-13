@@ -249,10 +249,6 @@
         <translation type="obsolete">目錄 %1 已存在一份足夠新的 cbp 檔。您可以在此傳送特殊參數，或是變更所使用的工具鍊，然後重新執行 CMake。或者您也可以直接結束此精靈。</translation>
     </message>
     <message>
-        <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments and rerun CMake. Or simply finish the wizard directly.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The directory %1 does not contain a cbp file. Qt Creator needs to create this file by running CMake. Some projects require command line arguments to the initial CMake call.</source>
         <translation>目錄 %1 中沒有 cbp 檔。Qt Creator 需要執行 CMake 以建立此檔案。某些專案需要命令列參數來初始化 CMake 的呼叫。</translation>
     </message>
@@ -318,10 +314,6 @@
         <translation>Make</translation>
     </message>
     <message>
-        <source>&lt;b&gt;No build configuration found on this target.&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;未知的工具鍊&lt;/b&gt;</translation>
     </message>
@@ -374,22 +366,6 @@
     <message>
         <source>Alt+C,Alt+F</source>
         <translation>Alt+C,Alt+F</translation>
-    </message>
-    <message>
-        <source>Meta+C,Meta+F</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fetch from URL...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fetch from URL</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter URL:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Empty snippet received for &quot;%1&quot;.</source>
@@ -561,22 +537,6 @@
     <message>
         <source>Remove All Splits</source>
         <translation>移除所有的分割</translation>
-    </message>
-    <message>
-        <source>Meta+E,1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+E,1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+E,o</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+E,o</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save %1 &amp;As...</source>
@@ -3940,7 +3900,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>無法新增相依性</translation>
@@ -6599,7 +6559,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>正在啟動：&quot;%1&quot; %2</translation>
@@ -6620,9 +6580,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>無法啟動行程 &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -6663,9 +6620,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Skipping disabled step %1.</source>
         <translation>略過被關閉的步驟 %1 。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation type="obsolete">自訂執行檔</translation>
@@ -6674,32 +6628,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not find the executable, please specify one.</source>
         <translation type="obsolete">找不到可執行檔。請指定一個。</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">清理環境變數</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">建置環境變數</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">執行 %1 </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">自訂執行檔</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編輯(&amp;E)</translation>
@@ -6738,16 +6666,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
         <translation>使用 &lt;b&gt;%1&lt;/b&gt; 與</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>任何專案中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>所有專案</translation>
@@ -6766,9 +6688,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Fi&amp;le pattern:</source>
         <translation>檔案樣式(&amp;L)：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>&amp;Clone Selected</source>
         <translation>複製選取項目(&amp;C)</translation>
@@ -6780,14 +6699,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Edit build configuration:</source>
         <translation>編輯建置設定：</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -6834,9 +6745,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>您確定要刪除此建置設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>建置步驟</translation>
@@ -6845,23 +6753,14 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Clean Steps</source>
         <translation>清除步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>編譯輸出</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>目前專案中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>目前專案</translation>
@@ -6870,20 +6769,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Project &apos;%1&apos;:</source>
         <translation>專案 &apos;%1&apos;：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation type="obsolete">執行檔：</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">參數：</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">工作目錄：</translation>
     </message>
     <message>
         <source>Run Environment</source>
@@ -6897,21 +6785,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Base environment for this run configuration:</source>
         <translation type="obsolete">執行設置的基礎環境：</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">清理的環境變數</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">建置環境變數</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>編輯器設定：</translation>
@@ -6949,7 +6822,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>工作階段管理器</translation>
@@ -6994,29 +6867,15 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Restore last session on startup</source>
         <translation>啟動時回復上次的工作階段</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>自訂行程步驟</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <comment>item in combobox</comment>
         <translation>自訂行程步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>Custom Process Step</source>
         <translation>自訂行程步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>指令：</translation>
@@ -7033,32 +6892,11 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Arguments:</source>
         <translation type="unfinished">參數：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>專案檔案工廠</translation>
     </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="unfinished">開啟專案失敗</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>所有專案</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;隱式新增&gt;</translation>
@@ -7094,9 +6932,6 @@ to project &apos;%2&apos;.</source>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>新增 &apos;%1&apos; 到版本控制系統失敗。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>簡化樹狀圖</translation>
@@ -7109,9 +6944,6 @@ to project &apos;%2&apos;.</source>
         <source>Synchronize with Editor</source>
         <translation>與編輯器同步</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>專案</translation>
@@ -7128,9 +6960,6 @@ to project &apos;%2&apos;.</source>
         <source>Filter Tree</source>
         <translation>過濾樹狀圖</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>摘要</translation>
@@ -7151,9 +6980,6 @@ to project &apos;%2&apos;.</source>
         <source>Files to be added in</source>
         <translation>要新增到此處的檔案</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation type="obsolete">移除檔案</translation>
@@ -7169,17 +6995,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>File to remove:</source>
         <translation type="obsolete">要移除的檔案：</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
     <message>
         <source>Run configuration:</source>
@@ -7210,20 +7025,12 @@ to project &apos;%2&apos;.</source>
         <translation>您確定要刪除此執行設置 &lt;b&gt;%1&lt;/b&gt; 嗎？</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>重新命名...</translation>
-    </message>
-    <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>執行設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>取消建置並移除佈署設置</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>不要移除</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -7249,16 +7056,10 @@ to project &apos;%2&apos;.</source>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>佈署設置 &lt;b&gt;%1&lt;/b&gt; 的新名稱：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>找不到檔案：%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>問題</translation>
@@ -7271,9 +7072,6 @@ to project &apos;%2&apos;.</source>
         <source>Show Warnings</source>
         <translation>顯示警告</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>The following files will be added:
 
@@ -7287,10 +7085,6 @@ to project &apos;%2&apos;.</source>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>新增到專案(&amp;P)：</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>新增到版本控制系統(&amp;V)：</translation>
     </message>
@@ -7298,13 +7092,6 @@ to project &apos;%2&apos;.</source>
         <source>Project Management</source>
         <translation>專案管理</translation>
     </message>
-    <message>
-        <source>Manage...</source>
-        <translation>管理...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>建置(&amp;B)</translation>
@@ -7462,10 +7249,6 @@ to project &apos;%2&apos;.</source>
         <translation>執行 %1</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-    <message>
         <source>Sessions</source>
         <translation>工作階段</translation>
     </message>
@@ -7484,10 +7267,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Rebuild</source>
         <translation type="unfinished">重新建置</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>重新命名...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -7630,18 +7409,6 @@ Do you want to ignore them?</source>
         <translation>建置前總是先儲存檔案</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <translation>清除</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>佈署</translation>
-    </message>
-    <message>
         <source>The project %1 is not configured, skipping it.
 </source>
         <translation>專案 %1 尚未設置，將跳過。</translation>
@@ -7774,9 +7541,6 @@ to version control (%2)?</source>
         <source>Could not delete file %1.</source>
         <translation>無法刪除檔案 %1。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>回復工作階段時發生錯誤</translation>
@@ -7800,10 +7564,6 @@ to version control (%2)?</source>
     <message>
         <source>Remove projects from Session</source>
         <translation>從工作階段中移除專案</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>開啟專案失敗</translation>
     </message>
     <message>
         <source>Session</source>
@@ -10334,7 +10094,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>建置和執行</translation>
@@ -11299,7 +11059,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>啟動程式失敗。路徑或者權限是否有錯誤？</translation>
@@ -11318,16 +11078,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>無法取得除錯輸出。
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.
 </source>
@@ -11346,9 +11096,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>%1 已離開，離開代碼為 %2
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>目標目錄 %1 無法被建立。</translation>
@@ -11375,15 +11122,6 @@ Reason: %2</source>
         <source>GDB helper</source>
         <translation>GDB 小助手</translation>
     </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 在 PATH 中找不到
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>開發</translation>
@@ -12362,7 +12100,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -12372,16 +12110,10 @@ Reason: %2</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>untitled</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;工作階段中沒有其他專案&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Build &amp; Run</source>
         <translation>建置並執行</translation>
@@ -12534,14 +12266,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>雙標籤元件</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>目標設定元件</translation>
@@ -13260,7 +12989,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -13279,9 +13008,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Clean Environment</source>
         <translation>清除環境變數</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>清除系統環境變數</translation>
@@ -13306,7 +13032,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -13315,10 +13041,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Creates a plain C project using qmake, not using the Qt library.</source>
         <translation>使用 qmake 建立純 C 語言的專案，不使用 Qt 的函式庫。</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>非 Qt 專案</translation>
     </message>
     <message>
         <source>Creates a plain C project using CMake, not using the Qt library.</source>
@@ -13381,10 +13103,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>純 C++ 語言專案</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation>函式庫</translation>
-    </message>
-    <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator 外掛程式</translation>
     </message>
@@ -13432,9 +13150,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Local user settings</source>
         <translation>本地使用者設定</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>路徑：</translation>
@@ -13448,14 +13163,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>相依性</translation>
     </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
     <message>
         <source>Editor Settings</source>
         <translation type="obsolete">編輯器設定</translation>
@@ -13508,7 +13220,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <translation>專案</translation>
@@ -13518,24 +13230,8 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation type="obsolete">目標</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
-    <message>
         <source>Kit</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>佈署</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設置</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
@@ -13595,13 +13291,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 的複本</translation>
-    </message>
-</context>
-<context>
     <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
@@ -13613,7 +13302,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">沒有定義目標。</translation>
@@ -13629,10 +13318,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Cancel Build &amp;&amp; Remove Kit</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>不要移除</translation>
     </message>
     <message>
         <source>Remove Kit %1?</source>
@@ -14651,7 +14336,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>輸入工作階段的名稱：</translation>
@@ -14730,15 +14415,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>執行</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>建置</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>QmlDesigner::PropertyEditor</name>
@@ -15832,7 +15509,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>無法啟動行程：%1</translation>
@@ -16885,7 +16562,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -16927,9 +16604,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>No Build Steps</source>
         <translation>沒有建置步驟</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error: </source>
         <extracomment>Task is of type: error</extracomment>
@@ -16949,9 +16623,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Copy task to clipboard</source>
         <translation>將工作複製到剪貼簿</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -16963,21 +16634,10 @@ instead of its installation directory when run outside git bash.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">目前無佈署</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
         <source>Deploy Configuration</source>
         <extracomment>Display name of the default deploy configuration</extracomment>
         <translation>佈署設置</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>應用程式仍然執行中</translation>
@@ -17007,9 +16667,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Do not ask again</source>
         <translation>不要再次詢問</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>在編輯器中顯示(&amp;S)</translation>
@@ -17018,9 +16675,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Show task location in an editor.</source>
         <translation>在編輯器中顯示工作位置。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>顯示輸出(&amp;O)</translation>
@@ -17029,9 +16683,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Show output generating this issue.</source>
         <translation>顯示產生此問題的輸出。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>目前無佈署</translation>
@@ -17044,9 +16695,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">佈署至 Symbian 裝置</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>最後註記(&amp;A)</translation>
@@ -17297,7 +16945,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -17328,11 +16976,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>目標目錄 %1 無法被建立。</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -17748,7 +17392,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>停止監看</translation>
@@ -17757,9 +17401,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Stop monitoring task files.</source>
         <translation>停止監看工作檔案。</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>工作檔讀取器</translation>
@@ -17768,9 +17409,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>File Error</source>
         <translation>檔案錯誤</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>無法開啟工作檔案 %1：%2</translation>
@@ -18344,7 +17982,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>選擇發佈精靈</translation>
@@ -20213,14 +19851,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>編譯器路徑(&amp;C)：</translation>
@@ -20229,30 +19864,18 @@ Do you want to retry?</source>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
@@ -20266,9 +19889,6 @@ Do you want to retry?</source>
         <source>32-bit version</source>
         <translation type="obsolete">32 位元版本</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>初始化：</translation>
@@ -20281,23 +19901,6 @@ Do you want to retry?</source>
         <source>No 64bit CDB debugger detected.</source>
         <translation type="obsolete">沒有偵測到 64 位元CDB除錯工具。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>專案</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 的複本</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">除錯工具(&amp;D)：</translation>
@@ -20322,17 +19925,6 @@ Do you want to retry?</source>
         <source>Name:</source>
         <translation type="unfinished">名稱：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>自動偵測</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>手動</translation>
-    </message>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
         <translation>&lt;nobr&gt;&lt;b&gt;ABI：&lt;/b&gt; %1</translation>
@@ -20342,28 +19934,8 @@ Do you want to retry?</source>
         <translation>不是最新</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>名稱</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>型態</translation>
-    </message>
-    <message>
-        <source>Duplicate Compilers Detected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duplicate Tool Chain detected</source>
-        <translation type="obsolete">偵測到工具鍊有重複</translation>
     </message>
     <message>
         <source>The following tool chain was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
@@ -20376,29 +19948,6 @@ Do you want to retry?</source>
     <message>
         <source>The following tool chains were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="obsolete">已設置以下工具鍊：&lt;br&gt;&amp;nbsp;%1&lt;br&gt;因此未再次設置。</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
-    <message>
-        <source>Tool Chains</source>
-        <translation type="obsolete">工具鍊</translation>
-    </message>
-    <message>
-        <source>Compilers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
 </context>
 <context>
@@ -22330,14 +21879,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;自訂&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>掛接除錯工具到此行程</translation>
@@ -22374,9 +21920,6 @@ These files are preserved.</source>
         <source>Application Output Window</source>
         <translation>應用程式輸出視窗</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation type="obsolete">代碼風格設定</translation>
@@ -22398,7 +21941,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EditorConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -22409,9 +21952,6 @@ These files are preserved.</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>專案 %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
@@ -25054,7 +24594,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Using Old Project Settings File</source>
         <translation>使用舊的專案設定檔</translation>
@@ -26418,7 +25958,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -28380,42 +27920,23 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>編輯環境變數</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>新工作階段名稱</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation>除錯工具設定</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK：</translation>
@@ -29370,7 +28891,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation type="unfinished">裝置設置精靈選擇</translation>
@@ -29380,19 +28901,8 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">可用的裝置型態：</translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
         <translation type="unfinished">Linux 裝置設置</translation>
-    </message>
-    <message>
-        <source>&amp;Device:</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>General</source>
@@ -29407,18 +28917,6 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">型態：</translation>
     </message>
     <message>
-        <source>Auto-detected:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Current state:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type Specific</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Add...</source>
         <translation type="unfinished">新增(&amp;A)...</translation>
     </message>
@@ -29431,16 +28929,8 @@ This option is useful when you want to try your application on devices which don
         <translation type="unfinished">設為預設</translation>
     </message>
     <message>
-        <source>Yes (id is &quot;%1&quot;)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No</source>
         <translation type="unfinished">否</translation>
-    </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -31853,7 +31343,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Run locally</source>
         <translation type="unfinished"></translation>
@@ -31862,16 +31352,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Desktop</source>
         <translation type="unfinished">桌面</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">桌面</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation type="unfinished"></translation>
@@ -31904,16 +31384,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Remote application finished with exit code 0.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation type="unfinished"></translation>
@@ -31938,16 +31412,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>&amp;Filter:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation type="unfinished">遠端錯誤</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation type="unfinished">行程代碼</translation>
@@ -31956,16 +31424,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Command Line</source>
         <translation type="unfinished">命令列</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation type="unfinished">連線錯誤：%1</translation>
@@ -31988,16 +31446,10 @@ Remote error output was: %1</source>
         <translation type="unfinished">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation type="unfinished"></translation>
@@ -32006,9 +31458,6 @@ Remote error output was: %1</source>
         <source>Cannot open process %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="unfinished">連線失敗：%1</translation>
@@ -32043,9 +31492,6 @@ Remote stderr was: %1</source>
         <translation type="unfinished">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
@@ -32062,9 +31508,6 @@ Remote stderr was: %1</source>
         <source>Warning:</source>
         <translation type="unfinished">警告：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation type="unfinished"></translation>
@@ -32073,9 +31516,6 @@ Remote stderr was: %1</source>
         <source>Sys Root</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation type="unfinished"></translation>
@@ -32088,9 +31528,6 @@ Remote stderr was: %1</source>
         <source>No compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation type="unfinished"></translation>
@@ -32099,9 +31536,6 @@ Remote stderr was: %1</source>
         <source>Device type</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation type="unfinished"></translation>
@@ -32111,16 +31545,9 @@ Remote stderr was: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unconfigured</source>
         <translation type="unfinished">未設置</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation type="unfinished"></translation>
@@ -32129,9 +31556,6 @@ Remote stderr was: %1</source>
         <source>Sysroot:</source>
         <translation type="unfinished">Sysroot：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation type="unfinished"></translation>
@@ -32148,9 +31572,6 @@ Remote stderr was: %1</source>
         <source>&lt;No compiler available&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation type="unfinished"></translation>
@@ -32159,38 +31580,9 @@ Remote stderr was: %1</source>
         <source>Device type:</source>
         <translation type="unfinished">裝置型態：</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
-    <message>
-        <source>The device to run the applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation type="unfinished">管理...</translation>
-    </message>
     <message>
         <source>Device:</source>
         <translation type="unfinished">裝置：</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">桌面</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished">名稱：</translation>
-    </message>
-    <message>
-        <source>Kit name and icon.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -32200,9 +31592,6 @@ Remote stderr was: %1</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>Auto-detected</source>
         <translation type="unfinished">自動偵測</translation>
@@ -32212,24 +31601,8 @@ Remote stderr was: %1</source>
         <translation type="unfinished">手動</translation>
     </message>
     <message>
-        <source>%1 (default)</source>
-        <extracomment>Mark up a kit as the default one.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation type="unfinished">名稱</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation type="unfinished">%1 的複本</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Add</source>
@@ -32247,16 +31620,10 @@ Remote stderr was: %1</source>
         <source>Make Default</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation type="unfinished">未知的錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation type="unfinished"></translation>

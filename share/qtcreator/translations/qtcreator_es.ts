@@ -4068,7 +4068,7 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>No fue posible agregar la dependencia</translation>
@@ -4077,9 +4077,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>This would create a circular dependency.</source>
         <translation>Esto creará una dependencia circular.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="unfinished"></translation>
@@ -6817,7 +6814,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -6836,9 +6833,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;No se pudo arrancar el proceso %1 &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Construcción cancelada.&lt;/font&gt;</translation>
@@ -6870,9 +6864,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
         <translation>&lt;b&gt;Ejecutando los pasos para construir el proyecto %2...&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Ejecutable indicado</translation>
@@ -6885,16 +6876,6 @@ Nombre base de librería: %1</translation>
         <source>Run %1</source>
         <translation>Ejecutar %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Ejecutable indicado</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="unfinished"></translation>
@@ -6915,9 +6896,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;VALUE&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation type="unfinished">&amp;Editar</translation>
@@ -6946,16 +6924,10 @@ Nombre base de librería: %1</translation>
         <source>Summary: No changes to Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation>Archivos en cualquier proyecto</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Todos los proyectos</translation>
@@ -6964,9 +6936,6 @@ Nombre base de librería: %1</translation>
         <source>File &amp;pattern:</source>
         <translation>&amp;Patrón de archivos:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation type="obsolete">Fallo intentando iniciar el programa. ¿Ruta o permisos incorrectos?</translation>
@@ -6979,16 +6948,10 @@ Nombre base de librería: %1</translation>
         <source>Some error has occurred while running the program.</source>
         <translation type="obsolete">Ocurrió un error mientras se ejecutaba el programa.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationRunConfigurationRunner</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ApplicationRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">Iniciando %1...</translation>
@@ -6997,23 +6960,14 @@ Nombre base de librería: %1</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 finalizó retornando %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation>Ajustes de construcción</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPropertiesPage</name>
     <message>
         <source>Configurations</source>
         <translation type="obsolete">Ajustes</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>Create &amp;New</source>
         <translation type="obsolete">Crear &amp;nuevo</translation>
@@ -7066,9 +7020,6 @@ Nombre base de librería: %1</translation>
         <source>Clone configuration</source>
         <translation>Clonar configuración</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>No Build Steps</source>
         <translation type="unfinished"></translation>
@@ -7090,23 +7041,9 @@ Nombre base de librería: %1</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Build Steps</source>
-        <translation>Etapas de construcción</translation>
-    </message>
-    <message>
-        <source>Clean Steps</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Salida del compilador</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Cancelar construcción y cerrar</translation>
@@ -7131,16 +7068,10 @@ Nombre base de librería: %1</translation>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>¿Quiere cancelar la construcción y cerrar Qt Creator de todos modos?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation>Archivos en el proyecto actual</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Proyecto actual</translation>
@@ -7149,9 +7080,6 @@ Nombre base de librería: %1</translation>
         <source>File &amp;pattern:</source>
         <translation>&amp;Patrón de archivo:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -7204,16 +7132,10 @@ Nombre base de librería: %1</translation>
         <source>Base environment for this runconfiguration:</source>
         <translation type="unfinished">Entorno base para éste ajuste de ejecución:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
     <message>
         <source>Dependencies</source>
         <translation>Dependencias</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation>%1, del proyecto %2</translation>
@@ -7226,16 +7148,10 @@ Nombre base de librería: %1</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation>El renombrado del archivo %1 a %2 ha fallado.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation>Ajustes de edición</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation>Codificación de caracteres predefinida:</translation>
@@ -7253,7 +7169,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>New session name</source>
         <translation>Nuevo nombre de sesión</translation>
@@ -7262,9 +7178,6 @@ Nombre base de librería: %1</translation>
         <source>Enter the name of the new session:</source>
         <translation>Introduzca el nombre para la nueva sesión:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Switch to session</source>
         <translation type="unfinished"></translation>
@@ -7297,9 +7210,6 @@ Nombre base de librería: %1</translation>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;¿Qué es una sesión?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
         <source>Re-run this run-configuration</source>
         <translation>Volver a ejecutar con esta configuración</translation>
@@ -7324,16 +7234,10 @@ Nombre base de librería: %1</translation>
         <source>Unable to close</source>
         <translation>Imposible cerrar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
         <source>Application Output Window</source>
         <translation>Ventana de salida de la aplicación</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Etapa de construcción definida por el usuario</translation>
@@ -7343,9 +7247,6 @@ Nombre base de librería: %1</translation>
         <comment>item in combobox</comment>
         <translation type="unfinished">Etapa de construcción definida por el usuario</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation type="unfinished"></translation>
@@ -7354,16 +7255,9 @@ Nombre base de librería: %1</translation>
         <source>(disabled)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Enable custom process step</source>
         <translation type="obsolete">Permitir etapa de construcción personalizada</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Nombre:</translation>
     </message>
     <message>
         <location/>
@@ -7385,9 +7279,6 @@ Nombre base de librería: %1</translation>
         <source>Enable Custom Process Step</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>Build and Run</source>
         <translation>Construir y ejecutar</translation>
@@ -7400,16 +7291,10 @@ Nombre base de librería: %1</translation>
         <source>Projectexplorer</source>
         <translation type="obsolete">Explorador de proyecto</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation>No se pudo abrir el siguiente proyecto: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
@@ -7420,9 +7305,6 @@ Nombre base de librería: %1</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Fallo al agregar &apos;%1&apos; al sistema de control de versiones.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation>Simplificar árbol</translation>
@@ -7435,9 +7317,6 @@ Nombre base de librería: %1</translation>
         <source>Synchronize with Editor</source>
         <translation>Sincronizar con el editor</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Proyectos</translation>
@@ -7446,9 +7325,6 @@ Nombre base de librería: %1</translation>
         <source>Filter tree</source>
         <translation>Filtrar árbol</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Project Explorer</source>
         <translation type="obsolete">Explorardor de proyecto</translation>
@@ -7473,9 +7349,6 @@ Nombre base de librería: %1</translation>
         <source>No project loaded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation>Agregar al &amp;VCS (%1)</translation>
@@ -7484,9 +7357,6 @@ Nombre base de librería: %1</translation>
         <source>Files to be added:</source>
         <translation>Archivos a ser agregados:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjetExplorerSettingsPageUi</name>
     <message>
         <source>Save all files before Build</source>
         <translation type="obsolete">Guardar todos los archivos antes de construir</translation>
@@ -7499,9 +7369,6 @@ Nombre base de librería: %1</translation>
         <source>Build and Run</source>
         <translation type="obsolete">Construir y ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Suprimir archivo</translation>
@@ -7521,27 +7388,10 @@ Nombre base de librería: %1</translation>
         <source>File to remove:</source>
         <translation>Archivo a suprimir:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
         <translation>Ajustes de ejecución</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">Agregar</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>Run &amp;configuration:</source>
         <translation type="obsolete">Ajuste de eje&amp;cución:</translation>
@@ -7564,9 +7414,6 @@ Nombre base de librería: %1</translation>
         <source>Edit run configuration:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
     <message>
         <source>Session</source>
         <translation>Sesión</translation>
@@ -7576,16 +7423,10 @@ Nombre base de librería: %1</translation>
         <comment>default file name to display</comment>
         <translation>Sin título</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Archivo no encontrado: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation>Construcción</translation>
@@ -7598,9 +7439,6 @@ Nombre base de librería: %1</translation>
         <source>Show Warnings</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation>El proceso no pudo ser iniciado!</translation>
@@ -7609,9 +7447,6 @@ Nombre base de librería: %1</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation>No se pudo obtener salida de depurado!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation>Gestor de proyectos</translation>
@@ -7643,13 +7478,6 @@ Nombre base de librería: %1</translation>
 
 
 </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation>Proyectos</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -7714,10 +7542,6 @@ Nombre base de librería: %1</translation>
     <message>
         <source>Close All Projects</source>
         <translation>Cerrar todos los proyectos</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation>Sesión</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -7933,9 +7757,6 @@ al control de versiones (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>No se pudo eliminar el archivo %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Error restaurando sesión</translation>
@@ -11485,7 +11306,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation type="unfinished">Construir y ejecutar</translation>
@@ -11515,9 +11336,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -12712,7 +12530,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation type="unfinished">Fallo intentando iniciar el programa. ¿Ruta o permisos incorrectos?</translation>
@@ -12725,16 +12543,10 @@ p, li { white-space: pre-wrap; }
         <source>Some error has occurred while running the program.</source>
         <translation type="unfinished">Ocurrió un error mientras se ejecutaba el programa.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="unfinished">Ejecutar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="unfinished">Iniciando %1...</translation>
@@ -12743,9 +12555,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 exited with code %2</source>
         <translation type="unfinished">%1 finalizó retornando %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
@@ -12785,23 +12594,14 @@ Reason: %2</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation type="unfinished">Desarrollar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
         <source>Active run configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
     <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
@@ -12810,9 +12610,6 @@ Reason: %2</source>
         <source>No Project loaded</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation type="unfinished"></translation>

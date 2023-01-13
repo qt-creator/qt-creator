@@ -13,8 +13,6 @@ namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::BuildPropertiesSettings)
-
 public:
     BuildPropertiesSettings();
 

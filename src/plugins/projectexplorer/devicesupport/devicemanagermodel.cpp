@@ -4,6 +4,7 @@
 #include "devicemanagermodel.h"
 
 #include "devicemanager.h"
+#include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
@@ -148,7 +149,7 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
         return dev->id().toSetting();
     QString name;
     if (d->deviceManager->defaultDevice(dev->type()) == dev)
-        name = tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
+        name = Tr::tr("%1 (default for %2)").arg(dev->displayName(), dev->displayType());
     else
         name = dev->displayName();
     return name;

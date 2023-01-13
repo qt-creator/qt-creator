@@ -10,6 +10,7 @@
 #include "ioutputparser.h"
 #include "osparser.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
@@ -53,8 +54,6 @@ namespace Internal {
 
 class KitPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Kit)
-
 public:
     KitPrivate(Id id, Kit *kit) :
         m_id(id)
@@ -62,28 +61,27 @@ public:
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
 
-        m_unexpandedDisplayName.setDefaultValue(QCoreApplication::translate("ProjectExplorer::Kit",
-                                                                            "Unnamed"));
+        m_unexpandedDisplayName.setDefaultValue(Tr::tr("Unnamed"));
 
-        m_macroExpander.setDisplayName(tr("Kit"));
+        m_macroExpander.setDisplayName(Tr::tr("Kit"));
         m_macroExpander.setAccumulating(true);
-        m_macroExpander.registerVariable("Kit:Id", tr("Kit ID"),
+        m_macroExpander.registerVariable("Kit:Id", Tr::tr("Kit ID"),
             [kit] { return kit->id().toString(); });
-        m_macroExpander.registerVariable("Kit:FileSystemName", tr("Kit filesystem-friendly name"),
+        m_macroExpander.registerVariable("Kit:FileSystemName", Tr::tr("Kit filesystem-friendly name"),
             [kit] { return kit->fileSystemFriendlyName(); });
         for (KitAspect *aspect : KitManager::kitAspects())
             aspect->addToMacroExpander(kit, &m_macroExpander);
 
         m_macroExpander.registerVariable("Kit:Name",
-            tr("The name of the kit."),
+            Tr::tr("The name of the kit."),
             [kit] { return kit->displayName(); });
 
         m_macroExpander.registerVariable("Kit:FileSystemName",
-            tr("The name of the kit in a filesystem-friendly version."),
+            Tr::tr("The name of the kit in a filesystem-friendly version."),
             [kit] { return kit->fileSystemFriendlyName(); });
 
         m_macroExpander.registerVariable("Kit:Id",
-            tr("The ID of the kit."),
+            Tr::tr("The ID of the kit."),
             [kit] { return kit->id().toString(); });
     }
 
@@ -715,8 +713,8 @@ QString Kit::newKitName(const QList<Kit *> &allKits) const
 QString Kit::newKitName(const QString &name, const QList<Kit *> &allKits)
 {
     const QString baseName = name.isEmpty()
-            ? QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed")
-            : QCoreApplication::translate("ProjectExplorer::Kit", "Clone of %1").arg(name);
+            ? Tr::tr("Unnamed")
+            : Tr::tr("Clone of %1").arg(name);
     return Utils::makeUniquelyNumbered(baseName, transform(allKits, &Kit::unexpandedDisplayName));
 }
 

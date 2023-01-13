@@ -11,6 +11,7 @@
 #include "kitmanagerconfigwidget.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "task.h"
 #include "toolchainmanager.h"
 
@@ -344,7 +345,7 @@ void KitManager::restoreKits()
                 continue;
             }
             if (isHostKit(kit.get()))
-                kit->setUnexpandedDisplayName(tr("Desktop (%1)").arg(it.key().toString()));
+                kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
             else
                 kit->setUnexpandedDisplayName(it.key().toString());
             DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
@@ -396,7 +397,7 @@ void KitManager::restoreKits()
         }
 
         if (hostKits.size() == 1)
-            hostKits.first()->setUnexpandedDisplayName(tr("Desktop"));
+            hostKits.first()->setUnexpandedDisplayName(Tr::tr("Desktop"));
     }
 
     Kit *k = kitForBinary;
@@ -726,7 +727,7 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
     : m_kit(kit), m_kitInformation(ki)
 {
     const Id id = ki->id();
-    m_mutableAction = new QAction(tr("Mark as Mutable"));
+    m_mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     m_mutableAction->setCheckable(true);
     m_mutableAction->setChecked(m_kit->isMutable(id));
     m_mutableAction->setEnabled(!m_kit->isSticky(id));
@@ -773,7 +774,7 @@ QWidget *KitAspectWidget::createManageButton(Id pageId)
 
 QString KitAspectWidget::msgManage()
 {
-    return tr("Manage...");
+    return Tr::tr("Manage...");
 }
 
 // --------------------------------------------------------------------

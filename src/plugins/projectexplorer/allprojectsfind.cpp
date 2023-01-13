@@ -3,14 +3,17 @@
 
 #include "allprojectsfind.h"
 
-#include "project.h"
-#include "session.h"
-#include "projectexplorer.h"
 #include "editorconfiguration.h"
+#include "project.h"
+#include "projectexplorer.h"
+#include "projectexplorertr.h"
+#include "session.h"
+
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
-#include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/filesearch.h>
 #include <utils/algorithm.h>
 
@@ -36,7 +39,7 @@ QString AllProjectsFind::id() const
 
 QString AllProjectsFind::displayName() const
 {
-    return tr("All Projects");
+    return Tr::tr("All Projects");
 }
 
 bool AllProjectsFind::isEnabled() const
@@ -84,13 +87,13 @@ QVariant AllProjectsFind::additionalParameters() const
 
 QString AllProjectsFind::label() const
 {
-    return tr("All Projects:");
+    return Tr::tr("All Projects:");
 }
 
 QString AllProjectsFind::toolTip() const
 {
     // last arg is filled by BaseFileFind::runNewSearch
-    return tr("Filter: %1\nExcluding: %2\n%3")
+    return Tr::tr("Filter: %1\nExcluding: %2\n%3")
             .arg(fileNameFilters().join(','))
             .arg(fileExclusionFilters().join(','));
 }

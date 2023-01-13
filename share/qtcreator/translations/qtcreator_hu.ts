@@ -5302,7 +5302,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation>Nem lehet függőséget hozzáadni</translation>
@@ -10419,7 +10419,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::0</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10820,9 +10820,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Session (&apos;%1&apos;)</source>
         <translation type="obsolete">(&apos;%1&apos;) szakasz</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10841,9 +10838,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not start process %1 &lt;/b&gt;&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;#ff0000&quot;&gt;Nem sikerült elindítani a(z) %1 folyamatot &lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Nem sikerült elindítani a programot. Rossz útvonal vagy jogosultságok?</translation>
@@ -10856,9 +10850,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Some error has occurred while running the program.</source>
         <translation>Néhány hiba történt a program futtatása közben.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message>
         <source>Finished %n of %1 build steps</source>
         <translation>%1 %n építési lépése befejezve
@@ -10888,9 +10879,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
         <translation>&lt;b&gt;Építések lépések futtatása a(z) %2 projektre...&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Szokásos futtatható</translation>
@@ -10903,16 +10891,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Run %1</source>
         <translation>%1 futtatása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Szokásos futtatható</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Nem lehet létrehozni a(z) %1 cél könytárat.</translation>
@@ -10955,9 +10933,6 @@ Ok: %2</translation>
 </source>
         <translation>%1 futtatása ....</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;Nincs beállítva&gt;</translation>
@@ -10978,9 +10953,6 @@ Ok: %2</translation>
         <source>&lt;VALUE&gt;</source>
         <translation>&lt;ÉRTÉK&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Szerkesztés</translation>
@@ -11009,9 +10981,6 @@ Ok: %2</translation>
         <source>Summary: No changes to Environment</source>
         <translation>Összegzés: Nem történt változás a környezetben</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::0</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Bármely projektben levő fájlok</translation>
@@ -11035,10 +11004,6 @@ Ok: %2</translation>
     <message>
         <source>Some error has occurred while running the program.</source>
         <translation type="obsolete">Néhány hiba történt a program futtatása közben.</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Futtatás</translation>
     </message>
     <message>
         <source>Starting %1...</source>
@@ -11299,10 +11264,6 @@ Ok: %2</translation>
         <translation type="obsolete">Generált fájlok elrejtése</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projektek</translation>
-    </message>
-    <message>
         <source>Filter tree</source>
         <translation type="obsolete">Szűrő fa</translation>
     </message>
@@ -11387,10 +11348,6 @@ Ok: %2</translation>
         <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Mi az a szakasz?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>Session</source>
-        <translation type="obsolete">Szakasz</translation>
-    </message>
-    <message>
         <source>Untitled</source>
         <comment>default file name to display</comment>
         <translation type="obsolete">Címtelen</translation>
@@ -11437,23 +11394,14 @@ Ok: %2</translation>
         <translation type="obsolete">A következő fájlok lesznek hozzáadva:
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
     <message>
         <source>Active run configuration</source>
         <translation>Aktív futtatás konfiguráció</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation>Bármely projektben levő fájlok</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Az összes projekt</translation>
@@ -11462,9 +11410,6 @@ Ok: %2</translation>
         <source>File &amp;pattern:</source>
         <translation>Fájl &amp;minta:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation>Építési konfigurcáiók megváltoztatása &amp;&amp; folytatása</translation>
@@ -11497,16 +11442,10 @@ Ok: %2</translation>
         <source>Choose build configuration:</source>
         <translation>Válasszon építési konfigurációt:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
     <message>
         <source>Build Settings</source>
         <translation>Építési beállítások</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>Edit Build Configuration:</source>
         <translation>Építési konfiguráció szerkesztése:</translation>
@@ -11543,9 +11482,6 @@ Ok: %2</translation>
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>No Build Steps</source>
         <translation>Nincsenek építési lépések</translation>
@@ -11571,19 +11507,9 @@ Ok: %2</translation>
         <translation>Lépések kiürítése</translation>
     </message>
     <message>
-        <source>Build Steps</source>
-        <translation>Építése lépések</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Fordítási kimenet</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
         <translation>Építés visszavonása &amp;&amp; bezárása</translation>
@@ -11604,27 +11530,14 @@ Ok: %2</translation>
         <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
         <translation>Vissza szeretné vonni az építési folyamatot és bezárni a Qt Creatort?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in current project</source>
         <translation>Fájlok a jelenlegi projektben</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>Aktuális Projekt</translation>
     </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation>Fájl &amp;minta:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -11673,16 +11586,10 @@ Ok: %2</translation>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation>Futtatható futtatása: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
     <message>
         <source>Dependencies</source>
         <translation>Függpségek</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation>%1-nek nincsen függősége.</translation>
@@ -11695,9 +11602,6 @@ Ok: %2</translation>
         <source>%1 depends on: %2.</source>
         <translation>%1 a(z) %2-től függ.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
     <message>
         <source>%1 of project %2</source>
         <translation>A(z) %2 projekt %1-e</translation>
@@ -11710,16 +11614,10 @@ Ok: %2</translation>
         <source>Renaming file %1 to %2 failed.</source>
         <translation>A(z) %1 fájl átnevezése %2-re nem sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
     <message>
         <source>Editor Settings</source>
         <translation>Szerkesztő beállítások</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Default File Encoding:</source>
         <translation>Alapértelmezett fájl kódolás:</translation>
@@ -11737,7 +11635,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Starting %1...</source>
         <translation>%1 elindítása...</translation>
@@ -11746,16 +11644,10 @@ Ok: %2</translation>
         <source>%1 exited with code %2</source>
         <translation>%1 befejeződött %2-s kóddal</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation>Futtatás</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
     <message>
         <source>New session name</source>
         <translation>Új szakasz név</translation>
@@ -11764,9 +11656,6 @@ Ok: %2</translation>
         <source>Enter the name of the new session:</source>
         <translation>Gépelje be az új szakasz nevét:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
     <message>
         <source>Re-run this run-configuration</source>
         <translation>Futtatás-konfiguráció újrafuttatása</translation>
@@ -11787,16 +11676,10 @@ Ok: %2</translation>
         <source>Unable to close</source>
         <translation>Nem lehet bezárni</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
     <message>
         <source>Application Output Window</source>
         <translation>Alkalmazás kimeneti ablak</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Szokásos folyamat lépés</translation>
@@ -11806,9 +11689,6 @@ Ok: %2</translation>
         <comment>item in combobox</comment>
         <translation>Szokásos folyamat lépés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
@@ -11817,32 +11697,18 @@ Ok: %2</translation>
         <source>(disabled)</source>
         <translation>(tiltva)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Enable Custom Process Step</source>
         <translation>Szokásos folyamat lépések engedélyezése</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
     </message>
     <message>
         <source>Command:</source>
         <translation>Parancs:</translation>
     </message>
     <message>
-        <source>Working Directory:</source>
-        <translation>Munka könyvtár:</translation>
-    </message>
-    <message>
         <source>Command Arguments:</source>
         <translation>Parancs argumentumok:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>Build and Run</source>
         <translation>Építés és futtatás</translation>
@@ -11850,13 +11716,6 @@ Ok: %2</translation>
     <message>
         <source>Projects</source>
         <translation>Projektek</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
-    <message>
-        <source>Build and Run</source>
-        <translation>Építés és futtatás</translation>
     </message>
     <message>
         <source>Save all files before Build</source>
@@ -11878,16 +11737,10 @@ Ok: %2</translation>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation>&lt;i&gt;jom&lt;/i&gt; egy megérkezett leváltás az &lt;i&gt;nmake&lt;/i&gt;-re, amelyik elosztja a fordítási folyamatot több CPU mag számára. További részletekért tekintse meg a &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Honlapot&lt;/a&gt;. Tiltsa le, ha problémát tapasztal az építésnél.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
         <translation>A következő projekt megnyitása nem sikerült: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Failed to add one or more files to project
 &apos;%1&apos; (%2).</source>
@@ -11898,9 +11751,6 @@ Ok: %2</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>A(z) &apos;%1&apos; hozzáadása nem sikerült a verziókövetőhöz.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
     <message>
         <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
         <translation>Projekt beállítások a(z) &lt;b&gt;%1&lt;/b&gt; projektre szerkesztése</translation>
@@ -11909,16 +11759,10 @@ Ok: %2</translation>
         <source>No Project loaded</source>
         <translation>Nincs Projekt betöltve</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
     <message>
         <source>Select Project</source>
         <translation>Projekt kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation>Fa egyszerűsítése</translation>
@@ -11931,27 +11775,14 @@ Ok: %2</translation>
         <source>Synchronize with Editor</source>
         <translation>Mit Editor synchronisieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
     <message>
         <source>Filter tree</source>
         <translation>Szűrő fa</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Develop</source>
         <translation>Fejlesztés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -11984,9 +11815,6 @@ Ok: %2</translation>
         <source>New Project...</source>
         <translation>Új Projekt...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Active Build and Run Configurations</source>
         <translation>Aktív építés és konfigurációk futtatása</translation>
@@ -11995,9 +11823,6 @@ Ok: %2</translation>
         <source>No project loaded.</source>
         <translation>Nincs Projekt betöltve.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation>Hozzáadás &amp;VC-hez (%1)</translation>
@@ -12006,9 +11831,6 @@ Ok: %2</translation>
         <source>Files to be added:</source>
         <translation>A hozzáadni kívánt fájlok:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Fájl eltávolítás</translation>
@@ -12025,16 +11847,10 @@ Ok: %2</translation>
         <source>&amp;Remove from Version Control</source>
         <translation>Verzió követőből való &amp;eltávolítás</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
     <message>
         <source>Run Settings</source>
         <translation>Beállítások futtatása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
     <message>
         <source>Edit run configuration:</source>
         <translation>Futtatás konfiguráció szerkesztése:</translation>
@@ -12047,24 +11863,6 @@ Ok: %2</translation>
         <source>-</source>
         <translation>-</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Hozzáadás</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;#&quot;&gt;Make %1 aktív.&lt;/a&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Szakasz kezelő</translation>
@@ -12089,9 +11887,6 @@ Ok: %2</translation>
         <source>Switch to session</source>
         <translation>Szakasz kapcsolása</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
     <message>
         <source>Session</source>
         <translation>Szakasz</translation>
@@ -12101,16 +11896,10 @@ Ok: %2</translation>
         <comment>default file name to display</comment>
         <translation>Címtelen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>A fájl nem található: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Build Issues</source>
         <translation>Építési problémák</translation>
@@ -12123,9 +11912,6 @@ Ok: %2</translation>
         <source>Show Warnings</source>
         <translation>Figyelmeztetések megjelenítése</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation>Nem sikerült elindítani a folyamatot!</translation>
@@ -12134,9 +11920,6 @@ Ok: %2</translation>
         <source>Cannot retrieve debugging output!</source>
         <translation>Nem sikerült kinyerni a debug kimeneteket!</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation>Projekt vezetés</translation>
@@ -12161,13 +11944,6 @@ Ok: %2</translation>
 </source>
         <translation>A következő fájlok lesznek hozzáadva:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
     <message>
         <source>&amp;Build</source>
         <translation>&amp;Építés</translation>
@@ -12187,10 +11963,6 @@ Ok: %2</translation>
     <message>
         <source>Session Manager...</source>
         <translation>Szakasz kezelő...</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation>Új Projekt...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+N</source>
@@ -12235,10 +12007,6 @@ Ok: %2</translation>
     <message>
         <source>Close All Projects</source>
         <translation>Az összes projekt bezárása</translation>
-    </message>
-    <message>
-        <source>Session</source>
-        <translation>Szakasz</translation>
     </message>
     <message>
         <source>Set Build Configuration</source>
@@ -12299,10 +12067,6 @@ Ok: %2</translation>
     <message>
         <source>Clean Without Dependencies</source>
         <translation>Függőségek nélküli tisztogatás</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Futtatás</translation>
     </message>
     <message>
         <source>Ctrl+R</source>
@@ -12422,9 +12186,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Could not delete file %1.</source>
         <translation>Nem sikerült törölni a(z) %1 fájlt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Hiba történt a szakasz visszaállítása közben</translation>

@@ -4,6 +4,7 @@
 #include "showineditortaskhandler.h"
 
 #include "task.h"
+#include "projectexplorertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -31,8 +32,8 @@ void ShowInEditorTaskHandler::handle(const Task &task)
 
 QAction *ShowInEditorTaskHandler::createAction(QObject *parent) const
 {
-    QAction *showAction = new QAction(tr("Show in Editor"), parent);
-    showAction->setToolTip(tr("Show task location in an editor."));
+    QAction *showAction = new QAction(Tr::tr("Show in Editor"), parent);
+    showAction->setToolTip(Tr::tr("Show task location in an editor."));
     showAction->setShortcut(QKeySequence(Qt::Key_Return));
     showAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     return showAction;

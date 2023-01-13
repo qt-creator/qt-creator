@@ -10,8 +10,10 @@
 #include "../editorconfiguration.h"
 #include "../project.h"
 #include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/dialogs/promptoverwritedialog.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/storagesettings.h>
@@ -25,7 +27,6 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -162,23 +163,19 @@ JsonWizardGenerator::OverwriteResult JsonWizardGenerator::promptForOverwrite(Jso
             const QString namePart = filePath.toUserOutput().mid(commonPathSize);
             if (filePath.isDir()) {
                 oddStuffFound = true;
-                fileNamesMsgPart += QCoreApplication::translate("ProjectExplorer::JsonWizardGenerator", "%1 [folder]")
-                        .arg(namePart);
+                fileNamesMsgPart += Tr::tr("%1 [folder]").arg(namePart);
             } else if (filePath.isSymLink()) {
                 oddStuffFound = true;
-                fileNamesMsgPart += QCoreApplication::translate("ProjectExplorer::JsonWizardGenerator", "%1 [symbolic link]")
-                        .arg(namePart);
+                fileNamesMsgPart += Tr::tr("%1 [symbolic link]").arg(namePart);
             } else if (!filePath.isWritableDir() && !filePath.isWritableFile()) {
                 oddStuffFound = true;
-                fileNamesMsgPart += QCoreApplication::translate("ProjectExplorer::JsonWizardGenerator", "%1 [read only]")
-                        .arg(namePart);
+                fileNamesMsgPart += Tr::tr("%1 [read only]").arg(namePart);
             }
         }
     }
 
     if (oddStuffFound) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizardGenerator",
-                                                    "The directory %1 contains files which cannot be overwritten:\n%2.")
+        *errorMessage = Tr::tr("The directory %1 contains files which cannot be overwritten:\n%2.")
                 .arg(commonExistingPath).arg(fileNamesMsgPart);
         return OverwriteError;
     }

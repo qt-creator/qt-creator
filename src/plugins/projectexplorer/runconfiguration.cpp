@@ -11,6 +11,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
@@ -164,27 +165,27 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     QTC_CHECK(target && target == this->target());
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
-    m_expander.setDisplayName(tr("Run Settings"));
+    m_expander.setDisplayName(Tr::tr("Run Settings"));
     m_expander.setAccumulating(true);
     m_expander.registerSubProvider([target] {
         BuildConfiguration *bc = target->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target->macroExpander();
     });
-    m_expander.registerPrefix("RunConfig:Env", tr("Variables in the run environment."),
+    m_expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
                              [this](const QString &var) {
         const auto envAspect = aspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
     });
     m_expander.registerVariable("RunConfig:WorkingDir",
-                               tr("The run configuration's working directory."),
+                               Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
         return wdAspect ? wdAspect->workingDirectory().toString() : QString();
     });
-    m_expander.registerVariable("RunConfig:Name", tr("The run configuration's name."),
+    m_expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
             [this] { return displayName(); });
     m_expander.registerFileVariables("RunConfig:Executable",
-                                     tr("The run configuration's executable."),
+                                     Tr::tr("The run configuration's executable."),
                                      [this] { return commandLine().executable(); });
 
 
@@ -205,7 +206,7 @@ RunConfiguration::~RunConfiguration() = default;
 QString RunConfiguration::disabledReason() const
 {
     BuildSystem *bs = activeBuildSystem();
-    return bs ? bs->disabledReason(m_buildKey) : tr("No build system active");
+    return bs ? bs->disabledReason(m_buildKey) : Tr::tr("No build system active");
 }
 
 bool RunConfiguration::isEnabled() const
@@ -453,10 +454,10 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
         if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
-                displayName = RunConfiguration::tr("Run on %{Device:Name}");
+                displayName = Tr::tr("Run on %{Device:Name}");
             } else {
                 //: Shown in Run configuration, Add menu: "name of runnable (on device name)"
-                displayName = RunConfiguration::tr("%1 (on %{Device:Name})").arg(displayName);
+                displayName = Tr::tr("%1 (on %{Device:Name})").arg(displayName);
             }
         }
     }

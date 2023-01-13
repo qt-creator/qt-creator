@@ -4,8 +4,8 @@
 #include "devicesettingspage.h"
 
 #include "devicesettingswidget.h"
-
-#include <projectexplorer/projectexplorerconstants.h>
+#include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 
 #include <QCoreApplication>
 
@@ -17,7 +17,7 @@ DeviceSettingsPage::DeviceSettingsPage()
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(DeviceSettingsWidget::tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("::ProjectExplorer", "Devices"));
+    setDisplayCategory(Tr::tr("Devices"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new DeviceSettingsWidget; });
 }

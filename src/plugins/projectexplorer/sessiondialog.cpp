@@ -3,6 +3,7 @@
 
 #include "sessiondialog.h"
 
+#include "projectexplorertr.h"
 #include "session.h"
 #include "sessionview.h"
 
@@ -77,7 +78,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
 
     using namespace Utils::Layouting;
     Column {
-        tr("Enter the name of the session:"),
+        Tr::tr("Enter the name of the session:"),
         m_newSessionLineEdit,
         buttons,
     }.attachTo(this);
@@ -111,7 +112,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 {
     setObjectName("ProjectExplorer.SessionDialog");
     resize(550, 400);
-    setWindowTitle(tr("Session Manager"));
+    setWindowTitle(Tr::tr("Session Manager"));
 
 
     auto sessionView = new SessionView(this);
@@ -119,16 +120,16 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
     sessionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sessionView->setActivationMode(Utils::DoubleClickActivation);
 
-    auto createNewButton = new QPushButton(tr("&New"));
+    auto createNewButton = new QPushButton(Tr::tr("&New"));
     createNewButton->setObjectName("btCreateNew");
 
-    m_openButton = new QPushButton(tr("&Open"));
+    m_openButton = new QPushButton(Tr::tr("&Open"));
     m_openButton->setObjectName("btOpen");
-    m_renameButton = new QPushButton(tr("&Rename"));
-    m_cloneButton = new QPushButton(tr("C&lone"));
-    m_deleteButton = new QPushButton(tr("&Delete"));
+    m_renameButton = new QPushButton(Tr::tr("&Rename"));
+    m_cloneButton = new QPushButton(Tr::tr("C&lone"));
+    m_deleteButton = new QPushButton(Tr::tr("&Delete"));
 
-    m_autoLoadCheckBox = new QCheckBox(tr("Restore last session on startup"));
+    m_autoLoadCheckBox = new QCheckBox(Tr::tr("Restore last session on startup"));
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Close);
@@ -137,7 +138,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
     // FIXME: Simplify translator's work.
     auto whatsASessionLabel = new QLabel(
-        tr("<a href=\"qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html\">"
+        Tr::tr("<a href=\"qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html\">"
            "What is a Session?</a>"));
     whatsASessionLabel->setOpenExternalLinks(true);
 

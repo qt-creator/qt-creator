@@ -4,7 +4,10 @@
 #pragma once
 
 #include "buildstep.h"
+
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/ioutputpane.h>
 
@@ -33,7 +36,7 @@ public:
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override { return tr("Compile Output"); }
+    QString displayName() const override { return Tr::tr("Compile Output"); }
     int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;

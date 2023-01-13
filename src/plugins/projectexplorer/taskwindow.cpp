@@ -5,6 +5,7 @@
 
 #include "itaskhandler.h"
 #include "projectexplorericons.h"
+#include "projectexplorertr.h"
 #include "session.h"
 #include "task.h"
 #include "taskhub.h"
@@ -357,11 +358,11 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_filterWarningsButton = createFilterButton(
                 Utils::Icons::WARNING_TOOLBAR.icon(),
-                tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
+                Tr::tr("Show Warnings"), this, [this](bool show) { setShowWarnings(show); });
 
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(Utils::Icons::FILTER.icon());
-    d->m_categoriesButton->setToolTip(tr("Filter by categories"));
+    d->m_categoriesButton->setToolTip(Tr::tr("Filter by categories"));
     d->m_categoriesButton->setProperty("noArrow", true);
     d->m_categoriesButton->setPopupMode(QToolButton::InstantPopup);
 
@@ -449,6 +450,11 @@ void TaskWindow::delayedInitialization()
 QList<QWidget*> TaskWindow::toolBarWidgets() const
 {
     return {d->m_filterWarningsButton, d->m_categoriesButton, filterWidget()};
+}
+
+QString TaskWindow::displayName() const
+{
+    return Tr::tr("Issues");
 }
 
 QWidget *TaskWindow::outputWidget(QWidget *)
@@ -944,7 +950,7 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
         int secondBaseLine = positions.top() + fm.ascent() + height + leading;
         if (index.data(TaskModel::FileNotFound).toBool()
                 && !directory.isEmpty()) {
-            QString fileNotFound = tr("File not found: %1").arg(directory);
+            QString fileNotFound = Tr::tr("File not found: %1").arg(directory);
             painter->setPen(Qt::red);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, fileNotFound);
         } else {

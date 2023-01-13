@@ -3,7 +3,7 @@
 
 #include "jsonwizardfilegenerator.h"
 
-#include "../projectexplorer.h"
+#include "../projectexplorertr.h"
 #include "jsonwizard.h"
 #include "jsonwizardfactory.h"
 
@@ -33,8 +33,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
 
     for (const QVariant &d : list) {
         if (d.type() != QVariant::Map) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "Files data list entry is not an object.");
+            *errorMessage = Tr::tr("Files data list entry is not an object.");
             return false;
         }
 
@@ -55,8 +54,7 @@ bool JsonWizardFileGenerator::setup(const QVariant &data, QString *errorMessage)
             return false;
 
         if (f.source.isEmpty() && f.target.isEmpty()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "Source and target are both empty.");
+            *errorMessage = Tr::tr("Source and target are both empty.");
             return false;
         }
 

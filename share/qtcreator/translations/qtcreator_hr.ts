@@ -5422,14 +5422,11 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Language:</source>
         <translation>Jezik:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
     <message>
         <source>Custom Parser</source>
         <translation>Prilagođeno raščlanjivanje</translation>
@@ -5469,10 +5466,6 @@ Greška: %5</translation>
     <message>
         <source>Standard error</source>
         <translation>Standardna greška</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -5522,23 +5515,13 @@ Greška: %5</translation>
         <source>Pattern does not match the message.</source>
         <translation>Struktura se ne poklapa s porukom.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataView</name>
     <message>
         <source>Files to deploy:</source>
         <translation>Datoteke za implemeniranje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
     <message>
         <source>Machine type:</source>
         <translation>Vrsta stroja:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Tekstualna oznaka</translation>
     </message>
     <message>
         <source>Free ports:</source>
@@ -5552,9 +5535,6 @@ Greška: %5</translation>
         <source>You will need at least one port for QML debugging.</source>
         <translation>Trebat ćeš barem jedan prikljjučak za QML uklanjanje grešaka.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Odabir čarobnjaka za konfiguraciju uređaja</translation>
@@ -5567,9 +5547,6 @@ Greška: %5</translation>
         <source>Start Wizard</source>
         <translation>Pokreni čarobnjaka</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation>Konfiguracije Linux uređaja</translation>
@@ -5630,9 +5607,6 @@ Greška: %5</translation>
         <source>Show Running Processes...</source>
         <translation>Prikaži pokrenute procese …</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Testiranje uređaja</translation>
@@ -5649,9 +5623,6 @@ Greška: %5</translation>
         <source>Device test failed.</source>
         <translation>Neuspješno testiranje uređaja.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>Postavke uređivača</translation>
@@ -5676,13 +5647,6 @@ Greška: %5</translation>
         <source>Display right &amp;margin at column:</source>
         <translation>Prikaži desnu &amp;marginu pri stupcu:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Zanemari %1:</translation>
-    </message>
     <message>
         <source>Make arguments:</source>
         <translation>Izradi argumente:</translation>
@@ -5699,9 +5663,6 @@ Greška: %5</translation>
         <source>Override MAKEFLAGS</source>
         <translation>Zanemari MAKEFLAGS</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>Naredba:</translation>
@@ -5710,13 +5671,6 @@ Greška: %5</translation>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
     </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Radni direktorij:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
     <message>
         <source>Projects Directory</source>
         <translation>Direktorij projekta</translation>
@@ -5810,10 +5764,6 @@ Greška: %5</translation>
         <translation>Zaustavi aplikacije pije gradnje:</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Nijednu</translation>
-    </message>
-    <message>
         <source>Same Project</source>
         <translation>Isti projekt</translation>
     </message>
@@ -5841,16 +5791,9 @@ Greška: %5</translation>
         <source>Reset</source>
         <translation>Resetiraj</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project Management</source>
         <translation>Upravljanje projektima</translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation>Dodaj &amp;projektu:</translation>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
@@ -5868,9 +5811,6 @@ Greška: %5</translation>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Upravljač za sesije</translation>
@@ -12728,7 +12668,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="unfinished"></translation>
@@ -12746,9 +12686,6 @@ The trace data is lost.</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation type="unfinished"></translation>
@@ -12782,11 +12719,6 @@ The trace data is lost.</source>
     </message>
     <message>
         <source>Running %1 %2 ...
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
 </source>
         <translation type="unfinished"></translation>
     </message>
@@ -17202,7 +17134,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Task</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation type="unfinished"></translation>
@@ -21747,7 +21679,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
@@ -22196,7 +22128,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation type="unfinished"></translation>
@@ -22344,112 +22276,8 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>GUI Application</source>
-        <translation>GUI aplikacija</translation>
-    </message>
-    <message>
-        <source>Test case name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Test set name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable C++11</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Googletest repository:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qbs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build system:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project and Test Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Details</source>
         <translation type="unfinished">Detalji</translation>
-    </message>
-    <message>
-        <source>Kit Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Management</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto Test Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Class name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;Custom&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Base class:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%{BaseCB}</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QObject</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QWidget</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Include QMainWindow</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Include QDeclarativeItem - Qt Quick 1</source>
@@ -22702,10 +22530,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
@@ -23152,52 +22976,8 @@ Use this only if you are prototyping. You cannot create a full application with 
         <translation>Vjeruj certifikatu poslužitelja</translation>
     </message>
     <message>
-        <source>Running Subversion checkout...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Checks out a Subversion repository and tries to load the contained project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Subversion Checkout</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a fragment shader in the Desktop OpenGL Shading Language (GLSL). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
-    </message>
-    <message>
-        <source>Fragment Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a vertex shader in the Desktop OpenGL Shading Language (GLSL). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Vertex Shader (Desktop OpenGL)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a fragment shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Fragment shaders generate the final pixel colors for triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Fragment Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creates a vertex shader in the OpenGL/ES 2.0 Shading Language (GLSL/ES). Vertex shaders transform the positions, normals and texture coordinates of triangles, points and lines rendered with OpenGL.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Vertex Shader (OpenGL/ES 2.0)</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -27780,14 +27560,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;prilagođeno&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Konfiguracija je meispravna. Za detalje provjeri prikaz Problemi.</translation>
@@ -27816,19 +27593,9 @@ Rok upotrebe: %3</translation>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Nije bilo moguće pokrenuti proces &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Datoteke u bilo kojem projektu</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
-    <message>
-        <source>All Projects</source>
-        <translation>Svi projekti</translation>
     </message>
     <message>
         <source>All Projects:</source>
@@ -27842,9 +27609,6 @@ Excluding: %2
 Isključivo: %2
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation type="unfinished"></translation>
@@ -27889,9 +27653,6 @@ Isključivo: %2
         <source>Application finished with exit code 0.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Priloži program za uklanjanje grešaka ovom precesu</translation>
@@ -27940,9 +27701,6 @@ Isključivo: %2
         <source>Application Output Window</source>
         <translation>Prozor izlaznog rezultata aplikacije</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -27979,17 +27737,6 @@ Isključivo: %2
         <source>No executable specified.</source>
         <translation>Izvršna datoteka nije specificirana.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>bezimeno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
     <message>
         <source>Build Settings</source>
         <translation>Postavke gradnje</translation>
@@ -28007,27 +27754,9 @@ Isključivo: %2
         <translation>Varijable u okruženju trenutačne gradnje</translation>
     </message>
     <message>
-        <source>System Environment</source>
-        <translation>Okruženje sustava</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okruženje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
-    <message>
         <source>Clear system environment</source>
         <translation>Izbriši okruženje sustava</translation>
     </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okruženje gradnje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -28083,9 +27812,6 @@ Isključivo: %2
         <source>Skipping disabled step %1.</source>
         <translation>Preskakanje onemogućenog koraka %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>Nema dostupnih postavki gradnje</translation>
@@ -28107,10 +27833,6 @@ Isključivo: %2
         <translation>Preimenuj …</translation>
     </message>
     <message>
-        <source>Clone...</source>
-        <translation>Kloniraj …</translation>
-    </message>
-    <message>
         <source>New Configuration</source>
         <translation>Nova konfiguracija</translation>
     </message>
@@ -28123,17 +27845,8 @@ Isključivo: %2
         <translation>Novi naziv za konfiguraciju gradnje &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>Kloniraj konfiguraciju</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
         <translation>Prekini gradnju i ukloni konfiguraciju gradnje</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Nemoj ukloniti</translation>
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
@@ -28155,29 +27868,10 @@ Isključivo: %2
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Zaista želiš ukloniti konfiguraciju gradnje &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStep</name>
     <message>
         <source>Build Step</source>
         <translation>Korak gradnje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStepList</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Gradnja</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Čišćenje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Move Up</source>
         <translation>Premjesti prema gore</translation>
@@ -28223,9 +27917,6 @@ Isključivo: %2
         <source>Cannot remove build step while building</source>
         <translation>Nije moguće ukloniti korak gradnje za vrijeme izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>Koraci gradnje</translation>
@@ -28234,24 +27925,10 @@ Isključivo: %2
         <source>Clean Steps</source>
         <translation>Koraci čišćenja</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
-        <source>Increase Font Size</source>
-        <translation>Povećaj veličinu fonta</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation>Smanji veličinu fonta</translation>
-    </message>
     <message>
         <source>Compile Output</source>
         <translation>Kompiliraj izlazni rezultat</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -28262,16 +27939,10 @@ Isključivo: %2
         <extracomment>Task is of type: warning</extracomment>
         <translation>upozorenje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Datoteke u trenutačnom projektu</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>Projekt &quot;%1&quot;</translation>
@@ -28297,25 +27968,11 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Executable</source>
         <translation>Prilagođena izvršna datoteka:</translation>
     </message>
-    <message>
-        <source>Run %1</source>
-        <translation>Pokreni %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>Prilagođeno</translation>
-    </message>
-</context>
-<context>
-    <name>CustomToolChain</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -28332,13 +27989,6 @@ Isključivo: %2
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-    <message>
-        <source>Custom</source>
-        <translation>Prilagođeno</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -28351,9 +28001,6 @@ Isključivo: %2
         <source>Empty</source>
         <translation>Prazno</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation type="unfinished"></translation>
@@ -28410,23 +28057,10 @@ Isključivo: %2
         <source>&amp;Error parser:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
-    <message>
-        <source>Path:</source>
-        <translation>Staza:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;U ovoj sesiji nema drugih projekata&gt;</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesModel</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation type="unfinished"></translation>
@@ -28435,9 +28069,6 @@ Isključivo: %2
         <source>This would create a circular dependency.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>Sinkroniziraj konfiguraciju</translation>
@@ -28446,17 +28077,9 @@ Isključivo: %2
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy Settings</source>
         <translation>Postavke implementacije</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Implementiraj</translation>
     </message>
     <message>
         <source>Deploy locally</source>
@@ -28468,9 +28091,6 @@ Isključivo: %2
         <extracomment>Display name of the default deploy configuration</extracomment>
         <translation>Implementiraj konfiguraciju</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataModel</name>
     <message>
         <source>Local File Path</source>
         <translation>Staza lokalne datoteke</translation>
@@ -28479,191 +28099,10 @@ Isključivo: %2
         <source>Remote Directory</source>
         <translation>Udaljeni direktorij</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Local PC</source>
         <translation>Lokalno računalo</translation>
     </message>
-    <message>
-        <source>Desktop</source>
-        <translation>Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
-    <message>
-        <source>Cannot kill process with pid %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot interrupt process with pid %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid process id.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open process: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DebugBreakProcess failed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>could not break the process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
-    <message>
-        <source>No device configured.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set Up Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There is no device set up for this kit. Do you want to add a device?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Check for a configured device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
-    <message>
-        <source>%1 (default for %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
-    <message>
-        <source>Process ID</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Devices</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSH</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Aplikacija</translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Main file of current project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of current project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type of current build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote process failed; exit code was %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote error output was: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::PortsGatherer</name>
     <message numerus="yes">
         <source>Found %n free ports.</source>
         <translation>
@@ -28676,126 +28115,6 @@ Isključivo: %2
         <source>Checking available ports...</source>
         <translation>Provjeravanje slobodnih priključaka …</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
-    <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
-    <message>
-        <source>Failed to kill remote process: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timeout waiting for remote process to finish.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Terminated by request.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Process listing command failed with exit code %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: Kill process failed: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remote stderr was: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsPage</name>
-    <message>
-        <source>SSH</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsWidget</name>
-    <message>
-        <source>Enable connection sharing:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Connection sharing timeout:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to sftp executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh-askpass executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path to ssh-keygen executable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source> minutes</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
-    <message>
-        <source>Project %1</source>
-        <comment>Settings, %1 is a language (C++ or QML)</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project</source>
-        <comment>Settings</comment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
-    <message>
-        <source>Run Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentValidator</name>
-    <message>
-        <source>Variable already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
-    <message>
-        <source>Ed&amp;it</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>&amp;Add</source>
         <translation>Dod&amp;aj</translation>
@@ -28805,53 +28124,8 @@ Isključivo: %2
         <translation>&amp;Resetiraj</translation>
     </message>
     <message>
-        <source>&amp;Unset</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Batch Edit...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open &amp;Terminal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open a terminal with this environment set up.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unset &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &lt;b&gt;%1&lt;/b&gt;</source>
-        <extracomment>%1 is &quot;System Environment&quot; or some such.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Use &lt;b&gt;%1&lt;/b&gt; and</source>
-        <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainManager</name>
-    <message>
-        <source>ABI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>None</source>
         <translation>Bez</translation>
-    </message>
-    <message>
-        <source>Tool Chains</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -28914,7 +28188,7 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Project Editing Failed</source>
         <translation type="unfinished"></translation>
@@ -28931,10 +28205,6 @@ Isključivo: %2
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open...</source>
@@ -28986,10 +28256,6 @@ Isključivo: %2
     </message>
     <message>
         <source>Build Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29239,10 +28505,6 @@ Isključivo: %2
     </message>
     <message>
         <source>The currently active build configuration&apos;s name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29548,23 +28810,9 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::GccToolChain</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%1 (%2, %3 %4 in %5)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
-    <message>
-        <source>GCC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29576,40 +28824,17 @@ Rename %2 to %3 anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainConfigWidget</name>
-    <message>
         <source>Parent toolchain:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation type="unfinished"></translation>
@@ -29618,9 +28843,6 @@ Rename %2 to %3 anyway?</source>
         <source>Import</source>
         <translation>Uvezi</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Line Edit Validator Expander</source>
         <translation type="unfinished"></translation>
@@ -29729,9 +28951,6 @@ Rename %2 to %3 anyway?</source>
         <source>Source and target are both empty.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>Feature list is set and not of type list.</source>
         <translation type="unfinished"></translation>
@@ -29744,17 +28963,11 @@ Rename %2 to %3 anyway?</source>
         <source>Feature list element is not a string or object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation type="unfinished"></translation>
@@ -29777,16 +28990,10 @@ to project &quot;%2&quot;.</source>
 &quot;%1&quot; (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation type="unfinished"></translation>
@@ -29919,9 +29126,6 @@ to project &quot;%2&quot;.</source>
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation type="unfinished"></translation>
@@ -29939,9 +29143,6 @@ to project &quot;%2&quot;.</source>
 %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation type="unfinished"></translation>
@@ -29954,9 +29155,6 @@ to project &quot;%2&quot;.</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation type="unfinished"></translation>
@@ -29971,10 +29169,6 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>Kit filesystem-friendly name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The name of the currently active kit.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -29997,23 +29191,14 @@ to project &quot;%2&quot;.</source>
         <source>Warning:</source>
         <translation type="unfinished">Upozorenje:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
     <message>
         <source>Kit of Active Project: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitConfigWidget</name>
     <message>
         <source>Manage...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
         <translation type="unfinished"></translation>
@@ -30030,9 +29215,6 @@ to project &quot;%2&quot;.</source>
         <source>Sys Root</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compilers produce code for different ABIs: %1</source>
         <translation type="unfinished"></translation>
@@ -30040,10 +29222,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Compiler</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Bez</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -30061,9 +29239,6 @@ to project &quot;%2&quot;.</source>
         <source>No compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation type="unfinished"></translation>
@@ -30072,19 +29247,12 @@ to project &quot;%2&quot;.</source>
         <source>Device type</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>No device set.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30108,116 +29276,8 @@ to project &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Device name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitInformation</name>
-    <message>
-        <source>The environment setting value is invalid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
-        <source>Sysroot</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
-    <message>
-        <source>Compiler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;No compiler&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
-    <message>
-        <source>Device type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The type of device to run applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
-    <message>
-        <source>Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The device to run the applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitEnvironmentConfigWidget</name>
-    <message>
         <source>Change...</source>
         <translation>Promijeni …</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Additional build environment settings when using this kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No changes to apply.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Force UTF-8 MSVC compiler output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation type="unfinished">Radna površina</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File system name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit name and icon.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Name:</source>
@@ -30247,9 +29307,6 @@ to project &quot;%2&quot;.</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>%1 (default)</source>
         <extracomment>Mark up a kit as the default one.</extracomment>
@@ -30268,50 +29325,13 @@ to project &quot;%2&quot;.</source>
         <translation>Ručno</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Make Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make</source>
         <translation type="unfinished"></translation>
@@ -30320,495 +29340,10 @@ to project &quot;%2&quot;.</source>
         <source>Make command missing. Specify Make command in step configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStepConfigWidget</name>
-    <message>
-        <source>&lt;code&gt;MAKEFLAGS&lt;/code&gt; specifies parallel jobs. Check &quot;%1&quot; to override.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Make:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; No build configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
-    <message>
-        <source>Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Path:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Kit:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Build:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Deploy:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Run:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
-    <message>
-        <source>MSVC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainFactory</name>
-    <message>
-        <source>clang-cl</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChain</name>
-    <message>
-        <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
-%2</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
-    <message>
-        <source>The process cannot access the file because it is being used by another process.
-Please close all running instances of your application before starting a build.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
-    <message>
-        <source>Custom Process Step</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit is not valid.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Incompatible Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit %1 is incompatible with kit %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run configurations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Partially Incompatible Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Some configurations could not be copied.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor</source>
-        <translation>Uređivač</translation>
-    </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
-    <message>
-        <source>Code Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>DependenciesPanelFactory</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
-    <message>
-        <source>Open project anyway?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version Control Failure</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
-    <message>
-        <source>No Build Found</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 - temporary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Imported Kit</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FlatModel</name>
-    <message>
-        <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
-    <message>
-        <source>Simplify Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Generated Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Focus Document in Project Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+Shift+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+Shift+L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide Empty Directories</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Filter Tree</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
-        <source>Open Session #%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Meta+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Recent Project #%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+%1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open %1 &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open %1 &quot;%2&quot; (%3)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>session</source>
-        <comment>Appears in &quot;Open session &lt;name&gt;&quot;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>Preimenuj</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>project</source>
-        <comment>Appears in &quot;Open project &lt;name&gt;&quot;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
-        <source>Project Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Existing Build...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Manage Kits...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Project Selector</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Active Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Import Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>Datoteke se implicitno dodaju projektima:</translation>
@@ -30821,44 +29356,6 @@ to project &quot;%2&quot;.</source>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Implicitno dodavanje&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
-    <message>
-        <source>Summary</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add as a subproject to project:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A version control system repository could not be created in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add &quot;%1&quot; to the version control system.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files to be added:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Files to be added in</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -30868,9 +29365,6 @@ to project &quot;%2&quot;.</source>
         <source>Remove task from the task list.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Run Settings</source>
         <translation type="unfinished"></translation>
@@ -30901,20 +29395,6 @@ to project &quot;%2&quot;.</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Upozorenje</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SimpleTargetRunner</name>
     <message>
         <source>%1 crashed.</source>
         <translation type="unfinished"></translation>
@@ -30923,9 +29403,6 @@ to project &quot;%2&quot;.</source>
         <source>%2 exited with code %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunWorker</name>
     <message>
         <source>Worker start timed out.</source>
         <translation type="unfinished"></translation>
@@ -30958,9 +29435,6 @@ to project &quot;%2&quot;.</source>
         <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation type="unfinished">Terminal</translation>
@@ -30969,9 +29443,6 @@ to project &quot;%2&quot;.</source>
         <source>Run in terminal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation type="unfinished"></translation>
@@ -30988,9 +29459,6 @@ to project &quot;%2&quot;.</source>
         <source>Working directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation type="unfinished"></translation>
@@ -30999,9 +29467,6 @@ to project &quot;%2&quot;.</source>
         <source>Command line arguments:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
     <message>
         <source>Executable</source>
         <translation type="unfinished"></translation>
@@ -31022,9 +29487,6 @@ to project &quot;%2&quot;.</source>
         <source>Use this command instead</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation type="unfinished"></translation>
@@ -31037,108 +29499,14 @@ to project &quot;%2&quot;.</source>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Preimenuj …</translation>
-    </message>
-    <message>
-        <source>Clone...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deployment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Method:</source>
         <translation>Metoda:</translation>
     </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Run Configuration?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Deploy Configuration %1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Deploy Configuration?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation type="unfinished"></translation>
@@ -31174,23 +29542,14 @@ These files are preserved.</source>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while saving session</source>
         <translation type="unfinished"></translation>
@@ -31239,16 +29598,10 @@ These files are preserved.</source>
         <source>Loading Session</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>Session</source>
         <translation type="unfinished"></translation>
@@ -31282,16 +29635,9 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Preimenuj</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation type="unfinished"></translation>
@@ -31300,9 +29646,6 @@ These files are preserved.</source>
         <source>Show task location in an editor.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation type="unfinished"></translation>
@@ -31315,9 +29658,6 @@ These files are preserved.</source>
         <source>O</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation type="unfinished"></translation>
@@ -31326,9 +29666,6 @@ These files are preserved.</source>
         <source>Source directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
     <message>
         <source>Configure Project</source>
         <translation type="unfinished"></translation>
@@ -31386,26 +29723,11 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enable Kit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelItem</name>
     <message>
         <source>No kit defined in this project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Configure Project</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -31417,7 +29739,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::TargetSetupPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation type="unfinished"></translation>
@@ -31439,21 +29761,10 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -31464,9 +29775,6 @@ These files are preserved.</source>
         <comment>Severity is Task::Warning</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Show Warnings</source>
         <translation type="unfinished"></translation>
@@ -31479,30 +29787,10 @@ These files are preserved.</source>
         <source>Issues</source>
         <translation>Problemi</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon od %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
         <translation>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</translation>
@@ -31512,32 +29800,8 @@ These files are preserved.</source>
         <translation>nije aktualno</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>Vrsta</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Pronađi automatski</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Ručno</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Kloniraj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Duplicate Compilers Detected</source>
@@ -31555,9 +29819,6 @@ These files are preserved.</source>
         <source>Compilers</source>
         <translation>Kompajleri</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Pribilježi</translation>
@@ -31566,9 +29827,6 @@ These files are preserved.</source>
         <source>Annotate using version control system.</source>
         <translation>Pribilježi pomoću susatava za kontrolu verzija.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>Čekanje na zaustavljanje aplikacije</translation>
@@ -31581,9 +29839,6 @@ These files are preserved.</source>
         <source>Waiting for applications to stop.</source>
         <translation>Čekanje na zaustavljanje aplikacije.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
     <message>
         <source>Replacing signature</source>
         <translation>Zamjena potpisa</translation>
@@ -36289,7 +34544,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Prekini praćenje</translation>
@@ -36298,9 +34553,6 @@ Row: %4, Column: %5
         <source>Stop monitoring task files.</source>
         <translation>Prekini praćenje datoteka zadataka.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Nije moguće otvoriti datoteku zadataka %1: %2</translation>
@@ -39842,7 +38094,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Creates a new project including auto test skeleton.</source>
         <translation>Izrađuje novi projekt zajedno s okvirom za automatsko testiranje.</translation>
@@ -39902,10 +38154,6 @@ What do you want to do?</source>
     <message>
         <source>Code:</source>
         <translation>Kȏd:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Vrsta:</translation>
     </message>
     <message>
         <source>Console application</source>

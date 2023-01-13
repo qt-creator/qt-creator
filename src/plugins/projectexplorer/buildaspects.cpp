@@ -9,6 +9,7 @@
 #include "kitinformation.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <coreplugin/fileutils.h>
@@ -39,7 +40,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
     : d(new Private(bc->target()))
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
-    setLabelText(tr("Build directory:"));
+    setLabelText(Tr::tr("Build directory:"));
     setDisplayStyle(PathChooserDisplay);
     setExpectedKind(Utils::PathChooser::Directory);
     setValidationFunction([this](FancyLineEdit *edit, QString *error) {
@@ -52,7 +53,7 @@ BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {
-            *error = tr("The build directory is not reachable from the build device.");
+            *error = Tr::tr("The build directory is not reachable from the build device.");
             return false;
         }
 
@@ -71,7 +72,7 @@ BuildDirectoryAspect::~BuildDirectoryAspect()
 void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
 {
     d->sourceDir = sourceDir;
-    makeCheckable(CheckBoxPlacement::Top, tr("Shadow build:"), QString());
+    makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), QString());
     setChecked(d->sourceDir != filePath());
 }
 
@@ -164,7 +165,7 @@ void BuildDirectoryAspect::updateProblemLabel()
 
 SeparateDebugInfoAspect::SeparateDebugInfoAspect()
 {
-    setDisplayName(tr("Separate debug info:"));
+    setDisplayName(Tr::tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo.value());
 }

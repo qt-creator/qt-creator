@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "jsonprojectpage.h"
+
 #include "jsonwizard.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/documentmanager.h>
 
@@ -50,7 +52,7 @@ QString JsonProjectPage::uniqueProjectName(const QString &path)
     //: File path suggestion for a new project. If you choose
     //: to translate it, make sure it is a valid path name without blanks
     //: and using only ascii chars.
-    const QString prefix = tr("untitled");
+    const QString prefix = Tr::tr("untitled");
     for (unsigned i = 0; ; ++i) {
         QString name = prefix;
         if (i)

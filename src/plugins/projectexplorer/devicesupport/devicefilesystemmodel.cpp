@@ -3,7 +3,9 @@
 
 #include "devicefilesystemmodel.h"
 
-#include <projectexplorer/devicesupport/idevice.h>
+#include "idevice.h"
+#include "../projectexplorertr.h"
+
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -182,9 +184,9 @@ QVariant DeviceFileSystemModel::headerData(int section, Qt::Orientation orientat
     if (role != Qt::DisplayRole)
         return QVariant();
     if (section == 0)
-        return tr("File Type");
+        return Tr::tr("File Type");
     if (section == 1)
-        return tr("File Name");
+        return Tr::tr("File Name");
     return QVariant();
 }
 

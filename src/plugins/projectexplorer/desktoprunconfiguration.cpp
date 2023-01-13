@@ -6,6 +6,7 @@
 #include "buildsystem.h"
 #include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 
@@ -26,8 +27,6 @@ namespace Internal {
 
 class DesktopRunConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::DesktopRunConfiguration)
-
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
@@ -94,7 +93,7 @@ void DesktopRunConfiguration::updateTargetInformation()
 
         FilePath profile = FilePath::fromString(buildKey());
         if (profile.isEmpty())
-            setDefaultDisplayName(tr("Qt Run Configuration"));
+            setDefaultDisplayName(Tr::tr("Qt Run Configuration"));
         else
             setDefaultDisplayName(profile.completeBaseName());
 

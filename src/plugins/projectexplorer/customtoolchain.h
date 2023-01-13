@@ -33,8 +33,6 @@ namespace Internal { class CustomToolChainFactory; }
 
 class PROJECTEXPLORER_EXPORT CustomToolChain : public ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(CustomToolChain)
-
 public:
     class Parser {
     public:

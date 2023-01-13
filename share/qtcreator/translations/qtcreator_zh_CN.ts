@@ -8449,7 +8449,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>CodeStyleSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Code Style</source>
         <translation>代码风格</translation>
@@ -14159,7 +14159,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom</source>
         <translation type="unfinished"></translation>
@@ -18570,7 +18570,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>无法添加依赖关系</translation>
@@ -18579,9 +18579,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>This would create a circular dependency.</source>
         <translation>这会创建一个循环依赖。</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesPanelFactory</name>
     <message>
         <source>Dependencies</source>
         <translation>依赖关系</translation>
@@ -19419,7 +19416,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EditorSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Editor</source>
         <translation>编辑器</translation>
@@ -19520,14 +19517,11 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EnvironmentPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Environment</source>
         <translation type="unfinished">环境</translation>
     </message>
-</context>
-<context>
-    <name>EnvironmentWidget</name>
     <message>
         <source>Add...</source>
         <translation type="unfinished">添加...</translation>
@@ -28067,17 +28061,10 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProjectEnvironmentWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Project Environment</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>构建和运行</translation>
     </message>
     <message>
         <source>Other Project</source>
@@ -28086,10 +28073,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>Import Project</source>
         <translation>导入项目</translation>
-    </message>
-    <message>
-        <source>Devices</source>
-        <translation>设备</translation>
     </message>
     <message>
         <source>Start removing auto-detected items associated with this docker image.</source>
@@ -28248,16 +28231,10 @@ You might find further explanations in the Application Output view.</source>
         <source>Release</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbiWidget</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;自定义&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>正在启动 &quot;%1&quot; %2
@@ -28287,47 +28264,9 @@ You might find further explanations in the Application Output view.</source>
         <source>Could not start process &quot;%1&quot; %2.</source>
         <translation type="unfinished">无法启动进程&quot;%1&quot; %2. {1&quot;?}</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation type="unfinished">参数</translation>
-    </message>
-    <message>
-        <source>Command line arguments:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Toggle multi-line mode.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reset to Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>untitled</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <translation>构建</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>系统环境变量</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>清理时的环境变量</translation>
     </message>
     <message>
         <source>Default</source>
@@ -28337,103 +28276,9 @@ The name of the build configuration created by default for a generic project.</e
         <translation type="unfinished">默认</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Build Settings</source>
         <translation type="unfinished">构建设置</translation>
     </message>
-    <message>
-        <source>Build directory</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name of the build configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables in the current build environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables in the build configuration&apos;s environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tooltip in target selector:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Appears as a tooltip when hovering the build configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The project was not parsed successfully.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables in the current build environment.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables in the active build environment of the project containing the currently open document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Variables in the active build environment of the active project.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildDeviceKitAspect</name>
-    <message>
-        <source>Build device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The device used to build applications on.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No build device set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation type="unfinished">未配置</translation>
-    </message>
-    <message>
-        <source>Build host address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build SSH port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build user name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build private key file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build device name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildDirectoryAspect</name>
     <message>
         <source>Build directory:</source>
         <translation type="unfinished">构建目录:</translation>
@@ -28441,14 +28286,6 @@ The name of the build configuration created by default for a generic project.</e
     <message>
         <source>Shadow build:</source>
         <translation type="unfinished">Shadow build:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Displayed name for a normal build step</extracomment>
-        <translation type="unfinished">构建</translation>
     </message>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
@@ -28483,125 +28320,19 @@ The name of the build configuration created by default for a generic project.</e
         <translation>跳过被禁用的步骤 %1。</translation>
     </message>
     <message>
-        <source>Stop Applications</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stop these applications before building?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The project %1 is not configured, skipping it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The build device failed to prepare for the build of %1 (%2).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Deployment</source>
         <comment>Category for deployment issues listed under &apos;Issues&apos;</comment>
         <translation type="unfinished">部署</translation>
     </message>
-    <message>
-        <source>Autotests</source>
-        <comment>Category for autotest issues listed under &apos;Issues&apos;</comment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Displayed name for a &quot;cleaning&quot; build step</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Displayed name for a deploy step</extracomment>
-        <translation type="unfinished">部署</translation>
-    </message>
-    <message>
-        <source>Error while building/deploying project %1 (kit: %2)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The kit %1 has configuration issues which might be the root cause for this problem.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>When executing step &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStepList</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
         <translation type="unfinished">构建</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation type="unfinished">部署</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildSystem</name>
-    <message>
-        <source>The project is currently being parsed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The project could not be fully parsed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The project file &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChain</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished">Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation type="unfinished">Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
-    <message>
         <source>Custom Executable</source>
         <translation type="unfinished">自定义执行档</translation>
     </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="unfinished">运行%1 </translation>
-    </message>
-    <message>
-        <source>You need to set an executable in the custom run configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomParsersAspect</name>
-    <message>
-        <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy locally</source>
         <extracomment>Default DeployConfiguration display name</extracomment>
@@ -28612,78 +28343,14 @@ The name of the build configuration created by default for a generic project.</e
         <extracomment>Display name of the default deploy configuration</extracomment>
         <translation type="unfinished">部署设置</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Desktop</source>
         <translation>桌面</translation>
     </message>
     <message>
-        <source>Local PC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
-    <message>
-        <source>Cannot kill process with pid %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot interrupt process with pid %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Cannot open process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invalid process id.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot open process: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>DebugBreakProcess failed:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>could not break the process.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
-    <message>
-        <source>No device configured.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set Up Device</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>There is no device set up for this kit. Do you want to add a device?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Check for a configured device</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="unfinished">文件类型</translation>
@@ -28692,59 +28359,14 @@ The name of the build configuration created by default for a generic project.</e
         <source>File Name</source>
         <translation type="unfinished">文件名</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitAspect</name>
-    <message>
-        <source>Device</source>
-        <translation type="unfinished">设备</translation>
-    </message>
     <message>
         <source>The device to run the applications on.</source>
         <translation type="unfinished">运行应用程序的设备。</translation>
     </message>
     <message>
-        <source>No device set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device is incompatible with this kit.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation type="unfinished">未配置</translation>
-    </message>
-    <message>
-        <source>Host address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>SSH port</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>User name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Private key file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Device name</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
-    <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (%2 类型的默认设备)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>进程ID</translation>
@@ -28753,13 +28375,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>Command Line</source>
         <translation>命令行</translation>
     </message>
-    <message>
-        <source>Fetching process list. This might take a while.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>构建套件(Kit):</translation>
@@ -28788,9 +28403,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>&amp;Attach to Process</source>
         <translation type="unfinished">&amp;Attach到进程</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitAspect</name>
     <message>
         <source>Device type</source>
         <translation type="unfinished">设备类型</translation>
@@ -28803,9 +28415,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>Unknown device type</source>
         <translation type="unfinished">未知设备类型</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>连接错误:%1</translation>
@@ -28822,9 +28431,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>Remote error output was: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -28835,23 +28441,10 @@ The name of the build configuration created by default for a generic project.</e
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>项目%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
-    <message>
-        <source>Environment</source>
-        <translation type="unfinished">环境</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation type="unfinished">运行设置的基础环境:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitAspect</name>
     <message>
         <source>Change...</source>
         <translation type="unfinished"></translation>
@@ -28869,10 +28462,6 @@ The name of the build configuration created by default for a generic project.</e
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Environment</source>
-        <translation type="unfinished">环境</translation>
-    </message>
-    <message>
         <source>Additional build environment settings when using this kit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -28880,9 +28469,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>The environment setting value is invalid.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Add</source>
         <translation>添加(&amp;A)</translation>
@@ -28918,69 +28504,6 @@ The name of the build configuration created by default for a generic project.</e
         <translation>使用 &lt;b&gt;%1&lt;/b&gt; 和</translation>
     </message>
     <message>
-        <source>Variable already exists.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ed&amp;it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="unfinished">禁用</translation>
-    </message>
-    <message>
-        <source>Append Path...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prepend Path...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open &amp;Terminal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open a terminal with this environment set up.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Append &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prepend &lt;b&gt;%2&lt;/b&gt; to &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Set &lt;a href=&quot;%1&quot;&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/a&gt; to &lt;b&gt;%2&lt;/b&gt; [disabled]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No environment changes&lt;/b&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Choose Directory</source>
-        <translation type="unfinished">选择目录</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
-    <message>
-        <source>Executable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;unknown&gt;</source>
-        <translation type="unfinished">&lt;未知&gt;</translation>
-    </message>
-    <message>
         <source>Executable:</source>
         <translation type="unfinished">执行档:</translation>
     </message>
@@ -28992,84 +28515,22 @@ The name of the build configuration created by default for a generic project.</e
         <source>Use this command instead</source>
         <translation type="unfinished">用这个命令代替</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::FileTransfer</name>
-    <message>
-        <source>sftp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>rsync</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>generic file copy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::FileTransferPrivate</name>
     <message>
         <source>No device set for test transfer.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No files to transfer.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Missing transfer implementation.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation type="unfinished">GCC</translation>
-    </message>
-    <message>
-        <source>%1 (%2, %3 %4 at %5)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
-    <message>
         <source>Device</source>
         <translation>设备</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AddRunConfigDialog</name>
-    <message>
-        <source>[none]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create Run Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Filter candidates by name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>任意项目中的文件</translation>
@@ -29078,26 +28539,10 @@ The name of the build configuration created by default for a generic project.</e
         <source>Matches all files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
-    <message>
-        <source>All Projects</source>
-        <translation>所有项目</translation>
-    </message>
     <message>
         <source>All Projects:</source>
         <translation>所有项目:</translation>
     </message>
-    <message>
-        <source>Filter: %1
-Excluding: %2
-%3</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>attach调试器到此进程</translation>
@@ -29154,9 +28599,6 @@ Excluding: %2
         <source>Open Settings Page</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
         <translation type="unfinished"></translation>
@@ -29194,30 +28636,12 @@ Excluding: %2
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Application Output</source>
-        <translation type="unfinished">应用程序输出</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildEnvironmentWidget</name>
-    <message>
         <source>Build Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished">清除系统环境变量</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildPropertiesSettings</name>
-    <message>
-        <source>Enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation type="unfinished">禁用</translation>
     </message>
     <message>
         <source>Use Project Default</source>
@@ -29243,9 +28667,6 @@ Excluding: %2
         <source>Default Build Properties</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>没有可用的构建设置</translation>
@@ -29253,14 +28674,6 @@ Excluding: %2
     <message>
         <source>Edit build configuration:</source>
         <translation>编辑构建配置:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -29274,10 +28687,6 @@ Excluding: %2
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
         <translation>克隆配置</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>新配置名称:</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
@@ -29315,9 +28724,6 @@ Excluding: %2
         <source>New Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -29361,86 +28767,13 @@ Excluding: %2
         <translation>没有构建步骤</translation>
     </message>
     <message>
-        <source>Enable</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChain</name>
-    <message>
-        <source>clang-cl</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished">初始化:</translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainConfigWidget</name>
-    <message>
-        <source>Parent toolchain:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsWidget</name>
-    <message>
         <source>Language:</source>
         <translation type="unfinished">语言:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputSettingsPage</name>
-    <message>
-        <source>Word-wrap output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Compile Output when building</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Limit output to %1 characters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Compile Output</source>
-        <translation type="unfinished">编译输出</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>编译输出</translation>
     </message>
-    <message>
-        <source>Open Settings Page</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show Compile &amp;Output</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Show the output that generated this issue in Compile Output.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>O</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -29451,9 +28784,6 @@ Excluding: %2
         <extracomment>Task is of type: warning</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>当前项目中的文件</translation>
@@ -29462,9 +28792,6 @@ Excluding: %2
         <source>Matches all files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translation>当前项目</translation>
@@ -29477,9 +28804,6 @@ Excluding: %2
         <source>Project &quot;%1&quot;:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
     <message>
         <source>Custom Parser</source>
         <translation type="unfinished"></translation>
@@ -29553,170 +28877,16 @@ Excluding: %2
         <translation type="unfinished">警告</translation>
     </message>
     <message>
-        <source>Not applicable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern is empty.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No message given.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pattern does not match the message.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersBuildWidget</name>
-    <message>
-        <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Parse standard output during build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Makes output parsers look for diagnostics on stdout rather than stderr.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersSelectionWidget</name>
-    <message>
-        <source>There are no custom parsers active</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>There are %n custom parsers active</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersSettingsPage</name>
-    <message>
-        <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="unfinished">添加...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
-        <source>New Parser</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Custom Output Parsers</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
-    <message>
-        <source>MACRO[=VALUE]</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Each line defines a macro. Format is MACRO[=VALUE].</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Each line adds a global header lookup path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comma-separated list of flags that turn on C++11 support.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Comma-separated list of mkspecs.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation type="unfinished">编译器路径(&amp;C):</translation>
-    </message>
-    <message>
-        <source>&amp;Make path:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
-    </message>
-    <message>
-        <source>&amp;Predefined macros:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Header paths:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>C++11 &amp;flags:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Qt mkspecs:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Error parser:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
-    <message>
         <source>Path:</source>
         <translation>路径:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;会话中没有其它项目&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
-    <message>
-        <source>Synchronize configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Synchronize active kit, build, and deploy configuration between projects.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeploymentDataView</name>
-    <message>
-        <source>Source File Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Target Directory</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Add</source>
         <translation type="unfinished">添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Files to deploy:</source>
@@ -29726,16 +28896,10 @@ Excluding: %2
         <source>Override deployment data from build system</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Available device types:</source>
         <translation>可用的设备类型:</translation>
@@ -29744,16 +28908,10 @@ Excluding: %2
         <source>Start Wizard</source>
         <translation>开启向导</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>远程错误</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>&amp;Device:</source>
         <translation>设备(&amp;D):</translation>
@@ -29807,16 +28965,9 @@ Excluding: %2
         <translation type="unfinished">设备</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation type="unfinished">测试</translation>
-    </message>
-    <message>
         <source>Show Running Processes...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Close</source>
         <translation type="unfinished">关闭</translation>
@@ -29829,9 +28980,6 @@ Excluding: %2
         <source>Device test failed.</source>
         <translation type="unfinished">设备测试失败。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
     <message>
         <source>Restore Global</source>
         <translation type="unfinished">还原全局设置</translation>
@@ -29852,9 +29000,6 @@ Excluding: %2
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilesInAllProjectsFind</name>
     <message>
         <source>Files in All Project Directories</source>
         <translation type="unfinished"></translation>
@@ -29863,16 +29008,10 @@ Excluding: %2
         <source>Files in All Project Directories:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation type="unfinished">文件</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilterKitAspectsDialog</name>
     <message>
         <source>Setting</source>
         <translation type="unfinished"></translation>
@@ -29881,9 +29020,6 @@ Excluding: %2
         <source>Visible</source>
         <translation type="unfinished">可见</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FlatModel</name>
     <message>
         <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
         <translation type="unfinished"></translation>
@@ -29962,9 +29098,6 @@ What should %1 do now?</source>
         <source>Failure Updating Project</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>编译器路径(&amp;C):</translation>
@@ -29985,9 +29118,6 @@ What should %1 do now?</source>
         <source>Target triple:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation type="unfinished"></translation>
@@ -29996,9 +29126,6 @@ What should %1 do now?</source>
         <source>Import</source>
         <translation type="unfinished">导入</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation type="unfinished"></translation>
@@ -30011,16 +29138,10 @@ What should %1 do now?</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
         <source>Name:</source>
         <translation>名称:</translation>
@@ -30065,9 +29186,6 @@ What should %1 do now?</source>
         <source>Default for %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>%1 (default)</source>
         <extracomment>Mark up a kit as the default one.</extracomment>
@@ -30076,21 +29194,6 @@ What should %1 do now?</source>
     <message>
         <source>Name</source>
         <translation>名称</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
-    <message>
-        <source>Project</source>
-        <translation>项目</translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation>构建套件(Kit)</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>构建</translation>
     </message>
     <message>
         <source>Deploy</source>
@@ -30156,28 +29259,11 @@ What should %1 do now?</source>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation type="unfinished">&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;项目 &lt;b&gt;%1&lt;/b&gt; 尚未配置&lt;br/&gt;&lt;br/&gt;您可以在 &lt;a href=&quot;projectmode&quot;&gt;项目模式&lt;/a&gt;中配置它&lt;br/&gt; {128, 128, 255)?} {1&lt;?}</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="unfinished">初始化:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChain</name>
-    <message>
-        <source>MSVC</source>
-        <translation type="unfinished">MSVC</translation>
-    </message>
     <message>
         <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>初始化:</translation>
@@ -30190,13 +29276,6 @@ What should %1 do now?</source>
         <source>Additional arguments for the vcvarsall.bat call</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation type="unfinished">&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ParseIssuesDialog</name>
     <message>
         <source>Parse Build Output</source>
         <translation type="unfinished"></translation>
@@ -30245,9 +29324,6 @@ What should %1 do now?</source>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Open project anyway?</source>
         <translation type="unfinished"></translation>
@@ -30266,9 +29342,6 @@ to project &quot;%2&quot;.</source>
 &quot;%1&quot; (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>简化树形视图</translation>
@@ -30309,13 +29382,6 @@ to project &quot;%2&quot;.</source>
         <source>Filter Tree</source>
         <translation type="unfinished">过滤器树形视图</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
-    <message>
-        <source>Projects</source>
-        <translation>项目</translation>
-    </message>
     <message>
         <source>Meta+X</source>
         <translation>Meta+X</translation>
@@ -30324,9 +29390,6 @@ to project &quot;%2&quot;.</source>
         <source>Alt+X</source>
         <translation>Alt+X</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Open Session #%1</source>
         <translation type="unfinished"></translation>
@@ -30369,10 +29432,6 @@ to project &quot;%2&quot;.</source>
         <translation type="unfinished">%1 (当前会话)</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation type="unfinished">克隆</translation>
-    </message>
-    <message>
         <source>Rename</source>
         <translation type="unfinished">重命名</translation>
     </message>
@@ -30405,9 +29464,6 @@ to project &quot;%2&quot;.</source>
         <source>Projects</source>
         <translation type="unfinished">项目</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Use Regular Expressions</source>
         <translation type="unfinished">使用正则表达式</translation>
@@ -30427,10 +29483,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Build &amp; Run</source>
         <translation type="unfinished">构建和运行</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished">项目</translation>
     </message>
     <message>
         <source>Import Existing Build...</source>
@@ -30456,9 +29508,6 @@ to project &quot;%2&quot;.</source>
         <source>Import Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>汇总</translation>
@@ -30495,9 +29544,6 @@ to project &quot;%2&quot;.</source>
         <source>Failed to add &quot;%1&quot; to the version control system.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -30507,24 +29553,9 @@ to project &quot;%2&quot;.</source>
         <source>Remove task from the task list.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
     <message>
         <source>Run configuration:</source>
         <translation>运行配置:</translation>
-    </message>
-    <message>
-        <source>Run Settings</source>
-        <translation>运行设置</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -30535,10 +29566,6 @@ to project &quot;%2&quot;.</source>
         <translation>方法:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>运行</translation>
-    </message>
-    <message>
         <source>Remove Run Configuration?</source>
         <translation>删除运行配置?</translation>
     </message>
@@ -30547,20 +29574,12 @@ to project &quot;%2&quot;.</source>
         <translation>确定要删除此运行配置&lt;b&gt;%1&lt;/b&gt;吗？</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>重命名...</translation>
-    </message>
-    <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>运行配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>取消构建 &amp;&amp; 移除部署设置</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>不要移除</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -30587,32 +29606,13 @@ to project &quot;%2&quot;.</source>
         <translation>部署配置的新名称 &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation type="unfinished">添加...</translation>
-    </message>
-    <message>
-        <source>Clone...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
-        <translation type="unfinished">克隆配置</translation>
-    </message>
-    <message>
         <source>New configuration name:</source>
         <translation type="unfinished">新配置名称:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SelectionWidget</name>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>会话管理器</translation>
@@ -30620,10 +29620,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>&amp;New</source>
         <translation>新建(&amp;N)</translation>
-    </message>
-    <message>
-        <source>&amp;Rename</source>
-        <translation>重命名(&amp;R)</translation>
     </message>
     <message>
         <source>C&amp;lone</source>
@@ -30645,9 +29641,6 @@ to project &quot;%2&quot;.</source>
         <source>Restore last session on startup</source>
         <translation>启动时恢复上次会话</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>Session</source>
         <translation type="unfinished">会话</translation>
@@ -30688,16 +29681,10 @@ to project &quot;%2&quot;.</source>
         <source>Rename and &amp;Open</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>输入会话的名称:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show task location in an editor.</source>
         <translation>在编辑器中显示任务位置。</translation>
@@ -30706,9 +29693,6 @@ to project &quot;%2&quot;.</source>
         <source>Show in Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
         <translation type="unfinished"></translation>
@@ -30721,9 +29705,6 @@ to project &quot;%2&quot;.</source>
         <source>Unknown build system &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation type="unfinished">导入现有项目</translation>
@@ -30744,9 +29725,6 @@ to project &quot;%2&quot;.</source>
         <source>File Selection</source>
         <translation type="unfinished">文件选择</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleTargetRunnerPrivate</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
         <translation type="unfinished">无法获取调试输出.</translation>
@@ -30770,13 +29748,6 @@ to project &quot;%2&quot;.</source>
     </message>
     <message>
         <source>The process was ended forcefully.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SshSettingsWidget</name>
-    <message>
-        <source>SSH</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30807,9 +29778,6 @@ to project &quot;%2&quot;.</source>
         <source> minutes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -30820,9 +29788,6 @@ to project &quot;%2&quot;.</source>
         <comment>Severity is Task::Warning</comment>
         <translation type="unfinished">&lt;b&gt;警告:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetTripleWidget</name>
     <message>
         <source>Override for code model</source>
         <translation type="unfinished"></translation>
@@ -30832,16 +29797,10 @@ to project &quot;%2&quot;.</source>
 fails because Clang does not understand the target architecture.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>未找到文件: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>问题</translation>
@@ -30854,9 +29813,6 @@ fails because Clang does not understand the target architecture.</source>
         <source>Show Warnings</source>
         <translation>显示警告</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation type="unfinished">
@@ -30867,24 +29823,13 @@ fails because Clang does not understand the target architecture.</source>
         <source>Empty</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Compilers</source>
         <translation>编译器</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>添加</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>克隆</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
     </message>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
@@ -30910,10 +29855,6 @@ fails because Clang does not understand the target architecture.</source>
         <source>If checked, %1 will set up two instances of each x86_64 compiler:
 One for the native x86_64 target, and one for a plain x86 target.
 Enable this if you plan to create 32-bit x86 binaries without using a dedicated cross compiler.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -30944,9 +29885,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation type="unfinished">以下工具链已被设置:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;。没有再次设置。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>注释(&amp;A)</translation>
@@ -30955,9 +29893,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Annotate using version control system.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation type="unfinished"></translation>
@@ -30970,20 +29905,10 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Waiting for applications to stop.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::InterpreterAspect</name>
-    <message>
-        <source>Manage...</source>
-        <translation type="unfinished">管理...</translation>
-    </message>
     <message>
         <source>Interpreter</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Line Edit Validator Expander</source>
         <translation type="unfinished"></translation>
@@ -31096,9 +30021,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Source and target are both empty.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>At least one required feature is not present.</source>
         <translation type="unfinished"></translation>
@@ -31123,17 +30045,11 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Feature list element is not a string or object.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation type="unfinished"></translation>
@@ -31146,19 +30062,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Failed to Add to Project</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizard</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation type="unfinished"></translation>
@@ -31289,9 +30192,6 @@ to project &quot;%2&quot;.</source>
         <extracomment>Do not translate &quot;VcsConfiguration&quot;, because it is the id of a page.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation type="unfinished"></translation>
@@ -31419,9 +30319,6 @@ to project &quot;%2&quot;.</source>
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation type="unfinished"></translation>
@@ -31439,9 +30336,6 @@ to project &quot;%2&quot;.</source>
 %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>未命名</translation>
@@ -31494,45 +30388,18 @@ to project &quot;%2&quot;.</source>
         <source>The ID of the kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitAspectWidget</name>
     <message>
         <source>Mark as Mutable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage...</source>
-        <translation type="unfinished">管理...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
         <source>Kit of Active Project: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>桌面</translation>
     </message>
     <message>
         <source>Desktop (%1)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::LinuxIccToolChain</name>
-    <message>
-        <source>ICC</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
     <message>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
@@ -31541,13 +30408,6 @@ to project &quot;%2&quot;.</source>
         <source>System Environment</source>
         <translation type="unfinished">系统环境变量</translation>
     </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::MakeStep</name>
     <message>
         <source>Make arguments:</source>
         <translation type="unfinished">Make 参数:</translation>
@@ -31604,24 +30464,15 @@ to project &quot;%2&quot;.</source>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation type="unfinished">&lt;b&gt;Make:&lt;/b&gt; 在环境中找不到%1 。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::MingwToolChain</name>
     <message>
         <source>MinGW</source>
         <translation type="unfinished">MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process cannot access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::PortsGatherer</name>
     <message numerus="yes">
         <source>Found %n free ports.</source>
         <translation type="unfinished">
@@ -31632,9 +30483,6 @@ Please close all running instances of your application before starting a build.<
         <source>Checking available ports...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProcessStep</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished">命令:</translation>
@@ -31652,19 +30500,12 @@ Please close all running instances of your application before starting a build.<
         <extracomment>Default ProcessStep display name</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
     <message>
         <source>Project</source>
         <translation type="unfinished">项目</translation>
     </message>
     <message>
         <source>Project Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Kit is not valid.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -31715,9 +30556,6 @@ Please close all running instances of your application before starting a build.<
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>构建(&amp;B)</translation>
@@ -31807,10 +30645,6 @@ Please close all running instances of your application before starting a build.<
         <translation>忽略依赖关系来清除</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>运行</translation>
-    </message>
-    <message>
         <source>Close All Projects and Editors</source>
         <translation>关闭所有项目和编辑器</translation>
     </message>
@@ -31823,24 +30657,12 @@ Please close all running instances of your application before starting a build.<
         <translation>忽略部署直接运行</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>构建</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>重新构建</translation>
     </message>
     <message>
         <source>Clean</source>
         <translation>清除</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>部署</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>重命名...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -32026,10 +30848,6 @@ Do you want to ignore them?</source>
     </message>
     <message>
         <source>Open...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -32326,10 +31144,6 @@ Do you want to ignore them?</source>
         <translation type="unfinished">在 %2中的%1</translation>
     </message>
     <message>
-        <source>Choose Project File</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The following subprojects could not be added to project &quot;%1&quot;:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32422,9 +31236,6 @@ Rename %2 to %3 anyway?</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>No Build Found</source>
         <translation type="unfinished">未找到构建</translation>
@@ -32449,9 +31260,6 @@ Rename %2 to %3 anyway?</source>
         <source>Imported Kit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is generated.</source>
         <translation type="unfinished"></translation>
@@ -32460,23 +31268,10 @@ Rename %2 to %3 anyway?</source>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>项目</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunAsRootAspect</name>
     <message>
         <source>Run as root user</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Run Settings</source>
         <translation type="unfinished">运行设置</translation>
@@ -32511,9 +31306,6 @@ Rename %2 to %3 anyway?</source>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>应用仍然在运行</translation>
@@ -32550,9 +31342,6 @@ Rename %2 to %3 anyway?</source>
         <source>No executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunWorker</name>
     <message>
         <source>Worker start timed out.</source>
         <translation type="unfinished"></translation>
@@ -32585,23 +31374,14 @@ Rename %2 to %3 anyway?</source>
         <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation type="unfinished">编辑文件</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation type="unfinished"></translation>
@@ -32638,16 +31418,6 @@ These files are preserved.</source>
 这些文件受到保护。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SeparateDebugInfoAspect</name>
-    <message>
-        <source>Separate debug info:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>恢复会话时发生错误</translation>
@@ -32709,9 +31479,6 @@ These files are preserved.</source>
         <source>Loading Session</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Process listing command failed with exit code %1.</source>
         <translation>进程列清单命令失败，退出码 %1。</translation>
@@ -32724,9 +31491,6 @@ These files are preserved.</source>
         <source>Error: Kill process failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitAspect</name>
     <message>
         <source>Sysroot</source>
         <translation type="unfinished"></translation>
@@ -32751,9 +31515,6 @@ These files are preserved.</source>
         <source>Sys Root</source>
         <translation type="unfinished">Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation type="unfinished"></translation>
@@ -32782,9 +31543,6 @@ These files are preserved.</source>
         <source>The currently active run configuration&apos;s working directory.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>No suitable kits found.</source>
         <translation type="unfinished"></translation>
@@ -32810,17 +31568,10 @@ These files are preserved.</source>
         <translation type="unfinished">选择构建套件</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation type="unfinished">构建套件(Kit)</translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Task</name>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation type="unfinished"></translation>
@@ -32829,9 +31580,6 @@ These files are preserved.</source>
         <source>%1 needs a compiler set up to build. Configure a compiler in the kit options.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation type="unfinished"></translation>
@@ -32840,23 +31588,6 @@ These files are preserved.</source>
         <source>Run in terminal</source>
         <translation type="unfinished">在终端中运行</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>%1 的克隆</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>名称:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitAspect</name>
     <message>
         <source>&lt;No compiler&gt;</source>
         <translation type="unfinished"></translation>
@@ -32893,31 +31624,18 @@ These files are preserved.</source>
         <source>No compiler set in kit.</source>
         <translation type="unfinished">构建套件中未设置编译器。</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainManager</name>
     <message>
         <source>ABI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>None</source>
-        <translation type="unfinished">无</translation>
-    </message>
-    <message>
         <source>Tool Chains</source>
         <translation type="unfinished">工具链</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation type="unfinished">使用开发框架的调试版 (DYLD_IMAGE_SUFFIX=_debug)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation type="unfinished"></translation>
@@ -32930,9 +31648,6 @@ These files are preserved.</source>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation type="unfinished"></translation>
@@ -32942,17 +31657,6 @@ These files are preserved.</source>
         <translation type="unfinished">选择工作目录</translation>
     </message>
     <message>
-        <source>Reset to Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="unfinished">工作目录:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
-    <message>
         <source>Replacing signature</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32960,42 +31664,17 @@ These files are preserved.</source>
         <source>Xcodebuild failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorerPluginPrivate</name>
     <message>
         <source>Building &quot;%1&quot; is disabled: %2&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;None&gt;</source>
-        <translation type="unfinished">&lt;无&gt;</translation>
-    </message>
-    <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation type="unfinished">&lt;隐式添加&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjextExplorer::Internal::KitOptionsPageWidget</name>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">添加</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="unfinished">克隆</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Make Default</source>
@@ -33017,13 +31696,6 @@ These files are preserved.</source>
         <source>Choose which kit settings to display by default.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Kits</source>
-        <translation type="unfinished">构建套件(Kit)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjextExplorer::Internal::ProjectExplorerSettings</name>
     <message>
         <source>Current directory</source>
         <translation type="unfinished">当前目录</translation>
@@ -33081,10 +31753,6 @@ These files are preserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>None</source>
-        <translation type="unfinished">无</translation>
-    </message>
-    <message>
         <source>All</source>
         <translation type="unfinished">所有</translation>
     </message>
@@ -33139,10 +31807,6 @@ These files are preserved.</source>
     <message>
         <source>Default for &quot;Run in terminal&quot;:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="unfinished">概要</translation>
     </message>
 </context>
 <context>
@@ -44842,7 +43506,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>TargetSettingsPanelItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation type="unfinished">项目中未定义构建套件(Kit)。</translation>
@@ -44851,9 +43515,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Configure Project</source>
         <translation type="unfinished">配置项目</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
     <message>
         <source>&amp;Configure Project</source>
         <translation type="unfinished"></translation>
@@ -44883,10 +43544,6 @@ Failed to open file &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation type="unfinished">不要移除</translation>
-    </message>
-    <message>
         <source>Disable Kit &quot;%1&quot; in This Project?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -44907,35 +43564,13 @@ Failed to open file &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation type="unfinished">构建</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation type="unfinished">运行</translation>
-    </message>
-    <message>
         <source>Enable Kit</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="unfinished">警告</translation>
     </message>
     <message>
         <source>Build Issue</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>停止监视</translation>
@@ -44944,9 +43579,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Stop monitoring task files.</source>
         <translation>停止监视任务文件。</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskListPlugin</name>
     <message>
         <source>My Tasks</source>
         <translation type="unfinished">我的任务</translation>

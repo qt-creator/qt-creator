@@ -297,7 +297,7 @@ void IDevice::setFileAccess(DeviceFileAccess *fileAccess)
 
 IDevice::DeviceInfo IDevice::deviceInformation() const
 {
-    const QString key = QCoreApplication::translate("ProjectExplorer::IDevice", "Device");
+    const QString key = Tr::tr("Device");
     return DeviceInfo() << IDevice::DeviceInfoItem(key, deviceStateToString());
 }
 
@@ -513,13 +513,12 @@ IDevice::Ptr IDevice::clone() const
 
 QString IDevice::deviceStateToString() const
 {
-    const char context[] = "ProjectExplorer::IDevice";
     switch (d->deviceState) {
-    case IDevice::DeviceReadyToUse: return QCoreApplication::translate(context, "Ready to use");
-    case IDevice::DeviceConnected: return QCoreApplication::translate(context, "Connected");
-    case IDevice::DeviceDisconnected: return QCoreApplication::translate(context, "Disconnected");
-    case IDevice::DeviceStateUnknown: return QCoreApplication::translate(context, "Unknown");
-    default: return QCoreApplication::translate(context, "Invalid");
+    case IDevice::DeviceReadyToUse: return Tr::tr("Ready to use");
+    case IDevice::DeviceConnected: return Tr::tr("Connected");
+    case IDevice::DeviceDisconnected: return Tr::tr("Disconnected");
+    case IDevice::DeviceStateUnknown: return Tr::tr("Unknown");
+    default: return Tr::tr("Invalid");
     }
 }
 
@@ -661,14 +660,14 @@ void DeviceProcessKiller::start()
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
     if (!device) {
-        m_errorString = tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
+        m_errorString = Tr::tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
         emit done(false);
         return;
     }
 
     m_signalOperation = device->signalOperation();
     if (!m_signalOperation) {
-        m_errorString = tr("Device for path \"%1\" does not support killing processes.")
+        m_errorString = Tr::tr("Device for path \"%1\" does not support killing processes.")
                        .arg(m_processPath.toUserOutput());
         emit done(false);
         return;

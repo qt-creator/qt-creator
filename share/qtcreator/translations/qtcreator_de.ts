@@ -6530,7 +6530,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Die Abhängigkeit konnte nicht hinzugefügt werden</translation>
@@ -10224,7 +10224,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Die Konfiguration ist fehlerhaft. Details befinden sich in der Ansicht &quot;Probleme&quot;.</translation>
@@ -10253,9 +10253,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Could not start process &quot;%1&quot; %2.</source>
         <translation>Der Prozess &quot;%1&quot; %2 konnte nicht gestartet werden.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -10295,21 +10292,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Autotests</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <extracomment>Displayed name for a &quot;cleaning&quot; build step</extracomment>
-        <translation>Bereinigen</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Displayed name for a deploy step</extracomment>
-        <translation>Deployment</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <extracomment>Displayed name for a normal build step</extracomment>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
         <source>Build/Deployment canceled</source>
         <translation>Erstellen/Deployment wurde abgebrochen</translation>
     </message>
@@ -10342,9 +10324,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Skipping disabled step %1.</source>
         <translation>Überspringe deaktivierten Schritt %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>Variable already exists.</source>
         <translation>Variable existiert bereits.</translation>
@@ -10431,9 +10410,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Enable</source>
         <translation>Aktivieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Dateien aus allen Projekten</translation>
@@ -10442,9 +10418,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Matches all files of all open projects. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation>Filtert alle Dateien aus allen geöffneten Projekten. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Alle Projekte</translation>
@@ -10461,9 +10434,6 @@ Excluding: %2
 Außer: %2
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>Es sind keine Build-Einstellungen verfügbar</translation>
@@ -10493,10 +10463,6 @@ Außer: %2
         <translation>Build abbrechen und Build-Konfiguration löschen</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Nicht löschen</translation>
-    </message>
-    <message>
         <source>Remove Build Configuration %1?</source>
         <translation>Build-Konfiguration %1 löschen?</translation>
     </message>
@@ -10517,11 +10483,6 @@ Außer: %2
         <translation>Möchten Sie die Build-Konfiguration &lt;b&gt;%1&lt;/b&gt; wirklich löschen?</translation>
     </message>
     <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>Duplizierte Konfiguration</translation>
-    </message>
-    <message>
         <source>New configuration name:</source>
         <translation>Name der neuen Konfiguration:</translation>
     </message>
@@ -10533,9 +10494,6 @@ Außer: %2
         <source>New name for build configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Neuer Name der Build-Konfiguration &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Kompilierung</translation>
@@ -10556,9 +10514,6 @@ Außer: %2
         <source>O</source>
         <translation>K</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Dateien im aktuellen Projekt</translation>
@@ -10567,9 +10522,6 @@ Außer: %2
         <source>Matches all files from the current document&apos;s project. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation>Filtert alle Dateien aus dem Projekt des aktuellen Dokuments. Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>Projekt &quot;%1&quot;</translation>
@@ -10582,9 +10534,6 @@ Außer: %2
         <source>Project &quot;%1&quot;:</source>
         <translation>Projekt &quot;%1&quot;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Open project anyway?</source>
         <translation>Projekt trotzdem öffnen?</translation>
@@ -10604,9 +10553,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
 &quot;%1&quot; (%2).</source>
         <translation>Einige Dateien (%2) konnten nicht zum Projekt &quot;%1&quot; hinzugefügt werden.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>Baum vereinfachen</translation>
@@ -10647,9 +10593,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>Filter Tree</source>
         <translation>Baum filtern</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projekte</translation>
@@ -10662,9 +10605,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>Alt+X</source>
         <translation>Alt+X</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Open Session #%1</source>
         <translation>Sitzung #%1 öffnen</translation>
@@ -10740,13 +10680,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Sitzungen</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Projekte</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>Unter &amp;Versionskontrolle stellen:</translation>
     </message>
@@ -10782,24 +10715,9 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>Files to be added in</source>
         <translation>Hinzuzufügende Dateien in</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
         <source>Run Settings</source>
         <translation>Einstellungen zur Ausführung</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Clone...</source>
-        <translation>Klonen...</translation>
     </message>
     <message>
         <source>Run configuration:</source>
@@ -10812,10 +10730,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Möchten Sie die Ausführungskonfiguration &lt;b&gt;%1&lt;/b&gt; löschen?</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -10839,20 +10753,12 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Duplizierte Konfiguration</translation>
     </message>
     <message>
-        <source>New configuration name:</source>
-        <translation>Name der neuen Konfiguration:</translation>
-    </message>
-    <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Neuer Name der Ausführungskonfiguration &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Build abbrechen und Deployment-Konfiguration löschen</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Nicht löschen</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -10878,9 +10784,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Neuer Name der Deployment-Konfiguration &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Sitzungsverwaltung</translation>
@@ -10913,16 +10816,10 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>&amp;Open</source>
         <translation>&amp;Öffnen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Datei nicht gefunden: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>&amp;Erstellen</translation>
@@ -10988,10 +10885,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Deployment unter Ausschluss der Abhängigkeiten durchführen</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Ausführen</translation>
-    </message>
-    <message>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
     </message>
@@ -11044,10 +10937,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Möchten Sie die Erstellung abbrechen und das Projekt trotzdem schließen?</translation>
     </message>
     <message>
-        <source>All Projects</source>
-        <translation>Alle Projekte</translation>
-    </message>
-    <message>
         <source>Failed opening project &quot;%1&quot;: No plugin can open project type &quot;%2&quot;.</source>
         <translation>Das Projekt &quot;%1&quot; konnte nicht geöffnet werden: Der Projekttyp &quot;%2&quot; kann von keinem Plugin geöffnet werden.</translation>
     </message>
@@ -11056,18 +10945,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
 Do you want to ignore them?</source>
         <translation>Es wurden einige Build-Fehler im aktuellen Task festgestellt.
 Möchten Sie sie ignorieren?</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation>Bereinigen</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Deployment</translation>
     </message>
     <message>
         <source>The project &quot;%1&quot; has no active kit.</source>
@@ -11120,10 +10997,6 @@ Möchten Sie sie ignorieren?</translation>
     <message>
         <source>Remove...</source>
         <translation>Entfernen...</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Umbenennen...</translation>
     </message>
     <message>
         <source>Main file of the project the current document belongs to.</source>
@@ -11632,9 +11505,6 @@ Rename %2 to %3 anyway?</source>
         <source>Could not delete file %1.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Beim Wiederherstellen der Sitzung ist ein Fehler aufgetreten</translation>
@@ -13639,41 +13509,23 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>untitled</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;Es existieren keine anderen Projekte in der Sitzung&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
         <source>Kit</source>
         <translation>Kit</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Deployment</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Ausführen</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -13731,9 +13583,6 @@ Was möchten Sie tun?</translation>
         <source>Run: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</source>
         <translation>Ausführung: &lt;b&gt;%1&lt;/b&gt;&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Build &amp; Run</source>
         <translation>Erstellung und Ausführung</translation>
@@ -14894,14 +14743,11 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Abhängigkeiten</translation>
     </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
     <message>
         <source>Editor</source>
         <translation>Editor</translation>
@@ -15252,7 +15098,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build Settings</source>
         <translation>Build-Einstellungen</translation>
@@ -15260,10 +15106,6 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>Build directory</source>
         <translation>Build-Verzeichnis</translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation>Name der aktuellen Build-Konfiguration</translation>
     </message>
     <message>
         <source>Name of the build configuration</source>
@@ -15298,23 +15140,11 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Das Projekt konnte nicht erfolgreich ausgewertet werden.</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Build</translation>
-    </message>
-    <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.
 ----------
 The name of the build configuration created by default for a generic project.</extracomment>
         <translation>Vorgabe</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
     </message>
     <message>
         <source>Variables in the current build environment.</source>
@@ -15328,9 +15158,6 @@ The name of the build configuration created by default for a generic project.</e
         <source>Variables in the active build environment of the active project.</source>
         <translation>Variablen in der aktiven Build-Umgebung des aktiven Projekts.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Pfad:</translation>
@@ -15526,7 +15353,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Geben Sie den Namen der Sitzung an:</translation>
@@ -16135,7 +15962,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -16154,20 +15981,12 @@ Möchten Sie sie überschreiben?</translation>
         <translation>Nach oben</translation>
     </message>
     <message>
-        <source>Disable</source>
-        <translation>Deaktivieren</translation>
-    </message>
-    <message>
         <source>Move Down</source>
         <translation>Nach unten</translation>
     </message>
     <message>
         <source>Remove Item</source>
         <translation>Element löschen</translation>
-    </message>
-    <message>
-        <source>Enable</source>
-        <translation>Aktivieren</translation>
     </message>
     <message>
         <source>Removing Step failed</source>
@@ -16181,9 +16000,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>No Build Steps</source>
         <translation>Keine Build-Schritte</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -16194,9 +16010,6 @@ Möchten Sie sie überschreiben?</translation>
         <extracomment>Task is of type: warning</extracomment>
         <translation>Warnung:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy locally</source>
         <extracomment>Default DeployConfiguration display name</extracomment>
@@ -16207,9 +16020,6 @@ Möchten Sie sie überschreiben?</translation>
         <extracomment>Display name of the default deploy configuration</extracomment>
         <translation>Deployment-Konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Unexpected run control state %1 when worker %2 started.</source>
         <translation>Unerwarteter Run Control-Zustand %1 beim Start von Worker %2.</translation>
@@ -16246,9 +16056,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Invalid</source>
         <translation>Ungültig</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation>In Editor anzeigen</translation>
@@ -16257,9 +16064,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Show task location in an editor.</source>
         <translation>Fundstelle in Editor anzeigen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>Probleme</translation>
@@ -16272,9 +16076,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Filter by categories</source>
         <translation>Nach Kategorie filtern</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Annotation</translation>
@@ -16283,9 +16084,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Annotate using version control system.</source>
         <translation>Annotation durch Versionskontrollsystem.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Überwachung beenden</translation>
@@ -16836,11 +16634,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekte</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>QmlDesigner::ItemLibraryWidget</name>
@@ -17667,7 +17461,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>&amp;Compiler-Pfad:</translation>
@@ -17688,16 +17482,9 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>Target triple:</source>
         <translation>Zieltripel:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Compilers</source>
         <translation>Compiler</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
@@ -17734,14 +17521,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation>Wenn dies aktiviert ist, wird %1 zwei Instanzen jedes x86_64-Compilers erstellen:
 eine für das native x86_64-Ziel und eine für ein x86-Ziel.
 Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne einen speziellen Cross-Compiler zu verwenden.</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klonen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Remove All</source>
@@ -18686,7 +18465,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ToolChain</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clone of %1</source>
         <translation>Kopie von %1</translation>
@@ -19944,14 +19723,11 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;benutzerdefiniert&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Stop</source>
         <translation>Anhalten</translation>
@@ -19997,10 +19773,6 @@ Speichern fehlgeschlagen.</translation>
         <translation>Laufendes Programm anhalten.</translation>
     </message>
     <message>
-        <source>Open Settings Page</source>
-        <translation>Einstellungsseite öffnen</translation>
-    </message>
-    <message>
         <source>Application Output</source>
         <translation>Ausgabe der Anwendung</translation>
     </message>
@@ -20008,16 +19780,10 @@ Speichern fehlgeschlagen.</translation>
         <source>Application Output Window</source>
         <translation>Ausgabe der Anwendung</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style</source>
         <translation>Coding-Stil</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -25277,7 +25043,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Session</source>
         <translation>Sitzung</translation>
@@ -25311,16 +25077,9 @@ the manifest file by overriding your settings. Allow override?</source>
         <translation>Sitzung umbenennen</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Umbenennen</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>Umbenennen und ö&amp;ffnen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Available device types:</source>
         <translation>Verfügbare Gerätetypen:</translation>
@@ -25329,9 +25088,6 @@ the manifest file by overriding your settings. Allow override?</source>
         <source>Start Wizard</source>
         <translation>Assistent starten</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>&amp;Device:</source>
         <translation>&amp;Gerät:</translation>
@@ -25388,10 +25144,6 @@ the manifest file by overriding your settings. Allow override?</source>
         <source>Show Running Processes...</source>
         <translation>Laufende Prozesse anzeigen...</translation>
     </message>
-    <message>
-        <source>Devices</source>
-        <translation>Geräte</translation>
-    </message>
 </context>
 <context>
     <name>QmlDebug::QmlOutputParser</name>
@@ -25407,7 +25159,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Local PC</source>
         <translation>Lokaler PC</translation>
@@ -25416,16 +25168,10 @@ the manifest file by overriding your settings. Allow override?</source>
         <source>Desktop</source>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (Vorgabe für %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Gerät</translation>
@@ -25709,7 +25455,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -25738,9 +25484,6 @@ wirklich löschen?</translation>
         <source>&amp;Attach to Process</source>
         <translation>&amp;An Prozess anhängen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Command Line</source>
         <translation>Kommandozeile</translation>
@@ -25801,7 +25544,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Verbindungsfehler: %1</translation>
@@ -26283,14 +26026,11 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Remote Error</source>
         <translation>Entfernter Fehler</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Process listing command failed with exit code %1.</source>
         <translation>Das Kommando zur Auflistung der Prozesse schlug mit Rückgabewert %1 fehl.</translation>
@@ -26303,9 +26043,6 @@ wirklich löschen?</translation>
         <source>Remote stderr was: %1</source>
         <translation>Fehlerausgabe: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -26319,14 +26056,10 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Kit</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unnamed</source>
         <translation>Unbenannt</translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation>Kit</translation>
     </message>
     <message>
         <source>Kit ID</source>
@@ -26361,10 +26094,6 @@ wirklich löschen?</translation>
         <translation>Die ID des Kits.</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation>Kopie von %1</translation>
-    </message>
-    <message>
         <source>Error:</source>
         <translation>Fehler:</translation>
     </message>
@@ -26372,23 +26101,9 @@ wirklich löschen?</translation>
         <source>Warning:</source>
         <translation>Warnung:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
     <message>
         <source>Desktop (%1)</source>
         <translation>Desktop (%1)</translation>
-    </message>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Name:</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -26430,24 +26145,10 @@ wirklich löschen?</translation>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Bilddateien (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>%1 (default)</source>
         <extracomment>Mark up a kit as the default one.</extracomment>
         <translation>%1 (Vorgabe)</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Einstellungen zur Ausführung</translation>
     </message>
     <message>
         <source>Variables in the run environment.</source>
@@ -26639,7 +26340,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Empty</source>
         <translation>Leer</translation>
@@ -26651,9 +26352,6 @@ wirklich löschen?</translation>
             <numerusform>%n Einträge</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>MACRO[=VALUE]</source>
         <translation>MAKRO[=WERT]</translation>
@@ -26675,16 +26373,8 @@ wirklich löschen?</translation>
         <translation>Kommaseparierte Liste der mkspecs.</translation>
     </message>
     <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Compiler-Pfad:</translation>
-    </message>
-    <message>
         <source>&amp;Make path:</source>
         <translation>Pfad zu &amp;Make:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
@@ -26706,9 +26396,6 @@ wirklich löschen?</translation>
         <source>&amp;Error parser:</source>
         <translation>&amp;Fehler-Parser:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -26717,9 +26404,6 @@ wirklich löschen?</translation>
         <source>%1 (%2, %3 %4 at %5)</source>
         <translation>%1 (%2, %3 %4 an %5)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -28371,32 +28055,14 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Environment</source>
         <translation>Umgebung</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Basisumgebung für diese Ausführungskonfiguration:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Build-Umgebung</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Systemumgebung</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Saubere Umgebung</translation>
     </message>
 </context>
 <context>
@@ -28811,7 +28477,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No device configured.</source>
         <translation>Es ist kein Gerät eingerichtet.</translation>
@@ -28841,7 +28507,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Benutzerdefinierter Parser</translation>
@@ -28865,10 +28531,6 @@ The affected files are:
     <message>
         <source>&amp;Message:</source>
         <translation>&amp;Meldung:</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -28930,9 +28592,6 @@ The affected files are:
         <source>Warning message:</source>
         <translation>Warnungsnachricht:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Close</source>
         <translation>Schließen</translation>
@@ -28966,11 +28625,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
@@ -28987,9 +28642,6 @@ The affected files are:
         <source>Custom</source>
         <translation>Benutzerdefiniert</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process cannot access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
@@ -30212,7 +29864,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot open process.</source>
         <translation>Prozess kann nicht geöffnet werden.</translation>
@@ -30249,9 +29901,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
         <translation>%1 konnte nicht gestartet werden. Für weiterführende Informationen siehe auch src\tools\win64interrupt\win64interrupt.c.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Build importieren von...</translation>
@@ -30260,9 +29909,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Import</source>
         <translation>Import</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>No Build Found</source>
         <translation>Kein Build gefunden</translation>
@@ -30287,9 +29933,6 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <source>Imported Kit</source>
         <translation>Importiertes Kit</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>No suitable kits found.</source>
         <translation>Es wurden keine geeigneten Kits gefunden.</translation>
@@ -30315,17 +29958,10 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
         <translation>Kit-Auswahl</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>Für das Projekt &lt;b&gt;%1&lt;/b&gt; können die folgenden Kits verwendet werden:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -31509,14 +31145,11 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Edit Files</source>
         <translation>Dateien Bearbeiten</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation>Vorhandenes Verzeichnis hinzufügen</translation>
@@ -31843,7 +31476,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>Die folgenden Dateien werden den Projekten implizit hinzugefügt:</translation>
@@ -31851,10 +31484,6 @@ Möchten Sie es beenden?</translation>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Implizites Hinzufügen&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation>&lt;Kein&gt;</translation>
     </message>
 </context>
 <context>
@@ -31905,7 +31534,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Task</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation>Sie möchten nur das Übersetzungsergebnis für die aktuelle Ausführungsonfiguration bauen, aber sie ist mit keinem verknüpft. Korrigieren Sie den Make-Schritt in der Erstellungskonfiguration.</translation>
@@ -31914,9 +31543,6 @@ Möchten Sie es beenden?</translation>
         <source>%1 needs a compiler set up to build. Configure a compiler in the kit options.</source>
         <translation>%1 benötigt einen Compiler zum Erstellen des Projekts. Bitte richten Sie einen Compiler in den Kit-Einstellungen ein.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
     <message>
         <source>Replacing signature</source>
         <translation>Ersetze Signatur</translation>
@@ -31995,7 +31621,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::TaskListPlugin</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Die Aufgabendatei %1 kann nicht geöffnet werden: %2</translation>
@@ -32852,7 +32478,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation>&quot;data&quot; darf für eine &quot;Form&quot;-Seite nicht gesetzt sein oder muss ein leeres Objekt sein.</translation>
@@ -32860,10 +32486,6 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Project File</source>
         <translation>Projektdatei</translation>
-    </message>
-    <message>
-        <source>Choose Project File</source>
-        <translation>Projektdatei auswählen</translation>
     </message>
     <message>
         <source>The project contains more than one project file. Select the one you would like to use.</source>
@@ -33032,10 +32654,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Quelldatei:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Pfad:</translation>
-    </message>
-    <message>
         <source>Define Class</source>
         <translation>Klasse definieren</translation>
     </message>
@@ -33046,10 +32664,6 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Project Management</source>
         <translation>Projektverwaltung</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation>Zusammenfassung</translation>
     </message>
     <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
@@ -33224,10 +32838,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Modellname:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>Speicherort:</translation>
-    </message>
-    <message>
         <source>Model Name and Location</source>
         <translation>Modellname und -speicherort</translation>
     </message>
@@ -33274,10 +32884,6 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Creates a scratch buffer using a temporary file.</source>
         <translation>Erzeugt einen Notizbereich in Form einer temporären Datei.</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Scratch Buffer</source>
@@ -33329,14 +32935,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Build-System</translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation>Kit-Auswahl</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-    <message>
         <source>Non-Qt Project</source>
         <translation>Projekt ohne Qt</translation>
     </message>
@@ -33375,10 +32973,6 @@ Möchten Sie sie jetzt auschecken?</translation>
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Erzeugt ein qmake-basiertes Projekt ohne Dateien. So können Sie eine Anwendung ohne irgendwelche Vorgaben erstellen.</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>Anderes Projekt</translation>
     </message>
     <message>
         <source>Empty qmake Project</source>
@@ -33598,10 +33192,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Erzeugt ein benutzerdefiniertes Qt Creator-Plugin.</translation>
     </message>
     <message>
-        <source>Library</source>
-        <translation>Bibliothek</translation>
-    </message>
-    <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator-Plugin</translation>
     </message>
@@ -33680,10 +33270,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
         <translation>Qt-Plugin</translation>
     </message>
     <message>
-        <source>Type:</source>
-        <translation>Typ:</translation>
-    </message>
-    <message>
         <source>%{JS: value(&apos;Type&apos;) === &apos;qtplugin&apos; ? value(&apos;BaseClassName&apos;).slice(1) : (value(&apos;ProjectName&apos;).charAt(0).toUpperCase() + value(&apos;ProjectName&apos;).slice(1))}</source>
         <translation>%{JS: value(&apos;Type&apos;) === &apos;qtplugin&apos; ? value(&apos;BaseClassName&apos;).slice(1) : (value(&apos;ProjectName&apos;).charAt(0).toUpperCase() + value(&apos;ProjectName&apos;).slice(1))}</translation>
     </message>
@@ -33714,11 +33300,6 @@ Wählt eine für Desktop-Entwicklung geeignete Qt-Version aus, sofern sie verfü
     <message>
         <source>QStylePlugin</source>
         <translation>QStylePlugin</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translatorcomment>Qt module for C++ library</translatorcomment>
-        <translation>Keines</translation>
     </message>
     <message>
         <source>Core</source>
@@ -33871,10 +33452,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     <message>
         <source>Other</source>
         <translation>Andere</translation>
-    </message>
-    <message>
-        <source>C</source>
-        <translation>C</translation>
     </message>
     <message>
         <source>Cpp</source>
@@ -34145,16 +33722,8 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Führe Bazaar branch aus...</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>Klonen</translation>
-    </message>
-    <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Klont einen Bazaar-Branch und versucht, das darin enthaltene Projekt zu laden.</translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation>Projekt importieren</translation>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
@@ -34678,7 +34247,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonFieldPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Field is not an object.</source>
         <translation>Feld ist kein Objekt.</translation>
@@ -34791,17 +34360,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <source>Source and target are both empty.</source>
         <translation>Quelle und Ziel sind beide leer.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>untitled</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation>Konnte keinen Commit im Versionskontrollsystem ausführen</translation>
@@ -34814,20 +34372,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <source>Failed to Add to Project</source>
         <translation>Konnte nicht zu Projekt hinzufügen</translation>
     </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation>Das untergeordnete Projekt &quot;%1&quot;
-konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation>Einige Dateien (%2) konnten nicht zum Projekt &quot;%1&quot; hinzugefügt werden.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation>Generator ist kein Objekt.</translation>
@@ -34962,9 +34506,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation>Beim Auswerten von &quot;pages&quot;: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation>%1 [Verzeichnis]</translation>
@@ -34983,20 +34524,9 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>Das Verzeichnis %1 enthält Dateien, die nicht überschrieben werden können:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation>Projekt</translation>
-    </message>
     <message>
         <source>Project Name</source>
         <translation>Projektname</translation>
-    </message>
-    <message>
-        <source>Kit is not valid.</source>
-        <translation>Kit ist ungültig.</translation>
     </message>
     <message>
         <source>Incompatible Kit</source>
@@ -35046,9 +34576,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>Could not find any qml_*.qm file at &quot;%1&quot;</source>
         <translation>Konnte in &quot;%1&quot; keine qml_*.qm-Datei finden</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation>Zieleinstellungen</translation>
@@ -35936,7 +35463,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>Konfiguration synchronisieren</translation>
@@ -35945,9 +35472,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation>Aktives Kit, Build- und Deployment-Konfiguration zwischen Projekten synchronisieren.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>At least one required feature is not present.</source>
         <translation>Mindestens ein benötigtes Feature ist nicht vorhanden.</translation>
@@ -35972,16 +35496,10 @@ provided they were unmodified before the refactoring.</source>
         <source>Feature list element is not a string or object.</source>
         <translation>Feature-Listenelement ist keine Zeichenfolge und kein Objekt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation>Kein &apos;key&apos; im Einstellungsobjekt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation>Schlüssel ist kein Objekt.</translation>
@@ -35994,9 +35512,6 @@ provided they were unmodified before the refactoring.</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation>ScannerGenerator: Das Binärmuster &quot;%1&quot; ist nicht zulässig.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is generated.</source>
         <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei wurde generiert.</translation>
@@ -36005,9 +35520,6 @@ provided they were unmodified before the refactoring.</source>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
         <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei befindet sich außerhalb des Projektverzeichnisses.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation>Terminal</translation>
@@ -36016,9 +35528,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Run in terminal</source>
         <translation>Im Terminal ausführen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation>Arbeitsverzeichnis</translation>
@@ -36035,9 +35544,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Working directory:</source>
         <translation>Arbeitsverzeichnis:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation>Argumente</translation>
@@ -36050,13 +35556,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Toggle multi-line mode.</source>
         <translation>Mehrzeiligen Modus umschalten.</translation>
     </message>
-    <message>
-        <source>Reset to Default</source>
-        <translation>Auf Vorgabe zurücksetzen</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>Warte auf Beendigung laufender Anwendungen</translation>
@@ -37131,10 +36630,6 @@ Warnung: Dies ist eine experimentelle Funktion und könnte dazu führen, dass di
     <message>
         <source>Automatically run tests after build</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
     </message>
     <message>
         <source>All</source>
@@ -38791,32 +38286,11 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Initialization:</source>
         <translation>Initialisierung:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation>Initialisierung:</translation>
-    </message>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Compiler-Pfad:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation>Quellverzeichnis:</translation>
@@ -39474,14 +38948,10 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Executable</source>
         <translation>Benutzerdefinierte ausführbare Datei</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation>%1 ausführen</translation>
     </message>
     <message>
         <source>You need to set an executable in the custom run configuration.</source>
@@ -40858,7 +40328,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::PortsGatherer</name>
+    <name>::ProjectExplorer</name>
     <message numerus="yes">
         <source>Found %n free ports.</source>
         <translation>
@@ -40870,9 +40340,6 @@ Ablaufdatum: %3</translation>
         <source>Checking available ports...</source>
         <translation>Prüfe Verfügbarkeit von Ports...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
     <message>
         <source>Use Regular Expressions</source>
         <translation>Reguläre Ausdrücke verwenden</translation>
@@ -40888,14 +40355,6 @@ Ablaufdatum: %3</translation>
     <message>
         <source>Project Settings</source>
         <translation>Projekteinstellungen</translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Erstellung und Ausführung</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projekte</translation>
     </message>
     <message>
         <source>Import Existing Build...</source>
@@ -40921,24 +40380,10 @@ Ablaufdatum: %3</translation>
         <source>Import Directory</source>
         <translation>Verzeichnis importieren</translation>
     </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Warnung</translation>
-    </message>
     <message>
         <source>Build Issue</source>
         <translation>Build-Problem</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunWorker</name>
     <message>
         <source>Worker start timed out.</source>
         <translation>Start des Workers dauerte zu lange.</translation>
@@ -40971,9 +40416,6 @@ Ablaufdatum: %3</translation>
         <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
         <translation>Ein Fehler trat beim Versuch vom Prozess zu lesen auf. Möglicherweise läuft der Prozess nicht.</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
     <message>
         <source>Kit is unsuited for project</source>
         <translation>Das Kit ist für das Projekt nicht geeignet</translation>
@@ -41027,20 +40469,9 @@ Ablaufdatum: %3</translation>
         <translation>Schritte aus einem anderen Kit kopieren...</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Ausführen</translation>
-    </message>
-    <message>
         <source>Enable Kit</source>
         <translation>Kit aktivieren</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelItem</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation>In diesem Projekt ist kein Kit festgelegt.</translation>
@@ -41049,9 +40480,6 @@ Ablaufdatum: %3</translation>
         <source>Configure Project</source>
         <translation>Projekt konfigurieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainManager</name>
     <message>
         <source>None</source>
         <translation>Keine</translation>
@@ -42302,7 +41730,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildStepList</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -42661,14 +42089,11 @@ Ausgabe:
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::KitChooser</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Kit of Active Project: %1</source>
         <translation>Kit des aktiven Projekts: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FlatModel</name>
     <message>
         <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
         <translation>Für dieses Projekt sind keine Kits ausgewählt. Wählen Sie Kits im Modus &quot;Projekte&quot; aus.</translation>
@@ -42749,9 +42174,6 @@ Was soll %1 tun?</translation>
         <source>Failure Updating Project</source>
         <translation>Fehler beim Aktualisieren des Projekts</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
     <message>
         <source>Executable</source>
         <translation>Ausführbare Datei</translation>
@@ -42772,9 +42194,6 @@ Was soll %1 tun?</translation>
         <source>Use this command instead</source>
         <translation>Stattdessen dieses Kommando verwenden</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation>Bibliothekensuchpfad vom Erstellen zu DYLD_LIBRARY_PATH und DYLD_FRAMEWORK_PATH hinzufügen</translation>
@@ -42787,9 +42206,6 @@ Was soll %1 tun?</translation>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>Bibliothekensuchpfad vom Erstellen zu LD_LIBRARY_PATH hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Debug-Version von Frameworks verwenden (DYLD_IMAGE_SUFFIX=_debug)</translation>
@@ -43230,7 +42646,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::MakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Make arguments:</source>
         <translation>Kommandozeilenargumente für make:</translation>
@@ -44352,11 +43768,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SshSettingsWidget</name>
-    <message>
-        <source>SSH</source>
-        <translation>SSH</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enable connection sharing:</source>
         <translation>Verbindungsfreigabe aktivieren:</translation>
@@ -44385,19 +43797,9 @@ You might find further explanations in the Application Output view.</source>
         <source> minutes</source>
         <translation> Minuten</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainConfigWidget</name>
     <message>
         <source>Parent toolchain:</source>
         <translation>Basis-Toolchain:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChain</name>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
     </message>
     <message>
         <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
@@ -46288,14 +45690,10 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddRunConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>[none]</source>
         <translation>[leer]</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
     </message>
     <message>
         <source>Source</source>
@@ -46313,9 +45711,6 @@ Do you want to display them anyway?</source>
         <source>Create</source>
         <translation>Erzeugen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputSettingsPage</name>
     <message>
         <source>Word-wrap output</source>
         <translation>Ausgabe umbrechen</translation>
@@ -46353,13 +45748,6 @@ Do you want to display them anyway?</source>
         <translation>Ausgabe der Anwendung beim Debuggen öffnen:</translation>
     </message>
     <message>
-        <source>Application Output</source>
-        <translation>Ausgabe der Anwendung</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildDirectoryAspect</name>
-    <message>
         <source>Build directory:</source>
         <translation>Build-Verzeichnis:</translation>
     </message>
@@ -46371,9 +45759,6 @@ Do you want to display them anyway?</source>
         <source>Shadow build:</source>
         <translation>Shadow-Build:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildSystem</name>
     <message>
         <source>The project is currently being parsed.</source>
         <translation>Das Projekt wird gerade ausgewertet.</translation>
@@ -46386,28 +45771,10 @@ Do you want to display them anyway?</source>
         <source>The project file &quot;%1&quot; does not exist.</source>
         <translation>Die Projektdatei &quot;%1&quot; existiert nicht.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputSettingsPage</name>
-    <message>
-        <source>Word-wrap output</source>
-        <translation>Ausgabe umbrechen</translation>
-    </message>
     <message>
         <source>Open Compile Output when building</source>
         <translation>Ausgabe der Kompilierung beim Erstellen öffnen</translation>
     </message>
-    <message>
-        <source>Limit output to %1 characters</source>
-        <translation>Ausgabe auf %1 Zeichen beschränken</translation>
-    </message>
-    <message>
-        <source>Compile Output</source>
-        <translation>Kompilierung</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeploymentDataView</name>
     <message>
         <source>Source File Path</source>
         <translation>Quelldateipfad</translation>
@@ -46417,14 +45784,6 @@ Do you want to display them anyway?</source>
         <translation>Zielverzeichnis</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
         <source>Files to deploy:</source>
         <translation>Dateien für Deployment:</translation>
     </message>
@@ -46432,16 +45791,10 @@ Do you want to display them anyway?</source>
         <source>Override deployment data from build system</source>
         <translation>Deployment-Daten des Build-Systems überschreiben</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation>Qt-Ausführungskonfiguration</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilterKitAspectsDialog</name>
     <message>
         <source>Setting</source>
         <translation>Einstellungen</translation>
@@ -46450,9 +45803,6 @@ Do you want to display them anyway?</source>
         <source>Visible</source>
         <translation>Sichtbar</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitAspect</name>
     <message>
         <source>Sysroot</source>
         <translation>Sysroot</translation>
@@ -46477,9 +45827,6 @@ Do you want to display them anyway?</source>
         <source>Sys Root</source>
         <translation>Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitAspect</name>
     <message>
         <source>&lt;No compiler&gt;</source>
         <translation>&lt;Kein Compiler&gt;</translation>
@@ -46497,10 +45844,6 @@ Do you want to display them anyway?</source>
         <translation>Compiler erzeugen Code für verschiedene ABIs: %1</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
         <source>Path to the compiler executable</source>
         <translation>Pfad zur ausführbaren Datei des Compilers</translation>
     </message>
@@ -46516,9 +45859,6 @@ Do you want to display them anyway?</source>
         <source>No compiler set in kit.</source>
         <translation>Im Kit ist kein Compiler eingerichtet.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitAspect</name>
     <message>
         <source>Device type</source>
         <translation>Gerätetyp</translation>
@@ -46531,13 +45871,6 @@ Do you want to display them anyway?</source>
         <source>Unknown device type</source>
         <translation>Unbekannter Gerätetyp</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitAspect</name>
-    <message>
-        <source>Device</source>
-        <translation>Gerät</translation>
-    </message>
     <message>
         <source>The device to run the applications on.</source>
         <translation>Das Gerät, auf dem die Anwendungen laufen sollen.</translation>
@@ -46549,10 +45882,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Device is incompatible with this kit.</source>
         <translation>Das Gerät ist inkompatibel zu diesem Kit.</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
         <source>Host address</source>
@@ -46574,9 +45903,6 @@ Do you want to display them anyway?</source>
         <source>Device name</source>
         <translation>Gerätename</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitAspect</name>
     <message>
         <source>Change...</source>
         <translation>Ändern...</translation>
@@ -46594,10 +45920,6 @@ Do you want to display them anyway?</source>
         <translation>Stellt MSVC entweder auf Englisch um oder behält die Sprache bei und erzwingt UTF-8-Ausgabe (abhängig vom benutzen MSVC-Compiler).</translation>
     </message>
     <message>
-        <source>Environment</source>
-        <translation>Umgebung</translation>
-    </message>
-    <message>
         <source>Additional build environment settings when using this kit.</source>
         <translation>Zusätzliche Build-Umgebungseinstellungen bei Benutzung dieses Kits.</translation>
     </message>
@@ -46605,16 +45927,9 @@ Do you want to display them anyway?</source>
         <source>The environment setting value is invalid.</source>
         <translation>Der Wert der Umgebungseinstellung ist ungültig.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitAspectWidget</name>
     <message>
         <source>Mark as Mutable</source>
         <translation>Als veränderlich kennzeichnen</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
     </message>
 </context>
 <context>
@@ -46625,7 +45940,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;leer&gt;</translation>
@@ -46634,17 +45949,6 @@ Do you want to display them anyway?</source>
         <source>Additional arguments for the vcvarsall.bat call</source>
         <translation>Zusätzliche Argumente für den Aufruf von vcvarsall.bat</translation>
     </message>
-    <message>
-        <source>Initialization:</source>
-        <translation>Initialisierung:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ParseIssuesDialog</name>
     <message>
         <source>Parse Build Output</source>
         <translation>Build-Ausgabe auswerten</translation>
@@ -46693,9 +45997,6 @@ Do you want to display them anyway?</source>
         <source>Cannot parse: The chosen kit does not provide an output parser.</source>
         <translation>Auswerten fehlgeschlagen: Das gewählte Kit stellt keine Ausgabe-Parser bereit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProcessStep</name>
     <message>
         <source>Custom Process Step</source>
         <extracomment>Default ProcessStep display name</extracomment>
@@ -46710,26 +46011,9 @@ Do you want to display them anyway?</source>
         <translation>Argumente:</translation>
     </message>
     <message>
-        <source>Working directory:</source>
-        <translation>Arbeitsverzeichnis:</translation>
-    </message>
-</context>
-<context>
-    <name>EnvironmentPanelFactory</name>
-    <message>
-        <source>Environment</source>
-        <translation>Umgebung</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorerPluginPrivate</name>
-    <message>
         <source>Building &quot;%1&quot; is disabled: %2&lt;br&gt;</source>
         <translation>Das Erstellen von &quot;%1&quot; ist deaktiviert: %2&lt;br&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjextExplorer::Internal::ProjectExplorerSettings</name>
     <message>
         <source>Current directory</source>
         <translation>Arbeitsverzeichnis</translation>
@@ -46787,10 +46071,6 @@ Do you want to display them anyway?</source>
         <translation>Nur die auszuführende Anwendung erstellen</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
         <source>All</source>
         <translation>Alle</translation>
     </message>
@@ -46845,10 +46125,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Default for &quot;Run in terminal&quot;:</source>
         <translation>Vorgabe für &quot;Im Terminal ausführen&quot;:</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Allgemein</translation>
     </message>
 </context>
 <context>
@@ -47347,14 +46623,11 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::FilesSelectionWizardPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Files</source>
         <translation>Dateien</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Import eines existierenden Projekts</translation>
@@ -47400,19 +46673,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProjextExplorer::Internal::KitOptionsPageWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klonen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Make Default</source>
         <translation>Als Vorgabe setzen</translation>
@@ -47432,10 +46693,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Choose which kit settings to display by default.</source>
         <translation>Wählen Sie, welche Einstellungen als Vorgabe angezeigt werden.</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
     </message>
 </context>
 <context>
@@ -48247,29 +47504,14 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildEnvironmentWidget</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Build-Umgebung</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clear system environment</source>
         <translation>Systemumgebung bereinigen</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersSettingsPage</name>
     <message>
         <source>Custom output parsers defined here can be enabled individually in the project&apos;s build or run settings.</source>
         <translation>Parser, die hier vom Benutzer definiert wurden, können einzeln in den Build- oder Ausführungseinstellungen des Projekts aktiviert werden.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>New Parser</source>
@@ -48279,56 +47521,18 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Custom Output Parsers</source>
         <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
-</context>
-<context>
-    <name>EnvironmentWidget</name>
-    <message>
-        <source>Add...</source>
-        <translation type="unfinished">Hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
     <message>
         <source>Edit...</source>
         <translation>Bearbeiten...</translation>
     </message>
     <message>
-        <source>Choose Directory</source>
-        <translation>Verzeichnis wählen</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChain</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::MingwToolChain</name>
-    <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::LinuxIccToolChain</name>
-    <message>
-        <source>ICC</source>
-        <translation>ICC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChain</name>
     <message>
         <source>clang-cl</source>
         <translation>clang-cl</translation>
     </message>
-</context>
-<context>
-    <name>ProjectEnvironmentWidget</name>
     <message>
         <source>Project Environment</source>
         <translation>Projektumgebung</translation>
@@ -55169,17 +54373,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SeparateDebugInfoAspect</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Separate debug info:</source>
         <translation>Separate Debug-Information:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersBuildWidget</name>
-    <message>
-        <source>Custom Output Parsers</source>
-        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
     </message>
     <message>
         <source>Parse standard output during build</source>
@@ -55189,17 +54386,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Makes output parsers look for diagnostics on stdout rather than stderr.</source>
         <translation>Veranlasst Parser, in der Standardausgabe anstelle der Standardfehlerausgabe nach Diagnosemeldungen zu suchen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildPropertiesSettings</name>
-    <message>
-        <source>Enable</source>
-        <translation>Aktivieren</translation>
-    </message>
-    <message>
-        <source>Disable</source>
-        <translation>Deaktivieren</translation>
-    </message>
     <message>
         <source>Use Project Default</source>
         <translation>Projekt-Vorgabe benutzen</translation>
@@ -55207,10 +54393,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <message>
         <source>Default build directory:</source>
         <translation>Vorgabe-Build-Verzeichnis:</translation>
-    </message>
-    <message>
-        <source>Separate debug info:</source>
-        <translation>Separate Debug-Information:</translation>
     </message>
     <message>
         <source>QML debugging:</source>
@@ -55224,30 +54406,14 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Default Build Properties</source>
         <translation>Vorgabe-Build-Eigenschaften</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsWidget</name>
     <message>
         <source>Language:</source>
         <translation>Sprache:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomParsersAspect</name>
-    <message>
-        <source>Custom Output Parsers</source>
-        <translation>Benutzerdefinierte Ausgabe-Parser</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SelectionWidget</name>
     <message>
         <source>Custom output parsers scan command line output for user-provided error patterns&lt;br&gt;to create entries in Issues.&lt;br&gt;The parsers can be configured &lt;a href=&quot;dummy&quot;&gt;here&lt;/a&gt;.</source>
         <translation>Benutzerdefinierte Parser werten die Kommandozeilenausgabe mit vom Benutzer gewählten Fehler-Suchmustern aus.&lt;br&gt;Sie können diese Parser &lt;a href=&quot;dummy&quot;&gt;hier&lt;/a&gt; konfigurieren.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParsersSelectionWidget</name>
     <message>
         <source>There are no custom parsers active</source>
         <translation>Es sind keine benutzerdefinierten Parser aktiv</translation>
@@ -55259,9 +54425,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
             <numerusform>Es sind %n benutzerdefinierte Parser aktiv</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation>Dateityp</translation>
@@ -55270,9 +54433,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>File Name</source>
         <translation>Dateiname</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::FileTransferPrivate</name>
     <message>
         <source>No device set for test transfer.</source>
         <translation>Kein Gerät für die Testübertragung gesetzt.</translation>
@@ -55285,9 +54445,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Missing transfer implementation.</source>
         <translation>Implementation der Dateiübertragungsmethode nicht vorhanden.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::FileTransfer</name>
     <message>
         <source>sftp</source>
         <translation>sftp</translation>
@@ -55300,9 +54457,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>generic file copy</source>
         <translation>Generisches Dateikopieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
     <message>
         <source>Restore Global</source>
         <translation>Globale Einstellungen wiederherstellen</translation>
@@ -55323,9 +54477,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>If available, use a different margin. For example, the ColumnLimit from the ClangFormat plugin.</source>
         <translation>Benutzt unterschiedlichen Rand abhängig vom Kontext, falls verfügbar. Zum Beispiel das ColumnLimit vom ClangFormat Plugin.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FilesInAllProjectsFind</name>
     <message>
         <source>Files in All Project Directories</source>
         <translation>Dateien in allen Projektverzeichnissen</translation>
@@ -55334,9 +54485,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Files in All Project Directories:</source>
         <translation>Dateien in allen Projektverzeichnissen:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetTripleWidget</name>
     <message>
         <source>Override for code model</source>
         <translation>Für Codemodell überschreiben</translation>
@@ -55346,9 +54494,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
 fails because Clang does not understand the target architecture.</source>
         <translation>Aktivieren Sie diese Einstellung, falls das Codemodell Fehler anzeigt, weil Clang die Zielarchitektur nicht versteht.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildDeviceKitAspect</name>
     <message>
         <source>Build device</source>
         <translation>Build-Gerät</translation>
@@ -55360,10 +54505,6 @@ fails because Clang does not understand the target architecture.</source>
     <message>
         <source>No build device set.</source>
         <translation>Kein Build-Gerät gesetzt.</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Nicht konfiguriert</translation>
     </message>
     <message>
         <source>Build host address</source>
@@ -55385,27 +54526,14 @@ fails because Clang does not understand the target architecture.</source>
         <source>Build device name</source>
         <translation>Build-Gerätename</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunAsRootAspect</name>
     <message>
         <source>Run as root user</source>
         <translation>Als root-Benutzer ausführen</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::InterpreterAspect</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Verwalten...</translation>
     </message>
     <message>
         <source>Interpreter</source>
         <translation>Interpreter</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleTargetRunnerPrivate</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
         <translation>Es konnte keine Debug-Ausgabe erhalten werden.</translation>
@@ -55430,9 +54558,6 @@ fails because Clang does not understand the target architecture.</source>
         <source>The process was ended forcefully.</source>
         <translation>Der Prozess wurde gestoppt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake or CMake Project (Limited Functionality)</source>
         <translation>Als qmake- oder CMake-Projekt importieren (eingeschränkte Funktionalität)</translation>

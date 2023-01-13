@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "sshdeviceprocesslist.h"
+
 #include "idevice.h"
+#include "../projectexplorertr.h"
 
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
@@ -49,11 +51,11 @@ void SshDeviceProcessList::handleProcessDone()
         reportProcessListUpdated(buildProcessList(d->m_process.cleanedStdOut()));
     } else {
         const QString errorMessage = d->m_process.exitStatus() == QProcess::NormalExit
-                ? tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
+                ? Tr::tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
                 : d->m_process.errorString();
         const QString stdErr = d->m_process.cleanedStdErr();
         const QString fullMessage = stdErr.isEmpty()
-                ? errorMessage : errorMessage + '\n' + tr("Remote stderr was: %1").arg(stdErr);
+                ? errorMessage : errorMessage + '\n' + Tr::tr("Remote stderr was: %1").arg(stdErr);
         reportError(fullMessage);
     }
     setFinished();
@@ -64,7 +66,7 @@ void SshDeviceProcessList::handleKillProcessFinished(const QString &errorString)
     if (errorString.isEmpty())
         reportProcessKilled();
     else
-        reportError(tr("Error: Kill process failed: %1").arg(errorString));
+        reportError(Tr::tr("Error: Kill process failed: %1").arg(errorString));
     setFinished();
 }
 

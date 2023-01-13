@@ -1459,7 +1459,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CodeStyleSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Code Style</source>
         <translation>Стиль коду</translation>
@@ -7604,7 +7604,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Неможливо додати залежність</translation>
@@ -7622,7 +7622,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Залежності</translation>
@@ -7909,7 +7909,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EditorSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Editor</source>
         <translation>Редактор</translation>
@@ -13799,10 +13799,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="vanished">Бібліотеки</translation>
     </message>
     <message>
-        <source>Non-Qt Project</source>
-        <translation type="vanished">Проект не-Qt</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>Імпортувати проект</translation>
     </message>
@@ -13826,16 +13822,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>The currently active run configuration&apos;s name.</source>
         <translation>Назва поточної активної конфігурації запуску.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbiWidget</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;користувацький&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
@@ -13864,9 +13854,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Starting: &quot;%1&quot; %2</source>
         <translation>Запуск: &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Збій запуску програми. Неправильний шлях чи дозволи?</translation>
@@ -13884,36 +13871,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Неможливо отримати зневаджувальне виведення.</translation>
     </message>
     <message>
-        <source>Cannot retrieve debugging output.
-</source>
-        <translation type="vanished">Неможливо отримати зневаджувальне виведення.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
-    <message>
-        <source>Location</source>
-        <translation type="vanished">Розташування</translation>
-    </message>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>untitled</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Збірка</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Очистка</translation>
-    </message>
-    <message>
         <source>Build Settings</source>
         <translation>Налаштування збірки</translation>
     </message>
@@ -13929,9 +13886,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Clean Environment</source>
         <translation>Чисте середовище</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Очистити системне середовище</translation>
@@ -13940,9 +13894,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Build Environment</source>
         <translation>Середовище збірки</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -13998,21 +13949,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Skipping disabled step %1.</source>
         <translation>Пропуск вимкнутого кроку %1.</translation>
     </message>
-    <message>
-        <source>Build System</source>
-        <translation type="vanished">Система збірки</translation>
-    </message>
-    <message>
-        <source>Deployment</source>
-        <translation type="vanished">Розгортання</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="vanished">Компіляція</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Не вдалось запустити процес: %1</translation>
@@ -14073,9 +14009,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>%1 не знайдено в PATH
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomWizard</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -14084,10 +14017,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Creates a plain C project using qmake, not using the Qt library.</source>
         <translation type="vanished">Створює простий проект C з використанням qmake, але без бібліотеки Qt.</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation type="vanished">Проект не-Qt</translation>
     </message>
     <message>
         <source>Creates a plain C project using CMake, not using the Qt library.</source>
@@ -14194,10 +14123,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="vanished">Простий проект C++(збірка CMake)</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation type="vanished">Бібліотеки</translation>
-    </message>
-    <message>
         <source>Object class-name:</source>
         <translation>Ім&apos;я класу об&apos;єкта:</translation>
     </message>
@@ -14246,10 +14171,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="vanished">Опис програми Qt5</translation>
     </message>
     <message>
-        <source>Other Project</source>
-        <translation>Інший проект</translation>
-    </message>
-    <message>
         <source>Project and Test Information</source>
         <translation>Інформація про проект та тести</translation>
     </message>
@@ -14280,10 +14201,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>debug only</source>
         <translation>лише при зневадженні</translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation>Бібліотека</translation>
     </message>
     <message>
         <source>Plugin Information</source>
@@ -14354,67 +14271,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Локальні налаштування користувача</translation>
     </message>
     <message>
-        <source>Creates a plain C project using qbs.</source>
-        <translation type="vanished">Створює прости проект C з використанням qbs.</translation>
-    </message>
-    <message>
-        <source>Plain C++ Project (Qbs Build)</source>
-        <translation type="vanished">Простий проект C++ (збірка Qbs)</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-    <message>
-        <source>Creates a plain (non-Qt) C++ project using qbs.</source>
-        <translation type="vanished">Створює простий (не Qt) проект C++ з використанням qbs.</translation>
-    </message>
-    <message>
-        <source>Plain C Project (Qbs Build)</source>
-        <translation type="vanished">Простий проект C (збірка Qbs)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Не вдалось створити цільову теку %1.</translation>
-    </message>
-    <message>
         <source>The existing file %1 could not be removed.</source>
         <translation>Не вдалось видалити існуючих файл %1.</translation>
     </message>
     <message>
         <source>The file %1 could not be copied to %2.</source>
         <translation>Не вдалось скопіювати файл %1 в %2.</translation>
-    </message>
-    <message>
-        <source>The debugger helpers could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation type="vanished">Не вдалось зібрати помічники зневадження в жодній з цих тек:
-- %1
-
-Причина: %2</translation>
-    </message>
-    <message>
-        <source>GDB helper</source>
-        <translation type="vanished">Помічник GDB</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 не знайдено в PATH
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Розгортання</translation>
     </message>
     <message>
         <source>Deploy locally</source>
@@ -14425,16 +14287,10 @@ Reason: %2</source>
         <source>Deploy Settings</source>
         <translation>Налаштування розгортання</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
     <message>
         <source>Deploy Configuration</source>
         <translation>Конфігурація розгортання</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -14445,17 +14301,6 @@ Reason: %2</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Проект %1</translation>
     </message>
-    <message>
-        <source>Project %1</source>
-        <translation type="vanished">Проект %1</translation>
-    </message>
-    <message>
-        <source>Project</source>
-        <translation type="vanished">Проект</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Редагувати</translation>
@@ -14494,16 +14339,10 @@ Reason: %2</source>
         <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
         <translation>Використовується &lt;b&gt;%1&lt;/b&gt; та</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Файли в будь-якому проекті</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Усі проекти</translation>
@@ -14522,9 +14361,6 @@ Reason: %2</source>
         <source>Fi&amp;le pattern:</source>
         <translation>&amp;Маска файлів:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Під&apos;єднати зневаджувач до цього процесу</translation>
@@ -14569,9 +14405,6 @@ Reason: %2</source>
         <source>Application Output Window</source>
         <translation>Вікно виведення програми</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>Немає доступних налаштувань збірки</translation>
@@ -14585,17 +14418,8 @@ Reason: %2</source>
         <translation>Додати</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>&amp;Clone Selected</source>
         <translation>&amp;Клонувати обрану</translation>
-    </message>
-    <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>Клонувати конфігурацію</translation>
     </message>
     <message>
         <source>New configuration name:</source>
@@ -14641,9 +14465,6 @@ Reason: %2</source>
         <source>New name for build configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Нова назва для конфігурації збірки &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -14685,9 +14506,6 @@ Reason: %2</source>
         <source>No Build Steps</source>
         <translation>Немає кроків збірки</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>Кроки збірки</translation>
@@ -14696,31 +14514,14 @@ Reason: %2</source>
         <source>Clean Steps</source>
         <translation>Кроки очистки</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Виведення компілятора</translation>
     </message>
-    <message>
-        <source>Increase Font Size</source>
-        <translation>Збільшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation>Зменшити розмір шрифту</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error: </source>
         <translation type="vanished">помилка: </translation>
@@ -14739,16 +14540,10 @@ Reason: %2</source>
         <extracomment>Task is of type: warning</extracomment>
         <translation>попередження:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Файли в поточному проекті</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>Проект &quot;%1&quot;</translation>
@@ -14765,30 +14560,18 @@ Reason: %2</source>
         <source>Project &apos;%1&apos;:</source>
         <translation type="vanished">Проект &apos;%1&apos;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Шлях:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;В цій сесії немає інших проектів&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>Віджет з двома закладками</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>Налаштування редактора:</translation>
@@ -14796,10 +14579,6 @@ Reason: %2</source>
     <message>
         <source>Global</source>
         <translation>Глобальні</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Користувацькі</translation>
     </message>
     <message>
         <source>Restore Global</source>
@@ -14881,7 +14660,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>Шлях до &amp;компілятора:</translation>
@@ -14898,46 +14677,13 @@ Reason: %2</source>
         <source>&amp;ABI:</source>
         <translation>&amp;ABI:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
-    <message>
-        <source>No executable specified.
-</source>
-        <translation type="vanished">Виконуваний модуль не вказано.</translation>
-    </message>
-    <message>
-        <source>Executable %1 does not exist.
-</source>
-        <translation type="vanished">Виконуваний модуль &apos;%1&apos; не існує.</translation>
-    </message>
-    <message>
-        <source>Starting %1...
-</source>
-        <translation type="vanished">Запуск %1...</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2
-</source>
-        <translation type="vanished">%1 завершився з кодом %2</translation>
-    </message>
-    <message>
-        <source>No executable specified.</source>
-        <translation>Виконуваний модуль не вказано.</translation>
     </message>
     <message>
         <source>Executable %1 does not exist.</source>
@@ -14952,30 +14698,16 @@ Reason: %2</source>
         <translation>%1 завершився аварійно.</translation>
     </message>
     <message>
-        <source>%1 crashed</source>
-        <translation type="vanished">%1 завершився аварійно</translation>
-    </message>
-    <message>
         <source>%1 exited with code %2</source>
         <translation>%1 завершився з кодом %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Проект</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Збірка</translation>
     </message>
     <message>
         <source>Kit</source>
@@ -14984,10 +14716,6 @@ Reason: %2</source>
     <message>
         <source>Deploy</source>
         <translation>Розгортання</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Запуск</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -15049,43 +14777,14 @@ Reason: %2</source>
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;Проект &lt;b&gt;%1&lt;/b&gt; ще не сконфігуровано&lt;br/&gt;&lt;br/&gt;Ви можете сконфігурувати його в режимі&lt;a href=&quot;projectmode&quot;&gt;Проекти&lt;/a&gt;&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
-    <message>
-        <source>Initialization:</source>
-        <translation type="vanished">Ініціалізація:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Користувацький крок процесу</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation>Користувацький крок процесу</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Користувацький крок процесу</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>Команда:</translation>
@@ -15098,16 +14797,10 @@ Reason: %2</source>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
     <message>
         <source>Projects Directory</source>
         <translation>Тека проектів</translation>
@@ -15213,10 +14906,6 @@ Reason: %2</source>
         <translation>Зупинити програми перед збіркою:</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Жодних</translation>
-    </message>
-    <message>
         <source>Same Project</source>
         <translation>Цього ж проекту</translation>
     </message>
@@ -15224,9 +14913,6 @@ Reason: %2</source>
         <source>All</source>
         <translation>Усі</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
@@ -15235,35 +14921,6 @@ Reason: %2</source>
     <message>
         <source>Failed to open project</source>
         <translation>Збій відкриття проекту</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Усі проекти</translation>
-    </message>
-    <message>
-        <source>Project File Factory</source>
-        <translation type="vanished">Фабрика файлів проекту</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
-    <message>
-        <source>&lt;Implicitly Add&gt;</source>
-        <translation type="vanished">&lt;Неявно додати&gt;</translation>
-    </message>
-    <message>
-        <source>The files are implicitly added to the projects:
-</source>
-        <translation type="vanished">Неявно додані до проектів файли:
-</translation>
-    </message>
-    <message>
-        <source>The files are implicitly added to the projects:</source>
-        <translation type="vanished">Неявно додані до проектів файли:</translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation type="vanished">&lt;Немає&gt;</translation>
     </message>
     <message>
         <source>Open project anyway?</source>
@@ -15287,38 +14944,6 @@ to project &quot;%2&quot;.</source>
 </translation>
     </message>
     <message>
-        <source>A version control system repository could not be created in &quot;%1&quot;.</source>
-        <translation type="vanished">Не вдалось створити сховище системи контролю версій в &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to add &quot;%1&quot; to the version control system.</source>
-        <translation type="vanished">Збій додавання &quot;%1&quot; до системи контролю версій.</translation>
-    </message>
-    <message>
-        <source>Failed to add subproject &apos;%1&apos;
-to project &apos;%2&apos;.</source>
-        <translation type="vanished">Збій додавання підпроекту &apos;%1&apos;
-до проекту &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&apos;%1&apos; (%2).</source>
-        <translation type="vanished">Збій додавання одного чи кількох файлів до проекту
-&apos;%1&apos; (%2).
-</translation>
-    </message>
-    <message>
-        <source>A version control system repository could not be created in &apos;%1&apos;.</source>
-        <translation type="vanished">Не вдалось створити репозитарій системи контролю версій в &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Failed to add &apos;%1&apos; to the version control system.</source>
-        <translation type="vanished">Збій додавання &apos;%1&apos; до системи контролю версій.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
-    <message>
         <source>Simplify Tree</source>
         <translation>Спростити дерево</translation>
     </message>
@@ -15330,9 +14955,6 @@ to project &apos;%2&apos;.</source>
         <source>Synchronize with Editor</source>
         <translation>Синхронізувати з редактором</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Проекти</translation>
@@ -15349,24 +14971,6 @@ to project &apos;%2&apos;.</source>
         <source>Filter Tree</source>
         <translation>Фільтрувати дерево</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
-        <source>Develop</source>
-        <translation type="vanished">Розробка</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Новий проект</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Проекти</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>Підсумок</translation>
@@ -15399,35 +15003,9 @@ to project &apos;%2&apos;.</source>
         <source>Files to be added in</source>
         <translation>Будуть додані файли в</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
-    <message>
-        <source>Publishing Wizard Selection</source>
-        <translation type="vanished">Вибір майстра публікації</translation>
-    </message>
-    <message>
-        <source>Available Wizards:</source>
-        <translation type="vanished">Доступні майстри:</translation>
-    </message>
-    <message>
-        <source>Start Wizard</source>
-        <translation type="vanished">Запуск майстра</translation>
-    </message>
-    <message>
-        <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
-        <translation type="vanished">Публікація не є наразі можливою для проекту &apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
     <message>
         <source>Remove Run Configuration?</source>
         <translation>Видалити конфігурацію запуску?</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Перейменувати...</translation>
     </message>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -15438,14 +15016,6 @@ to project &apos;%2&apos;.</source>
         <translation>Налаштування запуску</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Deployment</source>
         <translation>Розгортання</translation>
     </message>
@@ -15454,25 +15024,13 @@ to project &apos;%2&apos;.</source>
         <translation>Метод:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Запуск</translation>
-    </message>
-    <message>
         <source>Run configuration:</source>
         <translation>Конфігурація запуску:</translation>
-    </message>
-    <message>
-        <source>&amp;Clone Selected</source>
-        <translation>&amp;Клонувати обрану</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Клонувати конфігурацію</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Назва нової конфігурації:</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -15481,10 +15039,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Скасувати збірку та видалити конфігурацію розгортання</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Не видаляти</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -15510,9 +15064,6 @@ to project &apos;%2&apos;.</source>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Нова назва для конфігурації розгортання &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Менеджер сесій</translation>
@@ -15538,18 +15089,6 @@ to project &apos;%2&apos;.</source>
         <translation>&amp;Відкрити</translation>
     </message>
     <message>
-        <source>New session name</source>
-        <translation type="vanished">Назва нової сесії</translation>
-    </message>
-    <message>
-        <source>Rename session</source>
-        <translation type="vanished">Перейменувати сесію</translation>
-    </message>
-    <message>
-        <source>Automatically restore the last session when Qt Creator is started.</source>
-        <translation type="vanished">Автоматично відновлювати останню сесію, коли запускається Qt Creator.</translation>
-    </message>
-    <message>
         <source>Restore last session on startup</source>
         <translation>Відновлювати останню сесії під час запуску</translation>
     </message>
@@ -15569,9 +15108,6 @@ to project &apos;%2&apos;.</source>
         <source>Rename Session</source>
         <translation>Перейменувати сесію</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Введіть назву сесії:</translation>
@@ -15584,9 +15120,6 @@ to project &apos;%2&apos;.</source>
         <source>Switch to</source>
         <translation type="vanished">Перемкнутись до</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation>Показати в редакторі</translation>
@@ -15595,9 +15128,6 @@ to project &apos;%2&apos;.</source>
         <source>Show task location in an editor.</source>
         <translation>Показати положення задачі в редакторі.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Показати &amp;виведення</translation>
@@ -15610,61 +15140,17 @@ to project &apos;%2&apos;.</source>
         <source>O</source>
         <translation>O</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>Виконати</translation>
-    </message>
     <message>
         <source>Build</source>
         <translation>Зібрати</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation>В цьому проекті не визначено жодного комплекту.</translation>
     </message>
     <message>
-        <source>Incompatible Kit</source>
-        <translation type="vanished">Несумісний комплект</translation>
-    </message>
-    <message>
-        <source>Kit %1 is incompatible with kit %2.</source>
-        <translation type="vanished">Комплект %1 не сумісний з комплектом %2.</translation>
-    </message>
-    <message>
-        <source>Build configurations:
-</source>
-        <translation type="vanished">Конфігурації збірки:</translation>
-    </message>
-    <message>
-        <source>Deploy configurations:
-</source>
-        <translation type="vanished">Конфігурації розгортання:</translation>
-    </message>
-    <message>
-        <source>Run configurations </source>
-        <translation type="vanished">Конфігурації запуску </translation>
-    </message>
-    <message>
-        <source>Partially Incompatible Kit</source>
-        <translation type="vanished">Частково несумісний комплект</translation>
-    </message>
-    <message>
-        <source>Some configurations could not be copied.</source>
-        <translation type="vanished">Не вдалось скопіювати деякі конфігурації.</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Remove Kit</source>
         <translation>Скасувати збірку та видалити комплект</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Не видаляти</translation>
     </message>
     <message>
         <source>Remove Kit %1?</source>
@@ -15705,24 +15191,9 @@ to project &apos;%2&apos;.</source>
         <translation>Імпортувати існуючу збірку...</translation>
     </message>
     <message>
-        <source>Build configurations:</source>
-        <translation type="vanished">Конфігурації збірки:</translation>
-    </message>
-    <message>
-        <source>Deploy configurations:</source>
-        <translation type="vanished">Конфігурації розгортання:</translation>
-    </message>
-    <message>
-        <source>Run configurations</source>
-        <translation type="vanished">Конфігурації запуску</translation>
-    </message>
-    <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>Віджет налаштувань цілі</translation>
@@ -15735,16 +15206,10 @@ to project &apos;%2&apos;.</source>
         <source>Manage Kits...</source>
         <translation>Управління комплектами...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Файл не знайдено: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>Проблеми</translation>
@@ -15757,55 +15222,9 @@ to project &apos;%2&apos;.</source>
         <source>Filter by categories</source>
         <translation>Фільтрувати за категоріями</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation type="vanished">Автовизначення</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="vanished">Вручну</translation>
-    </message>
-    <message>
-        <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
-        <translation type="vanished">&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>not up-to-date</source>
-        <translation type="vanished">не оновлено</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Назва</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Тип</translation>
-    </message>
-    <message>
-        <source>Duplicate Compilers Detected</source>
-        <translation type="vanished">Виявлено повторні компілятори</translation>
-    </message>
-    <message>
-        <source>The following compiler was already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;It was not configured again.</source>
-        <translation type="vanished">Наступний компілятор вже сконфігуровано:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Його не буде сконфігуровано знову.</translation>
-    </message>
-    <message>
-        <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
-        <translation type="vanished">Наступні компілятори вже сконфігуровано:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Їх не буде сконфігуровано знову.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Compilers</source>
         <translation>Компілятори</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Додати</translation>
     </message>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
@@ -15836,10 +15255,6 @@ to project &apos;%2&apos;.</source>
         <translation>Клонувати</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Duplicate Compilers Detected</source>
         <translation>Виявлено повторні компілятори</translation>
     </message>
@@ -15851,9 +15266,6 @@ to project &apos;%2&apos;.</source>
         <source>The following compilers were already configured:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;They were not configured again.</source>
         <translation>Наступні компілятори вже сконфігуровано:&lt;br&gt;&amp;nbsp;%1&lt;br&gt;Їх не буде сконфігуровано знову.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation type="unfinished"></translation>
@@ -15861,13 +15273,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Annotate using version control system.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation>Додати до &amp;проекту:</translation>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
@@ -15890,19 +15295,9 @@ to project &apos;%2&apos;.</source>
         <translation>Управління проектом</translation>
     </message>
     <message>
-        <source>Manage...</source>
-        <translation type="vanished">Управління...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
-    <message>
         <source>Clone of %1</source>
         <translation>Клон %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>З&amp;бірка</translation>
@@ -16024,20 +15419,8 @@ to project &apos;%2&apos;.</source>
         <translation>Очистити проект &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Build Without Dependencies</source>
-        <translation>Зібрати без залежностей</translation>
-    </message>
-    <message>
-        <source>Rebuild Without Dependencies</source>
-        <translation>Перезібрати без залежностей</translation>
-    </message>
-    <message>
         <source>Deploy Without Dependencies</source>
         <translation>Розгорнути без залежностей</translation>
-    </message>
-    <message>
-        <source>Clean Without Dependencies</source>
-        <translation>Очистити без залежностей</translation>
     </message>
     <message>
         <source>Run</source>
@@ -16089,10 +15472,6 @@ to project &apos;%2&apos;.</source>
         <translation>Видалити проект...</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>Перейменувати...</translation>
-    </message>
-    <message>
         <source>Set &quot;%1&quot; as Active Project</source>
         <translation>Встановити &quot;%1&quot; як активний проект</translation>
     </message>
@@ -16115,10 +15494,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>The ID of the currently active kit.</source>
         <translation>Ідентифікатор поточного активного комплекту.</translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation>Назва поточної активної конфігурації запуску.</translation>
     </message>
     <message>
         <source>&lt;h3&gt;Project already open&lt;/h3&gt;</source>
@@ -16205,15 +15580,6 @@ to project &apos;%2&apos;.</source>
         <translation>Назва поточної сесії.</translation>
     </message>
     <message>
-        <source>Project File Factory</source>
-        <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
-        <translation type="vanished">Фабрика файлів проекту</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="vanished">Збій відкриття проекту</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Unload</source>
         <translation>Скасувати збірку та вивантажити</translation>
     </message>
@@ -16224,14 +15590,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>The name of the currently active kit.</source>
         <translation>Назва поточного активного комплекту.</translation>
-    </message>
-    <message>
-        <source>The name of the currently active kit in a filesystem friendly version.</source>
-        <translation type="vanished">Назва поточного активного комплекту в дружній до файлової системи формі.</translation>
-    </message>
-    <message>
-        <source>The id of the currently active kit.</source>
-        <translation type="vanished">Ідентифікатор поточного активного комплекту.</translation>
     </message>
     <message>
         <source>The username with which to log into the device in the currently active kit.</source>
@@ -16294,10 +15652,6 @@ to project &apos;%2&apos;.</source>
         <translation>Конфігурація запуску, яку планувалось використати, більше не доступна.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
-        <translation type="vanished">&lt;b&gt;Попередження:&lt;/b&gt; Файл знаходиться поза текою проекту.</translation>
-    </message>
-    <message>
         <source>Build</source>
         <comment>Build step</comment>
         <translation>Зібрати</translation>
@@ -16309,22 +15663,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Stop these applications before building?</source>
         <translation>Зупинити ці програми перед збіркою?</translation>
-    </message>
-    <message>
-        <source>The project %1 is not configured, skipping it.</source>
-        <translation>Проект %1 не сконфігуровано, пропускаємо його.</translation>
-    </message>
-    <message>
-        <source>Building &quot;%1&quot; is disabled: %2&lt;br&gt;</source>
-        <translation>Збірка &quot;%1&quot; вимкнена: %2&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>No project loaded</source>
-        <translation type="vanished">Проект не завантажено</translation>
-    </message>
-    <message>
-        <source>Building &apos;%1&apos; is disabled: %2</source>
-        <translation type="vanished">Збірка &apos;%1&apos; вимкнена: %2</translation>
     </message>
     <message>
         <source>Could not add following files to project %1:</source>
@@ -16425,20 +15763,8 @@ Rename %2 to %3 anyway?</source>
         <translation>Головний файл поточного проекту.</translation>
     </message>
     <message>
-        <source>The name of the currently active kit in a filesystem-friendly version.</source>
-        <translation type="vanished">Назва поточного активного комплекту в дружній до файлової системи формі.</translation>
-    </message>
-    <message>
         <source>Load Project</source>
         <translation>Завантажити проект</translation>
-    </message>
-    <message>
-        <source>Failed to open project.</source>
-        <translation type="vanished">Збій відкриття проекту.</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Усі проекти</translation>
     </message>
     <message>
         <source>New Project</source>
@@ -16462,14 +15788,6 @@ Do you want to ignore them?</source>
     <message>
         <source>Clean</source>
         <translation>Очистити</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Збірка</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Розгортання</translation>
     </message>
     <message>
         <source>The project %1 is not configured, skipping it.
@@ -16601,16 +15919,6 @@ Do you want to ignore them?</source>
         <source>New File</source>
         <translation type="vanished">Новий файл</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Проекти</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::QmlDumpTool</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -16621,9 +15929,6 @@ Reason: %2</source>
 
 Причина: %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::QmlObserverTool</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation type="vanished">Не вдалось створити цільову теку %1.</translation>
@@ -16638,9 +15943,6 @@ Reason: %2</source>
 
 Причина: %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>Програма ще виконується</translation>
@@ -16670,9 +15972,6 @@ Reason: %2</source>
         <source>Do not ask again</source>
         <translation type="vanished">Не питати знову</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Помилка при відновлені сесії</translation>
@@ -16706,10 +16005,6 @@ Reason: %2</source>
         <translation>Видалити проекти з сесії</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation type="vanished">Збій відкриття проекту</translation>
-    </message>
-    <message>
         <source>Loading Session</source>
         <translation>Завантаження сесії</translation>
     </message>
@@ -16729,9 +16024,6 @@ Reason: %2</source>
         <source>Untitled</source>
         <translation>Без назви</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SettingsAccessor</name>
     <message>
         <source>No valid .user file found for &apos;%1&apos;</source>
         <translation type="vanished">Не вдалось знайти правильний файл .user для &apos;%1&apos;</translation>
@@ -16764,23 +16056,10 @@ Reason: %2</source>
         <source>Unsupported Shared Settings File</source>
         <translation>Непідтримуваний файл спільних налаштувань</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Клон %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>Name:</source>
         <translation>Назва:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Без розгортання</translation>
@@ -20936,7 +20215,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Зупинити стеження</translation>
@@ -20944,24 +20223,6 @@ with a password, which you can enter below.</source>
     <message>
         <source>Stop monitoring task files.</source>
         <translation>Зупинити стеження за файлами завдань.</translation>
-    </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
-    <message>
-        <source>Cannot open task file %1: %2</source>
-        <translation type="vanished">Неможливо відкрити файл завдань %1: %2</translation>
-    </message>
-    <message>
-        <source>My Tasks</source>
-        <translation type="vanished">Мої завдання</translation>
     </message>
 </context>
 <context>
@@ -24773,7 +24034,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -26736,35 +25997,23 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>Редагування середовища</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>New session name</source>
         <translation>Назва нової сесії</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK:</translation>
@@ -26816,10 +26065,6 @@ Do you want to kill it?</source>
 </context>
 <context>
     <name>::QmakeProjectManager</name>
-    <message>
-        <source>Configure Project</source>
-        <translation type="vanished">Конфігурування проекту</translation>
-    </message>
     <message>
         <source>Cancel</source>
         <translation type="vanished">Скасувати</translation>
@@ -27924,7 +27169,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Вибір майстра конфігурації пристрою</translation>
@@ -27937,9 +27182,6 @@ Do you want to kill it?</source>
         <source>Start Wizard</source>
         <translation>Запуск майстра</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation>Конфігурації Linux-пристроїв</translation>
@@ -27949,16 +27191,8 @@ Do you want to kill it?</source>
         <translation>&amp;Пристрій:</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Загальне</translation>
-    </message>
-    <message>
         <source>&amp;Name:</source>
         <translation>&amp;Назва:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Тип:</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
@@ -30964,7 +30198,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Local PC</source>
         <translation>Локальний комп&apos;ютер</translation>
@@ -30973,16 +30207,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Desktop</source>
         <translation>Стаціонарний комп&apos;ютер</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Стаціонарний комп&apos;ютер</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>Cannot run: Device is not able to create processes.</source>
         <translation>Неможливо запустити: пристрій не здатний створювати процеси.</translation>
@@ -31035,16 +30259,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Remote application finished with exit code 0.</source>
         <translation type="vanished">Віддалена програма завершилась з кодом 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (типово для %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>Комплект:</translation>
@@ -31073,16 +30291,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Під&apos;єднатись до процесу</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>Віддалена помилка</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>ID процесу</translation>
@@ -31091,16 +30303,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Command Line</source>
         <translation>Рядок команди</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation>Пристрої</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Помилка з&apos;єднання: %1</translation>
@@ -31127,16 +30329,10 @@ Remote error output was: %1</source>
         <translation type="vanished">
 Віддалене виведення для помилок: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Пристрій</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation type="vanished">Неможливо завершити процес %1: %2</translation>
@@ -31145,9 +30341,6 @@ Remote error output was: %1</source>
         <source>Cannot open process %1: %2</source>
         <translation type="vanished">Неможливо відкрити процес %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Збій з&apos;єднання: %1</translation>
@@ -31190,16 +30383,9 @@ Remote stderr was: %1</source>
         <translation type="vanished">
 Віддалений stderr: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Без імені</translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation>Комплект</translation>
     </message>
     <message>
         <source>Kit ID</source>
@@ -31210,24 +30396,12 @@ Remote stderr was: %1</source>
         <translation>Назва комплекту для файлової системи</translation>
     </message>
     <message>
-        <source>The name of the currently active kit.</source>
-        <translation>Назва поточного активного комплекту.</translation>
-    </message>
-    <message>
         <source>The name of the currently active kit in a filesystem-friendly version.</source>
         <translation>Назва поточного активного комплекту в дружній до файлової системи формі.</translation>
     </message>
     <message>
-        <source>The name of the currently active kit in a filesystem friendly version.</source>
-        <translation type="vanished">Назва поточного активного комплекту в дружній до файлової системи формі.</translation>
-    </message>
-    <message>
         <source>The id of the currently active kit.</source>
         <translation>Ідентифікатор поточного активного комплекту.</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Клон %1</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -31237,9 +30411,6 @@ Remote stderr was: %1</source>
         <source>Warning:</source>
         <translation>Попередження:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>Sys Root &quot;%1&quot; не є текою.</translation>
@@ -31248,9 +30419,6 @@ Remote stderr was: %1</source>
         <source>Sys Root</source>
         <translation>Sys Root</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>Компілятор</translation>
@@ -31267,9 +30435,6 @@ Remote stderr was: %1</source>
         <source>No compiler set in kit.</source>
         <translation>В комплекті не задано компілятор.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Невідомий тип пристрою</translation>
@@ -31278,9 +30443,6 @@ Remote stderr was: %1</source>
         <source>Device type</source>
         <translation>Тип пристрою</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation type="vanished">Пристрій не відповідає типу.</translation>
@@ -31292,14 +30454,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Device is incompatible with this kit.</source>
         <translation>Пристрій несумісний з комплектом.</translation>
-    </message>
-    <message>
-        <source>Device</source>
-        <translation>Пристрій</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Не сконфігуровано</translation>
     </message>
     <message>
         <source>Host address</source>
@@ -31317,9 +30471,6 @@ Remote stderr was: %1</source>
         <source>Private key file</source>
         <translation>Файл приватного ключа</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
     <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Коренева тека образу системи, що використовується. &lt;br&gt;Залиште порожнім для збірки для стаціонарного комп&apos;ютера.</translation>
@@ -31328,9 +30479,6 @@ Remote stderr was: %1</source>
         <source>Sysroot:</source>
         <translation>Sysroot:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation>Компілятор, що використовується для збірки.&lt;br&gt;Переконайтесь, що компілятор створює код сумісний з цільовим пристроєм, версією Qt та іншими бібліотеками, що використовуються.</translation>
@@ -31340,10 +30488,6 @@ Remote stderr was: %1</source>
         <translation>&lt;Немає компілятора&gt;</translation>
     </message>
     <message>
-        <source>Manage...</source>
-        <translation type="vanished">Управління...</translation>
-    </message>
-    <message>
         <source>Compiler:</source>
         <translation>Компілятор:</translation>
     </message>
@@ -31351,9 +30495,6 @@ Remote stderr was: %1</source>
         <source>&lt;No compiler available&gt;</source>
         <translation type="vanished">&lt;Немає компілятора&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Тип пристрій, на якому буде виконуватись програма.</translation>
@@ -31362,9 +30503,6 @@ Remote stderr was: %1</source>
         <source>Device type:</source>
         <translation>Тип пристрою:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Manage</source>
         <translation type="vanished">Управління</translation>
@@ -31376,20 +30514,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Device:</source>
         <translation>Пристрій:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Стаціонарний комп&apos;ютер</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Назва:</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -31419,66 +30543,22 @@ Remote stderr was: %1</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Зображення (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Автовизначення</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Вручну</translation>
-    </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (типово)</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Клон %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
         <source>Kits</source>
         <translation>Комплекти</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Додати</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Зробити типовим</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Налаштування запуску</translation>
-    </message>
     <message>
         <source>Unknown error.</source>
         <translation>Невідома помилка.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation type="vanished">Типова збірка</translation>
@@ -33555,14 +32635,11 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom</source>
         <translation>Користувацький</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -33575,9 +32652,6 @@ Remote: %4</source>
         <source>Empty</source>
         <translation>Порожньо</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Налаштування користувацького обробника...</translation>
@@ -33603,16 +32677,8 @@ Remote: %4</source>
         <translation>Список mkspec, розділених комами.</translation>
     </message>
     <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Шлях до &amp;компілятора:</translation>
-    </message>
-    <message>
         <source>&amp;Make path:</source>
         <translation>Шлях до &amp;make:</translation>
-    </message>
-    <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
     </message>
     <message>
         <source>&amp;Predefined macros:</source>
@@ -33634,16 +32700,10 @@ Remote: %4</source>
         <source>&amp;Error parser:</source>
         <translation>&amp;Розбір помилок:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1 (%2 %3 в %4)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -34686,11 +33746,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Machine type:</source>
         <translation>Тип машини:</translation>
@@ -35478,32 +34534,14 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Run Environment</source>
         <translation>Середовище виконання</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Базове середовище для цієї конфігурації запуску:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Середовище збірки</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Системне середовище</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Чисте середовище</translation>
     </message>
 </context>
 <context>
@@ -35947,7 +34985,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No device configured.</source>
         <translation>Не сконфігуровано жодного пристою.</translation>
@@ -36484,7 +35522,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Користувацький обробник</translation>
@@ -36510,20 +35548,12 @@ monitor reset</translation>
         <translation>&amp;Повідомлення:</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Тест</translation>
-    </message>
-    <message>
         <source>E&amp;rror message:</source>
         <translation>&amp;Повідомлення про помилку:</translation>
     </message>
     <message>
         <source>File name:</source>
         <translation>Ім&apos;я файлу:</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Текстова мітка</translation>
     </message>
     <message>
         <source>Line number:</source>
@@ -36581,9 +35611,6 @@ monitor reset</translation>
         <source>Warning message:</source>
         <translation>Попереджувальне повідомлення:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Тест пристрою</translation>
@@ -36963,44 +35990,12 @@ monitor reset</translation>
 <context>
     <name>TextInputSection</name>
     <message>
-        <source>Text Input</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Input mask</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Echo mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pass. char</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Character displayed when users enter passwords.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Flags</source>
         <translation>Прапорці</translation>
     </message>
     <message>
         <source>Read only</source>
         <translation>Лише для читання</translation>
-    </message>
-    <message>
-        <source>Cursor visible</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Active focus on press</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto scroll</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -37042,14 +36037,6 @@ monitor reset</translation>
     <message>
         <source>Color</source>
         <translation>Колір</translation>
-    </message>
-    <message>
-        <source>Visible</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Opacity</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -37531,10 +36518,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>The Info.plist might be incorrect.</source>
         <translation>Файл Info.plist може бути неправильним.</translation>
     </message>
-    <message>
-        <source>The provisioning profile &quot;%1&quot; (%2) used to sign the application does not cover the device %3 (%4). Deployment to it will fail.</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>Ios::Internal::IosDeployStepFactory</name>
@@ -37765,30 +36748,11 @@ Do you want to uninstall the existing package next time?</source>
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>ICC</source>
         <translation>ICC</translation>
     </message>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Користувацький</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Неможливо вбити процес з ідентифікатором %1: %2</translation>
@@ -37829,9 +36793,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>could not break the process.</source>
         <translation>не вдалось перепинити процес.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Internal error</source>
         <translation>Внутрішня помилка</translation>
@@ -37848,9 +36809,6 @@ Do you want to uninstall the existing package next time?</source>
         <source>Terminated by request.</source>
         <translation>Завершено за запитом.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Імпортувати збірку з...</translation>
@@ -37859,32 +36817,16 @@ Do you want to uninstall the existing package next time?</source>
         <source>Import</source>
         <translation>Імпортувати</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation type="vanished">Управління...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Процес не може отримати доступ до файлу, бо він використовується іншим процесом.
 Будь ласка, закрийте усі запущені екземпляри вашої програми перед початком збірки.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 - тимчасовий</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Не знайдено комплектів.&lt;/span&gt;</translation>
@@ -37906,10 +36848,6 @@ Please close all running instances of your application before starting a build.<
         <translation>Вибір комплекту</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Комплекти</translation>
-    </message>
-    <message>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>Qt Creator може використовувати наступні комплекти для проекту &lt;b&gt;%1&lt;/b&gt;:</translation>
@@ -37917,13 +36855,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation type="vanished">Qt Creator може використовувати наступні комплекти для проекту &lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation type="vanished">Управління...</translation>
     </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
@@ -37942,20 +36873,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
         <translation type="vanished">&lt;b&gt;Попередження:&lt;/b&gt; </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation type="vanished">Конфігурування проекту</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Конфігурування проекту</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -38064,10 +36981,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Add Tab...</source>
         <translation>Додати вкладку...</translation>
-    </message>
-    <message>
-        <source>Step into Tab</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -38380,37 +37293,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ви намагаєтесь запустити інструмент &quot;%1&quot; для програми в режимі %2. Цей інструмент призначено для використання в режимі %3.&lt;/p&gt;&lt;p&gt;Характеристики часу виконання режимів Debug та Release суттєво відрізняються, аналітичні дані для одного режиму можуть бути не відповідними для іншого.&lt;/p&gt;&lt;p&gt;Бажаєте продовжити і запустити інструмент в режимі %2?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>::Valgrind</name>
-    <message>
-        <source>Valgrind options: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Working directory: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Command line arguments: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Analyzing finished.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: &quot;%1&quot; could not be started: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error: no Valgrind executable set.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Process terminated.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -39930,64 +38812,18 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::KitConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Manage...</source>
         <translation>Управління...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation>Редагувати файли</translation>
     </message>
     <message>
-        <source>Hide files matching:</source>
-        <translation type="vanished">Приховати файли, що відповідають:</translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation type="vanished">Показати файли, що відповідають:</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation type="vanished">Застосувати фільтр</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation type="vanished">Генерування списку файлів...
-
-%1</translation>
-    </message>
-    <message numerus="yes">
-        <source>Not showing %n files that are outside of the base directory.
-These files are preserved.</source>
-        <translation type="vanished">
-            <numerusform>Не показаний %n файл з поза меж базової теки.
-Цей файл буде збережено.</numerusform>
-            <numerusform>Не показано %n файли з поза меж базової теки.
-Ці файли буде збережено.</numerusform>
-            <numerusform>Не показано %n файлів з поза меж базової теки.
-Цей файли буде збережено.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
-    <message>
         <source>Add Existing Directory</source>
         <translation>Додавання існуючої теки</translation>
-    </message>
-    <message>
-        <source>Source directory:</source>
-        <translation type="vanished">Тека кодів:</translation>
-    </message>
-    <message>
-        <source>Start Parsing</source>
-        <translation type="vanished">Розпочати розбір</translation>
     </message>
 </context>
 <context>
@@ -40451,11 +39287,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DeploymentDataView</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Files to deploy:</source>
         <translation>Файли до розгортання:</translation>
@@ -41340,7 +40172,7 @@ Install an SDK of at least API version %1.</source>
     <name>::Mercurial</name>
 </context>
 <context>
-    <name>ProjectExplorer::DeploymentDataModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Local File Path</source>
         <translation>Локальний шлях до файлу</translation>
@@ -41349,9 +40181,6 @@ Install an SDK of at least API version %1.</source>
         <source>Remote Directory</source>
         <translation>Віддалена тека</translation>
     </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>Неявно додані до проектів файли:</translation>
@@ -41359,10 +40188,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Неявно додати&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation>&lt;Немає&gt;</translation>
     </message>
 </context>
 <context>
@@ -41385,7 +40210,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentIdAccessor</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;p&gt;No .user settings file created by this instance of Qt Creator was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%1&quot;?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Не знайдено файлу налаштувань .user, створеного цим екземпляром Qt Creator.&lt;/p&gt;&lt;p&gt;Ви працювали раніше з цим проектом на іншому комп&apos;ютері абр використовуючи інший шлях до налаштувань?&lt;/p&gt;&lt;p&gt;Ви ще бажаєте завантажити файл налаштувань &quot;%1&quot;?&lt;/p&gt;</translation>
@@ -41394,9 +40219,6 @@ Install an SDK of at least API version %1.</source>
         <source>Settings File for &quot;%1&quot; from a different Environment?</source>
         <translation>Файл налаштувань для &quot;%1&quot; з іншого середовища?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Task</name>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
         <translation>Qt Creator потребує компілятора для збірки. Сконфігуруйте компілятор в налаштуваннях комплекту.</translation>
@@ -41409,9 +40231,6 @@ Install an SDK of at least API version %1.</source>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation>Ви попросили про збірку лише цілі поточної конфігурації запуску, але вона не пов&apos;язана з ціллю. Оновіть кроки збірки в налаштуваннях збірки.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
     <message>
         <source>Replacing signature</source>
         <translation>Заміна підпису</translation>
@@ -41581,7 +40400,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::TaskListPlugin</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Неможливо відкрити файл завдань %1: %2</translation>
@@ -43299,7 +42118,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation>Об&apos;єкт &quot;data&quot; для сторінки &quot;Form&quot; повинен бути не заданим або порожнім.</translation>
@@ -43487,24 +42306,12 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
         <translation>Файл коду:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Шлях:</translation>
-    </message>
-    <message>
         <source>Define Class</source>
         <translation>Визначити клас</translation>
     </message>
     <message>
         <source>Details</source>
         <translation>Деталі</translation>
-    </message>
-    <message>
-        <source>Project Management</source>
-        <translation>Управління проектом</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation>Підсумок</translation>
     </message>
     <message>
         <source>Creates a C++ header and a source file for a new class that you can add to a C++ project.</source>
@@ -43727,10 +42534,6 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
         <translation>Створює чернетку використовуючи тимчасовий файл.</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Загальне</translation>
-    </message>
-    <message>
         <source>Scratch Buffer</source>
         <translation>Чернетка</translation>
     </message>
@@ -43771,14 +42574,6 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
         <translation>Система збірки</translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation>Вибір комплекту</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>Комплекти</translation>
-    </message>
-    <message>
         <source>Creates a simple C application using either qmake, CMake, or Qbs to build.</source>
         <translation>Створює просту програму на C з використанням qmake, CMake або Qbs для збірки.</translation>
     </message>
@@ -43811,10 +42606,6 @@ Preselects a desktop Qt for building the application if available.</source>
 Попередньо обирає Qt для стільниці для збірки програми, якщо доступно.</translation>
     </message>
     <message>
-        <source>Application</source>
-        <translation>Програма</translation>
-    </message>
-    <message>
         <source>Qt Console Application</source>
         <translation>Консольна програма Qt</translation>
     </message>
@@ -43825,10 +42616,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Створює проект, що базується на qmake, без жодних файлів. Це дозволить вам створити програму без будь-яких типових класів.</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>Інший проект</translation>
     </message>
     <message>
         <source>Empty qmake Project</source>
@@ -44019,16 +42806,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
-    <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Клонує гілку Bazaar та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation>Імпортувати проект</translation>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
@@ -44493,7 +43272,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonFieldPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Field is not an object.</source>
         <translation>Поле не є об&apos;єктом.</translation>
@@ -44650,9 +43429,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>No source given for file in file list.</source>
         <translation type="vanished">Не вказане джерело для файлу в списку файлів.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation type="unfinished"></translation>
@@ -44669,22 +43445,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Failed to Add to Project</source>
         <translation>Збій додавання до проекту</translation>
     </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation>Збій додавання підпроекту &quot;%1&quot;
-до проекту &quot;%2&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation>Збій додавання одного чи кількох файлів до проекту
-&quot;%1&quot; (%2).
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation>Генератор не є об&apos;єктом.</translation>
@@ -44855,9 +43615,6 @@ to project &quot;%2&quot;.</source>
         <source>Value for &quot;options&quot; is not a list.</source>
         <translation type="vanished">Значення для &quot;options&quot; не є списком.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation>%1 [тека]</translation>
@@ -44876,16 +43633,10 @@ to project &quot;%2&quot;.</source>
         <translation>Тека %1 містить файли, які не можуть бути перезаписані:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitInformation</name>
     <message>
         <source>The environment setting value is invalid.</source>
         <translation>Неправильне значення налаштування середовища.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitEnvironmentConfigWidget</name>
     <message>
         <source>Change ...</source>
         <translation type="vanished">Змінити...</translation>
@@ -44917,77 +43668,6 @@ to project &quot;%2&quot;.</source>
     <message>
         <source>Edit Environment Changes</source>
         <translation>Редагування змін середовища</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPluginPrivate</name>
-    <message>
-        <source>Build Without Dependencies</source>
-        <translation type="vanished">Зібрати без залежностей</translation>
-    </message>
-    <message>
-        <source>Rebuild Without Dependencies</source>
-        <translation type="vanished">Перезібрати без залежностей</translation>
-    </message>
-    <message>
-        <source>Clean Without Dependencies</source>
-        <translation type="vanished">Очистити без залежностей</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="vanished">Зібрати</translation>
-    </message>
-    <message>
-        <source>Rebuild</source>
-        <translation type="vanished">Перезібрати</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation type="vanished">Очистити</translation>
-    </message>
-    <message>
-        <source>The project %1 is not configured, skipping it.</source>
-        <translation type="vanished">Проект %1 не сконфігуровано, пропускаємо його.</translation>
-    </message>
-    <message>
-        <source>No project loaded.</source>
-        <translation type="vanished">Проект не завантажено.</translation>
-    </message>
-    <message>
-        <source>Currently building the active project.</source>
-        <translation type="vanished">Триває збірка активного проекту.</translation>
-    </message>
-    <message>
-        <source>The project %1 is not configured.</source>
-        <translation type="vanished">Проект %1 не сконфігуровано.</translation>
-    </message>
-    <message>
-        <source>Project has no build settings.</source>
-        <translation type="vanished">Проект немає налаштувань збірки.</translation>
-    </message>
-    <message>
-        <source>Building &quot;%1&quot; is disabled: %2&lt;br&gt;</source>
-        <translation type="vanished">Збірка &quot;%1&quot; вимкнена: %2&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>No project loaded</source>
-        <translation type="vanished">Проект не завантажено</translation>
-    </message>
-    <message>
-        <source>A build is in progress</source>
-        <translation type="vanished">Здійснюється збірка</translation>
-    </message>
-    <message>
-        <source>Project has no build settings</source>
-        <translation type="vanished">Проект немає налаштувань збірки</translation>
-    </message>
-    <message>
-        <source>Building &quot;%1&quot; is disabled: %2</source>
-        <translation type="vanished">Збірка &quot;%1&quot; вимкнена: %2</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="vanished">Запустити %1</translation>
     </message>
 </context>
 <context>
@@ -45410,18 +44090,11 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonProjectPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>безіменний</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation>Проект</translation>
     </message>
     <message>
         <source>Project Name</source>
@@ -46402,7 +45075,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ProjectTree</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
         <translation>&lt;b&gt;Попередження:&lt;/b&gt; Файл знаходиться поза текою проекту.</translation>
@@ -47240,7 +45913,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::JsonKitsPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Feature list is set and not of type list.</source>
         <translation>Список функціональностей не заданий або не є списком.</translation>
@@ -47253,9 +45926,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Feature list element is not a string or object.</source>
         <translation>Елемент списку функціональностей не є рядком або об&apos;єктом.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation>Ключ не є об&apos;єктом.</translation>
@@ -47268,32 +45938,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation>ScannerGenerator: двійковий зразок &quot;%1&quot; неправильний.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalApplicationRunControl</name>
-    <message>
-        <source>No executable specified.</source>
-        <translation type="vanished">Виконуваний модуль не вказано.</translation>
-    </message>
-    <message>
-        <source>Executable %1 does not exist.</source>
-        <translation type="vanished">Виконуваний модуль %1 не існує.</translation>
-    </message>
-    <message>
-        <source>Starting %1...</source>
-        <translation type="vanished">Запуск %1...</translation>
-    </message>
-    <message>
-        <source>%1 crashed</source>
-        <translation type="vanished">%1 завершився аварійно</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2</source>
-        <translation type="vanished">%1 завершився з кодом %2</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation>Термінал</translation>
@@ -47302,9 +45946,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Run in terminal</source>
         <translation>Запускати в терміналі</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation>Робоча тека</translation>
@@ -47317,13 +45958,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Reset to Default</source>
         <translation>Скинути до типового</translation>
     </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Робоча тека:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation>Аргументи</translation>
@@ -48681,7 +47315,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>Синхронізувати конфігурацію</translation>
@@ -48690,30 +47324,17 @@ the program.</source>
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation>Синхронізувати активний комплект та конфігурації збірки та розгортання між проектами.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentValidator</name>
     <message>
         <source>Variable already exists.</source>
         <translation>Змінна вже існує.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation>Немає &apos;key&apos; в об&apos;єкті опціїй.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>Очікування на завершення програм</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Скасувати</translation>
     </message>
     <message>
         <source>Waiting for applications to stop.</source>
@@ -50387,28 +49008,15 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Initialization:</source>
         <translation>Ініціалізація:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
     <message>
         <source>LLVM:</source>
         <translation>LLVM:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation>Тека кодів:</translation>

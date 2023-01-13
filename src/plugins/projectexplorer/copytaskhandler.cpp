@@ -3,6 +3,8 @@
 
 #include "copytaskhandler.h"
 
+#include "projectexplorertr.h"
+
 #include <coreplugin/coreconstants.h>
 
 #include <utils/stringutils.h>
@@ -19,11 +21,11 @@ void CopyTaskHandler::handle(const Tasks &tasks)
         switch (task.type) {
         case Task::Error:
             //: Task is of type: error
-            type = tr("error:") + QLatin1Char(' ');
+            type = Tr::tr("error:") + QLatin1Char(' ');
             break;
         case Task::Warning:
             //: Task is of type: warning
-            type = tr("warning:") + QLatin1Char(' ');
+            type = Tr::tr("warning:") + QLatin1Char(' ');
             break;
         default:
             break;

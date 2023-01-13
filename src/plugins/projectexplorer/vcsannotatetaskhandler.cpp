@@ -3,6 +3,7 @@
 
 #include "vcsannotatetaskhandler.h"
 
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <coreplugin/iversioncontrol.h>
@@ -39,8 +40,8 @@ void VcsAnnotateTaskHandler::handle(const Task &task)
 
 QAction *VcsAnnotateTaskHandler::createAction(QObject *parent) const
 {
-    QAction *vcsannotateAction = new QAction(tr("&Annotate"), parent);
-    vcsannotateAction->setToolTip(tr("Annotate using version control system."));
+    QAction *vcsannotateAction = new QAction(Tr::tr("&Annotate"), parent);
+    vcsannotateAction->setToolTip(Tr::tr("Annotate using version control system."));
     return vcsannotateAction;
 }
 

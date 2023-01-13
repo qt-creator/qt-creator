@@ -4,6 +4,7 @@
 #include "toolchainsettingsaccessor.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "toolchain.h"
 
 #include <coreplugin/icore.h>
@@ -169,7 +170,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 
 ToolChainSettingsAccessor::ToolChainSettingsAccessor() :
     UpgradingSettingsAccessor("QtCreatorToolChains",
-                              QCoreApplication::translate("ProjectExplorer::ToolChainManager", "Tool Chains"),
+                              Tr::tr("Tool Chains"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));

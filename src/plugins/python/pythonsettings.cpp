@@ -882,7 +882,7 @@ void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
                                           const QString &detectionSource,
                                           QString *logMessage)
 {
-    QStringList messages{tr("Searching Python binaries...")};
+    QStringList messages{Tr::tr("Searching Python binaries...")};
     auto alreadyConfigured = interpreterOptionsPage().interpreters();
     for (const FilePath &path : searchPaths) {
         const FilePath python = path.pathAppended("python3").withExecutableSuffix();
@@ -893,7 +893,7 @@ void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
         auto interpreter = createInterpreter(python, "Python on", "on " + deviceName);
         interpreter.detectionSource = detectionSource;
         interpreterOptionsPage().addInterpreter(interpreter);
-        messages.append(tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
+        messages.append(Tr::tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
     }
     if (logMessage)
         *logMessage = messages.join('\n');

@@ -5,6 +5,7 @@
 
 #include "editorconfiguration.h"
 #include "project.h"
+#include "projectexplorertr.h"
 
 #include <cppeditor/cppeditorconstants.h>
 
@@ -50,7 +51,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     using namespace Utils::Layouting;
 
     Column {
-        Row { new QLabel(tr("Language:")), languageComboBox, st },
+        Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
         stackedWidget
     }.attachTo(this, WithoutMargins);
 }

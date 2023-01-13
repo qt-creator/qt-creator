@@ -5,6 +5,7 @@
 
 #include "buildconfiguration.h"
 #include "projectexplorer.h"
+#include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "runcontrol.h"
 #include "session.h"
@@ -377,11 +378,11 @@ void BuildSystem::appendBuildSystemOutput(const QString &message)
 QString BuildSystem::disabledReason(const QString &buildKey) const
 {
     if (!hasParsingData()) {
-        QString msg = isParsing() ? tr("The project is currently being parsed.")
-                                  : tr("The project could not be fully parsed.");
+        QString msg = isParsing() ? Tr::tr("The project is currently being parsed.")
+                                  : Tr::tr("The project could not be fully parsed.");
         const FilePath projectFilePath = buildTarget(buildKey).projectFilePath;
         if (!projectFilePath.isEmpty() && !projectFilePath.exists())
-            msg += '\n' + tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
+            msg += '\n' + Tr::tr("The project file \"%1\" does not exist.").arg(projectFilePath.toString());
         return msg;
     }
     return {};

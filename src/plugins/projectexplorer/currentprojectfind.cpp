@@ -4,6 +4,7 @@
 #include "currentprojectfind.h"
 
 #include "project.h"
+#include "projectexplorertr.h"
 #include "projecttree.h"
 #include "session.h"
 
@@ -38,9 +39,9 @@ QString CurrentProjectFind::displayName() const
 {
     Project *p = ProjectTree::currentProject();
     if (p)
-        return tr("Project \"%1\"").arg(p->displayName());
+        return Tr::tr("Project \"%1\"").arg(p->displayName());
     else
-        return tr("Current Project");
+        return Tr::tr("Current Project");
 }
 
 bool CurrentProjectFind::isEnabled() const
@@ -74,7 +75,7 @@ QString CurrentProjectFind::label() const
 {
     Project *p = ProjectTree::currentProject();
     QTC_ASSERT(p, return QString());
-    return tr("Project \"%1\":").arg(p->displayName());
+    return Tr::tr("Project \"%1\":").arg(p->displayName());
 }
 
 void CurrentProjectFind::handleProjectChanged()

@@ -3,6 +3,7 @@
 
 #include "waitforstopdialog.h"
 
+#include "projectexplorertr.h"
 #include "runcontrol.h"
 
 #include <utils/algorithm.h>
@@ -18,7 +19,7 @@ using namespace ProjectExplorer::Internal;
 WaitForStopDialog::WaitForStopDialog(const QList<ProjectExplorer::RunControl *> &runControls)
     : m_runControls(runControls)
 {
-    setWindowTitle(tr("Waiting for Applications to Stop"));
+    setWindowTitle(Tr::tr("Waiting for Applications to Stop"));
 
     auto layout = new QVBoxLayout();
     setLayout(layout);
@@ -26,7 +27,7 @@ WaitForStopDialog::WaitForStopDialog(const QList<ProjectExplorer::RunControl *> 
     m_progressLabel = new QLabel;
     layout->addWidget(m_progressLabel);
 
-    auto cancelButton = new QPushButton(tr("Cancel"));
+    auto cancelButton = new QPushButton(Tr::tr("Cancel"));
     connect(cancelButton, &QPushButton::clicked,
             this, &QDialog::close);
     layout->addWidget(cancelButton);
@@ -46,7 +47,7 @@ bool WaitForStopDialog::canceled()
 
 void WaitForStopDialog::updateProgressText()
 {
-    QString text = tr("Waiting for applications to stop.") + QLatin1String("\n\n");
+    QString text = Tr::tr("Waiting for applications to stop.") + QLatin1String("\n\n");
     QStringList names = Utils::transform(m_runControls, &RunControl::displayName);
     text += names.join(QLatin1Char('\n'));
     m_progressLabel->setText(text);

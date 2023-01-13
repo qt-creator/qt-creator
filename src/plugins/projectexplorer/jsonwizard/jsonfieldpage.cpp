@@ -8,10 +8,12 @@
 #include "jsonwizardfactory.h"
 
 #include "../project.h"
+#include "../projectexplorertr.h"
 #include "../projecttree.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/locator/ilocatorfilter.h>
+
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
@@ -153,30 +155,25 @@ QVariant JsonFieldPage::Field::toSettings() const
 JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString *errorMessage)
 {
     if (input.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field is not an object.");
+        *errorMessage = Tr::tr("Field is not an object.");
         return nullptr;
     }
 
     QVariantMap tmp = input.toMap();
     const QString name = consumeValue(tmp, NAME_KEY).toString();
     if (name.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field has no name.");
+        *errorMessage = Tr::tr("Field has no name.");
         return nullptr;
     }
     const QString type = consumeValue(tmp, TYPE_KEY).toString();
     if (type.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field \"%1\" has no type.").arg(name);
+        *errorMessage = Tr::tr("Field \"%1\" has no type.").arg(name);
         return nullptr;
     }
 
     Field *data = createFieldData(type);
     if (!data) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Field \"%1\" has unsupported type \"%2\".")
-                .arg(name).arg(type);
+        *errorMessage = Tr::tr("Field \"%1\" has unsupported type \"%2\".").arg(name).arg(type);
         return nullptr;
     }
     data->setTexts(name,
@@ -193,9 +190,7 @@ JsonFieldPage::Field *JsonFieldPage::Field::parse(const QVariant &input, QString
 
     QVariant dataVal = consumeValue(tmp, DATA_KEY);
     if (!data->parseData(dataVal, errorMessage)) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "When parsing Field \"%1\": %2")
-                .arg(name).arg(*errorMessage);
+        *errorMessage = Tr::tr("When parsing Field \"%1\": %2").arg(name).arg(*errorMessage);
         delete data;
         return nullptr;
     }
@@ -403,9 +398,7 @@ QDebug &operator<<(QDebug &debug, const JsonFieldPage::Field &field)
 bool LabelField::parseData(const QVariant &data, QString *errorMessage)
 {
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Label (\"%1\") data is not an object.")
-                .arg(name());
+        *errorMessage = Tr::tr("Label (\"%1\") data is not an object.").arg(name());
         return false;
     }
 
@@ -415,9 +408,7 @@ bool LabelField::parseData(const QVariant &data, QString *errorMessage)
     m_text = JsonWizardFactory::localizedString(consumeValue(tmp, "trText"));
 
     if (m_text.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Label (\"%1\") has no trText.")
-                .arg(name());
+        *errorMessage = Tr::tr("Label (\"%1\") has no trText.").arg(name());
         return false;
     }
     warnAboutUnsupportedKeys(tmp, name(), type());
@@ -445,9 +436,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Spacer (\"%1\") data is not an object.")
-                .arg(name());
+        *errorMessage = Tr::tr("Spacer (\"%1\") data is not an object.").arg(name());
         return false;
     }
 
@@ -457,8 +446,7 @@ bool SpacerField::parseData(const QVariant &data, QString *errorMessage)
     m_factor = consumeValue(tmp, "factor", 1).toInt(&ok);
 
     if (!ok) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "Spacer (\"%1\") property \"factor\" is no integer value.")
+        *errorMessage = Tr::tr("Spacer (\"%1\") property \"factor\" is no integer value.")
                 .arg(name());
         return false;
     }
@@ -493,9 +481,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "LineEdit (\"%1\") data is not an object.")
-                .arg(name());
+        *errorMessage = Tr::tr("LineEdit (\"%1\") data is not an object.").arg(name());
         return false;
     }
 
@@ -511,8 +497,8 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     if (!pattern.isEmpty()) {
         m_validatorRegExp = QRegularExpression('^' + pattern + '$');
         if (!m_validatorRegExp.isValid()) {
-            *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                        "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
+            *errorMessage = Tr::tr(
+                    "LineEdit (\"%1\") has an invalid regular expression \"%2\" in \"validator\".")
                     .arg(name(), pattern);
             m_validatorRegExp = QRegularExpression();
             return false;
@@ -526,8 +512,7 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     } else if (completion == "namespaces") {
         m_completion = Completion::Namespaces;
     } else if (!completion.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                "LineEdit (\"%1\") has an invalid value \"%2\" in \"completion\".")
+        *errorMessage = Tr::tr("LineEdit (\"%1\") has an invalid value \"%2\" in \"completion\".")
                 .arg(name(), completion);
         return false;
     }
@@ -704,8 +689,7 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "TextEdit (\"%1\") data is not an object.")
+        *errorMessage = Tr::tr("TextEdit (\"%1\") data is not an object.")
                 .arg(name());
         return false;
     }
@@ -788,8 +772,7 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "PathChooser data is not an object.");
+        *errorMessage = Tr::tr("PathChooser data is not an object.");
         return false;
     }
 
@@ -815,10 +798,9 @@ bool PathChooserField::parseData(const QVariant &data, QString *errorMessage)
     } else if (kindStr == "any") {
         m_kind = PathChooser::Any;
     } else {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "kind \"%1\" is not one of the supported \"existingDirectory\", "
-                                                    "\"directory\", \"file\", \"saveFile\", \"existingCommand\", "
-                                                    "\"command\", \"any\".")
+        *errorMessage = Tr::tr("kind \"%1\" is not one of the supported \"existingDirectory\", "
+                               "\"directory\", \"file\", \"saveFile\", \"existingCommand\", "
+                               "\"command\", \"any\".")
                 .arg(kindStr);
         return false;
     }
@@ -895,9 +877,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
         return true;
 
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "CheckBox (\"%1\") data is not an object.")
-                .arg(name());
+        *errorMessage = Tr::tr("CheckBox (\"%1\") data is not an object.").arg(name());
         return false;
     }
 
@@ -906,8 +886,7 @@ bool CheckBoxField::parseData(const QVariant &data, QString *errorMessage)
     m_checkedValue = consumeValue(tmp, "checkedValue", true).toString();
     m_uncheckedValue = consumeValue(tmp, "uncheckedValue", false).toString();
     if (m_checkedValue == m_uncheckedValue) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                   "CheckBox (\"%1\") values for checked and unchecked state are identical.")
+        *errorMessage = Tr::tr("CheckBox (\"%1\") values for checked and unchecked state are identical.")
                 .arg(name());
        return false;
     }
@@ -987,8 +966,7 @@ QVariant CheckBoxField::toSettings() const
 std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &item, QString *errorMessage)
 {
     if (item.type() == QVariant::List) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "No JSON lists allowed inside List items.");
+        *errorMessage = Tr::tr("No JSON lists allowed inside List items.");
         return {};
     }
     auto standardItem = std::make_unique<QStandardItem>();
@@ -998,8 +976,7 @@ std::unique_ptr<QStandardItem> createStandardItemFromListItem(const QVariant &it
         const QVariant value = consumeValue(tmp, "value", key);
 
         if (key.isNull() || key.isEmpty()) {
-            *errorMessage  = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                         "No \"key\" found in List items.");
+            *errorMessage  = Tr::tr("No \"key\" found in List items.");
             return {};
         }
         standardItem->setText(key);
@@ -1024,9 +1001,7 @@ ListField::~ListField() = default;
 bool ListField::parseData(const QVariant &data, QString *errorMessage)
 {
     if (data.type() != QVariant::Map) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1 (\"%2\") data is not an object.")
-                .arg(type(), name());
+        *errorMessage = Tr::tr("%1 (\"%2\") data is not an object.").arg(type(), name());
         return false;
     }
 
@@ -1035,30 +1010,24 @@ bool ListField::parseData(const QVariant &data, QString *errorMessage)
     bool ok;
     m_index = consumeValue(tmp, "index", 0).toInt(&ok);
     if (!ok) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1 (\"%2\") \"index\" is not an integer value.")
+        *errorMessage = Tr::tr("%1 (\"%2\") \"index\" is not an integer value.")
                 .arg(type(), name());
         return false;
     }
     m_disabledIndex = consumeValue(tmp, "disabledIndex", -1).toInt(&ok);
     if (!ok) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1 (\"%2\") \"disabledIndex\" is not an integer value.")
+        *errorMessage = Tr::tr("%1 (\"%2\") \"disabledIndex\" is not an integer value.")
                 .arg(type(), name());
         return false;
     }
 
     const QVariant value = consumeValue(tmp, "items");
     if (value.isNull()) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1 (\"%2\") \"items\" missing.")
-                .arg(type(), name());
+        *errorMessage = Tr::tr("%1 (\"%2\") \"items\" missing.").arg(type(), name());
         return false;
     }
     if (value.type() != QVariant::List) {
-        *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonFieldPage",
-                                                    "%1 (\"%2\") \"items\" is not a JSON list.")
-                .arg(type(), name());
+        *errorMessage = Tr::tr("%1 (\"%2\") \"items\" is not a JSON list.").arg(type(), name());
         return false;
     }
 

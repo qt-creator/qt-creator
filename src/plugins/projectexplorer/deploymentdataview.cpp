@@ -6,6 +6,7 @@
 #include "buildsystem.h"
 #include "deployconfiguration.h"
 #include "deploymentdata.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 #include <utils/qtcassert.h>
@@ -65,7 +66,7 @@ public:
 DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
 {
     auto model = new TreeModel<DeploymentDataItem>(this);
-    model->setHeader({tr("Source File Path"), tr("Target Directory")});
+    model->setHeader({Tr::tr("Source File Path"), Tr::tr("Target Directory")});
 
     auto view = new QTreeView(this);
     view->setMinimumSize(QSize(100, 100));
@@ -75,8 +76,8 @@ DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
     view->setModel(model);
 
     const auto buttonsLayout = new QVBoxLayout;
-    const auto addButton = new QPushButton(tr("Add"));
-    const auto removeButton = new QPushButton(tr("Remove"));
+    const auto addButton = new QPushButton(Tr::tr("Add"));
+    const auto removeButton = new QPushButton(Tr::tr("Remove"));
     buttonsLayout->addWidget(addButton);
     buttonsLayout->addWidget(removeButton);
     buttonsLayout->addStretch(1);
@@ -85,8 +86,8 @@ DeploymentDataView::DeploymentDataView(DeployConfiguration *dc)
     viewLayout->addWidget(view);
     viewLayout->addLayout(buttonsLayout);
 
-    auto label = new QLabel(tr("Files to deploy:"), this);
-    const auto sourceCheckBox = new QCheckBox(tr("Override deployment data from build system"));
+    auto label = new QLabel(Tr::tr("Files to deploy:"), this);
+    const auto sourceCheckBox = new QCheckBox(Tr::tr("Override deployment data from build system"));
     sourceCheckBox->setChecked(dc->usesCustomDeploymentData());
 
     auto layout = new QVBoxLayout(this);

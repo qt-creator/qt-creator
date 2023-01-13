@@ -24,8 +24,6 @@ class TaskHub;
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT Task
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Task)
-
 public:
     enum TaskType : char {
         Unknown,

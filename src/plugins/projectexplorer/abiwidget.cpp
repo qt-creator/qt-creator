@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "abiwidget.h"
+
 #include "abi.h"
+#include "projectexplorertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/guard.h>
@@ -184,7 +186,7 @@ void AbiWidget::setAbis(const Abis &abiList, const Abi &currentAbi)
 
         // Initial setup of ABI combobox:
         d->m_abi->clear();
-        d->m_abi->addItem(tr("<custom>"), defaultAbi.toString());
+        d->m_abi->addItem(Tr::tr("<custom>"), defaultAbi.toString());
         d->m_abi->setCurrentIndex(0);
         d->m_abi->setVisible(!abiList.isEmpty());
 

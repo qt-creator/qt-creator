@@ -21,8 +21,6 @@ class TargetGroupItemPrivate;
 // Second level: Special case for the Build & Run item (with per-kit subItems)
 class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
 {
-    Q_DECLARE_TR_FUNCTIONS(TargetSettingsPanelItem)
-
 public:
     TargetGroupItem(const QString &displayName, Project *project);
     ~TargetGroupItem() override;

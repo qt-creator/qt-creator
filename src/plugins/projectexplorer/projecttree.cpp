@@ -5,6 +5,7 @@
 
 #include "project.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "projecttreewidget.h"
 #include "session.h"
@@ -197,8 +198,8 @@ void ProjectTree::setCurrent(Node *node, Project *project)
         disconnect(document, &Core::IDocument::changed, this, nullptr);
         if (!node || node->isGenerated()) {
             const QString message = node
-                    ? tr("<b>Warning:</b> This file is generated.")
-                    : tr("<b>Warning:</b> This file is outside the project directory.");
+                    ? Tr::tr("<b>Warning:</b> This file is generated.")
+                    : Tr::tr("<b>Warning:</b> This file is outside the project directory.");
             connect(document, &Core::IDocument::changed, this, [this, document, message] {
                 updateFileWarning(document, message);
             });

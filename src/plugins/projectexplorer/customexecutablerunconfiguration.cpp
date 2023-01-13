@@ -5,6 +5,7 @@
 
 #include "localenvironmentaspect.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
 
@@ -71,15 +72,15 @@ Runnable CustomExecutableRunConfiguration::runnable() const
 QString CustomExecutableRunConfiguration::defaultDisplayName() const
 {
     if (executable().isEmpty())
-        return tr("Custom Executable");
-    return tr("Run %1").arg(executable().toUserOutput());
+        return Tr::tr("Custom Executable");
+    return Tr::tr("Run %1").arg(executable().toUserOutput());
 }
 
 Tasks CustomExecutableRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (executable().isEmpty()) {
-        tasks << createConfigurationIssue(tr("You need to set an executable in the custom run "
+        tasks << createConfigurationIssue(Tr::tr("You need to set an executable in the custom run "
                                              "configuration."));
     }
     return tasks;
@@ -88,7 +89,7 @@ Tasks CustomExecutableRunConfiguration::checkForIssues() const
 // Factories
 
 CustomExecutableRunConfigurationFactory::CustomExecutableRunConfigurationFactory() :
-    FixedRunConfigurationFactory(CustomExecutableRunConfiguration::tr("Custom Executable"))
+    FixedRunConfigurationFactory(Tr::tr("Custom Executable"))
 {
     registerRunConfiguration<CustomExecutableRunConfiguration>(CUSTOM_EXECUTABLE_RUNCONFIG_ID);
 }

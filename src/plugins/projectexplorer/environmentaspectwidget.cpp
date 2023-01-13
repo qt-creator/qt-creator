@@ -4,6 +4,7 @@
 #include "environmentaspectwidget.h"
 
 #include "environmentwidget.h"
+#include "projectexplorertr.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -31,7 +32,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
     auto baseEnvironmentWidget = new QWidget;
     m_baseLayout = new QHBoxLayout(baseEnvironmentWidget);
     m_baseLayout->setContentsMargins(0, 0, 0, 0);
-    auto label = new QLabel(tr("Base environment for this run configuration:"), this);
+    auto label = new QLabel(Tr::tr("Base environment for this run configuration:"), this);
     m_baseLayout->addWidget(label);
 
     m_baseEnvironmentComboBox = new QComboBox;

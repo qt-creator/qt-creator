@@ -8,6 +8,7 @@
 #include "devicesupport/idevice.h"
 #include "gccparser.h"
 #include "linuxiccparser.h"
+#include "projectexplorertr.h"
 #include "projectmacro.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
@@ -304,7 +305,7 @@ static FilePath gccInstallDir(const FilePath &compiler,
 GccToolChain::GccToolChain(Utils::Id typeId) :
     ToolChain(typeId)
 {
-    setTypeDisplayName(tr("GCC"));
+    setTypeDisplayName(Tr::tr("GCC"));
     setTargetAbiKey(targetAbiKeyC);
     setCompilerCommandKey("ProjectExplorer.GccToolChain.Path");
 }
@@ -346,7 +347,7 @@ QString GccToolChain::defaultDisplayName() const
     const Abi abi = targetAbi();
     if (abi.architecture() == Abi::UnknownArchitecture || abi.wordWidth() == 0)
         return type;
-    return tr("%1 (%2, %3 %4 at %5)").arg(type,
+    return Tr::tr("%1 (%2, %3 %4 at %5)").arg(type,
                                           ToolChainManager::displayNameOfLanguageId(language()),
                                           Abi::toString(abi.architecture()),
                                           Abi::toString(abi.wordWidth()),
@@ -1028,7 +1029,7 @@ static Utils::FilePaths renesasRl78SearchPathsFromRegistry()
 
 GccToolChainFactory::GccToolChainFactory()
 {
-    setDisplayName(GccToolChain::tr("GCC"));
+    setDisplayName(Tr::tr("GCC"));
     setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new GccToolChain(Constants::GCC_TOOLCHAIN_TYPEID); });
@@ -1277,8 +1278,8 @@ public:
         const auto layout = new QHBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
         m_tripleLineEdit.setEnabled(false);
-        m_overrideCheckBox.setText(tr("Override for code model"));
-        m_overrideCheckBox.setToolTip(tr("Enable in the rare case that the code model\n"
+        m_overrideCheckBox.setText(Tr::tr("Override for code model"));
+        m_overrideCheckBox.setToolTip(Tr::tr("Enable in the rare case that the code model\n"
                 "fails because Clang does not understand the target architecture."));
         layout->addWidget(&m_tripleLineEdit, 1);
         layout->addWidget(&m_overrideCheckBox);
@@ -1321,15 +1322,15 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
     m_compilerCommand->setHistoryCompleter("PE.Gcc.Command.History");
     m_compilerCommand->setAllowPathFromDevice(true);
-    m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
+    m_mainLayout->addRow(Tr::tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags()));
-    m_mainLayout->addRow(tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
+    m_mainLayout->addRow(Tr::tr("Platform codegen flags:"), m_platformCodeGenFlagsLineEdit);
     m_platformLinkerFlagsLineEdit = new QLineEdit(this);
     m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags()));
-    m_mainLayout->addRow(tr("Platform linker flags:"), m_platformLinkerFlagsLineEdit);
-    m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
-    m_mainLayout->addRow(tr("Target triple:"), m_targetTripleWidget);
+    m_mainLayout->addRow(Tr::tr("Platform linker flags:"), m_platformLinkerFlagsLineEdit);
+    m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
+    m_mainLayout->addRow(Tr::tr("Target triple:"), m_targetTripleWidget);
 
     m_abiWidget->setEnabled(false);
     addErrorLabel();
@@ -1551,7 +1552,7 @@ ClangToolChain::ClangToolChain() :
 ClangToolChain::ClangToolChain(Utils::Id typeId) :
     GccToolChain(typeId)
 {
-    setTypeDisplayName(tr("Clang"));
+    setTypeDisplayName(Tr::tr("Clang"));
     syncAutodetectedWithParentToolchains();
 }
 
@@ -1743,7 +1744,7 @@ QList<OutputLineParser *> ClangToolChain::createOutputParsers() const
 
 ClangToolChainFactory::ClangToolChainFactory()
 {
-    setDisplayName(ClangToolChain::tr("Clang"));
+    setDisplayName(Tr::tr("Clang"));
     setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new ClangToolChain; });
@@ -1802,7 +1803,7 @@ ClangToolChainConfigWidget::ClangToolChainConfigWidget(ClangToolChain *tc) :
 
     m_parentToolchainCombo = new QComboBox(this);
     m_mainLayout->insertRow(m_mainLayout->rowCount() - 1,
-                            tr("Parent toolchain:"),
+                            Tr::tr("Parent toolchain:"),
                             m_parentToolchainCombo);
 
     ToolChainManager *tcManager = ToolChainManager::instance();
@@ -1914,7 +1915,7 @@ void ClangToolChainConfigWidget::makeReadOnlyImpl()
 MingwToolChain::MingwToolChain() :
     GccToolChain(Constants::MINGW_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(MingwToolChain::tr("MinGW"));
+    setTypeDisplayName(Tr::tr("MinGW"));
 }
 
 QStringList MingwToolChain::suggestedMkspecList() const
@@ -1940,7 +1941,7 @@ FilePath MingwToolChain::makeCommand(const Environment &environment) const
 
 MingwToolChainFactory::MingwToolChainFactory()
 {
-    setDisplayName(MingwToolChain::tr("MinGW"));
+    setDisplayName(Tr::tr("MinGW"));
     setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new MingwToolChain; });
@@ -1987,7 +1988,7 @@ Toolchains MingwToolChainFactory::detectForImport(const ToolChainDescription &tc
 LinuxIccToolChain::LinuxIccToolChain() :
     GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID)
 {
-    setTypeDisplayName(LinuxIccToolChain::tr("ICC"));
+    setTypeDisplayName(Tr::tr("ICC"));
 }
 
 /**
@@ -2028,7 +2029,7 @@ QStringList LinuxIccToolChain::suggestedMkspecList() const
 
 LinuxIccToolChainFactory::LinuxIccToolChainFactory()
 {
-    setDisplayName(LinuxIccToolChain::tr("ICC"));
+    setDisplayName(Tr::tr("ICC"));
     setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID});
     setToolchainConstructor([] { return new LinuxIccToolChain; });

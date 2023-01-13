@@ -3,29 +3,27 @@
 
 #include "projectexplorerconstants.h"
 
-#include <coreplugin/icore.h>
+#include "projectexplorertr.h"
 
-#include <QCoreApplication>
-#include <QString>
+#include <coreplugin/icore.h>
 
 namespace ProjectExplorer {
 namespace Constants {
 
 QString msgAutoDetected()
 {
-    return QCoreApplication::translate("::ProjectExplorer", "Auto-detected");
+    return Tr::tr("Auto-detected");
 }
 
 QString msgAutoDetectedToolTip()
 {
-    return QCoreApplication::translate("::ProjectExplorer",
-                                       "Automatically managed by %1 or the installer.")
+    return Tr::tr("Automatically managed by %1 or the installer.")
         .arg(Core::ICore::ideDisplayName());
 }
 
 QString msgManual()
 {
-    return QCoreApplication::translate("::ProjectExplorer", "Manual");
+    return Tr::tr("Manual");
 }
 
 } // namespace Constants

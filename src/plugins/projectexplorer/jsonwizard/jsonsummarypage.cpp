@@ -6,11 +6,10 @@
 #include "jsonwizard.h"
 #include "../project.h"
 #include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 #include "../projectnodes.h"
 #include "../projecttree.h"
 #include "../session.h"
-
-#include "../projecttree.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/iversioncontrol.h>
@@ -152,8 +151,8 @@ void JsonSummaryPage::triggerCommit(const JsonWizard::GeneratorFiles &files)
 
     QString errorMessage;
     if (!runVersionControl(coreFiles, &errorMessage)) {
-        QMessageBox::critical(wizard(), tr("Failed to Commit to Version Control"),
-                              tr("Error message from Version Control System: \"%1\".")
+        QMessageBox::critical(wizard(), Tr::tr("Failed to Commit to Version Control"),
+                              Tr::tr("Error message from Version Control System: \"%1\".")
                               .arg(errorMessage));
     }
 }
@@ -169,8 +168,8 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
         return;
     if (kind == IWizardFactory::ProjectWizard) {
         if (!static_cast<ProjectNode *>(folder)->addSubProject(generatedProject)) {
-            QMessageBox::critical(m_wizard, tr("Failed to Add to Project"),
-                                  tr("Failed to add subproject \"%1\"\nto project \"%2\".")
+            QMessageBox::critical(m_wizard, Tr::tr("Failed to Add to Project"),
+                                  Tr::tr("Failed to add subproject \"%1\"\nto project \"%2\".")
                                   .arg(generatedProject.toUserOutput())
                                   .arg(folder->filePath().toUserOutput()));
             return;
@@ -181,8 +180,8 @@ void JsonSummaryPage::addToProject(const JsonWizard::GeneratorFiles &files)
             return f.file.filePath();
         });
         if (!folder->addFiles(filePaths)) {
-            QMessageBox::critical(wizard(), tr("Failed to Add to Project"),
-                                  tr("Failed to add one or more files to project\n\"%1\" (%2).")
+            QMessageBox::critical(wizard(), Tr::tr("Failed to Add to Project"),
+                                  Tr::tr("Failed to add one or more files to project\n\"%1\" (%2).")
                                   .arg(folder->filePath().toUserOutput(),
                                        FilePath::formatFilePaths(filePaths, ", ")));
             return;

@@ -4,6 +4,7 @@
 #include "xcodebuildparser.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "task.h"
 
 #include <utils/qtcassert.h>
@@ -53,7 +54,7 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
                 const int filePathEndPos = lne.size()
                         - QLatin1String(signatureChangeEndsWithPattern).size();
                 CompileTask task(Task::Warning,
-                                 tr("Replacing signature"),
+                                 Tr::tr("Replacing signature"),
                                  absoluteFilePath(FilePath::fromString(
                                      lne.left(filePathEndPos))));
                 LinkSpecs linkSpecs;
@@ -68,7 +69,7 @@ OutputLineParser::Result XcodebuildParser::handleLine(const QString &line, Outpu
     if (match.hasMatch()) {
         ++m_fatalErrorCount;
         m_xcodeBuildParserState = UnknownXcodebuildState;
-        scheduleTask(CompileTask(Task::Error, tr("Xcodebuild failed.")), 1);
+        scheduleTask(CompileTask(Task::Error, Tr::tr("Xcodebuild failed.")), 1);
     }
     if (m_xcodeBuildParserState == OutsideXcodebuild)
         return Status::NotHandled;

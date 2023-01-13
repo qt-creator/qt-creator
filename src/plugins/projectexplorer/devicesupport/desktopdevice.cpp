@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "desktopdevice.h"
+
+#include "desktopprocesssignaloperation.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
-#include "desktopprocesssignaloperation.h"
+#include "../projectexplorerconstants.h"
+#include "../projectexplorertr.h"
 
 #include <coreplugin/fileutils.h>
-
-#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
@@ -32,8 +33,8 @@ DesktopDevice::DesktopDevice()
 
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    setDefaultDisplayName(tr("Local PC"));
-    setDisplayType(QCoreApplication::translate("ProjectExplorer::DesktopDevice", "Desktop"));
+    setDefaultDisplayName(Tr::tr("Local PC"));
+    setDisplayType(Tr::tr("Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);

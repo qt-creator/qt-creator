@@ -10,6 +10,7 @@
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 #include "projectnodes.h"
 #include "target.h"
 
@@ -474,8 +475,8 @@ bool SessionManager::save()
         if (filePath.exists()) {
             PersistentSettingsReader reader;
             if (!reader.load(filePath)) {
-                QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
-                                     tr("Could not save session %1").arg(filePath.toUserOutput()));
+                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
+                                     Tr::tr("Could not save session %1").arg(filePath.toUserOutput()));
                 return false;
             }
             data = reader.restoreValues();
@@ -538,8 +539,8 @@ bool SessionManager::save()
         if (!isDefaultVirgin())
             d->m_sessionDateTimes.insert(activeSession(), QDateTime::currentDateTime());
     } else {
-        QMessageBox::warning(ICore::dialogParent(), tr("Error while saving session"),
-            tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
+        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while saving session"),
+            Tr::tr("Could not save session to file %1").arg(d->m_writer->fileName().toUserOutput()));
     }
 
     return result;
@@ -857,10 +858,10 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 */
 bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 {
-    const QString title = sessions.size() == 1 ? tr("Delete Session") : tr("Delete Sessions");
+    const QString title = sessions.size() == 1 ? Tr::tr("Delete Session") : Tr::tr("Delete Sessions");
     const QString question = sessions.size() == 1
-            ? tr("Delete session %1?").arg(sessions.first())
-            : tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
+            ? Tr::tr("Delete session %1?").arg(sessions.first())
+            : Tr::tr("Delete these sessions?\n    %1").arg(sessions.join("\n    "));
     return QMessageBox::question(ICore::dialogParent(),
                                  title,
                                  question,
@@ -1041,8 +1042,8 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     PersistentSettingsReader reader;
     if (fileName.exists()) {
         if (!reader.load(fileName)) {
-            QMessageBox::warning(ICore::dialogParent(), tr("Error while restoring session"),
-                                 tr("Could not restore session %1").arg(fileName.toUserOutput()));
+            QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error while restoring session"),
+                                 Tr::tr("Could not restore session %1").arg(fileName.toUserOutput()));
 
             return false;
         }
@@ -1098,7 +1099,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     if (fileName.exists()) {
         d->m_virginSession = false;
 
-        ProgressManager::addTask(d->m_future.future(), tr("Loading Session"),
+        ProgressManager::addTask(d->m_future.future(), Tr::tr("Loading Session"),
            "ProjectExplorer.SessionFile.Load");
 
         d->m_future.setProgressRange(0, 1);

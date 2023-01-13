@@ -6,8 +6,9 @@
 #include "kit.h"
 #include "kitmanagerconfigwidget.h"
 #include "kitmanager.h"
+#include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
-#include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -60,7 +61,7 @@ public:
                 QString baseName = widget->displayName();
                 if (widget->isDefaultKit())
                     //: Mark up a kit as the default one.
-                    baseName = KitModel::tr("%1 (default)").arg(baseName);
+                    baseName = Tr::tr("%1 (default)").arg(baseName);
                 return baseName;
             }
             if (role == Qt::DecorationRole) {
@@ -84,7 +85,7 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent)
     : TreeModel<TreeItem, TreeItem, KitNode>(parent),
       m_parentLayout(parentLayout)
 {
-    setHeader(QStringList(tr("Name")));
+    setHeader(QStringList(Tr::tr("Name")));
     m_autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                                     {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
     m_manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());

@@ -14,6 +14,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "runcontrol.h"
 #include "session.h"
@@ -725,7 +726,7 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
         continueStart();
         return;
     }
-    showError(RunControl::tr("Unexpected run control state %1 when worker %2 started.")
+    showError(Tr::tr("Unexpected run control state %1 when worker %2 started.")
                   .arg(stateName(state))
                   .arg(worker->d->id));
 }
@@ -739,8 +740,7 @@ void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
     case RunControlState::Initialized:
         // FIXME 1: We don't have an output pane yet, so use some other mechanism for now.
         // FIXME 2: Translation...
-        QMessageBox::critical(Core::ICore::dialogParent(),
-             QCoreApplication::translate("TaskHub", "Error"),
+        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
              QString("Failure during startup. Aborting.") + "<p>" + msg);
         continueStopOrFinish();
         break;
@@ -1047,10 +1047,10 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
     if (d->promptToStop)
         return d->promptToStop(optionalPrompt);
 
-    const QString msg = tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
+    const QString msg = Tr::tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
                            "<center>Force it to quit?</center></body></html>").arg(displayName());
-    return showPromptToStopDialog(tr("Application Still Running"), msg,
-                                  tr("Force &Quit"), tr("&Keep Running"),
+    return showPromptToStopDialog(Tr::tr("Application Still Running"), msg,
+                                  Tr::tr("Force &Quit"), Tr::tr("&Keep Running"),
                                   optionalPrompt);
 }
 
@@ -1288,7 +1288,7 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
                 disconnect(WinDebugInterface::instance(), nullptr, this, nullptr);
-                q->appendMessage(tr("Cannot retrieve debugging output.")
+                q->appendMessage(Tr::tr("Cannot retrieve debugging output.")
                           + QLatin1Char('\n'), ErrorMessageFormat);
         });
 
@@ -1321,7 +1321,7 @@ void SimpleTargetRunnerPrivate::stop()
         if (m_stopRequested)
             return;
         m_stopRequested = true;
-        q->appendMessage(tr("User requested stop. Shutting down..."), NormalMessageFormat);
+        q->appendMessage(Tr::tr("User requested stop. Shutting down..."), NormalMessageFormat);
         switch (m_state) {
             case Run:
                 m_process.stop();
@@ -1402,7 +1402,7 @@ void SimpleTargetRunnerPrivate::start()
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
     if (device && !device->isEmptyCommandAllowed() && m_command.isEmpty()) {
-        m_resultData.m_errorString = tr("Cannot run: No command given.");
+        m_resultData.m_errorString = Tr::tr("Cannot run: No command given.");
         m_resultData.m_error = QProcess::FailedToStart;
         m_resultData.m_exitStatus = QProcess::CrashExit;
         forwardDone();
@@ -1452,11 +1452,11 @@ void SimpleTargetRunnerPrivate::forwardDone()
     if (m_stopReported)
         return;
     const QString executable = m_command.executable().displayName();
-    QString msg = tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
+    QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit)
-        msg = tr("%1 crashed.").arg(executable);
+        msg = Tr::tr("%1 crashed.").arg(executable);
     else if (m_stopForced)
-        msg = tr("The process was ended forcefully.");
+        msg = Tr::tr("The process was ended forcefully.");
     else if (m_resultData.m_error != QProcess::UnknownError)
         msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
     q->appendMessage(msg, NormalMessageFormat);
@@ -1501,12 +1501,12 @@ void SimpleTargetRunner::start()
     d->m_process.setTerminalMode(useTerminal ? Utils::TerminalMode::On : Utils::TerminalMode::Off);
     d->m_runAsRoot = runAsRoot;
 
-    const QString msg = RunControl::tr("Starting %1...").arg(d->m_command.displayName());
+    const QString msg = Tr::tr("Starting %1...").arg(d->m_command.displayName());
     appendMessage(msg, NormalMessageFormat);
 
     const bool isDesktop = !d->m_command.executable().needsDevice();
     if (isDesktop && d->m_command.isEmpty()) {
-        reportFailure(RunControl::tr("No executable specified."));
+        reportFailure(Tr::tr("No executable specified."));
         return;
     }
     d->start();
@@ -1820,16 +1820,16 @@ bool RunWorker::supportsReRunning() const
 
 QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, const FilePath &program)
 {
-    QString failedToStart = tr("The process failed to start.");
-    QString msg = tr("An unknown error in the process occurred.");
+    QString failedToStart = Tr::tr("The process failed to start.");
+    QString msg = Tr::tr("An unknown error in the process occurred.");
     switch (error) {
         case QProcess::FailedToStart:
-            msg = failedToStart + ' ' + tr("Either the "
+            msg = failedToStart + ' ' + Tr::tr("Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.").arg(program.toUserOutput());
             break;
         case QProcess::Crashed:
-            msg = tr("The process crashed.");
+            msg = Tr::tr("The process crashed.");
             break;
         case QProcess::Timedout:
             // "The last waitFor...() function timed out. "
@@ -1837,12 +1837,12 @@ QString RunWorker::userMessageForProcessError(QProcess::ProcessError error, cons
             // "waitFor...() again."
             return QString(); // sic!
         case QProcess::WriteError:
-            msg = tr("An error occurred when attempting to write "
+            msg = Tr::tr("An error occurred when attempting to write "
                 "to the process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
             break;
         case QProcess::ReadError:
-            msg = tr("An error occurred when attempting to read from "
+            msg = Tr::tr("An error occurred when attempting to read from "
                 "the process. For example, the process may not be running.");
             break;
         case QProcess::UnknownError:

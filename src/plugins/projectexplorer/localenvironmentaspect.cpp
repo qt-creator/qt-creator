@@ -4,8 +4,8 @@
 #include "localenvironmentaspect.h"
 
 #include "buildconfiguration.h"
-#include "environmentaspectwidget.h"
 #include "kit.h"
+#include "projectexplorertr.h"
 #include "target.h"
 
 using namespace Utils;
@@ -15,14 +15,14 @@ namespace ProjectExplorer {
 LocalEnvironmentAspect::LocalEnvironmentAspect(Target *target, bool includeBuildEnvironment)
 {
     setIsLocal(true);
-    addSupportedBaseEnvironment(tr("Clean Environment"), {});
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
 
-    addSupportedBaseEnvironment(tr("System Environment"), [] {
+    addSupportedBaseEnvironment(Tr::tr("System Environment"), [] {
         return Environment::systemEnvironment();
     });
 
     if (includeBuildEnvironment) {
-        addPreferredBaseEnvironment(tr("Build Environment"), [target] {
+        addPreferredBaseEnvironment(Tr::tr("Build Environment"), [target] {
             Environment env;
             if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
                 env = bc->environment();

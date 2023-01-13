@@ -5,6 +5,7 @@
 
 #include "fileinsessionfinder.h"
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <app/app_version.h>
 #include <texteditor/textmark.h>
@@ -59,7 +60,7 @@ Task::Task(TaskType type_, const QString &description,
 Task Task::compilerMissingTask()
 {
     return BuildSystemTask(Task::Error,
-                           tr("%1 needs a compiler set up to build. "
+                           Tr::tr("%1 needs a compiler set up to build. "
                               "Configure a compiler in the kit options.")
                            .arg(Core::Constants::IDE_DISPLAY_NAME));
 }
@@ -164,10 +165,10 @@ QString toHtml(const Tasks &issues)
         str << "<b>";
         switch (t.type) {
         case Task::Error:
-            str << QCoreApplication::translate("ProjectExplorer::Kit", "Error:") << " ";
+            str << Tr::tr("Error:") << " ";
             break;
         case Task::Warning:
-            str << QCoreApplication::translate("ProjectExplorer::Kit", "Warning:") << " ";
+            str << Tr::tr("Warning:") << " ";
             break;
         case Task::Unknown:
         default:

@@ -9,9 +9,9 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "showoutputtaskhandler.h"
 #include "task.h"
-#include "taskhub.h"
 
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/icore.h>
@@ -64,7 +64,7 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
             Utils::ProxyAction::proxyActionWithIcon(cancelBuildAction,
                                                     Utils::Icons::STOP_SMALL_TOOLBAR.icon());
     m_cancelBuildButton->setDefaultAction(cancelBuildProxyButton);
-    m_settingsButton->setToolTip(tr("Open Settings Page"));
+    m_settingsButton->setToolTip(Tr::tr("Open Settings Page"));
     m_settingsButton->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
 
     auto updateFontSettings = [this] {
@@ -96,9 +96,9 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     qRegisterMetaType<QTextCharFormat>("QTextCharFormat");
 
     m_handler = new ShowOutputTaskHandler(this,
-        tr("Show Compile &Output"),
-        tr("Show the output that generated this issue in Compile Output."),
-        tr("O"));
+        Tr::tr("Show Compile &Output"),
+        Tr::tr("Show the output that generated this issue in Compile Output."),
+        Tr::tr("O"));
     ExtensionSystem::PluginManager::addObject(m_handler);
     setupContext(C_COMPILE_OUTPUT, m_outputWindow);
     loadSettings();
@@ -255,14 +255,13 @@ void CompileOutputWindow::storeSettings() const
 
 class CompileOutputSettingsWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::CompileOutputSettingsPage)
 public:
     CompileOutputSettingsWidget()
     {
         const CompileOutputSettings &settings = BuildManager::compileOutputSettings();
-        m_wrapOutputCheckBox.setText(tr("Word-wrap output"));
+        m_wrapOutputCheckBox.setText(Tr::tr("Word-wrap output"));
         m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
-        m_popUpCheckBox.setText(tr("Open Compile Output when building"));
+        m_popUpCheckBox.setText(Tr::tr("Open Compile Output when building"));
         m_popUpCheckBox.setChecked(settings.popUp);
         m_maxCharsBox.setMaximum(100000000);
         m_maxCharsBox.setValue(settings.maxCharCount);
@@ -270,7 +269,7 @@ public:
         layout->addWidget(&m_wrapOutputCheckBox);
         layout->addWidget(&m_popUpCheckBox);
         const auto maxCharsLayout = new QHBoxLayout;
-        const QString msg = tr("Limit output to %1 characters");
+        const QString msg = Tr::tr("Limit output to %1 characters");
         const QStringList parts = msg.split("%1") << QString() << QString();
         maxCharsLayout->addWidget(new QLabel(parts.at(0).trimmed()));
         maxCharsLayout->addWidget(&m_maxCharsBox);
@@ -298,7 +297,7 @@ private:
 CompileOutputSettingsPage::CompileOutputSettingsPage()
 {
     setId(OPTIONS_PAGE_ID);
-    setDisplayName(CompileOutputSettingsWidget::tr("Compile Output"));
+    setDisplayName(Tr::tr("Compile Output"));
     setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new CompileOutputSettingsWidget; });
 }

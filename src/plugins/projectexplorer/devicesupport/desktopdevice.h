@@ -17,8 +17,6 @@ namespace Internal { class DesktopDeviceFactory; }
 
 class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DesktopDevice)
-
 public:
     IDevice::DeviceInfo deviceInformation() const override;
 

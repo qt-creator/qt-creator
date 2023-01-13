@@ -48,7 +48,7 @@ namespace ProjectExplorer {
 
 TerminalAspect::TerminalAspect()
 {
-    setDisplayName(tr("Terminal"));
+    setDisplayName(Tr::tr("Terminal"));
     setId("TerminalAspect");
     setSettingsKey("RunConfiguration.UseTerminal");
     addDataExtractor(this, &TerminalAspect::useTerminal, &Data::useTerminal);
@@ -64,7 +64,7 @@ TerminalAspect::TerminalAspect()
 void TerminalAspect::addToLayout(LayoutBuilder &builder)
 {
     QTC_CHECK(!m_checkBox);
-    m_checkBox = new QCheckBox(tr("Run in terminal"));
+    m_checkBox = new QCheckBox(Tr::tr("Run in terminal"));
     m_checkBox->setChecked(m_useTerminal);
     builder.addItems({{}, m_checkBox.data()});
     connect(m_checkBox.data(), &QAbstractButton::clicked, this, [this] {
@@ -154,7 +154,7 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
                                                EnvironmentAspect *envAspect)
     : m_envAspect(envAspect), m_macroExpander(expander)
 {
-    setDisplayName(tr("Working Directory"));
+    setDisplayName(Tr::tr("Working Directory"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
 }
@@ -170,7 +170,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
         m_chooser->setMacroExpander(m_macroExpander);
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
-    m_chooser->setPromptDialogTitle(tr("Select Working Directory"));
+    m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
     m_chooser->setBaseDirectory(m_defaultWorkingDirectory);
     m_chooser->setFilePath(m_workingDirectory.isEmpty() ? m_defaultWorkingDirectory : m_workingDirectory);
     connect(m_chooser.data(), &PathChooser::textChanged, this, [this] {
@@ -179,7 +179,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
     });
 
     m_resetButton = new QToolButton;
-    m_resetButton->setToolTip(tr("Reset to Default"));
+    m_resetButton->setToolTip(Tr::tr("Reset to Default"));
     m_resetButton->setIcon(Utils::Icons::RESET.icon());
     connect(m_resetButton.data(), &QAbstractButton::clicked, this, &WorkingDirectoryAspect::resetPath);
     m_resetButton->setEnabled(m_workingDirectory != m_defaultWorkingDirectory);
@@ -191,7 +191,7 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
         m_chooser->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(m_envAspect->environment()));
     }
 
-    builder.addItems({tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
+    builder.addItems({Tr::tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
 }
 
 void WorkingDirectoryAspect::resetPath()
@@ -295,13 +295,13 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
 ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
     : m_macroExpander(macroExpander)
 {
-    setDisplayName(tr("Arguments"));
+    setDisplayName(Tr::tr("Arguments"));
     setId("ArgumentsAspect");
     setSettingsKey("RunConfiguration.Arguments");
 
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
 
-    m_labelText = tr("Command line arguments:");
+    m_labelText = Tr::tr("Command line arguments:");
 }
 
 /*!
@@ -440,7 +440,7 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
     containerLayout->setContentsMargins(0, 0, 0, 0);
     containerLayout->addWidget(setupChooser());
     m_multiLineButton = new ExpandButton;
-    m_multiLineButton->setToolTip(tr("Toggle multi-line mode."));
+    m_multiLineButton->setToolTip(Tr::tr("Toggle multi-line mode."));
     m_multiLineButton->setChecked(m_multiLine);
     connect(m_multiLineButton, &QCheckBox::clicked, this, [this](bool checked) {
         if (m_multiLine == checked)
@@ -468,7 +468,7 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 
     if (m_resetter) {
         m_resetButton = new QToolButton;
-        m_resetButton->setToolTip(tr("Reset to Default"));
+        m_resetButton->setToolTip(Tr::tr("Reset to Default"));
         m_resetButton->setIcon(Icons::RESET.icon());
         connect(m_resetButton.data(), &QAbstractButton::clicked,
                 this, &ArgumentsAspect::resetArguments);
@@ -493,12 +493,12 @@ void ArgumentsAspect::addToLayout(LayoutBuilder &builder)
 ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selector)
     : m_target(target), m_selector(selector)
 {
-    setDisplayName(tr("Executable"));
+    setDisplayName(Tr::tr("Executable"));
     setId("ExecutableAspect");
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
-    m_executable.setPlaceHolderText(tr("<unknown>"));
-    m_executable.setLabelText(tr("Executable:"));
+    m_executable.setPlaceHolderText(Tr::tr("<unknown>"));
+    m_executable.setLabelText(Tr::tr("Executable:"));
     m_executable.setDisplayStyle(StringAspect::LabelDisplay);
 
     updateDevice();
@@ -600,10 +600,10 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
     QTC_ASSERT(!m_alternativeExecutable, return);
     m_alternativeExecutable = new StringAspect;
     m_alternativeExecutable->setDisplayStyle(StringAspect::LineEditDisplay);
-    m_alternativeExecutable->setLabelText(tr("Alternate executable on device:"));
+    m_alternativeExecutable->setLabelText(Tr::tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
     m_alternativeExecutable->makeCheckable(StringAspect::CheckBoxPlacement::Right,
-                                           tr("Use this command instead"), useOverridableKey);
+                                           Tr::tr("Use this command instead"), useOverridableKey);
     connect(m_alternativeExecutable, &StringAspect::changed,
             this, &ExecutableAspect::changed);
 }
@@ -715,12 +715,12 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
     if (HostOsInfo::isMacHost()) {
-        setLabel(tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"),
+        setLabel(Tr::tr("Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH"),
                  LabelPlacement::AtCheckBox);
     } else if (HostOsInfo::isWindowsHost()) {
-        setLabel(tr("Add build library search path to PATH"), LabelPlacement::AtCheckBox);
+        setLabel(Tr::tr("Add build library search path to PATH"), LabelPlacement::AtCheckBox);
     } else {
-        setLabel(tr("Add build library search path to LD_LIBRARY_PATH"),
+        setLabel(Tr::tr("Add build library search path to LD_LIBRARY_PATH"),
                  LabelPlacement::AtCheckBox);
     }
     setValue(ProjectExplorerPlugin::projectExplorerSettings().addLibraryPathsToRunEnv);
@@ -739,7 +739,7 @@ UseDyldSuffixAspect::UseDyldSuffixAspect()
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
-    setLabel(tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"),
+    setLabel(Tr::tr("Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)"),
              LabelPlacement::AtCheckBox);
 }
 
@@ -755,7 +755,7 @@ RunAsRootAspect::RunAsRootAspect()
 {
     setId("RunAsRoot");
     setSettingsKey("RunConfiguration.RunAsRoot");
-    setLabel(tr("Run as root user"), LabelPlacement::AtCheckBox);
+    setLabel(Tr::tr("Run as root user"), LabelPlacement::AtCheckBox);
 }
 
 Interpreter::Interpreter()
@@ -830,12 +830,12 @@ void InterpreterAspect::addToLayout(LayoutBuilder &builder)
     connect(m_comboBox, &QComboBox::currentIndexChanged,
             this, &InterpreterAspect::updateCurrentInterpreter);
 
-    auto manageButton = new QPushButton(tr("Manage..."));
+    auto manageButton = new QPushButton(Tr::tr("Manage..."));
     connect(manageButton, &QPushButton::clicked, [this] {
         Core::ICore::showOptionsDialog(m_settingsDialogId);
     });
 
-    builder.addItems({tr("Interpreter"), m_comboBox.data(), manageButton});
+    builder.addItems({Tr::tr("Interpreter"), m_comboBox.data(), manageButton});
 }
 
 void InterpreterAspect::updateCurrentInterpreter()

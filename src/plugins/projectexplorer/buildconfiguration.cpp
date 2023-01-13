@@ -12,15 +12,14 @@
 #include "environmentwidget.h"
 #include "kit.h"
 #include "kitinformation.h"
-#include "kitmanager.h"
 #include "namedwidget.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
+#include "projectexplorertr.h"
 #include "project.h"
 #include "projecttree.h"
 #include "session.h"
 #include "target.h"
-#include "toolchain.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
@@ -56,13 +55,12 @@ namespace Internal {
 
 class BuildEnvironmentWidget : public NamedWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::BuildEnvironmentWidget)
 
 public:
     explicit BuildEnvironmentWidget(BuildConfiguration *bc)
-        : NamedWidget(tr("Build Environment"))
+        : NamedWidget(Tr::tr("Build Environment"))
     {
-        auto clearBox = new QCheckBox(tr("Clear system environment"), this);
+        auto clearBox = new QCheckBox(Tr::tr("Clear system environment"), this);
         clearBox->setChecked(!bc->useSystemEnvironment());
 
         auto envWidget = new EnvironmentWidget(this, EnvironmentWidget::TypeLocal, clearBox);
@@ -100,15 +98,14 @@ public:
 
 class CustomParsersBuildWidget : public NamedWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::Internal::CustomParsersBuildWidget)
 public:
-    CustomParsersBuildWidget(BuildConfiguration *bc) : NamedWidget(tr("Custom Output Parsers"))
+    CustomParsersBuildWidget(BuildConfiguration *bc) : NamedWidget(Tr::tr("Custom Output Parsers"))
     {
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
 
-        const auto pasteStdOutCB = new QCheckBox(tr("Parse standard output during build"), this);
-        pasteStdOutCB->setToolTip(tr("Makes output parsers look for diagnostics "
+        const auto pasteStdOutCB = new QCheckBox(Tr::tr("Parse standard output during build"), this);
+        pasteStdOutCB->setToolTip(Tr::tr("Makes output parsers look for diagnostics "
                                      "on stdout rather than stderr."));
         pasteStdOutCB->setChecked(bc->parseStdOut());
         layout->addWidget(pasteStdOutCB);
@@ -163,18 +160,18 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     QTC_CHECK(target && target == this->target());
 
     MacroExpander *expander = macroExpander();
-    expander->setDisplayName(tr("Build Settings"));
+    expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);
     expander->registerSubProvider([target] { return target->macroExpander(); });
 
-    expander->registerVariable("buildDir", tr("Build directory"),
+    expander->registerVariable("buildDir", Tr::tr("Build directory"),
             [this] { return buildDirectory().toUserOutput(); });
 
-    expander->registerVariable("BuildConfig:Name", tr("Name of the build configuration"),
+    expander->registerVariable("BuildConfig:Name", Tr::tr("Name of the build configuration"),
             [this] { return displayName(); });
 
     expander->registerPrefix("BuildConfig:Env",
-                             tr("Variables in the build configuration's environment"),
+                             Tr::tr("Variables in the build configuration's environment"),
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
 
     connect(Core::ICore::instance(), &Core::ICore::systemEnvironmentChanged,
@@ -201,8 +198,8 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     });
 
     d->m_tooltipAspect = addAspect<StringAspect>();
-    d->m_tooltipAspect->setLabelText(tr("Tooltip in target selector:"));
-    d->m_tooltipAspect->setToolTip(tr("Appears as a tooltip when hovering the build configuration"));
+    d->m_tooltipAspect->setLabelText(Tr::tr("Tooltip in target selector:"));
+    d->m_tooltipAspect->setToolTip(Tr::tr("Appears as a tooltip when hovering the build configuration"));
     d->m_tooltipAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     d->m_tooltipAspect->setSettingsKey("ProjectExplorer.BuildConfiguration.Tooltip");
     connect(d->m_tooltipAspect, &StringAspect::changed, this, [this] {
@@ -481,9 +478,9 @@ Environment BuildConfiguration::baseEnvironment() const
 QString BuildConfiguration::baseEnvironmentText() const
 {
     if (useSystemEnvironment())
-        return tr("System Environment");
+        return Tr::tr("System Environment");
     else
-        return tr("Clean Environment");
+        return Tr::tr("Clean Environment");
 }
 
 Environment BuildConfiguration::environment() const
@@ -543,7 +540,7 @@ bool BuildConfiguration::isEnabled() const
 QString BuildConfiguration::disabledReason() const
 {
     if (!buildSystem()->hasParsingData())
-        return (tr("The project was not parsed successfully."));
+        return (Tr::tr("The project was not parsed successfully."));
     return QString();
 }
 
@@ -596,25 +593,22 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     qCDebug(bcLog) << Q_FUNC_INFO << projectDir << mainFilePath << projectName << bcName;
 
     exp.registerFileVariables("Project",
-                              QCoreApplication::translate("::ProjectExplorer", "Main file of the project"),
+                              Tr::tr("Main file of the project"),
                               [mainFilePath] { return mainFilePath; });
     exp.registerVariable("Project:Name",
-                         QCoreApplication::translate("::ProjectExplorer", "Name of the project"),
+                         Tr::tr("Name of the project"),
                          [projectName] { return projectName; });
     exp.registerVariable("BuildConfig:Name",
-                         QCoreApplication::translate(
-                             "::ProjectExplorer", "Name of the project's active build configuration"),
+                         Tr::tr("Name of the project's active build configuration"),
                          [bcName] { return bcName; });
     exp.registerVariable("BuildSystem:Name",
-                         QCoreApplication::translate(
-                             "::ProjectExplorer", "Name of the project's active build system"),
+                         Tr::tr("Name of the project's active build system"),
                          [buildSystem] { return buildSystem; });
     exp.registerVariable("CurrentBuild:Type",
-                         QCoreApplication::translate("::ProjectExplorer", "Type of current build"),
+                         Tr::tr("Type of current build"),
                          [buildType] { return buildTypeName(buildType); }, false);
     exp.registerVariable("BuildConfig:Type",
-                         QCoreApplication::translate(
-                             "::ProjectExplorer", "Type of the project's active build configuration"),
+                         Tr::tr("Type of the project's active build configuration"),
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 

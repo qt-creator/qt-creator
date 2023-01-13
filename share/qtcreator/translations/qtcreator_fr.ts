@@ -337,30 +337,6 @@
         <translation type="obsolete">Débogueur :</translation>
     </message>
     <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
-    </message>
-    <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator a détecté une &lt;b&gt;compilation dans les sources de %1&lt;/b&gt; qui empêche les shadow builds. Qt Creator ne permettra pas de changer le répertoire de compilation. Si vous voulez effectuer un &quot;shadow build&quot;, nettoyez le répertoire source et rouvrez le projet.</translation>
     </message>
@@ -5512,7 +5488,7 @@ at debugger startup.</source>
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to add dependency</source>
         <translation type="obsolete">Impossible d&apos;ajouter une dépendance</translation>
@@ -5525,9 +5501,6 @@ at debugger startup.</source>
         <source>This would create a circular dependency.</source>
         <translation>Ceci créerait une dépendance circulaire.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>%1 has no dependencies.</source>
         <translation type="obsolete">%1 n&apos;a aucune dépendance.</translation>
@@ -10477,7 +10450,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;font color=&quot;#0000ff&quot;&gt;Starting: %1 %2&lt;/font&gt;
 </source>
@@ -10542,95 +10515,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Impossible de démarrer le processus &quot;%1&quot; %2</translation>
     </message>
-    <message>
-        <source>Could not start process &quot;%1&quot;</source>
-        <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
-    <message numerus="yes">
-        <source>Finished %n of %1 build steps</source>
-        <translation type="obsolete">
-            <numerusform>%n étape de compilation sur %1 terminée</numerusform>
-            <numerusform>%n étapes de compilation sur %1 terminées</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>Finished %1 of %n build steps</source>
-        <translation type="obsolete">
-            <numerusform>%1 étape de compilation sur %n terminée</numerusform>
-            <numerusform>%1 étapes de compilation sur %n terminées</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>Build System</source>
-        <comment>Category for build system isses listened under &apos;Build Issues&apos;</comment>
-        <translation type="obsolete">Système de compilation</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <comment>Category for compiler isses listed under &apos;Issues&apos;</comment>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>Build System</source>
-        <comment>Category for build system isses listed under &apos;Issues&apos;</comment>
-        <translation type="obsolete">Système de compilation</translation>
-    </message>
-    <message>
-        <source>Build canceled</source>
-        <translation type="obsolete">Compilation annulée</translation>
-    </message>
-    <message>
-        <source>Canceled build.</source>
-        <translation type="obsolete">Compilation annulée.</translation>
-    </message>
-    <message>
-        <source>When executing build step &apos;%1&apos;</source>
-        <translation type="obsolete">Lors de l&apos;exécution de l&apos;étape &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Running build steps for project %1...</source>
-        <translation type="obsolete">Exécution des étapes de compilation pour le projet %1...</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Canceled build.&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Compilation annulée.&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Compilation</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1 (target: %2)&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Erreur lors de la compilation du projet %1 (cible : %2)&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Error while building project %1 (target: %2)</source>
-        <translation type="obsolete">Erreur à la compilation du projet %1 (cible : %2)</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;Error while building project %1&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;Erreur lors de la compilation du projet %1&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;font color=&quot;#ff0000&quot;&gt;When executing build step &apos;%1&apos;&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;lors de l&apos;éxecution de l&apos;étape &quot;%1&quot;&lt;/font&gt;</translation>
-    </message>
-    <message>
-        <source>Error while building project %1</source>
-        <translation type="obsolete">Erreur à la compilation du projet %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Running build steps for project %2...&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Exécution des étapes de compilation pour le projet %2...&lt;/b&gt;</translation>
-    </message>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translatorcomment>lorsqu&apos;il n&apos;y a qu&apos;une étape 1/1 n&apos;est pas franchement utile... -&gt; et comme ça ?</translatorcomment>
@@ -10686,79 +10570,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Skipping disabled step %1.</source>
         <translation>Ignore l&apos;étape désactivée %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
-    <message>
-        <source>Custom Executable</source>
-        <translatorcomment>custom ici a plutôt le sens de celui utilisé, usage mais je sais pas comment le traduire ?</translatorcomment>
-        <translation type="obsolete">Exécutable personnalisé</translation>
-    </message>
-    <message>
-        <source>Could not find the executable, please specify one.</source>
-        <translation type="obsolete">Exécutable introuvable, merci d&apos;en spécifier un.</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="obsolete">Exécuter %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="obsolete">Exécutable personnalisé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentModel</name>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation type="obsolete">&lt;NON-DÉFINI&gt;</translation>
-    </message>
-    <message>
-        <source>Variable</source>
-        <translation type="obsolete">Variable</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation type="obsolete">Valeur</translation>
-    </message>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <comment>Name when inserting a new variable</comment>
-        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <comment>Value when inserting a new variable</comment>
-        <translation type="obsolete">&lt;VALEUR&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <extracomment>Name when inserting a new variable</extracomment>
-        <translation type="obsolete">&lt;VARIABLE&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <extracomment>Value when inserting a new variable</extracomment>
-        <translation type="obsolete">&lt;VALEUR&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>
@@ -10818,9 +10629,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Summary: No changes to Environment</source>
         <translation type="obsolete">Résumé : l&apos;environnement n&apos;est pas modifié</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in any project</source>
         <translation type="obsolete">Fichiers dans n&apos;importe quel projet</translation>
@@ -10828,14 +10636,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Files in Any Project</source>
         <translation>Fichiers dans n&apos;importe quel projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
-    <message>
-        <source>All Projects</source>
-        <translatorcomment>lower &quot;t&quot; at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
-        <translation>tous les projets</translation>
     </message>
     <message>
         <source>All Projects:</source>
@@ -10852,31 +10652,8 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Pat&amp;ron de fichier :</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translatorcomment>Schéma de fichier?</translatorcomment>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsPanel</name>
-    <message>
-        <source>Build Settings</source>
-        <translation type="obsolete">Paramètres de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
-    <message>
         <source>&amp;Clone Selected</source>
         <translation>&amp;Cloner la version sélectionnée</translation>
-    </message>
-    <message>
-        <source>Build Steps</source>
-        <translation type="obsolete">Étapes de compilation</translation>
-    </message>
-    <message>
-        <source>Edit Build Configuration:</source>
-        <translation type="obsolete">Éditer la configuration de compilation :</translation>
     </message>
     <message>
         <source>No build settings available</source>
@@ -10956,45 +10733,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Voulez-vous vraiment supprimer la configuration de compilation &lt;b&gt;%1&lt;/b&gt; ?</translation>
     </message>
     <message>
-        <source>Clean Steps</source>
-        <translation type="obsolete">Étapes de nettoyage</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Rendre %1 actif.&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <translation type="obsolete">Nom de la nouvelle configuration :</translation>
-    </message>
-    <message>
-        <source>Clone configuration</source>
-        <translation type="obsolete">Configuration du clone</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
-    <message>
-        <source>No Build Steps</source>
-        <translation type="obsolete">Aucune étape de compilation</translation>
-    </message>
-    <message>
-        <source>Add clean step</source>
-        <translation type="obsolete">Ajouter une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Add build step</source>
-        <translation type="obsolete">Ajouter une étape de compilation</translation>
-    </message>
-    <message>
-        <source>Remove clean step</source>
-        <translation type="obsolete">Supprimer une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Remove build step</source>
-        <translation type="obsolete">Supprimer une étape de compilation</translation>
-    </message>
-    <message>
         <source>Build Steps</source>
         <translation>Étapes de compilation</translation>
     </message>
@@ -11003,77 +10741,13 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Étapes de nettoyage</translation>
     </message>
     <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Déplacer vers le haut</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Déplacer vers le bas</translation>
-    </message>
-    <message>
-        <source>Remove Item</source>
-        <translation type="obsolete">Supprimer l&apos;élément</translation>
-    </message>
-    <message>
-        <source>Removing Step failed</source>
-        <translation type="obsolete">Échec de la suppression de l&apos;étape</translation>
-    </message>
-    <message>
-        <source>Can&apos;t remove build step while building</source>
-        <translation type="obsolete">Impossible de supprimer une étape de compilation pendant la compilation</translation>
-    </message>
-    <message>
-        <source>Add Clean Step</source>
-        <translation type="obsolete">Ajouter une étape de nettoyage</translation>
-    </message>
-    <message>
-        <source>Add Build Step</source>
-        <translation type="obsolete">Ajouter une étape de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
-    <message>
         <source>Compile Output</source>
         <translation>Sortie de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CoreListenerCheckingForRunningBuild</name>
-    <message>
-        <source>Cancel Build &amp;&amp; Close</source>
-        <translation type="obsolete">Annuler la compilation et fermer</translation>
-    </message>
-    <message>
-        <source>Do not Close</source>
-        <translation type="obsolete">Ne pas fermer</translation>
-    </message>
-    <message>
-        <source>Close Qt Creator?</source>
-        <translation type="obsolete">Fermer Qt Creator ?</translation>
-    </message>
-    <message>
-        <source>A project is currently being built.</source>
-        <translation type="obsolete">Un projet est en cours de compilation.</translation>
-    </message>
-    <message>
-        <source>Do you want to cancel the build process and close Qt Creator anyway?</source>
-        <translation type="obsolete">Voulez-vous annuler le processus de compilation et fermer Qt Creator ?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
-    <message>
-        <source>Files in current project</source>
-        <translation type="obsolete">Fichiers dans le projet courant</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
         <translation>Fichiers dans le projet courant</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Current Project</source>
         <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
@@ -11084,125 +10758,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Projet &apos;%1&apos; :</translation>
     </message>
     <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomExecutableConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Run in &amp;Terminal</source>
-        <translation type="obsolete">Lancer dans un &amp;terminal</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run in &amp;terminal</source>
-        <translation type="obsolete">Exécuter dans le &amp;terminal</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
-        <source>No Executable specified.</source>
-        <translation type="obsolete">Aucun exécutable spécifié.</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
-        <source>Base environment for this runconfiguration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesPanel</name>
-    <message>
-        <source>Dependencies</source>
-        <translation type="obsolete">Dépendances</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DetailedModel</name>
-    <message>
-        <source>%1 of project %2</source>
-        <translation type="obsolete">%1 du projet %2</translation>
-    </message>
-    <message>
-        <source>Could not rename file</source>
-        <translation type="obsolete">Impossible de renommer le fichier</translation>
-    </message>
-    <message>
-        <source>Renaming file %1 to %2 failed.</source>
-        <translation type="obsolete">Échec du renommage du fichier %1 en %2.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPanel</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Paramètres de l&apos;éditeur</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
-    <message>
-        <source>Default File Encoding:</source>
-        <translation type="obsolete">Encodage de fichier par défaut :</translation>
-    </message>
-    <message>
-        <source>Default file encoding:</source>
-        <translation type="obsolete">Encodage de fichier par défaut :</translation>
-    </message>
-    <message>
-        <source>Use global settings</source>
-        <translation type="obsolete">Utiliser les paramètres globaux</translation>
-    </message>
-    <message>
-        <source>Restore Global Values</source>
-        <translation type="obsolete">Restaurer les valeurs globales</translation>
-    </message>
-    <message>
         <source>Editor settings:</source>
         <translation>Paramètres de l&apos;éditeur :</translation>
     </message>
@@ -11210,11 +10765,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Global</source>
         <translatorcomment>féminin ?</translatorcomment>
         <translation>Global</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translatorcomment>?</translatorcomment>
-        <translation>Personnalisé</translation>
     </message>
     <message>
         <source>Restore Global</source>
@@ -11246,41 +10796,10 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::NewSessionInputDialog</name>
-    <message>
-        <source>New session name</source>
-        <translation type="obsolete">Nom de la nouvelle session</translation>
-    </message>
-    <message>
-        <source>Enter the name of the new session:</source>
-        <translation type="obsolete">Entrez le nom de la nouvelle session :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
-    <message>
-        <source>Switch to session</source>
-        <translation type="obsolete">Passer à la session</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Session Manager</source>
         <translation>Gestionnaire de session</translation>
-    </message>
-    <message>
-        <source>Create New Session</source>
-        <translation type="obsolete">Créer une nouvelle session</translation>
-    </message>
-    <message>
-        <source>Clone Session</source>
-        <translation type="obsolete">Cloner la session</translation>
-    </message>
-    <message>
-        <source>Delete Session</source>
-        <translation type="obsolete">Supprimer la session</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Qu&apos;est ce qu&apos;une session ?&lt;/a&gt;</translation>
     </message>
     <message>
         <source>&amp;New</source>
@@ -11326,161 +10845,30 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Qu&apos;est-ce qu&apos;une session ?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputPane</name>
-    <message>
-        <source>Re-run this run-configuration</source>
-        <translation type="obsolete">Relancer cette configuration de lancement</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="obsolete">Arrêter</translation>
-    </message>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Fenêtre de sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>The application is still running.</source>
-        <translation type="obsolete">L&apos;application est en cours d&apos;éxecution.</translation>
-    </message>
-    <message>
-        <source>Force it to quit?</source>
-        <translatorcomment>l&apos;application</translatorcomment>
-        <translation type="obsolete">La forcer à quitter ?</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">Forcer  quitter</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+R</source>
-        <translation type="obsolete">Ctrl+Shift+R</translation>
-    </message>
-    <message>
-        <source>Application Output</source>
-        <translation type="obsolete">Sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>The application is still running. Close it first.</source>
-        <translation type="obsolete">L&apos;application est toujours en cours d&apos;exécution. Veuillez la fermer d&apos;abord.</translation>
-    </message>
-    <message>
-        <source>Unable to close</source>
-        <translation type="obsolete">Impossible de fermer</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::OutputWindow</name>
-    <message>
-        <source>Application Output Window</source>
-        <translation type="obsolete">Fenêtre de sortie de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Additional output omitted
-</source>
-        <translation type="obsolete">Sortie supplémentaire omise
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Étape personnalisée</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation>Étape personnalisée</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
-    <message>
-        <source>&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</source>
-        <translation type="obsolete">&lt;b&gt;%1&lt;/b&gt; %2 %3 %4</translation>
-    </message>
-    <message>
-        <source>(disabled)</source>
-        <translation type="obsolete">(désactivé)</translation>
-    </message>
     <message>
         <source>Custom Process Step</source>
         <translation>Étape personnalisée</translation>
-    </message>
-    <message>
-        <source>%1 (disabled)</source>
-        <extracomment>%1 is the custom process step summary</extracomment>
-        <translation type="obsolete">%1 (désactivée)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Command:</source>
         <translation>Commande :</translation>
     </message>
     <message>
-        <source>Working Directory:</source>
-        <translation type="obsolete">Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Command Arguments:</source>
-        <translation type="obsolete">Arguments de la commande :</translation>
-    </message>
-    <message>
-        <source>Enable Custom Process Step</source>
-        <translation type="obsolete">Activer les étapes personnalisés</translation>
-    </message>
-    <message>
-        <source>Enable custom process step</source>
-        <translation type="obsolete">Activer les étapes personnalisés</translation>
-    </message>
-    <message>
         <source>Working directory:</source>
         <translation>Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Command arguments:</source>
-        <translation type="obsolete">Arguments de la commande :</translation>
     </message>
     <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>Build and Run</source>
-        <translation type="obsolete">Compiler et exécuter</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
-    </message>
     <message>
         <source>General</source>
         <translation>Général</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileFactory</name>
     <message>
         <source>Project File Factory</source>
         <comment>ProjectExplorer::ProjectFileFactory display name.</comment>
         <translation>Fabrique de fichiers de projets</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation>Échec lors de l&apos;ouverture du projet</translation>
     </message>
     <message>
         <source>Could not open the following project: &apos;%1&apos;</source>
@@ -11490,9 +10878,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>All Projects</source>
         <translation>tous les projets</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
         <translation>&lt;Ajouter Implicitement&gt;</translation>
@@ -11540,9 +10925,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Failed to add &apos;%1&apos; to the version control system.</source>
         <translation>Échec de l&apos;ajout de &quot;%1&quot; au système de gestion de version.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify tree</source>
         <translation type="obsolete">Simplifier l&apos;arbre</translation>
@@ -11563,9 +10945,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Synchronize with Editor</source>
         <translation>Synchroniser avec l&apos;éditeur</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projets</translation>
@@ -11586,9 +10965,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Filter tree</source>
         <translation type="obsolete">Filtrer l&apos;arbre</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Add to &amp;VCS (%1)</source>
         <translation type="obsolete">Ajouter à &amp;SGV (%1)</translation>
@@ -11613,54 +10989,9 @@ au projet &apos;%2&apos;.</translation>
         <source>Files to be added in</source>
         <translation>Fichiers à ajouter dans</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveFileDialog</name>
-    <message>
-        <source>Remove File</source>
-        <translation type="obsolete">Supprimer le fichier</translation>
-    </message>
-    <message>
-        <source>File to remove:</source>
-        <translation type="obsolete">Fichier à supprimer :</translation>
-    </message>
-    <message>
-        <source>&amp;Delete file permanently</source>
-        <translation type="obsolete">&amp;Supprimer le fichier de façon permanente</translation>
-    </message>
-    <message>
-        <source>&amp;Remove from Version Control</source>
-        <translation type="obsolete">&amp;Supprimer du système de gestion de version</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;#&quot;&gt;Make %1 active.&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;#&quot;&gt;Rendre %1 actif.&lt;/a&gt;</translation>
-    </message>
     <message>
         <source>Run Settings</source>
         <translation>Paramètres d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -11669,10 +11000,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Method:</source>
         <translation>Méthode :</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
     </message>
     <message>
         <source>Run configuration:</source>
@@ -11687,20 +11014,12 @@ au projet &apos;%2&apos;.</translation>
         <translation>Êtes vous sûr de vouloir supprimer la configuration d&apos;exécution &lt;b&gt;%1&lt;/b&gt; ?</translation>
     </message>
     <message>
-        <source>Rename...</source>
-        <translation>Renommer...</translation>
-    </message>
-    <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Nouveau nom pour la configuration d&apos;exécution &lt;b&gt;%1&lt;/b&gt; : </translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Annuler la compilation &amp;&amp; supprimer le configuration de déploiement</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Ne pas supprimer</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -11726,74 +11045,9 @@ au projet &apos;%2&apos;.</translation>
         <source>New name for deploy configuration &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Nouveau nom pour la configuration de déploiement &lt;b&gt;%1&lt;/b&gt; : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsPropertiesPage</name>
-    <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Edit run configuration:</source>
-        <translation type="obsolete">Éditer la configuration d&apos;exécution :</translation>
-    </message>
-    <message>
-        <source>Run configuration:</source>
-        <translation type="obsolete">Configuration d&apos;exécution :</translation>
-    </message>
-    <message>
-        <source>Deployment:</source>
-        <translation type="obsolete">Déploiement :</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
-    </message>
-    <message>
-        <source>Rename ...</source>
-        <translation type="obsolete">Renommer ...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionFile</name>
-    <message>
-        <source>Session</source>
-        <translation type="obsolete">Session</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
-        <source>Untitled</source>
-        <comment>default file name to display</comment>
-        <translation type="obsolete">Sans titre</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Fichier non trouvé : %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Problèmes de compilation</translation>
     </message>
     <message>
         <source>Issues</source>
@@ -11811,9 +11065,6 @@ au projet &apos;%2&apos;.</translation>
         <source>Show Warnings</source>
         <translation>Afficher les avertissements</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinGuiProcess</name>
     <message>
         <source>The process could not be started!</source>
         <translation type="obsolete">Le processus n&apos;a pas pû être démarré !</translation>
@@ -11826,9 +11077,6 @@ au projet &apos;%2&apos;.</translation>
         <source>The process could not be started: %1</source>
         <translation type="obsolete">Le processus n&apos;a pas pu être démarré : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project management</source>
         <translation type="obsolete">Gestion du projet</translation>
@@ -11858,35 +11106,12 @@ au projet &apos;%2&apos;.</translation>
 </translation>
     </message>
     <message>
-        <source>Add to &amp;project:</source>
-        <translation>&amp;Ajouter au projet :</translation>
-    </message>
-    <message>
         <source>Add to &amp;version control:</source>
         <translation>Ajouter au gestionnaire de &amp;version :</translation>
     </message>
     <message>
         <source>Project Management</source>
         <translation>Gestion du projet</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation type="obsolete">Gérer</translation>
-    </message>
-    <message>
-        <source>Manage ...</source>
-        <translation type="obsolete">Gérer ...</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
     </message>
     <message>
         <source>&amp;Build</source>
@@ -11957,10 +11182,6 @@ au projet &apos;%2&apos;.</translation>
         <translation type="obsolete">Fermer tous les projets</translation>
     </message>
     <message>
-        <source>Session</source>
-        <translation type="obsolete">Session</translation>
-    </message>
-    <message>
         <source>Set Build Configuration</source>
         <translation type="obsolete">Définir la configuration de compilation</translation>
     </message>
@@ -12029,10 +11250,6 @@ au projet &apos;%2&apos;.</translation>
         <translation>Nettoyer sans les dépendances</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
-    </message>
-    <message>
         <source>Sessions</source>
         <translation>Sessions</translation>
     </message>
@@ -12043,10 +11260,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Run Without Deployment</source>
         <translation>Exécuter sans déploiement</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Renommer...</translation>
     </message>
     <message>
         <source>Set as Active Project</source>
@@ -12171,10 +11384,6 @@ au projet &apos;%2&apos;.</translation>
         <translation>Effacer le fichier... </translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
-    </message>
-    <message>
         <source>Set as Startup Project</source>
         <translation type="obsolete">Définir en tant que projet de démarrage</translation>
     </message>
@@ -12218,24 +11427,12 @@ Souhaitez-vous les ignorer ?</translation>
         <translation>Toujours enregistrer les fichiers avant de compiler</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <translation>Nettoyer</translation>
-    </message>
-    <message>
         <source>Close All Projects and Editors</source>
         <translation>Fermer tous les projets et éditeurs</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Compilation</translation>
-    </message>
-    <message>
         <source>Rebuild</source>
         <translation>Recompiler</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Déploiement</translation>
     </message>
     <message>
         <source>Set &quot;%1&quot; as Active Project</source>
@@ -12332,10 +11529,6 @@ Souhaitez-vous les ignorer ?</translation>
 </source>
         <translation>Le projet %1 n&apos;est pas configuré, il sera ignoré.
 </translation>
-    </message>
-    <message>
-        <source>No project loaded.</source>
-        <translation>Aucun projet chargé.</translation>
     </message>
     <message>
         <source>Currently building the active project.</source>
@@ -12561,9 +11754,6 @@ au système de gestion de version (%2) ?</translation>
         <source>Could not delete file %1.</source>
         <translation>Impossible de supprimer le fichier %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while restoring session</source>
         <translation>Erreur lors de la restauration de la session</translation>
@@ -12597,10 +11787,6 @@ au système de gestion de version (%2) ?</translation>
         <translation>Supprimer les projets de la session</translation>
     </message>
     <message>
-        <source>Failed to open project</source>
-        <translation>Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
         <source>Session</source>
         <translation>Session</translation>
     </message>
@@ -12611,10 +11797,6 @@ au système de gestion de version (%2) ?</translation>
     <message>
         <source>Could not save session to file %1</source>
         <translation>Impossible d&apos;enregistrer la session dans le fichier %1</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
     </message>
     <message>
         <source>Untitled</source>
@@ -13375,54 +12557,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Exécuter qmake dans %1</translation>
     </message>
     <message>
-        <source>Build in %1</source>
-        <translation type="obsolete">Compiler dans %1</translation>
-    </message>
-    <message>
-        <source>Qt4RunConfiguration</source>
-        <translation type="obsolete">Qt4RunConfiguration</translation>
-    </message>
-    <message>
-        <source>Could not parse %1. The Qt4 run configuration %2 can not be started.</source>
-        <translation type="obsolete">Impossible d&apos;analyser %1. La configuration de Qt 4 %2 ne peut pas être démarrée.</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Le fichier .pro est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation>Configuration d&apos;exécution Qt</translation>
-    </message>
-    <message>
-        <source>Qt4 Run Configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution Qt4</translation>
-    </message>
-    <message>
-        <source>Qt4 RunConfiguration</source>
-        <translation type="obsolete">Configuration d&apos;exécution Qt4</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
-        <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2 (dans un terminal)</translation>
-    </message>
-    <message>
-        <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
-        <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
     </message>
@@ -13441,22 +12575,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Run in terminal</source>
         <translation>Exécuter dans un terminal</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -13517,35 +12635,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Select the CSL ARM Toolchain (GCCE) Directory</source>
         <translation type="obsolete">Sélectionner le répertoire de la chaîne de compilation CSL Arm (GCCE)</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation type="obsolete">Auto-détecté</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation type="obsolete">Manuel</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="obsolete">Aide à la compilation</translation>
-    </message>
-    <message>
-        <source>Helpers: None available</source>
-        <translation type="obsolete">Assistants : aucun disponible</translation>
-    </message>
-    <message>
-        <source>Helpers: %1.</source>
-        <extracomment>%1 is list of tool names.</extracomment>
-        <translation type="obsolete">Assistants : %1. </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Not yet built.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Pas encore compilé.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Not needed.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Pas requis.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
@@ -17952,7 +17041,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build and Run</source>
         <translation>Compilation et exécution</translation>
@@ -18084,61 +17173,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Manage Sessions...</source>
-        <translation type="obsolete">Gestion des sessions...</translation>
-    </message>
-    <message>
-        <source>Create New Project...</source>
-        <translation type="obsolete">Créer un nouveau projet...</translation>
-    </message>
-    <message>
-        <source>Open Recent Project</source>
-        <translation type="obsolete">Ouvrir un projet récent</translation>
-    </message>
-    <message>
-        <source>Resume Session</source>
-        <translation type="obsolete">Reprendre la session</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (dernière session)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (session courante)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
-    </message>
-    <message>
-        <source>New Project...</source>
-        <translation type="obsolete">Nouveau projet...</translation>
-    </message>
-    <message>
-        <source>Recent Sessions</source>
-        <translation type="obsolete">Sessions récentes</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Projets récents</translation>
-    </message>
-    <message>
-        <source>Open Project...</source>
-        <translation type="obsolete">Ouvrir le projet...</translation>
-    </message>
-    <message>
-        <source>Create Project...</source>
-        <translation type="obsolete">Créer un projet...</translation>
     </message>
 </context>
 <context>
@@ -18363,25 +17397,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">L&apos;emplacement spécifié existe déjà. Veuillez spécifier un autre emplacement.</translation>
     </message>
     <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
-    </message>
-    <message>
-        <source>Cmd</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Cmd</translation>
-    </message>
-    <message>
-        <source>Alt</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Alt</translation>
-    </message>
-    <message>
-        <source>Ctrl</source>
-        <comment>Shortcut key</comment>
-        <translation type="obsolete">Ctrl</translation>
-    </message>
-    <message>
         <source>If you add external libraries to your project, Qt Creator will automatically offer syntax highlighting and code completion.</source>
         <translation type="obsolete">Si vous ajoutez des bibliothèques externes à votre projet, QtCreator va automatiquement mettre en place la coloration syntaxique et l&apos;auto-complétion.</translation>
     </message>
@@ -18452,18 +17467,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; follows symbol definition, &lt;tt&gt;Shift+F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
         <translation type="obsolete">Dans l&apos;éditeur, vous pouvez aller à la définition du symbole en pressant &lt;tt&gt;F2&lt;/tt&gt;, &lt;tt&gt;Maj+F2&lt;/tt&gt; bascule entre déclaration et définition tandis que &lt;tt&gt;F4&lt;/tt&gt; bascule entre en-tête et fichier source.</translation>
-    </message>
-    <message>
-        <source>You can modify the binary that is being executed when you press the &lt;tt&gt;Run&lt;/tt&gt; button: Add a &lt;tt&gt;Custom Executable&lt;/tt&gt; by clicking the &lt;tt&gt;+&lt;/tt&gt; button in &lt;tt&gt;Projects -&gt; Run Settings -&gt; Run Configuration&lt;/tt&gt; and then select the new target in the combo box.</source>
-        <translation type="obsolete">Vous pouvez modifier le binaire qui sera exécuté lorsque vous appuyez sur le bouton &lt;tt&gt;Lancer&lt;/tt&gt; : Ajoutez un &lt;tt&gt;exécutable personnalisé&lt;/tt&gt; en cliquant sur le bouton &lt;tt&gt;+&lt;/tt&gt; dans &lt;tt&gt;Projets -&gt; Paramètres d&apos;exécutions -&gt; Configuration d&apos;exécution&lt;/tt&gt; et sélectionnez une nouvelle cible dans le menu déroulant.</translation>
-    </message>
-    <message>
-        <source>You can use Qt Creator with a number of &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;revision control systems&lt;/a&gt; such as Subversion, Perforce, CVS and Git.</source>
-        <translation type="obsolete">Vous pouvez utiliser Qt Creator conjointement avec de nombreux &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-version-control.html&quot;&gt;systèmes de gestion de version&lt;/a&gt; tel que Subversion, Perforce, CVS et Git.</translation>
-    </message>
-    <message>
-        <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
-        <translation type="obsolete">Dans l&apos;éditeur, &lt;tt&gt;F2&lt;/tt&gt; passe de la déclaration à la définition de fonction, tandis que &lt;tt&gt;F4&lt;/tt&gt; passe du fichier source au fichier d&apos;en-tête.</translation>
     </message>
     <message>
         <source>Explore Qt C++ Examples</source>
@@ -19639,7 +18642,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
         <translation>Échec lors de l&apos;exécution du programme. Mauvais chemin ou permissions ?</translation>
@@ -19661,16 +18664,10 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation>Impossible de récupérer la sortie de débogage. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Exécuter</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
         <source>No executable specified.</source>
         <translation>Aucun exécutable n&apos;est spécifié.</translation>
@@ -19706,9 +18703,6 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation>%1 a quitté avec le code %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
@@ -19736,76 +18730,12 @@ Raison : %2</translation>
         <translation>Assistant GDB</translation>
     </message>
     <message>
-        <source>Building debugging helper library in %1
-</source>
-        <translation type="obsolete">Compilation de la bibliothèque d&apos;assistance au débogage dans %1
-</translation>
-    </message>
-    <message>
-        <source>Running %1 %2...
-</source>
-        <translation type="obsolete">Exécute %1 %2...
-</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translatorcomment>traduire PATH ici ?</translatorcomment>
-        <translation>%1 non trouvé dans le PATH
-</translation>
-    </message>
-    <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Exécute %1...
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
-    <message>
         <source>Develop</source>
         <translation>Développer</translation>
     </message>
     <message>
         <source>New Project</source>
         <translation>Nouveau projet</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projets</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ActiveConfigurationWidget</name>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution active</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectLabel</name>
-    <message>
-        <source>Edit Project Settings for Project &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation type="obsolete">Éditer les paramètres du projet &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>No Project loaded</source>
-        <translation type="obsolete">Aucun projet chargé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectPushButton</name>
-    <message>
-        <source>Select Project</source>
-        <translation type="obsolete">Sectionner projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
-        <source>Active Build and Run Configurations</source>
-        <translation type="obsolete">Configuration de compilation et d&apos;exécution sélectionnées</translation>
     </message>
     <message>
         <source>No project loaded.</source>
@@ -20904,42 +19834,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Change build configuration &amp;&amp; continue</source>
         <translation type="obsolete">Changer la configuration de compilation et continuer</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>Continue anyway</source>
-        <translation type="obsolete">Continuer malgré tout</translation>
-    </message>
-    <message>
-        <source>Run configuration does not match build configuration</source>
-        <translation type="obsolete">La configuration d&apos;éxecution ne correspond pas à la configuration de compilation</translation>
-    </message>
-    <message>
-        <source>The active build configuration builds a target that cannot be used by the active run configuration.</source>
-        <translation type="obsolete">La configuration de compilation sélectionnée compile une cible ne pouvant être utilisée par la configuration d&apos;éxecution sélectionnée.</translation>
-    </message>
-    <message>
-        <source>This can happen if the active build configuration uses the wrong Qt version and/or tool chain for the active run configuration (for example, running in Symbian emulator requires building with the WINSCW tool chain).</source>
-        <translation type="obsolete">Ceci peut se produire lorsque la configuration de compilation sélectionnée utilise la mauvaise version de Qt et/ou chaîne de compilation pour la configuration d&apos;éxecution sélectionnée (par exemple. l&apos;exécution dans l&apos;émulateur Symbian requiert une compilation avec la chaîne WINSCW).</translation>
-    </message>
-    <message>
-        <source>No valid build configuration found.</source>
-        <translation type="obsolete">Aucune configuration de compilation valide trouvée.</translation>
-    </message>
-    <message>
-        <source>Active run configuration</source>
-        <translation type="obsolete">Configuration d&apos;exécution active</translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation type="obsolete">Choisir la configuration de compilation :</translation>
     </message>
 </context>
 <context>
@@ -21288,7 +20186,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::AddTargetDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Add target</source>
         <translation type="obsolete">Ajouter une cible</translation>
@@ -21297,16 +20195,10 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Target:</source>
         <translation type="obsolete">Cible :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DoubleTabWidget</name>
     <message>
         <source>DoubleTabWidget</source>
         <translation>DoubleTabWidget</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsWidget</name>
     <message>
         <source>TargetSettingsWidget</source>
         <translation>TargetSettingsWidget</translation>
@@ -24928,7 +23820,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -24938,30 +23830,11 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>sans_titre</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
-    <message>
-        <source>Build</source>
-        <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Compiler</translation>
-    </message>
     <message>
         <source>Clean</source>
         <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
         <translation>Nettoyer</translation>
     </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Environnement système</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Environnement de nettoyage</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Nettoyer l&apos;environnement système</translation>
@@ -24986,7 +23859,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::CustomWizard</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Details</source>
         <comment>Default short title for custom wizard page to be shown in the progress pane of the wizard.</comment>
@@ -25027,10 +23900,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Qt Creator plugin</source>
         <translation type="obsolete">Plug-in Qt Creator</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation type="obsolete">Autre projet</translation>
     </message>
     <message>
         <source>Creates a plain C project using QMake, not using the Qt library.</source>
@@ -25317,23 +24186,14 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Example Object Class-name:</source>
         <translation type="obsolete">Nom de classe de l&apos;objet exemple : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomProjectWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;Pas d&apos;autres projets dans cette session&gt;</translation>
@@ -25347,17 +24207,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>DependenciesPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Dependencies</source>
         <translation>Dépendances</translation>
-    </message>
-</context>
-<context>
-    <name>EditorSettingsPanelFactory</name>
-    <message>
-        <source>Editor Settings</source>
-        <translation type="obsolete">Paramètres de l&apos;éditeur</translation>
     </message>
     <message>
         <source>Editor</source>
@@ -25500,7 +24353,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::MiniTargetWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Select active build configuration</source>
         <translation type="obsolete">Sélectionner la configuration de compilation active</translation>
@@ -25517,9 +24370,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Run:</source>
         <translation type="obsolete">Exécution :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projet</translation>
@@ -25535,14 +24385,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Kit</source>
         <translation>Kit</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Déployer</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -25613,14 +24455,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation type="obsolete">Sélectionner le projet actif</translation>
     </message>
     <message>
-        <source>Build:</source>
-        <translation type="obsolete">Compilation :</translation>
-    </message>
-    <message>
-        <source>Run:</source>
-        <translation type="obsolete">Exécution :</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Project:&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Run:&lt;/b&gt; %4%5&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;nobr&gt;&lt;b&gt;Projet :&lt;/b&gt; %1&lt;br/&gt;%2%3&lt;b&gt;Exécution :&lt;/b&gt; %4%5&lt;/html&gt;</translation>
     </message>
@@ -25636,19 +24470,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>&lt;br/&gt;%1</source>
         <translation type="obsolete">&lt;br/&gt;%1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectConfiguration</name>
     <message>
         <source>Clone of %1</source>
         <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
     </message>
     <message>
         <source>Build &amp; Run</source>
@@ -25663,24 +24487,12 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>Applications</translation>
     </message>
     <message>
-        <source>Libraries</source>
-        <translation>Bibliothèques</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>Projet non Qt</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>Importer un projet</translation>
     </message>
     <message>
         <source>Qt Application</source>
         <translation type="obsolete">Application Qt</translation>
-    </message>
-    <message>
-        <source>Devices</source>
-        <translation>Appareils mobiles</translation>
     </message>
 </context>
 <context>
@@ -25709,7 +24521,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Entrez le nom de la session :</translation>
@@ -25718,20 +24530,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Switch to</source>
         <translation>Basculer vers</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSelector</name>
-    <message>
-        <source>Run</source>
-        <translation>Exécuter</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Compiler</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSettingsPanelWidget</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">Aucune cible définie.</translation>
@@ -25791,10 +24589,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>Annuler la compilation et supprimer le kit</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Ne pas supprimer</translation>
-    </message>
-    <message>
         <source>Remove Kit %1?</source>
         <translation>Supprimer le kit %1 ?</translation>
     </message>
@@ -25842,35 +24636,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you really want to remove the
-&quot;%1&quot; target?</source>
-        <translation type="obsolete">Voulez-vous vraiment supprimer la cible
-&quot;%1&quot; ?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::TaskWindow</name>
-    <message>
-        <source>Build Issues</source>
-        <translation type="obsolete">Problèmes de compilation</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">Cop&amp;ier</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate</source>
-        <translation type="obsolete">&amp;Annoter</translation>
-    </message>
-    <message>
-        <source>Show Warnings</source>
-        <translation type="obsolete">Afficher les avertissements</translation>
-    </message>
-    <message>
-        <source>Filter by categories</source>
-        <translation type="obsolete">Filtrer par catégories</translation>
     </message>
 </context>
 <context>
@@ -27422,7 +26187,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">Le SDK Symbian et les sources du projet doivent être situés sur le même disque.</translation>
@@ -28413,7 +27178,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Impossible de démarrer le processus : %1</translation>
@@ -28457,12 +27222,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>Running %1 %2 ...
 </source>
         <translation>Exécute %1 %2...
-</translation>
-    </message>
-    <message>
-        <source>Running %1 ...
-</source>
-        <translation type="obsolete">Exécute %1...
 </translation>
     </message>
     <message>
@@ -29694,7 +28453,7 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%1 Steps</source>
         <extracomment>%1 is the name returned by BuildStepList::displayName</extracomment>
@@ -29736,9 +28495,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>No Build Steps</source>
         <translation>Aucune étape de compilation</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error: </source>
         <comment>Task is of type error</comment>
@@ -29778,9 +28534,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <extracomment>Task is of type: warning</extracomment>
         <translation>avertissement :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
     <message>
         <source>Deploy</source>
         <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
@@ -29791,28 +28544,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <extracomment>Default DeployConfiguration display name</extracomment>
         <translation>Déployer localement</translation>
     </message>
-    <message>
-        <source>No deployment</source>
-        <extracomment>Default DeployConfiguration display name</extracomment>
-        <translation type="obsolete">Pas de déploiement</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfigurationFactory</name>
-    <message>
-        <source>Deploy Configuration</source>
-        <translation>Configuration de déploiement</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsWidget</name>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Défaut</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>Application Still Running</source>
         <translation>Application toujours en cours d&apos;exécution</translation>
@@ -29850,9 +28581,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>Do not ask again</source>
         <translation>Ne plus me demander</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>&amp;Show in editor</source>
         <translation type="obsolete">&amp;Afficher dans l&apos;éditeur</translation>
@@ -29873,9 +28601,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>Show task location in an editor.</source>
         <translation>Montre l&apos;emplacement de la tâche dans un éditeur. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Afficher la s&amp;ortie</translation>
@@ -29888,36 +28613,6 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
         <source>O</source>
         <translation>O</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Utiliser le fichier de paramètres de l&apos;ancien projet</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Un back-up versionné du fichier de paramètres .user sera utilisé parce qu&apos;un fichier non versionné a été créé par une version plus récente et incompatible de Qt Creator.&lt;/p&gt;&lt;p&gt;Les changements aux préférences du projet effectuées depuis la dernière fois que cette version de Qt Creator a été utilisée avec ce projet sont ignorés et les changements effectués dès maintenant ne seront &lt;b&gt;pas&lt;/b&gt; propagés à la nouvelle version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Le fichier de configuration du projet provient-il d&apos;un environnement différent ?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator a trouvé un fichier de configuration .user qui a été créé pour une autre configuration de développement, peut-être à partir d&apos;un autre ordinateur.
-
-Le fichier de configuration .user contient des paramètres spécifiques à un environnement. Ils ne devraient pas être copiés dans un environnement différent.
-
-Voulez-vous toujours charger le fichier de configuration ?</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Pas de déploiement</translation>
@@ -29932,9 +28627,6 @@ Voulez-vous toujours charger le fichier de configuration ?</translation>
         <translatorcomment>myzu : le ou un ?</translatorcomment>
         <translation type="obsolete">Déployer sur un périphérique Symbian</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Annoter</translation>
@@ -30314,7 +29006,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlDumpTool</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>qmldump could not be built in any of the directories:
 - %1
@@ -30345,11 +29037,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>QMLObserver could not be built in any of the directories:
 - %1
@@ -30945,7 +29633,7 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Stop monitoring</source>
         <translation type="obsolete">Arrêter la surveillance</translation>
@@ -30958,9 +29646,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Stop monitoring task files.</source>
         <translation>Arrêter la surveillance des fichiers de tâches.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskFileFactory</name>
     <message>
         <source>Task file reader</source>
         <translation>Lecteur de fichier de tâches</translation>
@@ -30969,9 +29654,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>File Error</source>
         <translation>Erreur de fichier</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Impossible d&apos;ouvrir le fichier de tâche %1 : %2</translation>
@@ -31779,7 +30461,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Publishing Wizard Selection</source>
         <translation>Sélection de l&apos;assistant de publication</translation>
@@ -34890,17 +33572,10 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>Chemin du &amp;compilateur : </translation>
     </message>
     <message>
         <source>Platform codegen flags:</source>
@@ -34911,49 +33586,17 @@ Do you want to retry?</source>
         <translation>Flags de plateforme de l&apos;éditeur de liens :</translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI : </translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
-    <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>ICC Linux</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
     <message>
         <source>MSVC</source>
         <translation>MSVC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcDebuggerConfigLabel</name>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;Specify the path to the &lt;a href=&quot;%1&quot;&gt;Windows Console Debugger executable&lt;/a&gt; (%2) here.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin à &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>64-bit version</source>
-        <translation type="obsolete">version 64-bits</translation>
-    </message>
-    <message>
-        <source>32-bit version</source>
-        <translation type="obsolete">version 32-bits</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Initialisation :</translation>
@@ -34970,30 +33613,9 @@ Do you want to retry?</source>
         <source>The CDB debugger could not be found in %1</source>
         <translation type="obsolete">Le débogueur CDB n&apos;a pas pu être trouvé dans %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projets</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Débogueur :</translation>
-    </message>
-    <message>
-        <source>Autodetect</source>
-        <translation type="obsolete">Autodétecter</translation>
     </message>
     <message>
         <source>mkspec:</source>
@@ -35004,19 +33626,8 @@ Do you want to retry?</source>
         <translation type="obsolete">Tout les mkspecs possibles séparés par un point virgule (&apos;;&apos;).</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation>Nom :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainModel</name>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Auto-détecté</translation>
     </message>
     <message>
         <source>Manual</source>
@@ -35066,9 +33677,6 @@ Do you want to retry?</source>
         <source>The following tool chains were already configured:&lt;br&gt; %1&lt;br&gt;They were not configured again.</source>
         <translation type="obsolete">Les chaînes de compilation suivantes ont déjà été configurées : &lt;br/&gt; %1&lt;br/&gt;Elles n&apos;ont pas été configurées à nouveau. </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>Tool Chains</source>
         <translation type="obsolete">Chaînes de compilation</translation>
@@ -35078,16 +33686,8 @@ Do you want to retry?</source>
         <translation>Compilateurs</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Clone</source>
         <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
 </context>
 <context>
@@ -35463,22 +34063,6 @@ Please build the debugging helpers on the Qt version options page.</source>
     <message>
         <source>Main QML file:</source>
         <translation>Fichier QML principal : </translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
-    </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;exécution</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Invalid Qt version</source>
-        <translation type="obsolete">Version de Qt invalide</translation>
     </message>
 </context>
 <context>
@@ -36719,17 +35303,6 @@ if (a &amp;&amp;
     <message>
         <source>&amp;Push</source>
         <translation>&amp;Envoyer</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CodeStyleSettingsPropertiesPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="obsolete">Langue :</translation>
     </message>
 </context>
 <context>
@@ -38377,14 +36950,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::AbiWidget</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;personnalisé&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Attacher le débogueur à ce processus</translation>
@@ -38421,9 +36991,6 @@ These files are preserved.</source>
         <source>Application Output Window</source>
         <translation>Fenêtre de sortie de l&apos;application</translation>
     </message>
-</context>
-<context>
-    <name>CodeStyleSettingsPanelFactory</name>
     <message>
         <source>Code Style Settings</source>
         <translation type="obsolete">Paramètres de style de code</translation>
@@ -38445,7 +37012,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EditorConfiguration</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Project</source>
         <comment>Settings</comment>
@@ -38456,9 +37023,6 @@ These files are preserved.</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
         <translation>Projet %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
     <message>
         <source>Clang</source>
         <translation>Clang</translation>
@@ -41451,30 +40015,10 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::SettingsAccessor</name>
-    <message>
-        <source>Using Old Project Settings File</source>
-        <translation type="obsolete">Utiliser le fichier de paramètres de l&apos;ancien projet</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A versioned backup of the .user settings file will be used, because the non-versioned file was created by an incompatible newer version of Qt Creator.&lt;/p&gt;&lt;p&gt;Project settings changes made since the last time this version of Qt Creator was used with this project are ignored, and changes made now will &lt;b&gt;not&lt;/b&gt; be propagated to the newer version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Une sauvegarde versionnée du fichier de paramètres .user sera utilisée parce qu&apos;un fichier non versionné a été créé par une version plus récente et incompatible de Qt Creator.&lt;/p&gt;&lt;p&gt;Les changements aux préférences du projet effectuées depuis la dernière fois que cette version de Qt Creator a été utilisée avec ce projet seront ignorés et les changements effectués dès maintenant ne seront &lt;b&gt;pas&lt;/b&gt; propagés à la nouvelle version.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Project Settings File from a different Environment?</source>
-        <translation type="obsolete">Le fichier de configuration du projet provient-il d&apos;un environnement différent ?</translation>
-    </message>
-    <message>
-        <source>Qt Creator has found a .user settings file which was created for another development setup, maybe originating from another machine.
-
-The .user settings files contain environment specific settings. They should not be copied to a different environment. 
-
-Do you still want to load the settings file?</source>
-        <translation type="obsolete">Qt Creator a trouvé un fichier de configuration .user qui a été créé pour une autre configuration de développement, peut-être à partir d&apos;un autre ordinateur.
-
-Le fichier de configuration .user contient des paramètres spécifiques à un environnement. Ils ne devraient pas être copiés dans un environnement différent.
-
-Voulez-vous toujours charger le fichier de configuration ?</translation>
     </message>
     <message>
         <source>No valid .user file found for &apos;%1&apos;</source>
@@ -42743,7 +41287,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -44916,42 +43460,23 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::EnvironmentItemsDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Edit Environment</source>
         <translation>Editer l&apos;environnement</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
-    <message>
-        <source>New session name</source>
-        <translation>Nom de la nouvelle session</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggerRunConfigurationAspect</name>
     <message>
         <source>Debugger settings</source>
         <translation type="obsolete">Paramètres du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainFactory</name>
     <message>
         <source>WinCE</source>
         <translation>WinCE</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WinCEToolChainConfigWidget</name>
     <message>
         <source>SDK:</source>
         <translation>SDK :</translation>
@@ -45260,10 +43785,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     <message>
         <source>Failed to Open Project</source>
         <translation>Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Échec d&apos;ouverture du projet</translation>
     </message>
 </context>
 <context>
@@ -46053,7 +44574,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Sélection de l&apos;assistant de configuration du périphérique</translation>
@@ -46063,13 +44584,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>Types de périphérique disponibles : </translation>
     </message>
     <message>
-        <source>Start Wizard</source>
-        <translation>Démarrer l&apos;assistant</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
-    <message>
         <source>Linux Device Configurations</source>
         <translation>Configurations des périphériques Linux</translation>
     </message>
@@ -46078,16 +44592,8 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translation>&amp;Périphérique :</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Général</translation>
-    </message>
-    <message>
         <source>&amp;Name:</source>
         <translation>&amp;Nom :</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Type :</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
@@ -48971,7 +47477,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDevice</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Run locally</source>
         <translation type="obsolete">Exécuter localement</translation>
@@ -48984,16 +47490,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Desktop</source>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceApplicationRunner</name>
     <message>
         <source>Cannot run: Device is not able to create processes.</source>
         <translation>Impossible d&apos;exécuter : le périphérique n&apos;est pas capable de créer le processus.</translation>
@@ -49042,16 +47538,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Remote application finished with exit code 0.</source>
         <translation>L&apos;application distante s&apos;est terminée avec le code 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (défaut pour %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>Kit:</source>
         <translation>Kit :</translation>
@@ -49080,16 +47570,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Attacher au processus</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>Erreur distante</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>ID du processus</translation>
@@ -49098,16 +47582,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Command Line</source>
         <translation>Ligne de commande</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
     <message>
         <source>Devices</source>
         <translation>Périphériques</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Erreur de connexion : %1</translation>
@@ -49129,16 +47607,10 @@ were not verified among remotes in %3. Select different folder?</source>
 Remote error output was: %1</source>
         <translation>La sortie du processus distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
     <message>
         <source>Device</source>
         <translation>Périphérique</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
     <message>
         <source>Cannot terminate process %1: %2</source>
         <translation>Impossible de terminer le processus %1 : %2</translation>
@@ -49147,9 +47619,6 @@ Remote error output was: %1</source>
         <source>Cannot open process %1: %2</source>
         <translation>Impossible d&apos;ouvrir le processus %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Échec de la connexion : %1</translation>
@@ -49187,16 +47656,9 @@ Remote error output was: %1</source>
 Remote stderr was: %1</source>
         <translation>Le stderr distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Sans nom</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
     </message>
     <message>
         <source>Error:</source>
@@ -49206,9 +47668,6 @@ Remote stderr was: %1</source>
         <source>Warning:</source>
         <translation>Avertissement : </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; is not a directory.</source>
         <translation>La racine du système &quot;%1&quot; n&apos;est pas un répertoire.</translation>
@@ -49217,9 +47676,6 @@ Remote stderr was: %1</source>
         <source>Sys Root</source>
         <translation>Racine du système</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compiler</source>
         <translation>Compilateur</translation>
@@ -49232,9 +47688,6 @@ Remote stderr was: %1</source>
         <source>No compiler set in kit.</source>
         <translation>Aucune compilateur défini dans le kit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Type de périphérique inconnu</translation>
@@ -49243,9 +47696,6 @@ Remote stderr was: %1</source>
         <source>Device type</source>
         <translation>Type de périphérique</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>Device does not match device type.</source>
         <translation>Le périphérique ne correspond pas au type de périphérique.</translation>
@@ -49259,17 +47709,6 @@ Remote stderr was: %1</source>
         <translation>Pas de périphérique défini.</translation>
     </message>
     <message>
-        <source>Device</source>
-        <translation>Périphérique</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Non configuré</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
-    <message>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Le répertoire racine du système image à utiliser.&lt;br&gt;Laisser vide lors d&apos;une compilation sur desktop.</translation>
     </message>
@@ -49278,16 +47717,9 @@ Remote stderr was: %1</source>
         <translatorcomment>Traduit plus haut</translatorcomment>
         <translation>Racine du système :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>The compiler to use for building.&lt;br&gt;Make sure the compiler will produce binaries compatible with the target device, Qt version and other libraries used.</source>
         <translation>Le compilateur à utiliser pour la compilation.&lt;br&gt;Assurez-vous que le compilateur génère des binaires compatibles avec le périphérique cible, la version de Qt et les autres bibliothèques utilisées.</translation>
-    </message>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
     </message>
     <message>
         <source>Compiler:</source>
@@ -49297,9 +47729,6 @@ Remote stderr was: %1</source>
         <source>&lt;No compiler available&gt;</source>
         <translation>&lt;Aucun compilateur disponible&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>The type of device to run applications on.</source>
         <translation>Le type de périphérique sur lequel les applications sont exécutées.</translation>
@@ -49308,9 +47737,6 @@ Remote stderr was: %1</source>
         <source>Device type:</source>
         <translation>Type de périphérique :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Manage</source>
         <translation>Gérer</translation>
@@ -49326,20 +47752,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Device:</source>
         <translation>Appareil mobile :</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
     </message>
     <message>
         <source>Kit name and icon.</source>
@@ -49357,62 +47769,26 @@ Remote stderr was: %1</source>
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Images (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>Auto-detected</source>
         <translation>Autodétecté</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuel</translation>
     </message>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (par défaut)</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Nom</translation>
-    </message>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Clone de %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
         <source>Kits</source>
         <translation>Kits</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Rendre par défaut</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
     <message>
         <source>Unknown error.</source>
         <translation>Erreur inconnue.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Default build</source>
         <translation>Compilation par défaut</translation>
@@ -49995,14 +48371,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <source>Run in &amp;terminal</source>
         <translation>Exécuter dans le &amp;terminal</translation>
     </message>
-    <message>
-        <source>Run Environment</source>
-        <translation type="obsolete">Environnement d&apos;éxecution</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -50024,18 +48392,6 @@ cannot be found in the path.</source>
         <translation>L&apos;exécutable
 %1
 n&apos;a pas pu être trouvé dans le dossier.</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
     </message>
     <message>
         <source>Custom Executable</source>
@@ -50468,18 +48824,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Machine type:</source>
         <translation>Type de machine :</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation>Étiquette de nom</translation>
     </message>
     <message>
         <source>Free ports:</source>
@@ -52981,14 +51329,11 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom</source>
         <translation>Personnalisé</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -53000,9 +51345,6 @@ Distant : %4</translation>
         <source>Empty</source>
         <translation>Vide</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Paramètres d&apos;analyse personnalisés...</translation>
@@ -53055,9 +51397,6 @@ Distant : %4</translation>
         <source>&amp;Error parser:</source>
         <translation>&amp;Erreur d&apos;analyse syntaxique :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
     <message>
         <source>No device configured.</source>
         <translation>Aucun périphérique configuré.</translation>
@@ -53074,33 +51413,17 @@ Distant : %4</translation>
         <source>Check for a configured device</source>
         <translation>Vérifier pour les périphériques configurés</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>Environnement d&apos;exécution</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Environnement de base pour cette configuration d&apos;exécution :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2 %3 in %4)</source>
         <translation>%1 (%2 %3 dans %4)</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Environnement de compilation</translation>
     </message>
     <message>
         <source>System Environment</source>
@@ -53110,9 +51433,6 @@ Distant : %4</translation>
         <source>Clean Environment</source>
         <translation>Environnement vierge</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -54808,7 +53128,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Custom Parser</source>
         <translation>Analyseur personnalisé</translation>
@@ -54836,10 +53156,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>&amp;Message:</source>
         <translation>&amp;Message :</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -54877,9 +53193,6 @@ réinitialisation du moniteur</translation>
         <source>Pattern does not match the error message.</source>
         <translation>Le motif ne trouve pas de correspondance dans le message d&apos;erreur.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Test de périphérique</translation>
@@ -56038,30 +54351,11 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>ICC</source>
         <translation>ICC</translation>
     </message>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Personnalisé</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Impossible de tuer le processus avec le pid %1 : %2</translation>
@@ -56098,9 +54392,6 @@ réinitialisation du moniteur</translation>
         <source>could not break the process.</source>
         <translation>Impossible d&apos;interrompre le processus.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Impossible de tuer le processus distant : %1</translation>
@@ -56113,9 +54404,6 @@ réinitialisation du moniteur</translation>
         <source>Terminated by request.</source>
         <translation>Terminé par une requête.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
     <message>
         <source>Import Build From...</source>
         <translation>Importer la compilation depuis...</translation>
@@ -56124,32 +54412,16 @@ réinitialisation du moniteur</translation>
         <source>Import</source>
         <translation>Importer</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
     <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Le processus ne peut pas accéder au fichier parce que celui-ci est utilisé par un autre processus.
 Veuillez fermer toutes les instances de votre application en cours d&apos;exécution avant de lancer une compilation.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>%1 - temporary</source>
         <translation>%1 – temporaire</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Aucun kit valide trouvé.&lt;/span&gt;</translation>
@@ -56171,13 +54443,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <comment>%1: Project name</comment>
         <translation>Qt Creator peut utiliser les kits suivant pour le projet &lt;b&gt;%1&lt;/&gt; :</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Gérer...</translation>
-    </message>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -56188,16 +54453,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Avertissement :&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Configurer le projet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>

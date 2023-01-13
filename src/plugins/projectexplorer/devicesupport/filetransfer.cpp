@@ -5,6 +5,7 @@
 
 #include "devicemanager.h"
 #include "idevice.h"
+#include "../projectexplorertr.h"
 
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -91,7 +92,7 @@ private:
 void FileTransferPrivate::test()
 {
     if (!m_testDevice)
-        return startFailed(tr("No device set for test transfer."));
+        return startFailed(Tr::tr("No device set for test transfer."));
 
     run({{}, m_setup.m_method, m_setup.m_rsyncFlags}, m_testDevice);
 }
@@ -99,7 +100,7 @@ void FileTransferPrivate::test()
 void FileTransferPrivate::start()
 {
     if (m_setup.m_files.isEmpty())
-        return startFailed(tr("No files to transfer."));
+        return startFailed(Tr::tr("No files to transfer."));
 
     const FileTransferDirection direction = transferDirection(m_setup.m_files);
 
@@ -130,7 +131,7 @@ void FileTransferPrivate::run(const FileTransferSetupData &setup, const IDeviceC
     stop();
 
     m_transfer.reset(device->createFileTransferInterface(setup));
-    QTC_ASSERT(m_transfer, startFailed(tr("Missing transfer implementation.")); return);
+    QTC_ASSERT(m_transfer, startFailed(Tr::tr("Missing transfer implementation.")); return);
 
     m_transfer->setParent(this);
     connect(m_transfer.get(), &FileTransferInterface::progress,

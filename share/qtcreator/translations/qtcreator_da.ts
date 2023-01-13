@@ -5453,7 +5453,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodeStyleSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
@@ -9654,7 +9654,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>CustomToolChain</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>GCC</source>
         <translation>GCC</translation>
@@ -14278,7 +14278,7 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
     </message>
 </context>
 <context>
-    <name>DependenciesModel</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Unable to Add Dependency</source>
         <translation>Kunne ikke tilføje afhængighed</translation>
@@ -14287,9 +14287,6 @@ Trin ind i modulet eller sætning af brudpunkter efter fil eller linje forventes
         <source>This would create a circular dependency.</source>
         <translation>Dette ville oprette en cirkulær afhængighed.</translation>
     </message>
-</context>
-<context>
-    <name>DependenciesPanelFactory</name>
     <message>
         <source>Dependencies</source>
         <translation>Afhængigheder</translation>
@@ -14776,7 +14773,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>EditorSettingsPanelFactory</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Editor</source>
         <translation>Redigering</translation>
@@ -21974,16 +21971,10 @@ Fejl: %5</translation>
         <source>Kits</source>
         <translation>Kits</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbiWidget</name>
     <message>
         <source>&lt;custom&gt;</source>
         <translation>&lt;brugerdefineret&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::AbstractProcessStep</name>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Konfigurationen har fejl. Tjek visningen Problemstillinger for detaljer.</translation>
@@ -22012,9 +22003,6 @@ Fejl: %5</translation>
         <source>Could not start process &quot;%1&quot; %2</source>
         <translation>Kunne ikke starte processen &quot;%1&quot; %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation>Brugeranmodet stop. Lukker ned...</translation>
@@ -22059,9 +22047,6 @@ Fejl: %5</translation>
         <source>Application finished with exit code 0.</source>
         <translation>Program afsluttede med afslutningskode 0.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ArgumentsAspect</name>
     <message>
         <source>Arguments</source>
         <translation>Argumenter</translation>
@@ -22070,17 +22055,11 @@ Fejl: %5</translation>
         <source>Command line arguments:</source>
         <translation>Kommandolinjeargumenter:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BaseProjectWizardDialog</name>
     <message>
         <source>untitled</source>
         <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
         <translation>unavngivet</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildConfiguration</name>
     <message>
         <source>Build Settings</source>
         <translation>Bygindstillinger</translation>
@@ -22088,10 +22067,6 @@ Fejl: %5</translation>
     <message>
         <source>Build directory</source>
         <translation>Bygmappe</translation>
-    </message>
-    <message>
-        <source>Name of current build</source>
-        <translation>Navn på aktuelt byg</translation>
     </message>
     <message>
         <source>Variables in the current build environment</source>
@@ -22105,9 +22080,6 @@ Fejl: %5</translation>
         <source>Clean Environment</source>
         <translation>Rensmiljø</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Ryd systemmiljø</translation>
@@ -22116,9 +22088,6 @@ Fejl: %5</translation>
         <source>Build Environment</source>
         <translation>Bygmiljø</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildManager</name>
     <message numerus="yes">
         <source>Finished %1 of %n steps</source>
         <translation>
@@ -22173,16 +22142,10 @@ Fejl: %5</translation>
         <source>Skipping disabled step %1.</source>
         <translation>Springer over deaktiveret trin %1.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildStep</name>
     <message>
         <source>Build Step</source>
         <translation>Byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::BuildableHelperLibrary</name>
     <message>
         <source>Cannot start process: %1</source>
         <translation>Kan ikke starte process: %1</translation>
@@ -22229,16 +22192,6 @@ Fejl: %5</translation>
         <translation>%1 ikke fundet i PATH
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableDialog</name>
     <message>
         <source>Could not find the executable, please specify one.</source>
         <translation>Kunne ikke finde den eksekverbare, angiv venligst en.</translation>
@@ -22247,9 +22200,6 @@ Fejl: %5</translation>
         <source>Executable:</source>
         <translation>Eksekverbar:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomExecutableRunConfiguration</name>
     <message>
         <source>Custom Executable</source>
         <translation>Brugerdefineret eksekverbar</translation>
@@ -22257,13 +22207,6 @@ Fejl: %5</translation>
     <message>
         <source>Run %1</source>
         <translation>Kør %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::CustomWizard</name>
-    <message>
-        <source>Other Project</source>
-        <translation>Andet projekt</translation>
     </message>
     <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
@@ -22308,10 +22251,6 @@ Fejl: %5</translation>
     <message>
         <source>Qt Creator Plugin</source>
         <translation>Qt Creator-plugin</translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation>Bibliotek</translation>
     </message>
     <message>
         <source>Plugin Information</source>
@@ -22385,9 +22324,6 @@ Fejl: %5</translation>
         <source>Qt Quick 2 Extension Plugin</source>
         <translation>Qt Quick 2 udvidelse-plugin</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DebuggingHelperLibrary</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Mål-mappen %1 kunne ikke oprettes.</translation>
@@ -22399,20 +22335,6 @@ Fejl: %5</translation>
     <message>
         <source>The file %1 could not be copied to %2.</source>
         <translation>Filen %1 kunne ikke kopieres til %2.</translation>
-    </message>
-    <message>
-        <source>%1 not found in PATH
-</source>
-        <translation>%1 ikke fundet i PATH
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeployConfiguration</name>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Display name of the deploy build step list. Used as part of the labels in the project window.</extracomment>
-        <translation>Udsend</translation>
     </message>
     <message>
         <source>Deploy locally</source>
@@ -22428,9 +22350,6 @@ Fejl: %5</translation>
         <source>Deploy Settings</source>
         <translation>Udsendindstillinger</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataModel</name>
     <message>
         <source>Local File Path</source>
         <translation>Lokal filsti</translation>
@@ -22439,16 +22358,10 @@ Fejl: %5</translation>
         <source>Remote Directory</source>
         <translation>Fjern-mappe</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeploymentDataView</name>
     <message>
         <source>Files to deploy:</source>
         <translation>Filer som skal udsendes:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Local PC</source>
         <translation>Lokal PC</translation>
@@ -22457,9 +22370,6 @@ Fejl: %5</translation>
         <source>Desktop</source>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopDeviceConfigurationWidget</name>
     <message>
         <source>Machine type:</source>
         <translation>Maskintype:</translation>
@@ -22480,9 +22390,6 @@ Fejl: %5</translation>
         <source>You will need at least one port for QML debugging.</source>
         <translation>Du får brug for mindst en port for QML-fejlretning.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
         <translation>Kan ikke dræbe proces med pid %1: %2</translation>
@@ -22519,9 +22426,6 @@ Fejl: %5</translation>
         <source>could not break the process.</source>
         <translation>kunne ikke bryde processen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceCheckBuildStep</name>
     <message>
         <source>No device configured.</source>
         <translation>Ingen enhed konfigureret.</translation>
@@ -22538,9 +22442,6 @@ Fejl: %5</translation>
         <source>Check for a configured device</source>
         <translation>Tjek for en konfigureret enhed</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceKitInformation</name>
     <message>
         <source>No device set.</source>
         <translation>Ingen enhed sat.</translation>
@@ -22577,16 +22478,10 @@ Fejl: %5</translation>
         <source>Device name</source>
         <translation>Enhedsnavn</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceManagerModel</name>
     <message>
         <source>%1 (default for %2)</source>
         <translation>%1 (standard for %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessList</name>
     <message>
         <source>Process ID</source>
         <translation>Process-ID</translation>
@@ -22595,9 +22490,6 @@ Fejl: %5</translation>
         <source>Command Line</source>
         <translation>Kommandolinje</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceProcessesDialog</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Tilkobl til process</translation>
@@ -22626,9 +22518,6 @@ Fejl: %5</translation>
         <source>&amp;Filter:</source>
         <translation>&amp;Filter:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceTypeKitInformation</name>
     <message>
         <source>Unknown device type</source>
         <translation>Ukendt enhedstype</translation>
@@ -22637,9 +22526,6 @@ Fejl: %5</translation>
         <source>Device type</source>
         <translation>Enhedstype</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::DeviceUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Forbindelsesfejl: %1</translation>
@@ -22656,9 +22542,6 @@ Fejl: %5</translation>
         <source>Remote error output was: %1</source>
         <translation>Fjern-fejl-output var: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EditorConfiguration</name>
     <message>
         <source>Project %1</source>
         <comment>Settings, %1 is a language (C++ or QML)</comment>
@@ -22669,23 +22552,14 @@ Fejl: %5</translation>
         <comment>Settings</comment>
         <translation>Projekt</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspect</name>
     <message>
         <source>Run Environment</source>
         <translation>Kør-miljø</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentAspectWidget</name>
     <message>
         <source>Base environment for this run configuration:</source>
         <translation>Basismiljø for denne kør-konfiguraton:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentKitInformation</name>
     <message>
         <source>The environment setting value is invalid.</source>
         <translation>Miljøindstillingsværdien er ugyldig.</translation>
@@ -22694,16 +22568,10 @@ Fejl: %5</translation>
         <source>Environment</source>
         <translation>Miljø</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentValidator</name>
     <message>
         <source>Variable already exists.</source>
         <translation>Variabel findes allerede.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::EnvironmentWidget</name>
     <message>
         <source>Ed&amp;it</source>
         <translation>&amp;Rediger</translation>
@@ -22742,39 +22610,20 @@ Fejl: %5</translation>
         <extracomment>Yup, word puzzle. The Set/Unset phrases above are appended to this. %1 is &quot;System Environment&quot; or some such.</extracomment>
         <translation>Brug &lt;b&gt;%1&lt;/b&gt; og</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::GccToolChain</name>
     <message>
         <source>%1 (%2, %3 %4 in %5)</source>
         <translation>%1 (%2, %3 %4 i %5)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::IDevice</name>
-    <message>
-        <source>Device</source>
-        <translation>Enhed</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AbstractMsvcToolChain</name>
     <message>
         <source>Failed to retrieve MSVC Environment from &quot;%1&quot;:
 %2</source>
         <translation>Kunne ikke hente MSVC-miljø fra &quot;%1&quot;:
 %2</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFilter</name>
     <message>
         <source>Files in Any Project</source>
         <translation>Filer i vilkårligt projekt</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AllProjectsFind</name>
     <message>
         <source>All Projects</source>
         <translation>Alle projekter</translation>
@@ -22791,9 +22640,6 @@ Excluding: %2
 Ekskludering: %2
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::AppOutputPane</name>
     <message>
         <source>Attach debugger to this process</source>
         <translation>Tilkobl fejlretter til denne process</translation>
@@ -22842,9 +22688,6 @@ Ekskludering: %2
         <source>Application Output Window</source>
         <translation>Program-output-vindue</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildSettingsWidget</name>
     <message>
         <source>No build settings available</source>
         <translation>Ingen bygindstillinger tilgængelig</translation>
@@ -22882,11 +22725,6 @@ Ekskludering: %2
         <translation>Nyt navn for byggekonfigurationen &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
     <message>
-        <source>Clone Configuration</source>
-        <extracomment>Title of a the cloned BuildConfiguration window, text of the window</extracomment>
-        <translation>Klon konfiguration</translation>
-    </message>
-    <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
         <translation>Annuller byg og fjern byggekonfiguration</translation>
     </message>
@@ -22914,9 +22752,6 @@ Ekskludering: %2
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Vil du virkelig slette byggekonfigurationen &lt;b&gt;%1&lt;/b&gt;?</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepListWidget</name>
     <message>
         <source>Disable</source>
         <translation>Deaktivér</translation>
@@ -22958,9 +22793,6 @@ Ekskludering: %2
         <source>No Build Steps</source>
         <translation>Ingen byggetrin</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::BuildStepsPage</name>
     <message>
         <source>Build Steps</source>
         <translation>Byggetrin</translation>
@@ -22969,45 +22801,18 @@ Ekskludering: %2
         <source>Clean Steps</source>
         <translation>Renstrin</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangClToolChainConfigWidget</name>
     <message>
         <source>LLVM:</source>
         <translation>LLVM:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ClangToolChainFactory</name>
-    <message>
-        <source>Clang</source>
-        <translation>Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
     <message>
         <source>Language:</source>
         <translation>Sprog:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CompileOutputWindow</name>
     <message>
         <source>Compile Output</source>
         <translation>Kompileringsoutput</translation>
     </message>
-    <message>
-        <source>Increase Font Size</source>
-        <translation>Forøg skriftstørrelse</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation>Formindsk skriftstørrelse</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
         <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
@@ -23018,16 +22823,10 @@ Ekskludering: %2
         <extracomment>Task is of type: warning</extracomment>
         <translation>advarsel:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFilter</name>
     <message>
         <source>Files in Current Project</source>
         <translation>Filer i aktuelt projekt</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CurrentProjectFind</name>
     <message>
         <source>Project &quot;%1&quot;</source>
         <translation>Projektet &quot;%1&quot;</translation>
@@ -23040,9 +22839,6 @@ Ekskludering: %2
         <source>Project &quot;%1&quot;:</source>
         <translation>Projektet &quot;%1&quot;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
     <message>
         <source>Custom Parser</source>
         <translation>Brugerdefineret parser</translation>
@@ -23096,10 +22892,6 @@ Ekskludering: %2
         <translation>Filnavn:</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation>Tekstetiket</translation>
-    </message>
-    <message>
         <source>Line number:</source>
         <translation>Linjenummer:</translation>
     </message>
@@ -23135,9 +22927,6 @@ Ekskludering: %2
         <source>Pattern does not match the message.</source>
         <translation>Mønster matcher ikke meddelelsen.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
     <message>
         <source>Custom Parser Settings...</source>
         <translation>Brugerdefineret parserindstillinger...</translation>
@@ -23194,30 +22983,14 @@ Ekskludering: %2
         <source>&amp;Error parser:</source>
         <translation>&amp;Fejlparser:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomToolChainFactory</name>
-    <message>
-        <source>Custom</source>
-        <translation>Brugerdefineret</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::CustomWizardPage</name>
     <message>
         <source>Path:</source>
         <translation>Sti:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesModel</name>
     <message>
         <source>&lt;No other projects in this session&gt;</source>
         <translation>&lt;ingen andre projekter i denne session&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DependenciesWidget</name>
     <message>
         <source>Synchronize configuration</source>
         <translation>Synkroniser konfiguration</translation>
@@ -23226,16 +22999,6 @@ Ekskludering: %2
         <source>Synchronize active kit, build, and deploy configuration between projects.</source>
         <translation>Synkroniser aktive kit-, bygge- og udsend-konfiguration mellem projekter.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DesktopDeviceFactory</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
         <translation>Assistent til valg af enhed konfiguration</translation>
@@ -23248,9 +23011,6 @@ Ekskludering: %2
         <source>Start Wizard</source>
         <translation>Start assistent</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceInformationConfigWidget</name>
     <message>
         <source>Device:</source>
         <translation>Enhed:</translation>
@@ -23259,23 +23019,10 @@ Ekskludering: %2
         <source>The device to run the applications on.</source>
         <translation>Enheden som programmet skal kører på.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceProcessesDialogPrivate</name>
     <message>
         <source>Remote Error</source>
         <translation>Fjern-fejl</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsPage</name>
-    <message>
-        <source>Devices</source>
-        <translation>Enheder</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceSettingsWidget</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation>Linux-enhed konfigurationer</translation>
@@ -23291,10 +23038,6 @@ Ekskludering: %2
     <message>
         <source>&amp;Name:</source>
         <translation>&amp;Navn:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Type:</translation>
     </message>
     <message>
         <source>Auto-detected:</source>
@@ -23329,16 +23072,9 @@ Ekskludering: %2
         <translation>Nej</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Test</translation>
-    </message>
-    <message>
         <source>Show Running Processes...</source>
         <translation>Vis kørende processer...</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
     <message>
         <source>Device Test</source>
         <translation>Enhedstest</translation>
@@ -23355,9 +23091,6 @@ Ekskludering: %2
         <source>Device test failed.</source>
         <translation>Enhedstest mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::DeviceTypeInformationConfigWidget</name>
     <message>
         <source>Device type:</source>
         <translation>Enhedstype:</translation>
@@ -23366,9 +23099,6 @@ Ekskludering: %2
         <source>The type of device to run applications on.</source>
         <translation>Typen af enhed som programmet skal kører på.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::EditorSettingsPropertiesPage</name>
     <message>
         <source>Editor settings:</source>
         <translation>Redigeringsindstillinger:</translation>
@@ -23376,10 +23106,6 @@ Ekskludering: %2
     <message>
         <source>Global</source>
         <translation>Globale</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>Brugerdefineret</translation>
     </message>
     <message>
         <source>Restore Global</source>
@@ -23485,11 +23211,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::GccToolChainConfigWidget</name>
-    <message>
-        <source>&amp;Compiler path:</source>
-        <translation>&amp;Kompilersti:</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Platform codegen flags:</source>
         <translation>Platform codegen-flag:</translation>
@@ -23499,20 +23221,6 @@ Ekskludering: %2
         <translation>Platform linker-flag:</translation>
     </message>
     <message>
-        <source>&amp;ABI:</source>
-        <translation>&amp;ABI:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::GccToolChainFactory</name>
-    <message>
-        <source>GCC</source>
-        <translation>GCC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ImportWidget</name>
-    <message>
         <source>Import Build From...</source>
         <translation>Importér byg fra...</translation>
     </message>
@@ -23520,9 +23228,6 @@ Ekskludering: %2
         <source>Import</source>
         <translation>Importér</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizard</name>
     <message>
         <source>Key is not an object.</source>
         <translation>Nøgle er ikke et objekt.</translation>
@@ -23535,16 +23240,10 @@ Ekskludering: %2
         <source>ScannerGenerator: Binary pattern &quot;%1&quot; not valid.</source>
         <translation>SkannerGenerator: binær mønster &quot;%1&quot; ikke gyldigt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::JsonWizardFileGenerator</name>
     <message>
         <source>No &apos;key&apos; in options object.</source>
         <translation>Ingen &apos;key&apos; i valgmuligheder-objekt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitEnvironmentConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Skift...</translation>
@@ -23569,9 +23268,6 @@ Ekskludering: %2
         <source>Either switches MSVC to English or keeps the language and just forces UTF-8 output (may vary depending on the used MSVC compiler).</source>
         <translation>Skifter enten MSVC til engelsk eller bevarer sproget og blot tvinger UTF-8-output (kan variere afhængig af den brugte MSVC-kompiler).</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The name of the kit suitable for generating directory names. This value is used for the variable &lt;i&gt;%1&lt;/i&gt;, which for example determines the name of the shadow build directory.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Navnet på kittet som er egnet til generering af mappenavne. Denne værdi bruges til variablen &lt;i&gt;%1&lt;/i&gt;, som f.eks. beslutter navnet på skygge-bygmappen.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -23612,9 +23308,6 @@ Ekskludering: %2
         <source>Images (*.png *.xpm *.jpg)</source>
         <translation>Billeder (*.png *.xpm *.jpg)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::KitModel</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (standard)</translation>
@@ -23635,23 +23328,14 @@ Ekskludering: %2
         <source>Clone of %1</source>
         <translation>Klon af %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LinuxIccToolChainFactory</name>
     <message>
         <source>Linux ICC</source>
         <translation>Linux ICC</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MingwToolChainFactory</name>
     <message>
         <source>MinGW</source>
         <translation>MinGW</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MiniProjectTargetSelector</name>
     <message>
         <source>Project</source>
         <translation>Projekt</translation>
@@ -23661,20 +23345,12 @@ Ekskludering: %2
         <translation>Kit</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
         <source>Deploy</source>
         <translation>Udsend</translation>
     </message>
     <message>
         <source>Run</source>
         <translation>Kør</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>Ukonfigureret</translation>
     </message>
     <message>
         <source>&lt;b&gt;Project:&lt;/b&gt; %1</source>
@@ -23732,43 +23408,14 @@ Ekskludering: %2
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;Projektet &lt;b&gt;%1&lt;/b&gt; er endnu ikke konfigureret&lt;br/&gt;&lt;br/&gt;Du kan konfigurere det i &lt;a href=&quot;projectmode&quot;&gt;Projekter-tilstand&lt;/a&gt;&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcBasedToolChainConfigWidget</name>
     <message>
         <source>Initialization:</source>
         <translation>Initialisering:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::MsvcToolChainFactory</name>
-    <message>
-        <source>MSVC</source>
-        <translation>MSVC</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStep</name>
-    <message>
-        <source>Custom Process Step</source>
-        <extracomment>Default ProcessStep display name</extracomment>
-        <translation>Brugerdefineret processtrin</translation>
-    </message>
-    <message>
-        <source>Custom Process Step</source>
-        <comment>item in combobox</comment>
-        <translation>Brugerdefineret processtrin</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepConfigWidget</name>
     <message>
         <source>Custom Process Step</source>
         <translation>Brugerdefineret processtrin</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProcessStepWidget</name>
     <message>
         <source>Command:</source>
         <translation>Kommando:</translation>
@@ -23781,16 +23428,6 @@ Ekskludering: %2
         <source>Working directory:</source>
         <translation>Arbejdsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Generelt</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectExplorerSettingsPageUi</name>
     <message>
         <source>Projects Directory</source>
         <translation>Projektets mappe</translation>
@@ -23864,10 +23501,6 @@ Ekskludering: %2
         <translation>Stop programmer før bygning:</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
-    <message>
         <source>Same Project</source>
         <translation>Samme projekt</translation>
     </message>
@@ -23907,9 +23540,6 @@ Ekskludering: %2
         <source>Limit build output to</source>
         <translation>Begræns byg-output til</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectFileWizardExtension</name>
     <message>
         <source>Open project anyway?</source>
         <translation>Åbn projekt alligevel?</translation>
@@ -23930,16 +23560,10 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Kunne ikke tilføje en eller flere filer til projektet
 &quot;%1&quot; (%2).</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectListWidget</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidget</name>
     <message>
         <source>Simplify Tree</source>
         <translation>Simplificer træ</translation>
@@ -23964,9 +23588,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Synchronize with Editor</source>
         <translation>Synkroniser med redigering</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectTreeWidgetFactory</name>
     <message>
         <source>Projects</source>
         <translation>Projekter</translation>
@@ -23983,9 +23604,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Filter Tree</source>
         <translation>Filtrer træ</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
         <source>Open Session #%1</source>
         <translation>Åbn session #%1</translation>
@@ -24061,23 +23679,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Nylige projekter</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Projekter</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWindow</name>
-    <message>
         <source>Project Settings</source>
         <translation>Projektindstillinger</translation>
-    </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Byg &amp; kør</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projekter</translation>
     </message>
     <message>
         <source>Import Existing Build...</source>
@@ -24099,9 +23702,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Import Directory</source>
         <translation>Importér mappe</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ProjectWizardPage</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -24134,9 +23734,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Files to be added in</source>
         <translation>Filer som skal tilføjes i</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RemoveTaskHandler</name>
     <message>
         <source>Remove</source>
         <comment>Name of the action triggering the removetaskhandler</comment>
@@ -24145,21 +23742,6 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Remove task from the task list.</source>
         <translation>Fjern opgave fra opgaveliste.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::RunSettingsWidget</name>
-    <message>
-        <source>Add</source>
-        <translation>Tilføj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation>Omdøb...</translation>
     </message>
     <message>
         <source>Deployment</source>
@@ -24170,25 +23752,13 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Metode:</translation>
     </message>
     <message>
-        <source>Run</source>
-        <translation>Kør</translation>
-    </message>
-    <message>
         <source>Run configuration:</source>
         <translation>Kør-konfiguration:</translation>
-    </message>
-    <message>
-        <source>&amp;Clone Selected</source>
-        <translation>&amp;Klon valgte</translation>
     </message>
     <message>
         <source>Clone Configuration</source>
         <extracomment>Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Klon konfiguration</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Nyt konfigurationsnavn:</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
@@ -24205,10 +23775,6 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
         <translation>Annuller byg og fjern udsend-konfiguration</translation>
-    </message>
-    <message>
-        <source>Do Not Remove</source>
-        <translation>Fjern ikke</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
@@ -24238,9 +23804,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Run Settings</source>
         <translation>Kør-indstillinger</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionDialog</name>
     <message>
         <source>Session Manager</source>
         <translation>Sessionshåndtering</translation>
@@ -24273,9 +23836,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Hvad er en session?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionModel</name>
     <message>
         <source>Session</source>
         <translation>Session</translation>
@@ -24309,23 +23869,13 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Omdøb session</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Omdøb</translation>
-    </message>
-    <message>
         <source>Rename and &amp;Open</source>
         <translation>Omdøb og &amp;åbn</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SessionNameInputDialog</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Indtast navnet på sessionen:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowInEditorTaskHandler</name>
     <message>
         <source>Show in Editor</source>
         <translation>Vis i redigering</translation>
@@ -24334,9 +23884,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Show task location in an editor.</source>
         <translation>Vis placering af opgave i en redigering.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ShowOutputTaskHandler</name>
     <message>
         <source>Show &amp;Output</source>
         <translation>Vis &amp;output</translation>
@@ -24349,9 +23896,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>O</source>
         <translation>o</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::SysRootInformationConfigWidget</name>
     <message>
         <source>Sysroot:</source>
         <translation>System-rod:</translation>
@@ -24360,9 +23904,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>The root directory of the system image to use.&lt;br&gt;Leave empty when building for the desktop.</source>
         <translation>Rodmappen af systemaftrykket som skal bruges.&lt;br&gt;Lad være tom når der bygges til desktop.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; </source>
         <comment>Severity is Task::Error</comment>
@@ -24373,16 +23914,10 @@ til projektet &quot;%2&quot;.</translation>
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Advarsel:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskDelegate</name>
     <message>
         <source>File not found: %1</source>
         <translation>Fil ikke fundet: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TaskWindow</name>
     <message>
         <source>Issues</source>
         <translation>Problemstillinger</translation>
@@ -24395,9 +23930,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Filter by categories</source>
         <translation>Filtrer efter kategorier</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::TextEditDetailsWidget</name>
     <message numerus="yes">
         <source>%n entries</source>
         <translation>
@@ -24409,9 +23941,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Empty</source>
         <translation>Tom</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainInformationConfigWidget</name>
     <message>
         <source>Compiler:</source>
         <translation>Kompiler:</translation>
@@ -24424,9 +23953,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>&lt;No compiler&gt;</source>
         <translation>&lt;ingen kompiler&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::ToolChainOptionsPage</name>
     <message>
         <source>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</source>
         <translation>&lt;nobr&gt;&lt;b&gt;ABI:&lt;/b&gt; %1</translation>
@@ -24436,32 +23962,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>ikke up-to-date</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Navn</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>Type</translation>
-    </message>
-    <message>
-        <source>Auto-detected</source>
-        <translation>Auto-detekteret</translation>
-    </message>
-    <message>
-        <source>Manual</source>
-        <translation>Manuelt</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Tilføj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klon</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Duplicate Compilers Detected</source>
@@ -24479,9 +23981,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Compilers</source>
         <translation>Kompilere</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::VcsAnnotateTaskHandler</name>
     <message>
         <source>&amp;Annotate</source>
         <translation>&amp;Annotate</translation>
@@ -24490,9 +23989,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Annotate using version control system.</source>
         <translation>Annotate ved brug af versionsstyringssystem.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WaitForStopDialog</name>
     <message>
         <source>Waiting for Applications to Stop</source>
         <translation>Venter på at programmer stopper</translation>
@@ -24505,16 +24001,9 @@ til projektet &quot;%2&quot;.</translation>
         <source>Waiting for applications to stop.</source>
         <translation>Venter på at programmer stopper.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::WizardPage</name>
     <message>
         <source>Project Management</source>
         <translation>Projekthåndtering</translation>
-    </message>
-    <message>
-        <source>Add to &amp;project:</source>
-        <translation>Tilføj til &amp;projekt:</translation>
     </message>
     <message>
         <source>Add to &amp;version control:</source>
@@ -24532,9 +24021,6 @@ til projektet &quot;%2&quot;.</translation>
 
 </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonFieldPage</name>
     <message>
         <source>Line Edit Validator Expander</source>
         <translation>Linjeredigeringsvalidator-udvidder</translation>
@@ -24643,9 +24129,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Source and target are both empty.</source>
         <translation>Kilde og mål er begge tomme.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonKitsPage</name>
     <message>
         <source>Feature list is set and not of type list.</source>
         <translation>Facilitetsliste er sat og ikke en typeliste.</translation>
@@ -24658,17 +24141,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Feature list element is not a string or object.</source>
         <translation>Facilitetsliste-element er ikke en streng eller objekt.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonProjectPage</name>
-    <message>
-        <source>untitled</source>
-        <extracomment>File path suggestion for a new project. If you choose to translate it, make sure it is a valid path name without blanks and using only ascii chars.</extracomment>
-        <translation>unavngivet</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonSummaryPage</name>
     <message>
         <source>Failed to Commit to Version Control</source>
         <translation>Kunne ikke commit til versionsstyring</translation>
@@ -24681,21 +24153,6 @@ til projektet &quot;%2&quot;.</translation>
         <source>Failed to Add to Project</source>
         <translation>Kunne ikke tilføje til projekt</translation>
     </message>
-    <message>
-        <source>Failed to add subproject &quot;%1&quot;
-to project &quot;%2&quot;.</source>
-        <translation>Kunne ikke tilføje underprojektet &quot;%1&quot;
-til projektet &quot;%2&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to add one or more files to project
-&quot;%1&quot; (%2).</source>
-        <translation>Kunne ikke tilføje en eller flere filer til projektet
-&quot;%1&quot; (%2).</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizard</name>
     <message>
         <source>&quot;data&quot; for a &quot;Form&quot; page needs to be unset or an empty object.</source>
         <translation>&quot;data&quot; til en &quot;Udformning&quot;-side skal være usat eller et tomt objekt.</translation>
@@ -24871,10 +24328,6 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Kildefil:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Sti:</translation>
-    </message>
-    <message>
         <source>Define Class</source>
         <translation>Definer klasse</translation>
     </message>
@@ -24925,14 +24378,6 @@ til projektet &quot;%2&quot;.</translation>
     <message>
         <source>Project and Test Information</source>
         <translation>Projekt- og testinformation</translation>
-    </message>
-    <message>
-        <source>Project Management</source>
-        <translation>Projekthåndtering</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation>Opsummering</translation>
     </message>
     <message>
         <source>Creates a new unit test project. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
@@ -25195,10 +24640,6 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Opretter en scratch-buffer ved brug af en midlertidig fil.</translation>
     </message>
     <message>
-        <source>General</source>
-        <translation>Generelt</translation>
-    </message>
-    <message>
         <source>Scratch Buffer</source>
         <translation>Scratch-buffer</translation>
     </message>
@@ -25259,10 +24700,6 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Valg af kit</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-    <message>
         <source>Non-Qt Project</source>
         <translation>Ikke-Qt-projekt</translation>
     </message>
@@ -25285,10 +24722,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Opretter et projekt med en enkelt main.cpp-fil med en påbegyndt implementering.
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation>Program</translation>
     </message>
     <message>
         <source>Qt Console Application</source>
@@ -25369,10 +24802,6 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
     <message>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Opretter et qmake-baseret projekt uden nogen filer. Dette giver dig mulighed for at oprette et program uden nogen standard klasser.</translation>
-    </message>
-    <message>
-        <source>Other Project</source>
-        <translation>Andet projekt</translation>
     </message>
     <message>
         <source>Empty qmake Project</source>
@@ -25543,16 +24972,8 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Kører Bazaar-gren...</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>Klon</translation>
-    </message>
-    <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Kloner en Bazaar-gren og prøver at indlæse det indeholdte projekt.</translation>
-    </message>
-    <message>
-        <source>Import Project</source>
-        <translation>Importér projekt</translation>
     </message>
     <message>
         <source>Bazaar Clone (Or Branch)</source>
@@ -25678,9 +25099,6 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <source>Vertex Shader (OpenGL/ES 2.0)</source>
         <translation>Vertex shader (OpenGL/ES 2.0)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardFactory</name>
     <message>
         <source>Generator is not a object.</source>
         <translation>Generator er ikke et objekt.</translation>
@@ -25821,9 +25239,6 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <source>When parsing &quot;pages&quot;: %1</source>
         <translation>Ved parsing af &quot;pages&quot;: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::JsonWizardGenerator</name>
     <message>
         <source>%1 [folder]</source>
         <translation>%1 [mappe]</translation>
@@ -25842,16 +25257,9 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Mappen %1 indeholder filer som ikke kan overskrives:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Kit</name>
     <message>
         <source>Unnamed</source>
         <translation>Unavngivet</translation>
-    </message>
-    <message>
-        <source>Kit</source>
-        <translation>Kit</translation>
     </message>
     <message>
         <source>Kit ID</source>
@@ -25874,10 +25282,6 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <translation>Id&apos;et af det aktuelt aktive kit.</translation>
     </message>
     <message>
-        <source>Clone of %1</source>
-        <translation>Klon af %1</translation>
-    </message>
-    <message>
         <source>Error:</source>
         <translation>Fejl:</translation>
     </message>
@@ -25885,70 +25289,20 @@ Brug det kun hvis du prototyper. Du kan ikke oprette et fuldt program med dette.
         <source>Warning:</source>
         <translation>Advarsel:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitConfigWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Håndter...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitManager</name>
-    <message>
-        <source>Desktop</source>
-        <translation>Desktop</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation>Tilføj</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation>Klon</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Make Default</source>
         <translation>Gør standard</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::LocalEnvironmentAspect</name>
-    <message>
-        <source>Build Environment</source>
-        <translation>Bygmiljø</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Systemmiljø</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Rensmiljø</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::OsParser</name>
-    <message>
         <source>The process can not access the file because it is being used by another process.
 Please close all running instances of your application before starting a build.</source>
         <translation>Processen kan ikke tilgå filen fordi den bruges af en anden process.
 Luk venligst alle kørende instanser af dit program før en byg startes.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::PortsGatherer</name>
     <message numerus="yes">
         <source>Found %n free ports.</source>
         <translation>
@@ -25959,13 +25313,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>Checking available ports...</source>
         <translation>Tjekker tilgængelige porte...</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Project</name>
-    <message>
-        <source>Project</source>
-        <translation>Projekt</translation>
     </message>
     <message>
         <source>Project Name</source>
@@ -26003,9 +25350,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <source>Some configurations could not be copied.</source>
         <translation>Nogle konfigurationer kunne ikke kopieres.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectExplorerPlugin</name>
     <message>
         <source>&amp;Build</source>
         <translation>&amp;Byg</translation>
@@ -26017,10 +25361,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>&amp;Start Debugging</source>
         <translation>&amp;Start fejlretning</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Kør</translation>
     </message>
     <message>
         <source>Open With</source>
@@ -26069,10 +25409,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>Open...</source>
@@ -26167,10 +25503,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Kør uden udsendelse</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
         <source>Build Without Dependencies</source>
         <translation>Byg uden afhængigheder</translation>
     </message>
@@ -26183,20 +25515,12 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Genbyg uden afhængigheder</translation>
     </message>
     <message>
-        <source>Clean</source>
-        <translation>Rens</translation>
-    </message>
-    <message>
         <source>Clean Without Dependencies</source>
         <translation>Rens uden afhængigheder</translation>
     </message>
     <message>
         <source>Deploy Without Dependencies</source>
         <translation>Udsend uden afhængigheder</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <translation>Udsend</translation>
     </message>
     <message>
         <source>Add Existing Files...</source>
@@ -26264,10 +25588,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
         <translation>Navnet på det aktuelle projekt.</translation>
     </message>
     <message>
-        <source>The name of the currently active kit.</source>
-        <translation>Navnet på det aktuelt aktive kit.</translation>
-    </message>
-    <message>
         <source>The name of the currently active kit as a filesystem-friendly version.</source>
         <translation>Navnet på det aktuelt aktive kit som en filsystem venlig version.</translation>
     </message>
@@ -26294,10 +25614,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>The currently active build configuration&apos;s name.</source>
         <translation>Det aktuelt aktive byggekonfigurations navn.</translation>
-    </message>
-    <message>
-        <source>The currently active run configuration&apos;s name.</source>
-        <translation>Det aktuelt aktive kør-konfigurations navn.</translation>
     </message>
     <message>
         <source>The currently active run configuration&apos;s executable (if applicable).</source>
@@ -26338,10 +25654,6 @@ Luk venligst alle kørende instanser af dit program før en byg startes.</transl
     <message>
         <source>Do you want to cancel the build process and unload the project anyway?</source>
         <translation>Vil du annullere byggeprocessen og afindlæse projektet alligevel?</translation>
-    </message>
-    <message>
-        <source>All Projects</source>
-        <translation>Alle projekter</translation>
     </message>
     <message>
         <source>New Project</source>
@@ -26488,10 +25800,6 @@ Vil du ignorere dem?</translation>
         <translation>En byg er stadig i gang.</translation>
     </message>
     <message>
-        <source>Run %1</source>
-        <translation>Kør %1</translation>
-    </message>
-    <message>
         <source>New File</source>
         <comment>Title of dialog</comment>
         <translation>Ny fil</translation>
@@ -26577,9 +25885,6 @@ Omdøb %2 til %3 alligevel?</translation>
         <source>Cannot Rename File</source>
         <translation>Kan ikke omdøbe fil</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectImporter</name>
     <message>
         <source>No Build Found</source>
         <translation>Ingen byg fundet</translation>
@@ -26596,26 +25901,9 @@ Omdøb %2 til %3 alligevel?</translation>
         <source>Imported Kit</source>
         <translation>Importeret kit</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectTree</name>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
         <translation>&lt;b&gt;Advarsel:&lt;/b&gt; Denne fil er udenfor projektets mappe.</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ProjectsMode</name>
-    <message>
-        <source>Projects</source>
-        <translation>Projekter</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunConfiguration</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Kør-indstillinger</translation>
     </message>
     <message>
         <source>Variables in the current run environment</source>
@@ -26643,9 +25931,6 @@ Omdøb %2 til %3 alligevel?</translation>
         <extracomment>Shown in Run configuration, Add menu: &quot;name of runnable (on device name)&quot;</extracomment>
         <translation>%1 (på %2)</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunControl</name>
     <message>
         <source>PID %1</source>
         <translation>PID %1</translation>
@@ -26682,9 +25967,6 @@ Omdøb %2 til %3 alligevel?</translation>
         <source>No executable specified.</source>
         <translation>Ingen eksekverbar angivet.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::RunWorker</name>
     <message>
         <source>Worker start timed out.</source>
         <translation>Arbejder start fik timeout.</translation>
@@ -26717,23 +25999,14 @@ Omdøb %2 til %3 alligevel?</translation>
         <source>An error occurred when attempting to read from the process. For example, the process may not be running.</source>
         <translation>Der opstod en fejl under forsøg på at læse fra processen. Det kan f.eks. være at processen ikke køre.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogAddDirectory</name>
     <message>
         <source>Add Existing Directory</source>
         <translation>Tilføj eksisterende mappe</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesDialogEditFiles</name>
     <message>
         <source>Edit Files</source>
         <translation>Rediger filer</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SelectableFilesWidget</name>
     <message>
         <source>Source directory:</source>
         <translation>Kildemappe:</translation>
@@ -26772,9 +26045,6 @@ Denne fil bevares.</numerusform>
 Disse filer bevares.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SessionManager</name>
     <message>
         <source>Error while saving session</source>
         <translation>Fejl ved gemning af session</translation>
@@ -26823,9 +26093,6 @@ Disse filer bevares.</numerusform>
         <source>Loading Session</source>
         <translation>Indlæser session</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SimpleTargetRunner</name>
     <message>
         <source>%1 crashed.</source>
         <translation>%1 holdt op med at virke.</translation>
@@ -26834,9 +26101,6 @@ Disse filer bevares.</numerusform>
         <source>%2 exited with code %1</source>
         <translation>%2 afsluttede med kode %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcess</name>
     <message>
         <source>Failed to kill remote process: %1</source>
         <translation>Kunne ikke dræbe fjern-process: %1</translation>
@@ -26849,9 +26113,6 @@ Disse filer bevares.</numerusform>
         <source>Terminated by request.</source>
         <translation>Termineret efter anmodning.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Oprettelse af forbindelse mislykkedes: %1</translation>
@@ -26876,9 +26137,6 @@ Disse filer bevares.</numerusform>
         <source>Remote stderr was: %1</source>
         <translation>Fjern-stderr var: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::SysRootKitInformation</name>
     <message>
         <source>Sys Root &quot;%1&quot; does not exist in the file system.</source>
         <translation>System-roden &quot;%1&quot; findes ikke i filsystemet.</translation>
@@ -26895,9 +26153,6 @@ Disse filer bevares.</numerusform>
         <source>Sys Root</source>
         <translation>System-rod</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Target</name>
     <message>
         <source>Target Settings</source>
         <translation>Målindstillinger</translation>
@@ -26906,9 +26161,6 @@ Disse filer bevares.</numerusform>
         <source>Source directory</source>
         <translation>Kildemappe</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
         <translation>&lt;span style=&quot; font-weight:600;&quot;&gt;Ingen gyldige kits fundet.&lt;/span&gt;</translation>
@@ -26930,21 +26182,10 @@ Disse filer bevares.</numerusform>
         <translation>Vælg kits til dit projekt</translation>
     </message>
     <message>
-        <source>Kit Selection</source>
-        <translation>Valg af kit</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-    <message>
         <source>The following kits can be used for project &lt;b&gt;%1&lt;/b&gt;:</source>
         <comment>%1: Project name</comment>
         <translation>Følgende kits kan bruges til projektet &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Task</name>
     <message>
         <source>You asked to build the current Run Configuration&apos;s build target only, but it is not associated with a build target. Update the Make Step in your build settings.</source>
         <translation>Du spurgte om kun at bygge det aktuelle kør-konfigurations byggemål, men det er ikke tilknyttet et byggemål. Opdater Make-trinnet i dine byggeindstillinger.</translation>
@@ -26957,9 +26198,6 @@ Disse filer bevares.</numerusform>
         <source>%1 needs a build configuration set up to build. Configure a build configuration in the project settings.</source>
         <translation>%1 har brug for en byggekonfiguration sat op for at bygge. Konfigurer en byggekonfiguration i projektindstillingerne.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::TerminalAspect</name>
     <message>
         <source>Terminal</source>
         <translation>Terminal</translation>
@@ -26968,23 +26206,6 @@ Disse filer bevares.</numerusform>
         <source>Run in terminal</source>
         <translation>Kør i terminal</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChain</name>
-    <message>
-        <source>Clone of %1</source>
-        <translation>Klon af %1</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainConfigWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation>Navn:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainKitInformation</name>
     <message>
         <source>Compilers produce code for different ABIs: %1</source>
         <translation>Kompilere producere kode til forskellige ABI&apos;er: %1</translation>
@@ -26992,10 +26213,6 @@ Disse filer bevares.</numerusform>
     <message>
         <source>Compiler</source>
         <translation>Kompiler</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
     </message>
     <message>
         <source>Path to the compiler executable</source>
@@ -27013,9 +26230,6 @@ Disse filer bevares.</numerusform>
         <source>No compiler set in kit.</source>
         <translation>Ingen kompiler sat i kit.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ToolChainManager</name>
     <message>
         <source>None</source>
         <translation>Intet</translation>
@@ -27024,9 +26238,6 @@ Disse filer bevares.</numerusform>
         <source>Tool Chains</source>
         <translation>Værktøjskæder</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UserFileHandler</name>
     <message>
         <source>No deployment</source>
         <translation>Ingen udsendelse</translation>
@@ -27035,9 +26246,6 @@ Disse filer bevares.</numerusform>
         <source>Deploy to Maemo device</source>
         <translation>Udsend til Maemo-enhed</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::WorkingDirectoryAspect</name>
     <message>
         <source>Working Directory</source>
         <translation>Arbejdsmappe</translation>
@@ -27051,13 +26259,6 @@ Disse filer bevares.</numerusform>
         <translation>Vælg arbejdsmappe</translation>
     </message>
     <message>
-        <source>Working directory:</source>
-        <translation>Arbejdsmappe:</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::XcodebuildParser</name>
-    <message>
         <source>Replacing signature</source>
         <translation>Erstatter signatur</translation>
     </message>
@@ -27065,16 +26266,9 @@ Disse filer bevares.</numerusform>
         <source>Xcodebuild failed.</source>
         <translation>Xcodebuild mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectWizard</name>
     <message>
         <source>The files are implicitly added to the projects:</source>
         <translation>Filerne tilføjes implicit til projekterne:</translation>
-    </message>
-    <message>
-        <source>&lt;None&gt;</source>
-        <translation>&lt;intet&gt;</translation>
     </message>
     <message>
         <source>&lt;Implicitly Add&gt;</source>
@@ -35214,18 +34408,11 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>TargetSettingsPanelItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>No kit defined in this project.</source>
         <translation>Intet kit defineret i dette projekt.</translation>
     </message>
-    <message>
-        <source>Configure Project</source>
-        <translation>Konfigurer projekt</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelWidget</name>
     <message>
         <source>Configure Project</source>
         <translation>Konfigurer projekt</translation>
@@ -35263,10 +34450,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <translation>Annuller byg og deaktivér kit i dette projekt</translation>
     </message>
     <message>
-        <source>Do Not Remove</source>
-        <translation>Fjern ikke</translation>
-    </message>
-    <message>
         <source>Disable Kit &quot;%1&quot; in This Project?</source>
         <translation>Deaktivér kittet &quot;%1&quot; i projektet?</translation>
     </message>
@@ -35283,31 +34466,9 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <translation>Kopiér trin fra andet kit...</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
-        <source>Run</source>
-        <translation>Kør</translation>
-    </message>
-    <message>
         <source>Enable Kit</source>
         <translation>Aktivér kit</translation>
     </message>
-</context>
-<context>
-    <name>TaskHub</name>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>Advarsel</translation>
-    </message>
-</context>
-<context>
-    <name>TaskList::Internal::StopMonitoringHandler</name>
     <message>
         <source>Stop Monitoring</source>
         <translation>Stop overvågning</translation>
@@ -35316,9 +34477,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Stop monitoring task files.</source>
         <translation>Stop overvågning af opgavefiler.</translation>
     </message>
-</context>
-<context>
-    <name>TaskList::Internal::TaskListPlugin</name>
     <message>
         <source>Cannot open task file %1: %2</source>
         <translation>Kan ikke åbne opgavefilen %1: %2</translation>
@@ -42539,7 +41697,7 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::BuildStepList</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build</source>
         <extracomment>Display name of the build build step list. Used as part of the labels in the project window.</extracomment>
@@ -42550,23 +41708,14 @@ Vil du overskrive dem?</translation>
         <extracomment>Display name of the clean build step list. Used as part of the labels in the project window.</extracomment>
         <translation>Rens</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::KitChooser</name>
     <message>
         <source>Kit of Active Project: %1</source>
         <translation>Kit af aktivt projekt: %1</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::FlatModel</name>
     <message>
         <source>No kits are enabled for this project. Enable kits in the &quot;Projects&quot; mode.</source>
         <translation>Ingen kits er akitveret for dette projekt. Aktivér kits i &quot;Projekter&quot;-tilstand.</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::ExecutableAspect</name>
     <message>
         <source>Executable</source>
         <translation>Eksekverbar</translation>
@@ -42576,10 +41725,6 @@ Vil du overskrive dem?</translation>
         <translation>&lt;ukendt&gt;</translation>
     </message>
     <message>
-        <source>Executable:</source>
-        <translation>Eksekverbar:</translation>
-    </message>
-    <message>
         <source>Alternate executable on device:</source>
         <translation>Alternativ eksekverbar på enhed:</translation>
     </message>
@@ -42587,9 +41732,6 @@ Vil du overskrive dem?</translation>
         <source>Use this command instead</source>
         <translation>Brug i stedet denne kommando</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseLibraryPathsAspect</name>
     <message>
         <source>Add build library search path to DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</source>
         <translation>Tilføj byggebibliotek søgesti til DYLD_LIBRARY_PATH and DYLD_FRAMEWORK_PATH</translation>
@@ -42602,9 +41744,6 @@ Vil du overskrive dem?</translation>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>Tilføj byggebibliotek søgesti til LD_LIBRARY_PATH</translation>
     </message>
-</context>
-<context>
-    <name>ProjectExplorer::UseDyldSuffixAspect</name>
     <message>
         <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
         <translation>Brug fejlret-version af frameworks (DYLD_IMAGE_SUFFIX=_debug)</translation>

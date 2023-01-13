@@ -45,8 +45,6 @@ inline const QStringList gccPredefinedMacrosOptions(Utils::Id languageId)
 
 class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::GccToolChain)
-
 public:
     GccToolChain(Utils::Id typeId);
 
@@ -183,8 +181,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT ClangToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::ClangToolChain)
-
 public:
     ClangToolChain();
     explicit ClangToolChain(Utils::Id typeId);
@@ -236,8 +232,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT MingwToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::MingwToolChain)
-
 public:
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
 
@@ -256,8 +250,6 @@ private:
 
 class PROJECTEXPLORER_EXPORT LinuxIccToolChain : public GccToolChain
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::LinuxIccToolChain)
-
 public:
     Utils::LanguageExtensions languageExtensions(const QStringList &cxxflags) const override;
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
