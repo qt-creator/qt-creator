@@ -17,6 +17,7 @@
 #include <QElapsedTimer>
 
 QT_FORWARD_DECLARE_CLASS(QQmlEngine)
+QT_FORWARD_DECLARE_CLASS(QQuickWidget)
 
 namespace Core {
     class IEditor;
@@ -85,7 +86,13 @@ public:
 signals:
     void usageStatisticsNotifier(const QString &identifier);
     void usageStatisticsUsageTimer(const QString &identifier, int elapsed);
+    void usageStatisticsInsertFeedback(const QString &identifier, const QString &feedback, int rating);
     void assetChanged(const QString &assetPath);
+
+private slots:
+    void closeFeedbackPopup();
+    void lauchFeedbackPopup(const QString &identifier);
+    void handleFeedback(const QString &feedback, int rating);
 
 private: // functions
     void integrateIntoQtCreator(QWidget *modeWidget);
@@ -99,6 +106,7 @@ private: // functions
     void resetModelSelection();
     RewriterView *rewriterView() const;
     Model *currentModel() const;
+    QQuickWidget *m_feedbackWidget = nullptr;
 
 private: // variables
     QmlDesignerPluginPrivate *d = nullptr;

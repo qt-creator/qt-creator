@@ -37,9 +37,10 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 
+#include <app/app_version.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/featureprovider.h>
@@ -66,6 +67,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QProcessEnvironment>
+#include <QQuickItem>
 #include <QScreen>
 #include <QTimer>
 #include <QWindow>
@@ -229,6 +231,15 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 {
     Sqlite::LibraryInitializer::initialize();
     QDir{}.mkpath(Core::ICore::cacheResourcePath().toString());
+
+    QAction *action = new QAction(tr("Give Feedback..."), this);
+    Core::Command *cmd = Core::ActionManager::registerAction(action, "Help.GiveFeedback");
+    Core::ActionManager::actionContainer(Core::Constants::M_HELP)
+        ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
+
+    connect(action, &QAction::triggered, this, [this] {
+        lauchFeedbackPopup(Core::Constants::IDE_DISPLAY_NAME);
+    });
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
         return false;
@@ -701,8 +712,57 @@ void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &ide
             });
 }
 
+void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
+{
+    m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
+
+    const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toString();
+
+    m_feedbackWidget->setSource(QUrl::fromLocalFile(qmlPath));
+    if (!m_feedbackWidget->errors().isEmpty()) {
+        qDebug() << qmlPath;
+        qDebug() << m_feedbackWidget->errors().first().toString();
+    }
+    m_feedbackWidget->setWindowModality(Qt::ApplicationModal);
+    m_feedbackWidget->setWindowFlags(Qt::SplashScreen);
+    m_feedbackWidget->setAttribute(Qt::WA_DeleteOnClose);
+
+    QQuickItem *root = m_feedbackWidget->rootObject();
+
+    QTC_ASSERT(root, return );
+
+    QObject *title = root->findChild<QObject *>("title");
+    QString name = QmlDesignerPlugin::tr("Enjoying %1?").arg(identifier);
+    title->setProperty("text", name);
+    root->setProperty("identifier", identifier);
+
+    connect(root, SIGNAL(closeClicked()), this, SLOT(closeFeedbackPopup()));
+
+    QObject::connect(root,
+                     SIGNAL(submitFeedback(QString, int)),
+                     this,
+                     SLOT(handleFeedback(QString, int)));
+
+    m_feedbackWidget->show();
+}
+
+void QmlDesignerPlugin::handleFeedback(const QString &feedback, int rating)
+{
+    const QString identifier = sender()->property("identifier").toString();
+    emit usageStatisticsInsertFeedback(identifier, feedback, rating);
+}
+
+void QmlDesignerPlugin::closeFeedbackPopup()
+{
+    if (m_feedbackWidget) {
+        m_feedbackWidget->deleteLater();
+        m_feedbackWidget = nullptr;
+    }
+}
+
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
+
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
 }
