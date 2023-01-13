@@ -423,6 +423,7 @@ void prepareNonNativeDialog(QFileDialog &dialog)
 
         dialog.setSidebarUrls(Utils::transform(sideBarPaths, filePathToQUrl));
         dialog.setIconProvider(Utils::FileIconProvider::iconProvider());
+        dialog.setFilter(QDir::Hidden | dialog.filter());
     }
 }
 

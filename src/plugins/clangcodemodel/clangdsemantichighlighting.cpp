@@ -390,6 +390,10 @@ void doSemanticHighlighting(
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents,
                                       clangdVersion).collect();
+    Utils::erase(results, [](const HighlightingResult &res) {
+        // QTCREATORBUG-28639
+        return res.textStyles.mainStyle == C_TEXT && res.textStyles.mixinStyles.empty();
+    });
     if (!future.isCanceled()) {
         qCInfo(clangdLogHighlight) << "reporting" << results.size() << "highlighting results";
         QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {

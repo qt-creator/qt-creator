@@ -6,6 +6,7 @@
 #include "commandline.h"
 #include "environment.h"
 #include "fileutils.h"
+#include "guard.h"
 #include "hostosinfo.h"
 #include "macroexpander.h"
 #include "optionpushbutton.h"
@@ -179,6 +180,7 @@ public:
 
     QMenu *m_contextMenu = nullptr;
     OptionPushButton *m_browseButton = nullptr;
+    Guard m_callGuard;
 };
 
 PathChooserPrivate::PathChooserPrivate()
@@ -368,11 +370,15 @@ QString PathChooser::expandedDirectory(const QString &input, const Environment &
 
 void PathChooser::setPath(const QString &path)
 {
+    QTC_ASSERT(!d->m_callGuard.isLocked(), return);
+    GuardLocker locker(d->m_callGuard);
     d->m_lineEdit->setTextKeepingActiveCursor(QDir::toNativeSeparators(path));
 }
 
 void PathChooser::setFilePath(const FilePath &fn)
 {
+    QTC_ASSERT(!d->m_callGuard.isLocked(), return);
+    GuardLocker locker(d->m_callGuard);
     d->m_lineEdit->setTextKeepingActiveCursor(fn.toUserOutput());
 }
 
