@@ -247,7 +247,7 @@ void TestRunner::scheduleNext()
     setUpProcess();
     QTC_ASSERT(m_currentProcess, onProcessDone(); return);
     QTC_ASSERT(!m_currentOutputReader, delete m_currentOutputReader);
-    m_currentOutputReader = m_currentConfig->outputReader(*m_fakeFutureInterface, m_currentProcess);
+    m_currentOutputReader = m_currentConfig->createOutputReader(*m_fakeFutureInterface, m_currentProcess);
     QTC_ASSERT(m_currentOutputReader, onProcessDone();return);
 
     connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
@@ -661,7 +661,7 @@ void TestRunner::debugTests()
     m_futureWatcher.setFuture(futureInterface->future());
 
     if (useOutputProcessor) {
-        TestOutputReader *outputreader = config->outputReader(*futureInterface, nullptr);
+        TestOutputReader *outputreader = config->createOutputReader(*futureInterface, nullptr);
         outputreader->setId(inferior.command.executable().toString());
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);

@@ -41,8 +41,8 @@ public:
     bool hasExecutable() const;
     Utils::FilePath executableFilePath() const;
 
-    virtual TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                           Utils::QtcProcess *app) const = 0;
+    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+                                                 Utils::QtcProcess *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
     ITestBase *testBase() const { return m_testBase; }

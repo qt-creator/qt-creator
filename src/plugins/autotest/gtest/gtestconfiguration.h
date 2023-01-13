@@ -14,8 +14,8 @@ public:
     explicit GTestConfiguration(ITestFramework *framework)
         : DebuggableTestConfiguration(framework) {}
 
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   Utils::QtcProcess *app) const override;
+    TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+                                         Utils::QtcProcess *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;
 };

@@ -13,8 +13,8 @@ class CTestConfiguration final : public Autotest::TestToolConfiguration
 public:
     explicit CTestConfiguration(ITestBase *testBase);
 
-    TestOutputReader *outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                   Utils::QtcProcess *app) const final;
+    TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+                                         Utils::QtcProcess *app) const final;
 };
 
 } // namespace Internal

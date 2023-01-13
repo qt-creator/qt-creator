@@ -21,8 +21,8 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
     setMixedDebugging(true);
 }
 
-TestOutputReader *QuickTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                       Utils::QtcProcess *app) const
+TestOutputReader *QuickTestConfiguration::createOutputReader(
+        const QFutureInterface<TestResultPtr> &fi, Utils::QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
