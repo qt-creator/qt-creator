@@ -105,14 +105,14 @@ void TestRunner::runTest(TestRunMode mode, const ITestTreeItem *item)
 static QString processInformation(const QtcProcess *proc)
 {
     QTC_ASSERT(proc, return {});
-    const Utils::CommandLine command = proc->commandLine();
+    const CommandLine command = proc->commandLine();
     QString information("\nCommand line: " + command.executable().toUserOutput() + ' ' + command.arguments());
     QStringList important = { "PATH" };
-    if (Utils::HostOsInfo::isLinuxHost())
+    if (HostOsInfo::isLinuxHost())
         important.append("LD_LIBRARY_PATH");
-    else if (Utils::HostOsInfo::isMacHost())
+    else if (HostOsInfo::isMacHost())
         important.append({ "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH" });
-    const Utils::Environment &environment = proc->environment();
+    const Environment &environment = proc->environment();
     for (const QString &var : important)
         information.append('\n' + var + ": " + environment.value(var));
     return information;
@@ -137,9 +137,9 @@ static QString constructOmittedDetailsString(const QStringList &omitted)
                   "configuration page for \"%1\":") + '\n' + omitted.join('\n');
 }
 
-static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentItems &diff)
+static QString constructOmittedVariablesDetailsString(const EnvironmentItems &diff)
 {
-    auto removedVars = Utils::transform<QStringList>(diff, [](const Utils::EnvironmentItem &it) {
+    auto removedVars = Utils::transform<QStringList>(diff, [](const EnvironmentItem &it) {
         return it.name;
     });
     return Tr::tr("Omitted the following environment variables for \"%1\":")
@@ -148,7 +148,7 @@ static QString constructOmittedVariablesDetailsString(const Utils::EnvironmentIt
 
 bool TestRunner::currentConfigValid()
 {
-    Utils::FilePath commandFilePath;
+    FilePath commandFilePath;
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
         commandFilePath = current->executableFilePath();
@@ -188,12 +188,12 @@ void TestRunner::setUpProcess()
 
 void TestRunner::setUpProcessEnv()
 {
-    Utils::CommandLine command = m_currentProcess->commandLine();
+    CommandLine command = m_currentProcess->commandLine();
     if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
         TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
 
         QStringList omitted;
-        command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), Utils::CommandLine::Raw);
+        command.addArgs(current->argumentsForTestRunner(&omitted).join(' '), CommandLine::Raw);
         if (!omitted.isEmpty()) {
             const QString &details = constructOmittedDetailsString(omitted);
             reportResult(ResultType::MessageWarn, details.arg(current->displayName()));
@@ -205,11 +205,11 @@ void TestRunner::setUpProcessEnv()
     m_currentProcess->setCommand(command);
 
     m_currentProcess->setWorkingDirectory(m_currentConfig->workingDirectory());
-    const Utils::Environment &original = m_currentConfig->environment();
-    Utils::Environment environment =  m_currentConfig->filteredEnvironment(original);
-    const Utils::EnvironmentItems removedVariables = Utils::filtered(
-                original.diff(environment), [](const Utils::EnvironmentItem &it) {
-        return it.operation == Utils::EnvironmentItem::Unset;
+    const Environment &original = m_currentConfig->environment();
+    Environment environment =  m_currentConfig->filteredEnvironment(original);
+    const EnvironmentItems removedVariables = Utils::filtered(
+                original.diff(environment), [](const EnvironmentItem &it) {
+        return it.operation == EnvironmentItem::Unset;
     });
     if (!removedVariables.isEmpty()) {
         const QString &details = constructOmittedVariablesDetailsString(removedVariables)
@@ -245,7 +245,7 @@ void TestRunner::scheduleNext()
 
     setUpProcessEnv();
 
-    connect(m_currentProcess, &Utils::QtcProcess::done, this, &TestRunner::onProcessDone);
+    connect(m_currentProcess, &QtcProcess::done, this, &TestRunner::onProcessDone);
     const int timeout = AutotestPlugin::settings()->timeout;
     m_cancelTimer.setInterval(timeout);
     m_cancelTimer.start();
@@ -549,14 +549,13 @@ void TestRunner::runTestsHelper()
     scheduleNext();
 }
 
-static void processOutput(TestOutputReader *outputreader, const QString &msg,
-                          Utils::OutputFormat format)
+static void processOutput(TestOutputReader *outputreader, const QString &msg, OutputFormat format)
 {
     QByteArray message = msg.toUtf8();
     switch (format) {
-    case Utils::OutputFormat::StdErrFormat:
-    case Utils::OutputFormat::StdOutFormat:
-    case Utils::OutputFormat::DebugFormat: {
+    case OutputFormat::StdErrFormat:
+    case OutputFormat::StdOutFormat:
+    case OutputFormat::DebugFormat: {
         static const QByteArray gdbSpecialOut = "Qt: gdb: -nograb added to command-line options.\n"
                                                 "\t Use the -dograb option to enforce grabbing.";
         if (message.startsWith(gdbSpecialOut))
@@ -564,7 +563,7 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
         message.chop(1); // all messages have an additional \n at the end
 
         for (const auto &line : message.split('\n')) {
-            if (format == Utils::OutputFormat::StdOutFormat)
+            if (format == OutputFormat::StdOutFormat)
                 outputreader->processStdOutput(line);
             else
                 outputreader->processStdError(line);
@@ -603,7 +602,7 @@ void TestRunner::debugTests()
         return;
     }
 
-    const Utils::FilePath &commandFilePath = config->executableFilePath();
+    const FilePath &commandFilePath = config->executableFilePath();
     if (commandFilePath.isEmpty()) {
         reportResult(ResultType::MessageFatal, Tr::tr("Could not find command \"%1\". (%2)")
                      .arg(config->executableFilePath().toString(), config->displayName()));
@@ -619,16 +618,16 @@ void TestRunner::debugTests()
     inferior.command.setExecutable(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
-    inferior.command.setArguments(Utils::ProcessArgs::joinArgs(args));
+    inferior.command.setArguments(ProcessArgs::joinArgs(args));
     if (!omitted.isEmpty()) {
         const QString &details = constructOmittedDetailsString(omitted);
         reportResult(ResultType::MessageWarn, details.arg(config->displayName()));
     }
-    Utils::Environment original(inferior.environment);
+    Environment original(inferior.environment);
     inferior.environment = config->filteredEnvironment(original);
-    const Utils::EnvironmentItems removedVariables = Utils::filtered(
-        original.diff(inferior.environment), [](const Utils::EnvironmentItem &it) {
-            return it.operation == Utils::EnvironmentItem::Unset;
+    const EnvironmentItems removedVariables = Utils::filtered(
+        original.diff(inferior.environment), [](const EnvironmentItem &it) {
+            return it.operation == EnvironmentItem::Unset;
         });
     if (!removedVariables.isEmpty()) {
         const QString &details = constructOmittedVariablesDetailsString(removedVariables)
@@ -659,7 +658,7 @@ void TestRunner::debugTests()
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
         connect(runControl, &RunControl::appendMessage,
-                this, [outputreader](const QString &msg, Utils::OutputFormat format) {
+                this, [outputreader](const QString &msg, OutputFormat format) {
             processOutput(outputreader, msg, format);
         });
 
