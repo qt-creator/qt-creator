@@ -60,6 +60,26 @@ public:
 static AxivionPlugin *s_instance = nullptr;
 static AxivionPluginPrivate *dd = nullptr;
 
+class AxivionTextMark : public TextEditor::TextMark
+{
+public:
+    AxivionTextMark(const Utils::FilePath &filePath, const ShortIssue &issue);
+
+private:
+    QString m_id;
+};
+
+AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIssue &issue)
+    : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
+    , m_id(issue.id)
+{
+    const QString markText = issue.entity.isEmpty() ? issue.message
+                                                    : issue.entity + ": " + issue.message;
+    setToolTip(issue.errorNumber + " " + markText);
+    setPriority(TextEditor::TextMark::NormalPriority);
+    setLineAnnotation(markText);
+}
+
 AxivionPlugin::AxivionPlugin()
 {
     s_instance = this;
@@ -298,13 +318,7 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
-        auto mark = new TextEditor::TextMark(filePath, issue.lineNumber,
-                                             {Tr::tr("Axivion"), axivionId});
-        const QString markText = issue.entity.isEmpty() ? issue.message
-                                                        : issue.entity + ": " + issue.message;
-        mark->setToolTip(issue.errorNumber + " " + markText);
-        mark->setPriority(TextEditor::TextMark::NormalPriority);
-        mark->setLineAnnotation(markText);
+        new AxivionTextMark(filePath, issue);
     }
 }
 

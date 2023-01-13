@@ -307,6 +307,7 @@ static void parseCsvIssue(const QByteArray &csv, QList<ShortIssue> *issues)
         QTC_ASSERT(match.hasMatch(), continue);
         // FIXME: some of these are not present for all issue kinds! Limited to SV for now
         ShortIssue issue;
+        issue.id = match.captured("Id");
         issue.state = match.captured("State");
         issue.errorNumber = match.captured("ErrorNumber");
         issue.message = match.captured("Message");

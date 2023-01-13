@@ -73,6 +73,7 @@ public:
 class ShortIssue : public BaseResult
 {
 public:
+    QString id;
     QString state;
     QString errorNumber;
     QString message;
