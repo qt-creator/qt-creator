@@ -2168,8 +2168,8 @@ Environment CMakeBuildConfiguration::baseConfigureEnvironment() const
         ProjectExplorer::IDevice::ConstPtr devicePtr = BuildDeviceKitAspect::device(kit());
         result = devicePtr ? devicePtr->systemEnvironment() : Environment::systemEnvironment();
     }
-    addToEnvironment(result);
     kit()->addToBuildEnvironment(result);
+    addToEnvironment(result);
     result.modify(project()->additionalEnvironment());
     return result;
 }
