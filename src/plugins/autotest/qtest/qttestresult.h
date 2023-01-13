@@ -15,12 +15,8 @@ namespace Internal {
 class QtTestResult : public TestResult
 {
 public:
-    QtTestResult(const QString &id, const Utils::FilePath &projectFile, TestType type,
-                 const QString &className);
-    const QString outputString(bool selected) const override;
-
-    void setFunctionName(const QString &functionName) { m_function = functionName; }
-    void setDataTag(const QString &dataTag) { m_dataTag = dataTag; }
+    QtTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
+                 TestType type, const QString &functionName = {}, const QString &dataTag = {});
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     bool isIntermediateFor(const TestResult *other) const override;
@@ -35,10 +31,10 @@ private:
     bool matchesTestCase(const TestTreeItem *item) const;
     bool matchesTestFunction(const TestTreeItem *item) const;
 
-    QString m_function;
-    QString m_dataTag;
     Utils::FilePath m_projectFile;
     TestType m_type;
+    QString m_function;
+    QString m_dataTag;
 };
 
 } // namespace Internal

@@ -8,7 +8,6 @@
 namespace Autotest {
 namespace Internal {
 
-class BoostTestResult;
 enum class LogLevel;
 enum class ReportLevel;
 

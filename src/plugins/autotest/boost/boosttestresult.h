@@ -13,19 +13,17 @@ class BoostTestTreeItem;
 class BoostTestResult : public TestResult
 {
 public:
-    BoostTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name);
-    const QString outputString(bool selected) const override;
+    BoostTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
+                    const QString &testCaseName = {}, const QString &testSuiteName = {});
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     const ITestTreeItem * findTestTreeItem() const override;
-    void setTestSuite(const QString &testSuite) { m_testSuite = testSuite; }
-    void setTestCase(const QString &testCase) { m_testCase = testCase; }
 private:
     bool matches(const BoostTestTreeItem *item) const;
 
     Utils::FilePath m_projectFile;
-    QString m_testSuite;
-    QString m_testCase;
+    QString m_testCaseName;
+    QString m_testSuiteName;
 };
 
 } // namespace Internal

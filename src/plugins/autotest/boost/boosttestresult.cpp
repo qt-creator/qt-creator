@@ -14,28 +14,35 @@
 namespace Autotest {
 namespace Internal {
 
-BoostTestResult::BoostTestResult(const QString &id, const Utils::FilePath &projectFile, const QString &name)
-    : TestResult(id, name), m_projectFile(projectFile)
+static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
 {
+    return [testCaseName](const TestResult &result, bool selected) {
+        const QString &desc = result.description();
+        QString output;
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+            output = testCaseName;
+            if (selected && !desc.isEmpty())
+                output.append('\n').append(desc);
+            break;
+        default:
+            output = desc;
+            if (!selected)
+                output = output.split('\n').first();
+        }
+        return output;
+    };
 }
 
-const QString BoostTestResult::outputString(bool selected) const
+BoostTestResult::BoostTestResult(const QString &id, const QString &name,
+                                 const Utils::FilePath &projectFile,
+                                 const QString &testCaseName, const QString &testSuiteName)
+    : TestResult(id, name, {outputStringHook(testCaseName)})
+    , m_projectFile(projectFile)
+    , m_testCaseName(testCaseName)
+    , m_testSuiteName(testSuiteName)
 {
-    const QString &desc = description();
-    QString output;
-    switch (result()) {
-    case ResultType::Pass:
-    case ResultType::Fail:
-        output = m_testCase;
-        if (selected && !desc.isEmpty())
-            output.append('\n').append(desc);
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split('\n').first();
-    }
-    return output;
 }
 
 bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
@@ -46,24 +53,24 @@ bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsInter
     if (result() != ResultType::TestStart)
         return false;
 
-    bool weAreModule = (m_testCase.isEmpty() && m_testSuite.isEmpty());
-    bool weAreSuite = (m_testCase.isEmpty() && !m_testSuite.isEmpty());
-    bool weAreCase = (!m_testCase.isEmpty());
+    bool weAreModule = (m_testCaseName.isEmpty() && m_testSuiteName.isEmpty());
+    bool weAreSuite = (m_testCaseName.isEmpty() && !m_testSuiteName.isEmpty());
+    bool weAreCase = (!m_testCaseName.isEmpty());
 
     const BoostTestResult *boostOther = static_cast<const BoostTestResult *>(other);
-    bool otherIsSuite = boostOther->m_testCase.isEmpty() && !boostOther->m_testSuite.isEmpty();
-    bool otherIsCase = !boostOther->m_testCase.isEmpty();
+    bool otherIsSuite = boostOther->m_testCaseName.isEmpty() && !boostOther->m_testSuiteName.isEmpty();
+    bool otherIsCase = !boostOther->m_testCaseName.isEmpty();
 
     if (otherIsSuite)
-        return weAreSuite ? boostOther->m_testSuite.startsWith(m_testSuite + '/') : weAreModule;
+        return weAreSuite ? boostOther->m_testSuiteName.startsWith(m_testSuiteName + '/') : weAreModule;
 
     if (otherIsCase) {
         if (weAreCase)
-            return boostOther->m_testCase == m_testCase && boostOther->m_testSuite == m_testSuite;
+            return boostOther->m_testCaseName == m_testCaseName && boostOther->m_testSuiteName == m_testSuiteName;
         if (weAreSuite)
-            return boostOther->m_testSuite == m_testSuite;
+            return boostOther->m_testSuiteName == m_testSuiteName;
         if (weAreModule)
-            return boostOther->m_testSuite.isEmpty();
+            return boostOther->m_testSuiteName.isEmpty();
     }
     return false;
 }
@@ -88,16 +95,16 @@ bool BoostTestResult::matches(const BoostTestTreeItem *item) const
     // might end up here with a differing set of tests, but it's the best we can do
     if (!item)
         return false;
-    if (m_testCase.isEmpty()) // a top level module node
+    if (m_testCaseName.isEmpty()) // a top level module node
         return item->proFile() == m_projectFile;
     if (item->proFile() != m_projectFile)
         return false;
     if (!fileName().isEmpty() && fileName() != item->filePath())
         return false;
 
-    QString fullName = "::" + m_testCase;
-    fullName.prepend(m_testSuite.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
-                                           : m_testSuite);
+    QString fullName = "::" + m_testCaseName;
+    fullName.prepend(m_testSuiteName.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
+                                           : m_testSuiteName);
 
     BoostTestTreeItem::TestStates states = item->state();
     if (states & BoostTestTreeItem::Templated) {

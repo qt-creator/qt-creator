@@ -70,7 +70,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_description = line;
             if (m_iteration > 1)
                 m_description.append(' ' + Tr::tr("(iteration %1)").arg(m_iteration));
-            TestResultPtr testResult = TestResultPtr(new GTestResult(id(), m_projectFile, QString()));
+            TestResultPtr testResult = TestResultPtr(new GTestResult(id(), {}, m_projectFile));
             testResult->setResult(ResultType::MessageInternal);
             testResult->setDescription(m_description);
             reportResult(testResult);
@@ -103,8 +103,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = newTestSetStarts.match(line)) {
         m_testSetStarted = true;
         setCurrentTestCase(match.captured(1));
-        TestResultPtr testResult = TestResultPtr(new GTestResult(QString(), m_projectFile,
-                                                                 QString()));
+        TestResultPtr testResult = TestResultPtr(new GTestResult({}, {}, m_projectFile));
         testResult->setResult(ResultType::MessageCurrentTest);
         testResult->setDescription(Tr::tr("Entering test case %1").arg(m_currentTestCase));
         reportResult(testResult);
@@ -178,9 +177,8 @@ void GTestOutputReader::processStdError(const QByteArray &outputLine)
 
 TestResultPtr GTestOutputReader::createDefaultResult() const
 {
-    GTestResult *result = new GTestResult(id(), m_projectFile, m_currentTestSuite);
-    result->setTestCaseName(m_currentTestCase);
-    result->setIteration(m_iteration);
+    GTestResult *result = new GTestResult(id(), m_currentTestSuite, m_projectFile,
+                                          m_currentTestCase, m_iteration);
 
     const ITestTreeItem *testItem = result->findTestTreeItem();
 

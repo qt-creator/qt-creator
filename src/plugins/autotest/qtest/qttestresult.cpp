@@ -12,53 +12,58 @@
 namespace Autotest {
 namespace Internal {
 
-QtTestResult::QtTestResult(const QString &id, const Utils::FilePath &projectFile, TestType type,
-                           const QString &className)
-    : TestResult(id, className), m_projectFile(projectFile), m_type(type)
+static ResultHooks::OutputStringHook outputStringHook(const QString &function, const QString &dataTag)
 {
+    return [function, dataTag](const TestResult &result, bool selected) {
+        const QString &desc = result.description();
+        const QString &className = result.name();
+        QString output;
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+        case ResultType::ExpectedFail:
+        case ResultType::UnexpectedPass:
+        case ResultType::BlacklistedFail:
+        case ResultType::BlacklistedPass:
+            output = className;
+            if (!function.isEmpty())
+                output.append("::" + function);
+            if (!dataTag.isEmpty())
+                output.append(QString(" (%1)").arg(dataTag));
+            if (selected && !desc.isEmpty()) {
+                output.append('\n').append(desc);
+            }
+            break;
+        case ResultType::Benchmark:
+            output = className;
+            if (!function.isEmpty())
+                output.append("::" + function);
+            if (!dataTag.isEmpty())
+                output.append(QString(" (%1)").arg(dataTag));
+            if (!desc.isEmpty()) {
+                int breakPos = desc.indexOf('(');
+                output.append(": ").append(desc.left(breakPos));
+                if (selected)
+                    output.append('\n').append(desc.mid(breakPos));
+            }
+            break;
+        default:
+            output = desc;
+            if (!selected)
+                output = output.split('\n').first();
+        }
+        return output;
+    };
 }
 
-const QString QtTestResult::outputString(bool selected) const
-{
-    const QString &desc = description();
-    const QString &className = name();
-    QString output;
-    switch (result()) {
-    case ResultType::Pass:
-    case ResultType::Fail:
-    case ResultType::ExpectedFail:
-    case ResultType::UnexpectedPass:
-    case ResultType::BlacklistedFail:
-    case ResultType::BlacklistedPass:
-        output = className;
-        if (!m_function.isEmpty())
-            output.append("::" + m_function);
-        if (!m_dataTag.isEmpty())
-            output.append(QString(" (%1)").arg(m_dataTag));
-        if (selected && !desc.isEmpty()) {
-            output.append('\n').append(desc);
-        }
-        break;
-    case ResultType::Benchmark:
-        output = className;
-        if (!m_function.isEmpty())
-            output.append("::" + m_function);
-        if (!m_dataTag.isEmpty())
-            output.append(QString(" (%1)").arg(m_dataTag));
-        if (!desc.isEmpty()) {
-            int breakPos = desc.indexOf('(');
-            output.append(": ").append(desc.left(breakPos));
-            if (selected)
-                output.append('\n').append(desc.mid(breakPos));
-        }
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split('\n').first();
-    }
-    return output;
-}
+QtTestResult::QtTestResult(const QString &id, const QString &name,
+                           const Utils::FilePath &projectFile, TestType type,
+                           const QString &functionName, const QString &dataTag)
+    : TestResult(id, name, {outputStringHook(functionName, dataTag)})
+    , m_projectFile(projectFile)
+    , m_type(type)
+    , m_function(functionName)
+    , m_dataTag(dataTag) {}
 
 bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
 {
@@ -97,8 +102,8 @@ TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
 {
     QTC_ASSERT(other, return nullptr);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->m_projectFile,
-                                                  m_type, qtOther->name());
+    QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->name(), qtOther->m_projectFile,
+                                                  m_type);
     intermediate->m_function = qtOther->m_function;
     intermediate->m_dataTag = qtOther->m_dataTag;
     // intermediates will be needed only for data tags

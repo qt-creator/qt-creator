@@ -132,9 +132,8 @@ void QtTestOutputReader::processOutputLine(const QByteArray &outputLine)
 
 TestResultPtr QtTestOutputReader::createDefaultResult() const
 {
-    QtTestResult *result = new QtTestResult(id(), m_projectFile, m_testType, m_className);
-    result->setFunctionName(m_testCase);
-    result->setDataTag(m_dataTag);
+    QtTestResult *result = new QtTestResult(id(), m_className, m_projectFile, m_testType,
+                                            m_testCase, m_dataTag);
     return TestResultPtr(result);
 }
 
@@ -475,7 +474,7 @@ void QtTestOutputReader::sendCompleteInformation()
 
 void QtTestOutputReader::sendMessageCurrentTest()
 {
-    QtTestResult *testResult = new QtTestResult(QString(), m_projectFile, m_testType, QString());
+    QtTestResult *testResult = new QtTestResult({}, {}, m_projectFile, m_testType);
     testResult->setResult(ResultType::MessageCurrentTest);
     testResult->setDescription(Tr::tr("Entering test function %1::%2").arg(m_className, m_testCase));
     reportResult(TestResultPtr(testResult));

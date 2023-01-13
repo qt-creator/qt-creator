@@ -58,14 +58,22 @@ inline auto qHash(const ResultType &result)
     return QT_PREPEND_NAMESPACE(qHash(int(result)));
 }
 
+class TestResult;
+
+struct ResultHooks
+{
+    using OutputStringHook = std::function<QString(const TestResult &, bool)>;
+    OutputStringHook outputString;
+};
+
 class TestResult
 {
 public:
     TestResult() = default;
-    TestResult(const QString &id, const QString &name);
+    TestResult(const QString &id, const QString &name, const ResultHooks &hooks = {});
     virtual ~TestResult() {}
 
-    virtual const QString outputString(bool selected) const;
+    const QString outputString(bool selected) const;
     virtual const ITestTreeItem *findTestTreeItem() const;
 
     QString id() const { return m_id; }
@@ -95,6 +103,7 @@ private:
     QString m_description;
     Utils::FilePath m_file;
     int m_line = 0;
+    ResultHooks m_hooks;
 };
 
 using TestResultPtr = QSharedPointer<TestResult>;

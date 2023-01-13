@@ -14,29 +14,34 @@
 namespace Autotest {
 namespace Internal {
 
-GTestResult::GTestResult(const QString &id, const Utils::FilePath &projectFile,
-                         const QString &name)
-    : TestResult(id, name), m_projectFile(projectFile)
+static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseName)
 {
+    return [testCaseName](const TestResult &result, bool selected) {
+        const QString &desc = result.description();
+        QString output;
+        switch (result.result()) {
+        case ResultType::Pass:
+        case ResultType::Fail:
+            output = testCaseName;
+            if (selected && !desc.isEmpty())
+                output.append('\n').append(desc);
+            break;
+        default:
+            output = desc;
+            if (!selected)
+                output = output.split('\n').first();
+        }
+        return output;
+    };
 }
 
-const QString GTestResult::outputString(bool selected) const
+GTestResult::GTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
+                         const QString &testCaseName, int iteration)
+    : TestResult(id, name, {outputStringHook(testCaseName)})
+    , m_projectFile(projectFile)
+    , m_testCaseName(testCaseName)
+    , m_iteration(iteration)
 {
-    const QString &desc = description();
-    QString output;
-    switch (result()) {
-    case ResultType::Pass:
-    case ResultType::Fail:
-        output = m_testCaseName;
-        if (selected && !desc.isEmpty())
-            output.append('\n').append(desc);
-        break;
-    default:
-        output = desc;
-        if (!selected)
-            output = output.split('\n').first();
-    }
-    return output;
 }
 
 bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const

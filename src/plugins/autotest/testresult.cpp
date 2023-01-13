@@ -8,14 +8,18 @@
 
 namespace Autotest {
 
-TestResult::TestResult(const QString &id, const QString &name)
+TestResult::TestResult(const QString &id, const QString &name, const ResultHooks &hooks)
     : m_id(id)
     , m_name(name)
+    , m_hooks(hooks)
 {
 }
 
 const QString TestResult::outputString(bool selected) const
 {
+    if (m_hooks.outputString)
+        return m_hooks.outputString(*this, selected);
+
     if (m_result == ResultType::Application)
         return m_id;
     return selected ? m_description : m_description.split('\n').first();
