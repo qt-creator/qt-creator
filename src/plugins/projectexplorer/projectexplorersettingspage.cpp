@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "projectexplorersettingspage.h"
+
+#include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "projectexplorer.h"
 
@@ -28,7 +30,7 @@ enum { UseCurrentDirectory, UseProjectDirectory };
 
 class ProjectExplorerSettingsWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::Internal::ProjectExplorerSettings)
+    Q_DECLARE_TR_FUNCTIONS(ProjextExplorer::ProjectExplorerSettings)
 
 public:
     explicit ProjectExplorerSettingsWidget(QWidget *parent = nullptr);
@@ -177,7 +179,7 @@ ProjectExplorerSettings ProjectExplorerSettingsWidget::settings() const
     m_settings.automaticallyCreateRunConfigurations = m_automaticallyCreateRunConfiguration->isChecked();
     m_settings.stopBeforeBuild = static_cast<StopBeforeBuild>(
                 m_stopBeforeBuildComboBox->currentData().toInt());
-    m_settings.terminalMode = static_cast<TerminalMode>(m_terminalModeComboBox->currentIndex());
+    m_settings.terminalMode = static_cast<ProjectExplorer::TerminalMode>(m_terminalModeComboBox->currentIndex());
     m_settings.closeSourceFilesWithProject = m_closeSourceFilesCheckBox->isChecked();
     m_settings.clearIssuesOnRebuild = m_clearIssuesCheckBox->isChecked();
     m_settings.abortBuildAllOnError = m_abortBuildAllOnErrorCheckBox->isChecked();

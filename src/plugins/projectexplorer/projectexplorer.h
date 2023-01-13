@@ -29,16 +29,16 @@ class ProcessHandle;
 namespace ProjectExplorer {
 class BuildPropertiesSettings;
 class CustomParserSettings;
+class FolderNode;
+class Node;
+class Project;
+class ProjectExplorerSettings;
 class RunControl;
 class RunConfiguration;
-class Project;
-class Node;
-class FolderNode;
 
 namespace Internal {
 class AppOutputSettings;
 class MiniProjectTargetSelector;
-class ProjectExplorerSettings;
 }
 
 using RecentProjectsEntry = QPair<Utils::FilePath, QString>;
@@ -113,8 +113,8 @@ public:
     ShutdownFlag aboutToShutdown() override;
     QVector<QObject *> createTestObjects() const override;
 
-    static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
-    static const Internal::ProjectExplorerSettings &projectExplorerSettings();
+    static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);
+    static const ProjectExplorerSettings &projectExplorerSettings();
 
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();

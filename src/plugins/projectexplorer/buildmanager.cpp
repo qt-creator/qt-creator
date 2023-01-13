@@ -13,6 +13,7 @@
 #include "kitinformation.h"
 #include "project.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
 #include "runcontrol.h"
 #include "session.h"
@@ -442,12 +443,12 @@ int BuildManager::getErrorTaskCount()
     return errors;
 }
 
-void BuildManager::setCompileOutputSettings(const Internal::CompileOutputSettings &settings)
+void BuildManager::setCompileOutputSettings(const CompileOutputSettings &settings)
 {
     d->m_outputWindow->setSettings(settings);
 }
 
-const Internal::CompileOutputSettings &BuildManager::compileOutputSettings()
+const CompileOutputSettings &BuildManager::compileOutputSettings()
 {
     return d->m_outputWindow->settings();
 }

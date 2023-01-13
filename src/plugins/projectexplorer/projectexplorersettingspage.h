@@ -10,7 +10,6 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-class ProjectExplorerSettings;
 class ProjectExplorerSettingsWidget;
 
 class ProjectExplorerSettingsPage : public Core::IOptionsPage

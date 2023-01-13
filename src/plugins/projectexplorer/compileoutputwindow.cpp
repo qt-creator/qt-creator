@@ -6,6 +6,7 @@
 #include "buildmanager.h"
 #include "ioutputparser.h"
 #include "projectexplorer.h"
+#include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
 #include "projectexplorersettings.h"
 #include "showoutputtaskhandler.h"

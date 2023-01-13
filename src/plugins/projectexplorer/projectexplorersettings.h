@@ -3,18 +3,14 @@
 
 #pragma once
 
-#include "projectexplorerconstants.h"
-
 #include <coreplugin/coreconstants.h>
 #include <utils/hostosinfo.h>
 
 #include <QUuid>
 
 namespace ProjectExplorer {
-namespace Internal {
 
 enum class TerminalMode { On, Off, Smart };
-enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
 enum class BuildBeforeRunMode { Off, WholeProject, AppOnly };
 enum class StopBeforeBuild { None, SameProject, All, SameBuildDir, SameApp };
 
@@ -63,6 +59,10 @@ public:
     QUuid environmentId;
 };
 
+namespace Internal {
+
+enum class AppOutputPaneMode { FlashOnOutput, PopupOnOutput, PopupOnFirstOutput };
+
 class AppOutputSettings
 {
 public:
@@ -82,5 +82,5 @@ public:
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
-} // namespace ProjectExplorer
 } // namespace Internal
+} // namespace ProjectExplorer

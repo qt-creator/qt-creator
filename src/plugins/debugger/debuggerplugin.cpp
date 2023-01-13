@@ -16,25 +16,16 @@
 #include "debuggerruncontrol.h"
 #include "debuggerkitinformation.h"
 #include "debuggertr.h"
-#include "memoryagent.h"
 #include "breakhandler.h"
-#include "disassemblerlines.h"
 #include "enginemanager.h"
 #include "logwindow.h"
-#include "moduleshandler.h"
-#include "stackhandler.h"
-#include "stackwindow.h"
-#include "watchhandler.h"
-#include "watchwindow.h"
-#include "watchutils.h"
+#include "stackframe.h"
 #include "unstartedappwatcherdialog.h"
-#include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
 
-#include "threadshandler.h"
 #include "commonoptionspage.h"
 
 #include "analyzer/analyzerconstants.h"
@@ -74,6 +65,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
