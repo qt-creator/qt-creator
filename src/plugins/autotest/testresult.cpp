@@ -166,7 +166,7 @@ bool TestResult::isIntermediateFor(const TestResult *other) const
     return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
 }
 
-TestResult *TestResult::createIntermediateResultFor(const TestResult *other)
+TestResult *TestResult::createIntermediateResultFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return nullptr);
     TestResult *intermediate = new TestResult(other->m_id, other->m_name);

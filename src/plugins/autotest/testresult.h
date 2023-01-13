@@ -95,7 +95,7 @@ public:
 
     virtual bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
     virtual bool isIntermediateFor(const TestResult *other) const;
-    virtual TestResult *createIntermediateResultFor(const TestResult *other);
+    virtual TestResult *createIntermediateResultFor(const TestResult *other) const;
 private:
     QString m_id;
     QString m_name;

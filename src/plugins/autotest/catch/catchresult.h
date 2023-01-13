@@ -11,14 +11,13 @@ namespace Internal {
 class CatchResult : public TestResult
 {
 public:
-    CatchResult(const QString &id, const QString &name);
+    CatchResult(const QString &id, const QString &name, int depth);
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     const ITestTreeItem *findTestTreeItem() const override;
 
-    void setSectionDepth(int depth) { m_sectionDepth = depth; }
-    int sectionDepth() const { return m_sectionDepth; }
 private:
+    int sectionDepth() const { return m_sectionDepth; }
     int m_sectionDepth = 0;
 };
 

@@ -98,7 +98,7 @@ bool QtTestResult::isIntermediateFor(const TestResult *other) const
             && m_projectFile == qtOther->m_projectFile;
 }
 
-TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other)
+TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return nullptr);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);

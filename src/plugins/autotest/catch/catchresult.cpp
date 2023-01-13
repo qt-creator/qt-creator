@@ -12,8 +12,9 @@
 namespace Autotest {
 namespace Internal {
 
-CatchResult::CatchResult(const QString &id, const QString &name)
+CatchResult::CatchResult(const QString &id, const QString &name, int depth)
     : TestResult(id, name)
+    , m_sectionDepth(depth)
 {
 }
 

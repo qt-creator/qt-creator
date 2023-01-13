@@ -5,7 +5,6 @@
 #include "catchresult.h"
 
 #include "../autotesttr.h"
-#include "../testtreeitem.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -174,7 +173,7 @@ TestResultPtr CatchOutputReader::createDefaultResult() const
 {
     CatchResult *result = nullptr;
     if (m_testCaseInfo.size() > 0) {
-        result = new CatchResult(id(), m_testCaseInfo.first().name);
+        result = new CatchResult(id(), m_testCaseInfo.first().name, m_sectionDepth);
         result->setDescription(m_testCaseInfo.last().name);
         result->setLine(m_testCaseInfo.last().line);
         const QString givenPath = m_testCaseInfo.last().filename;
@@ -182,9 +181,8 @@ TestResultPtr CatchOutputReader::createDefaultResult() const
             result->setFileName(constructSourceFilePath(m_buildDir, givenPath));
         }
     } else {
-        result = new CatchResult(id(), QString());
+        result = new CatchResult(id(), {}, m_sectionDepth);
     }
-    result->setSectionDepth(m_sectionDepth);
 
     return TestResultPtr(result);
 }

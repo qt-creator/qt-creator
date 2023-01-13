@@ -20,7 +20,7 @@ public:
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     bool isIntermediateFor(const TestResult *other) const override;
-    TestResult *createIntermediateResultFor(const TestResult *other) override;
+    TestResult *createIntermediateResultFor(const TestResult *other) const override;
     const ITestTreeItem *findTestTreeItem() const override;
 private:
     bool isTestCase() const     { return m_function.isEmpty()  && m_dataTag.isEmpty(); }
