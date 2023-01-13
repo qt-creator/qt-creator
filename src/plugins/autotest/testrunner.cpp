@@ -104,7 +104,7 @@ void TestRunner::runTest(TestRunMode mode, const ITestTreeItem *item)
 
 static QString processInformation(const QtcProcess *proc)
 {
-    QTC_ASSERT(proc, return QString());
+    QTC_ASSERT(proc, return {});
     const Utils::CommandLine command = proc->commandLine();
     QString information("\nCommand line: " + command.executable().toUserOutput() + ' ' + command.arguments());
     QStringList important = { "PATH" };
@@ -226,7 +226,7 @@ void TestRunner::scheduleNext()
     QTC_ASSERT(m_fakeFutureInterface, onFinished(); return);
     QTC_ASSERT(!m_canceled, onFinished(); return);
 
-    m_currentConfig = m_selectedTests.dequeue();
+    m_currentConfig = m_selectedTests.takeFirst();
 
     if (!currentConfigValid())
         return;
@@ -238,7 +238,7 @@ void TestRunner::scheduleNext()
     QTC_ASSERT(m_currentProcess, onProcessDone(); return);
     QTC_ASSERT(!m_currentOutputReader, delete m_currentOutputReader);
     m_currentOutputReader = m_currentConfig->createOutputReader(*m_fakeFutureInterface, m_currentProcess);
-    QTC_ASSERT(m_currentOutputReader, onProcessDone();return);
+    QTC_ASSERT(m_currentOutputReader, onProcessDone(); return);
 
     connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
             TestResultsPane::instance(), &TestResultsPane::addOutputLine);
@@ -340,8 +340,7 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
 {
     QTC_ASSERT(!m_executingTests, return);
     qDeleteAll(m_selectedTests);
-    m_selectedTests.clear();
-    m_selectedTests.append(selectedTests);
+    m_selectedTests = selectedTests;
 
     m_skipTargetsCheck = false;
     m_runMode = mode;
@@ -362,13 +361,13 @@ void TestRunner::runTests(TestRunMode mode, const QList<ITestConfiguration *> &s
     TestResultsPane::instance()->clearContents();
     TestTreeModel::instance()->clearFailedMarks();
 
-    if (m_selectedTests.empty()) {
+    if (m_selectedTests.isEmpty()) {
         reportResult(ResultType::MessageWarn, Tr::tr("No tests selected. Canceling test run."));
         onFinished();
         return;
     }
 
-    Project *project = m_selectedTests.at(0)->project();
+    Project *project = m_selectedTests.first()->project();
     if (!project) {
         reportResult(ResultType::MessageWarn,
             Tr::tr("Project is null. Canceling test run.\n"
@@ -580,10 +579,10 @@ static void processOutput(TestOutputReader *outputreader, const QString &msg,
 void TestRunner::debugTests()
 {
     // TODO improve to support more than one test configuration
-    QTC_ASSERT(m_selectedTests.size() == 1, onFinished();return);
+    QTC_ASSERT(m_selectedTests.size() == 1, onFinished(); return);
 
     ITestConfiguration *itc = m_selectedTests.first();
-    QTC_ASSERT(itc->testBase()->type() == ITestBase::Framework, onFinished();return);
+    QTC_ASSERT(itc->testBase()->type() == ITestBase::Framework, onFinished(); return);
 
     TestConfiguration *config = static_cast<TestConfiguration *>(itc);
     config->completeTestInformation(TestRunMode::Debug);
@@ -875,7 +874,7 @@ bool RunConfigurationSelectionDialog::rememberChoice() const
 
 void RunConfigurationSelectionDialog::populate()
 {
-    m_rcCombo->addItem(QString(), QStringList({QString(), QString(), QString()})); // empty default
+    m_rcCombo->addItem({}, QStringList{{}, {}, {}}); // empty default
 
     if (auto project = SessionManager::startupProject()) {
         if (auto target = project->activeTarget()) {

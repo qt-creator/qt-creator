@@ -8,8 +8,8 @@
 
 #include <QDialog>
 #include <QFutureWatcher>
+#include <QList>
 #include <QObject>
-#include <QQueue>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -78,7 +78,7 @@ private:
 
     QFutureWatcher<TestResultPtr> m_futureWatcher;
     QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
-    QQueue<ITestConfiguration *> m_selectedTests;
+    QList<ITestConfiguration *> m_selectedTests;
     bool m_executingTests = false;
     bool m_canceled = false;
     ITestConfiguration *m_currentConfig = nullptr;
