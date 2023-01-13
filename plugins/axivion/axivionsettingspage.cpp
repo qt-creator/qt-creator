@@ -43,7 +43,7 @@ static bool hostValid(const QString &host)
 static bool isUrlValid(const QString &in)
 {
     const QUrl url(in);
-    return hostValid(url.host()) && url.scheme() == "https" || url.scheme() == "http";
+    return hostValid(url.host()) && (url.scheme() == "https" || url.scheme() == "http");
 }
 
 DashboardSettingsWidget::DashboardSettingsWidget(Mode mode, QWidget *parent)
