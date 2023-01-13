@@ -74,7 +74,7 @@ void CompilationDatabaseTests::testProject()
 
 void CompilationDatabaseTests::testProject_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
 
     addTestRow("qtc/compile_commands.json");
     addTestRow("llvm/compile_commands.json");
