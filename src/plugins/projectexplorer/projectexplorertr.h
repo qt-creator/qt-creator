@@ -9,7 +9,7 @@ namespace ProjectExplorer {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer)
+    Q_DECLARE_TR_FUNCTIONS(::ProjectExplorer)
 };
 
 } // namespace ProjectExplorer

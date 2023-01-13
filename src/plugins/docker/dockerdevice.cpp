@@ -974,7 +974,7 @@ public:
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
         const QString fail = QString{"Docker: "}
-                             + QCoreApplication::translate("Debugger", "Process failed to start.");
+                             + QCoreApplication::translate("::Debugger", "Process failed to start.");
         auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
         errorLabel->setVisible(false);
 

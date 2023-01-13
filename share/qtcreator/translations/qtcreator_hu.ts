@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Künyvjelző hozzáadása</translation>
@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Fordítási környezet</translation>
@@ -853,7 +853,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;KódBeillesztő</translation>
@@ -3210,7 +3210,7 @@ p {
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation type="obsolete">Rendezés betűrendbe</translation>
@@ -3567,7 +3567,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Közös</translation>
@@ -3690,7 +3690,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The Gdb process could not be stopped:
 %1</source>
@@ -3723,7 +3723,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select start address</source>
         <translation>Start cím kiválasztása</translation>
@@ -3734,7 +3734,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Futtatható fájl kiválasztása</translation>
@@ -3745,7 +3745,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>Folyamat azonosító</translation>
@@ -3764,7 +3764,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Megjelölt fájl:</translation>
@@ -3839,7 +3839,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Töréspontok</translation>
@@ -3906,7 +3906,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Nem lehet betölteni a debugger engine könytárat &apos;%1&apos; nicht geladen werden: %2</translation>
@@ -4037,7 +4037,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation>Injekció</translation>
@@ -4084,7 +4084,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -4109,7 +4109,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Szimbólum szerver...</translation>
@@ -4124,7 +4124,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Error Loading Symbols</source>
         <translation>Hiba történt a szimbólumok betöltésekor</translation>
@@ -4161,7 +4161,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Close Debugging Session</source>
         <translation>Debug szakasz bezárása</translation>
@@ -4176,7 +4176,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>%1 opció egy hiányzó paraméter.</translation>
@@ -4267,14 +4267,14 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debuggolás</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Debugger beállítások...</translation>
@@ -4405,7 +4405,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Debuggolást segítő</translation>
@@ -4420,7 +4420,7 @@ p {
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Nem sikerült elindítani a Gdb folyamatot. Vagy a(z) &apos;%1&apos; felhasznált program hiányzik, vagy nincsenek meg a megfelelő jogai a program felhasználására.</translation>
@@ -4744,7 +4744,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -4759,7 +4759,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Memory $</source>
         <translation>Memória $</translation>
@@ -4774,7 +4774,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Modul név</translation>
@@ -4793,7 +4793,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modul</translation>
@@ -4848,7 +4848,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nem lehet átmeneti fájlt létrehozni: %1</translation>
@@ -4863,7 +4863,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Nem sikerült beállítani a kommunikációs a gyermek folyamattal: %1</translation>
@@ -4876,14 +4876,14 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Regiszterek</translation>
@@ -4951,7 +4951,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; nem tartalmaz azonosítót</translation>
@@ -4974,7 +4974,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Forrás fájlok</translation>
@@ -4993,7 +4993,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Cím:</translation>
@@ -5048,7 +5048,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Executable:</source>
         <translation>Futtatható:</translation>
@@ -5059,7 +5059,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Szál: %1</translation>
@@ -5094,7 +5094,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Szál</translation>
@@ -5110,7 +5110,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -5141,7 +5141,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;nem a hatókörben&gt;</translation>
@@ -5264,7 +5264,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Tartalom kitisztítása</translation>
@@ -5275,7 +5275,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugging helper</source>
         <translation>Debuggolást segítő</translation>
@@ -5313,7 +5313,7 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Designer</source>
         <translation>Tervező</translation>
@@ -5549,7 +5549,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -7111,7 +7111,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Specify repository URL, checkout directory and path.</source>
         <translation>Határozza meg a tároló URL-t, megnézési könyvtárat és útvonalat.</translation>
@@ -8373,7 +8373,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Add new page</source>
         <translation type="obsolete">Új lap hozzáadása</translation>
@@ -12455,7 +12455,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -12469,7 +12469,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>QMake Építési Konfiguráció:</translation>
@@ -12868,7 +12868,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>&lt;font color=&quot;#ff0000&quot;&gt;Could not find make command: %1 in the build environment&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#ff0000&quot;&gt;A make parancs nem található: %1 a fordító környezetben&lt;/font&gt;</translation>
@@ -13747,7 +13747,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation>Első lépések</translation>
@@ -13901,7 +13901,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation>Qt4 Gui Alkalmazás</translation>
@@ -15362,7 +15362,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Resource file</source>
         <translation type="obsolete">Forrás fájl</translation>
@@ -15397,7 +15397,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Egy Qt forrásfájl létrehozása (.qrc).</translation>
@@ -15420,7 +15420,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
@@ -17985,7 +17985,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Verzió követő</translation>
@@ -18330,7 +18330,7 @@ p, li { white-space: pre-wrap; }(new line)
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Community</source>
         <translation>Közösség</translation>

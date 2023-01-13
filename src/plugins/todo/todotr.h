@@ -9,7 +9,7 @@ namespace Todo {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Todo)
+    Q_DECLARE_TR_FUNCTIONS(::Todo)
 };
 
 } // namespace Todo

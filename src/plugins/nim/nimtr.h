@@ -9,7 +9,7 @@ namespace Nim {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Nim)
+    Q_DECLARE_TR_FUNCTIONS(::Nim)
 };
 
 } // namespace Nim

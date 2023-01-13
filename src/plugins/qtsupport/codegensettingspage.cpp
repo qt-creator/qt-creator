@@ -118,7 +118,7 @@ CodeGenSettingsPage::CodeGenSettingsPage()
     setDisplayName(Tr::tr("Qt Class Generation"));
     setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(
-        QCoreApplication::translate("CppEditor", CppEditor::Constants::CPP_SETTINGS_NAME));
+        QCoreApplication::translate("::CppEditor", CppEditor::Constants::CPP_SETTINGS_NAME));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
     setWidgetCreator([] { return new CodeGenSettingsPageWidget; });
 }

@@ -9,7 +9,7 @@ namespace Coco {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Coco)
+    Q_DECLARE_TR_FUNCTIONS(::Coco)
 };
 
 } // namespace Coco

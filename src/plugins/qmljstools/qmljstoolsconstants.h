@@ -20,7 +20,6 @@ const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
 const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
 
 const char QML_JS_SETTINGS_ID[] = "QmlJS";
-const char QML_JS_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Qt Quick");
 
 const char M_TOOLS_QMLJS[] = "QmlJSTools.Tools.Menu";
 const char RESET_CODEMODEL[] = "QmlJSTools.ResetCodeModel";

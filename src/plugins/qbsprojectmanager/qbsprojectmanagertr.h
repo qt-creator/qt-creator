@@ -9,7 +9,7 @@ namespace QbsProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QbsProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(::QbsProjectManager)
 };
 
 } // namespace QbsProjectManager

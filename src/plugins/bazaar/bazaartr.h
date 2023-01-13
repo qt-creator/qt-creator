@@ -9,7 +9,7 @@ namespace Bazaar {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar)
+    Q_DECLARE_TR_FUNCTIONS(::Bazaar)
 };
 
 } // namespace Bazaar

@@ -9,7 +9,7 @@ namespace Designer {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Designer)
+    Q_DECLARE_TR_FUNCTIONS(::Designer)
 };
 
 } // namespace Designer

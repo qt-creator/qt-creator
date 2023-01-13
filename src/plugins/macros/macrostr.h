@@ -9,7 +9,7 @@ namespace Macros {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Macros)
+    Q_DECLARE_TR_FUNCTIONS(::Macros)
 };
 
 } // namespace Macros

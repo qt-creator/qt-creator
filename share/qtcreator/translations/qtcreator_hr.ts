@@ -646,7 +646,7 @@
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Widget</source>
         <translation>Programčić</translation>
@@ -1093,7 +1093,7 @@ Odustajanje od izvršavanja neriješenih operacija …
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Pretvara neuspjehe u točke prekida pri uklanjanju grešaka.</translation>
@@ -1174,7 +1174,7 @@ Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</transl
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Omogućuje prekid testova kod potvrda.</translation>
@@ -1253,7 +1253,7 @@ Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</tra
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -1370,7 +1370,7 @@ Upozorenje: ovo je eksperimentalna funkcija i može dovesti do neuspjeha izvrša
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -1407,7 +1407,7 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -1458,7 +1458,7 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -1900,7 +1900,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Odjava</translation>
@@ -2050,7 +2050,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Određuje, da li se staze datoteke kopiraju u međuspremnik za lijepljenje u datoteku CMakeLists.txt, kad dodaješ nove datoteke CMake projektima.</translation>
@@ -2913,7 +2913,7 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Protokol lijepljenja temeljen na programu za zajedničko korištenje datoteka, omogućuje dijeljenje isječaka kȏda pomoću jednostavnih datoteka na zajedničkom mrežnom pogonu. Datoteke se nikad ne brišu.</translation>
@@ -3027,7 +3027,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatne C++ predprocesorske direktive</translation>
@@ -3606,7 +3606,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -3658,7 +3658,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>Odaberi naziv klase</translation>
@@ -3804,7 +3804,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>Naziv grane:</translation>
@@ -4349,7 +4349,7 @@ Možeš birati između skladištenja promjena ili njihovih odbacivanja.</transla
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Dodaj i ukloni komprimirane datoteke pomoći, .qch.</translation>
@@ -4578,7 +4578,7 @@ Dodaj, izmijeni i ukloni filtre dokumenata koji određuju skup dokumentacije pri
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Prikazivač slika</translation>
@@ -5001,7 +5001,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -5128,7 +5128,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Target:</source>
         <translation>Odredište:</translation>
@@ -5286,7 +5286,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation type="unfinished"></translation>
@@ -5960,7 +5960,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Prilagođena svojstva</translation>
@@ -6127,7 +6127,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>The header file</source>
         <translation>Datoteka zaglavlja</translation>
@@ -7411,7 +7411,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Premjesti komponentu u odvojenu datoteku</translation>
@@ -7482,7 +7482,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>Cjelokupno vrijeme</translation>
@@ -7582,7 +7582,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Deploy Qt to QNX Device</source>
         <translation>Implementiraj Qt na QNX uređaju</translation>
@@ -7633,7 +7633,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Generate kits</source>
         <translation>Generiraj komplete</translation>
@@ -7690,7 +7690,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Ugrađivanje klasa korisničkog sučelja</translation>
@@ -7725,7 +7725,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Naziv verzije:</translation>
@@ -7740,7 +7740,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Dodaj …</translation>
@@ -7755,14 +7755,14 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Zapis gradnje pomoćnika za uklanjanje grešaka</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Vrsta autentifikacije</translation>
@@ -7845,7 +7845,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranica čarobnjaka</translation>
@@ -7906,7 +7906,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>Frame</source>
         <translation>Okvir</translation>
@@ -8825,7 +8825,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>Ključna riječ</translation>
@@ -8852,7 +8852,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Keywords</source>
         <translation>Ključne riječi</translation>
@@ -8891,7 +8891,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Excluded Files</source>
         <translation>Isključene datoteke</translation>
@@ -8941,7 +8941,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Opće postavke</translation>
@@ -9245,7 +9245,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -12042,7 +12042,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -13318,7 +13318,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>::Core</name>
     <message>
         <source>All Files (*.*)</source>
         <comment>On Windows</comment>
@@ -13699,7 +13699,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Cannot create AVD. Invalid input.</source>
         <translation type="unfinished"></translation>
@@ -14647,7 +14647,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation type="unfinished"></translation>
@@ -14738,7 +14738,7 @@ See also Google Test settings.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -14767,7 +14767,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation type="unfinished"></translation>
@@ -14790,14 +14790,14 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt test</translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation type="unfinished"></translation>
@@ -14848,21 +14848,21 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>inherited</source>
         <translation>naslijeđeno</translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation type="unfinished"></translation>
@@ -14873,7 +14873,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation type="unfinished"></translation>
@@ -14884,7 +14884,7 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Select All</source>
         <translation>Odaberi sve</translation>
@@ -14993,14 +14993,14 @@ Executable: %2</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation type="unfinished"></translation>
@@ -15107,7 +15107,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -15138,7 +15138,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation type="unfinished"></translation>
@@ -15180,7 +15180,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -15263,7 +15263,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
@@ -15490,7 +15490,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Zanemari razmake</translation>
@@ -15501,7 +15501,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Verbalno</translation>
@@ -15675,7 +15675,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -15830,14 +15830,14 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar naredba</translation>
@@ -15893,7 +15893,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Beautifier</name>
+    <name>::Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
         <translation>Bea&amp;utifier</translation>
@@ -15976,7 +15976,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Memorija pri 0x%1</translation>
@@ -16138,7 +16138,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binarni uređivač ne može otvoriti prazne datoteke.</translation>
@@ -16173,14 +16173,14 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiranje: %1%</translation>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
@@ -16358,7 +16358,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Bez simbola&gt;</translation>
@@ -16761,7 +16761,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Odaberi &amp;aktivnost:</translation>
@@ -17080,7 +17080,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Neupjelo stvaranje direktorija za gradnju &quot;%1&quot;.</translation>
@@ -17297,7 +17297,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <comment>CMakeProjectManager::CMakeBuildStepConfigWidget display name.</comment>
@@ -17544,7 +17544,7 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
@@ -19999,7 +19999,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Lozinka:</translation>
@@ -20134,7 +20134,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Warnings</source>
         <translation>Upozorenja</translation>
@@ -20233,7 +20233,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Note: Multiple parse contexts are available for this file. Choose the preferred one from the editor toolbar.</source>
         <translation type="unfinished"></translation>
@@ -20615,7 +20615,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation type="unfinished"></translation>
@@ -20712,7 +20712,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation type="unfinished"></translation>
@@ -20810,7 +20810,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -20947,7 +20947,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished"></translation>
@@ -20993,7 +20993,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
@@ -21020,7 +21020,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation type="unfinished"></translation>
@@ -21384,7 +21384,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Kopiraj</translation>
@@ -21479,7 +21479,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Output:</source>
         <translation>Izrada:</translation>
@@ -21632,7 +21632,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Location</source>
         <translation>Mjesto</translation>
@@ -21679,7 +21679,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Program za uklanjanje grešaka korišten za ovaj komplet.</translation>
@@ -21713,7 +21713,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Ispravi greške</translation>
@@ -21858,7 +21858,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
@@ -21889,7 +21889,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>Boja pri %1,%2: crvena: %3 zelena: %4 plava: %5 alfa: %6</translation>
@@ -21912,7 +21912,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Command:</source>
         <translation>Naredba:</translation>
@@ -22131,7 +22131,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>The generated header of the form &quot;%1&quot; could not be found.
 Rebuilding the project might help.</source>
@@ -23281,7 +23281,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Odaberi predložak za obrasce</translation>
@@ -23351,7 +23351,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Uređivač za razlike</translation>
@@ -23666,7 +23666,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>Koristi uređivanje Vim stilom</translation>
@@ -24000,7 +24000,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Lokalne grane</translation>
@@ -25510,7 +25510,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
+    <name>::GLSLEditor</name>
     <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
@@ -25525,7 +25525,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Help</source>
         <translation>Pomoć</translation>
@@ -25784,7 +25784,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -25806,7 +25806,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
         <translation>Izvezeno &quot;%1&quot;, %2x%3, %4 bajta</translation>
@@ -25833,7 +25833,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Slikovni format nije podržan.</translation>
@@ -26291,7 +26291,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation>Klijent za jezike</translation>
@@ -26426,7 +26426,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Macros</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makro naredbe</translation>
@@ -26480,7 +26480,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
@@ -26890,7 +26890,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiraj: %1%</translation>
@@ -26942,7 +26942,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -27455,7 +27455,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Event Type</source>
         <translation>Vrsta događaja</translation>
@@ -27718,7 +27718,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Failed to reset temporary trace file.</source>
         <translation>Neuspjelo resetiranje privremene trace datoteke.</translation>
@@ -27749,7 +27749,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Thread started</source>
         <translation type="unfinished"></translation>
@@ -28669,7 +28669,7 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Devices</source>
         <translation type="unfinished"></translation>
@@ -31704,7 +31704,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation type="unfinished"></translation>
@@ -31883,7 +31883,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation type="unfinished"></translation>
@@ -32073,7 +32073,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -32086,7 +32086,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -32443,7 +32443,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation type="unfinished"></translation>
@@ -33308,7 +33308,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
@@ -34089,7 +34089,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation type="unfinished"></translation>
@@ -34184,7 +34184,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation type="unfinished"></translation>
@@ -34210,7 +34210,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished"></translation>
@@ -34243,7 +34243,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation type="unfinished"></translation>
@@ -34290,7 +34290,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation type="unfinished"></translation>
@@ -35033,7 +35033,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;nepoznato&gt;</translation>
@@ -35181,7 +35181,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>unknown</source>
         <translation>nepoznato</translation>
@@ -35212,7 +35212,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation type="unfinished"></translation>
@@ -35235,7 +35235,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Udaljeni proces neuspjeo: %1</translation>
@@ -35266,7 +35266,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">Dodaj datoteke</translation>
@@ -35313,7 +35313,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished"></translation>
@@ -35328,7 +35328,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -35339,7 +35339,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Prefiks:</translation>
@@ -35350,7 +35350,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -35433,7 +35433,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation type="unfinished"></translation>
@@ -35455,7 +35455,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Promijeni teme boja …</translation>
@@ -36684,7 +36684,7 @@ Excluding: %3
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nije moguće stvoriti privremenu datoteku &quot;%1&quot;: %2.</translation>
@@ -38087,7 +38087,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -38102,7 +38102,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>Unosi zadatka</translation>
@@ -38137,7 +38137,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>To-Do</source>
         <translation>Zadatak</translation>
@@ -38205,7 +38205,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Koga se zove</translation>
@@ -38224,7 +38224,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Prethodna naredba još nije gotova.</translation>
@@ -38259,7 +38259,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -38322,7 +38322,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 u %2</translation>
@@ -38333,7 +38333,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-razina</translation>
@@ -38392,7 +38392,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -38403,7 +38403,7 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Callgrind</source>
         <translation>Callgrind</translation>
@@ -38574,28 +38574,28 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Sve funkcije s uključenim omjerom troškova većim od %1 (%2 su skrivene)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Potisni grešku</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje memorije</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Memcheck</source>
         <translation type="unfinished"></translation>
@@ -38933,7 +38933,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>Spremi potiskivanje</translation>
@@ -38952,7 +38952,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind opcije: %1</translation>
@@ -38989,21 +38989,21 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind postavke</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlPoslužitelj na %1:</translation>
@@ -39014,7 +39014,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -39029,7 +39029,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -39040,7 +39040,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -39059,7 +39059,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -39114,7 +39114,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -39225,7 +39225,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -39546,7 +39546,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Take a UI Tour</source>
         <translation>Pregledaj vodič kroz grafičko sučelje</translation>
@@ -39878,7 +39878,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>
@@ -39908,7 +39908,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Traži:</translation>

@@ -9,7 +9,7 @@ namespace SilverSearcher {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(SilverSearcher)
+    Q_DECLARE_TR_FUNCTIONS(::SilverSearcher)
 };
 
 } // namespace SilverSearcher

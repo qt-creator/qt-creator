@@ -146,7 +146,7 @@ Target::Target(Project *project, Kit *k, _constructor_tag) :
     });
 
     d->m_macroExpander.registerVariable("Project:Name",
-            QCoreApplication::translate("ProjectExplorer", "Name of current project"),
+            QCoreApplication::translate("::ProjectExplorer", "Name of current project"),
             [project] { return project->displayName(); });
 }
 

@@ -9,7 +9,7 @@ namespace QtSupport {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport)
+    Q_DECLARE_TR_FUNCTIONS(::QtSupport)
 };
 
 } // namespace QtSupport

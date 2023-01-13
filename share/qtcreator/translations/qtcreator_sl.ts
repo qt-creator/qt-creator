@@ -109,7 +109,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -247,7 +247,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
@@ -467,7 +467,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lepljenje kode</translation>
@@ -1682,7 +1682,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Vnesite ime razreda</translation>
@@ -1860,7 +1860,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Splošno</translation>
@@ -1923,7 +1923,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Izberite datoteko posnetka</translation>
@@ -1952,7 +1952,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Izberite začetni naslov</translation>
@@ -1967,7 +1967,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Datoteka oznake:</translation>
@@ -2196,7 +2196,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Prekinitvene točke</translation>
@@ -2291,7 +2291,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder
@@ -2367,7 +2367,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Strežnik za simbole …</translation>
@@ -2394,7 +2394,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>To preklopi razhroščevalnik v način delovanja po ukazih. V tem načinu korakanje deluje po posameznih ukazih, prikaz mesta v izvorni kodi pa prikazuje ukaze v zbirniku.</translation>
@@ -2605,7 +2605,7 @@ Qt Creator se nanj ne more priklopiti.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Branje %1 …</translation>
@@ -3017,7 +3017,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>yes</source>
         <translation>da</translation>
@@ -3071,7 +3071,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -3126,7 +3126,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Ni moč ustvariti začasne datoteke: %1</translation>
@@ -3141,7 +3141,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -3152,7 +3152,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registri</translation>
@@ -3199,7 +3199,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>…</translation>
@@ -3298,7 +3298,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Izberite izvršljivo datoteko</translation>
@@ -3337,14 +3337,14 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Nit</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).
@@ -3815,7 +3815,7 @@ To lahko privede do napačnih rezultatov.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Ime datoteke je prazno.</translation>
@@ -5110,7 +5110,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
         <translation>Ali želite izbrisati &lt;b&gt;nezdruženo&lt;/b&gt; vejo »%1«?</translation>
@@ -6185,7 +6185,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Print Document</source>
         <translation>Natisni dokument</translation>
@@ -8334,7 +8334,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatni argumenti:</translation>
@@ -8398,7 +8398,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Konzolni program Qt</translation>
@@ -8916,7 +8916,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Datoteka z viri za Qt</translation>
@@ -8939,7 +8939,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>neimenovana</translation>
@@ -10523,7 +10523,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Nadzor različic</translation>
@@ -10983,7 +10983,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -11486,7 +11486,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -11791,7 +11791,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
         <translation>&lt;b&gt;Podpora za Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Kupite komercialno podporo za Qt&lt;/font&gt;</translation>
@@ -12087,7 +12087,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Select Working Directory</source>
         <translation>Izberite delovno mapo</translation>
@@ -12192,7 +12192,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
@@ -12613,7 +12613,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The gdb process could not be stopped:
 %1</source>
@@ -12652,14 +12652,14 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>untitled</source>
         <translation>brez naslova</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Git in poskusi naložiti vsebovani projekt.</translation>
@@ -12738,7 +12738,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>General Settings</source>
         <translation>Splošne nastavitve</translation>
@@ -13082,7 +13082,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;nov razred&gt;</translation>
@@ -13145,7 +13145,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.
 </source>
@@ -13196,7 +13196,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
@@ -13225,7 +13225,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Run in Emulator</source>
         <translation>Zaženi v posnemovalniku</translation>
@@ -13450,14 +13450,14 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Novice in podpora</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>Zaženi cilj CMake</translation>
@@ -13538,7 +13538,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -13565,7 +13565,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Stashes</source>
         <translation>Zapisi na strani</translation>
@@ -13687,7 +13687,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -14108,7 +14108,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation>Nastavitev ključa SSH</translation>
@@ -14241,7 +14241,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Setup targets for your project</source>
         <translation>Nastavite cilje za svoj projekt</translation>
@@ -15447,7 +15447,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -15482,7 +15482,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -15556,7 +15556,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Prilepljanje kode</translation>
@@ -15611,7 +15611,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -15831,7 +15831,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
@@ -15842,7 +15842,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>Ni moč zagnati PDB-ja »%1«: %2</translation>
@@ -15885,7 +15885,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Posnetki</translation>
@@ -15900,7 +15900,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Datoteko je moč urejati le v načinu &lt;b&gt;Oblikovanje&lt;/b&gt;.</translation>
@@ -15986,7 +15986,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Error: Git timed out after %1s.</source>
         <translation>Napaka: po %1 s je Git-u potekel čas.</translation>
@@ -16001,7 +16001,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>(Untitled)</source>
         <translation>(neimenovano)</translation>
@@ -16016,7 +16016,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>Sklonira skladišče Mercurial in poskusi naložiti vsebovani projekt.</translation>
@@ -16693,7 +16693,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Projects</source>
         <translation>Projekti</translation>
@@ -16768,7 +16768,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -17203,7 +17203,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation>Ali želite omogočiti preizkusni Qt Quick Designer?</translation>
@@ -17376,7 +17376,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmlProjectManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation>Projekt Qt Quick</translation>
@@ -17436,7 +17436,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation>V okolju za gradnjo ni bilo moč najti ukaza make »%1«</translation>
@@ -17529,7 +17529,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Vrednotenje</translation>
@@ -17556,7 +17556,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid
@@ -17571,7 +17571,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>QMake ne podpira map za gradnjo v mapi z izvorno kodo.</translation>
@@ -17582,7 +17582,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Nastavljene ni nobene poti do qmake</translation>
@@ -17692,7 +17692,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -17722,7 +17722,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Urejevalnik besedil</translation>
@@ -17995,7 +17995,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>Prikaz datoteke Qt Quick ni uspel</translation>
@@ -18258,7 +18258,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -18302,7 +18302,7 @@ Krajevnih zapisov se v vejo »master« ne potisne dokler ni izvršen običajen z
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <location/>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
@@ -18535,7 +18535,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Povrnitev</translation>
@@ -19041,7 +19041,7 @@ se poravnali z naslednjo vrstico</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Pogoj:</translation>
@@ -19258,7 +19258,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -19314,7 +19314,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Filter configuration</source>
         <translation>Nastavitev filtra</translation>
@@ -19345,7 +19345,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>Pregledovalniku slik</translation>
@@ -19532,7 +19532,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -19585,7 +19585,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -19607,7 +19607,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Knjižnica:</translation>
@@ -19724,14 +19724,14 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation>Podrobnosti potrdila</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <location/>
         <source>Choose a build configuration:</source>
@@ -19751,7 +19751,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <location/>
         <source>Localised Vendor Names</source>
@@ -19809,7 +19809,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -20010,7 +20010,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Uporabljeno za ugotovitev podatkov o vrsti QML iz vstavkov na osnovi knjižnic.</translation>
@@ -20072,7 +20072,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Ime različice:</translation>
@@ -20089,7 +20089,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -21050,7 +21050,7 @@ Vpliva na zamik nadaljevalnih vrstic.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -21075,7 +21075,7 @@ Vpliva na zamik nadaljevalnih vrstic.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Splošne nastavitve</translation>
@@ -22398,7 +22398,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -22581,7 +22581,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Sklonira vejo Bazaar in poskusi naložiti vsebovani projekt.</translation>
@@ -22592,7 +22592,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -22607,14 +22607,14 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Urejevalnik zapisov</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Ukaz Bazaar</translation>
@@ -22639,7 +22639,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Spremembe datotek *.cmake so v drevesu projektov vidne po gradnji.</translation>
@@ -22897,7 +22897,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.
@@ -22921,7 +22921,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Razvrsti po abecedi</translation>
@@ -23032,7 +23032,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation>Za programe formata »%1« ni na voljo nobenega programa CDB</translation>
@@ -23111,7 +23111,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Izjema C++</translation>
@@ -23142,7 +23142,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Oddaljeni CDB mora naložiti ustrezno razširitev CDB za Qt Creator (&lt;code&gt;%1&lt;/code&gt; ali &lt;code&gt;%2&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Skopirajte jo na oddaljeni računalnik in okoljsko spremenljivko &lt;code&gt;%3&lt;/code&gt; nastavite tako, da kaže na njeno mapo.&lt;/p&gt;&lt;p&gt;Oddaljeni CDB zaženite kot &lt;code&gt;%4 &amp;lt;program&amp;gt;&lt;/code&gt;, da bo za komunikacijo uporabljal protokol TCP/IP.&lt;/p&gt;&lt;p&gt;Za komunikacijske parametre vnesite:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -23157,7 +23157,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Zaganjanje</translation>
@@ -23274,7 +23274,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>Pomnilnik ...</translation>
@@ -23329,7 +23329,7 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.
@@ -23660,7 +23660,7 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Razhrošči</translation>
@@ -23675,7 +23675,7 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nov izvor&gt;</translation>
@@ -23738,7 +23738,7 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
@@ -23749,21 +23749,21 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>Predhodno</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Razhroščevanje kompleksnih ukaznih vrstic trenutno v Windows ni podprto.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
@@ -23772,14 +23772,14 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Priklopljen na proces %1.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The name of the binary file cannot be extracted from this core file.</source>
         <translation>Imena izvršljive datoteke iz tega posnetka ni moč izvleči.</translation>
@@ -23824,7 +23824,7 @@ Podrobnosti: %3</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Ni moč vzpostaviti komunikacije s podprocesom: %1</translation>
@@ -23837,7 +23837,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>Napaka glede povezave: %1.</translation>
@@ -23860,7 +23860,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Proces pošiljanja se ni uspel zagnati. Morda manjka lupina?</translation>
@@ -23901,14 +23901,14 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Usodna zaustavitev pogona. Nezdružljiv program ali napaka pri medprocesni komunikaciji.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>Zagon qtcreator-lldb ni uspel: %1</translation>
@@ -23923,14 +23923,14 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Počisti vsebino</translation>
@@ -23941,14 +23941,14 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Da izvršite vrstico, pritisnite Ctrl+Vnašalka</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Dnevnik razhroščevalnika</translation>
@@ -23959,7 +23959,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pomnilnik na 0x%1</translation>
@@ -23974,7 +23974,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Pomnilnik na naslovu registra »%1« (0x%2)</translation>
@@ -23985,7 +23985,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server on %1</source>
         <translation>Povezovanje z razhroščevalnim strežnikom na %1</translation>
@@ -24039,7 +24039,7 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Podrejenega razhroščevalnega pogona, ki je potreben za razhroščevanje kombinacije QML in C++, ni bilo moč ustvariti: %1</translation>
@@ -24060,7 +24060,7 @@ Predlogi: prestavite prelomno točko za inicializacijo QmlViewerja ali pa preklo
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation>Razhroščevalnik QML je povezan.</translation>
@@ -24129,7 +24129,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
         <translation>&lt;vnesite izraz za ovrednotiti&gt;</translation>
@@ -24146,7 +24146,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Izberite mapo krajevnega predpomnilnika</translation>
@@ -24266,7 +24266,7 @@ Datoteke se ohrani.</numerusform>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>Krajevne veje</translation>
@@ -24347,7 +24347,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
+    <name>::GLSLEditor</name>
     <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
@@ -24402,7 +24402,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Show Sidebar</source>
         <translation>Prikaži stranski pas</translation>
@@ -24421,7 +24421,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Cannot open image file %1</source>
         <translation>Slikovne datoteke %1 ni moč odpreti</translation>
@@ -24494,7 +24494,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Macros</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makroji</translation>
@@ -24544,7 +24544,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -24793,7 +24793,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (zadnja seja)</translation>
@@ -25151,7 +25151,7 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nov %1</translation>
@@ -25209,7 +25209,7 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Searching</source>
         <translation>Iskanje</translation>
@@ -25362,7 +25362,7 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation>Metode in funkcije</translation>
@@ -25440,7 +25440,7 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML Profiler</translation>
@@ -25700,7 +25700,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Dodajanje knjižnice</translation>
@@ -25999,7 +25999,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -26059,7 +26059,7 @@ Veljavno od: %2.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -26076,7 +26076,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation>Razmesti %1 na napravo Symbian</translation>
@@ -26087,7 +26087,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation>Naprava:</translation>
@@ -26210,7 +26210,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation>Obstoječe datoteke »%1« ni moč odstraniti: %2</translation>
@@ -26335,7 +26335,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation>Čiščenje</translation>
@@ -26388,7 +26388,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step
@@ -26397,7 +26397,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation>Zaznane ni bilo nobene veljavne različice Qt.&lt;br&gt; Različico Qt lahko določite v Orodja → Možnosti → Qt 4.</translation>
@@ -26408,7 +26408,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation>Odpri vsebujočo mapo</translation>
@@ -26447,7 +26447,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>SBSv2 build log</source>
         <translation>Dnevnik gradnje SBS 2</translation>
@@ -26535,7 +26535,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation>Dodaj gradnjo it:</translation>
@@ -26651,7 +26651,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Samodejno spreminjaj usmeritev</translation>
@@ -26799,7 +26799,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Ali želite skopirati projekt na zapisljivo mesto?</translation>
@@ -26838,7 +26838,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Na voljo samo za Qt 4.7.1 ali novejši.</translation>
@@ -26891,7 +26891,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Na voljo samo za Qt za namizje in Qt za Qt Simulator.</translation>
@@ -26919,7 +26919,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;vnesite ime&gt;</translation>
@@ -27008,7 +27008,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation>MinGW iz %1</translation>
@@ -27022,7 +27022,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation>Uporabnik je preklical postopek, čiščenje ...</translation>
@@ -27057,7 +27057,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation>&lt;ciljna pot ni nastavljena&gt;</translation>
@@ -27072,7 +27072,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Naprava z običajnim Linux-om</translation>
@@ -27095,21 +27095,21 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nastavitev nove naprave z običajnim Linux-om</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Podatki o povezavi</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavitev zaključena</translation>
@@ -27122,21 +27122,21 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation>(privzeto za %1)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation>Zaženi čarovnika</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation>Naprava s podporo za MADDE (Fremantle, Harmattan, MeeGo)</translation>
@@ -27155,7 +27155,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation>Preizkušanje nastavitve. To lahko traja dalj časa.</translation>
@@ -27232,14 +27232,14 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation>Nameščanje paketa na napravo ...</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation>Najdenega ni bilo nobenega ustreznega koraka za pakiranje.</translation>
@@ -27254,7 +27254,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation>Vse datoteke so bile skopirane.</translation>
@@ -27265,7 +27265,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation>Izberite ikono (po potrebi bo velikost prilagojena na %1 ⨯ %1 pik)</translation>
@@ -27288,7 +27288,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Ni moč razmestiti: %1</translation>
@@ -27299,7 +27299,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Physical Device</source>
         <translation>Fizična naprava</translation>
@@ -27314,28 +27314,28 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Device Status Check</source>
         <translation>Preverjanje stanja naprave</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation>Preverjanje obstoječih ključev</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation>Ustvarjanje ključev</translation>
@@ -27390,14 +27390,14 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation>Nova nastavitev naprave </translation>
@@ -27436,7 +27436,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation>Ni se bilo moč povezati z gostiteljem: %1</translation>
@@ -27471,14 +27471,14 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation>Ni moč razmestiti v vrhnjo mapo sistema: najdenega ni nobenega koraka pakiranja.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč nameščati v vrhnjo mapo sistema.</translation>
@@ -27501,21 +27501,21 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation>Paket Debian namesti v vrhnjo mapo sistema</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation>Paket RPM namesti v vrhnjo mapo sistema</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč kopirati v vrhnjo mapo sistema.</translation>
@@ -27632,7 +27632,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Could not move package file from %1 to %2.</source>
         <translation>Datoteke paketa ni bilo moč premakniti iz %1 v %2.</translation>
@@ -27643,7 +27643,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Create tarball</source>
         <translation>Ustvari arhiv tar</translation>
@@ -27670,7 +27670,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No Version Available.</source>
         <translation>Na voljo ni nobene različice.</translation>
@@ -27717,21 +27717,21 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Installing package failed.</source>
         <translation>Nameščanje paketa ni uspelo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation>Nameščanje ni uspelo: paket ste poskušali nadomestiti s starejšo različico, kar ni dovoljeno.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Pripravljanje povezave SFTP ...</translation>
@@ -27750,21 +27750,21 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation>(privzeto)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>Posodobljive datoteke projekta</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Include in package</source>
         <translation>Vključi v paket</translation>
@@ -27779,7 +27779,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation>Preklicano.</translation>
@@ -27920,7 +27920,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel/free«</translation>
@@ -27935,7 +27935,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation>Objavi v skladišče »Fremantle Extras-devel free«</translation>
@@ -27946,7 +27946,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel free«</translation>
@@ -27965,7 +27965,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Start MeeGo Emulator</source>
         <translation>Zaženi posnemovalnika za MeeGo</translation>
@@ -28056,7 +28056,7 @@ Standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation>Krajevna mapa</translation>
@@ -28067,14 +28067,14 @@ Standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Remote Error</source>
         <translation>Oddaljena napaka</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Napaka povezave: %1</translation>
@@ -28103,14 +28103,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation>Na napravi ni dovolj prostih vrat.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation>Izberite mapo za priklop.</translation>
@@ -28154,14 +28154,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation>Zaženi na napravi</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation>Napaka Qemu</translation>
@@ -28184,21 +28184,21 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation>Nastavitve naprav</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation>Nastavitve Qemu za MeeGo</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation>Shrani datoteko z javnim ključem</translation>
@@ -28209,7 +28209,7 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation>Qemu ni tekel. Bil je zagnan, a bo potrebno nekaj časa, da bo pripravljen. Poskusite znova malce kasneje.</translation>
@@ -28232,7 +28232,7 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation>Maemo GCC</translation>
@@ -28247,14 +28247,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Pot do MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Pot do cilja MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Datoteka paketa je bila uspešno poslana.</translation>
@@ -28311,7 +28311,7 @@ Oddaljeni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation>Skopiraj datoteke na napravo z Maemo-m 5</translation>
@@ -28334,7 +28334,7 @@ Oddaljeni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation>Ni moč odpreti datoteke »%1«: %2</translation>
@@ -28369,7 +28369,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation>Datoteka »%1« z dnevnikom sprememb za Debian ima nepričakovan format.</translation>
@@ -28428,7 +28428,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Preparing remote side ...
 </source>
@@ -28453,7 +28453,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation>Datoteko *.pro se razčlenjuje.</translation>
@@ -28546,7 +28546,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -28565,7 +28565,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>Zaženi na oddaljeni napravi z Linux-om</translation>
@@ -28844,7 +28844,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -28857,7 +28857,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrindov profilirnik funkcij</translation>
@@ -28872,7 +28872,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Klicatelji</translation>
@@ -28987,14 +28987,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Vse funkcije, ki imajo razmerje skupnega stroška višje kot %1 (%2 je skritih)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje pomnilnika</translation>
@@ -29007,14 +29007,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>v %1</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Skopiraj izbor</translation>
@@ -29025,7 +29025,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Zunanje napake</translation>
@@ -29092,7 +29092,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Klicani</translation>
@@ -29111,7 +29111,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Predhodni ukaz še ni zaključil.</translation>
@@ -29146,7 +29146,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -29218,7 +29218,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -29229,7 +29229,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-stopnja</translation>
@@ -29288,14 +29288,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Razčlenjevanje podatkov profiliranja ...</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Za oddaljeno analiziranje ni bil najden noben omrežni vmesnik.</translation>
@@ -29310,14 +29310,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Oddaljenega PID-a ni bilo moč ugotoviti.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>What</source>
         <translation>Kaj</translation>
@@ -29348,7 +29348,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -29367,7 +29367,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Šestnajstiškega števila iz »%1« (%2) ni bilo moč razčleniti</translation>
@@ -29422,7 +29422,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
@@ -29449,7 +29449,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Možnosti za Valgrind: %1</translation>
@@ -29492,14 +29492,14 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
@@ -29570,7 +29570,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Dobrodošli</translation>
@@ -29774,7 +29774,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>This change cannot be undone.</source>
         <translation type="obsolete">Te spremembe ni moč razveljaviti.</translation>
@@ -29792,7 +29792,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The function &quot;%1()&quot; failed: %2</source>
         <extracomment>Function call failed
@@ -29905,7 +29905,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">vstavek</translation>
@@ -29952,7 +29952,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">Napaka shranjevanja %1</translation>
@@ -29967,7 +29967,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Git Commit</source>
         <translation type="obsolete">Git – zapis</translation>
@@ -30358,7 +30358,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;vnesite ime&gt;</translation>
@@ -30725,7 +30725,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Tutorials</source>
         <translation type="obsolete">Vodniki</translation>
@@ -30903,7 +30903,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Port specification missing.</source>
         <translation type="obsolete">Manjka določitev vrat.</translation>
@@ -31114,14 +31114,14 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Začnite tu</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Executable file: %1</source>
         <translation type="obsolete">Izvršljiva datoteka: %1</translation>
@@ -31180,7 +31180,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Zaključeno.</translation>
@@ -31199,7 +31199,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
@@ -31292,7 +31292,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Notranje ime</translation>
@@ -32096,7 +32096,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation type="obsolete">Ni moč naložiti knjižnice razhroščevalnega pogona »%1«: %2</translation>
@@ -32122,7 +32122,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select binary and toolchains</source>
         <translation type="obsolete">Izberite program in verige orodij</translation>
@@ -32137,7 +32137,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>(no branch)</source>
         <translation type="obsolete">(brez vej)</translation>
@@ -32157,7 +32157,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Executing: %1 %2
 </source>
@@ -32676,7 +32676,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;izberite simbol&gt;</translation>
@@ -32767,7 +32767,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Testing configuration...</source>
         <translation type="obsolete">Preizkušanje nastavitve …</translation>
@@ -33008,7 +33008,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Privzeto</translation>
@@ -33027,14 +33027,14 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Nameščen ni noben Qt</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Korak 1 od 2: izberite mapo z GnuPoc</translation>
@@ -33053,7 +33053,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>New configuration</source>
         <translation type="obsolete">Nova nastavitev</translation>

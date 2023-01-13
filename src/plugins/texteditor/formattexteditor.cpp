@@ -6,6 +6,7 @@
 #include "textdocument.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditortr.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -55,8 +56,7 @@ static FormatTask format(FormatTask task)
         sourceFile.setAutoRemove(true);
         sourceFile.write(task.sourceData.toUtf8());
         if (!sourceFile.finalize()) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
-                                                   "Cannot create temporary file \"%1\": %2."))
+            task.error = Tr::tr("Cannot create temporary file \"%1\": %2.")
                     .arg(sourceFile.filePath().toUserOutput(), sourceFile.errorString());
             return task;
         }
@@ -69,7 +69,7 @@ static FormatTask format(FormatTask task)
         process.setCommand({FilePath::fromString(executable), options});
         process.runBlocking();
         if (process.result() != ProcessResult::FinishedWithSuccess) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Failed to format: %1."))
+            task.error = Tr::tr("TextEditor", "Failed to format: %1.")
                              .arg(process.exitMessage());
             return task;
         }
@@ -80,7 +80,7 @@ static FormatTask format(FormatTask task)
         // Read text back
         Utils::FileReader reader;
         if (!reader.fetch(sourceFile.filePath(), QIODevice::Text)) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor", "Cannot read file \"%1\": %2."))
+            task.error = Tr::tr("Cannot read file \"%1\": %2.")
                     .arg(sourceFile.filePath().toUserOutput(), reader.errorString());
             return task;
         }
@@ -97,9 +97,8 @@ static FormatTask format(FormatTask task)
         process.setWriteData(task.sourceData.toUtf8());
         process.start();
         if (!process.waitForFinished(5000)) {
-            task.error = QString(QT_TRANSLATE_NOOP("TextEditor",
-                                                   "Cannot call %1 or some other error occurred. Timeout "
-                                                   "reached while formatting file %2."))
+            task.error = Tr::tr("Cannot call %1 or some other error occurred. Timeout "
+                                                   "reached while formatting file %2.")
                     .arg(executable, task.filePath.displayName());
             return task;
         }
@@ -250,8 +249,7 @@ void updateEditorText(QPlainTextEdit *editor, const QString &text)
 
 static void showError(const QString &error)
 {
-    Core::MessageManager::writeFlashing(
-                QString(QT_TRANSLATE_NOOP("TextEditor", "Error in text formatting: %1"))
+    Core::MessageManager::writeFlashing(Tr::tr("TextEditor", "Error in text formatting: %1")
                 .arg(error.trimmed()));
 }
 
@@ -267,14 +265,14 @@ static void checkAndApplyTask(const FormatTask &task)
     }
 
     if (task.formattedData.isEmpty()) {
-        showError(QString(QT_TRANSLATE_NOOP("TextEditor", "Could not format file %1.")).arg(
+        showError(Tr::tr("Could not format file %1.").arg(
                       task.filePath.displayName()));
         return;
     }
 
     QPlainTextEdit *textEditor = task.editor;
     if (!textEditor) {
-        showError(QString(QT_TRANSLATE_NOOP("TextEditor", "File %1 was closed.")).arg(
+        showError(Tr::tr("File %1 was closed.").arg(
                       task.filePath.displayName()));
         return;
     }
@@ -321,7 +319,7 @@ void formatEditorAsync(TextEditorWidget *editor, const Command &command, int sta
     QObject::connect(doc, &TextDocument::contentsChanged, watcher, &QFutureWatcher<FormatTask>::cancel);
     QObject::connect(watcher, &QFutureWatcherBase::finished, [watcher] {
         if (watcher->isCanceled())
-            showError(QString(QT_TRANSLATE_NOOP("TextEditor", "File was modified.")));
+            showError(Tr::tr("File was modified."));
         else
             checkAndApplyTask(watcher->result());
         watcher->deleteLater();

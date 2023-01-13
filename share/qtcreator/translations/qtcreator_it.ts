@@ -98,7 +98,7 @@
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Aggiungi un Segnalibro</translation>
@@ -265,7 +265,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -531,7 +531,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation>&amp;CodePaster</translation>
@@ -1596,7 +1596,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
@@ -2146,7 +2146,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Sort alphabetically</source>
         <translation>Ordine alfabetico</translation>
@@ -2361,7 +2361,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Common</source>
         <translation>Comune</translation>
@@ -2401,7 +2401,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Scegli l&apos;Eseguibile</translation>
@@ -2412,7 +2412,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>ID di Processo</translation>
@@ -2431,7 +2431,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="unfinished"></translation>
@@ -2442,14 +2442,14 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Settings...</source>
         <translation type="unfinished">Impostazioni...</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>File Marker:</translation>
@@ -2524,7 +2524,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Punti di Interruzione</translation>
@@ -2579,7 +2579,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Impossibile caricare la libreria del debugger &apos;%1&apos;: %2</translation>
@@ -2695,7 +2695,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation>iniezione</translation>
@@ -2742,7 +2742,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -2767,7 +2767,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Server dei Simboli...</translation>
@@ -2782,7 +2782,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Continua</translation>
@@ -2913,7 +2913,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Start and Debug External Application...</source>
         <translation>Avvio e Debug di Applicazione Esterna...</translation>
@@ -3008,14 +3008,14 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Debug</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Proprietà del Debugger...</translation>
@@ -3178,7 +3178,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Helper del Debug</translation>
@@ -3193,7 +3193,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Il progesso Gdb non è partito. Può essere che manchi il programma &apos;%1&apos; o che i permessi siano insufficienti.</translation>
@@ -3567,7 +3567,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -3582,7 +3582,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Nome del Modulo</translation>
@@ -3601,7 +3601,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -3668,7 +3668,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %2</source>
         <translation type="obsolete">Impossibile creare il file temporaneo: %2</translation>
@@ -3687,14 +3687,14 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registri</translation>
@@ -3709,7 +3709,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; non contiene identificatori</translation>
@@ -3743,7 +3743,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>File Sorgenti</translation>
@@ -3762,7 +3762,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -3817,7 +3817,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stack</translation>
@@ -3828,7 +3828,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Executable:</source>
         <translation>Eseguibile:</translation>
@@ -3923,7 +3923,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Cancella il contenuto</translation>
@@ -4005,7 +4005,7 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Il nome del file è vuoto.</translation>
@@ -5137,7 +5137,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Branches</source>
         <translation>Rami</translation>
@@ -5737,7 +5737,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Add new page</source>
         <translation>Aggiungi una pagina</translation>
@@ -7926,7 +7926,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation>Configurazione di QMake:</translation>
@@ -8149,7 +8149,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation>Applicazione Qt4 per Linea di Comando</translation>
@@ -9426,7 +9426,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Crea un file di Risorse Qt (.qrc).</translation>
@@ -9449,7 +9449,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>senza titolo</translation>
@@ -10746,7 +10746,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Controllo di Revisione</translation>
@@ -11085,7 +11085,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11405,14 +11405,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11605,7 +11605,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <location/>
         <source>Examples not installed</source>
@@ -11735,7 +11735,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <location/>
         <source>Installed S60 SDKs:</source>
@@ -11811,7 +11811,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="unfinished">Notizie dai Qt Labs</translation>
@@ -11915,7 +11915,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
@@ -12243,7 +12243,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Connecting to remote server failed:</source>
         <translation type="unfinished">Problema con la connessione al server remoto:</translation>
@@ -12381,14 +12381,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>untitled</source>
         <translation type="unfinished">senza titolo</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Clones a project from a git repository.</source>
         <translation type="unfinished"></translation>
@@ -12447,7 +12447,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>General settings</source>
         <translation type="unfinished">Impostazioni Generali</translation>
@@ -12474,7 +12474,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation type="unfinished"></translation>
@@ -12691,7 +12691,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -12730,14 +12730,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="unfinished">Comincia</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>%1 on Device</source>
         <translation type="unfinished"></translation>
@@ -13054,7 +13054,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Community</source>
         <translation type="unfinished">Comunità</translation>

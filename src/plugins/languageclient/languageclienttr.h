@@ -9,7 +9,7 @@ namespace LanguageClient {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClient)
+    Q_DECLARE_TR_FUNCTIONS(::LanguageClient)
 };
 
 } // namespace LanguageClient

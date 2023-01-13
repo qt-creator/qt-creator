@@ -1071,19 +1071,19 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     debugMenu->addSeparator();
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Move to Calling Frame"));
+    act->setText(QCoreApplication::translate("::Debugger", "Move to Calling Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_UP);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Move to Called Frame"));
+    act->setText(QCoreApplication::translate("::Debugger", "Move to Called Frame"));
     act->setEnabled(false);
     act->setVisible(false);
     ActionManager::registerAction(act, Constants::FRAME_DOWN);
 
     act = new QAction(this);
-    act->setText(QCoreApplication::translate("Debugger", "Operate by Instruction"));
+    act->setText(QCoreApplication::translate("::Debugger", "Operate by Instruction"));
     act->setEnabled(false);
     act->setVisible(false);
     act->setCheckable(true);

@@ -9,7 +9,7 @@ namespace Python {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Python)
+    Q_DECLARE_TR_FUNCTIONS(::Python)
 };
 
 } // namespace Python

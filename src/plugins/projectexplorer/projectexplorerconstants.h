@@ -115,16 +115,16 @@ const char TASK_CATEGORY_TASKLIST_ID[] = "Task.Category.TaskListId";
 
 // Wizard categories
 const char QT_PROJECT_WIZARD_CATEGORY[] = "H.Project";
-const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Other Project");
+const char QT_PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("::ProjectExplorer", "Other Project");
 
 const char QT_APPLICATION_WIZARD_CATEGORY[] = "F.Application";
-const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Application");
+const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("::ProjectExplorer", "Application");
 
 const char LIBRARIES_WIZARD_CATEGORY[] = "G.Library";
-const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Library");
+const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("::ProjectExplorer", "Library");
 
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
-const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
+const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("::ProjectExplorer", "Import Project");
 
 // Wizard extra values
 const char PREFERRED_PROJECT_NODE[] = "ProjectExplorer.PreferredProjectNode";

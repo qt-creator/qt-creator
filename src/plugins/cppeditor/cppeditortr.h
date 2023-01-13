@@ -9,7 +9,7 @@ namespace CppEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(CppEditor)
+    Q_DECLARE_TR_FUNCTIONS(::CppEditor)
 };
 
 } // namespace CppEditor

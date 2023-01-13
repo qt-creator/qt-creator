@@ -9,7 +9,7 @@ namespace EmacsKeys {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(EmacsKeys)
+    Q_DECLARE_TR_FUNCTIONS(::EmacsKeys)
 };
 
 } // namespace EmacsKeys

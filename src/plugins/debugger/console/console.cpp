@@ -257,7 +257,7 @@ void Console::evaluate(const QString &expression)
     } else {
         auto item = new ConsoleItem(
             ConsoleItem::ErrorType,
-            QCoreApplication::translate("Debugger", "Can only evaluate during a debug session."));
+            QCoreApplication::translate("::Debugger", "Can only evaluate during a debug session."));
         m_consoleItemModel->shiftEditableRow();
         printItem(item);
     }

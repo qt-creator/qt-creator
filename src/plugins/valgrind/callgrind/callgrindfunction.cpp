@@ -4,9 +4,10 @@
 #include "callgrindfunction.h"
 #include "callgrindfunction_p.h"
 
-#include "callgrindfunctioncall.h"
 #include "callgrindcostitem.h"
+#include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
+#include "valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
@@ -181,9 +182,9 @@ QString Function::location() const
     if (f.isEmpty() || f == "???")
         return o;
     if (pos.isEmpty())
-        return QCoreApplication::translate("Valgrind", "%1 in %2").arg(f, o);
+        return Tr::tr("%1 in %2").arg(f, o);
 
-    return QCoreApplication::translate("Valgrind", "%1:%2 in %3").arg(f, pos, o);
+    return Tr::tr("%1:%2 in %3").arg(f, pos, o);
 }
 
 int Function::lineNumber() const

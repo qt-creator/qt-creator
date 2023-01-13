@@ -9,7 +9,7 @@ namespace PerfProfiler {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(PerfProfiler)
+    Q_DECLARE_TR_FUNCTIONS(::PerfProfiler)
 };
 
 } // namespace PerfProfiler

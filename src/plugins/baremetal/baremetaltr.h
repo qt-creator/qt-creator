@@ -9,7 +9,7 @@ namespace BareMetal {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(BareMetal)
+    Q_DECLARE_TR_FUNCTIONS(::BareMetal)
 };
 
 } // namespace BareMetal

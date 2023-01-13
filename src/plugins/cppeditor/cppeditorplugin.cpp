@@ -277,8 +277,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     const auto quickFixSettingsPanelFactory = new ProjectPanelFactory;
     quickFixSettingsPanelFactory->setPriority(100);
     quickFixSettingsPanelFactory->setId(Constants::QUICK_FIX_PROJECT_PANEL_ID);
-    quickFixSettingsPanelFactory->setDisplayName(
-        Tr::tr("CppEditor", Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+    quickFixSettingsPanelFactory->setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
     quickFixSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
         return new CppQuickFixProjectSettingsWidget(project);
     });

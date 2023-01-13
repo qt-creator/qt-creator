@@ -9,7 +9,7 @@ namespace Debugger {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Debugger)
+    Q_DECLARE_TR_FUNCTIONS(::Debugger)
 };
 
 } // namespace Debugger

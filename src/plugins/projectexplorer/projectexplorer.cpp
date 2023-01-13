@@ -3361,7 +3361,7 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
     if (hasRecentProjects) {
         menu->addSeparator();
         QAction *action = menu->addAction(QCoreApplication::translate(
-                                          "Core", Core::Constants::TR_CLEAR_MENU));
+                                          "::Core", Core::Constants::TR_CLEAR_MENU));
         connect(action, &QAction::triggered,
                 this, &ProjectExplorerPluginPrivate::clearRecentProjects);
     }

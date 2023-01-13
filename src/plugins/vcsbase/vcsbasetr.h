@@ -9,7 +9,7 @@ namespace VcsBase {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase)
+    Q_DECLARE_TR_FUNCTIONS(::VcsBase)
 };
 
 } // namespace VcsBase

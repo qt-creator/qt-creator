@@ -67,7 +67,8 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
         IWizardFactory *wizard = new FormClassWizard;
         wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
-        wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+        wizard->setDisplayCategory(
+            QCoreApplication::translate("::Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
         wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
         wizard->setIcon({}, "ui/h");
         wizard->setId("C.FormClass");

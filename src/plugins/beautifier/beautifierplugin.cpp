@@ -4,6 +4,7 @@
 #include "beautifierplugin.h"
 
 #include "beautifierconstants.h"
+#include "beautifiertr.h"
 #include "generaloptionspage.h"
 #include "generalsettings.h"
 
@@ -99,7 +100,7 @@ bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(errorString)
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(QCoreApplication::translate("Beautifier", "Bea&utifier"));
+    menu->menu()->setTitle(Tr::tr("Bea&utifier"));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
     return true;

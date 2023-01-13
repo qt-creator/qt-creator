@@ -9,7 +9,7 @@ namespace WebAssembly {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(WebAssembly)
+    Q_DECLARE_TR_FUNCTIONS(::WebAssembly)
 };
 
 } // namespace WebAssembly

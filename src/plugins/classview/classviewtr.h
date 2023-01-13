@@ -9,7 +9,7 @@ namespace ClassView {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(ClassView)
+    Q_DECLARE_TR_FUNCTIONS(::ClassView)
 };
 
 } // namespace ClassView

@@ -596,25 +596,25 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
     qCDebug(bcLog) << Q_FUNC_INFO << projectDir << mainFilePath << projectName << bcName;
 
     exp.registerFileVariables("Project",
-                              QCoreApplication::translate("ProjectExplorer", "Main file of the project"),
+                              QCoreApplication::translate("::ProjectExplorer", "Main file of the project"),
                               [mainFilePath] { return mainFilePath; });
     exp.registerVariable("Project:Name",
-                         QCoreApplication::translate("ProjectExplorer", "Name of the project"),
+                         QCoreApplication::translate("::ProjectExplorer", "Name of the project"),
                          [projectName] { return projectName; });
     exp.registerVariable("BuildConfig:Name",
                          QCoreApplication::translate(
-                             "ProjectExplorer", "Name of the project's active build configuration"),
+                             "::ProjectExplorer", "Name of the project's active build configuration"),
                          [bcName] { return bcName; });
     exp.registerVariable("BuildSystem:Name",
                          QCoreApplication::translate(
-                             "ProjectExplorer", "Name of the project's active build system"),
+                             "::ProjectExplorer", "Name of the project's active build system"),
                          [buildSystem] { return buildSystem; });
     exp.registerVariable("CurrentBuild:Type",
-                         QCoreApplication::translate("ProjectExplorer", "Type of current build"),
+                         QCoreApplication::translate("::ProjectExplorer", "Type of current build"),
                          [buildType] { return buildTypeName(buildType); }, false);
     exp.registerVariable("BuildConfig:Type",
                          QCoreApplication::translate(
-                             "ProjectExplorer", "Type of the project's active build configuration"),
+                             "::ProjectExplorer", "Type of the project's active build configuration"),
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 

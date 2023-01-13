@@ -9,7 +9,7 @@ namespace Qnx {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx)
+    Q_DECLARE_TR_FUNCTIONS(::Qnx)
 };
 
 } // namespace Qnx

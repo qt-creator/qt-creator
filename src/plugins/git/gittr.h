@@ -9,7 +9,7 @@ namespace Git {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Git)
+    Q_DECLARE_TR_FUNCTIONS(::Git)
 };
 
 } // namespace Git

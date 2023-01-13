@@ -9,7 +9,7 @@ namespace Valgrind {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Valgrind)
+    Q_DECLARE_TR_FUNCTIONS(::Valgrind)
 };
 
 } // namespace Valgrind

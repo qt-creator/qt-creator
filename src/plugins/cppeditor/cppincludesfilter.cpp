@@ -97,7 +97,7 @@ void CppIncludesIterator::fetchMore()
 CppIncludesFilter::CppIncludesFilter()
 {
     setId(Constants::INCLUDES_FILTER_ID);
-    setDisplayName(Constants::INCLUDES_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::INCLUDES_FILTER_DISPLAY_NAME));
     setDescription(
         Tr::tr("Matches all files that are included by all C++ files in all projects. Append "
                "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "

@@ -24,7 +24,7 @@ SubdirsProjectWizard::SubdirsProjectWizard()
 {
     setId("U.Qt4Subdirs");
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+    setDisplayCategory(QCoreApplication::translate("::ProjectExplorer",
         ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(Tr::tr("Subdirs Project"));
     setDescription(Tr::tr("Creates a qmake-based subdirs project. This allows you to group "

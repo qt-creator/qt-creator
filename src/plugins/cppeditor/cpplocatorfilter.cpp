@@ -4,7 +4,7 @@
 #include "cpplocatorfilter.h"
 
 #include "cppeditorconstants.h"
-#include "cppmodelmanager.h"
+#include "cppeditortr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
@@ -20,7 +20,7 @@ CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
     : m_data(locatorData)
 {
     setId(Constants::LOCATOR_FILTER_ID);
-    setDisplayName(Constants::LOCATOR_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -129,7 +129,7 @@ CppClassesFilter::CppClassesFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
     setId(Constants::CLASSES_FILTER_ID);
-    setDisplayName(Constants::CLASSES_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -151,7 +151,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
     setId(Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(Constants::FUNCTIONS_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }

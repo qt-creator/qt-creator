@@ -151,7 +151,7 @@ static TasksGenerator defaultTasksGenerator(const TasksGenerator &childGenerator
         if (!k->isValid())
             return {
                 CompileTask(Task::Error,
-                            QCoreApplication::translate("ProjectExplorer", "Kit is not valid."))};
+                            QCoreApplication::translate("::ProjectExplorer", "Kit is not valid."))};
         if (childGenerator)
             return childGenerator(k);
         return {};

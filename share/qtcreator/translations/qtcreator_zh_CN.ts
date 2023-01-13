@@ -279,7 +279,7 @@
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>创建新AVD</translation>
@@ -2293,7 +2293,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>测试</translation>
@@ -3548,7 +3548,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>::AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation>参数:</translation>
@@ -3601,7 +3601,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation type="unfinished"></translation>
@@ -4332,7 +4332,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -4757,7 +4757,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Beautifier</name>
+    <name>::Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
         <translation type="unfinished"></translation>
@@ -5056,7 +5056,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation type="unfinished">无法打开%1 : %2</translation>
@@ -5275,7 +5275,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>书签</translation>
@@ -5394,14 +5394,14 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Boot2Qt</name>
+    <name>::Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>BuildConfiguration</name>
+    <name>::BuildConfiguration</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -5497,7 +5497,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished">清除系统环境变量</translation>
@@ -6481,7 +6481,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -6503,7 +6503,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>CVS</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished">注释修订版本 &quot;%1&quot;</translation>
@@ -6874,7 +6874,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>ClangCodeModel</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Component</source>
         <translation type="unfinished"></translation>
@@ -7009,7 +7009,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Default Clang-Tidy and Clazy checks</source>
         <translation type="unfinished"></translation>
@@ -7831,7 +7831,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Check Out</translation>
@@ -8324,7 +8324,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>粘贴代码(&amp;C)</translation>
@@ -8561,7 +8561,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>Conan</name>
+    <name>::Conan</name>
     <message>
         <source>Conan install</source>
         <translation type="unfinished"></translation>
@@ -8687,7 +8687,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -12261,7 +12261,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -13811,7 +13811,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished">%1: 没有文件或者目录</translation>
@@ -13841,7 +13841,7 @@ e.g. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation type="unfinished"></translation>
@@ -14061,7 +14061,7 @@ Collecting backtrace aborted by user.</source>
     </message>
 </context>
 <context>
-    <name>CtfVisualizer</name>
+    <name>::CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation type="unfinished">标题</translation>
@@ -14240,7 +14240,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>概要</translation>
@@ -18646,7 +18646,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Designer</source>
         <translation>设计师</translation>
@@ -18918,7 +18918,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation type="unfinished"></translation>
@@ -19195,7 +19195,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Docker</name>
+    <name>::Docker</name>
     <message>
         <source>Checking docker daemon</source>
         <translation type="unfinished"></translation>
@@ -19947,7 +19947,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FakeVim</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation type="unfinished">使用FakeVim</translation>
@@ -20358,7 +20358,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
+    <name>::GLSLEditor</name>
     <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
@@ -20588,7 +20588,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Delete Branch</source>
         <translation>删除分支 </translation>
@@ -22975,7 +22975,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Documentation</source>
         <translation>文档</translation>
@@ -23689,7 +23689,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>图像查看器</translation>
@@ -24852,7 +24852,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LanguageClient</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation type="unfinished"></translation>
@@ -25301,7 +25301,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>Macros</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>宏</translation>
@@ -25800,7 +25800,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -26116,7 +26116,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>MesonProjectManager</name>
+    <name>::MesonProjectManager</name>
     <message>
         <source>Key</source>
         <translation type="unfinished">密钥</translation>
@@ -26340,7 +26340,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>ModelEditor</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation type="unfinished"></translation>
@@ -26663,7 +26663,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Nim</source>
         <translation type="unfinished"></translation>
@@ -26932,7 +26932,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Samples</source>
         <translation type="unfinished"></translation>
@@ -28135,7 +28135,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build &amp; Run</source>
         <translation>构建和运行</translation>
@@ -33251,7 +33251,7 @@ Expiration date: %3</source>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Install %1</source>
         <translation type="unfinished"></translation>
@@ -33708,7 +33708,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation type="unfinished"></translation>
@@ -34305,7 +34305,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt设计师无响应 (%1)。</translation>
@@ -35109,7 +35109,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation type="unfinished">错误</translation>
@@ -39343,7 +39343,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Run Checks</source>
         <translation>运行检查</translation>
@@ -39562,7 +39562,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>代码风格</translation>
@@ -39747,7 +39747,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 分析器(Profiler)</translation>
@@ -40707,7 +40707,7 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Deploy to QNX Device</source>
         <translation>部署到QNX设备</translation>
@@ -41004,7 +41004,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>没有设置qmake路径</translation>
@@ -41599,7 +41599,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>解压缩函数</translation>
@@ -41656,7 +41656,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Default</source>
         <translation type="unfinished">默认</translation>
@@ -42470,7 +42470,7 @@ Control process failed to start.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>撤销(&amp;U)</translation>
@@ -42685,7 +42685,7 @@ Control process failed to start.</source>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>Basic Colors</source>
         <translation type="unfinished"></translation>
@@ -43620,7 +43620,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Squish</name>
+    <name>::Squish</name>
     <message>
         <source>Details</source>
         <translation type="unfinished">详情</translation>
@@ -45124,7 +45124,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>文本编辑器</translation>
@@ -47875,7 +47875,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>关键字</translation>
@@ -48094,7 +48094,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Qt Maintenance Tool</source>
         <translation type="unfinished"></translation>
@@ -49409,7 +49409,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函数:</translation>
@@ -50270,7 +50270,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -50853,7 +50853,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>collecting overrides ...</source>
         <translation type="unfinished"></translation>
@@ -50867,7 +50867,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>WebAssembly</name>
+    <name>::WebAssembly</name>
     <message>
         <source>Web Browser</source>
         <translation type="unfinished"></translation>
@@ -50955,7 +50955,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Create Project...</source>
         <translation type="unfinished">创建项目...</translation>

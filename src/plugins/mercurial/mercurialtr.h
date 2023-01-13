@@ -9,7 +9,7 @@ namespace Mercurial {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Mercurial)
+    Q_DECLARE_TR_FUNCTIONS(::Mercurial)
 };
 
 } // namespace Mercurial

@@ -4,6 +4,7 @@
 #include "generaloptionspage.h"
 
 #include "beautifierconstants.h"
+#include "beautifiertr.h"
 #include "generalsettings.h"
 
 #include <utils/layoutbuilder.h>
@@ -98,7 +99,7 @@ GeneralOptionsPage::GeneralOptionsPage(const QStringList &toolIds)
     setId(Constants::OPTION_GENERAL_ID);
     setDisplayName(GeneralOptionsPageWidget::tr("General"));
     setCategory(Constants::OPTION_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Beautifier", "Beautifier"));
+    setDisplayCategory(Tr::tr("Beautifier"));
     setWidgetCreator([toolIds] { return new GeneralOptionsPageWidget(toolIds); });
     setCategoryIconPath(":/beautifier/images/settingscategory_beautifier.png");
 }

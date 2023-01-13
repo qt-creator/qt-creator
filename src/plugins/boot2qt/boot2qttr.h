@@ -9,7 +9,7 @@ namespace Boot2Qt {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Boot2Qt)
+    Q_DECLARE_TR_FUNCTIONS(::Boot2Qt)
 };
 
 } // namespace Boot2Qt

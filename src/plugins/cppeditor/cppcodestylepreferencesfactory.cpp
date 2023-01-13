@@ -3,9 +3,10 @@
 
 #include "cppcodestylepreferencesfactory.h"
 
-#include "cppcodestylesettingspage.h"
 #include "cppcodestylepreferences.h"
+#include "cppcodestylesettingspage.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppqtstyleindenter.h"
 
 #include <QLayout>
@@ -67,7 +68,7 @@ Utils::Id CppCodeStylePreferencesFactory::languageId()
 
 QString CppCodeStylePreferencesFactory::displayName()
 {
-    return QString::fromUtf8(Constants::CPP_SETTINGS_NAME);
+    return Tr::tr(Constants::CPP_SETTINGS_NAME);
 }
 
 TextEditor::ICodeStylePreferences *CppCodeStylePreferencesFactory::createCodeStyle() const

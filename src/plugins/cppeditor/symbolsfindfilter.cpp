@@ -54,7 +54,7 @@ QString SymbolsFindFilter::id() const
 
 QString SymbolsFindFilter::displayName() const
 {
-    return QString(Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME);
+    return Tr::tr(Constants::SYMBOLS_FIND_FILTER_DISPLAY_NAME);
 }
 
 bool SymbolsFindFilter::isEnabled() const

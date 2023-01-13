@@ -249,7 +249,7 @@ KitOptionsPage::KitOptionsPage()
     setId(Constants::KITS_SETTINGS_PAGE_ID);
     setDisplayName(Internal::KitOptionsPageWidget::tr("Kits"));
     setCategory(Constants::KITS_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "Kits"));
+    setDisplayCategory(QCoreApplication::translate("::ProjectExplorer", "Kits"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
 }
 

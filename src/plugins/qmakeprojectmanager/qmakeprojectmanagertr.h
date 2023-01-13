@@ -9,12 +9,12 @@ namespace QmakeProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
 };
 
 struct BuildConfigurationTr
 {
-    Q_DECLARE_TR_FUNCTIONS(BuildConfiguration)
+    Q_DECLARE_TR_FUNCTIONS(::BuildConfiguration)
 };
 
 } // namespace QmakeProjectManager

@@ -9,7 +9,7 @@ namespace GenericProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(GenericProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(::GenericProjectManager)
 };
 
 } // namespace GenericProjectManager

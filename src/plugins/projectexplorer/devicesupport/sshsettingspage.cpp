@@ -57,7 +57,7 @@ SshSettingsPage::SshSettingsPage()
     setId(Constants::SSH_SETTINGS_PAGE_ID);
     setDisplayName(SshSettingsWidget::tr("SSH"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("ProjectExplorer", "SSH"));
+    setDisplayCategory(QCoreApplication::translate("::ProjectExplorer", "SSH"));
     setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new SshSettingsWidget; });
 }

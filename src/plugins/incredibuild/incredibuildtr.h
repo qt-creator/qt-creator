@@ -9,7 +9,7 @@ namespace IncrediBuild {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(IncrediBuild)
+    Q_DECLARE_TR_FUNCTIONS(::IncrediBuild)
 };
 
 } // namespace IncrediBuild

@@ -9,7 +9,7 @@ namespace Marketplace {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Marketplace)
+    Q_DECLARE_TR_FUNCTIONS(::Marketplace)
 };
 
 } // namespace Marketplace

@@ -9,7 +9,7 @@ namespace Cvs {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(CVS)
+    Q_DECLARE_TR_FUNCTIONS(::CVS)
 };
 
 } // Cvs

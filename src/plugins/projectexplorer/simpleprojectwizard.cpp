@@ -4,6 +4,7 @@
 #include "simpleprojectwizard.h"
 
 #include "projectexplorerconstants.h"
+#include "projectexplorertr.h"
 
 #include <app/app_version.h>
 
@@ -156,7 +157,7 @@ SimpleProjectWizard::SimpleProjectWizard()
                       "If you want to build the project, you might need to edit the generated project file.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME));
     setCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
-    setDisplayCategory(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
+    setDisplayCategory(Tr::tr(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(IWizardFactory::PlatformIndependent);
 }
 

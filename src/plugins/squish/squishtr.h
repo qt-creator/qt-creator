@@ -9,7 +9,7 @@ namespace Squish {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Squish)
+    Q_DECLARE_TR_FUNCTIONS(::Squish)
 };
 
 } // namespace Squish

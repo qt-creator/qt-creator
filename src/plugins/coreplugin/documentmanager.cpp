@@ -755,9 +755,9 @@ QString DocumentManager::fileDialogFilter(QString *selectedFilter)
 }
 
 #ifdef Q_OS_WIN
-static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*.*)", "On Windows");
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("::Core", "All Files (*.*)", "On Windows");
 #else
-static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("Core", "All Files (*)", "On Linux/macOS");
+static struct {const char *source; const char *comment; } ALL_FILES_FILTER = QT_TRANSLATE_NOOP3("::Core", "All Files (*)", "On Linux/macOS");
 #endif
 
 QString DocumentManager::allFilesFilterString()

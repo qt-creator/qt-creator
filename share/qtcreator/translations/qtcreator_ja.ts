@@ -510,7 +510,7 @@
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Create new AVD</source>
         <translation>新しい AVD の作成</translation>
@@ -858,7 +858,7 @@
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
         <translation>デバッグサーバーまたはハードウェアデバッガをセットアップ</translation>
@@ -877,7 +877,7 @@
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -914,7 +914,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -1046,7 +1046,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>元に戻す</translation>
@@ -1064,7 +1064,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>チェックアウト</translation>
@@ -1794,7 +1794,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -1913,7 +1913,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>追加C++プリプロセッサディレクティブ</translation>
@@ -2534,7 +2534,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -2602,7 +2602,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このデバッガは Microsoft の公開シンボルサーバーを利用する設定ではありません。&lt;br/&gt;オペレーティングシステムのライブラリのシンボルはサーバーから取得することが推奨されています。&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;注意:&lt;/span&gt; Microsoft のシンボルサーバーを用いる場合、ローカルにシンボルキャッシュを持つことも推奨されています。&lt;br/&gt;快適な作業には高速なインターネット回線が必要です。&lt;br/&gt;また、初めて接続しシンボルをキャッシュする際には遅延が生じるでしょう。&lt;/p&gt;&lt;p&gt;どのように設定しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -2621,7 +2621,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>クラス名を選択してください</translation>
@@ -2822,7 +2822,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Branch Name:</source>
         <translation>ブランチ名:</translation>
@@ -3427,7 +3427,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>圧縮済みヘルプファイル(.qch)の追加や削除を行います。</translation>
@@ -3681,7 +3681,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Image Viewer</source>
         <translation>画像ビューア</translation>
@@ -3816,7 +3816,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -4625,7 +4625,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>ビルド種類:</translation>
@@ -4728,7 +4728,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -5683,7 +5683,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>コンポーネントを別のファイルに移動する</translation>
@@ -5777,7 +5777,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML プロファイラ</translation>
@@ -5812,7 +5812,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>バージョン名:</translation>
@@ -5827,7 +5827,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>追加...</translation>
@@ -5850,14 +5850,14 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>デバッグヘルパのビルドログ</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -5956,7 +5956,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -6906,7 +6906,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Keyword</source>
         <translation>キーワード</translation>
@@ -6933,7 +6933,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -7007,7 +7007,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -7378,7 +7378,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
@@ -7458,7 +7458,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>テキストエディタ</translation>
@@ -11250,7 +11250,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Keystore password is too short.</source>
         <translation>キーストアパスワードが短すぎます。</translation>
@@ -12177,7 +12177,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Bare Metal</source>
         <translation>ベアメタル</translation>
@@ -12200,7 +12200,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>空白を無視</translation>
@@ -12387,7 +12387,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>コミットエディタ</translation>
@@ -12529,7 +12529,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar コマンド</translation>
@@ -12615,7 +12615,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Move Up</source>
         <translation>上に移動</translation>
@@ -12721,7 +12721,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>アクティビティの選択 (&amp;A):</translation>
@@ -13060,7 +13060,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -13331,7 +13331,7 @@ To unset a variable, use -U&lt;variable&gt;.
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>::Core</name>
     <message>
         <source>Show Sidebar</source>
         <translation>サイドバーを表示する</translation>
@@ -14561,7 +14561,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>コード貼り付け</translation>
@@ -14672,7 +14672,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <comment>SnippetProvider</comment>
@@ -14966,7 +14966,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>%1 の宣言を追加</translation>
@@ -15016,7 +15016,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>関数の抽出</translation>
@@ -15153,7 +15153,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>仮想関数のみが &apos;final&apos; としてマークすることができます</translation>
@@ -15823,7 +15823,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>New</source>
         <translation>新規作成</translation>
@@ -16391,7 +16391,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The console process &quot;%1&quot; could not be started.</source>
         <translation>コンソールプロセス &quot;%1&quot; を起動できませんでした。</translation>
@@ -16482,7 +16482,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -16509,7 +16509,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>シンボルのパス</translation>
@@ -16524,7 +16524,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
@@ -16904,7 +16904,7 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>デバッガ起動</translation>
@@ -17026,7 +17026,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Kit:</source>
         <translation>キット:</translation>
@@ -17037,7 +17037,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;リモート CDB には対応する Qt Creator CDB エクステンション(&lt;code&gt;%1&lt;/code&gt; か &lt;code&gt;%2&lt;/code&gt;)が必要です。&lt;/p&gt;&lt;p&gt;エクステンションをリモートマシンにコピーして、環境変数 &lt;code&gt;%3&lt;/code&gt; にそのフォルダを設定してください。&lt;/p&gt;&lt;p&gt;リモート CDB は TCP/IP を接続プロトコルとして使用するように &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; と実行してください。&lt;/p&gt;&lt;p&gt;接続パラメータには以下を使用してください:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -17056,7 +17056,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>開始アドレスの選択</translation>
@@ -17067,7 +17067,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>リモートエンジン開始</translation>
@@ -17094,7 +17094,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>型の表示形式</translation>
@@ -17626,7 +17626,7 @@ Qt Creator はアタッチできません。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;ソース&gt;</translation>
@@ -17720,7 +17720,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The gdb process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.
 %2</source>
@@ -18469,7 +18469,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>リモートエラー</translation>
@@ -18520,7 +18520,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Color at %1,%2: red: %3 green: %4 blue: %5 alpha: %6</source>
         <translation>%1, %2 の色: 赤: %3 緑: %4 青: %5 アルファ値: %6</translation>
@@ -18543,7 +18543,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Run in Terminal is not supported with the LLDB backend.</source>
         <translation>LLDB バックエンドでは「ターミナルで実行」オプションはサポートされていません。</translation>
@@ -18590,14 +18590,14 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>リモートファイルのダウンロードが成功しました。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>コアファイルを読み込み</translation>
@@ -18652,7 +18652,7 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>内容をクリア</translation>
@@ -18667,14 +18667,14 @@ markers in the source code editor.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>1行だけ実行するには、Ctrl+&lt;リターン&gt;キーを押してください。</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>デバッガログ</translation>
@@ -18721,7 +18721,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>レジスタ &quot;%1&quot; (0x%2) の指すメモリ</translation>
@@ -18768,7 +18768,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>一時ファイルを作成できません: %1</translation>
@@ -18783,7 +18783,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Adapter start failed</source>
         <translation>アダプタの開始に失敗しました</translation>
@@ -18822,7 +18822,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>QML と C++ の同時デバッグに必要なスレーブ側のデバッグエンジンが作成できませんでした: %1</translation>
@@ -18837,7 +18837,7 @@ You may be asked to share the contents of this log when reporting bugs related t
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>時間内にアプリケーション出力を受信できません</translation>
@@ -18910,7 +18910,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>成功:</translation>
@@ -18925,7 +18925,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>ASCII 文字列としての値</translation>
@@ -19016,7 +19016,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>シンボルサーバーの挿入...</translation>
@@ -19055,7 +19055,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>内部名</translation>
@@ -19732,7 +19732,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Form Editor</source>
         <translation>フォームエディタ</translation>
@@ -19802,7 +19802,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>差分エディタ</translation>
@@ -19977,7 +19977,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Local Branches</source>
         <translation>ローカルブランチ</translation>
@@ -21508,14 +21508,14 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
+    <name>::GLSLEditor</name>
     <message>
         <source>GLSL</source>
         <translation>シェーダ記述言語(GLSL)</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Help</source>
         <translation>ヘルプ</translation>
@@ -21654,7 +21654,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>アニメーション再生</translation>
@@ -21684,7 +21684,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Ios</name>
+    <name>::Ios</name>
     <message>
         <source>iOS</source>
         <translation>iOS</translation>
@@ -22020,7 +22020,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Macros</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>マクロ</translation>
@@ -22090,7 +22090,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>Commit Editor</source>
         <translation>コミットエディタ</translation>
@@ -23768,7 +23768,7 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>ProjectExplorer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Devices</source>
         <translation>デバイス</translation>
@@ -26112,7 +26112,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -26120,7 +26120,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -26493,7 +26493,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Qbs プロジェクトの解析中。</translation>
@@ -26684,7 +26684,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>ライブラリの追加</translation>
@@ -27310,7 +27310,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation>クラス情報</translation>
@@ -28700,7 +28700,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
@@ -28818,7 +28818,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>この型は型名が文字列リテラルであるため、Qt Creator の QML エディタでのみ利用可能できます</translation>
@@ -28880,7 +28880,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -29384,14 +29384,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>デバイスにデバッグ用の空きポートがありません。</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>リモート側の準備...</translation>
@@ -29414,7 +29414,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>QNX Device</source>
         <translation>QNX デバイス</translation>
@@ -29425,7 +29425,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Checking that files can be created in /var/run...</source>
         <translation>/var/run にファイルが作成できることを確認しています...</translation>
@@ -29468,7 +29468,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>QNX %1</source>
         <extracomment>Qt Version is meant for QNX</extracomment>
@@ -29484,7 +29484,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Path to Qt libraries on device:</source>
         <translation>デバイス上の Qt ライブラリのパス:</translation>
@@ -29507,14 +29507,14 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>%1 on QNX Device</source>
         <translation>QNX デバイス上の %1</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>&amp;Compiler path:</source>
         <translation>コンパイラのパス(&amp;C):</translation>
@@ -29535,7 +29535,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available.</source>
         <translation>警告: &quot;slog2info&quot; がデバイスに見つかりません。デバッグ出力は利用できません。</translation>
@@ -29546,7 +29546,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;不明&gt;</translation>
@@ -29708,7 +29708,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -29721,7 +29721,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>ビルドディレクトリはソースディレクトリと同じ階層にある必要があります。</translation>
@@ -29780,7 +29780,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>サンプル</translation>
@@ -29831,7 +29831,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Qt version:</source>
         <translation>Qt バージョン:</translation>
@@ -29842,7 +29842,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;名前を入力&gt;</translation>
@@ -29953,7 +29953,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>現在のプロジェクトの Qt のホスト上の bin ディレクトリのフルパスです。</translation>
@@ -29964,14 +29964,14 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>qmake 用ファクトリが見つかりません: &quot;%1&quot;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>デプロイアクションは不要です。スキップします。</translation>
@@ -30002,7 +30002,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>デプロイエラー: %1</translation>
@@ -30021,7 +30021,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>パッケージファイルのアップロードが成功しました。</translation>
@@ -30036,7 +30036,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初期化失敗: %1</translation>
@@ -30075,7 +30075,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>増分デプロイ</translation>
@@ -30090,14 +30090,14 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>新しい一般的な Linux デバイスの設定</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>接続</translation>
@@ -30108,7 +30108,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -30121,7 +30121,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>一般的な Linux</translation>
@@ -30136,7 +30136,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>ホストに接続中...</translation>
@@ -30175,7 +30175,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>SFTP 接続の準備中...</translation>
@@ -30202,7 +30202,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>公開鍵ファイルを選択してください</translation>
@@ -30225,7 +30225,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Creating remote socket ...</source>
         <translation>リモートソケットを作成しています ...</translation>
@@ -30244,7 +30244,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>リモートプロセスがクラッシュしました。</translation>
@@ -30271,7 +30271,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>空き容量を確認するリモートのパス:</translation>
@@ -30290,7 +30290,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>コマンドラインが設定されていません。</translation>
@@ -30321,7 +30321,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...</source>
         <translation>使用可能なポートを確認中...</translation>
@@ -30344,14 +30344,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>リモート Linux ホストにデプロイ</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
@@ -30362,7 +30362,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>デバイス環境の取得</translation>
@@ -30381,7 +30381,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>エラー: デバイスなし</translation>
@@ -30404,7 +30404,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>接続エラー: %1</translation>
@@ -30415,7 +30415,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>%1 (on Remote Device)</source>
         <translation>%1 (リモートデバイス上)</translation>
@@ -30427,14 +30427,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(リモートの一般的な Linux ホスト上)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>ホスト上の実行可能ファイル:</translation>
@@ -30469,7 +30469,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>デバッグエラー: キットにデバイスがありません。</translation>
@@ -30484,14 +30484,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>終了コードは %1 です。 標準エラー出力:</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開鍵エラー: %1</translation>
@@ -30502,7 +30502,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>パッケージ化が成功しました。</translation>
@@ -30565,14 +30565,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (既定)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>tarball 作成ステップが見つかりません。</translation>
@@ -30583,7 +30583,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>ファイルを追加</translation>
@@ -30634,7 +30634,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>ファイル名が未入力です。</translation>
@@ -30649,14 +30649,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>すべてのファイル (*)</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -30727,7 +30727,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -31967,7 +31967,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Description</source>
         <translation>説明</translation>
@@ -31982,7 +31982,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>To-Do Entries</source>
         <translation>To-Do エントリ</translation>
@@ -32048,7 +32048,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>呼び出し先</translation>
@@ -32067,7 +32067,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>前のコマンドが完了していません。</translation>
@@ -32106,7 +32106,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>関数:</translation>
@@ -32179,7 +32179,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%2 の %1</translation>
@@ -32190,7 +32190,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最終レベル</translation>
@@ -32249,14 +32249,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>全体のコスト率が %1 より高いすべての関数 (%2 個の関数が非表示)</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>%1 の XmlServer:</translation>
@@ -32267,14 +32267,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Analyzing memory of %1</source>
         <translation>%1 のメモリ解析中</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>%1</translation>
@@ -32285,14 +32285,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>エラーを抑制</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部エラー</translation>
@@ -32417,7 +32417,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>抑制ファイルの保存</translation>
@@ -32436,7 +32436,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind オプション: %1</translation>
@@ -32470,21 +32470,21 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>リモートの PID が取得できませんでした。</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind の設定</translation>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>問題</translation>
@@ -32495,7 +32495,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>パス:</translation>
@@ -32506,7 +32506,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>&quot;%1&quot; (%2) からの16進数を解析できません</translation>
@@ -32561,7 +32561,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>説明</translation>
@@ -32646,7 +32646,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>バージョン管理システム</translation>
@@ -32837,7 +32837,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>ようこそ</translation>
@@ -32848,7 +32848,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>ブックマークを開く</translation>
@@ -33096,7 +33096,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation>コミットの取り消し</translation>
@@ -33605,7 +33605,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Could not run: %1</source>
         <translation>実行できません: %1</translation>
@@ -33667,7 +33667,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Beautifier</name>
+    <name>::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>コード整形</translation>
@@ -34155,7 +34155,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>開始前のプロセスにアタッチ</translation>
@@ -34245,7 +34245,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>このウィザードは Qt サブディレクトリプロジェクトを生成します。プロジェクト生成後に他のウィザードを用いてサブプロジェクトを追加してください。</translation>
@@ -34259,14 +34259,14 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>エラー</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source> µs</source>
         <translation> µs</translation>
@@ -34281,7 +34281,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Project source directory:</source>
         <translation>プロジェクトソースディレクトリ:</translation>
@@ -34292,7 +34292,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>No free ports for debugging.</source>
         <translation>デバッグ用の空きポートがありません。</translation>
@@ -34510,7 +34510,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Attach to remote QNX application...</source>
         <translation>リモートの QNX アプリケーションにアタッチ...</translation>
@@ -34639,7 +34639,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Deploy Qt to BlackBerry Device</source>
         <translation>Qt を BlackBerry デバイスにデプロイ</translation>
@@ -34690,7 +34690,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -34751,7 +34751,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
@@ -34822,7 +34822,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Cannot create a new AVD. No sufficiently recent Android SDK available.
 Install an SDK of at least API version %1.</source>
@@ -34839,7 +34839,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>New Bare Metal Device Configuration Setup</source>
         <translation>新しいベアメタルデバイスの設定</translation>
@@ -34949,7 +34949,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: そのようなファイルもしくはディレクトリはありません</translation>
@@ -34960,7 +34960,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>デバッグヘルパを使用する</translation>
@@ -35066,14 +35066,14 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Refreshing Commit Data</source>
         <translation>コミットデータのリフレッシュ中</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Go to Help Mode</source>
         <translation>ヘルプモードに移行</translation>
@@ -35341,7 +35341,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>The following errors occurred while activating the QNX configuration:</source>
         <translation>QNX 設定のアクティベート中に以下のエラーが発生しました:</translation>
@@ -35395,14 +35395,14 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>QNX</source>
         <translation>QNX</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>リモート実行ファイル:</translation>
@@ -35538,7 +35538,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Sign package</source>
         <translation>パッケージに署名する</translation>
@@ -35617,7 +35617,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -35986,7 +35986,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>カスタムプロパティ</translation>
@@ -36045,7 +36045,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Create Templates</source>
         <translation>テンプレートの作成</translation>
@@ -36284,7 +36284,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>プロファイル中にデータを送信する:</translation>
@@ -36364,7 +36364,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -36403,7 +36403,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -37304,7 +37304,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Build Android APK</source>
         <extracomment>AndroidBuildApkStep default display name</extracomment>
@@ -37368,7 +37368,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>テストのスキャン中</translation>
@@ -37423,7 +37423,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>テスト</translation>
@@ -37484,7 +37484,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>テスト実行の停止</translation>
@@ -37603,7 +37603,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>テスト実行はユーザーによってキャンセルされました。</translation>
@@ -37664,7 +37664,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Enter GDB commands to reset the board and to write the nonvolatile memory.</source>
         <translation>ボードのリセットと不揮発メモリに書き込むための GDB コマンドを入力してください。</translation>
@@ -37879,7 +37879,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>%1 のアノテーション(&amp;A)</translation>
@@ -37890,7 +37890,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>0x%1 のメモリ</translation>
@@ -38230,14 +38230,14 @@ clang の実行ファイルを設定してください。</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>バージョン &quot;%1&quot; のアノテーション</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>このビルドディレクトリは %2 向けで %1 向けではありません</translation>
@@ -39158,7 +39158,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>&amp;Refactor</source>
         <translation>リファクタリング(&amp;R)</translation>
@@ -39176,7 +39176,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Warnings for questionable constructs</source>
         <translation>問題の原因と思われる記述への警告</translation>
@@ -39216,7 +39216,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Use Customized Settings</source>
         <translation>カスタム設定を使用する</translation>
@@ -39506,7 +39506,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>不明</translation>
@@ -39620,7 +39620,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Option &quot;%1&quot; is missing the parameter.</source>
         <translation>オプション &quot;%1&quot; に必要なパラメータが不足しています。</translation>
@@ -39686,7 +39686,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
         <translation>プロジェクト無しでは %1 を開始できません。プロジェクトを開いた後に再度試してください。</translation>
@@ -39721,7 +39721,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>デバッガ設定</translation>
@@ -39744,7 +39744,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (直前)</translation>
@@ -39782,7 +39782,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>ターミナル: /dev/ptmx を開けません: %1</translation>
@@ -39813,7 +39813,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -39826,7 +39826,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Widget box</source>
         <translation>ウィジェットボックス</translation>
@@ -41239,7 +41239,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>FakeVim</name>
+    <name>::FakeVim</name>
     <message>
         <source>Unknown option: %1</source>
         <translation>不明なオプション: %1</translation>
@@ -41490,7 +41490,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>&amp;Blame %1</source>
         <translation>&quot;%1&quot; の編集者を表示(&amp;B)</translation>
@@ -41549,14 +41549,14 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Unknown or unsupported content.</source>
         <translation>不明かサポート対象外のコンテンツです。</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>x</source>
         <extracomment>Multiplication, as in 32x32</extracomment>
@@ -41574,7 +41574,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>%1 のエクスポート</translation>
@@ -41652,7 +41652,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>%1 のアノテーション(&amp;A)</translation>
@@ -42483,7 +42483,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Run %1</source>
         <translation>%1 を実行</translation>
@@ -42498,7 +42498,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Interpreter: </source>
         <translation>インタプリタ: </translation>
@@ -42509,14 +42509,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>No Python interpreter specified.</source>
         <translation>Python のインタプリタが指定されていません。</translation>
@@ -42539,7 +42539,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Qbs</source>
         <translation>Qbs</translation>
@@ -42566,7 +42566,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Deploy to device</source>
         <translation>デバイスにデプロイ</translation>
@@ -42673,7 +42673,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>失敗</translation>
@@ -42906,7 +42906,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Qt Quick ツールバーを表示します</translation>
@@ -42950,7 +42950,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Duration</source>
         <translation>持続時間</translation>
@@ -43236,14 +43236,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[不完全] </translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Qt バージョン</translation>
@@ -43254,7 +43254,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>プレフィックス:</translation>
@@ -43894,7 +43894,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler uses the Callgrind tool to record function calls when a program runs.</source>
         <translation>Valgrind 関数プロファイラでは Callgrind ツールを使用してプログラム実行時の関数呼び出しを記録します。</translation>
@@ -44153,7 +44153,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>検索文字列(&amp;L):</translation>
@@ -44198,7 +44198,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -44367,14 +44367,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>自動テストのデバッグ</translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
         <translation>有効なテストフレームワークが存在しないため、AutoTest プラグインを使用できません。</translation>
@@ -44490,7 +44490,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>キットで設定された CMake 設定はプロジェクトで上書きされました。</translation>
@@ -44508,14 +44508,14 @@ Output:
     </message>
 </context>
 <context>
-    <name>ModelEditor</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Current Build Target</source>
         <translation>現在のビルドターゲット</translation>
@@ -44595,7 +44595,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Files</source>
         <translation>ファイル</translation>
@@ -44637,7 +44637,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>一時的なトレース・ファイルからイベントを再読み取りできませんでした: %1</translation>
@@ -45089,7 +45089,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -45112,7 +45112,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Seed:</source>
         <translation>シード:</translation>
@@ -45123,7 +45123,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Walltime</source>
         <translation>総経過時間</translation>
@@ -45397,7 +45397,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation type="vanished">フォーム</translation>
@@ -45423,7 +45423,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>クラス名(&amp;C):</translation>
@@ -45486,7 +45486,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Authentication</source>
         <translation>認証情報</translation>
@@ -45546,7 +45546,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>MesonProjectManager</name>
+    <name>::MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>設定の変更を適用</translation>
@@ -45573,14 +45573,14 @@ Output:
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Path</source>
         <translation>パス</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>
@@ -45720,7 +45720,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>ファイル保存時に自動的に整形する</translation>
@@ -45739,7 +45739,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>+</source>
         <translation>+</translation>
@@ -45831,7 +45831,7 @@ Output:
     <name>Tracing</name>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Function</source>
         <translation>関数</translation>
@@ -45854,7 +45854,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>合計時間</translation>
@@ -46452,7 +46452,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
@@ -46498,7 +46498,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>自動テスト</translation>
@@ -46596,7 +46596,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test execution took %1</source>
         <translation>テストの実行時間: %1</translation>
@@ -46625,7 +46625,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>実行中: %1 &quot;%2&quot;</translation>
@@ -46666,7 +46666,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Running tests for %1</source>
         <translation>%1のテストを実行中</translation>
@@ -46680,7 +46680,7 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Global</source>
         <translation>グローバル</translation>
@@ -46710,14 +46710,14 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>テストの実行ファイルがクラッシュしました。</translation>
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>実行構成を選択する</translation>
@@ -46748,10 +46748,10 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
 </context>
 <context>
-    <name>BuildConfiguration</name>
+    <name>::BuildConfiguration</name>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
@@ -46784,7 +46784,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Deploy to BareMetal Device</source>
         <translation>ベアメタルデバイスにデプロイ</translation>
@@ -47094,7 +47094,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Version</source>
         <translation>バージョン</translation>
@@ -47249,7 +47249,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>冗長表示</translation>
@@ -47366,7 +47366,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Copy 0x%1</source>
         <translation>0x%1をコピー</translation>
@@ -47377,7 +47377,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
@@ -47526,7 +47526,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Boot2Qt</name>
+    <name>::Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation>Boot2Qt: %1</translation>
@@ -47593,7 +47593,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangCodeModel</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;シンボルなし&gt;</translation>
@@ -47790,7 +47790,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Changing Build Directory</source>
         <translation>ビルドディレクトリの変更</translation>
@@ -47818,7 +47818,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Conan</name>
+    <name>::Conan</name>
     <message>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>
@@ -48168,7 +48168,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Diagnostic</source>
         <translation>診断</translation>
@@ -48195,7 +48195,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Synchronize with Editor</source>
         <translation>エディタと同期</translation>
@@ -48233,7 +48233,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>コンストラクタでの初期化</translation>
@@ -48307,7 +48307,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CtfVisualizer</name>
+    <name>::CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation>タイトル</translation>
@@ -48346,7 +48346,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>このキットで使用するデバッガです。</translation>
@@ -48404,7 +48404,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
@@ -48531,7 +48531,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>N/A</source>
         <translation>N/A</translation>
@@ -48625,7 +48625,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
@@ -48736,7 +48736,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
@@ -48774,7 +48774,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>ファイル:</translation>
@@ -49122,7 +49122,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>MesonProjectManager</name>
+    <name>::MesonProjectManager</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>
@@ -49190,7 +49190,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Nim</source>
         <comment>SnippetProvider</comment>
@@ -49209,7 +49209,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Result</source>
         <translation>結果</translation>
@@ -49912,14 +49912,14 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -49934,7 +49934,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Install</source>
         <translation>インストールする</translation>
@@ -49945,7 +49945,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Change...</source>
         <translation>変更...</translation>
@@ -49960,7 +49960,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>Run</source>
         <translation>実行</translation>
@@ -51173,7 +51173,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished">コードモデルの警告</translation>
@@ -51211,7 +51211,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>Callee</source>
         <translation>呼び出し先</translation>
@@ -51240,14 +51240,14 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>QCC</source>
         <translation>QCC</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Qt がサポートしていないデバイスの種類です。</translation>
@@ -51262,7 +51262,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt バージョン</translation>
@@ -51361,7 +51361,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>
@@ -51372,7 +51372,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Command:</source>
         <translation>コマンド:</translation>
@@ -51383,7 +51383,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>コマンドライン:</translation>
@@ -51394,7 +51394,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>リモート・デバイス上の &quot;%1&quot; を終了中です...</translation>
@@ -51413,7 +51413,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>X11 フォワーディング</translation>
@@ -51424,7 +51424,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>リモート・ディレクトリの作成に失敗しました: %1</translation>
@@ -51443,7 +51443,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>フラグ:</translation>
@@ -51458,7 +51458,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>色のテーマを変更する...</translation>
@@ -52493,7 +52493,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>To-Do</source>
         <translation>To-Do</translation>
@@ -52536,7 +52536,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>プロファイル中</translation>
@@ -52648,7 +52648,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Locator</source>
         <translation>クイックアクセス</translation>

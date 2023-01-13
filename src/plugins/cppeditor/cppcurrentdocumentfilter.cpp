@@ -20,7 +20,8 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
     : m_modelManager(manager)
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setDisplayName(QCoreApplication::translate("::CppEditor",
+                                               Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

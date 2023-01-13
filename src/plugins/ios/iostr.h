@@ -9,7 +9,7 @@ namespace Ios {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Ios)
+    Q_DECLARE_TR_FUNCTIONS(::Ios)
 };
 
 } // namespace Ios

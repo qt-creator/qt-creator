@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="de_DE">
 <context>
-    <name>Bookmarks</name>
+    <name>::Bookmarks</name>
     <message>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
@@ -121,7 +121,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Initial Configuration</source>
         <translation>Initiale Konfiguration</translation>
@@ -1101,7 +1101,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
 </context>
 <context>
-    <name>CodePaster</name>
+    <name>::CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Code Pasting</translation>
@@ -2086,7 +2086,7 @@ Trotzdem fortfahren?</translation>
     </message>
 </context>
 <context>
-    <name>Debugger</name>
+    <name>::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -6541,7 +6541,7 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Designer</name>
+    <name>::Designer</name>
     <message>
         <source>Designer</source>
         <translation>Designer</translation>
@@ -6985,7 +6985,7 @@ Grund: %3</translation>
     </message>
 </context>
 <context>
-    <name>Git</name>
+    <name>::Git</name>
     <message>
         <source>Browse &amp;History...</source>
         <translation>Von &amp;History...</translation>
@@ -9077,7 +9077,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>Help</name>
+    <name>::Help</name>
     <message>
         <source>Add and remove compressed help files, .qch.</source>
         <translation>Hinzufügen oder Entfernen von komprimierten Hilfedateien (.qch).</translation>
@@ -11699,7 +11699,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
@@ -12629,7 +12629,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
 </context>
 <context>
-    <name>VcsBase</name>
+    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>Versionskontrolle</translation>
@@ -12823,7 +12823,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Mercurial</name>
+    <name>::Mercurial</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -13360,7 +13360,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Core</name>
+    <name>::Core</name>
     <message>
         <source>Show Left Sidebar</source>
         <translation>Linke Seitenleiste anzeigen</translation>
@@ -13733,7 +13733,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Build &amp; Run</source>
         <translation>Erstellung und Ausführung</translation>
@@ -14023,7 +14023,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Show Qt Quick Toolbar</source>
         <translation>Qt Quick-Werkzeugleiste anzeigen</translation>
@@ -14243,7 +14243,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport</name>
+    <name>::QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
@@ -14830,7 +14830,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Text Editor</source>
         <translation>Texteditor</translation>
@@ -15875,7 +15875,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>ImageViewer</name>
+    <name>::ImageViewer</name>
     <message>
         <source>Export</source>
         <translation type="unfinished">Export</translation>
@@ -16108,7 +16108,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>No type hierarchy available</source>
         <translation>Keine Klassenhierarchie verfügbar</translation>
@@ -16375,7 +16375,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Add Definition in %1</source>
         <translation>Definition in %1 hinzufügen</translation>
@@ -16760,7 +16760,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Expand All</source>
         <translation>Alle aufklappen</translation>
@@ -16771,7 +16771,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>GLSLEditor</name>
+    <name>::GLSLEditor</name>
     <message>
         <source>GLSL</source>
         <translation>GLSL</translation>
@@ -16903,7 +16903,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>QmlJSTools</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation>QML-Funktionen</translation>
@@ -16965,7 +16965,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Bazaar</name>
+    <name>::Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -17814,7 +17814,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Valgrind</name>
+    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -18693,7 +18693,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>QmlProfiler</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML-Profiler</translation>
@@ -19937,7 +19937,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Macros</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makros</translation>
@@ -20063,7 +20063,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome</name>
+    <name>::Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Willkommen</translation>
@@ -20295,7 +20295,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Verbindung</translation>
@@ -21733,7 +21733,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>::QmakeProjectManager</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -23089,7 +23089,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
 </context>
 <context>
-    <name>Android</name>
+    <name>::Android</name>
     <message>
         <source>Keystore</source>
         <translation>Keystore</translation>
@@ -25053,7 +25053,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Extract Function</source>
         <translation>Funktion herausziehen</translation>
@@ -25111,7 +25111,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>Todo</name>
+    <name>::Todo</name>
     <message>
         <source>Keywords</source>
         <translation>Schlüsselworte</translation>
@@ -25432,7 +25432,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>Qnx</name>
+    <name>::Qnx</name>
     <message>
         <source>Preparing remote side...</source>
         <translation>Bereite Gegenseite vor...</translation>
@@ -25690,7 +25690,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Target file was changed, could not apply changes</source>
         <translation>Die Änderungen konnten nicht vorgenommen werden, da die Zieldatei geändert wurde</translation>
@@ -25820,7 +25820,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase</name>
+    <name>::ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Check Out</translation>
@@ -26617,7 +26617,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Nur virtuelle Funktionen können als &apos;final&apos; gekennzeichnet werden</translation>
@@ -27589,7 +27589,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
 </context>
 <context>
-    <name>QbsProjectManager</name>
+    <name>::QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>Build-Variante:</translation>
@@ -28291,7 +28291,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Diff-Editor</translation>
@@ -28437,7 +28437,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Unter Verwendung von %1 umschreiben</translation>
@@ -29028,7 +29028,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>BareMetal</name>
+    <name>::BareMetal</name>
     <message>
         <source>Set up Debug Server or Hardware Debugger</source>
         <translation>Debug-Server oder Hardware-Debugger einrichten</translation>
@@ -29952,7 +29952,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Include Hierarchy</source>
         <translation>Include-Hierarchie</translation>
@@ -30609,7 +30609,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Zusätzliche Präprozessor-Anweisungen für %1:</translation>
@@ -31090,7 +31090,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>Beautifier</name>
+    <name>::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>Beautifier</translation>
@@ -31551,7 +31551,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlDesigner</name>
+    <name>::QmlDesigner</name>
     <message>
         <source>Error</source>
         <translation>Fehler</translation>
@@ -31751,7 +31751,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Es existiert keine Datei oder kein Verzeichnis dieses Namens</translation>
@@ -32193,7 +32193,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Der Binäreditor kann keine leeren Dateien öffnen.</translation>
@@ -34280,7 +34280,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>FakeVim</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation type="unfinished">FakeVim benutzen</translation>
@@ -36983,7 +36983,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>Autotest</name>
+    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -38714,7 +38714,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Checks for questionable constructs</source>
         <translation>Prüft auf fragwürdige Konstrukte</translation>
@@ -38965,7 +38965,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>Nim</name>
+    <name>::Nim</name>
     <message>
         <source>Target:</source>
         <translation>Ziel:</translation>
@@ -39473,7 +39473,7 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
 </context>
 <context>
-    <name>ModelEditor</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Vergrößerung: %1%</translation>
@@ -39756,7 +39756,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor</name>
+    <name>::ScxmlEditor</name>
     <message>
         <source>Basic Colors</source>
         <translation>Grundfarben</translation>
@@ -40694,7 +40694,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;b&gt;Warning&lt;/b&gt;: This file is not part of any project. The code model might have issues parsing this file properly.</source>
         <translation>&lt;b&gt;Warnung&lt;/b&gt;: Diese Datei ist in keinem Projekt enthalten. Das Codemodell könnte Probleme haben, die Datei korrekt auszuwerten.</translation>
@@ -42253,7 +42253,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Getter- und Setter-Funktionen erzeugen</translation>
@@ -42506,7 +42506,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Component</source>
         <translation>Komponente</translation>
@@ -43137,7 +43137,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Cppcheck</source>
         <translation>Cppcheck</translation>
@@ -43152,7 +43152,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation>Language Client</translation>
@@ -43335,7 +43335,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Warnings</source>
         <translation>Warnungen</translation>
@@ -43462,7 +43462,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler</name>
+    <name>::PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation>Größe des Stack-Abbilds (kB):</translation>
@@ -44302,7 +44302,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Keine Include-Hierarchie verfügbar</translation>
@@ -46097,7 +46097,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Diagnostic</source>
         <translation>Diagnose</translation>
@@ -46128,7 +46128,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>CtfVisualizer</name>
+    <name>::CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation>Titel</translation>
@@ -46877,7 +46877,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Python</name>
+    <name>::Python</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation>&quot;%1&quot; konnte nicht zum Lesen geöffnet werden: %2</translation>
@@ -47698,7 +47698,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>MesonProjectManager</name>
+    <name>::MesonProjectManager</name>
     <message>
         <source>Apply Configuration Changes</source>
         <translation>Konfigurationsänderungen anwenden</translation>
@@ -51226,7 +51226,7 @@ benötigt wird, was meist die Geschwindigkeit erhöht.</translation>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -52188,7 +52188,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager</name>
+    <name>::AutotoolsProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation type="unfinished">Argumente:</translation>
@@ -52372,7 +52372,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Boot2Qt</name>
+    <name>::Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation type="unfinished"></translation>
@@ -52709,7 +52709,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Conan</name>
+    <name>::Conan</name>
     <message>
         <source>Conan install</source>
         <translation type="unfinished"></translation>
@@ -53096,7 +53096,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Cppcheck</name>
+    <name>::Cppcheck</name>
     <message>
         <source>Cppcheck Diagnostics</source>
         <translation type="unfinished"></translation>
@@ -53110,7 +53110,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>The file name.</source>
         <translation>Der Dateiname.</translation>
@@ -53625,7 +53625,7 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>Im Konstruktor initialisieren</translation>
@@ -53669,7 +53669,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
         <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei benutzt, oder eine neue Datei erstellt werden?</translation>
@@ -53740,7 +53740,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>CppEditor</name>
+    <name>::CppEditor</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Suche nach Symbol</translation>
@@ -53791,7 +53791,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>CVS</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished">Annotation für Revision &quot;%1&quot;</translation>
@@ -54106,7 +54106,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>Docker</name>
+    <name>::Docker</name>
     <message>
         <source>Checking docker daemon</source>
         <translation type="unfinished"></translation>
@@ -54919,7 +54919,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>McuSupport</name>
+    <name>::McuSupport</name>
     <message>
         <source>Warning for target %1: invalid toolchain path (%2). Update the toolchain in Edit &gt; Preferences &gt; Kits.</source>
         <translation type="unfinished"></translation>
@@ -55520,7 +55520,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
 </context>
 <context>
-    <name>BuildConfiguration</name>
+    <name>::BuildConfiguration</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -56766,7 +56766,7 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
     </message>
 </context>
 <context>
-    <name>Squish</name>
+    <name>::Squish</name>
     <message>
         <source>Details</source>
         <translation type="unfinished"></translation>
@@ -57682,7 +57682,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Qt Maintenance Tool</source>
         <translation>Qt Maintenance Tool</translation>
@@ -57785,7 +57785,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>WebAssembly</name>
+    <name>::WebAssembly</name>
     <message>
         <source>Web Browser</source>
         <translation type="unfinished"></translation>

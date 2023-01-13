@@ -9,7 +9,7 @@ namespace ClearCase {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(ClearCase)
+    Q_DECLARE_TR_FUNCTIONS(::ClearCase)
 };
 
 } // namespace ClearCase

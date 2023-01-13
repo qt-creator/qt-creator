@@ -7,6 +7,7 @@
 #include "qmljscodestylesettingspage.h"
 #include "qmljsindenter.h"
 #include "qmljstoolsconstants.h"
+#include "qmljstoolstr.h"
 
 #include <qmljseditor/qmljseditorconstants.h>
 
@@ -39,7 +40,7 @@ Utils::Id QmlJSCodeStylePreferencesFactory::languageId()
 
 QString QmlJSCodeStylePreferencesFactory::displayName()
 {
-    return QLatin1String(Constants::QML_JS_SETTINGS_NAME);
+    return Tr::tr("Qt Quick");
 }
 
 TextEditor::ICodeStylePreferences *QmlJSCodeStylePreferencesFactory::createCodeStyle() const

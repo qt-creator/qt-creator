@@ -9,7 +9,7 @@ namespace CtfVisualizer {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(CtfVisualizer)
+    Q_DECLARE_TR_FUNCTIONS(::CtfVisualizer)
 };
 
 } // namespace CtfVisualizer

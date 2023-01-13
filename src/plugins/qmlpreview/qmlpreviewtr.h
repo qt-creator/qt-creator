@@ -9,7 +9,7 @@ namespace QmlPreview {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlPreview)
+    Q_DECLARE_TR_FUNCTIONS(::QmlPreview)
 };
 
 } // namespace QmlPreview

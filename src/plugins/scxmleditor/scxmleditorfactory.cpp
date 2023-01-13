@@ -19,7 +19,7 @@ using namespace ScxmlEditor::Internal;
 ScxmlEditorFactory::ScxmlEditorFactory()
 {
     setId(K_SCXML_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("ScxmlEditor", C_SCXMLEDITOR_DISPLAY_NAME));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", C_SCXMLEDITOR_DISPLAY_NAME));
     addMimeType(ProjectExplorer::Constants::SCXML_MIMETYPE);
 
     Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");

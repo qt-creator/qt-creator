@@ -9,7 +9,7 @@ namespace AutotoolsProjectManager {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager)
+    Q_DECLARE_TR_FUNCTIONS(::AutotoolsProjectManager)
 };
 
 } // namespace AutotoolsProjectManager

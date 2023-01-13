@@ -9,7 +9,7 @@ namespace Bookmarks {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Bookmarks)
+    Q_DECLARE_TR_FUNCTIONS(::Bookmarks)
 };
 
 } // namespace Bookmarks

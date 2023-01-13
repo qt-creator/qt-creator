@@ -9,7 +9,7 @@ namespace Cppcheck {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Cppcheck)
+    Q_DECLARE_TR_FUNCTIONS(::Cppcheck)
 };
 
 } // namespace Cppcheck

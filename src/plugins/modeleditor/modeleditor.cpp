@@ -13,8 +13,8 @@
 #include "modeldocument.h"
 #include "modeleditor_constants.h"
 #include "modeleditor_plugin.h"
+#include "modeleditortr.h"
 #include "modelsmanager.h"
-#include "openelementvisitor.h"
 #include "uicontroller.h"
 
 #include "qmt/controller/undocontroller.h"
@@ -861,8 +861,7 @@ void ModelEditor::showZoomIndicator()
 {
     int scale = int(d->diagramView->transform().map(QPointF(100, 100)).x() + 0.5);
     Utils::FadingIndicator::showText(d->diagramStack,
-                                     QCoreApplication::translate("ModelEditor",
-                                                                 "Zoom: %1%").arg(scale),
+                                     Tr::tr("Zoom: %1%").arg(scale),
                                      Utils::FadingIndicator::SmallText);
 }
 

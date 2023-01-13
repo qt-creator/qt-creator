@@ -78,7 +78,7 @@ BehaviorSettingsPage::BehaviorSettingsPage()
     setDisplayName(tr("Behavior"));
 
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("TextEditor", "Text Editor"));
+    setDisplayCategory(QCoreApplication::translate("::TextEditor", "Text Editor"));
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
 }
 

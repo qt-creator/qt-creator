@@ -9,7 +9,7 @@ namespace ResourceEditor {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(ResourceEditor)
+    Q_DECLARE_TR_FUNCTIONS(::ResourceEditor)
 };
 
 } // namespace ResourceEditor

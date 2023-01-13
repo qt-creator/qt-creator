@@ -619,9 +619,10 @@ public:
         m_toggleRightSidebarAction.setCheckable(true);
         m_toggleRightSidebarAction.setChecked(true);
         const auto toolTipText = [](bool checked) {
-            return checked
-                       ? QCoreApplication::translate("Core", Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
-                       : QCoreApplication::translate("Core", Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
+            return checked ? QCoreApplication::translate("::Core",
+                                                         Core::Constants::TR_HIDE_RIGHT_SIDEBAR)
+                           : QCoreApplication::translate("::Core",
+                                                         Core::Constants::TR_SHOW_RIGHT_SIDEBAR);
         };
         m_toggleRightSidebarAction.setText(toolTipText(false)); // always "Show Right Sidebar"
         m_toggleRightSidebarAction.setToolTip(toolTipText(m_toggleRightSidebarAction.isChecked()));

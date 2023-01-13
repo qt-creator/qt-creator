@@ -11,7 +11,7 @@ class ClangdClient;
 
 class ClangdMemoryUsageWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangCodeModel)
+    Q_DECLARE_TR_FUNCTIONS(::ClangCodeModel)
 public:
     explicit ClangdMemoryUsageWidget(ClangdClient *client);
     ~ClangdMemoryUsageWidget();

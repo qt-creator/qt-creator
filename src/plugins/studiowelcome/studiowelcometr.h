@@ -9,7 +9,7 @@ namespace StudioWelcome {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(StudioWelcome)
+    Q_DECLARE_TR_FUNCTIONS(::StudioWelcome)
 };
 
 } // namespace StudioWelcome

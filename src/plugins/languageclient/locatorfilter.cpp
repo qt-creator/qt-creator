@@ -6,6 +6,7 @@
 #include "documentsymbolcache.h"
 #include "languageclient_global.h"
 #include "languageclientmanager.h"
+#include "languageclienttr.h"
 #include "languageclientutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -29,7 +30,7 @@ namespace LanguageClient {
 DocumentLocatorFilter::DocumentLocatorFilter()
 {
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
-    setDisplayName(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDescription(
         tr("Matches all symbols from the current document, based on a language server."));
     setDefaultShortcutString(".");
@@ -232,7 +233,7 @@ WorkspaceLocatorFilter::WorkspaceLocatorFilter(const QVector<SymbolKind> &filter
     : m_filterKinds(filter)
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_ID);
-    setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);
@@ -344,7 +345,7 @@ WorkspaceClassLocatorFilter::WorkspaceClassLocatorFilter()
     : WorkspaceLocatorFilter({SymbolKind::Class, SymbolKind::Struct})
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_ID);
-    setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_CLASS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
 }
 
@@ -352,7 +353,7 @@ WorkspaceMethodLocatorFilter::WorkspaceMethodLocatorFilter()
     : WorkspaceLocatorFilter({SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor})
 {
     setId(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_ID);
-    setDisplayName(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME);
+    setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_WORKSPACE_METHOD_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
 }
 

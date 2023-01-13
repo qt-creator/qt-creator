@@ -104,7 +104,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     if (!fn.isEmpty()) {
         const QString location = withLocation || path == frame.object()
                 ? QString::fromLatin1(" in %2").arg(path) : QString();
-        return QCoreApplication::translate("Valgrind", "%1%2").arg(fn, location);
+        return Tr::tr("%1%2").arg(fn, location);
     }
     if (!path.isEmpty())
         return path;
@@ -113,8 +113,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
 
 QString ErrorListModel::errorLocation(const Error &error) const
 {
-    return QCoreApplication::translate("Valgrind", "in %1")
-        .arg(makeFrameName(findRelevantFrame(error), true));
+    return Tr::tr("in %1").arg(makeFrameName(findRelevantFrame(error), true));
 }
 
 void ErrorListModel::addError(const Error &error)

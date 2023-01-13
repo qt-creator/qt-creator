@@ -9,7 +9,7 @@ namespace Subversion {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Subversion)
+    Q_DECLARE_TR_FUNCTIONS(::Subversion)
 };
 
 } // namespace Subversion

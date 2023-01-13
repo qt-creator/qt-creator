@@ -86,11 +86,11 @@ const char CYCLE_MODE_SELECTOR_STYLE[] =
 const char TOGGLE_FULLSCREEN[]     = "QtCreator.ToggleFullScreen";
 const char THEMEOPTIONS[]          = "QtCreator.ThemeOptions";
 
-const char TR_SHOW_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Show Left Sidebar");
-const char TR_HIDE_LEFT_SIDEBAR[]  = QT_TRANSLATE_NOOP("Core", "Hide Left Sidebar");
+const char TR_SHOW_LEFT_SIDEBAR[] = QT_TRANSLATE_NOOP("::Core", "Show Left Sidebar");
+const char TR_HIDE_LEFT_SIDEBAR[] = QT_TRANSLATE_NOOP("::Core", "Hide Left Sidebar");
 
-const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Show Right Sidebar");
-const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("Core", "Hide Right Sidebar");
+const char TR_SHOW_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("::Core", "Show Right Sidebar");
+const char TR_HIDE_RIGHT_SIDEBAR[] = QT_TRANSLATE_NOOP("::Core", "Hide Right Sidebar");
 
 const char MINIMIZE_WINDOW[]       = "QtCreator.MinimizeWindow";
 const char ZOOM_WINDOW[]           = "QtCreator.ZoomWindow";
@@ -190,7 +190,7 @@ const char G_TOUCHBAR_NAVIGATION[] = "QtCreator.Group.TouchBar.Navigation";
 const char G_TOUCHBAR_OTHER[]      = "QtCreator.Group.TouchBar.Other";
 
 const char WIZARD_CATEGORY_QT[] = "R.Qt";
-const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("Core", "Qt");
+const char WIZARD_TR_CATEGORY_QT[] = QT_TRANSLATE_NOOP("::Core", "Qt");
 const char WIZARD_KIND_UNKNOWN[] = "unknown";
 const char WIZARD_KIND_PROJECT[] = "project";
 const char WIZARD_KIND_FILE[] = "file";

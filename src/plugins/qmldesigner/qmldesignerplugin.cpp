@@ -254,7 +254,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
                                           .toBool());
 
     Exception::setShowExceptionCallback([&](QStringView title, QStringView description) {
-        QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error")
+        QString composedTitle = title.isEmpty() ? QCoreApplication::translate("::QmlDesigner", "Error")
                                                 : title.toString();
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });

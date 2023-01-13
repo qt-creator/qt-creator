@@ -9,7 +9,7 @@ namespace QmlProfiler {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProfiler)
+    Q_DECLARE_TR_FUNCTIONS(::QmlProfiler)
 };
 
 } // namespace QmlProfiler
