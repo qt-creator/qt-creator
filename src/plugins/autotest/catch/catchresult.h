@@ -14,7 +14,6 @@ public:
     CatchResult(const QString &id, const QString &name, int depth);
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-    const ITestTreeItem *findTestTreeItem() const override;
 
 private:
     int sectionDepth() const { return m_sectionDepth; }

@@ -27,6 +27,8 @@ const QString TestResult::outputString(bool selected) const
 
 const ITestTreeItem *TestResult::findTestTreeItem() const
 {
+    if (m_hooks.findTestItem)
+        return m_hooks.findTestItem(*this);
     return nullptr;
 }
 

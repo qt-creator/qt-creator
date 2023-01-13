@@ -17,9 +17,7 @@ public:
                     const QString &testCaseName = {}, const QString &testSuiteName = {});
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-    const ITestTreeItem * findTestTreeItem() const override;
 private:
-    bool matches(const BoostTestTreeItem *item) const;
 
     Utils::FilePath m_projectFile;
     QString m_testCaseName;

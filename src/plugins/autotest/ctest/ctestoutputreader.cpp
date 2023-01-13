@@ -3,26 +3,45 @@
 
 #include "ctestoutputreader.h"
 
-#include "ctesttreeitem.h"
 #include "../autotesttr.h"
 #include "../testframeworkmanager.h"
 #include "../testresult.h"
+#include "../testtreeitem.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/qtcassert.h>
+#include <utils/treemodel.h>
 
 #include <QRegularExpression>
+
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
+static ResultHooks::FindTestItemHook findTestItemHook(const QString &testCaseName)
+{
+    return [=](const TestResult &result) -> ITestTreeItem * {
+        Q_UNUSED(result)
+        ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(
+                    CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+        QTC_ASSERT(testTool, return nullptr);
+        const ITestTreeItem *rootNode = testTool->rootNode();
+        if (!rootNode)
+            return nullptr;
+
+        return rootNode->findFirstLevelChild([&](const ITestTreeItem *item) {
+            return item && item->name() == testCaseName;
+        });
+    };
+}
+
 class CTestResult : public TestResult
 {
 public:
-    CTestResult(const QString &id, const QString &project, const QString &testCase)
-        : TestResult(id, project)
-        , m_testCase(testCase)
+    CTestResult(const QString &id, const QString &project, const QString &testCaseName)
+        : TestResult(id, project, {{}, findTestItemHook(testCaseName)})
     {}
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override
@@ -31,23 +50,6 @@ public:
             return false;
         return result() == ResultType::TestStart;
     }
-
-    const ITestTreeItem *findTestTreeItem() const override
-    {
-        ITestTool *testTool = TestFrameworkManager::testToolForBuildSystemId(
-                    CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-        QTC_ASSERT(testTool, return nullptr);
-        const ITestTreeItem *rootNode = testTool->rootNode();
-        if (!rootNode)
-            return nullptr;
-
-        return rootNode->findFirstLevelChild([this](const ITestTreeItem *item) {
-            return item && item->name() == m_testCase;
-        });
-    }
-
-private:
-    QString m_testCase;
 };
 
 CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,

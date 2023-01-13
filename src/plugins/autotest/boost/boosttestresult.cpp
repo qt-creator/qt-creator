@@ -11,6 +11,8 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -35,15 +37,65 @@ static ResultHooks::OutputStringHook outputStringHook(const QString &testCaseNam
     };
 }
 
+static bool matches(const FilePath &fileName, const FilePath &projectFile, const QString &testCaseName,
+             const QString &testSuiteName, const BoostTestTreeItem *item)
+{
+    // due to lacking information on the result side and a not fully appropriate tree we
+    // might end up here with a differing set of tests, but it's the best we can do
+    if (!item)
+        return false;
+    if (testCaseName.isEmpty()) // a top level module node
+        return item->proFile() == projectFile;
+    if (item->proFile() != projectFile)
+        return false;
+    if (!fileName.isEmpty() && fileName != item->filePath())
+        return false;
+
+    QString fullName = "::" + testCaseName;
+    fullName.prepend(testSuiteName.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
+                                              : testSuiteName);
+
+    BoostTestTreeItem::TestStates states = item->state();
+    if (states & BoostTestTreeItem::Templated) {
+        const QRegularExpression regex(
+            QRegularExpression::wildcardToRegularExpression(item->fullName() + "<*>"));
+        return regex.match(fullName).hasMatch();
+    } else if (states & BoostTestTreeItem::Parameterized) {
+        const QRegularExpression regex(
+            QRegularExpression::anchoredPattern(item->fullName() + "_\\d+"));
+        return regex.isValid() && regex.match(fullName).hasMatch();
+    }
+    return item->fullName() == fullName;
+}
+
+static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFile,
+                                                      const QString &testCaseName,
+                                                      const QString &testSuiteName)
+{
+    return [=](const TestResult &result) -> ITestTreeItem * {
+        const Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
+        ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+        QTC_ASSERT(framework, return nullptr);
+        const TestTreeItem *rootNode = framework->rootNode();
+        if (!rootNode)
+            return nullptr;
+
+        return rootNode->findAnyChild([&](const TreeItem *item) {
+            const auto testTreeItem = static_cast<const BoostTestTreeItem *>(item);
+            return testTreeItem && matches(result.fileName(), projectFile, testCaseName,
+                                           testSuiteName, testTreeItem);
+        });
+    };
+}
+
 BoostTestResult::BoostTestResult(const QString &id, const QString &name,
-                                 const Utils::FilePath &projectFile,
-                                 const QString &testCaseName, const QString &testSuiteName)
-    : TestResult(id, name, {outputStringHook(testCaseName)})
+                                 const FilePath &projectFile, const QString &testCaseName,
+                                 const QString &testSuiteName)
+    : TestResult(id, name, {outputStringHook(testCaseName),
+                            findTestItemHook(projectFile, testCaseName, testSuiteName)})
     , m_projectFile(projectFile)
     , m_testCaseName(testCaseName)
-    , m_testSuiteName(testSuiteName)
-{
-}
+    , m_testSuiteName(testSuiteName) {}
 
 bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
 {
@@ -73,50 +125,6 @@ bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsInter
             return boostOther->m_testSuiteName.isEmpty();
     }
     return false;
-}
-
-const ITestTreeItem *BoostTestResult::findTestTreeItem() const
-{
-    auto id = Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(BoostTest::Constants::FRAMEWORK_NAME);
-    ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
-    QTC_ASSERT(framework, return nullptr);
-    const TestTreeItem *rootNode = framework->rootNode();
-    if (!rootNode)
-        return nullptr;
-
-    return rootNode->findAnyChild([this](const Utils::TreeItem *item) {
-        return matches(static_cast<const BoostTestTreeItem *>(item));
-    });
-}
-
-bool BoostTestResult::matches(const BoostTestTreeItem *item) const
-{
-    // due to lacking information on the result side and a not fully appropriate tree we
-    // might end up here with a differing set of tests, but it's the best we can do
-    if (!item)
-        return false;
-    if (m_testCaseName.isEmpty()) // a top level module node
-        return item->proFile() == m_projectFile;
-    if (item->proFile() != m_projectFile)
-        return false;
-    if (!fileName().isEmpty() && fileName() != item->filePath())
-        return false;
-
-    QString fullName = "::" + m_testCaseName;
-    fullName.prepend(m_testSuiteName.isEmpty() ? QString(BoostTest::Constants::BOOST_MASTER_SUITE)
-                                           : m_testSuiteName);
-
-    BoostTestTreeItem::TestStates states = item->state();
-    if (states & BoostTestTreeItem::Templated) {
-        const QRegularExpression regex(
-            QRegularExpression::wildcardToRegularExpression(item->fullName() + "<*>"));
-        return regex.match(fullName).hasMatch();
-    } else if (states & BoostTestTreeItem::Parameterized) {
-        const QRegularExpression regex(
-            QRegularExpression::anchoredPattern(item->fullName() + "_\\d+"));
-        return regex.isValid() && regex.match(fullName).hasMatch();
-    }
-    return item->fullName() == fullName;
 }
 
 } // namespace Internal

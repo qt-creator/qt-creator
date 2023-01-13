@@ -63,7 +63,9 @@ class TestResult;
 struct ResultHooks
 {
     using OutputStringHook = std::function<QString(const TestResult &, bool)>;
+    using FindTestItemHook = std::function<ITestTreeItem *(const TestResult &)>;
     OutputStringHook outputString;
+    FindTestItemHook findTestItem;
 };
 
 class TestResult
@@ -74,7 +76,7 @@ public:
     virtual ~TestResult() {}
 
     const QString outputString(bool selected) const;
-    virtual const ITestTreeItem *findTestTreeItem() const;
+    const ITestTreeItem *findTestTreeItem() const;
 
     QString id() const { return m_id; }
     QString name() const { return m_name; }
