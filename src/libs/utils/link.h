@@ -46,6 +46,9 @@ public:
     }
     bool operator!=(const Link &other) const { return !(*this == other); }
 
+    friend size_t qHash(const Link &l, uint seed = 0)
+    { return qHashMulti(seed, l.targetFilePath, l.targetLine, l.targetColumn); }
+
     int linkTextStart = -1;
     int linkTextEnd = -1;
 
@@ -53,8 +56,6 @@ public:
     int targetLine;
     int targetColumn;
 };
-
-QTCREATOR_UTILS_EXPORT size_t qHash(const Link &l);
 
 using LinkHandler = std::function<void(const Link &)>;
 using Links = QList<Link>;

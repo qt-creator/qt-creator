@@ -41,11 +41,4 @@ Link Link::fromFilePath(const FilePath &filePath, bool canContainLineNumber, QSt
     return Link{filePath.withNewPath(fileName.left(postfixPos)), lineColumn.line, lineColumn.column};
 }
 
-size_t qHash(const Link &l)
-{
-    QString s = l.targetFilePath.toString();
-    return qHash(s.append(':').append(QString::number(l.targetLine)).append(':')
-                 .append(QString::number(l.targetColumn)));
-}
-
 } // namespace Utils
