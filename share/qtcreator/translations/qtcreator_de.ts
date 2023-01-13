@@ -7294,11 +7294,11 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Stash &amp;&amp; &amp;Pop</source>
-        <translation type="unfinished"></translation>
+        <translation>Stash &amp;&amp; &amp;Pop</translation>
     </message>
     <message>
         <source>&amp;Discard</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Verwerfen</translation>
     </message>
     <message>
         <source>Discard (reset) local changes and execute %1.</source>
@@ -7330,15 +7330,15 @@ Möchten Sie den Branch &quot;%1&quot; im entfernten Repository erzeugen und ihn
     </message>
     <message>
         <source>Di&amp;ff Against %1</source>
-        <translation>Mit %1 &amp;vergleichen</translation>
+        <translation>Di&amp;ff gegen %1</translation>
     </message>
     <message>
         <source>Di&amp;ff %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Di&amp;ff für %1</translation>
     </message>
     <message>
         <source>Diff &amp;Against Saved %1</source>
-        <translation>Mit gespeichertem %1 &amp;vergleichen</translation>
+        <translation>Di&amp;ff gegen gespeicherten %1</translation>
     </message>
     <message>
         <source>&amp;Save for Diff</source>
@@ -7456,23 +7456,23 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>&lt;None&gt;</source>
-        <translation type="unfinished">&lt;Kein&gt;</translation>
+        <translation>&lt;Kein&gt;</translation>
     </message>
     <message>
         <source>&lt;resolving&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;bestimme&gt;</translation>
     </message>
     <message>
         <source>Filter commits by message or content.</source>
-        <translation type="unfinished"></translation>
+        <translation>Commits nach Nachricht oder Inhalt filtern.</translation>
     </message>
     <message>
         <source>Show Date</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum anzeigen</translation>
     </message>
     <message>
         <source>Show date instead of sequence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datum statt Abfolge anzeigen.</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -7489,9 +7489,11 @@ Jetzt Commit ausführen?</translation>
     <message numerus="yes">
         <source>Cannot commit %n files
 </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Commit schlug für eine Datei fehl
+</numerusform>
+            <numerusform>Commit schlug für %n Dateien fehl
+</numerusform>
         </translation>
     </message>
     <message>
@@ -7540,31 +7542,31 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>Cherr&amp;y-Pick %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Cherr&amp;y-Pick %1</translation>
     </message>
     <message>
         <source>Re&amp;vert %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 rückgängig machen (Re&amp;vert)</translation>
     </message>
     <message>
         <source>C&amp;heckout %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ausc&amp;hecken</translation>
     </message>
     <message>
         <source>&amp;Interactive Rebase from %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Interaktives Rebase von %1...</translation>
     </message>
     <message>
         <source>&amp;Log for %1</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Log für %1</translation>
     </message>
     <message>
         <source>Sh&amp;ow file &quot;%1&quot; on revision %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei &quot;%1&quot; in Revisi&amp;on %2 anzeigen</translation>
     </message>
     <message>
         <source>Add &amp;Tag for %1...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Tag für %1 hinzufügen...</translation>
     </message>
     <message>
         <source>&lt;No repository&gt;</source>
@@ -7600,7 +7602,7 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;head&quot;&gt;Show HEAD&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;head&quot;&gt;HEAD anzeigen&lt;/a&gt;</translation>
     </message>
     <message>
         <source>Commit Information</source>
@@ -8437,27 +8439,27 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Filter by message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Nachricht filtern</translation>
     </message>
     <message>
         <source>Filter log entries by text in the commit message.</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Einträge nach Nachrichtentext filtern.</translation>
     </message>
     <message>
         <source>Filter by content</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Inhalt filtern</translation>
     </message>
     <message>
         <source>Filter log entries by added or removed string.</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Einträge nach hinzugefügtem oder entferntem Text filtern.</translation>
     </message>
     <message>
         <source>Filter by author</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Autor filtern</translation>
     </message>
     <message>
         <source>Filter log entries by author.</source>
-        <translation type="unfinished"></translation>
+        <translation>Log-Einträge nach Autor filtern.</translation>
     </message>
     <message>
         <source>&amp;Blame %1</source>
@@ -8564,7 +8566,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Remove &amp;Stale Branches</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Veraltete Branches entfernen (Prune)</translation>
     </message>
     <message>
         <source>Manage &amp;Remotes...</source>
@@ -8592,7 +8594,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Reflo&amp;g</source>
-        <translation type="unfinished"></translation>
+        <translation>Reflo&amp;g</translation>
     </message>
     <message>
         <source>Re&amp;set</source>
@@ -8600,19 +8602,19 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>&amp;Merge &quot;%1&quot; into &quot;%2&quot; (Fast-Forward)</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Merge &quot;%1&quot; in &quot;%2&quot; (Fast-Forward)</translation>
     </message>
     <message>
         <source>Merge &quot;%1&quot; into &quot;%2&quot; (No &amp;Fast-Forward)</source>
-        <translation type="unfinished"></translation>
+        <translation>Merge &quot;%1&quot; in &quot;%2&quot; (Kein &amp;Fast-Forward)</translation>
     </message>
     <message>
         <source>&amp;Merge &quot;%1&quot; into &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Merge &quot;%1&quot; in &quot;%2&quot;</translation>
     </message>
     <message>
         <source>&amp;Rebase &quot;%1&quot; on &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rebase &quot;%1&quot; auf &quot;%2&quot;</translation>
     </message>
     <message>
         <source>&amp;Track</source>
@@ -8644,7 +8646,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Reset branch &quot;%1&quot; to &quot;%2&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Branch &quot;%1&quot; auf &quot;%2&quot; zurücksetzen?</translation>
     </message>
     <message>
         <source>Git Branches</source>
@@ -8672,11 +8674,11 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>&amp;Copy &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; &amp;Kopieren</translation>
+        <translation>&quot;%1&quot; &amp;kopieren</translation>
     </message>
     <message>
         <source>&amp;Describe Change %1</source>
-        <translation>Änderung %1 &amp;beschreiben</translation>
+        <translation>%1 beschreiben (&amp;Describe)</translation>
     </message>
     <message>
         <source>Git Settings</source>
@@ -8684,7 +8686,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Triggers a Git version control operation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Führt eine Aktion des Git-Versionskontrollsystems aus.</translation>
     </message>
     <message>
         <source>&amp;Git</source>
@@ -8881,107 +8883,107 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Diff Current File</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Diff für aktuelle Datei</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished">Diff für &quot;%1&quot;</translation>
+        <translation>Diff für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Current File</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log für aktuelle Datei</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished">Log für &quot;%1&quot;</translation>
+        <translation>Log für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Blame Current File</source>
         <comment>Avoid translating &quot;Blame&quot;</comment>
-        <translation type="unfinished">Blame für Datei</translation>
+        <translation>Blame für aktuelle Datei</translation>
     </message>
     <message>
         <source>Blame for &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Blame&quot;</comment>
-        <translation type="unfinished">Blame für &quot;%1&quot;</translation>
+        <translation>Blame für &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Diff Current Project</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished">Diff für Projekt</translation>
+        <translation>Diff für aktuelles Projekt</translation>
     </message>
     <message>
         <source>Diff Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished">Diff für Projekt &quot;%1&quot;</translation>
+        <translation>Diff für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished">Log für Projekt</translation>
+        <translation>Log für Projekt</translation>
     </message>
     <message>
         <source>Log Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished">Log für Projekt &quot;%1&quot;</translation>
+        <translation>Log für Projekt &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished">Projekt bereinigen...</translation>
+        <translation>Projekt bereinigen...</translation>
     </message>
     <message>
         <source>Clean Project &quot;%1&quot;...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished">Projekt &quot;%1&quot; bereinigen...</translation>
+        <translation>Projekt &quot;%1&quot; bereinigen...</translation>
     </message>
     <message>
         <source>Amend Last Commit...</source>
         <comment>Avoid translating &quot;Commit&quot;</comment>
-        <translation type="unfinished">Letzten Commit ändern...</translation>
+        <translation>Letzten Commit ändern (Amend)...</translation>
     </message>
     <message>
         <source>Fixup Previous Commit...</source>
         <comment>Avoid translating &quot;Commit&quot;</comment>
-        <translation type="unfinished">Vorangehenden Commit verbessern...</translation>
+        <translation>Vorangehenden Commit verbessern (Fixup)...</translation>
     </message>
     <message>
         <source>Interactive Rebase...</source>
         <comment>Avoid translating &quot;Rebase&quot;</comment>
-        <translation type="unfinished">Interaktives Rebase...</translation>
+        <translation>Interaktives Rebase...</translation>
     </message>
     <message>
         <source>Abort Merge</source>
         <comment>Avoid translating &quot;Merge&quot;</comment>
-        <translation type="unfinished">Merge abbrechen</translation>
+        <translation>Merge abbrechen</translation>
     </message>
     <message>
         <source>Abort Rebase</source>
         <comment>Avoid translating &quot;Rebase&quot;</comment>
-        <translation type="unfinished">Rebase abbrechen</translation>
+        <translation>Rebase abbrechen</translation>
     </message>
     <message>
         <source>Abort Cherry Pick</source>
         <comment>Avoid translating &quot;Cherry Pick&quot;</comment>
-        <translation type="unfinished">Cherry-Pick abbrechen</translation>
+        <translation>Cherry-Pick abbrechen</translation>
     </message>
     <message>
         <source>Abort Revert</source>
         <comment>Avoid translating &quot;Revert&quot;</comment>
-        <translation type="unfinished">Revert abbrechen</translation>
+        <translation>Revert abbrechen</translation>
     </message>
     <message>
         <source>Stash Unstaged Files</source>
         <comment>Avoid translating &quot;Stash&quot;</comment>
-        <translation type="unfinished">Stash nicht bereitgestellter Dateien (unstaged)</translation>
+        <translation>Stash nicht bereitgestellter Dateien (unstaged)</translation>
     </message>
     <message>
         <source>Stash Pop</source>
         <comment>Avoid translating &quot;Stash&quot;</comment>
-        <translation type="unfinished">Stash Pop</translation>
+        <translation>Stash Pop</translation>
     </message>
     <message>
         <source>Git &amp;Tools</source>
@@ -17786,7 +17788,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>&amp;Describe Change %1</source>
-        <translation>Änderung %1 &amp;beschreiben</translation>
+        <translation>%1 beschreiben (&amp;Describe)</translation>
     </message>
     <message>
         <source>Send to CodePaster...</source>
