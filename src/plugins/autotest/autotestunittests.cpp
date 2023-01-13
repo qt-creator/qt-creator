@@ -277,12 +277,12 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 
 void AutoTestUnitTests::testCodeParserBoostTest_data()
 {
-    QTest::addColumn<QString>("projectFilePath");
+    QTest::addColumn<FilePath>("projectFilePath");
     QTest::addColumn<QString>("extension");
     QTest::newRow("simpleBoostTest")
-        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.pro") << QString(".pro");
+        << m_tmpDir->filePath() / "simple_boost/simple_boost.pro" << QString(".pro");
     QTest::newRow("simpleBoostTestQbs")
-        << QString(m_tmpDir->path() + "/simple_boost/simple_boost.qbs") << QString(".qbs");
+        << m_tmpDir->filePath() / "simple_boost/simple_boost.qbs" << QString(".qbs");
 }
 
 static int executeScenario(const QString &scenario)
