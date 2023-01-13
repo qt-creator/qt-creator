@@ -8,12 +8,14 @@
 #include "axiviontr.h"
 
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QFormLayout>
 #include <QLabel>
 #include <QScrollArea>
 #include <QStackedWidget>
 #include <QTextBrowser>
+#include <QToolButton>
 
 namespace Axivion::Internal {
 
@@ -121,6 +123,14 @@ QWidget *AxivionOutputPane::outputWidget(QWidget *parent)
 QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
 {
     QList<QWidget *> buttons;
+    auto showDashboard = new QToolButton(m_outputWidget);
+    showDashboard->setIcon(Utils::Icons::ONLINE_TOOLBAR.icon());
+    showDashboard->setToolTip(Tr::tr("Show dashboard"));
+    connect(showDashboard, &QToolButton::clicked, this, [this]{
+        QTC_ASSERT(m_outputWidget, return);
+        m_outputWidget->setCurrentIndex(0);
+    });
+    buttons.append(showDashboard);
     return buttons;
 }
 
