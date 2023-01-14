@@ -50,7 +50,7 @@ signals:
     void testRunStarted();
     void testRunFinished();
     void requestStopTestRun();
-    void testResultReady(const TestResultPtr &result);
+    void testResultReady(const TestResult &result);
     void hadDisabledTests(int disabled);
     void reportSummary(const QString &id, const QHash<ResultType, int> &summary);
 
@@ -76,8 +76,8 @@ private:
     bool postponeTestRunWithEmptyExecutable(ProjectExplorer::Project *project);
     void onBuildSystemUpdated();
 
-    QFutureWatcher<TestResultPtr> m_futureWatcher;
-    QFutureInterface<TestResultPtr> *m_fakeFutureInterface = nullptr;
+    QFutureWatcher<TestResult> m_futureWatcher;
+    QFutureInterface<TestResult> *m_fakeFutureInterface = nullptr;
     QList<ITestConfiguration *> m_selectedTests;
     bool m_executingTests = false;
     bool m_canceled = false;

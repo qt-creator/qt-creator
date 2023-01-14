@@ -15,7 +15,7 @@
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *GTestConfiguration::createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+TestOutputReader *GTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
                                                          Utils::QtcProcess *app) const
 {
     return new GTestOutputReader(fi, app, buildDirectory(), projectFile());

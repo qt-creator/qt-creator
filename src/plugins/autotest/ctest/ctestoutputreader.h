@@ -13,12 +13,12 @@ namespace Internal {
 class CTestOutputReader final : public Autotest::TestOutputReader
 {
 public:
-    CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+    CTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory);
 
 protected:
     void processOutputLine(const QByteArray &outputLineWithNewLine) final;
-    TestResultPtr createDefaultResult() const final;
+    TestResult createDefaultResult() const final;
 private:
     void sendCompleteInformation();
     int m_currentTestNo = -1;

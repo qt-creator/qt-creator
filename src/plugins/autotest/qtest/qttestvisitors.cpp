@@ -189,7 +189,7 @@ QString TestDataFunctionVisitor::extractNameFromAST(StringLiteralAST *ast, bool 
     auto token = m_currentDoc->translationUnit()->tokenAt(ast->literal_token);
     if (!token.isStringLiteral()) {
         *ok = false;
-        return QString();
+        return {};
     }
     *ok = true;
     QString name = QString::fromUtf8(token.spell());

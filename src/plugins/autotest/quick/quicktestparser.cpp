@@ -121,7 +121,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
     // check for using quick_test_main() directly
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
     if (document.isNull())
-        return QString();
+        return {};
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
     QuickTestAstVisitor astVisitor(document, m_cppSnapshot);
@@ -202,7 +202,7 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Ut
 static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
                                              const Document::Ptr &qmlJSDoc,
                                              ITestFramework *framework,
-                                             const Utils::FilePath &proFile = Utils::FilePath(),
+                                             const Utils::FilePath &proFile = {},
                                              bool checkForDerivedTest = false)
 {
     if (qmlJSDoc.isNull())

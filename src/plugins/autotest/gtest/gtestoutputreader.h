@@ -11,18 +11,18 @@ namespace Internal {
 class GTestOutputReader : public TestOutputReader
 {
 public:
-    GTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+    GTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                       Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
                       const Utils::FilePath &projectFile);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
     void processStdError(const QByteArray &outputLine) override;
-    TestResultPtr createDefaultResult() const override;
+    TestResult createDefaultResult() const override;
 
 private:
     void setCurrentTestCase(const QString &testCase);
     void setCurrentTestSuite(const QString &testSuite);
-    void handleDescriptionAndReportResult(TestResultPtr testResult);
+    void handleDescriptionAndReportResult(const TestResult &testResult);
 
     Utils::FilePath m_projectFile;
     QString m_currentTestSuite;

@@ -36,9 +36,7 @@ QString CTestTool::displayName() const
 
 ITestTreeItem *CTestTool::createRootNode()
 {
-    return new CTestTreeItem(this,
-                             displayName(),
-                             Utils::FilePath(), ITestTreeItem::Root);
+    return new CTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 } // namespace Internal

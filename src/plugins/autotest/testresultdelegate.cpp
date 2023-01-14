@@ -50,9 +50,9 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     painter->fillRect(opt.rect, background);
     painter->setPen(foreground);
 
-    LayoutPositions positions(opt, resultFilterModel);
-    const TestResult *testResult = resultFilterModel->testResult(index);
-    QTC_ASSERT(testResult, painter->restore();return);
+    const LayoutPositions positions(opt, resultFilterModel);
+    const TestResult testResult = resultFilterModel->testResult(index);
+    QTC_ASSERT(testResult.isValid(), painter->restore(); return);
 
     const QWidget *widget = dynamic_cast<const QWidget*>(painter->device());
     QWindow *window = widget ? widget->window()->windowHandle() : nullptr;
@@ -69,15 +69,15 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
     } else {
         QPen tmp = painter->pen();
-        if (testResult->result() == ResultType::TestStart)
+        if (testResult.result() == ResultType::TestStart)
             painter->setPen(opt.palette.mid().color());
         else
-            painter->setPen(TestResult::colorForType(testResult->result()));
+            painter->setPen(TestResult::colorForType(testResult.result()));
         painter->drawText(positions.typeAreaLeft(), positions.top() + fm.ascent(), typeStr);
         painter->setPen(tmp);
     }
 
-    QString output = testResult->outputString(selected);
+    QString output = testResult.outputString(selected);
 
     if (selected) {
         limitTextOutput(output);
@@ -92,12 +92,12 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
                           fm.elidedText(output.left(2000), Qt::ElideRight, positions.textAreaWidth()));
     }
 
-    const QString file = testResult->fileName().fileName();
+    const QString file = testResult.fileName().fileName();
     painter->setClipRect(positions.fileArea());
     painter->drawText(positions.fileAreaLeft(), positions.top() + fm.ascent(), file);
 
-    if (testResult->line()) {
-        QString line = QString::number(testResult->line());
+    if (testResult.line()) {
+        QString line = QString::number(testResult.line());
         painter->setClipRect(positions.lineArea());
         painter->drawText(positions.lineAreaLeft(), positions.top() + fm.ascent(), line);
     }
@@ -129,9 +129,9 @@ QSize TestResultDelegate::sizeHint(const QStyleOptionViewItem &option, const QMo
     s.setWidth(opt.rect.width() - indentation);
 
     if (selected) {
-        const TestResult *testResult = resultFilterModel->testResult(index);
-        QTC_ASSERT(testResult, return QSize());
-        QString output = testResult->outputString(selected);
+        const TestResult testResult = resultFilterModel->testResult(index);
+        QTC_ASSERT(testResult.isValid(), return {});
+        QString output = testResult.outputString(selected);
         limitTextOutput(output);
         output.replace('\n', QChar::LineSeparator);
         recalculateTextLayout(index, output, opt.font, positions.textAreaWidth() - indentation);

@@ -22,12 +22,12 @@ public:
         PlainText
     };
 
-    QtTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+    QtTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                        Utils::QtcProcess *testApplication, const Utils::FilePath &buildDirectory,
                        const Utils::FilePath &projectFile, OutputMode mode, TestType type);
 protected:
     void processOutputLine(const QByteArray &outputLine) override;
-    TestResultPtr createDefaultResult() const override;
+    TestResult createDefaultResult() const override;
 
 private:
     void processXMLOutput(const QByteArray &outputLine);

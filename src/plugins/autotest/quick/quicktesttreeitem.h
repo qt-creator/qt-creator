@@ -11,10 +11,8 @@ namespace Internal {
 class QuickTestTreeItem : public TestTreeItem
 {
 public:
-    explicit QuickTestTreeItem(ITestFramework *testFramework,
-                               const QString &name = QString(),
-                               const Utils::FilePath &filePath = Utils::FilePath(),
-                               Type type = Root)
+    explicit QuickTestTreeItem(ITestFramework *testFramework, const QString &name = {},
+                               const Utils::FilePath &filePath = {}, Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type)
     {}
 

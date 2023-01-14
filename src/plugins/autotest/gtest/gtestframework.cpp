@@ -25,10 +25,7 @@ ITestParser *GTestFramework::createTestParser()
 
 ITestTreeItem *GTestFramework::createRootNode()
 {
-    return new GTestTreeItem(
-                this,
-                displayName(),
-                Utils::FilePath(), ITestTreeItem::Root);
+    return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *GTestFramework::name() const

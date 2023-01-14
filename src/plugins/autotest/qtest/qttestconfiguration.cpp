@@ -26,7 +26,7 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
     });
 }
 
-TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
                                                            Utils::QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());

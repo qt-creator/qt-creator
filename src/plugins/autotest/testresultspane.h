@@ -72,7 +72,7 @@ public:
     void goToNext() override;
     void goToPrev() override;
 
-    void addTestResult(const TestResultPtr &result);
+    void addTestResult(const TestResult &result);
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
     void showTestResult(const QModelIndex &index);
 private:
@@ -92,11 +92,11 @@ private:
     void onTestRunFinished();
     void onScrollBarRangeChanged(int, int max);
     void onCustomContextMenuRequested(const QPoint &pos);
-    const TestResult *getTestResult(const QModelIndex &idx);
-    void onCopyItemTriggered(const TestResult *result);
+    TestResult getTestResult(const QModelIndex &idx);
+    void onCopyItemTriggered(const TestResult &result);
     void onCopyWholeTriggered();
     void onSaveWholeTriggered();
-    void onRunThisTestTriggered(TestRunMode runMode, const TestResult *result);
+    void onRunThisTestTriggered(TestRunMode runMode, const TestResult &result);
     void toggleOutputStyle();
     QString getWholeOutput(const QModelIndex &parent = QModelIndex());
 

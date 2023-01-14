@@ -30,7 +30,7 @@ GTestSettings::GTestSettings()
 
     registerAspect(&seed);
     seed.setSettingsKey("Seed");
-    seed.setSpecialValueText(QString());
+    seed.setSpecialValueText({});
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));

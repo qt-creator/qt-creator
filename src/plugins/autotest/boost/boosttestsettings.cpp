@@ -120,7 +120,7 @@ QString BoostTestSettings::logLevelToOption(const LogLevel logLevel)
     case LogLevel::Nothing: return QString("nothing");
     case LogLevel::Warning: return QString("warning");
     }
-    return QString();
+    return {};
 }
 
 QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
@@ -131,7 +131,7 @@ QString BoostTestSettings::reportLevelToOption(const ReportLevel reportLevel)
     case ReportLevel::Detailed: return QString("detailed");
     case ReportLevel::No: return QString("no");
     }
-    return QString();
+    return {};
 }
 
 } // namespace Internal

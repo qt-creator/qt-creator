@@ -52,7 +52,7 @@ public:
     {}
 };
 
-CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                                      Utils::QtcProcess *testApplication,
                                      const Utils::FilePath &buildDirectory)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
@@ -91,9 +91,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
         m_project = match.captured(1);
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::TestStart);
-        testResult->setDescription(Tr::tr("Running tests for %1").arg(m_project));
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::TestStart);
+        testResult.setDescription(Tr::tr("Running tests for %1").arg(m_project));
         reportResult(testResult);
     } else if (ExactMatch match = testCase1.match(line)) {
         int current = match.captured("current").toInt();
@@ -125,9 +125,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summary.match(line)) {
         if (!m_testName.isEmpty())
             sendCompleteInformation();
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::MessageInfo);
-        testResult->setDescription(match.captured());
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::MessageInfo);
+        testResult.setDescription(match.captured());
         reportResult(testResult);
         int failed = match.captured(1).toInt();
         int testCount = match.captured(2).toInt();
@@ -136,9 +136,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     } else if (ExactMatch match = summaryTime.match(line)) {
         if (!m_testName.isEmpty()) // possible?
             sendCompleteInformation();
-        TestResultPtr testResult = createDefaultResult();
-        testResult->setResult(ResultType::TestEnd);
-        testResult->setDescription(match.captured());
+        TestResult testResult = createDefaultResult();
+        testResult.setResult(ResultType::TestEnd);
+        testResult.setDescription(match.captured());
         reportResult(testResult);
     } else if (ExactMatch match = testCrash.match(line)) {
         m_description = match.captured();
@@ -156,9 +156,9 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     }
 }
 
-TestResultPtr CTestOutputReader::createDefaultResult() const
+TestResult CTestOutputReader::createDefaultResult() const
 {
-    return TestResultPtr(new CTestResult(id(), m_project, m_testName));
+    return CTestResult(id(), m_project, m_testName);
 }
 
 void CTestOutputReader::sendCompleteInformation()
@@ -168,10 +168,9 @@ void CTestOutputReader::sendCompleteInformation()
         QTC_CHECK(m_currentTestNo == -1 && m_testName.isEmpty());
         return;
     }
-
-    TestResultPtr testResult = createDefaultResult();
-    testResult->setResult(m_result);
-    testResult->setDescription(m_description);
+    TestResult testResult = createDefaultResult();
+    testResult.setResult(m_result);
+    testResult.setDescription(m_description);
     reportResult(testResult);
     m_testName.clear();
     m_description.clear();

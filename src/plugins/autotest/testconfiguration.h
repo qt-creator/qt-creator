@@ -26,8 +26,6 @@ class TestOutputReader;
 class TestResult;
 enum class TestRunMode;
 
-using TestResultPtr = QSharedPointer<TestResult>;
-
 class ITestConfiguration
 {
 public:
@@ -41,7 +39,7 @@ public:
     bool hasExecutable() const;
     Utils::FilePath executableFilePath() const;
 
-    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResult> &fi,
                                                  Utils::QtcProcess *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 

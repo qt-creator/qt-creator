@@ -25,7 +25,7 @@ Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath 
     return filePath.isReadableFile() ? filePath : Utils::FilePath();
 }
 
-TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
+TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                                    Utils::QtcProcess *testApplication,
                                    const Utils::FilePath &buildDirectory)
     : m_futureInterface(futureInterface)
@@ -53,7 +53,7 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResultPtr> &future
 
 TestOutputReader::~TestOutputReader()
 {
-    if (m_sanitizerResult)
+    if (m_sanitizerResult.isValid())
         sendAndResetSanitizerResult();
 }
 
@@ -71,17 +71,17 @@ void TestOutputReader::processStdError(const QByteArray &outputLine)
 
 void TestOutputReader::reportCrash()
 {
-    TestResultPtr result = createDefaultResult();
-    result->setDescription(Tr::tr("Test executable crashed."));
-    result->setResult(ResultType::MessageFatal);
+    TestResult result = createDefaultResult();
+    result.setDescription(Tr::tr("Test executable crashed."));
+    result.setResult(ResultType::MessageFatal);
     m_futureInterface.reportResult(result);
 }
 
 void TestOutputReader::createAndReportResult(const QString &message, ResultType type)
 {
-    TestResultPtr result = createDefaultResult();
-    result->setDescription(message);
-    result->setResult(type);
+    TestResult result = createDefaultResult();
+    result.setDescription(message);
+    result.setResult(type);
     reportResult(result);
 }
 
@@ -105,9 +105,9 @@ QString TestOutputReader::removeCommandlineColors(const QString &original)
     return result;
 }
 
-void TestOutputReader::reportResult(const TestResultPtr &result)
+void TestOutputReader::reportResult(const TestResult &result)
 {
-    if (m_sanitizerResult)
+    if (m_sanitizerResult.isValid())
         sendAndResetSanitizerResult();
     m_futureInterface.reportResult(result);
     m_hadValidOutput = true;
@@ -141,7 +141,7 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
             mode = SanitizerOutputMode::Ubsan;
     }
     if (mode != SanitizerOutputMode::None) {
-        if (m_sanitizerResult) // we have a result that has not been reported yet
+        if (m_sanitizerResult.isValid()) // we have a result that has not been reported yet
             sendAndResetSanitizerResult();
 
         m_sanitizerOutputMode = mode;
@@ -151,32 +151,32 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan) {
             const Utils::FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
             // path may be empty if not existing - so, provide at least what we have
-            m_sanitizerResult->setFileName(
+            m_sanitizerResult.setFileName(
                 path.exists() ? path : Utils::FilePath::fromString(match.captured(1)));
-            m_sanitizerResult->setLine(match.captured(2).toInt());
+            m_sanitizerResult.setLine(match.captured(2).toInt());
         }
     }
 }
 
 void TestOutputReader::sendAndResetSanitizerResult()
 {
-    QTC_ASSERT(m_sanitizerResult, return);
-    m_sanitizerResult->setDescription(m_sanitizerLines.join('\n'));
-    m_sanitizerResult->setResult(m_sanitizerOutputMode == SanitizerOutputMode::Ubsan
-                                 ? ResultType::Fail : ResultType::MessageFatal);
+    QTC_ASSERT(m_sanitizerResult.isValid(), return);
+    m_sanitizerResult.setDescription(m_sanitizerLines.join('\n'));
+    m_sanitizerResult.setResult(m_sanitizerOutputMode == SanitizerOutputMode::Ubsan
+                                ? ResultType::Fail : ResultType::MessageFatal);
 
-    if (m_sanitizerResult->fileName().isEmpty()) {
-        const ITestTreeItem *testItem = m_sanitizerResult->findTestTreeItem();
+    if (m_sanitizerResult.fileName().isEmpty()) {
+        const ITestTreeItem *testItem = m_sanitizerResult.findTestTreeItem();
         if (testItem && testItem->line()) {
-            m_sanitizerResult->setFileName(testItem->filePath());
-            m_sanitizerResult->setLine(testItem->line());
+            m_sanitizerResult.setFileName(testItem->filePath());
+            m_sanitizerResult.setLine(testItem->line());
         }
     }
 
     m_futureInterface.reportResult(m_sanitizerResult);
     m_hadValidOutput = true;
     m_sanitizerLines.clear();
-    m_sanitizerResult.reset();
+    m_sanitizerResult = {};
     m_sanitizerOutputMode = SanitizerOutputMode::None;
 }
 

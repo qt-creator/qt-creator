@@ -13,7 +13,7 @@ CTestConfiguration::CTestConfiguration(ITestBase *testBase)
     setDisplayName("CTest");
 }
 
-TestOutputReader *CTestConfiguration::createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+TestOutputReader *CTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
                                                          Utils::QtcProcess *app) const
 {
     return new CTestOutputReader(fi, app, workingDirectory());

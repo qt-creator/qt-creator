@@ -15,6 +15,11 @@ TestResult::TestResult(const QString &id, const QString &name, const ResultHooks
 {
 }
 
+bool TestResult::isValid() const
+{
+    return !m_id.isEmpty();
+}
+
 const QString TestResult::outputString(bool selected) const
 {
     if (m_hooks.outputString)
@@ -113,10 +118,10 @@ QString TestResult::resultToString(const ResultType type)
         return QString("BXFAIL");
     case ResultType::MessageLocation:
     case ResultType::Application:
-        return QString();
+        return {};
     default:
         if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
-            return QString();
+            return {};
         return QString("UNKNOWN");
     }
 }
@@ -156,34 +161,30 @@ QColor TestResult::colorForType(const ResultType type)
     }
 }
 
-bool TestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
+bool TestResult::isDirectParentOf(const TestResult &other, bool *needsIntermediate) const
 {
-    QTC_ASSERT(other, return false);
-    const bool ret = !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+    QTC_ASSERT(other.isValid(), return false);
+    const bool ret = !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
     if (!ret)
         return false;
     if (m_hooks.directParent)
-        return m_hooks.directParent(*this, *other, needsIntermediate);
+        return m_hooks.directParent(*this, other, needsIntermediate);
     return true;
 }
 
-bool TestResult::isIntermediateFor(const TestResult *other) const
+bool TestResult::isIntermediateFor(const TestResult &other) const
 {
-    QTC_ASSERT(other, return false);
+    QTC_ASSERT(other.isValid(), return false);
     if (m_hooks.intermediate)
-        return m_hooks.intermediate(*this, *other);
-    return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+        return m_hooks.intermediate(*this, other);
+    return !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
 }
 
-TestResult *TestResult::createIntermediateResult() const
+TestResult TestResult::intermediateResult() const
 {
-    if (m_hooks.createResult) {
-        TestResult *newResult = new TestResult;
-        *newResult = m_hooks.createResult(*this);
-        return newResult;
-    }
-    TestResult *intermediate = new TestResult(m_id, m_name);
-    return intermediate;
+    if (m_hooks.createResult)
+        return m_hooks.createResult(*this);
+    return {m_id, m_name};
 }
 
 } // namespace Autotest

@@ -24,10 +24,8 @@ public:
     Q_FLAGS(TestState)
     Q_DECLARE_FLAGS(TestStates, TestState)
 
-    explicit GTestTreeItem(ITestFramework *testFramework,
-                           const QString &name = QString(),
-                           const Utils::FilePath &filePath = Utils::FilePath(),
-                           Type type = Root)
+    explicit GTestTreeItem(ITestFramework *testFramework, const QString &name = {},
+                           const Utils::FilePath &filePath = {}, Type type = Root)
         : TestTreeItem(testFramework, name, filePath, type), m_state(Enabled)
     {}
 

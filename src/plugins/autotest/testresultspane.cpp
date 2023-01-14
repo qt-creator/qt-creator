@@ -228,7 +228,7 @@ TestResultsPane::~TestResultsPane()
     s_instance = nullptr;
 }
 
-void TestResultsPane::addTestResult(const TestResultPtr &result)
+void TestResultsPane::addTestResult(const TestResult &result)
 {
     const QScrollBar *scrollBar = m_treeView->verticalScrollBar();
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
@@ -457,9 +457,9 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    const TestResult *testResult = m_filterModel->testResult(index);
-    if (testResult && !testResult->fileName().isEmpty())
-        EditorManager::openEditorAt(Utils::Link{testResult->fileName(), testResult->line(), 0});
+    const TestResult testResult = m_filterModel->testResult(index);
+    if (testResult.isValid() && !testResult.fileName().isEmpty())
+        EditorManager::openEditorAt(Utils::Link{testResult.fileName(), testResult.line(), 0});
 }
 
 void TestResultsPane::onRunAllTriggered()
@@ -609,12 +609,12 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
 {
     const bool resultsAvailable = m_filterModel->hasResults();
     const bool enabled = !m_testRunning && resultsAvailable;
-    const TestResult *clicked = getTestResult(m_treeView->indexAt(pos));
+    const TestResult clicked = getTestResult(m_treeView->indexAt(pos));
     QMenu menu;
 
     QAction *action = new QAction(Tr::tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
-    action->setEnabled(resultsAvailable && clicked);
+    action->setEnabled(resultsAvailable && clicked.isValid());
     connect(action, &QAction::triggered, this, [this, clicked] {
        onCopyItemTriggered(clicked);
     });
@@ -630,7 +630,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     connect(action, &QAction::triggered, this, &TestResultsPane::onSaveWholeTriggered);
     menu.addAction(action);
 
-    const auto correlatingItem = (enabled && clicked) ? clicked->findTestTreeItem() : nullptr;
+    const auto correlatingItem = (enabled && clicked.isValid()) ? clicked.findTestTreeItem() : nullptr;
     action = new QAction(Tr::tr("Run This Test"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
     connect(action, &QAction::triggered, this, [this, clicked] {
@@ -669,21 +669,19 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     menu.exec(m_treeView->mapToGlobal(pos));
 }
 
-const TestResult *TestResultsPane::getTestResult(const QModelIndex &idx)
+TestResult TestResultsPane::getTestResult(const QModelIndex &idx)
 {
     if (!idx.isValid())
-        return nullptr;
-
-    const TestResult *result = m_filterModel->testResult(idx);
-    QTC_CHECK(result);
-
+        return {};
+    const TestResult result = m_filterModel->testResult(idx);
+    QTC_CHECK(result.isValid());
     return result;
 }
 
-void TestResultsPane::onCopyItemTriggered(const TestResult *result)
+void TestResultsPane::onCopyItemTriggered(const TestResult &result)
 {
-    QTC_ASSERT(result, return);
-    setClipboardAndSelection(result->outputString(true));
+    QTC_ASSERT(result.isValid(), return);
+    setClipboardAndSelection(result.outputString(true));
 }
 
 void TestResultsPane::onCopyWholeTriggered()
@@ -705,12 +703,11 @@ void TestResultsPane::onSaveWholeTriggered()
     }
 }
 
-void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResult *result)
+void TestResultsPane::onRunThisTestTriggered(TestRunMode runMode, const TestResult &result)
 {
-    QTC_ASSERT(result, return);
+    QTC_ASSERT(result.isValid(), return);
 
-    const ITestTreeItem *item = result->findTestTreeItem();
-
+    const ITestTreeItem *item = result.findTestTreeItem();
     if (item)
         TestRunner::instance()->runTest(runMode, item);
 }
@@ -729,11 +726,11 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
     QString output;
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         QModelIndex current = m_model->index(row, 0, parent);
-        const TestResult *result = m_model->testResult(current);
-        QTC_ASSERT(result, continue);
+        const TestResult result = m_model->testResult(current);
+        QTC_ASSERT(result.isValid(), continue);
         if (auto item = m_model->itemForIndex(current))
             output.append(item->resultString()).append('\t');
-        output.append(result->outputString(true)).append('\n');
+        output.append(result.outputString(true)).append('\n');
         output.append(getWholeOutput(current));
     }
     return output;
@@ -741,25 +738,25 @@ QString TestResultsPane::getWholeOutput(const QModelIndex &parent)
 
 void TestResultsPane::createMarks(const QModelIndex &parent)
 {
-    const TestResult *parentResult = m_model->testResult(parent);
-    ResultType parentType = parentResult ? parentResult->result() : ResultType::Invalid;
+    const TestResult parentResult = m_model->testResult(parent);
+    const ResultType parentType = parentResult.isValid() ? parentResult.result() : ResultType::Invalid;
     const QVector<ResultType> interested{ResultType::Fail, ResultType::UnexpectedPass};
     for (int row = 0, count = m_model->rowCount(parent); row < count; ++row) {
         const QModelIndex index = m_model->index(row, 0, parent);
-        const TestResult *result = m_model->testResult(index);
-        QTC_ASSERT(result, continue);
+        const TestResult result = m_model->testResult(index);
+        QTC_ASSERT(result.isValid(), continue);
 
         if (m_model->hasChildren(index))
             createMarks(index);
 
-        bool isLocationItem = result->result() == ResultType::MessageLocation;
-        if (interested.contains(result->result())
+        bool isLocationItem = result.result() == ResultType::MessageLocation;
+        if (interested.contains(result.result())
                 || (isLocationItem && interested.contains(parentType))) {
-            TestEditorMark *mark = new TestEditorMark(index, result->fileName(), result->line());
+            TestEditorMark *mark = new TestEditorMark(index, result.fileName(), result.line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
             mark->setColor(Utils::Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);
-            mark->setToolTip(result->description());
+            mark->setToolTip(result.description());
             m_marks << mark;
         }
     }

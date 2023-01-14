@@ -20,8 +20,7 @@ ITestParser *QuickTestFramework::createTestParser()
 
 ITestTreeItem *QuickTestFramework::createRootNode()
 {
-    return new QuickTestTreeItem(this, displayName(),
-                                 Utils::FilePath(), ITestTreeItem::Root);
+    return new QuickTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *QuickTestFramework::name() const

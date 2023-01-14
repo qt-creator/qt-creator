@@ -72,13 +72,13 @@ TestRunner::TestRunner()
 
     m_cancelTimer.setSingleShot(true);
     connect(&m_cancelTimer, &QTimer::timeout, this, [this] { cancelCurrent(Timeout); });
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::resultReadyAt,
             this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::finished,
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::finished,
             this, &TestRunner::onFinished);
     connect(this, &TestRunner::requestStopTestRun,
-            &m_futureWatcher, &QFutureWatcher<TestResultPtr>::cancel);
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled, this, [this] {
+            &m_futureWatcher, &QFutureWatcher<TestResult>::cancel);
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::canceled, this, [this] {
         cancelCurrent(UserCanceled);
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
     });
@@ -537,8 +537,8 @@ void TestRunner::runTestsHelper()
     int testCaseCount = precheckTestConfigurations();
 
     // Fake future interface - destruction will be handled by QFuture/QFutureWatcher
-    m_fakeFutureInterface = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
-    QFuture<TestResultPtr> future = m_fakeFutureInterface->future();
+    m_fakeFutureInterface = new QFutureInterface<TestResult>(QFutureInterfaceBase::Running);
+    QFuture<TestResult> future = m_fakeFutureInterface->future();
     m_fakeFutureInterface->setProgressRange(0, testCaseCount);
     m_fakeFutureInterface->setProgressValue(0);
     m_futureWatcher.setFuture(future);
@@ -648,8 +648,8 @@ void TestRunner::debugTests()
     }
 
     // We need a fake QFuture for the results. TODO: replace with QtConcurrent::run
-    QFutureInterface<TestResultPtr> *futureInterface
-            = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
+    QFutureInterface<TestResult> *futureInterface
+            = new QFutureInterface<TestResult>(QFutureInterfaceBase::Running);
     m_futureWatcher.setFuture(futureInterface->future());
 
     if (useOutputProcessor) {
@@ -804,9 +804,9 @@ void TestRunner::onFinished()
 
 void TestRunner::reportResult(ResultType type, const QString &description)
 {
-    TestResultPtr result(new TestResult);
-    result->setResult(type);
-    result->setDescription(description);
+    TestResult result("internal", {});
+    result.setResult(type);
+    result.setDescription(description);
     emit testResultReady(result);
 }
 
