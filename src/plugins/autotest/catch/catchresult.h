@@ -12,12 +12,6 @@ class CatchResult : public TestResult
 {
 public:
     CatchResult(const QString &id, const QString &name, int depth);
-
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-
-private:
-    int sectionDepth() const { return m_sectionDepth; }
-    int m_sectionDepth = 0;
 };
 
 } // namespace Internal

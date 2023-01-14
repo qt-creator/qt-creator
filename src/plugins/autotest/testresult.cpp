@@ -156,10 +156,15 @@ QColor TestResult::colorForType(const ResultType type)
     }
 }
 
-bool TestResult::isDirectParentOf(const TestResult *other, bool * /*needsIntermediate*/) const
+bool TestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
 {
     QTC_ASSERT(other, return false);
-    return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+    const bool ret = !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+    if (!ret)
+        return false;
+    if (m_hooks.directParent)
+        return m_hooks.directParent(*this, *other, needsIntermediate);
+    return true;
 }
 
 bool TestResult::isIntermediateFor(const TestResult *other) const

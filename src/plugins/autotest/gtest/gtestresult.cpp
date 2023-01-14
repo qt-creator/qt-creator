@@ -98,28 +98,41 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
     };
 }
 
+struct GTestData
+{
+    QString m_testCaseName;
+    int m_iteration = 1;
+};
+
+static ResultHooks::DirectParentHook directParentHook(const QString &testCaseName, int iteration)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *) -> bool {
+        if (!other.extraData().canConvert<GTestData>())
+            return false;
+        const GTestData otherData = other.extraData().value<GTestData>();
+
+        if (testCaseName == otherData.m_testCaseName) {
+            const ResultType thisResult = result.result();
+            const ResultType otherResult = other.result();
+            if (otherResult == ResultType::MessageInternal || otherResult == ResultType::MessageLocation)
+                return thisResult != ResultType::MessageInternal && thisResult != ResultType::MessageLocation;
+        }
+        if (iteration != otherData.m_iteration)
+            return false;
+        return testCaseName.isEmpty() && !otherData.m_testCaseName.isEmpty();
+    };
+}
+
 GTestResult::GTestResult(const QString &id, const QString &name, const FilePath &projectFile,
                          const QString &testCaseName, int iteration)
     : TestResult(id, name, {outputStringHook(testCaseName),
-                            findTestItemHook(projectFile, testCaseName)})
-    , m_testCaseName(testCaseName)
-    , m_iteration(iteration) {}
-
-bool GTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
-{
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-
-    const GTestResult *gtOther = static_cast<const GTestResult *>(other);
-    if (m_testCaseName == gtOther->m_testCaseName) {
-        const ResultType otherResult = other->result();
-        if (otherResult == ResultType::MessageInternal || otherResult == ResultType::MessageLocation)
-            return result() != ResultType::MessageInternal && result() != ResultType::MessageLocation;
-    }
-    if (m_iteration != gtOther->m_iteration)
-        return false;
-    return isTestSuite() && gtOther->isTestCase();
-}
+                            findTestItemHook(projectFile, testCaseName),
+                            directParentHook(testCaseName, iteration),
+                            QVariant::fromValue(GTestData{testCaseName, iteration})})
+{}
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::GTestData);
+

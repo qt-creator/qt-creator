@@ -18,7 +18,6 @@ public:
     QtTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
                  TestType type, const QString &functionName = {}, const QString &dataTag = {});
 
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
     bool isIntermediateFor(const TestResult *other) const override;
     TestResult *createIntermediateResultFor(const TestResult *other) const override;
 

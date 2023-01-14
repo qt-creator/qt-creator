@@ -15,13 +15,6 @@ class BoostTestResult : public TestResult
 public:
     BoostTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
                     const QString &testCaseName = {}, const QString &testSuiteName = {});
-
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-private:
-
-    Utils::FilePath m_projectFile;
-    QString m_testCaseName;
-    QString m_testSuiteName;
 };
 
 } // namespace Internal

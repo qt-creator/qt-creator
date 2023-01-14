@@ -145,38 +145,54 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
     };
 }
 
+struct QtTestData
+{
+    FilePath m_projectFile;
+    TestType m_type;
+    QString m_function;
+    QString m_dataTag;
+    bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); };
+    bool isDataTag() const { return !m_function.isEmpty() && !m_dataTag.isEmpty(); };
+};
+
+static ResultHooks::DirectParentHook directParentHook(const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *needsIntermediate) -> bool {
+        if (!other.extraData().canConvert<QtTestData>())
+            return false;
+        const QtTestData otherData = other.extraData().value<QtTestData>();
+
+        if (result.result() == ResultType::TestStart) {
+            if (otherData.isDataTag()) {
+                if (otherData.m_function == functionName) {
+                    if (dataTag.isEmpty()) {
+                        // avoid adding function's TestCaseEnd to the data tag
+                        *needsIntermediate = other.result() != ResultType::TestEnd;
+                        return true;
+                    }
+                    return otherData.m_dataTag == dataTag;
+                }
+            } else if (otherData.isTestFunction()) {
+                return (functionName.isEmpty() && dataTag.isEmpty())
+                        || (functionName == otherData.m_function
+                            && other.result() != ResultType::TestStart);
+            }
+        }
+        return false;
+    };
+}
+
 QtTestResult::QtTestResult(const QString &id, const QString &name, const FilePath &projectFile,
                            TestType type, const QString &functionName, const QString &dataTag)
     : TestResult(id, name, {outputStringHook(functionName, dataTag),
-                            findTestItemHook(projectFile, type, functionName, dataTag)})
+                            findTestItemHook(projectFile, type, functionName, dataTag),
+                            directParentHook(functionName, dataTag),
+                            QVariant::fromValue(QtTestData{projectFile, type, functionName, dataTag})})
     , m_projectFile(projectFile)
     , m_type(type)
     , m_function(functionName)
     , m_dataTag(dataTag) {}
-
-bool QtTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
-{
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-
-    if (result() == ResultType::TestStart) {
-        if (qtOther->isDataTag()) {
-            if (qtOther->m_function == m_function) {
-                if (m_dataTag.isEmpty()) {
-                    // avoid adding function's TestCaseEnd to the data tag
-                    *needsIntermediate = qtOther->result() != ResultType::TestEnd;
-                    return true;
-                }
-                return qtOther->m_dataTag == m_dataTag;
-            }
-        } else if (qtOther->isTestFunction()) {
-            return isTestCase() || (m_function == qtOther->m_function
-                                    && qtOther->result() != ResultType::TestStart);
-        }
-    }
-    return false;
-}
 
 bool QtTestResult::isIntermediateFor(const TestResult *other) const
 {
@@ -207,3 +223,5 @@ TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other) c
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::QtTestData);

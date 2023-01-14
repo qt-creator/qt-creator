@@ -88,45 +88,55 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
     };
 }
 
+struct BoostTestData
+{
+    QString m_testCaseName;
+    QString m_testSuiteName;
+};
+
+static ResultHooks::DirectParentHook directParentHook(const QString &testCaseName,
+                                                      const QString &testSuiteName)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *) -> bool {
+        if (!other.extraData().canConvert<BoostTestData>())
+            return false;
+        const BoostTestData otherData = other.extraData().value<BoostTestData>();
+
+        if (result.result() != ResultType::TestStart)
+            return false;
+
+        bool thisModule = (testCaseName.isEmpty() && testSuiteName.isEmpty());
+        bool thisSuite = (testCaseName.isEmpty() && !testSuiteName.isEmpty());
+        bool thisCase = (!testCaseName.isEmpty());
+
+        bool otherSuite = otherData.m_testCaseName.isEmpty() && !otherData.m_testSuiteName.isEmpty();
+        bool otherCase = !otherData.m_testCaseName.isEmpty();
+
+        if (otherSuite)
+            return thisSuite ? otherData.m_testSuiteName.startsWith(testSuiteName + '/') : thisModule;
+
+        if (otherCase) {
+            if (thisCase)
+                return otherData.m_testCaseName == testCaseName && otherData.m_testSuiteName == testSuiteName;
+            if (thisSuite)
+                return otherData.m_testSuiteName == testSuiteName;
+            if (thisModule)
+                return otherData.m_testSuiteName.isEmpty();
+        }
+        return false;
+    };
+}
+
 BoostTestResult::BoostTestResult(const QString &id, const QString &name,
                                  const FilePath &projectFile, const QString &testCaseName,
                                  const QString &testSuiteName)
     : TestResult(id, name, {outputStringHook(testCaseName),
-                            findTestItemHook(projectFile, testCaseName, testSuiteName)})
-    , m_projectFile(projectFile)
-    , m_testCaseName(testCaseName)
-    , m_testSuiteName(testSuiteName) {}
-
-bool BoostTestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
-{
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-
-    if (result() != ResultType::TestStart)
-        return false;
-
-    bool weAreModule = (m_testCaseName.isEmpty() && m_testSuiteName.isEmpty());
-    bool weAreSuite = (m_testCaseName.isEmpty() && !m_testSuiteName.isEmpty());
-    bool weAreCase = (!m_testCaseName.isEmpty());
-
-    const BoostTestResult *boostOther = static_cast<const BoostTestResult *>(other);
-    bool otherIsSuite = boostOther->m_testCaseName.isEmpty() && !boostOther->m_testSuiteName.isEmpty();
-    bool otherIsCase = !boostOther->m_testCaseName.isEmpty();
-
-    if (otherIsSuite)
-        return weAreSuite ? boostOther->m_testSuiteName.startsWith(m_testSuiteName + '/') : weAreModule;
-
-    if (otherIsCase) {
-        if (weAreCase)
-            return boostOther->m_testCaseName == m_testCaseName && boostOther->m_testSuiteName == m_testSuiteName;
-        if (weAreSuite)
-            return boostOther->m_testSuiteName == m_testSuiteName;
-        if (weAreModule)
-            return boostOther->m_testSuiteName.isEmpty();
-    }
-    return false;
-}
+                            findTestItemHook(projectFile, testCaseName, testSuiteName),
+                            directParentHook(testCaseName, testSuiteName),
+                            QVariant::fromValue(BoostTestData{testCaseName, testSuiteName})})
+{}
 
 } // namespace Internal
 } // namespace Autotest
 
+Q_DECLARE_METATYPE(Autotest::Internal::BoostTestData);

@@ -64,8 +64,11 @@ struct ResultHooks
 {
     using OutputStringHook = std::function<QString(const TestResult &, bool)>;
     using FindTestItemHook = std::function<ITestTreeItem *(const TestResult &)>;
+    using DirectParentHook = std::function<bool(const TestResult &, const TestResult &, bool *)>;
     OutputStringHook outputString;
     FindTestItemHook findTestItem;
+    DirectParentHook directParent;
+    QVariant extraData;
 };
 
 class TestResult
@@ -84,6 +87,7 @@ public:
     QString description() const { return m_description; }
     Utils::FilePath fileName() const { return m_file; }
     int line() const { return m_line; }
+    QVariant extraData() const { return m_hooks.extraData; }
 
     void setDescription(const QString &description) { m_description = description; }
     void setFileName(const Utils::FilePath &fileName) { m_file = fileName; }
@@ -95,9 +99,10 @@ public:
     static QString resultToString(const ResultType type);
     static QColor colorForType(const ResultType type);
 
-    virtual bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
+    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
     virtual bool isIntermediateFor(const TestResult *other) const;
     virtual TestResult *createIntermediateResultFor(const TestResult *other) const;
+
 private:
     QString m_id;
     QString m_name;

@@ -16,15 +16,6 @@ class GTestResult : public TestResult
 public:
     GTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
                 const QString &testCaseName = {}, int iteration = 1);
-
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override;
-
-private:
-    bool isTestSuite() const { return m_testCaseName.isEmpty(); }
-    bool isTestCase() const { return !m_testCaseName.isEmpty(); }
-
-    QString m_testCaseName;
-    int m_iteration = 1;
 };
 
 } // namespace Internal

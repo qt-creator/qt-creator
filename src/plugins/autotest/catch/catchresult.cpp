@@ -35,34 +35,44 @@ static ResultHooks::FindTestItemHook findTestItemHook()
     };
 }
 
-CatchResult::CatchResult(const QString &id, const QString &name, int depth)
-    : TestResult(id, name, {{}, findTestItemHook()})
-    , m_sectionDepth(depth) {}
-
-bool CatchResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
+struct CatchData
 {
-    if (!TestResult::isDirectParentOf(other, needsIntermediate))
-        return false;
-    const CatchResult *catchOther = static_cast<const CatchResult *>(other);
+    int m_sectionDepth = 0;
+};
 
-    if (result() != ResultType::TestStart)
-        return false;
+static ResultHooks::DirectParentHook directParentHook(int depth)
+{
+    return [=](const TestResult &result, const TestResult &other, bool *) -> bool {
+        if (!other.extraData().canConvert<CatchData>())
+            return false;
+        const CatchData otherData = other.extraData().value<CatchData>();
 
-    if (catchOther->result() == ResultType::TestStart) {
-        if (fileName() != catchOther->fileName())
+        if (result.result() != ResultType::TestStart)
             return false;
 
-        return sectionDepth() + 1 == catchOther->sectionDepth();
-    }
+        if (other.result() == ResultType::TestStart) {
+            if (result.fileName() != other.fileName())
+                return false;
 
-    if (sectionDepth() <= catchOther->sectionDepth() && catchOther->result() == ResultType::Pass)
-        return true;
+            return depth + 1 == otherData.m_sectionDepth;
+        }
 
-    if (fileName() != catchOther->fileName() || sectionDepth() > catchOther->sectionDepth())
-        return false;
+        if (depth <= otherData.m_sectionDepth && other.result() == ResultType::Pass)
+            return true;
 
-    return name() == catchOther->name();
+        if (result.fileName() != other.fileName() || depth > otherData.m_sectionDepth)
+            return false;
+
+        return result.name() == other.name();
+    };
 }
+
+CatchResult::CatchResult(const QString &id, const QString &name, int depth)
+    : TestResult(id, name, {{}, findTestItemHook(), directParentHook(depth),
+                            QVariant::fromValue(CatchData{depth})})
+{}
 
 } // namespace Internal
 } // namespace Autotest
+
+Q_DECLARE_METATYPE(Autotest::Internal::CatchData);

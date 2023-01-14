@@ -37,19 +37,19 @@ static ResultHooks::FindTestItemHook findTestItemHook(const QString &testCaseNam
     };
 }
 
+static ResultHooks::DirectParentHook directParentHook()
+{
+    return [=](const TestResult &result, const TestResult &, bool *) -> bool {
+        return result.result() == ResultType::TestStart;
+    };
+}
+
 class CTestResult : public TestResult
 {
 public:
     CTestResult(const QString &id, const QString &project, const QString &testCaseName)
-        : TestResult(id, project, {{}, findTestItemHook(testCaseName)})
+        : TestResult(id, project, {{}, findTestItemHook(testCaseName), directParentHook(), {}})
     {}
-
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const override
-    {
-        if (!TestResult::isDirectParentOf(other, needsIntermediate))
-            return false;
-        return result() == ResultType::TestStart;
-    }
 };
 
 CTestOutputReader::CTestOutputReader(const QFutureInterface<TestResultPtr> &futureInterface,
