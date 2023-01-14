@@ -66,11 +66,13 @@ struct ResultHooks
     using FindTestItemHook = std::function<ITestTreeItem *(const TestResult &)>;
     using DirectParentHook = std::function<bool(const TestResult &, const TestResult &, bool *)>;
     using IntermediateHook = std::function<bool(const TestResult &, const TestResult &)>;
+    using CreateResultHook = std::function<TestResult(const TestResult &)>;
     QVariant extraData;
     OutputStringHook outputString;
     FindTestItemHook findTestItem;
     DirectParentHook directParent;
     IntermediateHook intermediate = {};
+    CreateResultHook createResult = {};
 };
 
 class TestResult
@@ -103,7 +105,7 @@ public:
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
     bool isIntermediateFor(const TestResult *other) const;
-    virtual TestResult *createIntermediateResultFor(const TestResult *other) const;
+    TestResult *createIntermediateResultFor(const TestResult *other) const;
 
 private:
     QString m_id;

@@ -178,6 +178,11 @@ bool TestResult::isIntermediateFor(const TestResult *other) const
 TestResult *TestResult::createIntermediateResultFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return nullptr);
+    if (other->m_hooks.createResult) {
+        TestResult *newResult = new TestResult;
+        *newResult = other->m_hooks.createResult(*other);
+        return newResult;
+    }
     TestResult *intermediate = new TestResult(other->m_id, other->m_name);
     return intermediate;
 }

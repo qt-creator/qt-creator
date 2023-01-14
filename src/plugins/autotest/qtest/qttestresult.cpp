@@ -197,35 +197,33 @@ static ResultHooks::IntermediateHook intermediateHook(const FilePath &projectFil
     };
 }
 
+static ResultHooks::CreateResultHook createResultHook(const FilePath &projectFile, TestType type,
+                                                      const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result) -> TestResult {
+        TestResult newResult =  QtTestResult(result.id(), result.name(), projectFile, type,
+                                             functionName, dataTag);
+        // intermediates will be needed only for data tags
+        newResult.setDescription("Data tag: " + dataTag);
+        const auto correspondingItem = newResult.findTestTreeItem();
+        if (correspondingItem && correspondingItem->line()) {
+            newResult.setFileName(correspondingItem->filePath());
+            newResult.setLine(correspondingItem->line());
+        }
+        return newResult;
+    };
+}
+
 QtTestResult::QtTestResult(const QString &id, const QString &name, const FilePath &projectFile,
                            TestType type, const QString &functionName, const QString &dataTag)
     : TestResult(id, name, {QVariant::fromValue(QtTestData{projectFile, type, functionName, dataTag}),
                             outputStringHook(functionName, dataTag),
                             findTestItemHook(projectFile, type, functionName, dataTag),
                             directParentHook(functionName, dataTag),
-                            intermediateHook(projectFile, functionName, dataTag)})
-    , m_projectFile(projectFile)
-    , m_type(type)
-    , m_function(functionName)
-    , m_dataTag(dataTag) {}
-
-TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other) const
-{
-    QTC_ASSERT(other, return nullptr);
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->name(), qtOther->m_projectFile,
-                                                  m_type, qtOther->m_function, qtOther->m_dataTag);
-    intermediate->m_function = qtOther->m_function;
-    intermediate->m_dataTag = qtOther->m_dataTag;
-    // intermediates will be needed only for data tags
-    intermediate->setDescription("Data tag: " + qtOther->m_dataTag);
-    const auto correspondingItem = intermediate->findTestTreeItem();
-    if (correspondingItem && correspondingItem->line()) {
-        intermediate->setFileName(correspondingItem->filePath());
-        intermediate->setLine(correspondingItem->line());
-    }
-    return intermediate;
-}
+                            intermediateHook(projectFile, functionName, dataTag),
+                            createResultHook(projectFile, type, functionName, dataTag)})
+{}
 
 } // namespace Internal
 } // namespace Autotest

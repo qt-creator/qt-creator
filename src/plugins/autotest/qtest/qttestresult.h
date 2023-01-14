@@ -17,14 +17,6 @@ class QtTestResult : public TestResult
 public:
     QtTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
                  TestType type, const QString &functionName = {}, const QString &dataTag = {});
-
-    TestResult *createIntermediateResultFor(const TestResult *other) const override;
-
-private:
-    Utils::FilePath m_projectFile;
-    TestType m_type;
-    QString m_function;
-    QString m_dataTag;
 };
 
 } // namespace Internal
