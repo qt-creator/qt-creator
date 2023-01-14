@@ -179,7 +179,7 @@ TestResultItem *TestResultItem::intermediateFor(const TestResultItem *item) cons
 
 TestResultItem *TestResultItem::createAndAddIntermediateFor(const TestResultItem *child)
 {
-    TestResultPtr result(m_testResult->createIntermediateResultFor(child->testResult()));
+    TestResultPtr result(child->testResult()->createIntermediateResult());
     QTC_ASSERT(!result.isNull(), return nullptr);
     result->setResult(ResultType::TestStart);
     TestResultItem *intermediate = new TestResultItem(result);

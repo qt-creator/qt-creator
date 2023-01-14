@@ -175,15 +175,14 @@ bool TestResult::isIntermediateFor(const TestResult *other) const
     return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
 }
 
-TestResult *TestResult::createIntermediateResultFor(const TestResult *other) const
+TestResult *TestResult::createIntermediateResult() const
 {
-    QTC_ASSERT(other, return nullptr);
-    if (other->m_hooks.createResult) {
+    if (m_hooks.createResult) {
         TestResult *newResult = new TestResult;
-        *newResult = other->m_hooks.createResult(*other);
+        *newResult = m_hooks.createResult(*this);
         return newResult;
     }
-    TestResult *intermediate = new TestResult(other->m_id, other->m_name);
+    TestResult *intermediate = new TestResult(m_id, m_name);
     return intermediate;
 }
 

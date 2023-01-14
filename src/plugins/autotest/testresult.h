@@ -105,7 +105,7 @@ public:
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
     bool isIntermediateFor(const TestResult *other) const;
-    TestResult *createIntermediateResultFor(const TestResult *other) const;
+    TestResult *createIntermediateResult() const;
 
 private:
     QString m_id;
