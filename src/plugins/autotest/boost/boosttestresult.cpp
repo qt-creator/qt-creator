@@ -130,10 +130,10 @@ static ResultHooks::DirectParentHook directParentHook(const QString &testCaseNam
 BoostTestResult::BoostTestResult(const QString &id, const QString &name,
                                  const FilePath &projectFile, const QString &testCaseName,
                                  const QString &testSuiteName)
-    : TestResult(id, name, {outputStringHook(testCaseName),
+    : TestResult(id, name, {QVariant::fromValue(BoostTestData{testCaseName, testSuiteName}),
+                            outputStringHook(testCaseName),
                             findTestItemHook(projectFile, testCaseName, testSuiteName),
-                            directParentHook(testCaseName, testSuiteName),
-                            QVariant::fromValue(BoostTestData{testCaseName, testSuiteName})})
+                            directParentHook(testCaseName, testSuiteName)})
 {}
 
 } // namespace Internal

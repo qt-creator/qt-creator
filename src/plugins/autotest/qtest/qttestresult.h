@@ -18,14 +18,9 @@ public:
     QtTestResult(const QString &id, const QString &name, const Utils::FilePath &projectFile,
                  TestType type, const QString &functionName = {}, const QString &dataTag = {});
 
-    bool isIntermediateFor(const TestResult *other) const override;
     TestResult *createIntermediateResultFor(const TestResult *other) const override;
 
 private:
-    bool isTestCase() const     { return m_function.isEmpty()  && m_dataTag.isEmpty(); }
-    bool isTestFunction() const { return !m_function.isEmpty() && m_dataTag.isEmpty(); }
-    bool isDataTag() const      { return !m_function.isEmpty() && !m_dataTag.isEmpty(); }
-
     Utils::FilePath m_projectFile;
     TestType m_type;
     QString m_function;

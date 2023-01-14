@@ -170,6 +170,8 @@ bool TestResult::isDirectParentOf(const TestResult *other, bool *needsIntermedia
 bool TestResult::isIntermediateFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return false);
+    if (m_hooks.intermediate)
+        return m_hooks.intermediate(*this, *other);
     return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
 }
 

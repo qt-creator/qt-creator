@@ -183,32 +183,38 @@ static ResultHooks::DirectParentHook directParentHook(const QString &functionNam
     };
 }
 
+static ResultHooks::IntermediateHook intermediateHook(const FilePath &projectFile,
+                                                      const QString &functionName,
+                                                      const QString &dataTag)
+{
+    return [=](const TestResult &result, const TestResult &other) -> bool {
+        if (!other.extraData().canConvert<QtTestData>())
+            return false;
+        const QtTestData otherData = other.extraData().value<QtTestData>();
+        return dataTag == otherData.m_dataTag && functionName == otherData.m_function
+                && result.name() == other.name() && result.id() == other.id()
+                && projectFile == otherData.m_projectFile;
+    };
+}
+
 QtTestResult::QtTestResult(const QString &id, const QString &name, const FilePath &projectFile,
                            TestType type, const QString &functionName, const QString &dataTag)
-    : TestResult(id, name, {outputStringHook(functionName, dataTag),
+    : TestResult(id, name, {QVariant::fromValue(QtTestData{projectFile, type, functionName, dataTag}),
+                            outputStringHook(functionName, dataTag),
                             findTestItemHook(projectFile, type, functionName, dataTag),
                             directParentHook(functionName, dataTag),
-                            QVariant::fromValue(QtTestData{projectFile, type, functionName, dataTag})})
+                            intermediateHook(projectFile, functionName, dataTag)})
     , m_projectFile(projectFile)
     , m_type(type)
     , m_function(functionName)
     , m_dataTag(dataTag) {}
-
-bool QtTestResult::isIntermediateFor(const TestResult *other) const
-{
-    QTC_ASSERT(other, return false);
-    const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
-    return m_dataTag == qtOther->m_dataTag && m_function == qtOther->m_function
-            && name() == qtOther->name() && id() == qtOther->id()
-            && m_projectFile == qtOther->m_projectFile;
-}
 
 TestResult *QtTestResult::createIntermediateResultFor(const TestResult *other) const
 {
     QTC_ASSERT(other, return nullptr);
     const QtTestResult *qtOther = static_cast<const QtTestResult *>(other);
     QtTestResult *intermediate = new QtTestResult(qtOther->id(), qtOther->name(), qtOther->m_projectFile,
-                                                  m_type);
+                                                  m_type, qtOther->m_function, qtOther->m_dataTag);
     intermediate->m_function = qtOther->m_function;
     intermediate->m_dataTag = qtOther->m_dataTag;
     // intermediates will be needed only for data tags

@@ -65,10 +65,12 @@ struct ResultHooks
     using OutputStringHook = std::function<QString(const TestResult &, bool)>;
     using FindTestItemHook = std::function<ITestTreeItem *(const TestResult &)>;
     using DirectParentHook = std::function<bool(const TestResult &, const TestResult &, bool *)>;
+    using IntermediateHook = std::function<bool(const TestResult &, const TestResult &)>;
+    QVariant extraData;
     OutputStringHook outputString;
     FindTestItemHook findTestItem;
     DirectParentHook directParent;
-    QVariant extraData;
+    IntermediateHook intermediate = {};
 };
 
 class TestResult
@@ -100,7 +102,7 @@ public:
     static QColor colorForType(const ResultType type);
 
     bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
-    virtual bool isIntermediateFor(const TestResult *other) const;
+    bool isIntermediateFor(const TestResult *other) const;
     virtual TestResult *createIntermediateResultFor(const TestResult *other) const;
 
 private:

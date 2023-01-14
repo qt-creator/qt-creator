@@ -125,10 +125,10 @@ static ResultHooks::DirectParentHook directParentHook(const QString &testCaseNam
 
 GTestResult::GTestResult(const QString &id, const QString &name, const FilePath &projectFile,
                          const QString &testCaseName, int iteration)
-    : TestResult(id, name, {outputStringHook(testCaseName),
+    : TestResult(id, name, {QVariant::fromValue(GTestData{testCaseName, iteration}),
+                            outputStringHook(testCaseName),
                             findTestItemHook(projectFile, testCaseName),
-                            directParentHook(testCaseName, iteration),
-                            QVariant::fromValue(GTestData{testCaseName, iteration})})
+                            directParentHook(testCaseName, iteration)})
 {}
 
 } // namespace Internal

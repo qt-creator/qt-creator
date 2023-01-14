@@ -68,8 +68,8 @@ static ResultHooks::DirectParentHook directParentHook(int depth)
 }
 
 CatchResult::CatchResult(const QString &id, const QString &name, int depth)
-    : TestResult(id, name, {{}, findTestItemHook(), directParentHook(depth),
-                            QVariant::fromValue(CatchData{depth})})
+    : TestResult(id, name, {QVariant::fromValue(CatchData{depth}),
+                            {}, findTestItemHook(), directParentHook(depth)})
 {}
 
 } // namespace Internal

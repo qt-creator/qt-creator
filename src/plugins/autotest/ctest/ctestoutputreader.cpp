@@ -48,7 +48,7 @@ class CTestResult : public TestResult
 {
 public:
     CTestResult(const QString &id, const QString &project, const QString &testCaseName)
-        : TestResult(id, project, {{}, findTestItemHook(testCaseName), directParentHook(), {}})
+        : TestResult(id, project, {{}, {}, findTestItemHook(testCaseName), directParentHook()})
     {}
 };
 
