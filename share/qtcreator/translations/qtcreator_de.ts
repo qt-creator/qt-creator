@@ -53502,9 +53502,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>Data type:</source>
         <translation>Datentyp:</translation>
     </message>
-</context>
-<context>
-    <name>AddImplementationsDialog</name>
     <message>
         <source>Member Function Implementations</source>
         <translation type="unfinished"></translation>
@@ -53525,9 +53522,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>Default implementation location:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenerateGettersSettersDialog</name>
     <message>
         <source>Getters and Setters</source>
         <translation type="unfinished"></translation>
@@ -53580,9 +53574,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <source>Select the getters and setters to be created.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>Im Konstruktor initialisieren</translation>
@@ -53600,9 +53591,6 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <translatorcomment>https://learn.microsoft.com/de-de/cpp/cpp/default-arguments?view=msvc-170</translatorcomment>
         <translation>Standardwert</translation>
     </message>
-</context>
-<context>
-    <name>GenerateConstructorDialog</name>
     <message>
         <source>Constructor</source>
         <translation type="unfinished"></translation>
@@ -53616,17 +53604,10 @@ die vom selben Clangd-Prozess verwaltet werden sollen, fügen Sie diese hier hin
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Access</source>
-        <translation type="unfinished">Zugriff</translation>
-    </message>
-    <message>
         <source>Select the members to be initialized in the constructor.
 Use drag and drop to change the order of the parameters.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Quick Fix settings are saved in a file. Existing settings file &quot;%1&quot; found. Should this file be used or a new one be created?</source>
         <translation>Einstellungen für Quick Fixes werden in einer Datei gespeichert. Es wurde eine existierende Einstellungs-Datei &quot;%1&quot; gefunden. Soll diese Datei benutzt, oder eine neue Datei erstellt werden?</translation>

@@ -47985,9 +47985,6 @@ Continue?</source>
         <source>Base Class Constructors</source>
         <translation>ベースクラスのコンストラクタ</translation>
     </message>
-</context>
-<context>
-    <name>GenerateGettersSettersDialog</name>
     <message>
         <source>Signal</source>
         <translation>シグナル</translation>
@@ -47996,9 +47993,6 @@ Continue?</source>
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Initialize in Constructor</source>
         <translation>コンストラクタでの初期化</translation>
@@ -48014,13 +48008,6 @@ Continue?</source>
     <message>
         <source>Default Value</source>
         <translation>デフォルト値</translation>
-    </message>
-</context>
-<context>
-    <name>GenerateConstructorDialog</name>
-    <message>
-        <source>Access</source>
-        <translation>アクセス</translation>
     </message>
 </context>
 <context>

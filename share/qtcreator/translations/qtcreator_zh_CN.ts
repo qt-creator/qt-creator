@@ -207,7 +207,7 @@
     </message>
 </context>
 <context>
-    <name>AddImplementationsDialog</name>
+    <name>::CppEditor</name>
     <message>
         <source>Member Function Implementations</source>
         <translation>成员函数实现</translation>
@@ -20307,7 +20307,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>GenerateConstructorDialog</name>
+    <name>::CppEditor</name>
     <message>
         <source>Constructor</source>
         <translation type="unfinished"></translation>
@@ -20329,9 +20329,6 @@ will also disable the following plugins:
 Use drag and drop to change the order of the parameters.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenerateGettersSettersDialog</name>
     <message>
         <source>Getters and Setters</source>
         <translation type="unfinished"></translation>
@@ -41553,10 +41550,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Function name</source>
         <translation type="unfinished">函数名</translation>
-    </message>
-    <message>
-        <source>Access</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
