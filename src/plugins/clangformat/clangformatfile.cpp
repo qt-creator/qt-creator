@@ -118,6 +118,18 @@ void ClangFormatFile::saveNewFormat(QByteArray style)
     m_filePath.writeFileContents(style);
 }
 
+void ClangFormatFile::saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
+{
+    std::string styleStr = clang::format::configurationAsText(style);
+
+    // workaround: configurationAsText() add comment "# " before BasedOnStyle line
+    const int pos = styleStr.find("# BasedOnStyle");
+    if (pos != int(std::string::npos))
+        styleStr.erase(pos, 2);
+    styleStr.append("\n");
+    filePath.writeFileContents(QByteArray::fromStdString(styleStr));
+}
+
 CppEditor::CppCodeStyleSettings ClangFormatFile::toCppCodeStyleSettings(
     ProjectExplorer::Project *project) const
 {

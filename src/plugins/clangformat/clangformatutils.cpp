@@ -6,12 +6,17 @@
 #include "clangformatconstants.h"
 
 #include <coreplugin/icore.h>
+
 #include <cppeditor/cppcodestylesettings.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
+
 #include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
@@ -178,25 +183,17 @@ static bool useGlobalOverriddenSettings()
 
 QString currentProjectUniqueId()
 {
-    const Project *project = SessionManager::startupProject();
+    return projectUniqueId(SessionManager::startupProject());
+}
+
+QString projectUniqueId(ProjectExplorer::Project *project)
+{
     if (!project)
         return QString();
 
     return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toString().toUtf8(),
                                                       QCryptographicHash::Md5)
                                  .toHex(0));
-}
-
-void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath)
-{
-    std::string styleStr = clang::format::configurationAsText(style);
-
-    // workaround: configurationAsText() add comment "# " before BasedOnStyle line
-    const int pos = styleStr.find("# BasedOnStyle");
-    if (pos != int(std::string::npos))
-        styleStr.erase(pos, 2);
-    styleStr.append("\n");
-    filePath.writeFileContents(QByteArray::fromStdString(styleStr));
 }
 
 static bool useProjectOverriddenSettings()
@@ -307,52 +304,6 @@ QString configForFile(Utils::FilePath fileName)
     return configForFile(fileName, true);
 }
 
-static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())
-{
-    if (!baseStyle.isEmpty()) {
-        // Try to get the style for this base style.
-        Expected<FormatStyle> style = getStyle(baseStyle.toStdString(),
-                                               "dummy.cpp",
-                                               baseStyle.toStdString());
-        if (style)
-            return *style;
-
-        handleAllErrors(style.takeError(), [](const ErrorInfoBase &) {
-            // do nothing
-        });
-        // Fallthrough to the default style.
-    }
-
-    return qtcStyle();
-}
-
-void createStyleFileIfNeeded(bool isGlobal)
-{
-    const FilePath path = isGlobal ? globalPath() : projectPath();
-    const FilePath configFile = path / Constants::SETTINGS_FILE_NAME;
-
-    if (configFile.exists())
-        return;
-
-    QDir().mkpath(path.toString());
-    if (!isGlobal) {
-        const Project *project = SessionManager::startupProject();
-        FilePath possibleProjectConfig = project->rootProjectDirectory()
-                / Constants::SETTINGS_FILE_NAME;
-        if (possibleProjectConfig.exists()) {
-            // Just copy th .clang-format if current project has one.
-            possibleProjectConfig.copyFile(configFile);
-            return;
-        }
-    }
-
-    std::fstream newStyleFile(configFile.toString().toStdString(), std::fstream::out);
-    if (newStyleFile.is_open()) {
-        newStyleFile << clang::format::configurationAsText(constructStyle());
-        newStyleFile.close();
-    }
-}
-
 void addQtcStatementMacros(clang::format::FormatStyle &style)
 {
     static const std::vector<std::string> macros = {"Q_OBJECT",
@@ -370,36 +321,5 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
     return Core::ICore::userResourcePath() / "clang-format/"
            / Utils::FileUtils::fileSystemFriendlyName(codeStyle->displayName())
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
-}
-
-std::string readFile(const QString &path)
-{
-    const std::string defaultStyle = clang::format::configurationAsText(qtcStyle());
-
-    QFile file(path);
-    if (!file.open(QFile::ReadOnly))
-        return defaultStyle;
-
-    const std::string content = file.readAll().toStdString();
-    file.close();
-
-    clang::format::FormatStyle style;
-    style.Language = clang::format::FormatStyle::LK_Cpp;
-    const std::error_code error = clang::format::parseConfiguration(content, &style);
-    QTC_ASSERT(error.value() == static_cast<int>(ParseError::Success), return defaultStyle);
-
-    addQtcStatementMacros(style);
-    std::string settings = clang::format::configurationAsText(style);
-
-    // Needed workaround because parseConfiguration remove BasedOnStyle field
-    // ToDo: standardize this behavior for future
-    const size_t index = content.find("BasedOnStyle");
-    if (index != std::string::npos) {
-        const size_t size = content.find("\n", index) - index;
-        const size_t insert_index = settings.find("\n");
-        settings.insert(insert_index, "\n" + content.substr(index, size));
-    }
-
-    return settings;
 }
 } // namespace ClangFormat

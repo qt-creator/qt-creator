@@ -48,11 +48,15 @@ public:
 private:
     bool eventFilter(QObject *object, QEvent *event) override;
 
+    Utils::FilePath globalPath();
+    Utils::FilePath projectPath();
+    void createStyleFileIfNeeded(bool isGlobal);
     void showOrHideWidgets();
     void initChecksAndPreview();
     void connectChecks();
 
     void fillTable();
+    std::string readFile(const QString &path);
     void saveChanges(QObject *sender);
 
     void updatePreview();

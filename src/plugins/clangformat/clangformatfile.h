@@ -38,6 +38,7 @@ public:
 private:
     void saveNewFormat();
     void saveNewFormat(QByteArray style);
+    void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath);
 
 private:
     Utils::FilePath m_filePath;

@@ -18,12 +18,7 @@ namespace TextEditor { class ICodeStylePreferences; }
 namespace ProjectExplorer { class Project; }
 namespace ClangFormat {
 
-// Creates the style for the current project or the global style if needed.
-void createStyleFileIfNeeded(bool isGlobal);
-
-QString currentProjectUniqueId();
-
-std::string readFile(const QString &path);
+QString projectUniqueId(ProjectExplorer::Project *project);
 
 bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project);
 
@@ -36,7 +31,8 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
 
 // Is the style from the matching .clang-format file or global one if it's not found.
 QString configForFile(Utils::FilePath fileName);
-void saveStyleToFile(clang::format::FormatStyle style, Utils::FilePath filePath);
+
+bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
 
 void addQtcStatementMacros(clang::format::FormatStyle &style);
 clang::format::FormatStyle qtcStyle();
