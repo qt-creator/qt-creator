@@ -111,7 +111,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
             gf.setContents(Utils::TemplateEngine::processText(&nested, QString::fromUtf8(reader.data()),
                                                               errorMessage));
             if (!errorMessage->isEmpty()) {
-                *errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard", "When processing \"%1\":<br>%2")
+                *errorMessage = Tr::tr("When processing \"%1\":<br>%2")
                         .arg(file.source.toUserOutput(), *errorMessage);
                 return Core::GeneratedFile();
             }
