@@ -79,6 +79,7 @@ public:
 
     void appendItems(const QList<ListItem *> &items);
     const QList<ListItem *> items() const;
+    void clear();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const final;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -88,7 +89,7 @@ public:
 
     void setOwnsItems(bool owns);
 
-protected:
+private:
     QList<ListItem *> m_items;
     PixmapFunction m_fetchPixmapAndUpdatePixmapCache;
     bool m_ownsItems = true;
@@ -192,8 +193,11 @@ public:
 
     Core::ListModel *addSection(const Section &section, const QList<Core::ListItem *> &items);
 
+    void clear();
+
 private:
     QMap<Section, Core::ListModel *> m_sectionModels;
+    QList<QWidget *> m_sectionLabels;
     QMap<Section, Core::GridView *> m_gridViews;
     Core::GridView *m_allItemsView = nullptr;
     Core::ListModelFilter *m_filteredAllItemsModel = nullptr;

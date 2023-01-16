@@ -117,12 +117,6 @@ signals:
 private:
     void updateSelectedQtVersion();
 
-    void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
-                                     const QString &examplesInstallPath);
-    void parseDemos(QXmlStreamReader *reader, const QString &projectsOffset,
-                                  const QString &demosInstallPath);
-    void parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset);
-
     ExampleSetModel m_exampleSetModel;
 };
 

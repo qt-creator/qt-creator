@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <memory>
 
+using namespace Core;
 using namespace Utils;
 
 namespace QtSupport {
@@ -331,9 +332,11 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     return ok || debugExamples();
 }
 
-void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
-    const QString &projectsOffset, const QString &examplesInstallPath)
+static QList<ListItem *> parseExamples(QXmlStreamReader *reader,
+                                       const QString &projectsOffset,
+                                       const QString &examplesInstallPath)
 {
+    QList<ListItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -374,20 +377,23 @@ void ExamplesListModel::parseExamples(QXmlStreamReader *reader,
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("example")) {
                 if (isValidExampleOrDemo(item.get()))
-                    m_items.push_back(item.release());
+                    result.push_back(item.release());
             } else if (reader->name() == QLatin1String("examples")) {
-                return;
+                return result;
             }
             break;
         default: // nothing
             break;
         }
     }
+    return result;
 }
 
-void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
-    const QString &projectsOffset, const QString &demosInstallPath)
+static QList<ListItem *> parseDemos(QXmlStreamReader *reader,
+                                    const QString &projectsOffset,
+                                    const QString &demosInstallPath)
 {
+    QList<ListItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -419,19 +425,21 @@ void ExamplesListModel::parseDemos(QXmlStreamReader *reader,
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("demo")) {
                 if (isValidExampleOrDemo(item.get()))
-                    m_items.push_back(item.release());
+                    result.push_back(item.release());
             } else if (reader->name() == QLatin1String("demos")) {
-                return;
+                return result;
             }
             break;
         default: // nothing
             break;
         }
     }
+    return result;
 }
 
-void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
+static QList<ListItem *> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
 {
+    QList<ListItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -465,14 +473,15 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
             break;
         case QXmlStreamReader::EndElement:
             if (reader->name() == QLatin1String("tutorial"))
-                m_items.push_back(item.release());
+                result.push_back(item.release());
             else if (reader->name() == QLatin1String("tutorials"))
-                return;
+                return result;
             break;
         default: // nothing
             break;
         }
     }
+    return result;
 }
 
 void ExamplesListModel::updateExamples()
@@ -482,10 +491,10 @@ void ExamplesListModel::updateExamples()
 
     const QStringList sources = m_exampleSetModel.exampleSources(&examplesInstallPath,
                                                                  &demosInstallPath);
-    beginResetModel();
-    qDeleteAll(m_items);
-    m_items.clear();
 
+    clear();
+
+    QList<ListItem *> items;
     for (const QString &exampleSource : sources) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
@@ -506,11 +515,11 @@ void ExamplesListModel::updateExamples()
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
                 if (reader.name() == QLatin1String("examples"))
-                    parseExamples(&reader, examplesDir.path(), examplesInstallPath);
+                    items += parseExamples(&reader, examplesDir.path(), examplesInstallPath);
                 else if (reader.name() == QLatin1String("demos"))
-                    parseDemos(&reader, demosDir.path(), demosInstallPath);
+                    items += parseDemos(&reader, demosDir.path(), demosInstallPath);
                 else if (reader.name() == QLatin1String("tutorials"))
-                    parseTutorials(&reader, examplesDir.path());
+                    items += parseTutorials(&reader, examplesDir.path());
                 break;
             default: // nothing
                 break;
@@ -522,7 +531,7 @@ void ExamplesListModel::updateExamples()
                 << ": " << reader.errorString();
         }
     }
-    endResetModel();
+    appendItems(items);
 }
 
 void ExampleSetModel::updateQtVersionList()
