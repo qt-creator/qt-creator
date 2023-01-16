@@ -4,7 +4,9 @@
 #include "submiteditorwidget.h"
 #include "submitfieldwidget.h"
 #include "submitfilemodel.h"
+#include "vcsbaseconstants.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
 #include <utils/algorithm.h>
@@ -12,6 +14,7 @@
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -182,6 +185,13 @@ SubmitEditorWidget::SubmitEditorWidget() :
 
     d->buttonLayout = new QHBoxLayout();
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
+    QToolButton *openSettingsButton = new QToolButton;
+    openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
+    openSettingsButton->setToolTip(tr("Open Settings Page..."));
+    connect(openSettingsButton, &QToolButton::clicked,  this, [] {
+        Core::ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
+    });
+    d->buttonLayout->addWidget(openSettingsButton);
     d->buttonLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     d->vboxLayout = new QVBoxLayout(scrollAreaWidgetContents);
