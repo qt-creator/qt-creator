@@ -55,6 +55,8 @@ public:
     Utils::Tasking::TaskItem compileFileItem();
     void compileFile();
     bool isDirty() const;
+    void block();
+    void unblock();
 
 signals:
     void contentsChanged(const Utils::FilePath &file);
@@ -76,6 +78,7 @@ private:
     ContentProvider fromFileProvider() const;
     void compileContent(const QByteArray &content);
     void compileImpl(const ContentProvider &provider);
+    void compileIfDirty();
     virtual Utils::Tasking::TaskItem taskItemImpl(const ContentProvider &provider) = 0;
 
     const std::unique_ptr<ExtraCompilerPrivate> d;

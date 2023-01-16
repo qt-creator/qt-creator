@@ -468,12 +468,16 @@ void SearchResultWidget::handleReplaceButton()
 {
     // check if button is actually enabled, because this is also triggered
     // by pressing return in replace line edit
-    if (m_replaceButton->isEnabled()) {
-        m_infoBar.clear();
-        setShowReplaceUI(false);
-        emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
-                                  m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
-    }
+    if (m_replaceButton->isEnabled())
+        doReplace();
+}
+
+void SearchResultWidget::doReplace()
+{
+    m_infoBar.clear();
+    setShowReplaceUI(false);
+    emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
+                              m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
 }
 
 void SearchResultWidget::cancel()

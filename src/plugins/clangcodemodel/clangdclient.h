@@ -54,7 +54,8 @@ public:
     void closeExtraFile(const Utils::FilePath &filePath);
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                    const std::optional<QString> &replacement);
+                    const std::optional<QString> &replacement,
+                    const std::function<void()> &renameCallback);
     void checkUnused(const Utils::Link &link, Core::SearchResult *search,
                      const Utils::LinkHandler &callback);
     void followSymbol(TextEditor::TextDocument *document,

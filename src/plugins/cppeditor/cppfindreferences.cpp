@@ -368,12 +368,13 @@ static void find_helper(QFutureInterface<CPlusPlus::Usage> &future,
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                    const CPlusPlus::LookupContext &context)
 {
-    findUsages(symbol, context, QString(), false);
+    findUsages(symbol, context, QString(), {}, false);
 }
 
 void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                    const CPlusPlus::LookupContext &context,
                                    const QString &replacement,
+                                   const std::function<void()> &callback,
                                    bool replace)
 {
     CPlusPlus::Overview overview;
@@ -385,6 +386,8 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
                                                 SearchResultWindow::PreserveCaseDisabled,
                                                 QLatin1String("CppEditor"));
     search->setTextToReplace(replacement);
+    if (callback)
+        search->makeNonInteractive(callback);
     if (codeModelSettings()->categorizeFindReferences())
         search->setFilter(new CppSearchResultFilter);
     setupSearch(search);
@@ -408,12 +411,13 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
 
 void CppFindReferences::renameUsages(CPlusPlus::Symbol *symbol,
                                      const CPlusPlus::LookupContext &context,
-                                     const QString &replacement)
+                                     const QString &replacement,
+                                     const std::function<void()> &callback)
 {
     if (const CPlusPlus::Identifier *id = symbol->identifier()) {
         const QString textToReplace = replacement.isEmpty()
                 ? QString::fromUtf8(id->chars(), id->size()) : replacement;
-        findUsages(symbol, context, textToReplace, true);
+        findUsages(symbol, context, textToReplace, callback, true);
     }
 }
 
@@ -429,7 +433,8 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
                 Core::EditorManager::openEditorAtSearchResult(item);
             });
 
-    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    if (search->isInteractive())
+        SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<CPlusPlus::Usage> result;
     result = Utils::runAsync(m_modelManager->sharedThreadPool(), find_helper,

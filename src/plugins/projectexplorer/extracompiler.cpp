@@ -13,10 +13,12 @@
 
 #include <utils/asynctask.h>
 #include <utils/expected.h>
+#include <utils/guard.h>
 #include <utils/qtcprocess.h>
 
 #include <QDateTime>
 #include <QFutureInterface>
+#include <QLoggingCategory>
 #include <QThreadPool>
 #include <QTimer>
 
@@ -26,6 +28,7 @@ namespace ProjectExplorer {
 
 Q_GLOBAL_STATIC(QThreadPool, s_extraCompilerThreadPool);
 Q_GLOBAL_STATIC(QList<ExtraCompilerFactory *>, factories);
+Q_LOGGING_CATEGORY(log, "qtc.projectexplorer.extracompiler", QtWarningMsg);
 
 class ExtraCompilerPrivate
 {
@@ -37,6 +40,7 @@ public:
     Core::IEditor *lastEditor = nullptr;
     QMetaObject::Connection activeBuildConfigConnection;
     QMetaObject::Connection activeEnvironmentConnection;
+    Utils::Guard lock;
     bool dirty = false;
 
     QTimer timer;
@@ -55,13 +59,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
-    connect(&d->timer, &QTimer::timeout, this, [this] {
-        if (d->dirty && d->lastEditor) {
-            d->dirty = false;
-            compileContent(d->lastEditor->document()->contents());
-        }
-    });
-
+    connect(&d->timer, &QTimer::timeout, this, &ExtraCompiler::compileIfDirty);
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &ExtraCompiler::onTargetsBuilt);
 
@@ -163,6 +161,16 @@ void ExtraCompiler::compileImpl(const ContentProvider &provider)
     d->m_taskTree->start();
 }
 
+void ExtraCompiler::compileIfDirty()
+{
+    qCDebug(log) << Q_FUNC_INFO;
+    if (!d->lock.isLocked() && d->dirty && d->lastEditor) {
+        qCDebug(log) << '\t' << "about to compile";
+        d->dirty = false;
+        compileContent(d->lastEditor->document()->contents());
+    }
+}
+
 ExtraCompiler::ContentProvider ExtraCompiler::fromFileProvider() const
 {
     const auto provider = [fileName = source()] {
@@ -177,6 +185,20 @@ ExtraCompiler::ContentProvider ExtraCompiler::fromFileProvider() const
 bool ExtraCompiler::isDirty() const
 {
     return d->dirty;
+}
+
+void ExtraCompiler::block()
+{
+    qCDebug(log) << Q_FUNC_INFO;
+    d->lock.lock();
+}
+
+void ExtraCompiler::unblock()
+{
+    qCDebug(log) << Q_FUNC_INFO;
+    d->lock.unlock();
+    if (!d->lock.isLocked() && !d->timer.isActive())
+        d->timer.start();
 }
 
 void ExtraCompiler::onTargetsBuilt(Project *project)
@@ -278,6 +300,7 @@ Utils::FutureSynchronizer *ExtraCompiler::futureSynchronizer() const
 
 void ExtraCompiler::setContent(const FilePath &file, const QByteArray &contents)
 {
+    qCDebug(log).noquote() << Q_FUNC_INFO << contents;
     auto it = d->contents.find(file);
     if (it != d->contents.end()) {
         if (it.value() != contents) {

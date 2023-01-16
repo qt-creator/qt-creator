@@ -12,6 +12,8 @@
 #include <QStringList>
 #include <QIcon>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 class QFont;
 QT_END_NAMESPACE
@@ -53,6 +55,8 @@ public:
     void setSearchAgainSupported(bool supported);
     QWidget *additionalReplaceWidget() const;
     void setAdditionalReplaceWidget(QWidget *widget);
+    void makeNonInteractive(const std::function<void()> &callback);
+    bool isInteractive() const { return !m_finishedHandler; }
 
 public slots:
     void addResult(const SearchResultItem &item);
@@ -83,6 +87,7 @@ private:
 private:
     Internal::SearchResultWidget *m_widget;
     QVariant m_userData;
+    std::function<void()> m_finishedHandler;
 };
 
 class CORE_EXPORT SearchResultWindow : public IOutputPane

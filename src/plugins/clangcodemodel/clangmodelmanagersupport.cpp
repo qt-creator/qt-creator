@@ -313,16 +313,17 @@ void ClangModelManagerSupport::startLocalRenaming(const CppEditor::CursorInEdito
 }
 
 void ClangModelManagerSupport::globalRename(const CppEditor::CursorInEditor &cursor,
-                                            const QString &replacement)
+                                            const QString &replacement,
+                                            const std::function<void()> &callback)
 {
     if (ClangdClient * const client = clientForFile(cursor.filePath());
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), replacement);
+        client->findUsages(cursor.textDocument(), cursor.cursor(), replacement, callback);
         return;
     }
-    CppModelManager::globalRename(cursor, replacement, CppModelManager::Backend::Builtin);
+    CppModelManager::globalRename(cursor, replacement, callback, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &cursor) const
@@ -331,7 +332,7 @@ void ClangModelManagerSupport::findUsages(const CppEditor::CursorInEditor &curso
             client && client->isFullyIndexed()) {
         QTC_ASSERT(client->documentOpen(cursor.textDocument()),
                    client->openDocument(cursor.textDocument()));
-        client->findUsages(cursor.textDocument(), cursor.cursor(), {});
+        client->findUsages(cursor.textDocument(), cursor.cursor(), {}, {});
 
         return;
     }

@@ -17,6 +17,7 @@ class QtCreatorIntegration : public QDesignerIntegration
 
 public:
     explicit QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent = nullptr);
+    ~QtCreatorIntegration();
 
     QWidget *containerWindow(QWidget *widget) const override;
 
@@ -36,6 +37,13 @@ private:
                         const QString &signalSignature,
                         const QStringList &parameterNames,
                         QString *errorMessage);
+    void handleSymbolRenameStage1(QDesignerFormWindowInterface *formWindow, QObject *object,
+                            const QString &newName, const QString &oldName);
+    void handleSymbolRenameStage2(QDesignerFormWindowInterface *formWindow,
+                            const QString &newName, const QString &oldName);
+
+    class Private;
+    Private * const d;
 };
 
 } // namespace Internal

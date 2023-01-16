@@ -850,6 +850,12 @@ void SearchResult::setFilter(SearchResultFilter *filter)
 void SearchResult::finishSearch(bool canceled, const QString &reason)
 {
     m_widget->finishSearch(canceled, reason);
+    if (m_finishedHandler) {
+        if (!canceled)
+            m_widget->triggerReplace();
+        m_finishedHandler();
+        m_finishedHandler = {};
+    }
 }
 
 /*!
@@ -891,6 +897,13 @@ void SearchResult::setSearchAgainEnabled(bool enabled)
 void SearchResult::popup()
 {
     m_widget->sendRequestPopup();
+}
+
+void Core::SearchResult::makeNonInteractive(const std::function<void ()> &callback)
+{
+    QTC_ASSERT(callback, return);
+    m_widget->setEnabled(false);
+    m_finishedHandler = callback;
 }
 
 } // namespace Core

@@ -109,7 +109,8 @@ public:
 
 ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const std::optional<QString> &replacement, bool categorize)
+        const std::optional<QString> &replacement, const std::function<void()> &callback,
+        bool categorize)
     : QObject(client), d(new ClangdFindReferences::Private(this))
 {
     d->categorize = categorize;
@@ -130,6 +131,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
                 replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
+    d->search->makeNonInteractive(callback);
     if (categorize)
         d->search->setFilter(new CppSearchResultFilter);
     if (d->replacementData) {
@@ -150,7 +152,8 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     connect(d->search, &SearchResult::activated, [](const SearchResultItem& item) {
         EditorManager::openEditorAtSearchResult(item);
     });
-    SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
+    if (d->search->isInteractive())
+        SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     const std::optional<MessageId> requestId = client->symbolSupport().findUsages(
                 document, cursor, [self = QPointer(this)](const QList<Location> &locations) {

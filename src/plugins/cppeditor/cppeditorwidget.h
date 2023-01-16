@@ -10,6 +10,8 @@
 
 #include <QScopedPointer>
 
+#include <functional>
+
 namespace TextEditor {
 class IAssistProposal;
 class IAssistProvider;
@@ -61,6 +63,10 @@ public:
     void findUsages(QTextCursor cursor);
     void renameUsages(const QString &replacement = QString(),
                       QTextCursor cursor = QTextCursor());
+    void renameUsages(const Utils::FilePath &filePath,
+                      const QString &replacement = QString(),
+                      QTextCursor cursor = QTextCursor(),
+                      const std::function<void()> &callback = {});
     void renameSymbolUnderCursor() override;
 
     bool selectBlockUp() override;

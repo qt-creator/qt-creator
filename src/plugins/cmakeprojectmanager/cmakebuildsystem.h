@@ -122,6 +122,7 @@ signals:
 private:
     QList<QPair<Utils::Id, QString>> generators() const override;
     void runGenerator(Utils::Id id) override;
+    ProjectExplorer::ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) override;
 
     enum ForceEnabledChanged { False, True };
     void clearError(ForceEnabledChanged fec = ForceEnabledChanged::False);

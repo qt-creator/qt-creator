@@ -14,6 +14,8 @@
 #include <QPointer>
 #include <QFuture>
 
+#include <functional>
+
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Core {
@@ -65,7 +67,8 @@ public:
 public:
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                      const QString &replacement = QString());
+                      const QString &replacement = QString(),
+                      const std::function<void()> &callback = {});
 
     void findMacroUses(const CPlusPlus::Macro &macro);
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
@@ -80,7 +83,8 @@ private:
     void searchAgain(Core::SearchResult *search);
 
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                    const QString &replacement, bool replace);
+                    const QString &replacement, const std::function<void ()> &callback,
+                    bool replace);
     void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
                        bool replace);
     void findAll_helper(Core::SearchResult *search, CPlusPlus::Symbol *symbol,

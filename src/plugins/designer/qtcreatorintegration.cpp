@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "designertr.h"
-#include "editordata.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
 #include "qtcreatorintegration.h"
@@ -10,7 +9,9 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppsemanticinfo.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/insertionpointlocator.h>
@@ -19,27 +20,37 @@
 #include <cplusplus/Overview.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/messagemanager.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/temporaryfile.h>
 
 #include <QDesignerFormWindowInterface>
 #include <QDesignerFormEditorInterface>
-
-#include <QMessageBox>
-
-#include <QFileInfo>
-#include <QDir>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QLoggingCategory>
+#include <QMessageBox>
+#include <QHash>
 #include <QUrl>
 
+#include <memory>
+
 enum { indentation = 4 };
+
+Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
 
 using namespace Designer::Internal;
 using namespace CPlusPlus;
@@ -60,8 +71,23 @@ static QString msgClassNotFound(const QString &uiClassName, const QList<Document
         .arg(uiClassName, files);
 }
 
+static void reportRenamingError(const QString &oldName, const QString &reason)
+{
+    Core::MessageManager::writeFlashing(
+                Designer::Tr::tr("Cannot rename UI symbol \"%1\" in C++ files: %2")
+                .arg(oldName, reason));
+}
+
+class QtCreatorIntegration::Private
+{
+public:
+    // See QTCREATORBUG-19141 for why this is necessary.
+    QHash<QDesignerFormWindowInterface *, QPointer<ExtraCompiler>> extraCompilers;
+    std::optional<bool> showPropertyEditorRenameWarning = false;
+};
+
 QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, QObject *parent)
-    : QDesignerIntegration(core, parent)
+    : QDesignerIntegration(core, parent), d(new Private)
 {
     setResourceFileWatcherBehaviour(ReloadResourceFileSilently);
     Feature f = features();
@@ -77,6 +103,44 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     slotSyncSettingsToDesigner();
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &QtCreatorIntegration::slotSyncSettingsToDesigner);
+
+    // The problem is as follows:
+    //   - If the user edits the object name in the property editor, the objectNameChanged() signal
+    //     is emitted for every keystroke (QTCREATORBUG-19141). We should not try to rename
+    //     in that case, because the signals will likely come in faster than the renaming
+    //     procedure takes, putting the code model in some non-deterministic state.
+    //   - Unfortunately, this condition is not trivial to detect, because the propertyChanged()
+    //     signal is (somewhat surprisingly) emitted *after* objectNameChanged().
+    //   - We can also not simply use a queued connection for objectNameChanged(), because then
+    //     the ExtraCompiler might have run before our handler, and we won't find the old
+    //     object name in the source code anymore.
+    //  The solution is as follows:
+    //   - Upon receiving objectNameChanged(), we retrieve the corresponding ExtraCompiler,
+    //     block it and store it away. Then we invoke the actual handler delayed.
+    //   - Upon receiving propertyChanged(), we check whether it refers to an object name change.
+    //     If it does, we unblock the ExtraCompiler and remove it from our map.
+    //   - When the real handler runs, it first checks for the ExtraCompiler. If it is not found,
+    //     we don't do anything. Otherwise the actual renaming procedure is run.
+    connect(this, &QtCreatorIntegration::objectNameChanged,
+            this, &QtCreatorIntegration::handleSymbolRenameStage1);
+    connect(this, &QtCreatorIntegration::propertyChanged,
+            this, [this](QDesignerFormWindowInterface *formWindow, const QString &name,
+                         const QVariant &) {
+        if (name == "objectName") {
+            if (const auto extraCompiler = d->extraCompilers.find(formWindow);
+                    extraCompiler != d->extraCompilers.end()) {
+                (*extraCompiler)->unblock();
+                d->extraCompilers.erase(extraCompiler);
+                if (d->showPropertyEditorRenameWarning)
+                    d->showPropertyEditorRenameWarning = true;
+            }
+        }
+    });
+}
+
+QtCreatorIntegration::~QtCreatorIntegration()
+{
+    delete d;
 }
 
 void QtCreatorIntegration::slotDesignerHelpRequested(const QString &manual, const QString &document)
@@ -563,6 +627,162 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
 
     *errorMessage = Tr::tr("Unable to add the method definition.");
     return false;
+}
+
+void QtCreatorIntegration::handleSymbolRenameStage1(
+        QDesignerFormWindowInterface *formWindow, QObject *object,
+        const QString &newName, const QString &oldName)
+{
+    const FilePath uiFile = FilePath::fromString(formWindow->fileName());
+    qCDebug(log) << Q_FUNC_INFO << uiFile << object << oldName << newName;
+    if (newName.isEmpty() || newName == oldName)
+        return;
+
+    // Get ExtraCompiler.
+    const Project * const project = SessionManager::projectForFile(uiFile);
+    if (!project) {
+        return reportRenamingError(oldName, Designer::Tr::tr("File \"%1\" not found in project.")
+                                   .arg(uiFile.toUserOutput()));
+    }
+    const Target * const target = project->activeTarget();
+    if (!target)
+        return reportRenamingError(oldName, Designer::Tr::tr("No active target."));
+    BuildSystem * const buildSystem = target->buildSystem();
+    if (!buildSystem)
+        return reportRenamingError(oldName, Designer::Tr::tr("No active build system."));
+    ExtraCompiler * const ec = buildSystem->extraCompilerForSource(uiFile);
+    if (!ec)
+        return reportRenamingError(oldName, Designer::Tr::tr("Failed to find the ui header."));
+    ec->block();
+    d->extraCompilers.insert(formWindow, ec);
+    qCDebug(log) << "\tfound extra compiler, scheduling stage 2";
+    QMetaObject::invokeMethod(this, [this, formWindow, newName, oldName] {
+        handleSymbolRenameStage2(formWindow, newName, oldName);
+    }, Qt::QueuedConnection);
+}
+
+void QtCreatorIntegration::handleSymbolRenameStage2(
+        QDesignerFormWindowInterface *formWindow, const QString &newName, const QString &oldName)
+{
+    // Retrieve and check previously stored ExtraCompiler.
+    ExtraCompiler * const ec = d->extraCompilers.take(formWindow);
+    if (!ec) {
+        qCDebug(log) << "\tchange came from property editor, ignoring";
+        if (d->showPropertyEditorRenameWarning && *d->showPropertyEditorRenameWarning) {
+            d->showPropertyEditorRenameWarning.reset();
+            reportRenamingError(oldName, Designer::Tr::tr("Renaming via the property editor "
+                "cannot be synced with C++ code; see QTCREATORBUG-19141."
+                " This message will not be repeated."));
+        }
+        return;
+    }
+
+    class ResourceHandler {
+    public:
+        ResourceHandler(ExtraCompiler *ec) : m_ec(ec) {}
+        void setEditor(BaseTextEditor *editorToClose) { m_editorToClose = editorToClose; }
+        void setTempFile(std::unique_ptr<TemporaryFile> &&tempFile) {
+            m_tempFile = std::move(tempFile);
+        }
+        ~ResourceHandler()
+        {
+            if (m_ec)
+                m_ec->unblock();
+            if (m_editorToClose)
+                Core::EditorManager::closeEditors({m_editorToClose}, false);
+        }
+    private:
+        const QPointer<ExtraCompiler> m_ec;
+        QPointer<BaseTextEditor> m_editorToClose;
+        std::unique_ptr<TemporaryFile> m_tempFile;
+    };
+    const auto resourceHandler = std::make_shared<ResourceHandler>(ec);
+
+    QTC_ASSERT(ec->targets().size() == 1, return);
+    const FilePath uiHeader = ec->targets().first();
+    qCDebug(log) << '\t' << uiHeader;
+    const QByteArray virtualContent = ec->content(uiHeader);
+    if (virtualContent.isEmpty()) {
+        qCDebug(log) << "\textra compiler unexpectedly has no contents";
+        return reportRenamingError(oldName,
+                                   Designer::Tr::tr("Failed to retrieve ui header contents."));
+    }
+
+    // Secretly open ui header file contents in editor.
+    // Use a temp file rather than the actual ui header path.
+    const auto openFlags = Core::EditorManager::DoNotMakeVisible
+            | Core::EditorManager::DoNotChangeCurrentEditor;
+    std::unique_ptr<TemporaryFile> tempFile
+            = std::make_unique<TemporaryFile>("XXXXXX" + uiHeader.fileName());
+    QTC_ASSERT(tempFile->open(), return);
+    qCDebug(log) << '\t' << tempFile->fileName();
+    const auto editor = qobject_cast<BaseTextEditor *>(
+                Core::EditorManager::openEditor(FilePath::fromString(tempFile->fileName()), {},
+                                                openFlags));
+    QTC_ASSERT(editor, return);
+    resourceHandler->setTempFile(std::move(tempFile));
+    resourceHandler->setEditor(editor);
+
+    const auto editorWidget = qobject_cast<CppEditor::CppEditorWidget *>(editor->editorWidget());
+    QTC_ASSERT(editorWidget && editorWidget->textDocument(), return);
+
+    // Parse temp file with built-in code model. Pretend it's the real ui header.
+    // In the case of clangd, this entails doing a "virtual rename" on the TextDocument,
+    // as the LanguageClient cannot be forced into taking a document and assuming a different
+    // file path.
+    const bool usesClangd = CppEditor::CppModelManager::usesClangd(editorWidget->textDocument());
+    if (usesClangd)
+        editorWidget->textDocument()->setFilePath(uiHeader);
+    editorWidget->textDocument()->setPlainText(QString::fromUtf8(virtualContent));
+    Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    snapshot.remove(uiHeader);
+    snapshot.remove(editor->textDocument()->filePath());
+    const Document::Ptr cppDoc = snapshot.preprocessedDocument(virtualContent, uiHeader);
+    cppDoc->check();
+    QTC_ASSERT(cppDoc && cppDoc->isParsed(), return);
+
+    // Locate old identifier in ui header.
+    const QByteArray oldNameBa = oldName.toUtf8();
+    const Identifier oldIdentifier(oldNameBa.constData(), oldNameBa.size());
+    QList<const Scope *> scopes{cppDoc->globalNamespace()};
+    while (!scopes.isEmpty()) {
+        const Scope * const scope = scopes.takeFirst();
+        qCDebug(log) << '\t' << scope->memberCount();
+        for (int i = 0; i < scope->memberCount(); ++i) {
+            Symbol * const symbol = scope->memberAt(i);
+            if (const Scope * const s = symbol->asScope())
+                scopes << s;
+            if (symbol->asNamespace())
+                continue;
+            qCDebug(log) << '\t' << Overview().prettyName(symbol->name());
+            if (!symbol->name()->match(&oldIdentifier))
+                continue;
+            QTextCursor cursor(editorWidget->textCursor());
+            cursor.setPosition(cppDoc->translationUnit()->getTokenPositionInDocument(
+                                   symbol->sourceLocation(), editorWidget->document()));
+            qCDebug(log) << '\t' << cursor.position() << cursor.blockNumber()
+                         << cursor.positionInBlock();
+
+            // Trigger non-interactive renaming. The callback is destructed after invocation,
+            // closing the editor, removing the temp file and unblocking the extra compiler.
+            // For the built-in code model, we must access the model manager directly,
+            // as otherwise our file path trickery would be found out.
+            const auto callback = [resourceHandler] { };
+            if (usesClangd) {
+                qCDebug(log) << "renaming with clangd";
+                editorWidget->renameUsages(uiHeader, newName, cursor, callback);
+            } else {
+                qCDebug(log) << "renaming with built-in code model";
+                snapshot.insert(cppDoc);
+                snapshot.updateDependencyTable();
+                CppEditor::CppModelManager::instance()->renameUsages(cppDoc, cursor, snapshot,
+                                                                     newName, callback);
+            }
+            return;
+        }
+    }
+    reportRenamingError(oldName,
+                        Designer::Tr::tr("Failed to locate corresponding symbol in ui header."));
 }
 
 void QtCreatorIntegration::slotSyncSettingsToDesigner()

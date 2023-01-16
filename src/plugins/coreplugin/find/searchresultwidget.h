@@ -39,6 +39,7 @@ public:
 
     void setSupportsReplace(bool replaceSupported, const QString &group);
     bool supportsReplace() const;
+    void triggerReplace() { doReplace(); }
 
     void setTextToReplace(const QString &textToReplace);
     QString textToReplace() const;
@@ -91,6 +92,7 @@ signals:
 private:
     void handleJumpToSearchResult(const SearchResultItem &item);
     void handleReplaceButton();
+    void doReplace();
     void cancel();
     void searchAgain();
 

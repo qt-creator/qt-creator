@@ -1401,4 +1401,11 @@ void CMakeBuildSystem::runGenerator(Id id)
     proc->start();
 }
 
+ExtraCompiler *CMakeBuildSystem::extraCompilerForSource(const Utils::FilePath &source)
+{
+    return Utils::findOrDefault(m_extraCompilers, [source](ExtraCompiler *ec) {
+        return ec->source() == source;
+    });
+}
+
 } // CMakeProjectManager::Internal

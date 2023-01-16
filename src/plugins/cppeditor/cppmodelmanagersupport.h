@@ -11,6 +11,7 @@
 #include <QSharedPointer>
 #include <QString>
 
+#include <functional>
 #include <memory>
 
 namespace Core { class SearchResult; }
@@ -49,7 +50,8 @@ public:
     virtual void startLocalRenaming(const CursorInEditor &data,
                                     const ProjectPart *projectPart,
                                     RenameCallback &&renameSymbolsCallback) = 0;
-    virtual void globalRename(const CursorInEditor &data, const QString &replacement) = 0;
+    virtual void globalRename(const CursorInEditor &data, const QString &replacement,
+                              const std::function<void()> &callback) = 0;
     virtual void findUsages(const CursorInEditor &data) const = 0;
     virtual void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) = 0;
 

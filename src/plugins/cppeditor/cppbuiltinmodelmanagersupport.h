@@ -38,7 +38,8 @@ private:
     void startLocalRenaming(const CursorInEditor &data,
                             const ProjectPart *projectPart,
                             RenameCallback &&renameSymbolsCallback) override;
-    void globalRename(const CursorInEditor &data, const QString &replacement) override;
+    void globalRename(const CursorInEditor &data, const QString &replacement,
+                      const std::function<void()> &callback) override;
     void findUsages(const CursorInEditor &data) const override;
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) override;
     void checkUnused(const Utils::Link &link, Core::SearchResult *search,

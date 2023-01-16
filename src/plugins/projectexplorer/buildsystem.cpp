@@ -236,6 +236,12 @@ bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
     return false;
 }
 
+ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source)
+{
+    Q_UNUSED(source);
+    return nullptr;
+}
+
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     QTC_ASSERT(target()->project()->hasMakeInstallEquivalent(), return {});
