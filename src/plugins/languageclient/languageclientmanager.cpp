@@ -192,22 +192,6 @@ const QList<Client *> LanguageClientManager::clients()
     return managerInstance->m_clients;
 }
 
-void LanguageClientManager::addExclusiveRequest(const MessageId &id, Client *client)
-{
-    QTC_ASSERT(managerInstance, return);
-    managerInstance->m_exclusiveRequests[id] << client;
-}
-
-void LanguageClientManager::reportFinished(const MessageId &id, Client *byClient)
-{
-    QTC_ASSERT(managerInstance, return);
-    for (Client *client : std::as_const(managerInstance->m_exclusiveRequests[id])) {
-        if (client != byClient)
-            client->cancelRequest(id);
-    }
-    managerInstance->m_exclusiveRequests.remove(id);
-}
-
 void LanguageClientManager::shutdownClient(Client *client)
 {
     if (!client)

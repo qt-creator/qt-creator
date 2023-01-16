@@ -44,9 +44,6 @@ public:
     static void addClient(Client *client);
     static void restartClient(Client *client);
 
-    static void addExclusiveRequest(const LanguageServerProtocol::MessageId &id, Client *client);
-    static void reportFinished(const LanguageServerProtocol::MessageId &id, Client *byClient);
-
     static void shutdownClient(Client *client);
     static void deleteClient(Client *client);
 
@@ -105,7 +102,6 @@ private:
     QList<BaseSettings *>  m_currentSettings; // owned
     QMap<QString, QList<Client *>> m_clientsForSetting;
     QHash<TextEditor::TextDocument *, QPointer<Client>> m_clientForDocument;
-    QHash<LanguageServerProtocol::MessageId, QList<Client *>> m_exclusiveRequests;
     DocumentLocatorFilter m_currentDocumentLocatorFilter;
     WorkspaceLocatorFilter m_workspaceLocatorFilter;
     WorkspaceClassLocatorFilter m_workspaceClassLocatorFilter;
