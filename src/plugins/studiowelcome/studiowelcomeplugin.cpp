@@ -756,10 +756,12 @@ void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
         m_quickWidget->setSource(
             QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "welcomepage/main.qml"));
 #else
+        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
         m_quickWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
         m_quickWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
 #endif
     } else {
+        m_quickWidget->rootContext()->setContextProperty("$dataModel", m_dataModelDownloader);
 
         m_quickWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
 

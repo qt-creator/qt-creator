@@ -17,11 +17,14 @@ add_qtc_library(QmlDesignerUtils STATIC
     Qt5::Gui
   DEFINES QMLDESIGNERUTILS_LIBRARY
   PUBLIC_DEFINES $<$<BOOL:${QTC_STATIC_BUILD}>:QMLDESIGNER_STATIC_LIBRARY>
+  DEPENDS Utils Qt5::QmlPrivate
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
     asset.cpp asset.h
     designersettings.cpp designersettings.h
+    filedownloader.cpp filedownloader.h
+    fileextractor.cpp fileextractor.h
     hdrimage.cpp hdrimage.h
     imageutils.cpp imageutils.h
     qmldesignerutils_global.h
