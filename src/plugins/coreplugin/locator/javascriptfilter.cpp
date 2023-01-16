@@ -3,6 +3,8 @@
 
 #include "javascriptfilter.h"
 
+#include "../coreplugintr.h"
+
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QJSEngine>
@@ -15,8 +17,8 @@ enum class EngineAction { Reset = 1, Abort };
 JavaScriptFilter::JavaScriptFilter()
 {
     setId("JavaScriptFilter");
-    setDisplayName(tr("Evaluate JavaScript"));
-    setDescription(tr("Evaluates arbitrary JavaScript expressions and copies the result."));
+    setDisplayName(Tr::tr("Evaluate JavaScript"));
+    setDescription(Tr::tr("Evaluates arbitrary JavaScript expressions and copies the result."));
     setDefaultIncludedByDefault(false);
     setDefaultShortcutString("=");
     m_abortTimer.setSingleShot(true);
@@ -50,17 +52,17 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
 
     QList<LocatorFilterEntry> entries;
     if (entry.trimmed().isEmpty()) {
-        entries.append({this, tr("Reset Engine"), QVariant::fromValue(EngineAction::Reset)});
+        entries.append({this, Tr::tr("Reset Engine"), QVariant::fromValue(EngineAction::Reset)});
     } else {
         const QString result = m_engine->evaluate(entry).toString();
         if (m_aborted) {
-            const QString message = entry + " = " + tr("Engine aborted after timeout.");
+            const QString message = entry + " = " + Tr::tr("Engine aborted after timeout.");
             entries.append({this, message, QVariant::fromValue(EngineAction::Abort)});
         } else {
             const QString expression = entry + " = " + result;
             entries.append({this, expression, QVariant()});
-            entries.append({this, tr("Copy to clipboard: %1").arg(result), result});
-            entries.append({this, tr("Copy to clipboard: %1").arg(expression), expression});
+            entries.append({this, Tr::tr("Copy to clipboard: %1").arg(result), result});
+            entries.append({this, Tr::tr("Copy to clipboard: %1").arg(expression), expression});
         }
     }
 

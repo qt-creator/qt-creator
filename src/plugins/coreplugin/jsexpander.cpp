@@ -4,11 +4,11 @@
 #include "jsexpander.h"
 
 #include "corejsextensions.h"
+#include "coreplugintr.h"
 
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QJSEngine>
 
@@ -46,8 +46,7 @@ QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
 {
     QJSValue value = d->m_engine.evaluate(expression);
     if (value.isError()) {
-        const QString msg = QCoreApplication::translate("Core::JsExpander", "Error in \"%1\": %2")
-                .arg(expression, value.toString());
+        const QString msg = Tr::tr("Error in \"%1\": %2").arg(expression, value.toString());
         if (errorMessage)
             *errorMessage = msg;
         return QString();
@@ -59,8 +58,7 @@ QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
         return QString::number(value.toNumber());
     if (value.isString())
         return value.toString();
-    QString msg = QCoreApplication::translate("Core::JsExpander",
-                                              "Cannot convert result of \"%1\" to string.").arg(expression);
+    QString msg = Tr::tr("Cannot convert result of \"%1\" to string.").arg(expression);
     if (errorMessage)
         *errorMessage = msg;
     return QString();
@@ -75,11 +73,10 @@ void JsExpander::registerForExpander(Utils::MacroExpander *macroExpander)
 {
     macroExpander->registerPrefix(
         "JS",
-        QCoreApplication::translate("Core::JsExpander",
-                                    "Evaluate simple JavaScript statements.<br>"
-                                    "Literal '}' characters must be escaped as \"\\}\", "
-                                    "'\\' characters must be escaped as \"\\\\\", "
-                                    "and \"%{\" must be escaped as \"%\\{\"."),
+        Tr::tr("Evaluate simple JavaScript statements.<br>"
+               "Literal '}' characters must be escaped as \"\\}\", "
+               "'\\' characters must be escaped as \"\\\\\", "
+               "and \"%{\" must be escaped as \"%\\{\"."),
         [this](QString in) -> QString {
             QString errorMessage;
             QString result = evaluate(in, &errorMessage);

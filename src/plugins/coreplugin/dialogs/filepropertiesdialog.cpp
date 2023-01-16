@@ -3,8 +3,10 @@
 
 #include "filepropertiesdialog.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
+#include "../coreplugintr.h"
+#include "../editormanager/editormanager.h"
+#include "../editormanager/ieditorfactory.h"
+
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
@@ -64,21 +66,21 @@ FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *pa
     // clang-format off
     Column {
         Form {
-            tr("Name:"), m_name, br,
-            tr("Path:"), m_path, br,
-            tr("MIME type:"), m_mimeType, br,
-            tr("Default editor:"), m_defaultEditor, br,
-            tr("Line endings:"), m_lineEndings, br,
-            tr("Indentation:"), m_indentation, br,
-            tr("Owner:"), m_owner, br,
-            tr("Group:"), m_group, br,
-            tr("Size:"), m_size, br,
-            tr("Last read:"), m_lastRead, br,
-            tr("Last modified:"), m_lastModified, br,
-            tr("Readable:"), m_readable, br,
-            tr("Writable:"), m_writable, br,
-            tr("Executable:"), m_executable, br,
-            tr("Symbolic link:"), m_symLink, br
+            Tr::tr("Name:"), m_name, br,
+            Tr::tr("Path:"), m_path, br,
+            Tr::tr("MIME type:"), m_mimeType, br,
+            Tr::tr("Default editor:"), m_defaultEditor, br,
+            Tr::tr("Line endings:"), m_lineEndings, br,
+            Tr::tr("Indentation:"), m_indentation, br,
+            Tr::tr("Owner:"), m_owner, br,
+            Tr::tr("Group:"), m_group, br,
+            Tr::tr("Size:"), m_size, br,
+            Tr::tr("Last read:"), m_lastRead, br,
+            Tr::tr("Last modified:"), m_lastModified, br,
+            Tr::tr("Readable:"), m_readable, br,
+            Tr::tr("Writable:"), m_writable, br,
+            Tr::tr("Executable:"), m_executable, br,
+            Tr::tr("Symbolic link:"), m_symLink, br
         },
         buttonBox
     }.attachTo(this);
@@ -105,8 +107,8 @@ void FilePropertiesDialog::detectTextFileSettings()
 {
     QFile file(m_filePath.toString());
     if (!file.open(QIODevice::ReadOnly)) {
-        m_lineEndings->setText(tr("Unknown"));
-        m_indentation->setText(tr("Unknown"));
+        m_lineEndings->setText(Tr::tr("Unknown"));
+        m_indentation->setText(Tr::tr("Unknown"));
         return;
     }
 
@@ -116,15 +118,15 @@ void FilePropertiesDialog::detectTextFileSettings()
 
     // Try to guess the files line endings
     if (data.contains("\r\n")) {
-        m_lineEndings->setText(tr("Windows (CRLF)"));
+        m_lineEndings->setText(Tr::tr("Windows (CRLF)"));
     } else if (data.contains("\n")) {
-        m_lineEndings->setText(tr("Unix (LF)"));
+        m_lineEndings->setText(Tr::tr("Unix (LF)"));
     } else if (data.contains("\r")) {
-        m_lineEndings->setText(tr("Mac (CR)"));
+        m_lineEndings->setText(Tr::tr("Mac (CR)"));
         lineSeparator = '\r';
     } else {
         // That does not look like a text file at all
-        m_lineEndings->setText(tr("Unknown"));
+        m_lineEndings->setText(Tr::tr("Unknown"));
         return;
     }
 
@@ -167,14 +169,14 @@ void FilePropertiesDialog::detectTextFileSettings()
 
     if (!indents.empty()) {
         if (tabIndented) {
-            m_indentation->setText(tr("Mixed"));
+            m_indentation->setText(Tr::tr("Mixed"));
         } else {
-            m_indentation->setText(tr("%1 Spaces").arg(max->first));
+            m_indentation->setText(Tr::tr("%1 Spaces").arg(max->first));
         }
     } else if (tabIndented) {
-        m_indentation->setText(tr("Tabs"));
+        m_indentation->setText(Tr::tr("Tabs"));
     } else {
-        m_indentation->setText(tr("Unknown"));
+        m_indentation->setText(Tr::tr("Unknown"));
     }
 }
 
@@ -192,7 +194,7 @@ void FilePropertiesDialog::refresh()
 
         const EditorTypeList factories = IEditorFactory::preferredEditorTypes(m_filePath);
         m_defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName()
-                                                      : tr("Undefined"));
+                                                      : Tr::tr("Undefined"));
 
         m_owner->setText(fileInfo.owner());
         m_group->setText(fileInfo.group());
@@ -206,8 +208,8 @@ void FilePropertiesDialog::refresh()
         if (mimeType.inherits("text/plain")) {
             detectTextFileSettings();
         } else {
-            m_lineEndings->setText(tr("Unknown"));
-            m_indentation->setText(tr("Unknown"));
+            m_lineEndings->setText(Tr::tr("Unknown"));
+            m_indentation->setText(Tr::tr("Unknown"));
         }
     });
 }

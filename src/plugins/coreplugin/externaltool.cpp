@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "externaltool.h"
-#include "externaltoolmanager.h"
 
+#include "coreplugintr.h"
+#include "externaltoolmanager.h"
 #include "icore.h"
 #include "idocument.h"
 #include "messagemanager.h"
 #include "documentmanager.h"
 #include "editormanager/editormanager.h"
-#include "editormanager/ieditor.h"
 
 #include <app/app_version.h>
 
@@ -308,7 +308,7 @@ static void localizedText(const QStringList &locales, QXmlStreamReader *reader, 
         }
     } else {
         if (*currentLocale < 0 && currentText->isEmpty()) {
-            *currentText = QCoreApplication::translate("Core::ExternalTool",
+            *currentText = QCoreApplication::translate("::Core",
                                                        reader->readElementText().toUtf8().constData(),
                                                        "");
         } else {
@@ -591,7 +591,7 @@ bool ExternalToolRunner::resolve()
         if (m_resolvedExecutable.isEmpty()) {
             m_hasError = true;
             for (int i = 0; i < expandedExecutables.size(); ++i) {
-                m_errorString += tr("Could not find executable for \"%1\" (expanded \"%2\")")
+                m_errorString += Tr::tr("Could not find executable for \"%1\" (expanded \"%2\")")
                         .arg(m_tool->executables().at(i).toUserOutput(),
                              expandedExecutables.at(i).toUserOutput());
                 m_errorString += QLatin1Char('\n');
@@ -643,7 +643,7 @@ void ExternalToolRunner::run()
     const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
                            ? QOverload<const QString &>::of(MessageManager::writeDisrupting)
                            : QOverload<const QString &>::of(MessageManager::writeSilently);
-    write(tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
+    write(Tr::tr("Starting external tool \"%1\"").arg(cmd.toUserOutput()));
     if (!m_resolvedInput.isEmpty())
         m_process->setWriteData(m_resolvedInput.toLocal8Bit());
     m_process->start();
@@ -657,8 +657,8 @@ void ExternalToolRunner::done()
         ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
     }
     const QString message = (m_process->result() == ProcessResult::FinishedWithSuccess)
-            ? tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput())
-            : tr("\"%1\" finished with error").arg(m_resolvedExecutable.toUserOutput());
+            ? Tr::tr("\"%1\" finished").arg(m_resolvedExecutable.toUserOutput())
+            : Tr::tr("\"%1\" finished with error").arg(m_resolvedExecutable.toUserOutput());
 
     if (m_tool->modifiesCurrentDocument())
         DocumentManager::unexpectFileChange(m_expectedFilePath);

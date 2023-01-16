@@ -8,12 +8,11 @@
 #include "locatorconstants.h"
 #include "locatormanager.h"
 #include "locatorsearchutils.h"
+#include "../actionmanager/actionmanager.h"
+#include "../coreplugintr.h"
+#include "../icore.h"
+#include "../modemanager.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/mainwindow.h>
 #include <utils/algorithm.h>
 #include <utils/appmainwindow.h>
 #include <utils/fancylineedit.h>
@@ -561,8 +560,8 @@ bool CompletionList::eventFilter(QObject *watched, QEvent *event)
 LocatorWidget::LocatorWidget(Locator *locator)
     : m_locatorModel(new LocatorModel(this))
     , m_filterMenu(new QMenu(this))
-    , m_centeredPopupAction(new QAction(tr("Open as Centered Popup"), this))
-    , m_refreshAction(new QAction(tr("Refresh"), this))
+    , m_centeredPopupAction(new QAction(Tr::tr("Open as Centered Popup"), this))
+    , m_refreshAction(new QAction(Tr::tr("Refresh"), this))
     , m_configureAction(new QAction(ICore::msgShowOptionsDialog(), this))
     , m_fileLineEdit(new Utils::FancyLineEdit)
 {
@@ -583,7 +582,7 @@ LocatorWidget::LocatorWidget(Locator *locator)
     const QIcon icon = Utils::Icons::MAGNIFIER.icon();
     m_fileLineEdit->setFiltering(true);
     m_fileLineEdit->setButtonIcon(Utils::FancyLineEdit::Left, icon);
-    m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, tr("Options"));
+    m_fileLineEdit->setButtonToolTip(Utils::FancyLineEdit::Left, Tr::tr("Options"));
     m_fileLineEdit->setFocusPolicy(Qt::ClickFocus);
     m_fileLineEdit->setButtonVisible(Utils::FancyLineEdit::Left, true);
     // We set click focus since otherwise you will always get two popups
@@ -662,9 +661,9 @@ void LocatorWidget::updatePlaceholderText(Command *command)
 {
     QTC_ASSERT(command, return);
     if (command->keySequence().isEmpty())
-        m_fileLineEdit->setPlaceholderText(tr("Type to locate"));
+        m_fileLineEdit->setPlaceholderText(Tr::tr("Type to locate"));
     else
-        m_fileLineEdit->setPlaceholderText(tr("Type to locate (%1)").arg(
+        m_fileLineEdit->setPlaceholderText(Tr::tr("Type to locate (%1)").arg(
                                         command->keySequence().toString(QKeySequence::NativeText)));
 }
 

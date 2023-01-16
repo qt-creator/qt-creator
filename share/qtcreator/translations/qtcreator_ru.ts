@@ -4052,7 +4052,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Невозможно создать каталог %1.</translation>
@@ -8308,9 +8308,6 @@ p, li { white-space: pre-wrap; }
         <comment>On Linux/macOS</comment>
         <translation>Все файлы (*)</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Existing files</source>
         <translation>Существующие файлы</translation>
@@ -8319,9 +8316,6 @@ p, li { white-space: pre-wrap; }
         <source>File Generation Failure</source>
         <translation>Не удалось сгенерировать файл</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizardFactory</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Не удалось открыть редактор для «%1».</translation>
@@ -8344,9 +8338,6 @@ p, li { white-space: pre-wrap; }
         <translation>Каталог проекта %1 содержит файлы, которые не могут быть перезаписаны:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Кодировка текста</translation>
@@ -8367,9 +8358,6 @@ p, li { white-space: pre-wrap; }
         <source>Save with Encoding</source>
         <translation>Сохранить в кодировке</translation>
     </message>
-</context>
-<context>
-    <name>Core::CommandMappings</name>
     <message>
         <source>Command Mappings</source>
         <translation>Связывание команд</translation>
@@ -8391,10 +8379,6 @@ p, li { white-space: pre-wrap; }
         <translation>Сбросить всё в исходное состояние.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Сброс в исходное состояние.</translation>
     </message>
@@ -8410,16 +8394,10 @@ p, li { white-space: pre-wrap; }
         <source>Label</source>
         <translation>Название</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Дизайн</translation>
     </message>
-</context>
-<context>
-    <name>Core::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Общий фильтр для каталогов</translation>
@@ -8444,9 +8422,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 filter update: canceled</source>
         <translation>Обновление по фильтру %1: отменено</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
@@ -8480,9 +8455,6 @@ p, li { white-space: pre-wrap; }
         <source>Cannot reload %1</source>
         <translation>Не удалось перезагрузить %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Вернуть к сохранённому</translation>
@@ -8560,10 +8532,6 @@ Continue?</source>
         <translation>Закрыть остальные документы</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
         <source>Copy Full Path</source>
         <translation>Скопировать полный путь</translation>
     </message>
@@ -8611,16 +8579,9 @@ Continue?</source>
         <source>Close Document</source>
         <translation>Закрыть документ</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>Перетаскивайте документы между разделениями</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Разделить</translation>
     </message>
     <message>
         <source>Remove Split</source>
@@ -8634,9 +8595,6 @@ Continue?</source>
         <source>File is writable</source>
         <translation>Файл записываемый</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Uncategorized</source>
         <translation>Другие</translation>
@@ -8682,9 +8640,6 @@ Continue?</source>
         <source>External Tools</source>
         <translation>Внешние утилиты</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Внешние</translation>
@@ -8693,9 +8648,6 @@ Continue?</source>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Ошибка: Внешняя утилита в %1 имеет повторяющийся id</translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>Поиск/&amp;замена</translation>
@@ -8716,9 +8668,6 @@ Continue?</source>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::ICore</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -8731,16 +8680,10 @@ Continue?</source>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Основан на Qt %1 (%2, %3 бита)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Файл был восстановлен из авто-сохранённой копии. Используйте «Сохранить» для подтверждения или «Возвратить сохранённую» для отказа от изменений.</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>С учётом регистра</translation>
@@ -8769,9 +8712,6 @@ Continue?</source>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Настройка фильтра</translation>
@@ -8792,9 +8732,6 @@ Continue?</source>
         <source>Prefix:</source>
         <translation>Префикс:</translation>
     </message>
-</context>
-<context>
-    <name>Core::IOutputPane</name>
     <message>
         <source>Use Regular Expressions</source>
         <translation>Использовать регулярные выражения</translation>
@@ -8811,16 +8748,10 @@ Continue?</source>
         <source>Filter output...</source>
         <translation>Фильтр вывода...</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Открыть с помощью VCS (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Фабрика с id=&quot;%1&quot; уже зарегистрирована. Удаляется.</translation>
@@ -8833,9 +8764,6 @@ Continue?</source>
         <source>Inspect Wizard State</source>
         <translation>Проверить состояние мастера</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Не удалось запустить обозреватель файлов</translation>
@@ -8910,9 +8838,6 @@ Continue?</source>
         <source>Could not delete file %1.</source>
         <translation>Не удалось удалить файл %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::AddToVcsDialog</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -8925,16 +8850,10 @@ Continue?</source>
         <source>Add the files to version control (%1)</source>
         <translation>Добавить файлы под контроль версий (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Активировать обзор %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>Темы не установлены.</translation>
@@ -9043,9 +8962,6 @@ You will likely experience further problems using this instance of %3.</source>
         <translation>При чтении файла настроек «%1» возникла ошибка: %2
 Возможны проблемы при дальнейшем использовании %3 без перезапуска.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -9053,13 +8969,6 @@ You will likely experience further problems using this instance of %3.</source>
             <numerusform>Выполнено %n замены.</numerusform>
             <numerusform>Выполнено %n замен.</numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -9083,9 +8992,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Edit...</source>
         <translation>Изменить...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentManagerPrivate</name>
     <message>
         <source>Ctrl+Shift+S</source>
         <translation>Ctrl+Shift+S</translation>
@@ -9094,9 +9000,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Save A&amp;ll</source>
         <translation>Сохранить &amp;всё</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;нет документа&gt;</translation>
@@ -9105,16 +9008,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>No document is selected.</source>
         <translation>Документ не выбран.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Редактор</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>Свойства...</translation>
@@ -9176,10 +9073,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Alt+Right</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Разделить</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -9188,20 +9081,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Разделить вертикально</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Открыть в новом окне</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -9300,10 +9185,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>&lt;b&gt;Внимание:&lt;/b&gt; Вы изменяете файл, доступный только для чтения.</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Сделать записываемым</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation>&amp;Сохранить %1</translation>
     </message>
@@ -9328,24 +9209,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Закрыть все, кроме %1</translation>
     </message>
     <message>
-        <source>Close Others</source>
-        <translation>Закрыть другие</translation>
-    </message>
-    <message>
         <source>Cannot Open File</source>
         <translation>Не удалось открыть файл</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Не удалось открыть файл для правки с помощью VCS.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Вернуть к сохранённому</translation>
     </message>
     <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
@@ -9363,9 +9232,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Отменить и с&amp;равнить</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Запустить особую команду</translation>
@@ -9400,9 +9266,6 @@ Do you want to kill it?</source>
         <source>Could not start process: %1.</source>
         <translation>Не удалось запустить процесс: %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>Создание из ts-файлов переводчика qm-файлов переводов, используемых приложением</translation>
@@ -9471,28 +9334,13 @@ Do you want to kill it?</source>
         <source>System Environment</source>
         <translation>Системная среда</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
         <source>Description:</source>
         <translation>Описание:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Программа:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -9586,9 +9434,6 @@ Do you want to kill it?</source>
         <source>Base environment:</source>
         <translation>Исходная среда:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Не удалось найти программу для «%1» (полностью «%2»)</translation>
@@ -9601,16 +9446,10 @@ Do you want to kill it?</source>
         <source>&quot;%1&quot; finished</source>
         <translation>«%1» завершилась</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Запуск внешней утилиты</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Файлы в системе</translation>
@@ -9635,9 +9474,6 @@ Do you want to kill it?</source>
         <source>Create</source>
         <translation>Создать</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Включить скрытые файлы</translation>
@@ -9646,9 +9482,6 @@ Do you want to kill it?</source>
         <source>Filter:</source>
         <translation>Фильтр:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindDialog</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Найти</translation>
@@ -9677,9 +9510,6 @@ Do you want to kill it?</source>
         <source>Sco&amp;pe:</source>
         <translation>&amp;Область:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -9745,16 +9575,8 @@ Do you want to kill it?</source>
         <translation>Заменить всё</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation>Учитывать регистр</translation>
-    </message>
-    <message>
         <source>Whole Words Only</source>
         <translation>Только слова целиком</translation>
-    </message>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation>Использовать регулярные выражения</translation>
     </message>
     <message>
         <source>Preserve Case when Replacing</source>
@@ -9768,16 +9590,10 @@ Do you want to kill it?</source>
         <source>Replace with...</source>
         <translation>Заменить на...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolWindow</name>
     <message>
         <source>Empty search term.</source>
         <translation>Пустое поле поиска.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Поиск</translation>
@@ -9790,25 +9606,6 @@ Do you want to kill it?</source>
         <source>Replace with:</source>
         <translation>Заменить на:</translation>
     </message>
-    <message>
-        <source>Replace</source>
-        <translation>Заменить</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Заменить и продолжить поиск</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Заменить всё</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Дополнительно...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>&lt;System Language&gt;</source>
         <translation>&lt;Системный&gt;</translation>
@@ -9854,10 +9651,6 @@ Do you want to kill it?</source>
         <translation>Язык:</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Сбросить</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>Сбросить в исходное состояние.</translation>
@@ -9879,9 +9672,6 @@ Do you want to kill it?</source>
         <source>Enable high DPI scaling</source>
         <translation>Масштабировать при большом DPI</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::JavaScriptFilter</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation>Вычислить JavaScript</translation>
@@ -9898,9 +9688,6 @@ Do you want to kill it?</source>
         <source>Copy to clipboard: %1</source>
         <translation>Скопировать в буфер обмена: %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -9925,23 +9712,13 @@ Do you want to kill it?</source>
         <source>Updating Locator Caches</source>
         <translation>Обновление кэшей поиска</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Доступные фильтры</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Настройка фильтров</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -9954,14 +9731,6 @@ Do you want to kill it?</source>
     <message>
         <source> min</source>
         <translation> мин</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Добавить...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Изменить...</translation>
     </message>
     <message>
         <source>Files in Directories</source>
@@ -9991,9 +9760,6 @@ Do you want to kill it?</source>
         <source>Custom</source>
         <translation>Особый</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Обновить</translation>
@@ -10010,9 +9776,6 @@ Do you want to kill it?</source>
         <source>Options</source>
         <translation>Параметры</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Файл</translation>
@@ -10060,10 +9823,6 @@ Do you want to kill it?</source>
     <message>
         <source>Save</source>
         <translation>Сохранить</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <translation>Ctrl+Shift+S</translation>
     </message>
     <message>
         <source>Save As...</source>
@@ -10242,23 +10001,14 @@ Do you want to kill it?</source>
         <source>About &amp;Plugins...</source>
         <translation>О &amp;модулях...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MenuBarFilter</name>
     <message>
         <source>Actions from the Menu</source>
         <translation>Действия из меню</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Основные сообщения</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
     <message>
         <source>Add Magic Header</source>
         <translation>Добавить заголовок-признак</translation>
@@ -10270,10 +10020,6 @@ Do you want to kill it?</source>
     <message>
         <source>Internal error: Type is invalid</source>
         <translation>Внутренняя ошибка: тип неверен</translation>
-    </message>
-    <message>
-        <source>Dialog</source>
-        <translation></translation>
     </message>
     <message>
         <source>Value:</source>
@@ -10347,16 +10093,10 @@ Do you want to kill it?</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Wide range values might impact performance when opening files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Широкий диапазон значений может снизить скорость при открытии файлов.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME-типы</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME-тип</translation>
@@ -10365,16 +10105,9 @@ Do you want to kill it?</source>
         <source>Handler</source>
         <translation>Обработчик</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Зарегистрированные MIME-типы</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation>Сбросить всё в исходное состояние.</translation>
     </message>
     <message>
         <source>Details</source>
@@ -10397,18 +10130,6 @@ Do you want to kill it?</source>
         <translation>Приоритет</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Добавить...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Изменить...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Фильтр</translation>
     </message>
@@ -10420,31 +10141,10 @@ Do you want to kill it?</source>
         <source>Reset Handlers</source>
         <translation>Сброс обработчиков</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation>Сброс MIME-типов</translation>
-    </message>
     <message>
         <source>Changes will take effect after restart.</source>
         <translation>Изменения вступят в силу после перезапуска.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Разделить</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Новый проект</translation>
@@ -10481,23 +10181,14 @@ Do you want to kill it?</source>
         <source>Supported Platforms</source>
         <translation>Поддерживаемые платформы</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open Documents</source>
         <translation>Открытые документы</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Открыть файл с помощью...</translation>
@@ -10511,9 +10202,6 @@ Do you want to kill it?</source>
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Открыть файл «%1» с помощью:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Вывод</translation>
@@ -10558,20 +10246,9 @@ Do you want to kill it?</source>
         <source>Minimize Output Pane</source>
         <translation>Свернуть панель вывода</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
     <message>
         <source>Error Details</source>
         <translation>Подробнее об ошибке</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
     </message>
     <message>
         <source>Install Plugin...</source>
@@ -10597,9 +10274,6 @@ Do you want to kill it?</source>
         <source>Plugin Errors of %1</source>
         <translation>Ошибки модуля %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginInstallWizard</name>
     <message>
         <source>Source</source>
         <translation>Источник</translation>
@@ -10615,10 +10289,6 @@ Do you want to kill it?</source>
     <message>
         <source>Check Archive</source>
         <translation>Проверка архива</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
     </message>
     <message>
         <source>Checking archive...</source>
@@ -10708,23 +10378,14 @@ Do you want to kill it?</source>
         <source>Failed to Copy Plugin Files</source>
         <translation>Не удалось скопировать файлы модуля</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Переключить подробности выполнения</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Процессы</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Файлы без права записи</translation>
@@ -10732,10 +10393,6 @@ Do you want to kill it?</source>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Для следующих файлов отсутствует право записи. Сменить права?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Сделать записываемым</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -10753,16 +10410,9 @@ Do you want to kill it?</source>
         <source>Select all, if possible: </source>
         <translation>Выбрать все, если возможно:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save All</source>
         <translation>Сохранить все</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Сохранить</translation>
     </message>
     <message>
         <source>&amp;Diff</source>
@@ -10771,10 +10421,6 @@ Do you want to kill it?</source>
     <message>
         <source>Do &amp;Not Save</source>
         <translation>&amp;Не сохранять</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Сохранить</translation>
     </message>
     <message>
         <source>&amp;Diff &amp;&amp; Cancel</source>
@@ -10812,16 +10458,9 @@ Do you want to kill it?</source>
         <source>Automatically save all files before building</source>
         <translation>Всегда сохранять файлы перед сборкой</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Поиск был отменён.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -10875,20 +10514,10 @@ Do you want to kill it?</source>
             <numerusform>Найдено %n совпадений.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Настройки</translation>
     </message>
-    <message>
-        <source>Options</source>
-        <translation>Параметры</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Щёлкните и введите новую ключевую последовательность.</translation>
@@ -10901,9 +10530,6 @@ Do you want to kill it?</source>
         <source>Record</source>
         <translation>Записать</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutInput</name>
     <message>
         <source>Key sequence:</source>
         <translation>Сочетание клавиш:</translation>
@@ -10920,9 +10546,6 @@ Do you want to kill it?</source>
         <source>Enter key sequence as text</source>
         <translation>Введите комбинацию в виде текста</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Горячие клавиши</translation>
@@ -10944,10 +10567,6 @@ Do you want to kill it?</source>
         <translation>Комбинация не будет работать в редакторе.</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
         <source>Invalid key sequence.</source>
         <translation>Неверная комбинация клавиш.</translation>
     </message>
@@ -10963,27 +10582,10 @@ Do you want to kill it?</source>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Экспорт схемы разметки клавиатуры</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Разделить</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Индекс имени файла Spotlight</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Системный редактор</translation>
@@ -10992,9 +10594,6 @@ Do you want to kill it?</source>
         <source>Could not open URL %1.</source>
         <translation>Не удалось открыть URL %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>System</source>
         <translation>Система</translation>
@@ -11099,9 +10698,6 @@ Do you want to kill it?</source>
         <source>Maximum number of entries in &quot;Recent Files&quot;:</source>
         <translation>Максимальное число записей в меню «Недавние файлы»:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
         <translation>Параметры командной строки для «%1».</translation>
@@ -11119,10 +10715,6 @@ Do you want to kill it?</source>
         <translation>Учитывать регистр (по умолчанию)</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation>Учитывать регистр</translation>
-    </message>
-    <message>
         <source>Case Insensitive (Default)</source>
         <translation>Не учитывать регистр (по умолчанию)</translation>
     </message>
@@ -11134,9 +10726,6 @@ Do you want to kill it?</source>
         <source>Variables</source>
         <translation>Переменные</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ThemeChooser</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Текущая тема: %1</translation>
@@ -11145,9 +10734,6 @@ Do you want to kill it?</source>
         <source>The theme change will take effect after restart.</source>
         <translation>Изменение темы вступит в силу после перезапуска.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::UrlFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Название:</translation>
@@ -11155,14 +10741,6 @@ Do you want to kill it?</source>
     <message>
         <source>URLs:</source>
         <translation>Ссылки:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -11178,9 +10756,6 @@ Double-click to edit item.</source>
         <translation>Добавить заполнитель «%1» для строки запроса.
 Двойной щелчок для изменения.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation>О программе %1</translation>
@@ -11197,9 +10772,6 @@ Double-click to edit item.</source>
         <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;© 2008-%6 %7. Все права защищены.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Выйти из полноэкранного режима</translation>
@@ -11208,9 +10780,6 @@ Double-click to edit item.</source>
         <source>Enter Full Screen</source>
         <translation>Полноэкранный режим</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Ошибка в «%1»: %2</translation>
@@ -11223,37 +10792,18 @@ Double-click to edit item.</source>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;Literal &apos;}&apos; characters must be escaped as &quot;\}&quot;, &apos;\&apos; characters must be escaped as &quot;\\&quot;, and &quot;%{&quot; must be escaped as &quot;%\{&quot;.</source>
         <translation>Вычисление простейших выражений JavaScript.&lt;br&gt;Символы &apos;}&apos; и &apos;\&apos; должны экранироваться: &quot;\}&quot; и &quot;\\&quot;, а &quot;%{&quot; – &quot;%\{&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::ListItemDelegate</name>
     <message>
         <source>Tags:</source>
         <translation>Теги:</translation>
     </message>
-</context>
-<context>
-    <name>Core::LocatorManager</name>
     <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;введите здесь&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Переключить в режим &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation>Активировать обзор %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
         <translation>
@@ -11268,9 +10818,6 @@ Double-click to edit item.</source>
         <translation>[Часть вывода опущена.]
 </translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>Команда patch не настроена в общих настройках «Среды».</translation>
@@ -11299,9 +10846,6 @@ Double-click to edit item.</source>
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation>Ошибка команды «%1» (код завершения %2).</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Перезаписать существующие файлы</translation>
@@ -11314,24 +10858,9 @@ Would you like to overwrite them?</source>
 %1
 Желаете перезаписать их?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Смешанный</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Сделать записываемым</translation>
-    </message>
-    <message>
-        <source>Open with VCS</source>
-        <translation>Открыть в VCS</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Сохранить как</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -11389,13 +10918,6 @@ Do you want to check them out now?</source>
         <translation>Следующие файлы ещё не были получены.
 Получить их сейчас?</translation>
     </message>
-</context>
-<context>
-    <name>Core::RestartDialog</name>
-    <message>
-        <source>Restart Required</source>
-        <translation>Требуется перезапуск</translation>
-    </message>
     <message>
         <source>Later</source>
         <translation>Позже</translation>
@@ -11404,9 +10926,6 @@ Do you want to check them out now?</source>
         <source>Restart Now</source>
         <translation>Перезапустить</translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>History:</source>
         <translation>История:</translation>
@@ -11431,9 +10950,6 @@ Do you want to check them out now?</source>
         <source>Search Results</source>
         <translation>Результаты поиска</translation>
     </message>
-</context>
-<context>
-    <name>Core::UrlLocatorFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Поиск в сети</translation>
@@ -11442,13 +10958,6 @@ Do you want to check them out now?</source>
         <source>Qt Project Bugs</source>
         <translation>Qt Project Bugs</translation>
     </message>
-    <message>
-        <source>URL Template</source>
-        <translation>Шаблон URL</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert &quot;%1&quot;</source>
         <translation>Вставить «%1»</translation>
@@ -11473,13 +10982,6 @@ Do you want to check them out now?</source>
         <source>Select a variable to insert.</source>
         <translation>Выберите переменную для вставки.</translation>
     </message>
-    <message>
-        <source>Variables</source>
-        <translation>Переменные</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Обнаружено хранилище %1, но %1 не настроен.</translation>
@@ -19431,7 +18933,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>Core::FilePropertiesDialog</name>
+    <name>::Core</name>
     <message>
         <source>File Properties</source>
         <translation>Свойства файла</translation>
@@ -19447,10 +18949,6 @@ will also disable the following plugins:
     <message>
         <source>Size:</source>
         <translation>Размер:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Имя:</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -25054,7 +24552,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>Быстрый поиск</translation>
@@ -26854,11 +26352,7 @@ If set to false, the target will be moved straight to the current mouse position
     </message>
 </context>
 <context>
-    <name>OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Открытые документы</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -29823,7 +29317,7 @@ What should Qt Creator do now?</source>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Открыть «%1»</translation>
@@ -29877,13 +29371,6 @@ What should Qt Creator do now?</source>
         <translation>Домашний каталог</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Проекты</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidgetFactory</name>
-    <message>
         <source>File System</source>
         <translation>Файловая система</translation>
     </message>
@@ -29894,10 +29381,6 @@ What should Qt Creator do now?</source>
     <message>
         <source>Alt+Y</source>
         <translation>Alt+Y</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Параметры</translation>
     </message>
     <message>
         <source>Add New...</source>

@@ -25,14 +25,10 @@ class QTextBrowser;
 class QTreeView;
 QT_END_NAMESPACE
 
-namespace Core {
-
-namespace Internal {
+namespace Core::Internal {
 
 class NewDialogWidget : public QDialog, public NewDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::NewDialog)
-
 public:
     explicit NewDialogWidget(QWidget *parent);
     ~NewDialogWidget() override;
@@ -77,5 +73,4 @@ private:
     QVariantMap m_extraVariables;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

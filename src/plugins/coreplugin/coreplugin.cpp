@@ -138,7 +138,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     }
 
     if (ThemeEntry::availableThemes().isEmpty()) {
-        *errorMessage = tr("No themes found in installation.");
+        *errorMessage = Tr::tr("No themes found in installation.");
         return false;
     }
     const CoreArguments args = parseArguments(arguments);
@@ -170,55 +170,55 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_locator->initialize();
 
     MacroExpander *expander = Utils::globalMacroExpander();
-    expander->registerVariable("CurrentDate:ISO", tr("The current date (ISO)."),
+    expander->registerVariable("CurrentDate:ISO", Tr::tr("The current date (ISO)."),
                                [] { return QDate::currentDate().toString(Qt::ISODate); });
-    expander->registerVariable("CurrentTime:ISO", tr("The current time (ISO)."),
+    expander->registerVariable("CurrentTime:ISO", Tr::tr("The current time (ISO)."),
                                [] { return QTime::currentTime().toString(Qt::ISODate); });
-    expander->registerVariable("CurrentDate:RFC", tr("The current date (RFC2822)."),
+    expander->registerVariable("CurrentDate:RFC", Tr::tr("The current date (RFC2822)."),
                                [] { return QDate::currentDate().toString(Qt::RFC2822Date); });
-    expander->registerVariable("CurrentTime:RFC", tr("The current time (RFC2822)."),
+    expander->registerVariable("CurrentTime:RFC", Tr::tr("The current time (RFC2822)."),
                                [] { return QTime::currentTime().toString(Qt::RFC2822Date); });
-    expander->registerVariable("CurrentDate:Locale", tr("The current date (Locale)."),
+    expander->registerVariable("CurrentDate:Locale", Tr::tr("The current date (Locale)."),
                                [] { return QLocale::system()
                                         .toString(QDate::currentDate(), QLocale::ShortFormat); });
-    expander->registerVariable("CurrentTime:Locale", tr("The current time (Locale)."),
+    expander->registerVariable("CurrentTime:Locale", Tr::tr("The current time (Locale)."),
                                [] { return QLocale::system()
                                         .toString(QTime::currentTime(), QLocale::ShortFormat); });
-    expander->registerVariable("Config:DefaultProjectDirectory", tr("The configured default directory for projects."),
+    expander->registerVariable("Config:DefaultProjectDirectory", Tr::tr("The configured default directory for projects."),
                                [] { return DocumentManager::projectsDirectory().toString(); });
-    expander->registerVariable("Config:LastFileDialogDirectory", tr("The directory last visited in a file dialog."),
+    expander->registerVariable("Config:LastFileDialogDirectory", Tr::tr("The directory last visited in a file dialog."),
                                [] { return DocumentManager::fileDialogLastVisitedDirectory().toString(); });
     expander->registerVariable("HostOs:isWindows",
-                               tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
+                               Tr::tr("Is %1 running on Windows?").arg(Constants::IDE_DISPLAY_NAME),
                                [] { return QVariant(Utils::HostOsInfo::isWindowsHost()).toString(); });
     expander->registerVariable("HostOs:isOSX",
-                               tr("Is %1 running on OS X?").arg(Constants::IDE_DISPLAY_NAME),
+                               Tr::tr("Is %1 running on OS X?").arg(Constants::IDE_DISPLAY_NAME),
                                [] { return QVariant(Utils::HostOsInfo::isMacHost()).toString(); });
     expander->registerVariable("HostOs:isLinux",
-                               tr("Is %1 running on Linux?").arg(Constants::IDE_DISPLAY_NAME),
+                               Tr::tr("Is %1 running on Linux?").arg(Constants::IDE_DISPLAY_NAME),
                                [] { return QVariant(Utils::HostOsInfo::isLinuxHost()).toString(); });
     expander->registerVariable("HostOs:isUnix",
-                               tr("Is %1 running on any unix-based platform?")
+                               Tr::tr("Is %1 running on any unix-based platform?")
                                    .arg(Constants::IDE_DISPLAY_NAME),
                                [] { return QVariant(Utils::HostOsInfo::isAnyUnixHost()).toString(); });
     expander->registerVariable("HostOs:PathListSeparator",
-                               tr("The path list separator for the platform."),
+                               Tr::tr("The path list separator for the platform."),
                                [] { return QString(Utils::HostOsInfo::pathListSeparator()); });
     expander->registerVariable("HostOs:ExecutableSuffix",
-                               tr("The platform executable suffix."),
+                               Tr::tr("The platform executable suffix."),
                                [] { return QString(Utils::HostOsInfo::withExecutableSuffix("")); });
     expander->registerVariable("IDE:ResourcePath",
-                               tr("The directory where %1 finds its pre-installed resources.")
+                               Tr::tr("The directory where %1 finds its pre-installed resources.")
                                    .arg(Constants::IDE_DISPLAY_NAME),
                                [] { return ICore::resourcePath().toString(); });
-    expander->registerPrefix("CurrentDate:", tr("The current date (QDate formatstring)."),
+    expander->registerPrefix("CurrentDate:", Tr::tr("The current date (QDate formatstring)."),
                              [](const QString &fmt) { return QDate::currentDate().toString(fmt); });
-    expander->registerPrefix("CurrentTime:", tr("The current time (QTime formatstring)."),
+    expander->registerPrefix("CurrentTime:", Tr::tr("The current time (QTime formatstring)."),
                              [](const QString &fmt) { return QTime::currentTime().toString(fmt); });
-    expander->registerVariable("UUID", tr("Generate a new UUID."),
+    expander->registerVariable("UUID", Tr::tr("Generate a new UUID."),
                                [] { return QUuid::createUuid().toString(); });
 
-    expander->registerPrefix("#:", tr("A comment."), [](const QString &) { return QString(); });
+    expander->registerPrefix("#:", Tr::tr("A comment."), [](const QString &) { return QString(); });
 
     Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
 
@@ -364,7 +364,7 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
         menu->insertAction(firstAction, showInTerminal);
 
     } else {
-        auto *mkPathAct = new QAction(tr("Create Folder"), menu);
+        auto *mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
         connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
             QDir().mkpath(pathChooser->filePath().toString());
             pathChooser->triggerChanged();
@@ -381,7 +381,7 @@ void CorePlugin::checkSettings()
     const auto showMsgBox = [this](const QString &msg, QMessageBox::Icon icon) {
         connect(ICore::instance(), &ICore::coreOpened, this, [msg, icon] {
             QMessageBox msgBox(ICore::dialogParent());
-            msgBox.setWindowTitle(tr("Settings File Error"));
+            msgBox.setWindowTitle(Tr::tr("Settings File Error"));
             msgBox.setText(msg);
             msgBox.setIcon(icon);
             msgBox.exec();
@@ -393,7 +393,7 @@ void CorePlugin::checkSettings()
     case QSettings::NoError: {
         const QFileInfo fi(userSettings->fileName());
         if (fi.exists() && !fi.isWritable()) {
-            const QString errorMsg = tr("The settings file \"%1\" is not writable.\n"
+            const QString errorMsg = Tr::tr("The settings file \"%1\" is not writable.\n"
                     "You will not be able to store any %2 settings.")
                     .arg(QDir::toNativeSeparators(userSettings->fileName()),
                          QLatin1String(Core::Constants::IDE_DISPLAY_NAME));
@@ -402,13 +402,13 @@ void CorePlugin::checkSettings()
         return;
     }
     case QSettings::AccessError:
-        errorDetails = tr("The file is not readable.");
+        errorDetails = Tr::tr("The file is not readable.");
         break;
     case QSettings::FormatError:
-        errorDetails = tr("The file is invalid.");
+        errorDetails = Tr::tr("The file is invalid.");
         break;
     }
-    const QString errorMsg = tr("Error reading settings file \"%1\": %2\n"
+    const QString errorMsg = Tr::tr("Error reading settings file \"%1\": %2\n"
             "You will likely experience further problems using this instance of %3.")
             .arg(QDir::toNativeSeparators(userSettings->fileName()), errorDetails,
                  QLatin1String(Core::Constants::IDE_DISPLAY_NAME));
@@ -421,22 +421,22 @@ void CorePlugin::warnAboutCrashReporing()
         return;
 
     QString warnStr = ICore::settings()->value("CrashReportingEnabled", false).toBool()
-            ? tr("%1 collects crash reports for the sole purpose of fixing bugs. "
+            ? Tr::tr("%1 collects crash reports for the sole purpose of fixing bugs. "
                  "To disable this feature go to %2.")
-            : tr("%1 can collect crash reports for the sole purpose of fixing bugs. "
+            : Tr::tr("%1 can collect crash reports for the sole purpose of fixing bugs. "
                  "To enable this feature go to %2.");
 
     if (Utils::HostOsInfo::isMacHost()) {
         warnStr = warnStr.arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
-                              Core::Constants::IDE_DISPLAY_NAME + tr(" > Preferences > Environment > System"));
+                              Core::Constants::IDE_DISPLAY_NAME + Tr::tr(" > Preferences > Environment > System"));
     } else {
         warnStr = warnStr.arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
-                              tr("Edit > Preferences > Environment > System"));
+                              Tr::tr("Edit > Preferences > Environment > System"));
     }
 
     Utils::InfoBarEntry info(kWarnCrashReportingSetting, warnStr,
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(tr("Configure..."), [] {
+    info.addCustomButton(Tr::tr("Configure..."), [] {
         ICore::infoBar()->removeInfo(kWarnCrashReportingSetting);
         ICore::infoBar()->globallySuppressInfo(kWarnCrashReportingSetting);
         ICore::showOptionsDialog(Core::Constants::SETTINGS_ID_SYSTEM);
@@ -456,15 +456,15 @@ void CorePlugin::warnAboutCrashReporing()
 // static
 QString CorePlugin::msgCrashpadInformation()
 {
-    return tr("%1 uses Google Crashpad for collecting crashes and sending them to our backend "
+    return Tr::tr("%1 uses Google Crashpad for collecting crashes and sending them to our backend "
               "for processing. Crashpad may capture arbitrary contents from crashed process’ "
               "memory, including user sensitive information, URLs, and whatever other content "
               "users have trusted %1 with. The collected crash reports are however only used "
               "for the sole purpose of fixing bugs.").arg(Core::Constants::IDE_DISPLAY_NAME)
-            + "<br><br>" + tr("More information:")
+            + "<br><br>" + Tr::tr("More information:")
             + "<br><a href='https://chromium.googlesource.com/crashpad/crashpad/+/master/doc/"
-                           "overview_design.md'>" + tr("Crashpad Overview") + "</a>"
-              "<br><a href='https://sentry.io/security/'>" + tr("%1 security policy").arg("Sentry.io")
+                           "overview_design.md'>" + Tr::tr("Crashpad Overview") + "</a>"
+              "<br><a href='https://sentry.io/security/'>" + Tr::tr("%1 security policy").arg("Sentry.io")
             + "</a>";
 }
 

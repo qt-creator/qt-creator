@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "searchresultwindow.h"
+
 #include "searchresultwidget.h"
 #include "textfindconstants.h"
+#include "../actionmanager/actionmanager.h"
+#include "../actionmanager/command.h"
+#include "../coreplugintr.h"
+#include "../icontext.h"
+#include "../icore.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/icontext.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
@@ -78,7 +80,6 @@ namespace Internal {
 
     class SearchResultWindowPrivate : public QObject
     {
-        Q_DECLARE_TR_FUNCTIONS(Core::SearchResultWindow)
     public:
         SearchResultWindowPrivate(SearchResultWindow *window, QWidget *newSearchPanel);
         bool isSearchVisible() const { return m_currentIndex > 0; }
@@ -116,7 +117,7 @@ namespace Internal {
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
         q(window),
         m_expandCollapseButton(nullptr),
-        m_expandCollapseAction(new QAction(tr("Expand All"), window)),
+        m_expandCollapseAction(new QAction(Tr::tr("Expand All"), window)),
         m_spacer(new QWidget),
         m_spacer2(new QWidget),
         m_widget(new QStackedWidget),
@@ -143,11 +144,11 @@ namespace Internal {
         m_expandCollapseButton->setDefaultAction(cmd->action());
 
         m_filterButton = new QToolButton(m_widget);
-        m_filterButton->setText(tr("Filter Results"));
+        m_filterButton->setText(Tr::tr("Filter Results"));
         m_filterButton->setIcon(Utils::Icons::FILTER.icon());
         m_filterButton->setEnabled(false);
 
-        QAction *newSearchAction = new QAction(tr("New Search"), this);
+        QAction *newSearchAction = new QAction(Tr::tr("New Search"), this);
         newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
         cmd = ActionManager::command(Constants::ADVANCED_FIND);
         m_newSearchButton = Command::toolButtonWithAppendedShortcut(newSearchAction, cmd);
@@ -478,7 +479,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
             delete d->m_searchResults.takeLast();
             d->m_recentSearchesBox->removeItem(d->m_recentSearchesBox->count() - 1);
         }
-        d->m_recentSearchesBox->insertItem(1, tr("%1 %2").arg(label, searchTerm));
+        d->m_recentSearchesBox->insertItem(1, Tr::tr("%1 %2").arg(label, searchTerm));
     }
     auto widget = new SearchResultWidget;
     connect(widget, &SearchResultWidget::filterInvalidated, this, [this, widget] {
@@ -601,10 +602,10 @@ void SearchResultWindowPrivate::handleExpandCollapseToolButton(bool checked)
         return;
     m_searchResultWidgets.at(visibleSearchIndex())->setAutoExpandResults(checked);
     if (checked) {
-        m_expandCollapseAction->setText(tr("Collapse All"));
+        m_expandCollapseAction->setText(Tr::tr("Collapse All"));
         m_searchResultWidgets.at(visibleSearchIndex())->expandAll();
     } else {
-        m_expandCollapseAction->setText(tr("Expand All"));
+        m_expandCollapseAction->setText(Tr::tr("Expand All"));
         m_searchResultWidgets.at(visibleSearchIndex())->collapseAll();
     }
 }
@@ -618,12 +619,12 @@ void SearchResultWindowPrivate::updateFilterButton()
 QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
 {
     if (!m_historyLabel)
-        m_historyLabel = new QLabel(tr("History:"));
+        m_historyLabel = new QLabel(Tr::tr("History:"));
     if (!m_recentSearchesBox) {
         m_recentSearchesBox = new QComboBox;
         m_recentSearchesBox->setProperty("drawleftborder", true);
         m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
-        m_recentSearchesBox->addItem(tr("New Search"));
+        m_recentSearchesBox->addItem(Tr::tr("New Search"));
         connect(m_recentSearchesBox, &QComboBox::activated,
                 this, &SearchResultWindowPrivate::setCurrentIndexWithFocus);
     }
@@ -713,6 +714,14 @@ void SearchResultWindow::goToPrev()
 bool SearchResultWindow::canNavigate() const
 {
     return true;
+}
+
+/*!
+    \internal
+*/
+QString SearchResultWindow::displayName() const
+{
+    return Tr::tr("Search Results");
 }
 
 /*!

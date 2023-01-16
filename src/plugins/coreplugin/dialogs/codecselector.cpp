@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "codecselector.h"
-#include <coreplugin/textdocument.h>
+
+#include "../coreplugintr.h"
+#include "../textdocument.h"
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -38,12 +40,12 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     if (m_hasDecodingError)
         buf = doc->decodingErrorSample();
 
-    setWindowTitle(tr("Text Encoding"));
+    setWindowTitle(Tr::tr("Text Encoding"));
     m_label = new QLabel(this);
     QString decodingErrorHint;
     if (m_hasDecodingError)
-        decodingErrorHint = QLatin1Char('\n') + tr("The following encodings are likely to fit:");
-    m_label->setText(tr("Select encoding for \"%1\".%2")
+        decodingErrorHint = '\n' + Tr::tr("The following encodings are likely to fit:");
+    m_label->setText(Tr::tr("Select encoding for \"%1\".%2")
                      .arg(doc->filePath().fileName())
                      .arg(decodingErrorHint));
 
@@ -92,8 +94,8 @@ CodecSelector::CodecSelector(QWidget *parent, Core::BaseTextDocument *doc)
     connect(m_listWidget, &QListWidget::itemSelectionChanged, this, &CodecSelector::updateButtons);
 
     m_dialogButtonBox = new QDialogButtonBox(this);
-    m_reloadButton = m_dialogButtonBox->addButton(tr("Reload with Encoding"), QDialogButtonBox::DestructiveRole);
-    m_saveButton =  m_dialogButtonBox->addButton(tr("Save with Encoding"), QDialogButtonBox::DestructiveRole);
+    m_reloadButton = m_dialogButtonBox->addButton(Tr::tr("Reload with Encoding"), QDialogButtonBox::DestructiveRole);
+    m_saveButton =  m_dialogButtonBox->addButton(Tr::tr("Save with Encoding"), QDialogButtonBox::DestructiveRole);
     m_dialogButtonBox->addButton(QDialogButtonBox::Cancel);
     connect(m_dialogButtonBox, &QDialogButtonBox::clicked, this, &CodecSelector::buttonClicked);
     connect(m_listWidget, &QAbstractItemView::activated, m_reloadButton, &QAbstractButton::click);

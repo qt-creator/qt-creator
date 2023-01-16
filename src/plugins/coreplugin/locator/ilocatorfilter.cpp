@@ -3,7 +3,8 @@
 
 #include "ilocatorfilter.h"
 
-#include <coreplugin/coreconstants.h>
+#include "../coreplugintr.h"
+
 #include <utils/fuzzymatcher.h>
 
 #include <QBoxLayout>
@@ -17,7 +18,6 @@
 #include <QLineEdit>
 #include <QRegularExpression>
 
-using namespace Core;
 using namespace Utils;
 
 /*!
@@ -41,6 +41,8 @@ using namespace Utils;
     \inmodule QtCreator
     \internal
 */
+
+namespace Core {
 
 static QList<ILocatorFilter *> g_locatorFilters;
 
@@ -252,7 +254,7 @@ LocatorFilterEntry::HighlightInfo ILocatorFilter::highlightInfo(
 */
 QString ILocatorFilter::msgConfigureDialogTitle()
 {
-    return tr("Filter Configuration");
+    return Tr::tr("Filter Configuration");
 }
 
 /*!
@@ -260,7 +262,7 @@ QString ILocatorFilter::msgConfigureDialogTitle()
 */
 QString ILocatorFilter::msgPrefixLabel()
 {
-    return tr("Prefix:");
+    return Tr::tr("Prefix:");
 }
 
 /*!
@@ -268,7 +270,7 @@ QString ILocatorFilter::msgPrefixLabel()
 */
 QString ILocatorFilter::msgPrefixToolTip()
 {
-    return tr("Type the prefix followed by a space and search term to restrict search to the filter.");
+    return Tr::tr("Type the prefix followed by a space and search term to restrict search to the filter.");
 }
 
 /*!
@@ -277,7 +279,7 @@ QString ILocatorFilter::msgPrefixToolTip()
 */
 QString ILocatorFilter::msgIncludeByDefault()
 {
-    return tr("Include by default");
+    return Tr::tr("Include by default");
 }
 
 /*!
@@ -286,7 +288,7 @@ QString ILocatorFilter::msgIncludeByDefault()
 */
 QString ILocatorFilter::msgIncludeByDefaultToolTip()
 {
-    return tr("Include the filter when not using a prefix for searches.");
+    return Tr::tr("Include the filter when not using a prefix for searches.");
 }
 
 /*!
@@ -644,3 +646,5 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
            The result has the highest number of matches for the regular
            expression.
 */
+
+} // Core

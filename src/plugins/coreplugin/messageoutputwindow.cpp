@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "messageoutputwindow.h"
-#include "outputwindow.h"
-#include "icontext.h"
-#include "coreconstants.h"
 
-#include <coreplugin/icore.h>
+#include "coreconstants.h"
+#include "coreplugintr.h"
+#include "icontext.h"
+#include "outputwindow.h"
+
 #include <utils/utilsicons.h>
 
 #include <QFont>
@@ -66,7 +67,7 @@ QWidget *MessageOutputWindow::outputWidget(QWidget *parent)
 
 QString MessageOutputWindow::displayName() const
 {
-    return tr("General Messages");
+    return Tr::tr("General Messages");
 }
 
 void MessageOutputWindow::append(const QString &text)

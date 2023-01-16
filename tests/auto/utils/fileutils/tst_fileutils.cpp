@@ -772,8 +772,8 @@ void tst_fileutils::comparison()
     HostOsInfo::setOverrideFileNameCaseSensitivity(
         hostSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 
-    FilePath l = FilePath::fromString(left);
-    FilePath r = FilePath::fromString(right);
+    FilePath l = FilePath::fromUserInput(left);
+    FilePath r = FilePath::fromUserInput(right);
     QCOMPARE(l == r, expected);
 }
 

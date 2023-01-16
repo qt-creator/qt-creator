@@ -1295,7 +1295,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
 </context>
 <context>
-    <name>Core::EditorManager</name>
+    <name>::Core</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Wiederherstellen</translation>
@@ -1424,16 +1424,10 @@ Trotzdem fortfahren?</translation>
         <source>Close Document</source>
         <translation>Dokument schließen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Editieren</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>&lt;System Language&gt;</source>
         <translation>&lt;Sprache des Betriebssystems&gt;</translation>
@@ -1500,9 +1494,6 @@ Trotzdem fortfahren?</translation>
         <source>Enable high DPI scaling</source>
         <translation>Skalierung für hohe Auflösung einschalten</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Datei</translation>
@@ -1777,27 +1768,10 @@ Trotzdem fortfahren?</translation>
         <source>About &amp;Plugins...</source>
         <translation>&amp;Plugins...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Allgemeine Ausgaben</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Teilen</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>Choose a template:</source>
         <translation>Vorlage:</translation>
@@ -1830,16 +1804,10 @@ Trotzdem fortfahren?</translation>
         <source>Supported Platforms</source>
         <translation>Unterstützte Plattformen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Öffne Datei mit...</translation>
@@ -1848,13 +1816,6 @@ Trotzdem fortfahren?</translation>
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Öffne Datei &quot;%1&quot; mit:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
-    <message>
-        <source>Minimize</source>
-        <translation>Minimieren</translation>
-    </message>
     <message>
         <source>Maximize</source>
         <translation>Maximieren</translation>
@@ -1862,10 +1823,6 @@ Trotzdem fortfahren?</translation>
     <message>
         <source>Output</source>
         <translation>Ausgaben</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation>Löschen</translation>
     </message>
     <message>
         <source>Next Item</source>
@@ -1895,13 +1852,6 @@ Trotzdem fortfahren?</translation>
         <source>Alt+Shift+9</source>
         <translation>Alt+Shift+9</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Beschreibung</translation>
-    </message>
     <message>
         <source>Error Details</source>
         <translatorcomment>Fehlermeldungen zu %1</translatorcomment>
@@ -1927,16 +1877,10 @@ Trotzdem fortfahren?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Fehler in %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Prozesse</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Diff</translation>
@@ -1944,10 +1888,6 @@ Trotzdem fortfahren?</translation>
     <message>
         <source>Do &amp;Not Save</source>
         <translation>&amp;Nicht speichern</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Speichern</translation>
     </message>
     <message>
         <source>&amp;Diff &amp;&amp; Cancel</source>
@@ -1974,10 +1914,6 @@ Trotzdem fortfahren?</translation>
         <translation>Alle speichern</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Speichern</translation>
-    </message>
-    <message>
         <source>Save Selected</source>
         <translation>Auswahl speichern</translation>
     </message>
@@ -1993,16 +1929,10 @@ Trotzdem fortfahren?</translation>
         <source>Automatically save all files before building</source>
         <translation>Geänderte Dateien vor dem Erstellen automatisch speichern</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Tastenkombinationen</translation>
@@ -2043,20 +1973,6 @@ Trotzdem fortfahren?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Tastaturschema exportieren</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Teilen</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation>Über %1</translation>
@@ -2077,9 +1993,6 @@ Trotzdem fortfahren?</translation>
         <source>The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are registered trademarks of The Qt Company Ltd.</source>
         <translation>The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are registered trademarks of The Qt Company Ltd.</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Gehe zu Modus &lt;b&gt;&apos;%1&apos;&lt;/b&gt;</translation>
@@ -9581,7 +9494,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>Locator</translation>
@@ -14725,7 +14638,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemEditor</name>
+    <name>::Core</name>
     <message>
         <source>System Editor</source>
         <translation>Editor des Betriebssystems</translation>
@@ -14825,7 +14738,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>Core::DesignMode</name>
+    <name>::Core</name>
     <message>
         <source>Design</source>
         <translation>Design</translation>
@@ -15032,7 +14945,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Zuordnung von Kommandos</translation>
@@ -15054,10 +14967,6 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Alle auf Vorgabewert zurücksetzen.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Auf Vorgabe zurücksetzen.</translation>
     </message>
@@ -15073,16 +14982,9 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <source>Label</source>
         <translation>Beschreibung</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>Ziehen um Dokumente in andere Editor-Ansichten zu verschieben</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Teilen</translation>
     </message>
     <message>
         <source>Remove Split</source>
@@ -15928,7 +15830,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Core::NavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Anzeige &quot;%1&quot; aktivieren</translation>
@@ -16166,11 +16068,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation>Anzeige &quot;%1&quot; aktivieren</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>::CppEditor</name>
@@ -16503,7 +16401,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Core::VcsManager</name>
+    <name>::Core</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Ein Repository des Versionskontrollsystems %1 wurde gefunden, aber %1 ist noch nicht konfiguriert.</translation>
@@ -17188,26 +17086,10 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Löschen</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Description:</source>
         <translation>Beschreibung:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Ausführbare Datei:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -17350,9 +17232,6 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>External Tools</source>
         <translation>Externe Werkzeuge</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Extern</translation>
@@ -17361,16 +17240,9 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Fehler: Die externe Werkzeugspezifikation %1 enthält eine bereits vergebene ID</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
     <message>
         <source>Add Magic Header</source>
         <translation>Magic-Header hinzufügen</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
     </message>
     <message>
         <source>Internal error: Type is invalid</source>
@@ -17448,9 +17320,6 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Wide range values might impact performance when opening files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Hinweis: Große Bereiche können das Öffnen von Dateien verlangsamen.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
     <message>
         <source>Reset MIME Types</source>
         <translation>MIME-Typen zurücksetzen</translation>
@@ -17575,7 +17444,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
+    <name>::Core</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME-Typ</translation>
@@ -17584,9 +17453,6 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
         <source>Handler</source>
         <translation>Editor</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME-Typen</translation>
@@ -19700,7 +19566,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Core::OutputWindow</name>
+    <name>::Core</name>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
         <translation>
@@ -21006,7 +20872,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalTool</name>
+    <name>::Core</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>Erzeugt aus den ts-Dateien des Übersetzers qm-Übersetzungsdateien, die von einer Anwendung genutzt werden können</translation>
@@ -21095,7 +20961,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Das Starten des Datei-Browsers schlug fehl</translation>
@@ -21178,9 +21044,6 @@ When disabled, moves targets straight to the current mouse position.</source>
         <source>Failed to remove file &quot;%1&quot;.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht gelöscht werden.</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Das Verzeichnis %1 kann nicht erstellt werden.</translation>
@@ -21351,7 +21214,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
+    <name>::Core</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Registrierte MIME-Typen</translation>
@@ -21381,10 +21244,6 @@ Außer: %3
         <translation>Magic Header</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
         <source>Range</source>
         <translation>Bereich</translation>
     </message>
@@ -21403,10 +21262,6 @@ Außer: %3
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation>MIME-Typen zurücksetzen</translation>
     </message>
     <message>
         <source>Reset Handlers</source>
@@ -25000,15 +24855,11 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Die Dateien konnten nicht gespeichert werden.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Dateifehler</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -25034,9 +24885,6 @@ the manifest file by overriding your settings. Allow override?</source>
         <source>Cannot reload %1</source>
         <translation>%1 konnte nicht neu geladen werden</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Die Datei wurde von einer Sicherheitskopie wiederhergestellt. Wählen Sie Speichern zur Bestätigung oder Wiederherstellen um die Änderungen zu verwerfen.</translation>
@@ -26049,7 +25897,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>Core::IVersionControl</name>
+    <name>::Core</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Öffnen mittels Versionskontrollsystem (%1)</translation>
@@ -28033,7 +27881,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
+    <name>::Core</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Verlaufsdetails ein/ausschalten</translation>
@@ -28496,7 +28344,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Datei unter Versionsverwaltung (%1) stellen</translation>
@@ -30440,7 +30288,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Suchen</translation>
@@ -30469,9 +30317,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <source>Sco&amp;pe:</source>
         <translation>&amp;Bereich:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Suchen</translation>
@@ -30493,16 +30338,9 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <translation>Ersetzen &amp;&amp; weitersuchen</translation>
     </message>
     <message>
-        <source>Replace All</source>
-        <translation>Alles ersetzen</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>Erweitert...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -30514,24 +30352,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeichen und dem Suchbegriff.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Bearbeiten...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
         <source>Directories:</source>
         <translation>Verzeichnisse:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Versteckte Dateien zeigen</translation>
@@ -30539,21 +30362,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     <message>
         <source>Filter:</source>
         <translation>Filter:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
-    <message>
-        <source>Add...</source>
-        <translation>Hinzufügen...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Bearbeiten...</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -30744,7 +30552,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindToolBar</name>
+    <name>::Core</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -30798,14 +30606,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <translation>Ctrl+Alt+Return</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Ersetzen</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Ersetzen &amp;&amp; weitersuchen</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
@@ -30816,10 +30616,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     <message>
         <source>Replace All</source>
         <translation>Alle ersetzen</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>Groß-/Kleinschreibung</translation>
     </message>
     <message>
         <source>Whole Words Only</source>
@@ -30841,9 +30637,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>Replace with...</source>
         <translation>Ersetzen durch...</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Groß-/Kleinschreibung</translation>
@@ -30872,9 +30665,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Die Suche wurde abgebrochen.</translation>
@@ -30937,9 +30727,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
             <numerusform>%n Treffer gefunden.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>History:</source>
         <translation>Verlauf:</translation>
@@ -30968,9 +30755,6 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
         <source>Search Results</source>
         <translation>Suchergebnisse</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Benutzerdefinierte Kommandos ausführen</translation>
@@ -30997,9 +30781,6 @@ Möchten Sie es beenden?</translation>
         <source>Could not find executable for &quot;%1&quot;.</source>
         <translation>Die ausführbare Datei von &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Dateien aus Dateisystem</translation>
@@ -31028,9 +30809,6 @@ Möchten Sie es beenden?</translation>
         <source>Create</source>
         <translation>Erzeugen</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Filterkonfiguration</translation>
@@ -31051,9 +30829,6 @@ Möchten Sie es beenden?</translation>
         <source>Prefix:</source>
         <translation>Präfix:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -31078,16 +30853,10 @@ Möchten Sie es beenden?</translation>
         <source>Updating Locator Caches</source>
         <translation>Aktualisiere Locator-Zwischenspeicher</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Verfügbare Filter</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Open as Centered Popup</source>
         <translation>Als zentriertes Pop-up öffnen</translation>
@@ -31108,9 +30877,6 @@ Möchten Sie es beenden?</translation>
         <source>Options</source>
         <translation>Einstellungen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open Documents</source>
         <translation>Offene Dokumente</translation>
@@ -31314,7 +31080,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizardFactory</name>
+    <name>::Core</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Es konnte kein Editor für die Datei &quot;%1&quot; geöffnet werden.</translation>
@@ -31337,9 +31103,6 @@ Möchten Sie es beenden?</translation>
         <translation>Das Projektverzeichnis %1 enthält Dateien, die nicht überschrieben werden können:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Vollbildmodus verlassen</translation>
@@ -31920,7 +31683,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CorePlugin</name>
+    <name>::Core</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>Keine Themen in der Installation gefunden.</translation>
@@ -32065,9 +31828,6 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
         <source>%1 security policy</source>
         <translation>Sicherheitsrichtlinien von %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Existierende Dateien überschreiben</translation>
@@ -32080,16 +31840,9 @@ Would you like to overwrite them?</source>
 %1.
 Sollen sie überschrieben werden?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Gemischt</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Schreibbar machen</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -32175,9 +31928,6 @@ Do you want to check them out now?</source>
         <translation>Die folgenden Dateien sind noch nicht ausgecheckt.
 Möchten Sie sie jetzt auschecken?</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>Eigenschaften...</translation>
@@ -32239,10 +31989,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Alt+Right</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Teilen</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -32251,20 +31997,12 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Nebeneinander teilen</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>In neuem Fenster öffnen</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -32363,10 +32101,6 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>&lt;b&gt;Warnung:&lt;/b&gt; Sie ändern eine schreibgeschützte Datei.</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Schreibbar machen</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation>&amp;Speichere %1</translation>
     </message>
@@ -32391,24 +32125,12 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Alle außer %1 schließen</translation>
     </message>
     <message>
-        <source>Close Others</source>
-        <translation>Andere schließen</translation>
-    </message>
-    <message>
         <source>Cannot Open File</source>
         <translation>Datei kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Die Datei konnte nicht zum Bearbeiten mit der Versionsverwaltung geöffnet werden.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Dateifehler</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Wiederherstellen</translation>
     </message>
     <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
@@ -32419,16 +32141,9 @@ Möchten Sie sie jetzt auschecken?</translation>
         <translation>Weiter</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
-    </message>
-    <message>
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Abbrechen &amp;&amp; &amp;Diff</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Fehler in &quot;%1&quot;: %2</translation>
@@ -34674,7 +34389,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettings</name>
+    <name>::Core</name>
     <message>
         <source>System</source>
         <translation>System</translation>
@@ -34740,20 +34455,12 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Änderungen ignorieren</translation>
     </message>
     <message>
-        <source>Reset to default.</source>
-        <translation>Auf Vorgabe zurücksetzen.</translation>
-    </message>
-    <message>
         <source>Patch command:</source>
         <translation>Patch-Kommando:</translation>
     </message>
     <message>
         <source>?</source>
         <translation>?</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Zurücksetzen</translation>
     </message>
     <message>
         <source>External file browser:</source>
@@ -34801,14 +34508,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <translation>Kommandozeilenargumente für &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>Change...</source>
-        <translation>Ändern...</translation>
-    </message>
-    <message>
-        <source>Environment:</source>
-        <translation>Umgebung:</translation>
-    </message>
-    <message>
         <source>Command used for reverting diff chunks.</source>
         <translation>Kommando zum Zurücksetzen von einzelnen Änderungen in Diff-Anzeige.</translation>
     </message>
@@ -34848,10 +34547,6 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>The file system case sensitivity change will take effect after restart.</source>
         <translation>Die Änderung der Groß-/Kleinschreibungseinstellung wird nach einem Neustart wirksam.</translation>
-    </message>
-    <message>
-        <source>No changes to apply.</source>
-        <translation>Keine Änderungen.</translation>
     </message>
     <message>
         <source>Variables</source>
@@ -35068,7 +34763,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>Existing files</source>
         <translation>Bereits existierende Dateien</translation>
@@ -35077,9 +34772,6 @@ provided they were unmodified before the refactoring.</source>
         <source>File Generation Failure</source>
         <translation>Fehler bei Dateierzeugung</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -35087,9 +34779,6 @@ provided they were unmodified before the refactoring.</source>
             <numerusform>%n Vorkommen ersetzt.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Die Factory mit der ID=&quot;%1&quot; ist bereits registriert und wird gelöscht.</translation>
@@ -35102,9 +34791,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Inspect Wizard State</source>
         <translation>Zustand der Assistenten untersuchen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Externes Werkzeug ausführen</translation>
@@ -38164,7 +37850,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ThemeChooser</name>
+    <name>::Core</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Aktuelles Thema: %1</translation>
@@ -38821,7 +38507,7 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
 </context>
 <context>
-    <name>Core::Internal::ShortcutButton</name>
+    <name>::Core</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Hier klicken, um die neue Tastenkombination einzutippen.</translation>
@@ -38834,9 +38520,6 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
         <source>Record</source>
         <translation>Aufnehmen</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;kein Dokument&gt;</translation>
@@ -38845,9 +38528,6 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
         <source>No document is selected.</source>
         <translation>Es ist kein Dokument ausgewählt.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Suchen/Ersetzen</translation>
@@ -38861,16 +38541,9 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
         <translation>Erweiterte Suche öffnen...</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>Erweitert...</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Locator: Error occurred when running &quot;%1&quot;.</source>
         <translation>Finden: Bei der Ausführung von &quot;%1&quot; trat ein Fehler auf.</translation>
@@ -38898,14 +38571,6 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     <message>
         <source>Matches files from a global file system index (Spotlight, Locate, Everything). Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
         <translation>Filtert Dateien aus einem globalen Dateisystemindex (Spotlight, Locate, Everything). Fügen Sie &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um zur angegebenen Zeile zu springen. Fügen Sie noch einmal &quot;+&lt;Zahl&gt;&quot; oder &quot;:&lt;Zahl&gt;&quot; an, um auch zur angegebenen Spalte zu springen.</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Ausführbare Datei:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -40093,7 +39758,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -41325,7 +40990,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindToolWindow</name>
+    <name>::Core</name>
     <message>
         <source>Empty search term.</source>
         <translation>Leerer Suchbegriff.</translation>
@@ -41399,7 +41064,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::JavaScriptFilter</name>
+    <name>::Core</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation>JavaScript auswerten</translation>
@@ -44138,28 +43803,16 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::UrlFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Name:</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>URLs:</source>
         <translation>URLs:</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Add &quot;%1&quot; placeholder for the query string.
 Double-click to edit item.</source>
         <translation>Fügen Sie den Platzhalter &quot;%1&quot; für den Suchtext hinzu.
 Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -45317,11 +44970,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Core::RestartDialog</name>
-    <message>
-        <source>Restart Required</source>
-        <translation>Neustart erforderlich</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Later</source>
         <translation>Später</translation>
@@ -45329,13 +44978,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Restart Now</source>
         <translation>Jetzt neu starten</translation>
-    </message>
-</context>
-<context>
-    <name>OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Offene Dokumente</translation>
     </message>
     <message>
         <source>Meta+O</source>
@@ -45345,9 +44987,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Allgemeiner Verzeichnisfilter</translation>
@@ -45375,9 +45014,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>%1 filter update: canceled</source>
         <translation>%1-Filterstatus: Abgebrochen</translation>
     </message>
-</context>
-<context>
-    <name>Core::UrlLocatorFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Web-Suche</translation>
@@ -45387,21 +45023,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <translation>Qt Project-Bugs</translation>
     </message>
     <message>
-        <source>URL Template</source>
-        <translation>URL-Maske</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IOutputPane</name>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation>Reguläre Ausdrücke verwenden</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>Groß-/Kleinschreibung</translation>
-    </message>
-    <message>
         <source>Show Non-matching Lines</source>
         <translation>Zeige nicht übereinstimmende Zeilen</translation>
     </message>
@@ -45409,9 +45030,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Filter output...</source>
         <translation>Ausgabe filtern...</translation>
     </message>
-</context>
-<context>
-    <name>Core::ListItemDelegate</name>
     <message>
         <source>Tags:</source>
         <translation>Schlüsselworte:</translation>
@@ -47273,7 +46891,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>Core::CodecSelector</name>
+    <name>::Core</name>
     <message>
         <source>Text Encoding</source>
         <translation>Text-Zeichenkodierung</translation>
@@ -47294,9 +46912,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Save with Encoding</source>
         <translation>Mit Zeichenkodierung speichern</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutInput</name>
     <message>
         <source>Key sequence:</source>
         <translation>Tastenfolge:</translation>
@@ -47313,20 +46928,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Enter key sequence as text</source>
         <translation>Geben Sie die Tastenfolge als Text ein</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentManagerPrivate</name>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <translation>Ctrl+Shift+S</translation>
-    </message>
     <message>
         <source>Save A&amp;ll</source>
         <translation>A&amp;lles speichern</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginInstallWizard</name>
     <message>
         <source>Source</source>
         <translation>Quelle</translation>
@@ -47342,10 +46947,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     <message>
         <source>Check Archive</source>
         <translation>Archiv überprüfen</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Abbrechen</translation>
     </message>
     <message>
         <source>Checking archive...</source>
@@ -51837,7 +51438,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Core::Internal::ActionsFilter</name>
+    <name>::Core</name>
     <message>
         <source>Global Actions &amp; Actions from the Menu</source>
         <translation>Globale Aktionen &amp; Aktionen aus dem Menü</translation>
@@ -51846,9 +51447,6 @@ in &quot;%2&quot; aus.
         <source>Triggers an action. If it is from the menu it matches any part of a menu hierarchy, separated by &quot;&gt;&quot;. For example &quot;sess def&quot; matches &quot;File &gt; Sessions &gt; Default&quot;.</source>
         <translation>Löst eine Aktion aus. Aktionen aus dem Menü werden inklusive Hierarchie, mit &quot;&gt;&quot; getrennt, gefiltert. Zum Beispiel ist &quot;Datei &gt; Sitzungen &gt; Vorgabe&quot; ein Treffer für &quot;sitz vorg&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation>Systemumgebung</translation>
@@ -51856,13 +51454,6 @@ in &quot;%2&quot; aus.
     <message>
         <source>Error while parsing external tool %1: %2</source>
         <translation>Fehler beim Auswerten der Ausgabe des externen Programms %1: %2</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FilePropertiesDialog</name>
-    <message>
-        <source>Name:</source>
-        <translation>Name:</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -51937,10 +51528,6 @@ in &quot;%2&quot; aus.
         <translation>Mac (CR)</translation>
     </message>
     <message>
-        <source>Mixed</source>
-        <translation>Gemischt</translation>
-    </message>
-    <message>
         <source>%1 Spaces</source>
         <translation>%1 Leerzeichen</translation>
     </message>
@@ -51952,9 +51539,6 @@ in &quot;%2&quot; aus.
         <source>Undefined</source>
         <translation>Undefiniert</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Die ausführbare Datei von &quot;%1&quot; (expandiert: &quot;%2&quot;) konnte nicht gefunden werden</translation>
@@ -51971,16 +51555,10 @@ in &quot;%2&quot; aus.
         <source>&quot;%1&quot; finished with error</source>
         <translation>&quot;%1&quot; mit Fehler beendet</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileUtils</name>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;.</source>
         <translation>Konnte Include-Guard in der Datei &quot;%1&quot; nicht umbenennen.</translation>
     </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>Show Hidden Files</source>
         <translation>Versteckte Dateien anzeigen</translation>
@@ -52002,11 +51580,6 @@ in &quot;%2&quot; aus.
         <translation>Wurzelverzeichnis aus Editor übernehmen</translation>
     </message>
     <message>
-        <source>New File</source>
-        <comment>Title of dialog</comment>
-        <translation>Neue Datei</translation>
-    </message>
-    <message>
         <source>New Folder</source>
         <translation>Neues Verzeichnis</translation>
     </message>
@@ -52019,14 +51592,6 @@ in &quot;%2&quot; aus.
         <translation>Verzeichnis löschen</translation>
     </message>
     <message>
-        <source>Collapse All</source>
-        <translation>Alle einklappen</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
         <source>Computer</source>
         <translation>Computer</translation>
     </message>
@@ -52034,13 +51599,6 @@ in &quot;%2&quot; aus.
         <source>Home</source>
         <translation>Benutzerverzeichnis</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projekte</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>Dateisystem</translation>
@@ -52054,10 +51612,6 @@ in &quot;%2&quot; aus.
         <translation>Alt+Y,Alt+F</translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Einstellungen</translation>
-    </message>
-    <message>
         <source>Add New...</source>
         <translation>Hinzufügen...</translation>
     </message>
@@ -52069,24 +51623,10 @@ in &quot;%2&quot; aus.
         <source>Remove...</source>
         <translation>Entfernen...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LoggingCategoryModel</name>
-    <message>
-        <source>Category</source>
-        <translation>Kategorie</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
     <message>
         <source>Color</source>
         <translation>Farbe</translation>
     </message>
-</context>
-<context>
-    <name>LoggingViewManagerWidget</name>
     <message>
         <source>Logging Category Viewer</source>
         <translation type="unfinished"></translation>

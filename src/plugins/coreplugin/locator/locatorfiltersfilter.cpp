@@ -2,24 +2,23 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "locatorfiltersfilter.h"
-#include "../actionmanager/actionmanager.h"
 
 #include "locator.h"
-#include "locatorwidget.h"
+#include "../actionmanager/actionmanager.h"
+#include "../coreplugintr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-using namespace Core;
-using namespace Core::Internal;
+Q_DECLARE_METATYPE(Core::ILocatorFilter*)
 
-Q_DECLARE_METATYPE(ILocatorFilter*)
+namespace Core::Internal {
 
 LocatorFiltersFilter::LocatorFiltersFilter():
     m_icon(Utils::Icons::NEXT.icon())
 {
     setId("FiltersFilter");
-    setDisplayName(tr("Available filters"));
+    setDisplayName(Tr::tr("Available filters"));
     setDefaultIncludedByDefault(true);
     setHidden(true);
     setPriority(Highest);
@@ -86,3 +85,5 @@ void LocatorFiltersFilter::accept(const LocatorFilterEntry &selection,
         *selectionStart = shortcutString.length() + 1;
     }
 }
+
+} // Core::Internal

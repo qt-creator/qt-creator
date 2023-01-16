@@ -16,15 +16,16 @@
 #include "opendocumentsfilter.h"
 #include "spotlightlocatorfilter.h"
 #include "urllocatorfilter.h"
+#include "../actionmanager/actioncontainer.h"
+#include "../actionmanager/actionmanager.h"
+#include "../actionsfilter.h"
+#include "../coreplugintr.h"
+#include "../editormanager/editormanager_p.h"
+#include "../icore.h"
+#include "../progressmanager/taskprogress.h"
+#include "../settingsdatabase.h"
+#include "../statusbarmanager.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/settingsdatabase.h>
-#include <coreplugin/statusbarmanager.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/actionsfilter.h>
-#include <coreplugin/progressmanager/taskprogress.h>
 #include <utils/algorithm.h>
 #include <utils/asynctask.h>
 #include <utils/qtcassert.h>
@@ -58,8 +59,8 @@ public:
     ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
     ActionsFilter m_actionsFilter;
-    UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
-    UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
+    UrlLocatorFilter m_urlFilter{Tr::tr("Web Search"), "RemoteHelpFilter"};
+    UrlLocatorFilter m_bugFilter{Tr::tr("Qt Project Bugs"), "QtProjectBugs"};
     SpotlightLocatorFilter m_spotlightLocatorFilter;
 };
 
@@ -100,9 +101,9 @@ void Locator::initialize()
 {
     m_locatorData = new LocatorData;
 
-    QAction *action = new QAction(Utils::Icons::ZOOM.icon(), tr("Locate..."), this);
+    QAction *action = new QAction(Utils::Icons::ZOOM.icon(), Tr::tr("Locate..."), this);
     Command *cmd = ActionManager::registerAction(action, Constants::LOCATE);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+K")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+K")));
     connect(action, &QAction::triggered, this, [] {
         LocatorManager::show(QString());
     });
@@ -239,7 +240,7 @@ void Locator::updateEditorManagerPlaceholderText()
 {
     Command *openCommand = ActionManager::command(Constants::OPEN);
     Command *locateCommand = ActionManager::command(Constants::LOCATE);
-    const QString placeholderText = tr("<html><body style=\"color:#909090; font-size:14px\">"
+    const QString placeholderText = Tr::tr("<html><body style=\"color:#909090; font-size:14px\">"
           "<div align='center'>"
           "<div style=\"font-size:20px\">Open a document</div>"
           "<table><tr><td>"
@@ -266,7 +267,7 @@ void Locator::updateEditorManagerPlaceholderText()
                                                          Utils::equal(&ILocatorFilter::id,
                                                                       Id("Classes")));
     if (classesFilter)
-        classes = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+        classes = Tr::tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a class definition</div>").arg(classesFilter->shortcutString());
 
     QString methods;
@@ -274,7 +275,7 @@ void Locator::updateEditorManagerPlaceholderText()
     ILocatorFilter *methodsFilter = Utils::findOrDefault(m_filters, Utils::equal(&ILocatorFilter::id,
                                                                                  Id("Methods")));
     if (methodsFilter)
-        methods = tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
+        methods = Tr::tr("<div style=\"margin-left: 1em\">- type <code>%1&lt;space&gt;&lt;pattern&gt;</code>"
                      " to jump to a function definition</div>").arg(methodsFilter->shortcutString());
 
     EditorManagerPrivate::setPlaceholderText(placeholderText.arg(classes, methods));
@@ -400,7 +401,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
         m_taskTree.release()->deleteLater();
     });
     auto progress = new TaskProgress(m_taskTree.get());
-    progress->setDisplayName(tr("Updating Locator Caches"));
+    progress->setDisplayName(Tr::tr("Updating Locator Caches"));
     m_taskTree->start();
 }
 

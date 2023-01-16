@@ -1,17 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "futureprogress.h"
 #include "progressmanager_p.h"
+
+#include "futureprogress.h"
 #include "progressbar.h"
 #include "progressview.h"
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
+#include "../coreplugintr.h"
 #include "../icontext.h"
 #include "../icore.h"
 #include "../statusbarmanager.h"
 
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/mathutils.h>
 #include <utils/qtcassert.h>
@@ -35,10 +38,10 @@ static const char kDetailsPinned[] = "DetailsPinned";
 static const bool kDetailsPinnedDefault = true;
 static const int TimerInterval = 100; // 100 ms
 
-using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
 
+namespace Core {
 /*!
     \class Core::ProgressManager
     \inheaderfile coreplugin/progressmanager/progressmanager.h
@@ -131,7 +134,7 @@ using namespace Utils;
     in a different thread, looks like this:
     \code
     QFuture<void> task = Utils::map(filters, &ILocatorFilter::refresh);
-    Core::FutureProgress *progress = Core::ProgressManager::addTask(task, tr("Indexing"),
+    Core::FutureProgress *progress = Core::ProgressManager::addTask(task, ::Core::Tr::tr("Indexing"),
                                                                     Locator::Constants::TASK_INDEX);
     \endcode
     First, we to start an asynchronous operation which calls all the filters'
@@ -147,7 +150,7 @@ using namespace Utils;
     // We are already running in a different thread here
     QFutureInterface<void> *progressObject = new QFutureInterface<void>;
     progressObject->setProgressRange(0, MAX);
-    Core::ProgressManager::addTask(progressObject->future(), tr("DoIt"), MYTASKTYPE);
+    Core::ProgressManager::addTask(progressObject->future(), ::Core::Tr::tr("DoIt"), MYTASKTYPE);
     progressObject->reportStarted();
     // Do something
     ...
@@ -289,7 +292,7 @@ void ProgressManagerPrivate::init()
     m_statusBarWidget->installEventFilter(this);
     StatusBarManager::addStatusBarWidget(m_statusBarWidget, StatusBarManager::RightCorner);
 
-    QAction *toggleProgressView = new QAction(tr("Toggle Progress Details"), this);
+    QAction *toggleProgressView = new QAction(::Core::Tr::tr("Toggle Progress Details"), this);
     toggleProgressView->setCheckable(true);
     toggleProgressView->setChecked(m_progressViewPinned);
     toggleProgressView->setIcon(Utils::Icons::TOGGLE_PROGRESSDETAILS_TOOLBAR.icon());
@@ -784,3 +787,4 @@ void ProgressTimer::handleTimeout()
     m_futureInterface.setProgressValue(progress);
 }
 
+} // Core

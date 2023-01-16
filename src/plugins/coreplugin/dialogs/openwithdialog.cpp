@@ -3,6 +3,8 @@
 
 #include "openwithdialog.h"
 
+#include "../coreplugintr.h"
+
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 
@@ -10,8 +12,7 @@
 #include <QListWidget>
 #include <QPushButton>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     : QDialog(parent)
@@ -19,7 +20,7 @@ OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     , buttonBox(new QDialogButtonBox)
 {
     resize(358, 199);
-    setWindowTitle(tr("Open File With..."));
+    setWindowTitle(Tr::tr("Open File With..."));
 
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
@@ -27,7 +28,7 @@ OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     using namespace Utils::Layouting;
     // clang-format off
     Column {
-        tr("Open file \"%1\" with:").arg(filePath.fileName()),
+        Tr::tr("Open file \"%1\" with:").arg(filePath.fileName()),
         editorListWidget,
         buttonBox
     }.attachTo(this);
@@ -70,3 +71,5 @@ void OpenWithDialog::currentItemChanged(QListWidgetItem *current, QListWidgetIte
 {
     setOkButtonEnabled(current);
 }
+
+} // Core::Internal

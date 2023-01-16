@@ -41,7 +41,6 @@ const char settingsKeyCodecForLocale[] = "General/OverrideCodecForLocale";
 
 class GeneralSettingsWidget final : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::GeneralSettings)
 public:
     explicit GeneralSettingsWidget(GeneralSettings *q);
 
@@ -87,37 +86,37 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     m_colorButton->setMinimumSize(QSize(64, 0));
     m_colorButton->setProperty("alphaAllowed", QVariant(false));
 
-    m_resetWarningsButton->setText(tr("Reset Warnings", "Button text"));
+    m_resetWarningsButton->setText(Tr::tr("Reset Warnings", "Button text"));
     m_resetWarningsButton->setToolTip(
-        tr("Re-enable warnings that were suppressed by selecting \"Do Not "
+        Tr::tr("Re-enable warnings that were suppressed by selecting \"Do Not "
            "Show Again\" (for example, missing highlighter).",
            nullptr));
 
-    auto resetColorButton = new QPushButton(tr("Reset"));
-    resetColorButton->setToolTip(tr("Reset to default.", "Color"));
+    auto resetColorButton = new QPushButton(Tr::tr("Reset"));
+    resetColorButton->setToolTip(Tr::tr("Reset to default.", "Color"));
 
     Form form;
-    form.addRow({tr("Color:"), m_colorButton, resetColorButton, st});
-    form.addRow({tr("Theme:"), m_themeChooser});
-    form.addRow({tr("Language:"), m_languageBox, st});
+    form.addRow({Tr::tr("Color:"), m_colorButton, resetColorButton, st});
+    form.addRow({Tr::tr("Theme:"), m_themeChooser});
+    form.addRow({Tr::tr("Language:"), m_languageBox, st});
 
     if (!Utils::HostOsInfo::isMacHost()) {
-        auto dpiCheckbox = new QCheckBox(tr("Enable high DPI scaling"));
+        auto dpiCheckbox = new QCheckBox(Tr::tr("Enable high DPI scaling"));
         form.addRow({empty, dpiCheckbox});
         const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
         dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
         connect(dpiCheckbox, &QCheckBox::toggled, this, [defaultValue](bool checked) {
             ICore::settings()->setValueWithDefault(settingsKeyDPI, checked, defaultValue);
             QMessageBox::information(ICore::dialogParent(),
-                                     tr("Restart Required"),
-                                     tr("The high DPI settings will take effect after restart."));
+                                     Tr::tr("Restart Required"),
+                                     Tr::tr("The high DPI settings will take effect after restart."));
         });
     }
 
     form.addRow({empty, m_showShortcutsInContextMenus});
     form.addRow(Row{m_resetWarningsButton, st});
-    form.addRow({tr("Text codec for tools:"), m_codecBox, st});
-    Column{Group{title(tr("User Interface")), form}}.attachTo(this);
+    form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
+    Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
     fillCodecBox();
@@ -126,7 +125,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     m_resetWarningsButton->setEnabled(canResetWarnings());
 
     m_showShortcutsInContextMenus->setText(
-        tr("Show keyboard shortcuts in context menus (default: %1)")
+        Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
             .arg(q->m_defaultShowShortcutsInContextMenu ? Tr::tr("on") : Tr::tr("off")));
     m_showShortcutsInContextMenus->setChecked(GeneralSettings::showShortcutsInContextMenu());
 
@@ -152,7 +151,7 @@ void GeneralSettingsWidget::fillLanguageBox() const
 {
     const QString currentLocale = language();
 
-    m_languageBox->addItem(tr("<System Language>"), QString());
+    m_languageBox->addItem(Tr::tr("<System Language>"), QString());
     // need to add this explicitly, since there is no qm file for English
     m_languageBox->addItem(QLatin1String("English"), QLatin1String("C"));
     if (currentLocale == QLatin1String("C"))
@@ -234,7 +233,7 @@ void GeneralSettingsWidget::setLanguage(const QString &locale)
     QtcSettings *settings = ICore::settings();
     if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
         RestartDialog dialog(ICore::dialogParent(),
-                             tr("The language change will take effect after restart."));
+                             Tr::tr("The language change will take effect after restart."));
         dialog.exec();
     }
 
@@ -280,7 +279,7 @@ void GeneralSettings::setShowShortcutsInContextMenu(bool show)
 GeneralSettings::GeneralSettings()
 {
     setId(Constants::SETTINGS_ID_INTERFACE);
-    setDisplayName(GeneralSettingsWidget::tr("Interface"));
+    setDisplayName(Tr::tr("Interface"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setDisplayCategory(Tr::tr("Environment"));
     setCategoryIconPath(":/core/images/settingscategory_core.png");

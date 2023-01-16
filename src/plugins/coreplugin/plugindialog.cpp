@@ -3,9 +3,9 @@
 
 #include "plugindialog.h"
 
-#include "icore.h"
-
+#include "coreplugintr.h"
 #include "dialogs/restartdialog.h"
+#include "icore.h"
 #include "plugininstallwizard.h"
 
 #include <app/app_version.h>
@@ -19,7 +19,6 @@
 #include <utils/fancylineedit.h>
 
 #include <QCheckBox>
-#include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QHBoxLayout>
@@ -48,9 +47,9 @@ PluginDialog::PluginDialog(QWidget *parent)
 
     vl->addWidget(m_view);
 
-    m_detailsButton = new QPushButton(tr("Details"), this);
-    m_errorDetailsButton = new QPushButton(tr("Error Details"), this);
-    m_installButton = new QPushButton(tr("Install Plugin..."), this);
+    m_detailsButton = new QPushButton(Tr::tr("Details"), this);
+    m_errorDetailsButton = new QPushButton(Tr::tr("Error Details"), this);
+    m_installButton = new QPushButton(Tr::tr("Install Plugin..."), this);
     m_detailsButton->setEnabled(false);
     m_errorDetailsButton->setEnabled(false);
 
@@ -61,7 +60,7 @@ PluginDialog::PluginDialog(QWidget *parent)
     vl->addWidget(buttonBox);
 
     resize(650, 400);
-    setWindowTitle(tr("Installed Plugins"));
+    setWindowTitle(Tr::tr("Installed Plugins"));
 
     connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,
             this, &PluginDialog::updateButtons);
@@ -86,7 +85,7 @@ void PluginDialog::closeDialog()
     ExtensionSystem::PluginManager::writeSettings();
     if (m_isRestartRequired) {
         RestartDialog restartDialog(ICore::dialogParent(),
-                                    tr("Plugin changes will take effect after restart."));
+                                    Tr::tr("Plugin changes will take effect after restart."));
         restartDialog.exec();
     }
     accept();
@@ -115,7 +114,7 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
     if (!spec)
         return;
     QDialog dialog(this);
-    dialog.setWindowTitle(tr("Plugin Details of %1").arg(spec->name()));
+    dialog.setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
     auto layout = new QVBoxLayout;
     dialog.setLayout(layout);
     auto details = new ExtensionSystem::PluginDetailsView(&dialog);
@@ -135,7 +134,7 @@ void PluginDialog::openErrorDetails()
     if (!spec)
         return;
     QDialog dialog(this);
-    dialog.setWindowTitle(tr("Plugin Errors of %1").arg(spec->name()));
+    dialog.setWindowTitle(Tr::tr("Plugin Errors of %1").arg(spec->name()));
     auto layout = new QVBoxLayout;
     dialog.setLayout(layout);
     auto errors = new ExtensionSystem::PluginErrorView(&dialog);

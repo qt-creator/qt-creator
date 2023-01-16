@@ -1222,7 +1222,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -1235,9 +1235,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Add the files to version control (%1)</source>
         <translation>ファイルをバージョン管理(%1)に追加する</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -1374,9 +1371,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Base environment:</source>
         <translation>ベースとなる環境:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>新しいプロジェクト</translation>
@@ -1413,9 +1407,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Supported Platforms</source>
         <translation>サポートプラットフォーム</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>プログラムから開く...</translation>
@@ -1428,9 +1419,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Open file &quot;%1&quot; with:</source>
         <translation>指定したエディタで &quot;%1&quot; を開く:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>書き込み権限のないファイル</translation>
@@ -1459,9 +1447,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Select all, if possible: </source>
         <translation>可能であればすべてを選択: </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save Changes</source>
         <translation>変更内容を保存</translation>
@@ -1522,9 +1507,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Save Selected</source>
         <translation>選択したファイルを保存</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>User Interface</source>
         <translation>ユーザーインターフェース</translation>
@@ -1537,10 +1519,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>既定に戻します。</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
     </message>
     <message>
         <source>Language:</source>
@@ -1602,13 +1580,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Text codec for tools:</source>
         <translation>ツール用文字コード:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
     </message>
     <message>
         <source>Value:</source>
@@ -1698,13 +1669,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Wide range values might impact performance when opening files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;注意：広い範囲の値は、ファイルを開く際のパフォーマンスに影響を与える可能性があります。&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>Registered MIME Types</source>
         <translation>登録済み MIME タイプ</translation>
@@ -1716,10 +1680,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Reset all to default.</source>
         <translation>すべてを既定に戻します。</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation>すべてをリセット</translation>
     </message>
     <message>
         <source>Details</source>
@@ -1750,10 +1710,6 @@ Local pulls are not applied to the master branch.</source>
         <translation>編集...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Reset all MIME type definitions to their defaults.</source>
         <translation>すべての MIME タイプ定義をデフォルトに戻す。</translation>
     </message>
@@ -1773,9 +1729,6 @@ Local pulls are not applied to the master branch.</source>
         <source>A semicolon-separated list of wildcarded file names.</source>
         <translation>セミコロンで区切られたワイルドカードのファイル名の一覧。</translation>
     </message>
-</context>
-<context>
-    <name>Core::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>ファイルの削除</translation>
@@ -13225,7 +13178,7 @@ To unset a variable, use -U&lt;variable&gt;.
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>コマンドマップ</translation>
@@ -13243,14 +13196,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <translation>すべて戻す</translation>
     </message>
     <message>
-        <source>Reset all to default.</source>
-        <translation>すべてを既定に戻します。</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>既定に戻します。</translation>
     </message>
@@ -13266,9 +13211,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Label</source>
         <translation>ラベル</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Show Sidebar</source>
         <translation>サイドバーを表示する</translation>
@@ -13334,16 +13276,10 @@ To unset a variable, use -U&lt;variable&gt;.
         <comment>On Linux/macOS</comment>
         <translation>すべてのファイル (*)</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>デザイン</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
         <translation>未分類</translation>
@@ -13369,9 +13305,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <extracomment>Sample external tool text</extracomment>
         <translation>テキスト</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>設定</translation>
@@ -13380,9 +13313,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Options</source>
         <translation>オプション</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>キーボードショートカット</translation>
@@ -13394,10 +13324,6 @@ To unset a variable, use -U&lt;variable&gt;.
     <message>
         <source>Keyboard</source>
         <translation>キーボード</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>追加</translation>
     </message>
     <message>
         <source>Invalid key sequence.</source>
@@ -13423,9 +13349,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Key sequence has potential conflicts. &lt;a href=&quot;#conflicts&quot;&gt;Show.&lt;/a&gt;</source>
         <translation>他のキーシーケンスと競合しているかもしれません。 &lt;a href=&quot;#conflicts&quot;&gt;確認する。&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
@@ -13459,16 +13382,10 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Cannot reload %1</source>
         <translation>%1 を再読込できません</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>保存時の状態に戻す</translation>
@@ -13508,10 +13425,6 @@ To unset a variable, use -U&lt;variable&gt;.
     <message>
         <source>Go to Last Edit</source>
         <translation>最後の編集箇所に移動する</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
@@ -13566,10 +13479,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <translation>エディタを指定して開く</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>ファイルエラー</translation>
-    </message>
-    <message>
         <source>Copy Full Path</source>
         <translation>フルパスをコピー</translation>
     </message>
@@ -13597,16 +13506,10 @@ Continue?</source>
         <source>Opening File</source>
         <translation>ファイルを開く</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>開いているドキュメント</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -13615,16 +13518,10 @@ Continue?</source>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>システムエディタ</translation>
@@ -13637,13 +13534,6 @@ Continue?</source>
         <source>Could not open url %1.</source>
         <translation>URL %1 を開けませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>ドキュメントを他の分割ウィンドウにドラッグして移動します</translation>
@@ -13653,16 +13543,9 @@ Continue?</source>
         <translation>分割解除</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>書込可能にする</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>ファイルは書込可能です</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>実行ファイル &quot;%1&quot; が見つかりませんでした(展開後 &quot;%2&quot;)</translation>
@@ -13679,9 +13562,6 @@ Continue?</source>
         <source>&quot;%1&quot; finished</source>
         <translation>&quot;%1&quot; が終了しました</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>外部(&amp;E)</translation>
@@ -13690,9 +13570,6 @@ Continue?</source>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>エラー: 外部ツール %1 は ID が重複しています</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Error while parsing external tool %1: %2</source>
         <translation>外部ツール %1 の解析中にエラーが発生しました: %2</translation>
@@ -13765,9 +13642,6 @@ Continue?</source>
         <source>Edit with vi</source>
         <translation>vi で編集</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>ファイルブラウザの起動に失敗しました</translation>
@@ -13858,23 +13732,17 @@ Continue?</source>
         <source>Could not delete file %1.</source>
         <translation>ファイル %1 を削除できません。</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>ディレクトリ %1 を作成できません。</translation>
     </message>
-</context>
-<context>
-    <name>Core::HelpManager</name>
     <message>
         <source>Unfiltered</source>
         <translation>フィルタなし</translation>
     </message>
 </context>
 <context>
-    <name>ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -13887,34 +13755,18 @@ Continue?</source>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Qt %1 (%2, %3 ビット) を使用</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>ファイルは自動保存したコピーから復元されました。変更を保存する場合は確認を、元に戻す場合は、保存時の状態に戻すを選択してください。</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>Do Not Show Again</source>
         <translation>今後このメッセージを表示しない</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
-    <message>
         <source>Open with VCS (%1)</source>
         <translation>バージョン管理システム (%1) で開く</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -13962,10 +13814,6 @@ Continue?</source>
     <message>
         <source>Recent &amp;Files</source>
         <translation>最近使ったファイル(&amp;F)</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -14184,16 +14032,10 @@ Continue?</source>
         <source>Settings...</source>
         <translation>設定...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>全体メッセージ</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME タイプ</translation>
@@ -14206,34 +14048,14 @@ Continue?</source>
         <source>Undefined</source>
         <translation>未定義</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME タイプ</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>&lt;b&gt;%1&lt;/b&gt;モードに切り替える</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>アウトプット</translation>
@@ -14278,9 +14100,6 @@ Continue?</source>
         <source>Minimize Output Pane</source>
         <translation>出力ペインの最小化</translation>
     </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted</source>
         <translation>追加の出力は省略されました</translation>
@@ -14297,20 +14116,9 @@ Continue?</source>
         <translation>[保留中の大量の出力結果を破棄しています]
 </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
     <message>
         <source>Error Details</source>
         <translation>エラーの詳細</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
     </message>
     <message>
         <source>Install Plugin...</source>
@@ -14336,49 +14144,18 @@ Continue?</source>
         <source>Plugin Errors of %1</source>
         <translation>プラグイン %1 のエラー情報</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>詳細な進捗表示の切替</translation>
     </message>
     <message>
-        <source>Ctrl+Shift+0</source>
-        <translation>Ctrl+Shift+0</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+0</source>
-        <translation>Alt+Shift+0</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
-    <message>
         <source>Processes</source>
         <translation>プロセス</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>外部ツール</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert &quot;%1&quot;</source>
         <translation>&quot;%1&quot; の挿入</translation>
@@ -14407,9 +14184,6 @@ Continue?</source>
         <source>Variables</source>
         <translation>変数</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>%1 のリポジトリが見つかりましたが、%1 が設定されていません。</translation>
@@ -14472,9 +14246,6 @@ to version control (%2)
         <translation>以下のファイルをバージョン管理システム (%1) に追加できません
 %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Qt Creator について</translation>
@@ -21847,7 +21618,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>クイックアクセス</translation>
@@ -23663,7 +23434,7 @@ Excluding: %2
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation>ファイル &quot;%1&quot; が &quot;%2&quot; に名前変更されましたが、以下のプロジェクトは自動的に変更できませんでした:&quot;%3&quot;</translation>
@@ -23709,10 +23480,6 @@ Excluding: %2
         <translation>ホーム</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>プロジェクト</translation>
-    </message>
-    <message>
         <source>Open</source>
         <translation>開く</translation>
     </message>
@@ -23736,9 +23503,6 @@ Excluding: %2
         <source>Choose Folder</source>
         <translation>フォルダを選択してください</translation>
     </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>ファイルシステム</translation>
@@ -23750,10 +23514,6 @@ Excluding: %2
     <message>
         <source>Alt+Y,Alt+F</source>
         <translation>Alt+Y,Alt+F</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -32364,7 +32124,7 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>検索(&amp;S)</translation>
@@ -32397,9 +32157,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Case &amp;sensitive</source>
         <translation>大文字/小文字を区別する(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>検索</translation>
@@ -32428,9 +32185,6 @@ Ex. &quot;Revision: 15&quot; を指定した場合、ブランチはリビジョ
         <source>Advanced...</source>
         <translation>拡張...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -32450,24 +32204,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 クイックオープンでの検索時に、ショートカットとスペースに続けて検索する単語を入力してください。</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>編集...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Directories:</source>
         <translation>ディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>隠しファイルも含める</translation>
@@ -32476,24 +32215,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Filter:</source>
         <translation>フィルタ:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>フィルタの設定</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>追加...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>編集...</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -32803,7 +32527,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Core::Find</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>検索/置換(&amp;F)</translation>
@@ -32817,16 +32541,9 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <translation>検索ダイアログを開く...</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>拡張...</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -32872,28 +32589,12 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <translation>Ctrl+Shift+F3</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>置換</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>置換して検索</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>置換して前を検索</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>すべて置換</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>大文字/小文字を区別する</translation>
     </message>
     <message>
         <source>Whole Words Only</source>
@@ -32915,9 +32616,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Replace with...</source>
         <translation>置換...</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>大文字/小文字を区別する</translation>
@@ -32946,9 +32644,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>検索はキャンセルされました。</translation>
@@ -32966,20 +32661,8 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <translation>再検索</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>置換文字列:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences.</source>
         <translation>すべての出現箇所を置換します。</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>置換</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>大文字/小文字を維持する</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -33005,9 +32688,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
             <numerusform>%n 件見つかりました。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>History:</source>
         <translation>履歴:</translation>
@@ -33032,9 +32712,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Search Results</source>
         <translation>検索結果</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>一般的なディレクトリフィルタ</translation>
@@ -33057,9 +32734,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>%1 filter update: canceled</source>
         <translation>フィルタ %1 の更新: キャンセルしました</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>カスタムコマンドの実行</translation>
@@ -33094,9 +32768,6 @@ kill しますか？</translation>
         <source>Could not find executable for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; の実行ファイルが見つかりませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>ファイルシステム上のファイル</translation>
@@ -33109,9 +32780,6 @@ kill しますか？</translation>
         <source>Create</source>
         <translation>生成</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>フィルタ設定</translation>
@@ -33132,9 +32800,6 @@ kill しますか？</translation>
         <source>Include the filter when not using a prefix for searches.</source>
         <translation>プレフィックスを使用しない検索時のフィルタとして使用します。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -33167,39 +32832,13 @@ kill しますか？</translation>
         <source>Updating Locator Caches</source>
         <translation>クイックアクセスキャッシュの更新中</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation>パスを入力してください</translation>
-    </message>
-    <message>
-        <source>Type to locate (%1)</source>
-        <translation>パスを入力してください (%1)</translation>
-    </message>
-    <message>
-        <source>Locate...</source>
-        <translation>クイックアクセス...</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>オプション</translation>
-    </message>
-    <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;入力してください&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>開いているドキュメント</translation>
     </message>
 </context>
 <context>
@@ -33902,7 +33541,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizardFactory</name>
+    <name>::Core</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot;をエディタで開けません。</translation>
@@ -33925,9 +33564,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <translation>プロジェクトディレクトリ %1 内のファイルを上書きできません:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;ドキュメントなし&gt;</translation>
@@ -33936,9 +33572,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>No document is selected.</source>
         <translation>ドキュメントが選択されていません。</translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>設定の&quot;環境&quot;で patch コマンドが指定されていません。</translation>
@@ -33963,9 +33596,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation>&quot;%1&quot; が失敗しました(終了コード %2)。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>全画面表示をやめる</translation>
@@ -34847,7 +34477,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettings</name>
+    <name>::Core</name>
     <message>
         <source>Terminal:</source>
         <translation>ターミナル:</translation>
@@ -34903,10 +34533,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <translation>既定に戻します。</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-    <message>
         <source>External file browser:</source>
         <translation>外部ファイルブラウザ:</translation>
     </message>
@@ -34942,14 +34568,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Files to keep open:</source>
         <translation>維持するファイル数:</translation>
-    </message>
-    <message>
-        <source>Environment:</source>
-        <translation>環境変数:</translation>
-    </message>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
     </message>
 </context>
 <context>
@@ -37563,7 +37181,7 @@ clang の実行ファイルを設定してください。</translation>
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>Existing files</source>
         <translation>上書き時のエラー</translation>
@@ -37572,9 +37190,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>File Generation Failure</source>
         <translation>ファイル生成エラー</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>インストールされているテーマが見つかりません。</translation>
@@ -37643,9 +37258,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>A comment.</source>
         <translation>コメントです。</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>既存ファイルの上書き</translation>
@@ -37658,24 +37270,9 @@ Would you like to overwrite them?</source>
 %1
 上書きしますか？</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>混在</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>書込可能にする</translation>
-    </message>
-    <message>
-        <source>Open with VCS</source>
-        <translation>バージョン管理システムで開く</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>名前を付けて保存</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -37733,9 +37330,6 @@ Do you want to check them out now?</source>
         <translation>以下のファイルはまだチェックアウトされていません。
 今すぐチェックアウトしますか？</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>クリックして新しいキーシーケンスを入力してください。</translation>
@@ -37747,17 +37341,6 @@ Do you want to check them out now?</source>
     <message>
         <source>Record</source>
         <translation>記録</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettingsWidget</name>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <translation>キーボードショートカット</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <translation>ショートカット</translation>
     </message>
     <message>
         <source>Enter key sequence as text</source>
@@ -37775,37 +37358,6 @@ Do you want to check them out now?</source>
         <source>Use &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
         <translation>修飾キーには &quot;Ctrl&quot; や &quot;Alt&quot;, &quot;Meta&quot;, &quot;Shift&quot; を使用してください。特殊キーとして &quot;Escape&quot; や &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; なども使用できます。各キーを組み合わせる場合は &quot;+&quot; を、複数のシーケンスで構成されるショートカットは &quot;,&quot; を使用してください。例えば、Ctrl キーと Shift キーを押しながら Escape キーを押して、それらを離した後に A キーを押す場合は ”Ctrl+Shift+Escape,A&quot; と入力してください。</translation>
     </message>
-    <message>
-        <source>Reset</source>
-        <translation>リセット</translation>
-    </message>
-    <message>
-        <source>Reset to default.</source>
-        <translation>既定に戻します。</translation>
-    </message>
-    <message>
-        <source>Key sequence has potential conflicts. &lt;a href=&quot;#conflicts&quot;&gt;Show.&lt;/a&gt;</source>
-        <translation>他のキーシーケンスと競合しているかもしれません。 &lt;a href=&quot;#conflicts&quot;&gt;確認する。&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Invalid key sequence.</source>
-        <translation>無効なキーシーケンスです。</translation>
-    </message>
-    <message>
-        <source>Import Keyboard Mapping Scheme</source>
-        <translation>キーボードマップスキームのインポート</translation>
-    </message>
-    <message>
-        <source>Keyboard Mapping Scheme (*.kms)</source>
-        <translation>キーボードマップスキーム (*.kms)</translation>
-    </message>
-    <message>
-        <source>Export Keyboard Mapping Scheme</source>
-        <translation>キーボードマップスキームのエクスポート</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>プロパティ...</translation>
@@ -37863,10 +37415,6 @@ Do you want to check them out now?</source>
         <translation>Alt+Right</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -37875,20 +37423,12 @@ Do you want to check them out now?</source>
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>左右に分割</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>新規ウィンドウで開く</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -37979,16 +37519,8 @@ Do you want to check them out now?</source>
         <translation>&lt;b&gt;警告:&lt;/b&gt; このファイルはまだ %1 で開かれていません。</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation>開く</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;警告:&lt;/b&gt; 読み取り専用ファイルを変更しています。</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>書込可能にする</translation>
     </message>
     <message>
         <source>&amp;Save %1</source>
@@ -38011,16 +37543,8 @@ Do you want to check them out now?</source>
         <translation>%1 以外をすべて閉じる</translation>
     </message>
     <message>
-        <source>Close Others</source>
-        <translation>他を閉じる</translation>
-    </message>
-    <message>
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>キャンセルして差分表示(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
@@ -38031,14 +37555,6 @@ Do you want to check them out now?</source>
         <translation>ファイルをバージョン管理システムでの編集用に開けませんでした。</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>ファイルエラー</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>保存時の状態に戻す</translation>
-    </message>
-    <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
         <translation>元に戻すと %1 への変更内容が失われます。</translation>
     </message>
@@ -38046,22 +37562,12 @@ Do you want to check them out now?</source>
         <source>Proceed</source>
         <translation>続行</translation>
     </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
             <numerusform>%n 個置換しました。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>ID が &quot;%1&quot; のウィザードファクトリーは既に登録されています。削除します。</translation>
@@ -38074,9 +37580,6 @@ Do you want to check them out now?</source>
         <source>Inspect Wizard State</source>
         <translation>ウィザードの状態のインスペクト</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>&quot;%1&quot; でエラー: %2</translation>
@@ -38089,42 +37592,9 @@ Do you want to check them out now?</source>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</source>
         <translation>シンプルな JavaScript 文を評価します。&lt;br&gt;文には &apos;{&apos; や &apos;}&apos; は含まれません。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>外部ツールの実行</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsPage</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation>既定</translation>
-    </message>
-    <message>
-        <source>Prefix</source>
-        <translation>プレフィックス</translation>
-    </message>
-    <message>
-        <source>Built-in</source>
-        <translation>ビルトイン</translation>
-    </message>
-    <message>
-        <source>Custom</source>
-        <translation>カスタム</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation>MIME タイプのリセット</translation>
     </message>
     <message>
         <source>Changes will take effect after restart.</source>
@@ -38134,16 +37604,6 @@ Do you want to check them out now?</source>
         <source>Changes will take effect after Qt Creator restart.</source>
         <translation>変更は Qt Creator を再起動した後に反映されます。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation>%1 ビューをアクティブにします</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
     <message>
         <source>Activate %1 View</source>
         <translation>%1 ビューをアクティブにします</translation>
@@ -38157,11 +37617,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ThemeChooser</name>
-    <message>
-        <source>Restart Required</source>
-        <translation>再起動が必要です</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Current theme: %1</source>
         <translation>現在のテーマ: %1</translation>
@@ -42951,7 +42407,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
+    <name>::Core</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Spotlight ファイル名検索</translation>
@@ -43270,7 +42726,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
+    <name>::Core</name>
     <message>
         <source>Available filters</source>
         <translation>利用可能なフィルタ</translation>
@@ -44021,7 +43477,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Core::FilePropertiesDialog</name>
+    <name>::Core</name>
     <message>
         <source>Group:</source>
         <translation>グループ:</translation>
@@ -44031,27 +43487,8 @@ Output:
         <translation>サイズ:</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
-    </message>
-    <message>
         <source>Path:</source>
         <translation>パス:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>実行ファイル:</translation>
-    </message>
-    <message>
-        <source>Undefined</source>
-        <translation>未定義</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::UrlFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -46429,7 +45866,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Core::CodecSelector</name>
+    <name>::Core</name>
     <message>
         <source>Text Encoding</source>
         <translation>文字コードの指定</translation>
@@ -46452,38 +45889,6 @@ Output:
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
-    <message>
-        <source>Uncategorized</source>
-        <translation>未分類</translation>
-    </message>
-    <message>
-        <source>Tools that will appear directly under the External Tools menu.</source>
-        <translation>ツールは外部ツールメニューの直下に表示されます。</translation>
-    </message>
-    <message>
-        <source>New Category</source>
-        <translation>新しいカテゴリ</translation>
-    </message>
-    <message>
-        <source>New Tool</source>
-        <translation>新しいツール</translation>
-    </message>
-    <message>
-        <source>This tool prints a line of useful text</source>
-        <translation>このツールはテキストを1行を出力します</translation>
-    </message>
-    <message>
-        <source>Useful text</source>
-        <extracomment>Sample external tool text</extracomment>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>External Tools</source>
-        <translation>外部ツール</translation>
-    </message>
-</context>
-<context>
     <name>ExternalTool</name>
     <message>
         <source>System Environment</source>
@@ -46491,87 +45896,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>Core::RestartDialog</name>
-    <message>
-        <source>Restart Required</source>
-        <translation>再起動が必要です</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutInput</name>
-    <message>
-        <source>Key sequence:</source>
-        <translation>キーシーケンス:</translation>
-    </message>
-    <message>
-        <source>Use &quot;Cmd&quot;, &quot;Opt&quot;, &quot;Ctrl&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>修飾キーには &quot;Cmd&quot; や &quot;Opt&quot;, &quot;Ctrl&quot;, &quot;Shift&quot; を使用してください。特殊キーとして &quot;Escape&quot; や &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; なども使用できます。各キーを組み合わせる場合は &quot;+&quot; を、複数のシーケンスで構成されるショートカットは &quot;,&quot; を使用してください。例えば、Ctrl キーと Shift キーを押しながら Escape キーを押して、それらを離した後に A キーを押す場合は &quot;Ctrl+Shift+Escape,A&quot; と入力してください。</translation>
-    </message>
-    <message>
-        <source>Use &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, and &quot;Shift&quot; for modifier keys. Use &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot;, and so on, for special keys. Combine individual keys with &quot;+&quot;, and combine multiple shortcuts to a shortcut sequence with &quot;,&quot;. For example, if the user must hold the Ctrl and Shift modifier keys while pressing Escape, and then release and press A, enter &quot;Ctrl+Shift+Escape,A&quot;.</source>
-        <translation>修飾キーには &quot;Ctrl&quot; や &quot;Alt&quot;, &quot;Meta&quot;, &quot;Shift&quot; を使用してください。特殊キーとして &quot;Escape&quot; や &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; なども使用できます。各キーを組み合わせる場合は &quot;+&quot; を、複数のシーケンスで構成されるショートカットは &quot;,&quot; を使用してください。例えば、Ctrl キーと Shift キーを押しながら Escape キーを押して、それらを離した後に A キーを押す場合は &quot;Ctrl+Shift+Escape,A&quot; と入力してください。</translation>
-    </message>
-    <message>
-        <source>Enter key sequence as text</source>
-        <translation>キーシーケンスを文字列で入力してください</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentManagerPrivate</name>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <translation>Ctrl+Shift+S</translation>
-    </message>
-    <message>
-        <source>Save A&amp;ll</source>
-        <translation>すべて保存(&amp;L)</translation>
-    </message>
-</context>
-<context>
-    <name>OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>開いているドキュメント</translation>
-    </message>
-    <message>
-        <source>Meta+O</source>
-        <translation>Meta+O</translation>
-    </message>
-    <message>
-        <source>Alt+O</source>
-        <translation>Alt+O</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>EditorManager</name>
-    <message>
-        <source>Revert to Saved</source>
-        <translation type="vanished">保存時の状態に戻す</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">閉じる</translation>
-    </message>
-    <message>
-        <source>Close All</source>
-        <translation type="vanished">すべて閉じる</translation>
-    </message>
-    <message>
-        <source>Close Others</source>
-        <translation type="vanished">他を閉じる</translation>
-    </message>
-    <message>
-        <source>Close All Except Visible</source>
-        <translation type="vanished">表示されていないファイルをすべて閉じる</translation>
-    </message>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation type="vanished">履歴内の次のドキュメントに移動</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation type="vanished">履歴内の前のドキュメントに移動</translation>
-    </message>
     <message>
         <source>Go Back</source>
         <translation>戻る</translation>
@@ -46581,40 +45909,12 @@ Output:
         <translation>進む</translation>
     </message>
     <message>
-        <source>Copy Full Path</source>
-        <translation type="vanished">フルパスをコピー</translation>
-    </message>
-    <message>
-        <source>Copy Path and Line Number</source>
-        <translation type="vanished">パスと行番号をコピー</translation>
-    </message>
-    <message>
-        <source>Copy File Name</source>
-        <translation type="vanished">ファイル名をコピー</translation>
-    </message>
-    <message>
         <source>&amp;Save</source>
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
         <source>Save &amp;As...</source>
         <translation>名前を付けて保存(&amp;A)...</translation>
-    </message>
-    <message>
-        <source>Continue Opening Huge Text File?</source>
-        <translation type="vanished">巨大なテキストファイルを引き続き開きますか？</translation>
-    </message>
-    <message>
-        <source>The text file &quot;%1&quot; has the size %2MB and might take more memory to open and process than available.
-
-Continue?</source>
-        <translation type="vanished">テキストファイル &quot;%1&quot; のサイズは %2MB あり、開いて処理するのに余分にメモリを必要とします。
-
-継続しますか？</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">ファイルエラー</translation>
     </message>
     <message>
         <source>Split</source>
@@ -46634,7 +45934,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -46647,62 +45947,13 @@ Continue?</source>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Qt %1 (%2, %3 ビット) を使用</translation>
     </message>
-</context>
-<context>
-    <name>Core::DirectoryFilter</name>
-    <message>
-        <source>Generic Directory Filter</source>
-        <translation>一般的なディレクトリフィルタ</translation>
-    </message>
-    <message>
-        <source>Select Directory</source>
-        <translation>ディレクトリの選択</translation>
-    </message>
-    <message>
-        <source>%1 filter update: 0 files</source>
-        <translation>フィルタ %1 の更新: 0 個のファイル</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 filter update: %n files</source>
-        <translation>
-            <numerusform>フィルタ %1 の更新: %n 個のファイル</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%1 filter update: canceled</source>
-        <translation>フィルタ %1 の更新: キャンセルしました</translation>
-    </message>
-</context>
-<context>
-    <name>Core::UrlLocatorFilter</name>
     <message>
         <source>Web Search</source>
         <translation>Web 検索</translation>
     </message>
-</context>
-<context>
-    <name>Core::LocatorManager</name>
-    <message>
-        <source>&lt;type here&gt;</source>
-        <translation>&lt;入力してください&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IOutputPane</name>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation>正規表現を使用する</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::PluginInstallWizard</name>
     <message>
         <source>Source</source>
         <translation>ソース</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>キャンセル</translation>
     </message>
     <message>
         <source>Summary</source>
@@ -46712,9 +45963,6 @@ Continue?</source>
         <source>Overwrite</source>
         <translation>上書きする</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Command line arguments used for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; に使用するコマンドライン引数。</translation>
@@ -46752,20 +46000,9 @@ Continue?</source>
         <translation>大文字小文字を区別しない</translation>
     </message>
     <message>
-        <source>No changes to apply.</source>
-        <translation>変更しません。</translation>
-    </message>
-    <message>
-        <source>Variables</source>
-        <translation>変数</translation>
-    </message>
-    <message>
         <source>System</source>
         <translation>システム</translation>
     </message>
-</context>
-<context>
-    <name>Core::ListItemDelegate</name>
     <message>
         <source>Tags:</source>
         <translation>タグ:</translation>

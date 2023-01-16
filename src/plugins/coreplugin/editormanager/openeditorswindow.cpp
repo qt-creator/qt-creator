@@ -6,7 +6,8 @@
 #include "editormanager.h"
 #include "editormanager_p.h"
 #include "editorview.h"
-#include <coreplugin/idocument.h>
+#include "../coreplugintr.h"
+#include "../idocument.h"
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
@@ -21,8 +22,7 @@
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IDocument*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 enum class Role
 {
@@ -226,7 +226,7 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     QTC_ASSERT(!title.isEmpty(), return);
     auto item = new QTreeWidgetItem();
     if (entry->document->isModified())
-        title += tr("*");
+        title += Tr::tr("*");
     item->setIcon(0, !entry->filePath().isEmpty() && entry->document->isFileReadOnly()
                   ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->filePath()));
     item->setText(0, title);
@@ -240,3 +240,5 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     if (m_editorList->topLevelItemCount() == 1)
         m_editorList->setCurrentItem(item);
 }
+
+} // Core::Internal

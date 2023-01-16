@@ -6,11 +6,13 @@
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
 #include "coreplugin.h"
+#include "coreplugintr.h"
 #include "editormanager/editormanager.h"
 #include "find/basetextfind.h"
 #include "icore.h"
 
 #include <aggregation/aggregate.h>
+
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
@@ -411,7 +413,7 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         const int elided = out.size() - d->maxCharCount;
         out = out.left(d->maxCharCount / 2)
                 + "[[[... "
-                + tr("Elided %n characters due to Application Output settings", nullptr, elided)
+                + Tr::tr("Elided %n characters due to Application Output settings", nullptr, elided)
                 + " ...]]]"
                 + out.right(d->maxCharCount / 2);
         setMaximumBlockCount(out.count('\n') + 1);
@@ -565,7 +567,7 @@ void OutputWindow::reset()
     d->scrollToBottom = true;
     if (!d->queuedOutput.isEmpty()) {
         d->queuedOutput.clear();
-        d->formatter.appendMessage(tr("[Discarding excessive amount of pending output.]\n"),
+        d->formatter.appendMessage(Tr::tr("[Discarding excessive amount of pending output.]\n"),
                                    ErrorMessageFormat);
     }
     d->flushRequested = false;

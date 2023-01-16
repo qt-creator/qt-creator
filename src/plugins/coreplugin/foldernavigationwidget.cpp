@@ -3,18 +3,19 @@
 
 #include "foldernavigationwidget.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreicons.h>
-#include <coreplugin/diffservice.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/fileutils.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/iwizardfactory.h>
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreicons.h"
+#include "coreplugintr.h"
+#include "diffservice.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
+#include "fileutils.h"
+#include "icontext.h"
+#include "icore.h"
+#include "idocument.h"
+#include "iwizardfactory.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -250,9 +251,9 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_listView(new Utils::NavigationTreeView(this)),
     m_fileSystemModel(new FolderNavigationModel(this)),
     m_sortProxyModel(new FolderSortProxyModel(m_fileSystemModel)),
-    m_filterHiddenFilesAction(new QAction(tr("Show Hidden Files"), this)),
-    m_showBreadCrumbsAction(new QAction(tr("Show Bread Crumbs"), this)),
-    m_showFoldersOnTopAction(new QAction(tr("Show Folders on Top"), this)),
+    m_filterHiddenFilesAction(new QAction(Tr::tr("Show Hidden Files"), this)),
+    m_showBreadCrumbsAction(new QAction(Tr::tr("Show Bread Crumbs"), this)),
+    m_showFoldersOnTopAction(new QAction(Tr::tr("Show Folders on Top"), this)),
     m_toggleSync(new QToolButton(this)),
     m_toggleRootSync(new QToolButton(this)),
     m_rootSelector(new QComboBox),
@@ -323,11 +324,11 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
 
     m_toggleSync->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
     m_toggleSync->setCheckable(true);
-    m_toggleSync->setToolTip(tr("Synchronize with Editor"));
+    m_toggleSync->setToolTip(Tr::tr("Synchronize with Editor"));
 
     m_toggleRootSync->setIcon(Utils::Icons::LINK.icon());
     m_toggleRootSync->setCheckable(true);
-    m_toggleRootSync->setToolTip(tr("Synchronize Root Directory with Editor"));
+    m_toggleRootSync->setToolTip(Tr::tr("Synchronize Root Directory with Editor"));
     selectorLayout->addWidget(m_toggleRootSync);
 
     // connections
@@ -469,7 +470,7 @@ void FolderNavigationWidget::addNewItem()
         return;
     const auto filePath = Utils::FilePath::fromString(m_fileSystemModel->filePath(current));
     const Utils::FilePath path = filePath.isDir() ? filePath : filePath.parentDir();
-    Core::ICore::showNewItemDialog(tr("New File", "Title of dialog"),
+    Core::ICore::showNewItemDialog(Tr::tr("New File", "Title of dialog"),
                                    Utils::filtered(Core::IWizardFactory::allWizardFactories(),
                                                    Utils::equal(&Core::IWizardFactory::kind,
                                                                 Core::IWizardFactory::FileWizard)),
@@ -623,7 +624,7 @@ void FolderNavigationWidget::openItem(const QModelIndex &index)
 
 void FolderNavigationWidget::createNewFolder(const QModelIndex &parent)
 {
-    static const QString baseName = tr("New Folder");
+    static const QString baseName = Tr::tr("New Folder");
     // find non-existing name
     const QDir dir(m_fileSystemModel->filePath(parent));
     const QSet<Utils::FilePath> existingItems
@@ -685,7 +686,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
                                                     : Utils::FilePath();
     if (hasCurrentItem) {
         if (!isDir)
-            actionOpenFile = menu.addAction(tr("Open \"%1\"").arg(filePath.toUserOutput()));
+            actionOpenFile = menu.addAction(Tr::tr("Open \"%1\"").arg(filePath.toUserOutput()));
         emit m_instance->aboutToShowContextMenu(&menu, filePath, isDir);
     }
 
@@ -703,13 +704,13 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             menu.addAction(Core::ActionManager::command(REMOVEFILE)->action());
         if (m_fileSystemModel->flags(current) & Qt::ItemIsEditable)
             menu.addAction(Core::ActionManager::command(RENAMEFILE)->action());
-        newFolder = menu.addAction(tr("New Folder"));
+        newFolder = menu.addAction(Tr::tr("New Folder"));
         if (isDir)
-            removeFolder = menu.addAction(tr("Remove Folder"));
+            removeFolder = menu.addAction(Tr::tr("Remove Folder"));
     }
 
     menu.addSeparator();
-    QAction *const collapseAllAction = menu.addAction(tr("Collapse All"));
+    QAction *const collapseAllAction = menu.addAction(Tr::tr("Collapse All"));
 
     QAction *action = menu.exec(ev->globalPos());
     if (!action)
@@ -730,7 +731,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
             QString errorMessage;
             filePath.removeRecursively(&errorMessage);
             if (!errorMessage.isEmpty())
-                QMessageBox::critical(ICore::dialogParent(), tr("Error"), errorMessage);
+                QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), errorMessage);
         }
     } else if (action == collapseAllAction) {
         m_listView->collapseAll();
@@ -772,19 +773,19 @@ bool FolderNavigationWidget::isShowingFoldersOnTop() const
 FolderNavigationWidgetFactory::FolderNavigationWidgetFactory()
 {
     m_instance = this;
-    setDisplayName(tr("File System"));
+    setDisplayName(Tr::tr("File System"));
     setPriority(400);
     setId("File System");
-    setActivationSequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Y,Meta+F")
-                                                             : tr("Alt+Y,Alt+F")));
+    setActivationSequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Y,Meta+F")
+                                                             : Tr::tr("Alt+Y,Alt+F")));
     insertRootDirectory({QLatin1String("A.Computer"),
                          0 /*sortValue*/,
-                         FolderNavigationWidget::tr("Computer"),
+                         Tr::tr("Computer"),
                          Utils::FilePath(),
                          Core::Icons::DESKTOP_DEVICE_SMALL.icon()});
     insertRootDirectory({QLatin1String("A.Home"),
                          10 /*sortValue*/,
-                         FolderNavigationWidget::tr("Home"),
+                         Tr::tr("Home"),
                          Utils::FilePath::fromString(QDir::homePath()),
                          Utils::Icons::HOME.icon()});
     updateProjectsDirectoryRoot();
@@ -815,7 +816,7 @@ Core::NavigationView FolderNavigationWidgetFactory::createWidget()
     n.widget = fnw;
     auto filter = new QToolButton;
     filter->setIcon(Utils::Icons::FILTER.icon());
-    filter->setToolTip(tr("Options"));
+    filter->setToolTip(Tr::tr("Options"));
     filter->setPopupMode(QToolButton::InstantPopup);
     filter->setProperty("noArrow", true);
     auto filterMenu = new QMenu(filter);
@@ -903,7 +904,7 @@ void FolderNavigationWidgetFactory::updateProjectsDirectoryRoot()
 {
     insertRootDirectory({QLatin1String(PROJECTSDIRECTORYROOT_ID),
                          20 /*sortValue*/,
-                         FolderNavigationWidget::tr("Projects"),
+                         Tr::tr("Projects"),
                          Core::DocumentManager::projectsDirectory(),
                          Utils::Icons::PROJECT.icon()});
 }
@@ -928,21 +929,21 @@ void FolderNavigationWidgetFactory::registerActions()
 {
     Core::Context context(C_FOLDERNAVIGATIONWIDGET);
 
-    auto add = new QAction(tr("Add New..."), this);
+    auto add = new QAction(Tr::tr("Add New..."), this);
     Core::ActionManager::registerAction(add, ADDNEWFILE, context);
     connect(add, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->addNewItem();
     });
 
-    auto rename = new QAction(tr("Rename..."), this);
+    auto rename = new QAction(Tr::tr("Rename..."), this);
     Core::ActionManager::registerAction(rename, RENAMEFILE, context);
     connect(rename, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())
             navWidget->editCurrentItem();
     });
 
-    auto remove = new QAction(tr("Remove..."), this);
+    auto remove = new QAction(Tr::tr("Remove..."), this);
     Core::ActionManager::registerAction(remove, REMOVEFILE, context);
     connect(remove, &QAction::triggered, Core::ICore::instance(), [] {
         if (auto navWidget = currentFolderNavigationWidget())

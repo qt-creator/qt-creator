@@ -3,9 +3,11 @@
 
 #include "executefilter.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/messagemanager.h>
+#include "../coreplugintr.h"
+#include "../icore.h"
+#include "../editormanager/editormanager.h"
+#include "../messagemanager.h"
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
@@ -16,16 +18,15 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
-using namespace Core;
-using namespace Core::Internal;
-
 using namespace Utils;
+
+namespace Core::Internal {
 
 ExecuteFilter::ExecuteFilter()
 {
     setId("Execute custom commands");
-    setDisplayName(tr("Execute Custom Commands"));
-    setDescription(tr(
+    setDisplayName(Tr::tr("Execute Custom Commands"));
+    setDescription(Tr::tr(
         "Runs an arbitrary command with arguments. The command is searched for in the PATH "
         "environment variable if needed. Note that the command is run directly, not in a shell."));
     setDefaultShortcutString("!");
@@ -93,9 +94,9 @@ void ExecuteFilter::accept(const LocatorFilterEntry &selection,
     d.workingDirectory = FilePath::fromString(workingDirectory);
 
     if (m_process) {
-        const QString info(tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
+        const QString info(Tr::tr("Previous command is still running (\"%1\").\nDo you want to kill it?")
                            .arg(p->headCommand()));
-        int r = QMessageBox::question(ICore::dialogParent(), tr("Kill Previous Process?"), info,
+        int r = QMessageBox::question(ICore::dialogParent(), Tr::tr("Kill Previous Process?"), info,
                                       QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
                                       QMessageBox::Yes);
         if (r == QMessageBox::Cancel)
@@ -143,12 +144,12 @@ void ExecuteFilter::runHeadCommand()
         const ExecuteData &d = m_taskQueue.head();
         if (d.command.executable().isEmpty()) {
             MessageManager::writeDisrupting(
-                tr("Could not find executable for \"%1\".").arg(d.command.executable().toUserOutput()));
+                Tr::tr("Could not find executable for \"%1\".").arg(d.command.executable().toUserOutput()));
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
         }
-        MessageManager::writeDisrupting(tr("Starting command \"%1\".").arg(headCommand()));
+        MessageManager::writeDisrupting(Tr::tr("Starting command \"%1\".").arg(headCommand()));
         QTC_CHECK(!m_process);
         createProcess();
         m_process->setWorkingDirectory(d.workingDirectory);
@@ -200,3 +201,5 @@ QString ExecuteFilter::headCommand() const
     const ExecuteData &data = m_taskQueue.head();
     return data.command.toUserOutput();
 }
+
+} // Core::Internal

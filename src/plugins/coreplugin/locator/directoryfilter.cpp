@@ -4,8 +4,7 @@
 #include "directoryfilter.h"
 
 #include "locator.h"
-
-#include <coreplugin/coreconstants.h>
+#include "../coreplugintr.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -16,7 +15,6 @@
 #include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
@@ -45,7 +43,7 @@ const QStringList kExclusionFiltersDefault = {"*/.git/*", "*/.cvs/*", "*/.svn/*"
 
 static QString defaultDisplayName()
 {
-    return DirectoryFilter::tr("Generic Directory Filter");
+    return Tr::tr("Generic Directory Filter");
 }
 
 DirectoryFilter::DirectoryFilter(Id id)
@@ -55,9 +53,9 @@ DirectoryFilter::DirectoryFilter(Id id)
     setId(id);
     setDefaultIncludedByDefault(true);
     setDisplayName(defaultDisplayName());
-    setDescription(tr("Matches all files from a custom set of directories. Append \"+<number>\" or "
-                      "\":<number>\" to jump to the given line number. Append another "
-                      "\"+<number>\" or \":<number>\" to jump to the column number as well."));
+    setDescription(Tr::tr("Matches all files from a custom set of directories. Append \"+<number>\" "
+                          "or \":<number>\" to jump to the given line number. Append another "
+                          "\"+<number>\" or \":<number>\" to jump to the column number as well."));
 }
 
 void DirectoryFilter::saveState(QJsonObject &object) const
@@ -148,13 +146,11 @@ void DirectoryFilter::restoreState(const QByteArray &state)
 
 class DirectoryFilterOptions : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::DirectoryFilterOptions)
-
 public:
     DirectoryFilterOptions(QWidget *parent)
         : QDialog(parent)
     {
-        nameLabel = new QLabel(tr("Name:"));
+        nameLabel = new QLabel(Tr::tr("Name:"));
         nameEdit = new QLineEdit(this);
 
         filePatternLabel = new QLabel(this);
@@ -168,7 +164,7 @@ public:
         shortcutEdit = new QLineEdit(this);
         shortcutEdit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         shortcutEdit->setMaximumSize(QSize(16777215, 16777215));
-        shortcutEdit->setToolTip(tr("Specify a short word/abbreviation that can be used to "
+        shortcutEdit->setToolTip(Tr::tr("Specify a short word/abbreviation that can be used to "
                                     "restrict completions to files from this directory tree.\n"
                                     "To do this, you type this shortcut and a space in the "
                                     "Locator entry field, and then the word to search for."));
@@ -176,11 +172,11 @@ public:
         defaultFlag = new QCheckBox(this);
         defaultFlag->setChecked(false);
 
-        directoryLabel = new QLabel(tr("Directories:"));
+        directoryLabel = new QLabel(Tr::tr("Directories:"));
 
-        addButton = new QPushButton(tr("Add..."));
-        editButton = new QPushButton(tr("Edit..."));
-        removeButton = new QPushButton(tr("Remove"));
+        addButton = new QPushButton(Tr::tr("Add..."));
+        editButton = new QPushButton(Tr::tr("Edit..."));
+        removeButton = new QPushButton(Tr::tr("Remove"));
 
         directoryList = new QListWidget(this);
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -324,7 +320,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 
 void DirectoryFilter::handleAddDirectory()
 {
-    FilePath dir = FileUtils::getExistingDirectory(m_dialog, tr("Select Directory"));
+    FilePath dir = FileUtils::getExistingDirectory(m_dialog, Tr::tr("Select Directory"));
     if (!dir.isEmpty())
         m_dialog->directoryList->addItem(dir.toUserOutput());
 }
@@ -334,7 +330,7 @@ void DirectoryFilter::handleEditDirectory()
     if (m_dialog->directoryList->selectedItems().count() < 1)
         return;
     QListWidgetItem *currentItem = m_dialog->directoryList->selectedItems().at(0);
-    FilePath dir = FileUtils::getExistingDirectory(m_dialog, tr("Select Directory"),
+    FilePath dir = FileUtils::getExistingDirectory(m_dialog, Tr::tr("Select Directory"),
                                                    FilePath::fromUserInput(currentItem->text()));
     if (!dir.isEmpty())
         currentItem->setText(dir.toUserOutput());
@@ -372,7 +368,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
             QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator,
                                       Qt::QueuedConnection);
             future.setProgressRange(0, 1);
-            future.setProgressValueAndText(1, tr("%1 filter update: 0 files").arg(displayName()));
+            future.setProgressValueAndText(1, Tr::tr("%1 filter update: 0 files").arg(displayName()));
             return;
         }
         directories = m_directories;
@@ -390,7 +386,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(subDirIterator.currentProgress(),
-                                           tr("%1 filter update: %n files", nullptr, filesFound.size()).arg(displayName()));
+                                           Tr::tr("%1 filter update: %n files", nullptr, filesFound.size()).arg(displayName()));
         }
     }
 
@@ -400,7 +396,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
         QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator, Qt::QueuedConnection);
         future.setProgressValue(subDirIterator.maxProgress());
     } else {
-        future.setProgressValueAndText(subDirIterator.currentProgress(), tr("%1 filter update: canceled").arg(displayName()));
+        future.setProgressValueAndText(subDirIterator.currentProgress(), Tr::tr("%1 filter update: canceled").arg(displayName()));
     }
 }
 

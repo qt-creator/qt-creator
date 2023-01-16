@@ -224,7 +224,7 @@
     </message>
 </context>
 <context>
-    <name>Core::Internal::NewDialog</name>
+    <name>::Core</name>
     <message>
         <source>New Project</source>
         <translation>Nowy projekt</translation>
@@ -262,9 +262,6 @@
         <source>Supported Platforms</source>
         <translation>Obsługiwane platformy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>&lt;System Language&gt;</source>
         <translation>&lt;Język systemowy&gt;</translation>
@@ -292,10 +289,6 @@
     <message>
         <source>Language:</source>
         <translation>Język:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
     </message>
     <message>
         <source>Reset to default.</source>
@@ -2094,7 +2087,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Błąd w trakcie generowania pliku</translation>
@@ -2164,7 +2157,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Otwórz plik przy pomocy...</translation>
@@ -2177,9 +2170,6 @@ Przyczyna: %3</translation>
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Otwórz plik &quot;%1&quot; przy pomocy:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save All</source>
         <translation>Zachowaj wszystko</translation>
@@ -2236,9 +2226,6 @@ Przyczyna: %3</translation>
         <source>Automatically save all files before building</source>
         <translation>Automatycznie zachowuj wszystkie pliki przed budowaniem</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Ustawienia</translation>
@@ -2247,23 +2234,14 @@ Przyczyna: %3</translation>
         <source>Options</source>
         <translation>Opcje</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Klawisze</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Edycja</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Odwróć zmiany</translation>
@@ -2325,10 +2303,6 @@ Kontynuować?</translation>
         <translation>Otwórz przy pomocy</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Zachowaj</translation>
-    </message>
-    <message>
         <source>Save &amp;As...</source>
         <translation>Zachowaj j&amp;ako...</translation>
     </message>
@@ -2376,23 +2350,14 @@ Kontynuować?</translation>
         <source>Close Document</source>
         <translation>Zamknij dokument</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Otwarte dokumenty</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -2441,10 +2406,6 @@ Kontynuować?</translation>
     <message>
         <source>Recent &amp;Files</source>
         <translation>Ostatnie p&amp;liki</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Zachowaj</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -2586,34 +2547,14 @@ Kontynuować?</translation>
         <source>Settings...</source>
         <translation>Ustawienia...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Komunikaty ogólne</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Przejdź do trybu &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Podziel</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zamknij</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Komunikaty</translation>
@@ -2658,9 +2599,6 @@ Kontynuować?</translation>
         <source>Minimize Output Pane</source>
         <translation>Zminimalizuj panel z komunikatami</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Show all</source>
         <translation>Pokaż wszystkie</translation>
@@ -2678,10 +2616,6 @@ Kontynuować?</translation>
         <translation>Szczegóły błędów</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Zamknij</translation>
-    </message>
-    <message>
         <source>Restart required.</source>
         <translation>Wymagane ponowne uruchomienie.</translation>
     </message>
@@ -2697,27 +2631,10 @@ Kontynuować?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Błędy wtyczki %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Podziel</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zamknij</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Informacje o Qt Creatorze</translation>
@@ -7376,7 +7293,7 @@ Wykluczenia: %2
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>System plików</translation>
@@ -8598,7 +8515,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>Lokalizator</translation>
@@ -10617,7 +10534,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Mapy komend</translation>
@@ -10650,9 +10567,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Label</source>
         <translation>Etykieta</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Show Left Sidebar</source>
         <translation>Pokaż lewy boczny pasek</translation>
@@ -10706,16 +10620,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <comment>On Linux/macOS</comment>
         <translation>Wszystkie pliki (*)</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Design</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Edytor systemowy</translation>
@@ -10723,13 +10631,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     <message>
         <source>Could not open URL %1.</source>
         <translation>Nie można otworzyć URL %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Split</source>
-        <translation>Podziel</translation>
     </message>
     <message>
         <source>Drag to drag documents between splits</source>
@@ -11399,7 +11300,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Open</source>
         <translation>Otwórz</translation>
@@ -12787,14 +12688,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation>Uaktywnij widok %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Uaktywnij widok %1</translation>
@@ -13818,7 +13712,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>::Core</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -13830,10 +13724,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Przywróć</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -13951,9 +13841,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Change...</source>
         <translation>Zmień...</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>Wstaw zmienną</translation>
@@ -14552,7 +14439,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Nieskategoryzowane</translation>
@@ -14578,9 +14465,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Sample external tool text</extracomment>
         <translation>Przydatny tekst</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Nie można znaleźć pliku wykonywalnego dla &quot;%1&quot; (w rozwinięciu &quot;%2&quot;)</translation>
@@ -14593,9 +14477,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&quot;%1&quot; finished</source>
         <translation>Zakończono &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>Z&amp;ewnętrzne</translation>
@@ -14604,9 +14485,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Błąd: narzędzie zewnętrzne w %1 ma powielony identyfikator</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
     <message>
         <source>Add Magic Header</source>
         <translation>Dodaj magiczny nagłówek</translation>
@@ -14695,9 +14573,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Range end:</source>
         <translation>Koniec zakresu:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>Typ MIME</translation>
@@ -14710,9 +14585,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Undefined</source>
         <translation>Niezdefiniowana</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
     <message>
         <source>Reset MIME Types</source>
         <translation>Zresetuj typy MIME</translation>
@@ -14721,23 +14593,14 @@ Local pulls are not applied to the master branch.</source>
         <source>Changes will take effect after Qt Creator restart.</source>
         <translation>Zmiany zostaną zastosowane przy ponownym uruchomieniu Qt Creatora.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>Typy MIME</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Narzędzia zewnętrzne</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Wykryto repozytorium %1, ale %1 nie jest skonfigurowane.</translation>
@@ -16891,7 +16754,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Core::InfoBarDisplay</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>&amp;Pokaż szczegóły</translation>
@@ -16900,13 +16763,6 @@ With cache simulation, further event counters are enabled:
         <source>Do Not Show Again</source>
         <translation>Nie pokazuj ponownie</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Zamknij</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted</source>
         <translation>Pominięto dalsze komunikaty</translation>
@@ -17943,7 +17799,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Nie można uruchomić przeglądarki plików</translation>
@@ -18008,9 +17864,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>Could not delete file %1.</source>
         <translation>Nie można usunąć pliku %1.</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Nie można utworzyć katalogu %1.</translation>
@@ -18555,7 +18408,7 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalTool</name>
+    <name>::Core</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>Tworzy pliki qm z tłumaczeniami, na podstawie plików ts tłumacza, które mogą być użyte w aplikacji</translation>
@@ -18872,26 +18725,10 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Zarejestrowane typy MIME</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation>Przywraca wszystkie domyślne.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation>Przywróć wszystkie</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
     </message>
     <message>
         <source>Patterns:</source>
@@ -18918,16 +18755,9 @@ Wykluczenia: %3
         <translation>Modyfikuj...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Filtr</translation>
     </message>
-</context>
-<context>
-    <name>Core::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Usuń plik</translation>
@@ -20807,15 +20637,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Nie można zachować plików.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Błąd pliku</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -20841,9 +20667,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Cannot reload %1</source>
         <translation>Nie można przeładować %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -20852,9 +20675,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Plik został przywrócony z automatycznie zachowanej kopii. Naciśnij &quot;Zachowaj&quot; aby potwierdzić, lub &quot;Przywróć do zachowanego&quot; aby odrzucić zmiany.</translation>
@@ -22718,7 +22538,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Core::IVersionControl</name>
+    <name>::Core</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Otwórz przy pomocy VCS (%1)</translation>
@@ -23121,7 +22941,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <name>::Core</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Pliki bez prawa do zapisu</translation>
@@ -23129,10 +22949,6 @@ You can choose another communication channel here, such as a serial line or cust
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Następujące pliki nie posiadają praw do zapisu. Zmienić prawa?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Przydziel prawa do zapisu</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -24304,7 +24120,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -24317,9 +24133,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Bazujący na Qt %1 (%2, %3 bitowy)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Przełącz szczegóły postępu</translation>
@@ -25775,11 +25588,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Dodaj plik do systemu kontroli wersji (%1)</translation>
@@ -27440,7 +27249,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>Wy&amp;szukaj</translation>
@@ -27469,9 +27278,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Sco&amp;pe:</source>
         <translation>Z&amp;akres:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Znajdź</translation>
@@ -27500,9 +27306,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Advanced...</source>
         <translation>Zaawansowane...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Nazwa:</translation>
@@ -27514,24 +27317,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji podaj szukane słowo.</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Dodaj...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Modyfikuj...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>Directories:</source>
         <translation>Katalogi:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Włącz ukryte pliki</translation>
@@ -27540,24 +27328,9 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
         <source>Filter:</source>
         <translation>Filtr:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguracja filtrów</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Modyfikuj...</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -27822,7 +27595,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindToolBar</name>
+    <name>::Core</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -27868,24 +27641,12 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <translation>Ctrl+Shift+F3</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Zastąp</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Zastąp i znajdź</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Zastąp i znajdź poprzednie</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Zastąp wszystkie</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -27911,9 +27672,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Replace with...</source>
         <translation>Zastępowanie...</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Uwzględniaj wielkość liter</translation>
@@ -27942,9 +27700,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Anulowano przeszukiwanie.</translation>
@@ -28009,9 +27764,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
             <numerusform>Znaleziono %n pasujących wyników.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>History:</source>
         <translation>Historia:</translation>
@@ -28036,9 +27788,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Search Results</source>
         <translation>Wyniki wyszukiwań</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Ogólny filtr katalogów</translation>
@@ -28063,9 +27812,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>%1 filter update: canceled</source>
         <translation>Uaktualnienie filtra %1: anulowano</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Wykonanie własnej komendy</translation>
@@ -28100,9 +27846,6 @@ Czy przerwać ją?</translation>
         <source>Could not find executable for &quot;%1&quot;.</source>
         <translation>Nie można odnaleźć pliku wykonywalnego dla &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Pliki w systemie plików</translation>
@@ -28111,9 +27854,6 @@ Czy przerwać ją?</translation>
         <source>Create and Open &quot;%1&quot;</source>
         <translation>Utwórz i otwórz &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Konfiguracja filtra</translation>
@@ -28134,9 +27874,6 @@ Czy przerwać ją?</translation>
         <source>Prefix:</source>
         <translation>Przedrostek:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -28161,16 +27898,10 @@ Czy przerwać ją?</translation>
         <source>Updating Locator Caches</source>
         <translation>Odświeżanie cache&apos;ów Locatora</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Dostępne filtry</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Odśwież</translation>
@@ -28182,17 +27913,6 @@ Czy przerwać ją?</translation>
     <message>
         <source>Type to locate (%1)</source>
         <translation>Wpisz aby znaleźć (%1)</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcje</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otwarte dokumenty</translation>
     </message>
 </context>
 <context>
@@ -29237,7 +28957,7 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizardFactory</name>
+    <name>::Core</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Nie można otworzyć edytora dla &quot;%1&quot;.</translation>
@@ -29260,9 +28980,6 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <translation>Katalog projektu %1 zawiera pliki, które nie mogą być nadpisane:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>Nie zainstalowano żadnych motywów.</translation>
@@ -29335,9 +29052,6 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <source>A comment.</source>
         <translation>Komentarz.</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Nadpisz istniejące pliki</translation>
@@ -29350,24 +29064,9 @@ Would you like to overwrite them?</source>
 %1.
 Czy nadpisać je?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Mieszane</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Przydziel prawa do zapisu</translation>
-    </message>
-    <message>
-        <source>Open with VCS</source>
-        <translation>Otwórz przy pomocy VCS</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Zachowaj jako</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -29426,9 +29125,6 @@ Brak systemu kontroli wersji.</translation>
 Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Revert File to Saved</source>
         <translation>Odwróć zmiany w pliku</translation>
@@ -29482,10 +29178,6 @@ Do you want to check them out now?</source>
         <translation>Alt+Right</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Podziel</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -29494,20 +29186,12 @@ Do you want to check them out now?</source>
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Podziel sąsiadująco</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Otwórz w nowym oknie</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -29598,16 +29282,8 @@ Do you want to check them out now?</source>
         <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Ten plik nie był jeszcze otwarty w %1.</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation>Otwórz</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; You are changing a read-only file.</source>
         <translation>&lt;b&gt;Ostrzeżenie:&lt;/b&gt; Zmieniasz plik, który jest tylko do odczytu.</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Przydziel prawa do zapisu</translation>
     </message>
     <message>
         <source>&amp;Save %1</source>
@@ -29634,28 +29310,12 @@ Do you want to check them out now?</source>
         <translation>Zamknij wszystko z wyjątkiem %1</translation>
     </message>
     <message>
-        <source>Close Others</source>
-        <translation>Zamknij inne</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
         <source>Cannot Open File</source>
         <translation>Nie można otworzyć pliku</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Nie można otworzyć pliku do edycji przy pomocy VCS.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Błąd pliku</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Odwróć zmiany</translation>
     </message>
     <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
@@ -29666,16 +29326,9 @@ Do you want to check them out now?</source>
         <translation>Wykonaj</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation>Anuluj</translation>
-    </message>
-    <message>
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Anuluj i pokaż &amp;różnice</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Błąd w &quot;%1&quot;: %2</translation>
@@ -29688,9 +29341,6 @@ Do you want to check them out now?</source>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</source>
         <translation>Wykonaj proste wyrażenia JavaScript.&lt;br&gt;Wyrażenia nie mogą zawierać znaków &quot;{&quot; i &quot;}&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>Brak skonfigurowanej komendy &quot;patch&quot; w głównych ustawieniach środowiska.</translation>
@@ -29724,7 +29374,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::WindowSupport</name>
+    <name>::Core</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Wyłącz tryb pełnoekranowy</translation>
@@ -32830,7 +32480,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Core::Internal::ShortcutSettingsWidget</name>
+    <name>::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Skróty klawiszowe</translation>
@@ -32856,10 +32506,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Reset</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Przywróć domyślny.</translation>
     </message>
@@ -32883,9 +32529,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Wyeksportuj schemat mapowania klawiatury</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -32894,9 +32537,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
             <numerusform>Zastąpiono %n wystąpień.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Fabryka o identyfikatorze &quot;%1&quot; już zarejestrowana. Nowa fabryka zostanie usunięta.</translation>
@@ -32909,16 +32549,10 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Inspect Wizard State</source>
         <translation>Przejrzyj stan kreatora</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Uruchom zewnętrzne narzędzie</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Nazwa</translation>
@@ -34071,7 +33705,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SystemSettings</name>
+    <name>::Core</name>
     <message>
         <source>System</source>
         <translation>System</translation>
@@ -34160,20 +33794,12 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <translation>Uwzględniaj wielkość liter (domyślne)</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation>Uwzględniaj wielkość liter</translation>
-    </message>
-    <message>
         <source>Case Insensitive (Default)</source>
         <translation>Nie uwzględniaj wielkości liter (domyślne)</translation>
     </message>
     <message>
         <source>Case Insensitive</source>
         <translation>Nie uwzględniaj wielkości liter</translation>
-    </message>
-    <message>
-        <source>Variables</source>
-        <translation>Zmienne</translation>
     </message>
     <message>
         <source>Influences how file names are matched to decide if they are the same.</source>
@@ -36442,14 +36068,10 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ThemeChooser</name>
+    <name>::Core</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Bieżący motyw: %1</translation>
-    </message>
-    <message>
-        <source>Restart Required</source>
-        <translation>Wymagane ponowne uruchomienie</translation>
     </message>
     <message>
         <source>The theme change will take effect after a restart of Qt Creator.</source>
@@ -37510,7 +37132,7 @@ Komunikat:
     </message>
 </context>
 <context>
-    <name>Core::Internal::ShortcutButton</name>
+    <name>::Core</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Kliknij i wpisz nową sekwencję klawiszy.</translation>
@@ -37523,9 +37145,6 @@ Komunikat:
         <source>Record</source>
         <translation>Rozpocznij nagrywanie</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;brak dokumentu&gt;</translation>
@@ -37534,9 +37153,6 @@ Komunikat:
         <source>No document is selected.</source>
         <translation>Brak zaznaczonego dokumentu.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>Z&amp;najdź / zastąp</translation>
@@ -37550,16 +37166,9 @@ Komunikat:
         <translation>Otwórz zaawansowane przeszukiwanie...</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>Zaawansowane...</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation type="unfinished"></translation>
@@ -40260,7 +39869,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindToolWindow</name>
+    <name>::Core</name>
     <message>
         <source>Empty search term</source>
         <translation>Pusty tekst do wyszukania</translation>
@@ -40947,7 +40556,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Core::LocatorManager</name>
+    <name>::Core</name>
     <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;wpisz tutaj&gt;</translation>

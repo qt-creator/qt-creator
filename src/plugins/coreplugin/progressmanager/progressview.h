@@ -11,9 +11,7 @@ QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 QT_END_NAMESPACE
 
-namespace Core {
-
-namespace Internal {
+namespace Core::Internal {
 
 class ProgressView : public QWidget
 {
@@ -59,5 +57,4 @@ private:
     bool m_hovered = false;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

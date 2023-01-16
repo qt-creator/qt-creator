@@ -6,17 +6,15 @@
 #include "currentdocumentfind.h"
 #include "findtoolbar.h"
 #include "findtoolwindow.h"
-#include "searchresultwindow.h"
 #include "ifindfilter.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/coreplugin.h>
+#include "searchresultwindow.h"
+#include "../actionmanager/actioncontainer.h"
+#include "../actionmanager/actionmanager.h"
+#include "../actionmanager/command.h"
+#include "../coreconstants.h"
+#include "../coreplugintr.h"
+#include "../icontext.h"
+#include "../icore.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -155,8 +153,6 @@ void CompletionModel::updateCompletion(const QString &text, FindFlags f)
 
 class FindPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Find)
-
 public:
     bool isAnyFilterEnabled() const;
     void writeSettings();
@@ -266,7 +262,7 @@ void FindPrivate::setupMenu()
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *mfind = ActionManager::createMenu(Constants::M_FIND);
     medit->addMenu(mfind, Constants::G_EDIT_FIND);
-    mfind->menu()->setTitle(tr("&Find/Replace"));
+    mfind->menu()->setTitle(Tr::tr("&Find/Replace"));
     mfind->appendGroup(Constants::G_FIND_CURRENTDOCUMENT);
     mfind->appendGroup(Constants::G_FIND_FILTERS);
     mfind->appendGroup(Constants::G_FIND_FLAGS);
@@ -276,12 +272,12 @@ void FindPrivate::setupMenu()
     mfind->addSeparator(Constants::G_FIND_ACTIONS);
 
     ActionContainer *mfindadvanced = ActionManager::createMenu(Constants::M_FIND_ADVANCED);
-    mfindadvanced->menu()->setTitle(tr("Advanced Find"));
+    mfindadvanced->menu()->setTitle(Tr::tr("Advanced Find"));
     mfind->addMenu(mfindadvanced, Constants::G_FIND_FILTERS);
-    m_openFindDialog = new QAction(tr("Open Advanced Find..."), this);
-    m_openFindDialog->setIconText(tr("Advanced..."));
+    m_openFindDialog = new QAction(Tr::tr("Open Advanced Find..."), this);
+    m_openFindDialog->setIconText(Tr::tr("Advanced..."));
     cmd = ActionManager::registerAction(m_openFindDialog, Constants::ADVANCED_FIND);
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+F")));
     mfindadvanced->addAction(cmd);
     connect(m_openFindDialog, &QAction::triggered,
             this, [] { Find::openFindDialog(nullptr); });

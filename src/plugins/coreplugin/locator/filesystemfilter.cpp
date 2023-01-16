@@ -4,14 +4,11 @@
 #include "filesystemfilter.h"
 
 #include "basefilefilter.h"
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/vcsmanager.h>
+#include "../coreplugintr.h"
+#include "../documentmanager.h"
+#include "../editormanager/editormanager.h"
+#include "../icore.h"
+#include "../vcsmanager.h"
 
 #include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
@@ -19,7 +16,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -54,8 +50,8 @@ ILocatorFilter::MatchLevel FileSystemFilter::matchLevelFor(const QRegularExpress
 FileSystemFilter::FileSystemFilter()
 {
     setId("Files in file system");
-    setDisplayName(tr("Files in File System"));
-    setDescription(tr("Opens a file given by a relative path to the current document, or absolute "
+    setDisplayName(Tr::tr("Files in File System"));
+    setDescription(Tr::tr("Opens a file given by a relative path to the current document, or absolute "
                       "path. \"~\" refers to your home directory. You have the option to create a "
                       "file if it does not exist yet."));
     setDefaultShortcutString("f");
@@ -147,7 +143,7 @@ QList<LocatorFilterEntry> FileSystemFilter::matchesFor(QFutureInterface<LocatorF
     const bool containsWildcard = expandedEntry.contains('?') || expandedEntry.contains('*');
     if (!containsWildcard && !QFileInfo::exists(fullFilePath) && dirInfo.exists()) {
         LocatorFilterEntry createAndOpen(this,
-                                         tr("Create and Open \"%1\"").arg(expandedEntry),
+                                         Tr::tr("Create and Open \"%1\"").arg(expandedEntry),
                                          fullFilePath);
         createAndOpen.filePath = FilePath::fromString(fullFilePath);
         createAndOpen.extraInfo = FilePath::fromString(dirInfo.absolutePath()).shortNativePath();
@@ -178,14 +174,14 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
             if (!selection.filePath.exists()) {
                 if (CheckableMessageBox::shouldAskAgain(ICore::settings(), kAlwaysCreate)) {
                     CheckableMessageBox messageBox(ICore::dialogParent());
-                    messageBox.setWindowTitle(tr("Create File"));
+                    messageBox.setWindowTitle(Tr::tr("Create File"));
                     messageBox.setIcon(QMessageBox::Question);
-                    messageBox.setText(tr("Create \"%1\"?").arg(targetFile.shortNativePath()));
+                    messageBox.setText(Tr::tr("Create \"%1\"?").arg(targetFile.shortNativePath()));
                     messageBox.setCheckBoxVisible(true);
-                    messageBox.setCheckBoxText(tr("Always create"));
+                    messageBox.setCheckBoxText(Tr::tr("Always create"));
                     messageBox.setChecked(false);
                     messageBox.setStandardButtons(QDialogButtonBox::Cancel);
-                    QPushButton *createButton = messageBox.addButton(tr("Create"),
+                    QPushButton *createButton = messageBox.addButton(Tr::tr("Create"),
                                                                      QDialogButtonBox::AcceptRole);
                     messageBox.setDefaultButton(QDialogButtonBox::Cancel);
                     messageBox.exec();
@@ -206,8 +202,6 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
 
 class FileSystemFilterOptions : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::FileSystemFilterOptions)
-
 public:
     FileSystemFilterOptions(QWidget *parent)
         : QDialog(parent)
@@ -221,7 +215,7 @@ public:
 
         shortcutEdit = new QLineEdit;
         includeByDefault = new QCheckBox;
-        hiddenFilesFlag = new QCheckBox(tr("Include hidden files"));
+        hiddenFilesFlag = new QCheckBox(Tr::tr("Include hidden files"));
 
         prefixLabel->setBuddy(shortcutEdit);
 
@@ -231,7 +225,7 @@ public:
         Column {
             Grid {
                 prefixLabel, shortcutEdit, includeByDefault, br,
-                tr("Filter:"), hiddenFilesFlag, br,
+                Tr::tr("Filter:"), hiddenFilesFlag, br,
             },
             st,
             Row {st, buttonBox }

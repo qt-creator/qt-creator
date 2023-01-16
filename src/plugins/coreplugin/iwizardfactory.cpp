@@ -4,6 +4,7 @@
 #include "iwizardfactory.h"
 
 #include "actionmanager/actionmanager.h"
+#include "coreplugintr.h"
 #include "documentmanager.h"
 #include "icore.h"
 #include "featureprovider.h"
@@ -182,7 +183,7 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
             QTC_ASSERT(existingFactory != newFactory, continue);
             if (existingFactory) {
-                qWarning("%s", qPrintable(tr("Factory with id=\"%1\" already registered. Deleting.")
+                qWarning("%s", qPrintable(Tr::tr("Factory with id=\"%1\" already registered. Deleting.")
                                           .arg(existingFactory->id().toString())));
                 delete newFactory;
                 continue;
@@ -400,14 +401,14 @@ void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
 
-    auto resetAction = new QAction(tr("Reload All Wizards"), ActionManager::instance());
+    auto resetAction = new QAction(Tr::tr("Reload All Wizards"), ActionManager::instance());
     ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
 
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
             [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
 
-    s_inspectWizardAction = new QAction(tr("Inspect Wizard State"), ActionManager::instance());
+    s_inspectWizardAction = new QAction(Tr::tr("Inspect Wizard State"), ActionManager::instance());
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
 }
 

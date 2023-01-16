@@ -2018,7 +2018,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -2031,9 +2031,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Add the files to version control (%1)</source>
         <translation>Dodaj datoteke u kontrolu verzija (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add tool.</source>
         <translation>Dodaj alat.</translation>
@@ -2061,10 +2058,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Izvršna datoteka:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -2167,9 +2160,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>PATH=/opt/bin:${PATH}</source>
         <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
-</context>
-<context>
-    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>File Properties</source>
         <translation>Svojstva datoteke</translation>
@@ -2234,9 +2224,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>%1 Bytes</source>
         <translation>%1 bajta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Novi projekt</translation>
@@ -2248,10 +2235,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     <message>
         <source>Choose...</source>
         <translation>Odaberi …</translation>
-    </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projekti</translation>
     </message>
     <message>
         <source>Files and Classes</source>
@@ -2273,9 +2256,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Supported Platforms</source>
         <translation>Podržane platforme</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Otvori datoteku pomoću …</translation>
@@ -2288,9 +2268,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Otvori datoteku &quot;%1&quot; pomoću:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Datoteke bez dozvole za pisanjem</translation>
@@ -2304,10 +2281,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <translation>Omogući pisanje</translation>
     </message>
     <message>
-        <source>Open with VCS</source>
-        <translation>Otvori s VCS</translation>
-    </message>
-    <message>
         <source>Save As</source>
         <translation>Spremi kao</translation>
     </message>
@@ -2319,9 +2292,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Select all, if possible: </source>
         <translation>Ako je moguće, odaberi sve: </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save Changes</source>
         <translation>Spremi promjene</translation>
@@ -2378,9 +2348,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Save Selected</source>
         <translation>Spremi odabrano</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindDialog</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Traži</translation>
@@ -2409,9 +2376,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Sco&amp;pe:</source>
         <translation>&amp;Područje:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Nađi</translation>
@@ -2440,9 +2404,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Advanced...</source>
         <translation>Napredno …</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>User Interface</source>
         <translation>Korisničko sučelje</translation>
@@ -2463,10 +2424,6 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>Resetiraj na standardne vrijednosti.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
     </message>
     <message>
         <source>Re-enable warnings that were suppressed by selecting &quot;Do Not Show Again&quot; (for example, missing highlighter).</source>
@@ -2494,23 +2451,12 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <translation>&lt;Jezik sustava&gt;</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Potrebno je ponovno pokretanje</translation>
-    </message>
-    <message>
         <source>The high DPI settings will take effect after restart.</source>
         <translation>Postavke s visokom DPI rezolucijom će djelovati nakon ponovnog pokretanja.</translation>
     </message>
     <message>
         <source>The language change will take effect after restart.</source>
         <translation>Promjena jezika će djelovati nakon ponovnog pokretanja.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -2527,16 +2473,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <translation>Uredi …</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Directories:</source>
         <translation>Mape:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Uključi skrivene datoteke</translation>
@@ -2545,24 +2484,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Filter:</source>
         <translation>Filtar:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguriraj filtre</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Uredi …</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -2575,13 +2499,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     <message>
         <source> min</source>
         <translation> min</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2667,9 +2584,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Internal error: Type is invalid</source>
         <translation>Unutarnja greška: neispravna vrsta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Registrirane MIME vrste</translation>
@@ -2710,21 +2624,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Priority</source>
         <translation>Prioritet</translation>
     </message>
-    <message>
-        <source>Add...</source>
-        <translation>Dodaj …</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Uredi …</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>System</source>
         <translation>Sustav</translation>
@@ -2792,10 +2691,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <translation>Vrati na zadane vrijednosti.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
-    </message>
-    <message>
         <source>Warn before opening text files greater than</source>
         <translation>Upozori prije otvaranja tekstualnih datoteka, većih od</translation>
     </message>
@@ -2839,10 +2734,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     <message>
         <source>Case Sensitive (Default)</source>
         <translation>Razlikovanje slova (zadano)</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>Razlikovanje slova</translation>
     </message>
     <message>
         <source>Case Insensitive (Default)</source>
@@ -17653,7 +17544,7 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Mapiranje naredbi</translation>
@@ -17675,10 +17566,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Resetiraj sve</translation>
     </message>
     <message>
-        <source>Reset all to default.</source>
-        <translation>Resetiraj sve na zadane vrijednosti</translation>
-    </message>
-    <message>
         <source>Import...</source>
         <translation>Uvezi …</translation>
     </message>
@@ -17686,9 +17573,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Export...</source>
         <translation>Izvoz …</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Existing files</source>
         <translation>Postojeće datoteke</translation>
@@ -17697,9 +17581,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>File Generation Failure</source>
         <translation>Neuspjelo generiranje datoteke</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizardFactory</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Neuspjelo otvaranje uređivača za &quot;%1&quot;.</translation>
@@ -17722,9 +17603,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Direktorij projekta %1 sadrži datoteke koje se ne mogu prepisati:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>U instalaciji nema teme.</translation>
@@ -17809,16 +17687,10 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Create Folder</source>
         <translation>Stvori mapu</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Dizajn</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
         <translation>Nekategorizirano</translation>
@@ -17844,9 +17716,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <extracomment>Sample external tool text</extracomment>
         <translation>Korisni tekst</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation>Okruženje sustava</translation>
@@ -17915,9 +17784,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Edit with vi</source>
         <translation>Uredi pomoću vi</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Prepiši preko postojećih datoteka</translation>
@@ -17930,24 +17796,13 @@ Would you like to overwrite them?</source>
 %1.
 Želiš li ih prepisati?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Pomiješano</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>Open with VCS</source>
         <translation>Otviru s VCS-om</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Spremi kao</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -18004,9 +17859,6 @@ Nema sustava za kontrolu verzija.</translation>
 Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Postavke</translation>
@@ -18015,9 +17867,6 @@ Do you want to check them out now?</source>
         <source>Options</source>
         <translation>Opcije</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Klikni i utipkaj novu sekvencu tipaka.</translation>
@@ -18030,9 +17879,6 @@ Do you want to check them out now?</source>
         <source>Record</source>
         <translation>Snimi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettingsWidget</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Tipkovni prečaci</translation>
@@ -18058,10 +17904,6 @@ Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Resetiraj</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Resetiraj na zadano.</translation>
     </message>
@@ -18085,24 +17927,14 @@ Do you want to check them out now?</source>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Izvezi shemu mapiranja tipkovnice</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Tipkovnica</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Nije bilo moguće spremiti datoteku.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Datotečna greška</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -18128,16 +17960,10 @@ Do you want to check them out now?</source>
         <source>Cannot reload %1</source>
         <translation>Nije moguće ponovo učitati %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;nema dokumenta&gt;</translation>
@@ -18145,13 +17971,6 @@ Do you want to check them out now?</source>
     <message>
         <source>No document is selected.</source>
         <translation>Niti jedan dokument nije odabran.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Vrati na spremljeno stanje</translation>
     </message>
     <message>
         <source>Close</source>
@@ -18198,10 +18017,6 @@ Do you want to check them out now?</source>
         <translation>Kopiraj naziv datoteke</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Spremi</translation>
-    </message>
-    <message>
         <source>Save &amp;As...</source>
         <translation>Spremi &amp;kao …</translation>
     </message>
@@ -18216,10 +18031,6 @@ Continue?</source>
         <translation>Tekstovna datoteka &quot;%1&quot; ima %2MB i možda će zahtijevati više memorije nego što je dostupno.
 
 Nastaviti?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Datotečna greška</translation>
     </message>
     <message>
         <source>Close &quot;%1&quot;</source>
@@ -18246,10 +18057,6 @@ Nastaviti?</translation>
         <translation>Otvaranje datoteke</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
         <source>Split Side by Side</source>
         <translation>Podijeli jedno pored drugog</translation>
     </message>
@@ -18261,9 +18068,6 @@ Nastaviti?</translation>
         <source>Close Document</source>
         <translation>Zatvori dokument</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>Svojstva …</translation>
@@ -18321,10 +18125,6 @@ Nastaviti?</translation>
         <translation>Alt+Desno</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -18333,20 +18133,12 @@ Nastaviti?</translation>
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Podijeli jedno pored drugog</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Otvori u novom prozoru</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -18445,10 +18237,6 @@ Nastaviti?</translation>
         <translation>&lt;b&gt;Upozorenje:&lt;/b&gt; Mijenjaš datoteku koja je samo za čitanje.</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation>&amp;Spremi %1</translation>
     </message>
@@ -18471,10 +18259,6 @@ Nastaviti?</translation>
     <message>
         <source>Close All Except %1</source>
         <translation>Zatvori sve osim %1</translation>
-    </message>
-    <message>
-        <source>Close Others</source>
-        <translation>Zatvori ostale</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
@@ -18508,16 +18292,10 @@ Nastaviti?</translation>
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Odustani i &amp;Razlika</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Otvori dokumente</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -18526,16 +18304,10 @@ Nastaviti?</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Uređivač sustava</translation>
@@ -18544,32 +18316,18 @@ Nastaviti?</translation>
         <source>Could not open URL %1.</source>
         <translation>Nije bilo moguće otvoriti URL %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>Povuci za povlačenje dokumenata između podjela</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
     </message>
     <message>
         <source>Remove Split</source>
         <translation>Ukloni podjelu</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Omogući pisanje</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>Datoteka dopušta pisanje</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Nije bilo moguće naći izvršnu stavku za „%1” (prošireno „%2”)</translation>
@@ -18582,9 +18340,6 @@ Nastaviti?</translation>
         <source>&quot;%1&quot; finished</source>
         <translation>„%1” gotov</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Vanjski</translation>
@@ -18593,9 +18348,6 @@ Nastaviti?</translation>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Greška: Vanjsk alat u %1 ima dupli id</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Neuspjelo pokretanje datotečnog preglednika</translation>
@@ -18660,9 +18412,6 @@ Nastaviti?</translation>
         <source>Could not delete file %1.</source>
         <translation>Nije bilo moguće izbrisati datoteku %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -18671,9 +18420,6 @@ Nastaviti?</translation>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Nađi/Zamijeni</translation>
@@ -18687,16 +18433,9 @@ Nastaviti?</translation>
         <translation>Otvori naprednu pretragu …</translation>
     </message>
     <message>
-        <source>Advanced...</source>
-        <translation>Napredno …</translation>
-    </message>
-    <message>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -18742,24 +18481,12 @@ Nastaviti?</translation>
         <translation>Ctrl+Shift+F3</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Zamijeni</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Zamijeni i nađi</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Zamijeni i nađi prethodni</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Zamijeni sve</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -18785,16 +18512,10 @@ Nastaviti?</translation>
         <source>Replace with...</source>
         <translation>Zamijeni sa …</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolWindow</name>
     <message>
         <source>Empty search term.</source>
         <translation>Pojam za pretragu je prazan.</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Razlikovanje velikih/malih slova</translation>
@@ -18823,16 +18544,9 @@ Nastaviti?</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Pretraga je prekinuta.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Odustani</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -18886,9 +18600,6 @@ Nastaviti?</translation>
             <numerusform>%n podudaranja.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>Expand All</source>
         <translation>Rastvori sve</translation>
@@ -18913,16 +18624,10 @@ Nastaviti?</translation>
         <source>Search Results</source>
         <translation>Rezultati pretrage</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Neuspjelo stvaranje direktorija %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::ICore</name>
     <message>
         <source>Settings...</source>
         <translation>Postavke …</translation>
@@ -18939,16 +18644,10 @@ Nastaviti?</translation>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Na osnovi Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Datoteka je vraćena iz automatski spremljene kopije. Odaberi „Spremi” za potvrdu ili „Vrati na spremljeno” za odbacivanje promjena.</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>&amp;Prikaži detalje</translation>
@@ -18958,19 +18657,9 @@ Nastaviti?</translation>
         <translation>Ne prikazuj ponovo</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
-    <message>
         <source>Open with VCS (%1)</source>
         <translation>Otvori s VCS-om (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Veš postoji tvornica s id=„%1”. Briše se.</translation>
@@ -18983,9 +18672,6 @@ Nastaviti?</translation>
         <source>Inspect Wizard State</source>
         <translation>Provjeri stanje čarobnjaka</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Greška u &quot;%1&quot;: %2</translation>
@@ -18998,9 +18684,6 @@ Nastaviti?</translation>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</source>
         <translation>Odredi jednostavne JavaScript izjave. &lt;br&gt; Izjave ne smiju sadržavati znakove &apos;{&apos; nor &apos;}&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Generički filtar za direktorije</translation>
@@ -19025,9 +18708,6 @@ Nastaviti?</translation>
         <source>%1 filter update: canceled</source>
         <translation>Aktualiziranje filtra %1: prekinuto</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Izvrši prilagođene naredbe</translation>
@@ -19062,16 +18742,10 @@ Do you want to kill it?</source>
         <source>Could not start process: %1.</source>
         <translation>Nije bilo moguće pokrenuti proces: %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Pokreni vanjski alat</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Datoteke u datotečnom sustavu</translation>
@@ -19080,9 +18754,6 @@ Do you want to kill it?</source>
         <source>Create and Open &quot;%1&quot;</source>
         <translation>Stvori i otvori &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Konfiguracija filtra</translation>
@@ -19103,9 +18774,6 @@ Do you want to kill it?</source>
         <source>Include the filter when not using a prefix for searches.</source>
         <translation>Uključi filtar kad ne koristiš predznak za pretrage.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::JavaScriptFilter</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation>Odredi JavaScript</translation>
@@ -19122,9 +18790,6 @@ Do you want to kill it?</source>
         <source>Copy to clipboard: %1</source>
         <translation>Kopiraj u međuspremnik: %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Locate...</source>
         <translation>Odredi mjesto …</translation>
@@ -19149,30 +18814,18 @@ Do you want to kill it?</source>
         <source>Updating Locator Caches</source>
         <translation>Aktualiziranje međuspremnike određivača mjesta</translation>
     </message>
-</context>
-<context>
-    <name>Locator</name>
     <message>
         <source>Locator</source>
         <translation>Određivač mjesta</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Dostupni filtri</translation>
     </message>
-</context>
-<context>
-    <name>Core::LocatorManager</name>
     <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;utipkaj ovdje&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -19193,16 +18846,9 @@ Do you want to kill it?</source>
         <source>Custom</source>
         <translation>Prilagođeno</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Aktualiziraj</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Type to locate</source>
@@ -19212,23 +18858,10 @@ Do you want to kill it?</source>
         <source>Type to locate (%1)</source>
         <translation>Tipkaj za određivanje mjesta (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otvori dokumente</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Indeks imena datoteke za Spotlight</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Datoteka</translation>
@@ -19273,10 +18906,6 @@ Do you want to kill it?</source>
     <message>
         <source>Recent &amp;Files</source>
         <translation>Ne&amp;davne datoteke</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Spremi</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -19454,23 +19083,14 @@ Do you want to kill it?</source>
         <source>Hidden</source>
         <translation>Skriveno</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MenuBarFilter</name>
     <message>
         <source>Actions from the Menu</source>
         <translation>Radnje iz izbornika</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Opće poruke</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME vrsta</translation>
@@ -19479,59 +19099,22 @@ Do you want to kill it?</source>
         <source>Handler</source>
         <translation>Rukovatelj</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation>Resetiraj MIME vrste</translation>
-    </message>
     <message>
         <source>Changes will take effect after restart.</source>
         <translation>Promjena će djelovati nakon ponovnog pokretanja.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME vrste</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Prebaci na način rada &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Podjela</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Aktiviraj prikaz %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Minimize Output Pane</source>
         <translation>Minimiraj ploču izlanih rezultata</translation>
@@ -19576,16 +19159,10 @@ Do you want to kill it?</source>
         <source>Alt+Shift+9</source>
         <translation>Alt+Shift+9</translation>
     </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted. You can increase the limit in the &quot;Build &amp; Run&quot; settings.</source>
         <translation>Dodatni izlazni rezultat je izostavljen. Ograničenje možeš povećati u postavkama za „Izgradi i pokreni”.</translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>U općim postavkama za „Okruženje” nema konfigurirane zakrpne naredbe.</translation>
@@ -19614,9 +19191,6 @@ Do you want to kill it?</source>
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation>„%1” nije uspjela (kȏd izlaska %2).</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Show all</source>
         <translation>Prikaži sve</translation>
@@ -19626,16 +19200,8 @@ Do you want to kill it?</source>
         <translation>Prikaži sve instalirane dodatke, uključujući osnovne dodatke i dodatke koji nisu dostupni na ovoj platformi.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detalji</translation>
-    </message>
-    <message>
         <source>Error Details</source>
         <translation>Detalji greške</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -19653,30 +19219,17 @@ Do you want to kill it?</source>
         <source>Plugin Errors of %1</source>
         <translation>Greške dodatka od %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Uključi/Isključi detalje tijeka procesa</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesi</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
     <message>
         <source>Split</source>
         <translation>Podijeli</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zatvori</translation>
     </message>
 </context>
 <context>
@@ -19687,7 +19240,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ThemeChooser</name>
+    <name>::Core</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Trenutačna tema: %1</translation>
@@ -19700,16 +19253,10 @@ Do you want to kill it?</source>
         <source>The theme change will take effect after restart.</source>
         <translation>Promjena teme će djelovati nakon ponovnog pokretanja.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Vanjski alati</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>Umetni varijablu</translation>
@@ -19734,13 +19281,6 @@ Do you want to kill it?</source>
         <source>Select a variable to insert.</source>
         <translation>Odaberi varijablu za umetanje.</translation>
     </message>
-    <message>
-        <source>Variables</source>
-        <translation>Varijable</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>%1 spremište je pronađeno, ali %1 nije konfigurirano.</translation>
@@ -19795,9 +19335,6 @@ u kontrolu verzija (%2)
         <translation>Nije bilo moguće dodati sljedeće datoteke u kontrolu verzija (%1)
 %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation>O programu %1</translation>
@@ -19815,9 +19352,6 @@ u kontrolu verzija (%2)
         <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Autorsko pravo 2008. – %6. %7. Sva prava pridržana.&lt;br/&gt;&lt;br/&gt;Program se pruža BEZ JAMSTVA BILO KOJE VRSTE, UKLJUČUJUĆI GARANCIJU DIZAJNA, PRODAJU I PRIKLADNOSTI ZA ODREĐENU SVRHU.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Izađi iz prikaza preko cijelog zaslona</translation>
@@ -28045,7 +27579,7 @@ Isključivo: %2
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation type="unfinished"></translation>
@@ -28695,7 +28229,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation type="unfinished"></translation>
@@ -28707,10 +28241,6 @@ Rename %2 to %3 anyway?</source>
     <message>
         <source>Alt+Y</source>
         <translation>Alt+Y</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Opcije</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -30273,10 +29803,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
     <message>
         <source>Could not write project file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

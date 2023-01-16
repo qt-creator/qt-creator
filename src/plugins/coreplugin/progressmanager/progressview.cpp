@@ -3,13 +3,14 @@
 
 #include "progressview.h"
 
+#include "coreplugintr.h"
+
 #include <QApplication>
 #include <QEvent>
 #include <QMouseEvent>
 #include <QVBoxLayout>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 ProgressView::ProgressView(QWidget *parent)
     : QWidget(parent)
@@ -19,7 +20,7 @@ ProgressView::ProgressView(QWidget *parent)
     m_layout->setContentsMargins(0, 0, 0, 1);
     m_layout->setSpacing(0);
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
-    setWindowTitle(tr("Processes"));
+    setWindowTitle(Tr::tr("Processes"));
 }
 
 ProgressView::~ProgressView() = default;
@@ -142,3 +143,5 @@ QPoint ProgressView::topRightReferenceInParent() const
         return {};
     return m_referenceWidget->mapTo(parentWidget(), m_referenceWidget->rect().topRight());
 }
+
+} // Core::Internal

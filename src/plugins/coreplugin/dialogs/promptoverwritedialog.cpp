@@ -3,6 +3,8 @@
 
 #include "promptoverwritedialog.h"
 
+#include "../coreplugintr.h"
+
 #include <utils/fileutils.h>
 #include <utils/stringutils.h>
 
@@ -43,7 +45,7 @@ PromptOverwriteDialog::PromptOverwriteDialog(QWidget *parent) :
     m_view(new QTreeView),
     m_model(new QStandardItemModel(0, 1, this))
 {
-    setWindowTitle(tr("Overwrite Existing Files"));
+    setWindowTitle(Tr::tr("Overwrite Existing Files"));
     setModal(true);
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(m_label);
@@ -74,8 +76,8 @@ void PromptOverwriteDialog::setFiles(const FilePaths &l)
         m_model->appendRow(item);
     }
     const QString message =
-        tr("The following files already exist in the folder\n%1.\n"
-           "Would you like to overwrite them?").arg(nativeCommonPath);
+        Tr::tr("The following files already exist in the folder\n%1.\n"
+               "Would you like to overwrite them?").arg(nativeCommonPath);
     m_label->setText(message);
 }
 

@@ -620,10 +620,10 @@ QString ICore::versionString()
 {
     QString ideVersionDescription;
     if (QLatin1String(Constants::IDE_VERSION_LONG) != QLatin1String(Constants::IDE_VERSION_DISPLAY))
-        ideVersionDescription = tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
-    return tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
-                             QLatin1String(Constants::IDE_VERSION_DISPLAY),
-                             ideVersionDescription);
+        ideVersionDescription = Tr::tr(" (%1)").arg(QLatin1String(Constants::IDE_VERSION_LONG));
+    return Tr::tr("%1 %2%3").arg(QLatin1String(Constants::IDE_DISPLAY_NAME),
+                                 QLatin1String(Constants::IDE_VERSION_DISPLAY),
+                                 ideVersionDescription);
 }
 
 /*!
@@ -631,7 +631,7 @@ QString ICore::versionString()
 */
 QString ICore::buildCompatibilityString()
 {
-    return tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
+    return Tr::tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
                                                  compilerString(),
                                                  QSysInfo::buildCpuArchitecture());
 }

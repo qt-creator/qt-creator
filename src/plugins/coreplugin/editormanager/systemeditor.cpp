@@ -3,20 +3,22 @@
 
 #include "systemeditor.h"
 
+#include "../coreplugintr.h"
+
 #include <utils/filepath.h>
 
 #include <QStringList>
 #include <QUrl>
 #include <QDesktopServices>
 
-using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
+
+namespace Core::Internal {
 
 SystemEditor::SystemEditor()
 {
     setId("CorePlugin.OpenWithSystemEditor");
-    setDisplayName(tr("System Editor"));
+    setDisplayName(Tr::tr("System Editor"));
     setMimeTypes({"application/octet-stream"});
 }
 
@@ -28,8 +30,10 @@ bool SystemEditor::startEditor(const FilePath &filePath, QString *errorMessage)
     url.setScheme(QLatin1String("file"));
     if (!QDesktopServices::openUrl(url)) {
         if (errorMessage)
-            *errorMessage = tr("Could not open URL %1.").arg(url.toString());
+            *errorMessage = Tr::tr("Could not open URL %1.").arg(url.toString());
         return false;
     }
     return true;
 }
+
+} // Core::Internal

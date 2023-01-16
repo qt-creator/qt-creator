@@ -3,11 +3,12 @@
 
 #include "readonlyfilesdialog.h"
 
-#include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/iversioncontrol.h>
-#include <coreplugin/vcsmanager.h>
+#include "../coreplugintr.h"
+#include "../editormanager/editormanager_p.h"
+#include "../icore.h"
+#include "../idocument.h"
+#include "../iversioncontrol.h"
+#include "../vcsmanager.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -35,8 +36,6 @@ namespace Internal {
 
 class ReadOnlyFilesDialogPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::ReadOnlyFilesDialog)
-
 public:
     ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *parent, IDocument *document = nullptr, bool useSaveAs = false);
     ~ReadOnlyFilesDialogPrivate();
@@ -100,10 +99,10 @@ ReadOnlyFilesDialogPrivate::ReadOnlyFilesDialogPrivate(ReadOnlyFilesDialog *pare
     , useVCS(false)
     , showWarnings(false)
     , document(document)
-    , mixedText(tr("Mixed"))
-    , makeWritableText(tr("Make Writable"))
-    , versionControlOpenText(tr("Open with VCS"))
-    , saveAsText(tr("Save As"))
+    , mixedText(Tr::tr("Mixed"))
+    , makeWritableText(Tr::tr("Make Writable"))
+    , versionControlOpenText(Tr::tr("Open with VCS"))
+    , saveAsText(Tr::tr("Save As"))
 {}
 
 ReadOnlyFilesDialogPrivate::~ReadOnlyFilesDialogPrivate()
@@ -217,16 +216,16 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadO
         case ReadOnlyFilesDialog::RO_OpenVCS: {
             if (IVersionControl *vc = versionControls[file]) {
                 const QString openText = Utils::stripAccelerator(vc->vcsOpenText());
-                title = tr("Failed to %1 File").arg(openText);
-                message = tr("%1 file %2 from version control system %3 failed.")
+                title = Tr::tr("Failed to %1 File").arg(openText);
+                message = Tr::tr("%1 file %2 from version control system %3 failed.")
                         .arg(openText)
                         .arg(file.toUserOutput())
                         .arg(vc->displayName())
                     + '\n'
                     + failWarning;
             } else {
-                title = tr("No Version Control System Found");
-                message = tr("Cannot open file %1 from version control system.\n"
+                title = Tr::tr("No Version Control System Found");
+                message = Tr::tr("Cannot open file %1 from version control system.\n"
                              "No version control system found.")
                         .arg(file.toUserOutput())
                     + '\n'
@@ -235,27 +234,27 @@ void ReadOnlyFilesDialogPrivate::promptFailWarning(const FilePaths &files, ReadO
             break;
         }
         case ReadOnlyFilesDialog::RO_MakeWritable:
-            title = tr("Cannot Set Permissions");
-            message = tr("Cannot set permissions for %1 to writable.")
+            title = Tr::tr("Cannot Set Permissions");
+            message = Tr::tr("Cannot set permissions for %1 to writable.")
                     .arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
         case ReadOnlyFilesDialog::RO_SaveAs:
-            title = tr("Cannot Save File");
-            message = tr("Cannot save file %1").arg(file.toUserOutput())
+            title = Tr::tr("Cannot Save File");
+            message = Tr::tr("Cannot save file %1").arg(file.toUserOutput())
                 + '\n'
                 + failWarning;
             break;
         default:
-            title = tr("Canceled Changing Permissions");
+            title = Tr::tr("Canceled Changing Permissions");
             message = failWarning;
             break;
         }
     } else {
-        title = tr("Could Not Change Permissions on Some Files");
+        title = Tr::tr("Could Not Change Permissions on Some Files");
         message = failWarning + QLatin1Char('\n')
-                + tr("See details for a complete list of files.");
+                + Tr::tr("See details for a complete list of files.");
         details = Utils::transform(files, &FilePath::toString).join('\n');
     }
     QMessageBox msgBox(QMessageBox::Warning, title, message,
@@ -393,18 +392,18 @@ void ReadOnlyFilesDialogPrivate::updateSelectAll()
 void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
 {
     q->resize(639, 217);
-    q->setWindowTitle(tr("Files Without Write Permissions"));
+    q->setWindowTitle(Tr::tr("Files Without Write Permissions"));
 
-    m_msgLabel = new QLabel(tr(
+    m_msgLabel = new QLabel(Tr::tr(
         "The following files have no write permissions. Do you want to change the permissions?"));
 
     m_treeWidget = new QTreeWidget;
     auto headerItem = new QTreeWidgetItem;
-    headerItem->setText(0, tr("Make Writable"));
-    headerItem->setText(1, tr("Open with VCS"));
-    headerItem->setText(2, tr("Save As"));
-    headerItem->setText(3, tr("Filename"));
-    headerItem->setText(4, tr("Path"));
+    headerItem->setText(0, Tr::tr("Make Writable"));
+    headerItem->setText(1, Tr::tr("Open with VCS"));
+    headerItem->setText(2, Tr::tr("Save As"));
+    headerItem->setText(3, Tr::tr("Filename"));
+    headerItem->setText(4, Tr::tr("Path"));
     m_treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
     m_treeWidget->setTextElideMode(Qt::ElideLeft);
     m_treeWidget->setIndentation(0);
@@ -416,14 +415,14 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
     m_setAll = new QComboBox;
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::NoButton);
-    buttonBox->addButton(tr("Change &Permission"), QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(Tr::tr("Change &Permission"), QDialogButtonBox::AcceptRole);
     buttonBox->addButton(QDialogButtonBox::Cancel);
     QObject::connect(buttonBox, &QDialogButtonBox::accepted, q, &QDialog::accept);
     QObject::connect(buttonBox, &QDialogButtonBox::rejected, q, &QDialog::reject);
 
     using namespace Layouting;
 
-    QWidget *setAllWidget = Row{tr("Select all, if possible: "), m_setAll, st}.emerge(
+    QWidget *setAllWidget = Row{Tr::tr("Select all, if possible: "), m_setAll, st}.emerge(
         WithoutMargins);
 
     // clang-format off
@@ -505,9 +504,10 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         m_treeWidget->resizeColumnToContents(FileName);
         m_treeWidget->resizeColumnToContents(Folder);
         setAllWidget->setVisible(false);
-        if (useVCS)
-            m_msgLabel->setText(tr("The following files are not checked out yet.\n"
-                                   "Do you want to check them out now?"));
+        if (useVCS) {
+            m_msgLabel->setText(Tr::tr("The following files are not checked out yet.\n"
+                                       "Do you want to check them out now?"));
+        }
         return;
     }
 

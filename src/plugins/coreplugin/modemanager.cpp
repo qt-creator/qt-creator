@@ -3,15 +3,14 @@
 
 #include "modemanager.h"
 
-#include "fancytabwidget.h"
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreplugintr.h"
 #include "fancyactionbar.h"
+#include "fancytabwidget.h"
 #include "icore.h"
+#include "imode.h"
 #include "mainwindow.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/imode.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -214,7 +213,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
-    QAction *action = new QAction(ModeManager::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
+    QAction *action = new QAction(Tr::tr("Switch to <b>%1</b> mode").arg(mode->displayName()), m_instance);
     Command *cmd = ActionManager::registerAction(action, actionId);
     cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString("Meta+%1").arg(index + 1)
                                                             : QString("Ctrl+%1").arg(index + 1)));

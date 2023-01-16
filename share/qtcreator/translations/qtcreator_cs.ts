@@ -808,7 +808,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Chyba při vytváření souboru</translation>
@@ -832,18 +832,6 @@
     <message>
         <source> [folder]</source>
         <translation> [složka]</translation>
-    </message>
-    <message>
-        <source>Unable to create the directory %1.</source>
-        <translation type="obsolete">Adresář %1 nelze vytvořit.</translation>
-    </message>
-    <message>
-        <source>Unable to open %1 for writing: %2</source>
-        <translation type="obsolete">Soubor %1 nelze otevřít pro zápis: %2</translation>
-    </message>
-    <message>
-        <source>Error while writing to %1: %2</source>
-        <translation type="obsolete">Chyba při zápisu do %1: %2</translation>
     </message>
     <message>
         <source>Failed to open an editor for &apos;%1&apos;.</source>
@@ -875,16 +863,9 @@ Would you like to overwrite them?</source>
 %2.
 Chcete je nechat přepsat?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Vrátit se k uloženému</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
     <message>
         <source>Close All</source>
@@ -1055,10 +1036,6 @@ Chcete je nechat přepsat?</translation>
         <translation>Souřadnice y levého, horního rohu nynějšího editoru, poměrně k obrazovce.</translation>
     </message>
     <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation>Zavřít &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>Close Editor</source>
         <translation>Zavřít editor</translation>
     </message>
@@ -1077,18 +1054,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Cannot Open File</source>
         <translation>Nelze otevřít soubor</translation>
-    </message>
-    <message>
-        <source>Cannot open the file for editing with SCC.</source>
-        <translation type="obsolete">Soubor se nepodařilo s pomocí správy verzí udělat zapisovatelný (otevřít pro úpravy).</translation>
-    </message>
-    <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Chyba při nastavení oprávnění pro přístup k souboru</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Soubor se nepodařilo udělat zapisovatelný.</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
@@ -1143,10 +1108,6 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Soubor %1 je pouze pro čtení.</translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na ověřování verzí (VCS) (%1)</translation>
-    </message>
-    <message>
         <source>Save as ...</source>
         <translation type="obsolete">Uložit jako...</translation>
     </message>
@@ -1179,20 +1140,8 @@ Chcete je nechat přepsat?</translation>
         <translation>Předchozí otevřený dokument na seznamu</translation>
     </message>
     <message>
-        <source>Go Back</source>
-        <translation>Jít zpět</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Jít dopředu</translation>
-    </message>
-    <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>%1,2</source>
@@ -1217,10 +1166,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>%1,o</source>
         <translation type="obsolete">%1,o</translation>
-    </message>
-    <message>
-        <source>All Files (*)</source>
-        <translation type="obsolete">Všechny soubory (*)</translation>
     </message>
     <message>
         <source>Save %1 As...</source>
@@ -1262,9 +1207,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="obsolete">&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Proměnná&lt;/th&gt;&lt;th&gt;Rozšiřuje se k&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;Název souboru&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;Číslo řádku&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;Číslo sloupce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;Xová souřadnice polohy editoru na obrazovce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;Yová souřadnice polohy editoru na obrazovce&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;Šířka editoru v pixelech&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;Výška editoru v pixelech&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;Šířka editoru ve znacích&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;Výška editoru ve znacích&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Cannot save file</source>
         <translation type="obsolete">Soubor nelze uložit</translation>
@@ -1272,67 +1214,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
         <translation type="obsolete">Změny nelze uložit do souboru &apos;%1&apos;. Chcete přesto pokračovat a ztratit své změny?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Chyba souboru</translation>
-    </message>
-    <message>
-        <source>Overwrite?</source>
-        <translation type="obsolete">Přepsat?</translation>
-    </message>
-    <message>
-        <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="obsolete">V tomto umístění již existuje soubor s názvem &apos;%1&apos;. Chcete jej přepsat?</translation>
-    </message>
-    <message>
-        <source>Save File As</source>
-        <translation type="obsolete">Uložit soubor jako</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Soubor je pouze pro čtení</translation>
-    </message>
-    <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na řízení verzí (VCS) (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">Uložit jako...</translation>
-    </message>
-    <message>
-        <source>Cannot reload %1</source>
-        <translation type="obsolete">%1 se nahrát znovu nepodařilo</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Zapnout %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
-    <message>
-        <source>Edit</source>
-        <translation>Úpravy</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
-    <message>
-        <source>Split Left/Right</source>
-        <translation type="obsolete">Rozdělit vlevo/vpravo</translation>
     </message>
     <message>
         <source>Split Top/Bottom</source>
@@ -1359,70 +1240,12 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Předchozí dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Left</translation>
-    </message>
-    <message>
-        <source>Next Document</source>
-        <translation type="obsolete">Další dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Right</translation>
-    </message>
-    <message>
-        <source>Previous Group</source>
-        <translation type="obsolete">Předchozí skupina</translation>
-    </message>
-    <message>
-        <source>Next Group</source>
-        <translation type="obsolete">Další skupina</translation>
-    </message>
-    <message>
-        <source>Move Document to Previous Group</source>
-        <translation type="obsolete">Přesunout dokument do předchozí skupiny</translation>
-    </message>
-    <message>
-        <source>Move Document to Next Group</source>
-        <translation type="obsolete">Přesunout dokument do další skupiny</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation type="obsolete">Jít zpět</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="obsolete">Jít dopředu</translation>
-    </message>
-    <message>
         <source>Placeholder</source>
         <translation type="obsolete">Zástupný znak</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>File is writable</source>
-        <translation type="obsolete">Soubor je zapisovatelný</translation>
-    </message>
-    <message>
         <source>Copy full path to clipboard</source>
         <translation type="obsolete">Kopírovat celou cestu do schránky</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
-    <message>
-        <source>General</source>
-        <translation>Obecné</translation>
     </message>
     <message>
         <source>&lt;System Language&gt;</source>
@@ -1445,10 +1268,6 @@ Chcete je nechat přepsat?</translation>
         <translation>Změna jazyka se projeví po novém spuštění Qt Creatoru.</translation>
     </message>
     <message>
-        <source>Environment</source>
-        <translation type="obsolete">Prostředí</translation>
-    </message>
-    <message>
         <source>Variables</source>
         <translation>Proměnné</translation>
     </message>
@@ -1459,14 +1278,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>User &amp;interface color:</source>
         <translation type="obsolete">Barva uživatelského &amp;rozhraní:</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu na výchozí</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
     </message>
     <message>
         <source>Terminal:</source>
@@ -1590,17 +1401,6 @@ Chcete je nechat přepsat?</translation>
         <source>Automatically creates temporary copies of modified files. If Qt Creator is restarted after a crash or power failure, it asks whether to recover the auto-saved content.</source>
         <translation>Dočasné kopie změněných souborů vytváří automaticky. Po pádu nebo výpadku proudu se při spuštění bude Qt Creator ptát, má-li automaticky uložený obsah obnovit.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="obsolete">Výstup</translation>
-    </message>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Soubor</translation>
@@ -1654,16 +1454,8 @@ Chcete je nechat přepsat?</translation>
         <translation>Naposledy otevřené s&amp;oubory</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Uložit</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Uložit</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Uložit &amp;jako...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1819,9 +1611,6 @@ Chcete je nechat přepsat?</translation>
         <source>Settings...</source>
         <translation>Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General</source>
         <translation type="obsolete">Obecné</translation>
@@ -1830,42 +1619,6 @@ Chcete je nechat přepsat?</translation>
         <source>General Messages</source>
         <translation>Obecné zprávy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Zapnout %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
-    <message>
-        <source>Hide Sidebar</source>
-        <translation type="obsolete">Skrýt postranní pruh</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation type="obsolete">Ukázat postranní pruh</translation>
-    </message>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation type="obsolete">Zapnout tabulku &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nový projekt</translation>
@@ -1910,51 +1663,14 @@ Chcete je nechat přepsat?</translation>
         <source>Supported Platforms</source>
         <translation>Podporované platformy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Otevřít dokumenty</translation>
     </message>
     <message>
-        <source>Close %1</source>
-        <translation type="obsolete">Zavřít %1</translation>
-    </message>
-    <message>
-        <source>Close Editor</source>
-        <translation type="obsolete">Zavřít editor</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation type="obsolete">Zavřít vše kromě %1</translation>
-    </message>
-    <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation type="obsolete">Zavřít &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close All Except &quot;%1&quot;</source>
-        <translation type="obsolete">Zavřít vše až na &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close Other Editors</source>
-        <translation type="obsolete">Zavřít ostatní editory</translation>
-    </message>
-    <message>
-        <source>Close All Editors</source>
-        <translation type="obsolete">Zavřít všechny editory</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
-    <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Otevřít soubor &apos;%1&apos; s:</translation>
@@ -1967,9 +1683,6 @@ Chcete je nechat přepsat?</translation>
         <source>Open file extension with:</source>
         <translation>Otevřít souborovou příponu s:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Výstup</translation>
@@ -2014,9 +1727,6 @@ Chcete je nechat přepsat?</translation>
         <source>Minimize Output Pane</source>
         <translation>Zmenšit výstupní tabulku</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Podrobnosti</translation>
@@ -2025,10 +1735,6 @@ Chcete je nechat přepsat?</translation>
         <source>Error Details</source>
         <translatorcomment>Fehlermeldungen zu %1</translatorcomment>
         <translation>Podrobnosti o chybě</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -2046,16 +1752,10 @@ Chcete je nechat přepsat?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Chyby přídavného modulu %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesy</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>Neukládat</translation>
@@ -2063,10 +1763,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Save All</source>
         <translation>Uložit vše</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Uložit</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -2084,16 +1780,9 @@ Chcete je nechat přepsat?</translation>
         <source>Automatically save all files before building</source>
         <translation>Automaticky uložit všechny změněné soubory před sestavováním</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Klávesnice</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Prostředí</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -2123,20 +1812,6 @@ Chcete je nechat přepsat?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exportovat schéma přiřazení kláves</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>O programu Qt Creator</translation>
@@ -2162,9 +1837,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation type="obsolete">&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Založený na Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Vytvořený %4 v %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Autorské právo 2008-%6 %7. Všechna práva vyhrazena.&lt;br/&gt;&lt;br/&gt; Program je poskytován tak, JAK JE, BEZ ZÁRUKY JAKÉHOKOLI DRUHU, VČETNĚ ZÁRUKY PROVEDENÍ, PRODEJNOSTI A VHODNOSTI PRO URČITÝ ÚČEL.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation type="obsolete">Přepnout na režim &apos;%1&apos;</translation>
@@ -2173,9 +1845,6 @@ Chcete je nechat přepsat?</translation>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Přepnout na režim &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2186,9 +1855,6 @@ Chcete je nechat přepsat?</translation>
         <source>Unknown error</source>
         <translation>Neznámá chyba</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translatorcomment>TODO: Grammatical case problem</translatorcomment>
@@ -8748,7 +8414,7 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Filters</source>
         <translation type="obsolete">Filtry</translation>
@@ -10286,7 +9952,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>Souborový systém</translation>
@@ -10302,10 +9968,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Filter Files</source>
         <translation>Filtrovat soubory</translation>
-    </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="obsolete">Seřídit s editorem</translation>
     </message>
 </context>
 <context>
@@ -10712,22 +10374,6 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
     <message>
         <source>Open File</source>
         <translation>Otevřít soubor</translation>
-    </message>
-    <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Ukázat v hledáčku...</translation>
-    </message>
-    <message>
-        <source>Show containing folder...</source>
-        <translation type="obsolete">Ukázat složku...</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Naposledy otevřené projekty</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -16343,7 +15989,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
+    <name>::Core</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -16371,14 +16017,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Omezit na předponu</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Odstranit</translation>
     </message>
@@ -16398,20 +16036,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -16425,24 +16052,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Add Filter Configuration</source>
         <translation>Přidat nastavení filtru</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Nastavit filtry</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Upravit</translation>
     </message>
     <message>
         <source>Refresh Interval:</source>
@@ -17649,7 +17261,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Core::Internal::SettingsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Nastavení</translation>
@@ -18612,7 +18224,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Locator::Internal::DirectoryFilter</name>
+    <name>::Core</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Obecný adresářový filtr</translation>
@@ -18645,9 +18257,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>%1 filter update: canceled</source>
         <translation>%1 stav filtru: zrušeno</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation type="obsolete">Soubory v souborovém systému</translation>
@@ -18656,50 +18265,18 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Files in File System</source>
         <translation>Soubory v souborovém systému</translation>
     </message>
-</context>
-<context>
-    <name>Locator::ILocatorFilter</name>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Dostupné filtry</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation>Vzor hledání</translation>
-    </message>
-    <message>
         <source>Type to locate (%1)</source>
         <translation>Vzor hledání (%1)</translation>
     </message>
-    <message>
-        <source>Indexing</source>
-        <translation>Rejstříkování</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Obnovit</translation>
@@ -18717,27 +18294,13 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Vzor hledání</translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation>Volby</translation>
-    </message>
-    <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;Sem napište&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation type="obsolete">Otevřít dokumenty</translation>
     </message>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otevřít dokumenty</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation type="obsolete">%1 (Předpona: %2)</translation>
@@ -20235,61 +19798,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Differences between files</source>
         <translation>Rozdíly mezi soubory</translation>
-    </message>
-</context>
-<context>
-    <name>CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation type="obsolete">Přiřazení příkazů</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Příkaz</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Štítek</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation type="obsolete">Cíl</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <translation type="obsolete">Výchozí</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation type="obsolete">Identifikátor cíle</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation type="obsolete">Cíl:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Nastavit vše znovu na výchozí</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu výchozí</translation>
     </message>
 </context>
 <context>
@@ -23061,7 +22569,7 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Přiřazení příkazů</translation>
@@ -23099,20 +22607,9 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>Nastavit znovu na výchozí.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-    <message>
         <source>Target:</source>
         <translation>Cíl:</translation>
     </message>
-    <message>
-        <source>Label</source>
-        <translation>Štítek</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -23134,16 +22631,10 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <comment>msgShowOptionsDialog</comment>
         <translation>Nastavení...</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Návrh</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Systémový editor</translation>
@@ -23151,17 +22642,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     <message>
         <source>Could not open url %1.</source>
         <translation>Nepodařilo se otevřít adresu (URL) %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Kopírovat celou cestu do schránky</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -23176,20 +22656,9 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>Odstranit rozdělení</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>Soubor je zapisovatelný</translation>
     </message>
-</context>
-<context>
-    <name>Core::HelpManager</name>
     <message>
         <source>Unfiltered</source>
         <translation>Nezpracovaný</translation>
@@ -23207,14 +22676,11 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::InteractiveSshConnection</name>
+    <name>::Core</name>
     <message>
         <source>Error sending input</source>
         <translation type="obsolete">Chyba při posílání vstupních dat</translation>
     </message>
-</context>
-<context>
-    <name>Core::SftpConnection</name>
     <message>
         <source>Error setting up SFTP subsystem</source>
         <translation type="obsolete">Chyba při nastavování podsystému SFTP</translation>
@@ -24718,11 +24184,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>Otevřít</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Open parent folder</source>
         <translation type="obsolete">Otevřít rodičovskou složku</translation>
@@ -24746,10 +24208,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Show in Explorer...</source>
         <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Ukázat v hledáčku...</translation>
     </message>
     <message>
         <source>Show containing folder...</source>
@@ -24786,58 +24244,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     <message>
         <source>Find in this directory...</source>
         <translation>Najít v tomto adresáři...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Ukázat obsaženou složku...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Otevřít příkazový řádek zde...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Otevřít terminál zde...</translation>
-    </message>
-    <message>
-        <source>Launching a file browser failed</source>
-        <translation type="obsolete">Spuštění prohlížeče souborů se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Unable to start the file manager:
-
-%1
-
-</source>
-        <translation type="obsolete">Prohlížeč souborů se nepodařilo spustit:
-
-%1
-
-</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; returned the following error:
-
-%2</source>
-        <translation type="obsolete">Chyba při provádění &apos;%1&apos;:
-
-%2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation type="obsolete">Nastavení...</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer Failed</source>
-        <translation type="obsolete">Spuštění Windows Exploreru se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer failed</source>
-        <translation type="obsolete">Spuštění Windows Exploreru se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translation type="obsolete">Windows Explorer se nepodařilo spustit, protože se v cestě nepodařilo nalézt soubor explorer.exe.</translation>
     </message>
 </context>
 <context>
@@ -27796,7 +27202,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>::Core</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -27806,24 +27212,12 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
         <translation>Přidat nástroj</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>Odstranit nástroj</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>Vrátit nástroj na výchozí hodnotu</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -27940,123 +27334,6 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
 &lt;p&gt;Zacházení s chybovým výstupem nástroje.
 &lt;ul&gt;&lt;li&gt;Potlačit: S výstupem nezacházet&lt;/li&gt;&lt;li&gt;Ukázat v panelu: &apos;Obecné výstupy&apos; ukazovat v panelu &lt;/li&gt;&lt;li&gt;Nahradit vybraný text: Text vybraný v dokumentu bude nahrazen výstupem.&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Value:</source>
-        <translation type="obsolete">Hodnota:</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="obsolete">Řetězec</translation>
-    </message>
-    <message>
-        <source>Byte</source>
-        <translation type="obsolete">Byte</translation>
-    </message>
-    <message>
-        <source>Use Recommended</source>
-        <translation type="obsolete">Použít doporučené</translation>
-    </message>
-    <message>
-        <source>Start range:</source>
-        <translation type="obsolete">Začátek oblasti:</translation>
-    </message>
-    <message>
-        <source>End range:</source>
-        <translation type="obsolete">Konec oblasti:</translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation type="obsolete">Přednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Poznámka: Velké oblasti se mohou na rychlosti otevírání souborů odrazit záporně.&lt;/i&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Registered MIME Types</source>
-        <translation type="obsolete">Zapsané MIME typy</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation type="obsolete">Nastavit vše znovu na výchozí.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Patterns:</source>
-        <translation type="obsolete">Vzory:</translation>
-    </message>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">Kouzelné záhlaví</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="obsolete">Rozsah</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation type="obsolete">Přednost</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Upravit</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation type="obsolete">Proměnné</translation>
-    </message>
-    <message>
-        <source>Select a variable to insert.</source>
-        <translation type="obsolete">Vyberte proměnnou, která se má vložit.</translation>
     </message>
     <message>
         <source>Insert variable</source>
@@ -31947,7 +31224,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Nezařazeno do skupin</translation>
@@ -31977,9 +31254,6 @@ Server: %2.</translation>
         <extracomment>Sample external tool text</extracomment>
         <translation>Užitečný text</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Přepsat stávající soubory</translation>
@@ -32033,7 +31307,7 @@ Chcete je nechat přepsat?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolRunner</name>
+    <name>::Core</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -32052,13 +31326,6 @@ Chcete je nechat přepsat?</translation>
         <source>&apos;%1&apos; finished</source>
         <translation>&apos;%1&apos; dokončeno</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>Nastavení...</translation>
-    </message>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Externí</translation>
@@ -32071,16 +31338,10 @@ Chcete je nechat přepsat?</translation>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Chyba: Externí nástroj v %1 obsahuje již zadané ID</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFile</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">Soubor byl obnoven z automaticky uložené záložní kopie. Vyberte &lt;i&gt;Uložit&lt;/i&gt; pro potvrzení nebo &lt;i&gt;Obnovit&lt;/i&gt; pro zahození změn.</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>Do not show again</source>
         <translation>Neukazovat znovu</translation>
@@ -32088,17 +31349,6 @@ Chcete je nechat přepsat?</translation>
     <message>
         <source>Do Not Show Again</source>
         <translation>Neukazovat znovu</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">Kouzelné záhlaví</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -32152,9 +31402,6 @@ Chcete je nechat přepsat?</translation>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Velké oblasti se mohou na rychlosti otevírání souborů odrazit záporně.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>Typ MIME</translation>
@@ -32183,13 +31430,6 @@ Chcete je nechat přepsat?</translation>
             <numerusform>%n vzorů hledání se již používá.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>Nevybrán žádný typ MIME.</translation>
@@ -32206,23 +31446,6 @@ Chcete je nechat přepsat?</translation>
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>Změny se projeví po novém spuštění Qt Creatoru.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>Typy MIME</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>Zapnout tabulku &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Zapnout tabulku %1</translation>
@@ -32231,13 +31454,6 @@ Chcete je nechat přepsat?</translation>
         <source>Hide Sidebar</source>
         <translation>Skrýt postranní panel</translation>
     </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Ukázat postranní panel</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -32248,16 +31464,10 @@ Chcete je nechat přepsat?</translation>
         <source>Additional output omitted</source>
         <translation>Dodatečný výstup opomenut</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Externí nástroje</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Bylo nalezeno skladiště verzovacího systému %1, ale %1 ještě není nastaven.</translation>
@@ -39823,7 +39033,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalTool</name>
+    <name>::Core</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>Vytvoří ze souborů ts od překladatele překladové soubory qm, které mohou být použity programem</translation>
@@ -39895,10 +39105,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Edit with vi</source>
         <translation>Upravit ve vi</translation>
-    </message>
-    <message>
-        <source>Error while parsing external tool %1: %2</source>
-        <translation>Chyba při zpracování externího nástroje %1: %2</translation>
     </message>
 </context>
 <context>
@@ -40429,7 +39635,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Spuštění prohlížeče souborů se nezdařilo</translation>
@@ -40453,10 +39659,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>&apos;%1&apos; vrátil následující chybu:
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>Nastavení...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -40499,28 +39701,13 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Soubor %1 se nepodařilo smazat.</translation>
     </message>
     <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Ukázat v průzkumníku...</translation>
-    </message>
-    <message>
         <source>Show in Finder...</source>
         <translation type="obsolete">Ukázat v nálezci...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Ukázat obsaženou složku...</translation>
     </message>
     <message>
         <source>Open Command Prompt Here...</source>
         <translation type="obsolete">Otevřít výzvu k příkazu zde...</translation>
     </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Otevřít terminál zde...</translation>
-    </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Adresář %1 nelze vytvořit.</translation>
@@ -42791,77 +41978,22 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation>Přiřazení příkazů</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>Příkaz</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Label</source>
         <translation>Popis</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation>Cíl</translation>
     </message>
     <message>
         <source>Reset all to default</source>
         <translation>Nastavit vše znovu na výchozí</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation>Importovat...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation>Exportovat...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation>Identifikátor cíle</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation>Cíl:</translation>
-    </message>
-    <message>
         <source>Reset to default</source>
         <translation>Nastavit znovu výchozí</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nastavit znovu</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>Přihlášené MIME typy</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation>Nastavit vše znovu na výchozí.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation>Nastavit znovu vše</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
     </message>
     <message>
         <source>Patterns:</source>
@@ -42870,10 +42002,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Magic Header</source>
         <translation>Kouzelné záhlaví</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
     </message>
     <message>
         <source>Range</source>
@@ -42892,19 +42020,8 @@ p, li { white-space: pre-wrap; }
         <translation>Upravit...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Filtr</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>Proměnné</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
@@ -45956,15 +45073,11 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Soubory se nepodařilo uložit.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Chyba souboru</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -45991,39 +45104,12 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
         <translation type="obsolete">Soubor je pouze pro čtení</translation>
     </message>
     <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Soubor &lt;i&gt;%1&lt;/i&gt; je pouze pro čtení.</translation>
-    </message>
-    <message>
         <source>Make &amp;Writable</source>
         <translation type="obsolete">Udělat &amp;zapisovatelným</translation>
     </message>
     <message>
-        <source>&amp;Save As...</source>
-        <translation type="obsolete">&amp;Uložit jako...</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Otevřít s pomocí systému na ověřování verzí (VCS) (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">Udělat zapisovatelným</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">Uložit jako...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>%1 se nahrát znovu nepodařilo</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
-    <message>
-        <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
-        <translation type="obsolete">Soubor byl obnoven z automaticky uložené záložní kopie. Vyberte &lt;i&gt;Uložit&lt;/i&gt; pro potvrzení nebo &lt;i&gt;Obnovit&lt;/i&gt; pro zahození změn.</translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -46957,7 +46043,7 @@ nepatří k ověřeným Remotes v %3. Vybrat jinou složku?</translation>
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -47990,7 +47076,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>::Core</name>
     <message>
         <source>Remove File</source>
         <translation>Odstranit soubor</translation>
@@ -48985,7 +48071,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>::Core</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -48994,9 +48080,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Otevřít s pomocí systému na správu verzí (VCS) (%1)</translation>
@@ -53542,7 +52625,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <name>::Core</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Soubory bez oprávnění pro zápis</translation>
@@ -53550,10 +52633,6 @@ Vzdálený: %4</translation>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Následující soubory jsou chráněny proti zápisu. Chcete oprávnění změnit?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Udělat zapisovatelným</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -54385,7 +53464,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -54398,9 +53477,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Založeno na Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Přepnout podrobnosti postupu</translation>
@@ -54413,9 +53489,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Alt+Shift+0</source>
         <translation>Alt+Shift+0</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableManager</name>
     <message>
         <source>%1: Full path including file name.</source>
         <translation>%1: Úplná cesta včetně názvu souboru.</translation>
@@ -55536,11 +54609,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Přidat soubor do správy verzí (%1)</translation>
@@ -56491,7 +55560,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Core::DocumentModel</name>
+    <name>::Core</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;žádný dokument&gt;</translation>
@@ -57836,7 +56905,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Core::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Hledat</translation>
@@ -57865,9 +56934,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Sco&amp;pe:</source>
         <translation>&amp;Oblast:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Hledat</translation>
@@ -57895,109 +56961,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Replace All</source>
         <translation>Nahradit vše</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Pokročilé...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
-    </message>
-    <message>
-        <source>File types:</source>
-        <translation>Souborové typy:</translation>
-    </message>
-    <message>
-        <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
-        <translation>Zadejte seznam filtrů souborových názvů oddělených čárkou. Filtry mohou obsahovat vzory hledání.</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
-To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
-        <translation>Zadejte krátké slovo nebo zkratku, které omezí nálezy na soubory nálezající se v tomto adresářovém stromu.
-Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, následované mezerou a hledaným výrazem.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Upravit...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Directories:</source>
-        <translation>Adresáře:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
-    <message>
-        <source>Add Filter Configuration</source>
-        <translation>Přidat nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Include hidden files</source>
-        <translation>Ukazovat skryté soubory</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation>Filtr:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation>Nastavit filtry</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Upravit...</translation>
-    </message>
-    <message>
-        <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
-        <translation>Vyhledávací filtry, které své údaje neaktualizují okamžitě (např. vlastní filtry pro adresáře), se aktualizují po uplynutí této doby.</translation>
-    </message>
-    <message>
-        <source>Refresh interval:</source>
-        <translation>Doba mezi obnovami:</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <translation> minuty</translation>
     </message>
 </context>
 <context>
@@ -58417,7 +57380,7 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>Core::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Hledat/Nahradit</translation>
@@ -58438,9 +57401,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Shift+Enter</translation>
@@ -58486,24 +57446,12 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <translation>Ctrl+Shift+F3</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Nahradit a najít předchozí</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -58521,9 +57469,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Preserve Case when Replacing</source>
         <translation>Zachovat při nahrazování velikost</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Rozlišovat velká a malá písmena</translation>
@@ -58552,16 +57497,9 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Hledání bylo zrušeno.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -58572,20 +57510,8 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <translation>Hledat ještě jednou</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences.</source>
         <translation>Nahradit všechny výskyty.</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -58615,9 +57541,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
             <numerusform>Nalezeno %n shod.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>New Search</source>
         <translation>Nové hledání</translation>
@@ -58638,62 +57561,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Search Results</source>
         <translation>Výsledky hledání</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
-    <message>
-        <source>Generic Directory Filter</source>
-        <translation>Obecný adresářový filtr</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Select Directory</source>
-        <translation>Vybrat adresář</translation>
-    </message>
-    <message>
-        <source>%1 filter update: 0 files</source>
-        <translation>%1 stav filtru: žádný soubor</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 filter update: %n files</source>
-        <translation>
-            <numerusform>%1 stav filtru: jeden soubor</numerusform>
-            <numerusform>%1 stav filtru: %n soubory</numerusform>
-            <numerusform>%1 stav filtru: %n souborů</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>%1 filter update: canceled</source>
-        <translation>%1 stav filtru: zrušeno</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
-    <message>
-        <source>Execute Custom Commands</source>
-        <translation>Spustit vlastní příkazy</translation>
-    </message>
-    <message>
-        <source>Previous command is still running (&apos;%1&apos;).
-Do you want to kill it?</source>
-        <translation>Předchozí příkaz stále běží (&apos;%1&apos;).
-Chcete jej ukončit?</translation>
-    </message>
-    <message>
-        <source>Kill Previous Process?</source>
-        <translation>Ukončit předchozí proces?</translation>
-    </message>
-    <message>
-        <source>Command &apos;%1&apos; finished.</source>
-        <translation>Příkaz &apos;%1&apos; dokončen.</translation>
-    </message>
-    <message>
-        <source>Command &apos;%1&apos; failed.</source>
-        <translation>Příkaz &apos;%1&apos; selhal.</translation>
-    </message>
     <message>
         <source>Could not find executable for &apos;%1&apos;.</source>
         <translation>Nepodařilo se najít spustitelný soubor pro &apos;%1&apos;.</translation>
@@ -58706,86 +57573,9 @@ Chcete jej ukončit?</translation>
         <source>Could not start process: %1.</source>
         <translation>Proces &quot;%1.&quot; se nepodařilo spustit.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
-    <message>
-        <source>Files in File System</source>
-        <translation>Soubory v souborovém systému</translation>
-    </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Nastavení filtru</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Omezit na předponu</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Předpona:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
-    <message>
-        <source>Ctrl+K</source>
-        <translation>Ctrl+K</translation>
-    </message>
-    <message>
-        <source>Type to locate</source>
-        <translation>Vzor hledání</translation>
-    </message>
-    <message>
-        <source>Type to locate (%1)</source>
-        <translation>Vzor hledání (%1)</translation>
-    </message>
     <message>
         <source>Indexing</source>
         <translation>Indexování</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
-    <message>
-        <source>Available filters</source>
-        <translation>Dostupné filtry</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
-    <message>
-        <source>Refresh</source>
-        <translation>Obnovit</translation>
-    </message>
-    <message>
-        <source>Locate...</source>
-        <translation>Najít...</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
-    </message>
-    <message>
-        <source>&lt;type here&gt;</source>
-        <translation>&lt;Sem napište&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Otevřít dokumenty</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsPage</name>
-    <message>
-        <source>%1 (prefix: %2)</source>
-        <translation>%1 (Předpona: %2)</translation>
     </message>
 </context>
 <context>

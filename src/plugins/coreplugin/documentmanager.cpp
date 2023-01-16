@@ -228,7 +228,7 @@ void DocumentManagerPrivate::registerSaveAllAction()
 {
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
     Command *cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : tr("Ctrl+Shift+S")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : Tr::tr("Ctrl+Shift+S")));
     mfile->addAction(cmd, Constants::G_FILE_SAVE);
     m_saveAllAction->setEnabled(false);
     connect(m_saveAllAction, &QAction::triggered, [] {
@@ -237,7 +237,7 @@ void DocumentManagerPrivate::registerSaveAllAction()
 }
 
 DocumentManagerPrivate::DocumentManagerPrivate() :
-    m_saveAllAction(new QAction(tr("Save A&ll"), this))
+    m_saveAllAction(new QAction(Tr::tr("Save A&ll"), this))
 {
     // we do not want to do too much directly in the focus change event, so queue the connection
     connect(qApp,
@@ -688,9 +688,8 @@ static bool saveModifiedFilesHelper(const QList<IDocument *> &documents,
         }
         if (!roDocuments.isEmpty()) {
             ReadOnlyFilesDialog roDialog(roDocuments, ICore::dialogParent());
-            roDialog.setShowFailWarning(true, DocumentManager::tr(
-                                            "Could not save the files.",
-                                            "error message"));
+            roDialog.setShowFailWarning(true, Tr::tr("Could not save the files.",
+                                                     "error message"));
             if (roDialog.exec() == ReadOnlyFilesDialog::RO_Cancel) {
                 if (cancelled)
                     (*cancelled) = true;
@@ -732,8 +731,8 @@ bool DocumentManager::saveDocument(IDocument *document,
             }
             *isReadOnly = false;
         }
-        QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
-                              tr("Error while saving file: %1").arg(errorString));
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
+                              Tr::tr("Error while saving file: %1").arg(errorString));
       out:
         ret = false;
     }
@@ -826,8 +825,8 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
                     if (!suffixOk && !suffixes.isEmpty()) {
                         filePath = filePath.stringAppended(suffixes.at(0));
                         if (filePath.exists()) {
-                            if (QMessageBox::warning(ICore::dialogParent(), tr("Overwrite?"),
-                                tr("An item named \"%1\" already exists at this location. "
+                            if (QMessageBox::warning(ICore::dialogParent(), Tr::tr("Overwrite?"),
+                                Tr::tr("An item named \"%1\" already exists at this location. "
                                    "Do you want to overwrite it?").arg(filePath.toUserOutput()),
                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::No) {
                                 repeat = true;
@@ -877,7 +876,7 @@ FilePath DocumentManager::getSaveAsFileName(const IDocument *document)
     if (selectedFilter.isEmpty())
         selectedFilter = Utils::mimeTypeForName(document->mimeType()).filterString();
 
-    return getSaveFileName(tr("Save File As"),
+    return getSaveFileName(Tr::tr("Save File As"),
                            fileDialogPath,
                            filter,
                            &selectedFilter);
@@ -1036,7 +1035,7 @@ FilePaths DocumentManager::getOpenFileNames(const QString &filters,
                                             QFileDialog::Options options)
 {
     const FilePath path = pathIn.isEmpty() ? fileDialogInitialDirectory() : pathIn;
-    const FilePaths files = FileUtils::getOpenFilePaths(nullptr, tr("Open File"), path, filters,
+    const FilePaths files = FileUtils::getOpenFilePaths(nullptr, Tr::tr("Open File"), path, filters,
                                                         selectedFilter, options);
     if (!files.isEmpty())
         setFileDialogLastVisitedDirectory(files.front().absolutePath());
@@ -1286,7 +1285,7 @@ void DocumentManager::checkForReload()
         }
         if (!success) {
             if (errorString.isEmpty())
-                errorStrings << tr("Cannot reload %1").arg(document->filePath().toUserOutput());
+                errorStrings << Tr::tr("Cannot reload %1").arg(document->filePath().toUserOutput());
             else
                 errorStrings << errorString;
         }
@@ -1300,7 +1299,7 @@ void DocumentManager::checkForReload()
     }
 
     if (!errorStrings.isEmpty())
-        QMessageBox::critical(ICore::dialogParent(), tr("File Error"),
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
                               errorStrings.join(QLatin1Char('\n')));
 
     // handle deleted files

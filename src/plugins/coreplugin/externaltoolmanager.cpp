@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "externaltoolmanager.h"
+
 #include "externaltool.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icontext.h"
 #include "icore.h"
 #include "messagemanager.h"
@@ -55,7 +57,7 @@ ExternalToolManager::ExternalToolManager()
 
     // add the external tools menu
     ActionContainer *mexternaltools = ActionManager::createMenu(Id(Constants::M_TOOLS_EXTERNAL));
-    mexternaltools->menu()->setTitle(ExternalToolManager::tr("&External"));
+    mexternaltools->menu()->setTitle(Tr::tr("&External"));
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
@@ -105,7 +107,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
         QString error;
         ExternalTool *tool = ExternalTool::createFromFile(Utils::FilePath::fromString(fileName), &error, ICore::userInterfaceLanguage());
         if (!tool) {
-            qWarning() << ExternalTool::tr("Error while parsing external tool %1: %2").arg(fileName, error);
+            qWarning() << Tr::tr("Error while parsing external tool %1: %2").arg(fileName, error);
             continue;
         }
         if (tools->contains(tool->id())) {
@@ -114,7 +116,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
                 ExternalTool *other = tools->value(tool->id());
                 other->setPreset(QSharedPointer<ExternalTool>(tool));
             } else {
-                qWarning() << ExternalToolManager::tr("Error: External tool in %1 has duplicate id").arg(fileName);
+                qWarning() << Tr::tr("Error: External tool in %1 has duplicate id").arg(fileName);
                 delete tool;
             }
             continue;

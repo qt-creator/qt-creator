@@ -96,9 +96,9 @@ void PresentationModeHandler::showShortcutPopup(const QString &shortcut)
     your plugin's ExtensionSystem::IPlugin::initialize() function.
 
     \code
-        QAction *myAction = new QAction(tr("My Action"), this);
+        QAction *myAction = new QAction(Tr::tr("My Action"), this);
         Command *cmd = ActionManager::registerAction(myAction, "myplugin.myaction", Context(C_GLOBAL));
-        cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+u")));
+        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+u")));
         connect(myAction, &QAction::triggered, this, &MyPlugin::performMyAction);
     \endcode
 

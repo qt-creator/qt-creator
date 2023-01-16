@@ -1102,7 +1102,7 @@
     </message>
 </context>
 <context>
-    <name>Core::0</name>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation type="obsolete">Hiba történt a fájl generálása közben</translation>
@@ -1415,9 +1415,6 @@ Felül szeretné írni azokat?</translation>
         <source>New %1</source>
         <translation type="obsolete">Új %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Nem lehet létrehozni a(z) %1 könyvtárat.</translation>
@@ -1468,9 +1465,6 @@ Would you like to overwrite them?</source>
 %2.
 Felül szeretné írni azokat?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Visszatérés az elmentett állapotra</translation>
@@ -1695,9 +1689,6 @@ Felül szeretné írni azokat?</translation>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Változó&lt;/th&gt;&lt;th&gt;kiterjesztés&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;fájl névre&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;aktuális sorszám&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;aktuális oszlopszám&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;a szerkesztő X Poziciója a képernyőn&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;a szerkesztő Y pozicója a képernyőn&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;a szerkesztő szélessége pixelekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;a szerkesztő magassága pixelekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;a szerkesztő szélessége karakterekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;a szerkesztő magassága karakterekben &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Cannot save file</source>
         <translation>Nem lehet elmenti a fájlt</translation>
@@ -1718,9 +1709,6 @@ Felül szeretné írni azokat?</translation>
         <source>Save File As</source>
         <translation>Mentés másként</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::0</name>
     <message>
         <source>Activate %1</source>
         <translation type="obsolete">%1 aktiválása</translation>
@@ -1758,16 +1746,8 @@ Felül szeretné írni azokat?</translation>
         <translation type="obsolete">Voriges Dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Left</translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation type="obsolete">Nächstes Dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Right</translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -1788,14 +1768,6 @@ Felül szeretné írni azokat?</translation>
     <message>
         <source>Placeholder</source>
         <translation type="obsolete">Helyőrző</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Bezárás</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Írhatóvá tétel</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -1986,10 +1958,6 @@ Felül szeretné írni azokat?</translation>
         <source>New</source>
         <comment>Title of dialog</comment>
         <translation type="obsolete">Új</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="obsolete">Feldarabolás</translation>
     </message>
     <message>
         <source>Activate %1 Pane</source>
@@ -2411,23 +2379,14 @@ p {
         <source>Feedback</source>
         <translation type="obsolete">Visszajelzés</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
     <message>
         <source>Activate %1</source>
         <translation>%1 aktiválása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Szerkesztés</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
     <message>
         <source>Split Left/Right</source>
         <translation>Bal/Jobb feldarabolás</translation>
@@ -2457,16 +2416,8 @@ p {
         <translation>Voriges Dokument</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation>Alt+Left</translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation>Nächstes Dokument</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation>Alt+Right</translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -2484,28 +2435,9 @@ p {
         <source>Move Document to Next Group</source>
         <translation>Dokument in nächste Gruppe verschieben</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation>Vissza</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Előre</translation>
-    </message>
     <message>
         <source>Placeholder</source>
         <translation>Helyőrző</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation>Írhatóvá tétel</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -2515,9 +2447,6 @@ p {
         <source>Copy full path to clipboard</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General settings</source>
         <translation>Általános beállítások</translation>
@@ -2574,9 +2503,6 @@ p {
         <source>Variables</source>
         <translation>Változók</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -2722,41 +2648,10 @@ p {
         <source>Settings...</source>
         <translation>Beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation>Általános</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation>%1 aktiválása</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Feldarabolás</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>&apos;%1&apos; panel aktiválása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Új Projekt</translation>
@@ -2765,24 +2660,13 @@ p {
         <source>1</source>
         <translation>1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Dokumentumok megnyitása</translation>
     </message>
     <message>
-        <source>Close %1</source>
-        <translation>%1 bezárása</translation>
-    </message>
-    <message>
         <source>Close Editor</source>
         <translation>Szerkesztő bezárása</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation>Az összes bezárása a(z) %1 kivételével</translation>
     </message>
     <message>
         <source>Close Other Editors</source>
@@ -2792,26 +2676,13 @@ p {
         <source>Close All Editors</source>
         <translation>Az összes szerkesztő bezárása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>&apos;%1&apos; fájl megnyitása ezzel::</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
-    <message>
-        <source>Output</source>
-        <translation>Kimenet</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -2829,9 +2700,6 @@ p {
         <source>Output &amp;Panes</source>
         <translation>Kimeneti &amp;panelek</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Részletek</translation>
@@ -2839,10 +2707,6 @@ p {
     <message>
         <source>Error Details</source>
         <translation>Hiba részletek</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
     </message>
     <message>
         <source>Installed Plugins</source>
@@ -2856,16 +2720,10 @@ p {
         <source>Plugin Errors of %1</source>
         <translation>%1 beépülő modul hibák</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Folyamatok</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>Ne mentse el</translation>
@@ -2882,9 +2740,6 @@ p {
         <source>Save Selected</source>
         <translation>Kiválasztottak elmentése</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Beállítások</translation>
@@ -2893,16 +2748,9 @@ p {
         <source>Options</source>
         <translation>Opciók</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Billentyűzet</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation>Környezet</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -2916,20 +2764,6 @@ p {
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Billentyűzet leképezési terv exportálása</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Feldarabolás</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Qt Creator-ról</translation>
@@ -2942,16 +2776,10 @@ p {
         <source>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;Qt Creator %1&lt;/h3&gt;%2 Qt-n alapszik (%3 bites)&lt;br/&gt;&lt;br/&gt;%4-re épül%5&lt;br /&gt;&lt;br/&gt;%8&lt;br/&gt;Szerzői jog 2008-%6 %7. Minden jog fenntartva.&lt;br/&gt;&lt;br/&gt; A szolgáltatott programra úgy, ahogy van, semmi garancia sincs, beleértve a tervezés, eladhatóság és alkalmasság garanciáját egyéni célokra.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation>&apos;%1&apos;-es módra kapcsolás</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2962,16 +2790,10 @@ p {
         <source>Unknown error</source>
         <translation>Ismeretlen hiba</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Új %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Utils::0</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation type="obsolete">Az osztály neve nem tartalmazhat névtér határoló jeleket.</translation>
@@ -3147,10 +2969,6 @@ p {
     <message>
         <source>Delete line</source>
         <translation type="obsolete">Sör törlése</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Kiürítés</translation>
     </message>
     <message>
         <source>From &quot;%1&quot;</source>
@@ -8802,7 +8620,7 @@ Fájl kihagyása.</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Filters</source>
         <translation>Szűrők</translation>
@@ -8811,9 +8629,6 @@ Fájl kihagyása.</translation>
         <source>Locator</source>
         <translation>Lokátor</translation>
     </message>
-</context>
-<context>
-    <name>Locator::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Szűrő konfiguráció</translation>
@@ -8826,16 +8641,9 @@ Fájl kihagyása.</translation>
         <source>Prefix:</source>
         <translation>Előtag:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Általános könyvtár szűrő</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Szűrő konfiguráció</translation>
     </message>
     <message>
         <source>Choose a directory to add</source>
@@ -8854,9 +8662,6 @@ Fájl kihagyása.</translation>
         <source>%1 filter update: canceled</source>
         <translation>%1 szűrő frissítés: mégse</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -8870,18 +8675,10 @@ Fájl kihagyása.</translation>
         <translation>Határozza meg a névszűrőket, vesszővel elválasztva. A szűrők tartalmazhatnak helyettesítő jeleket.</translation>
     </message>
     <message>
-        <source>Prefix:</source>
-        <translation>Előtag:</translation>
-    </message>
-    <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Határozzon meg egy rövidítést, amit a fájlok kiegészítésének korlátozására lehet használni ebből a könyvtár szerkezetből.
 Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lokátor beviteli mezőbe, és aztán a keresett szót.Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt  von einem Leerzeichen und dem Suchbegriff.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Előtag korlátozás</translation>
     </message>
     <message>
         <source>Add...</source>
@@ -8899,27 +8696,13 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Directories:</source>
         <translation>Könyvtárak:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation>Fájlrendszeren levő fájlok</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation>Szűrők konfigurálása</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Előtag:</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Előtag korlátozás</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -8929,23 +8712,14 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Filter:</source>
         <translation>Szűrő:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Elérhető szűrők</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Indexing</source>
         <translation>Indexelés</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Felfrissítés</translation>
@@ -8966,23 +8740,14 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&lt;type here&gt;</source>
         <translation>&lt;típus ide&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation>Dokumentumok megnyitása</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (Előtag: %2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Szűrők konfigurálása</translation>
@@ -8990,14 +8755,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     <message>
         <source>Add</source>
         <translation>Hozzáadás</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>Szerkesztés</translation>
     </message>
     <message>
         <source>Refresh Interval:</source>
@@ -11624,7 +11381,7 @@ Ok: %2</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>Fájlrendszer</translation>

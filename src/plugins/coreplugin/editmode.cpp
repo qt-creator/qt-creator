@@ -1,19 +1,20 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "editmode.h"
+
 #include "coreconstants.h"
 #include "coreicons.h"
-#include "editmode.h"
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
 #include "icore.h"
-#include "modemanager.h"
 #include "minisplitter.h"
+#include "modemanager.h"
 #include "navigationwidget.h"
 #include "outputpane.h"
 #include "rightpane.h"
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
 
-#include <QLatin1String>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <QIcon>
@@ -26,7 +27,7 @@ EditMode::EditMode() :
     m_rightSplitWidgetLayout(new QVBoxLayout)
 {
     setObjectName(QLatin1String("EditMode"));
-    setDisplayName(tr("Edit"));
+    setDisplayName(Tr::tr("Edit"));
     setIcon(Utils::Icon::modeIcon(Icons::MODE_EDIT_CLASSIC,
                                   Icons::MODE_EDIT_FLAT, Icons::MODE_EDIT_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_EDIT);

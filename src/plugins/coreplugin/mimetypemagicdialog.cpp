@@ -3,6 +3,7 @@
 
 #include "mimetypemagicdialog.h"
 
+#include "coreplugintr.h"
 #include "icore.h"
 
 #include <utils/headerviewstretcher.h>
@@ -27,10 +28,10 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     QDialog(parent)
 {
     resize(582, 419);
-    setWindowTitle(tr("Add Magic Header"));
+    setWindowTitle(Tr::tr("Add Magic Header"));
 
     auto informationLabel = new QLabel;
-    informationLabel->setText(tr("<html><head/><body><p>MIME magic data is interpreted as defined "
+    informationLabel->setText(Tr::tr("<html><head/><body><p>MIME magic data is interpreted as defined "
          "by the Shared MIME-info Database specification from "
          "<a href=\"http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html\">"
          "freedesktop.org</a>.<hr/></p></body></html>"));  // FIXME: Simplify for translators
@@ -39,31 +40,31 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     m_valueLineEdit = new QLineEdit;
 
     m_typeSelector = new QComboBox;
-    m_typeSelector->addItem(tr("String"));
-    m_typeSelector->addItem(tr("RegExp"));
-    m_typeSelector->addItem(tr("Host16"));
-    m_typeSelector->addItem(tr("Host32"));
-    m_typeSelector->addItem(tr("Big16"));
-    m_typeSelector->addItem(tr("Big32"));
-    m_typeSelector->addItem(tr("Little16"));
-    m_typeSelector->addItem(tr("Little32"));
-    m_typeSelector->addItem(tr("Byte"));
+    m_typeSelector->addItem(Tr::tr("String"));
+    m_typeSelector->addItem(Tr::tr("RegExp"));
+    m_typeSelector->addItem(Tr::tr("Host16"));
+    m_typeSelector->addItem(Tr::tr("Host32"));
+    m_typeSelector->addItem(Tr::tr("Big16"));
+    m_typeSelector->addItem(Tr::tr("Big32"));
+    m_typeSelector->addItem(Tr::tr("Little16"));
+    m_typeSelector->addItem(Tr::tr("Little32"));
+    m_typeSelector->addItem(Tr::tr("Byte"));
 
     m_maskLineEdit = new QLineEdit;
 
-    m_useRecommendedGroupBox = new QGroupBox(tr("Use Recommended"));
+    m_useRecommendedGroupBox = new QGroupBox(Tr::tr("Use Recommended"));
     m_useRecommendedGroupBox->setCheckable(true);
 
-    m_noteLabel = new QLabel(tr("<html><head/><body><p><span style=\" font-style:italic;\">"
+    m_noteLabel = new QLabel(Tr::tr("<html><head/><body><p><span style=\" font-style:italic;\">"
                             "Note: Wide range values might impact performance when opening "
                             "files.</span></p></body></html>"));
     m_noteLabel->setTextFormat(Qt::RichText);
 
-    m_startRangeLabel = new QLabel(tr("Range start:"));
+    m_startRangeLabel = new QLabel(Tr::tr("Range start:"));
 
-    m_endRangeLabel = new QLabel(tr("Range end:"));
+    m_endRangeLabel = new QLabel(Tr::tr("Range end:"));
 
-    m_priorityLabel = new QLabel(tr("Priority:"));
+    m_priorityLabel = new QLabel(Tr::tr("Priority:"));
 
     m_prioritySpinBox = new QSpinBox(m_useRecommendedGroupBox);
     m_prioritySpinBox->setMinimum(1);
@@ -91,9 +92,9 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     Column {
         informationLabel,
         Form {
-            tr("Value:"), m_valueLineEdit, br,
-            tr("Type:"), m_typeSelector, st, br,
-            tr("Mask:"), m_maskLineEdit, br
+            Tr::tr("Value:"), m_valueLineEdit, br,
+            Tr::tr("Type:"), m_typeSelector, st, br,
+            Tr::tr("Mask:"), m_maskLineEdit, br
         },
         m_useRecommendedGroupBox,
         st,
@@ -155,7 +156,7 @@ void MimeTypeMagicDialog::validateAccept()
     if (rule.isValid())
         accept();
     else
-        QMessageBox::critical(ICore::dialogParent(), tr("Error"), errorMessage);
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"), errorMessage);
 }
 
 void MimeTypeMagicDialog::setMagicData(const MagicData &data)
@@ -211,7 +212,7 @@ MimeMagicRule MimeTypeMagicDialog::createRule(QString *errorMessage) const
                        errorMessage);
     if (type == MimeMagicRule::Invalid) {
         if (errorMessage)
-            *errorMessage = tr("Internal error: Type is invalid");
+            *errorMessage = Tr::tr("Internal error: Type is invalid");
     }
     return rule;
 }

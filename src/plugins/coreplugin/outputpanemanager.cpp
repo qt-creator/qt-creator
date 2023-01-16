@@ -2,21 +2,21 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "outputpanemanager.h"
-#include "outputpane.h"
-#include "findplaceholder.h"
 
+#include "actionmanager/actioncontainer.h"
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "actionmanager/commandbutton.h"
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
+#include "find/optionspopup.h"
+#include "findplaceholder.h"
 #include "icore.h"
 #include "ioutputpane.h"
 #include "modemanager.h"
+#include "outputpane.h"
 #include "statusbarmanager.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/actionmanager/commandbutton.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/optionspopup.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -27,11 +27,10 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QDebug>
-
 #include <QAction>
 #include <QApplication>
 #include <QComboBox>
+#include <QDebug>
 #include <QFocusEvent>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -122,27 +121,27 @@ void IOutputPane::setupFilterUi(const QString &historyKey)
     m_filterOutputLineEdit = new FancyLineEdit;
     m_filterActionRegexp = new QAction(this);
     m_filterActionRegexp->setCheckable(true);
-    m_filterActionRegexp->setText(tr("Use Regular Expressions"));
+    m_filterActionRegexp->setText(Tr::tr("Use Regular Expressions"));
     connect(m_filterActionRegexp, &QAction::toggled, this, &IOutputPane::setRegularExpressions);
     Core::ActionManager::registerAction(m_filterActionRegexp, filterRegexpActionId());
 
     m_filterActionCaseSensitive = new QAction(this);
     m_filterActionCaseSensitive->setCheckable(true);
-    m_filterActionCaseSensitive->setText(tr("Case Sensitive"));
+    m_filterActionCaseSensitive->setText(Tr::tr("Case Sensitive"));
     connect(m_filterActionCaseSensitive, &QAction::toggled, this, &IOutputPane::setCaseSensitive);
     Core::ActionManager::registerAction(m_filterActionCaseSensitive,
                                         filterCaseSensitivityActionId());
 
     m_invertFilterAction = new QAction(this);
     m_invertFilterAction->setCheckable(true);
-    m_invertFilterAction->setText(tr("Show Non-matching Lines"));
+    m_invertFilterAction->setText(Tr::tr("Show Non-matching Lines"));
     connect(m_invertFilterAction, &QAction::toggled, this, [this] {
         m_invertFilter = m_invertFilterAction->isChecked();
         updateFilter();
     });
     Core::ActionManager::registerAction(m_invertFilterAction, filterInvertedActionId());
 
-    m_filterOutputLineEdit->setPlaceholderText(tr("Filter output..."));
+    m_filterOutputLineEdit->setPlaceholderText(Tr::tr("Filter output..."));
     m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
     m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Icons::MAGNIFIER.icon());
     m_filterOutputLineEdit->setFiltering(true);
@@ -281,10 +280,10 @@ void OutputPaneManager::updateMaximizeButton(bool maximized)
 {
     if (maximized) {
         m_instance->m_minMaxAction->setIcon(m_instance->m_minimizeIcon);
-        m_instance->m_minMaxAction->setText(tr("Minimize"));
+        m_instance->m_minMaxAction->setText(Tr::tr("Minimize"));
     } else {
         m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
-        m_instance->m_minMaxAction->setText(tr("Maximize"));
+        m_instance->m_minMaxAction->setText(Tr::tr("Maximize"));
     }
 }
 
@@ -309,28 +308,28 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_minimizeIcon(Utils::Icons::ARROW_DOWN.icon()),
     m_maximizeIcon(Utils::Icons::ARROW_UP.icon())
 {
-    setWindowTitle(tr("Output"));
+    setWindowTitle(Tr::tr("Output"));
 
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
     m_clearAction = new QAction(this);
     m_clearAction->setIcon(Utils::Icons::CLEAN.icon());
-    m_clearAction->setText(tr("Clear"));
+    m_clearAction->setText(Tr::tr("Clear"));
     connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
-    m_nextAction->setText(tr("Next Item"));
+    m_nextAction->setText(Tr::tr("Next Item"));
     connect(m_nextAction, &QAction::triggered, this, &OutputPaneManager::slotNext);
 
     m_prevAction = new QAction(this);
     m_prevAction->setIcon(Utils::Icons::ARROW_UP_TOOLBAR.icon());
-    m_prevAction->setText(tr("Previous Item"));
+    m_prevAction->setText(Tr::tr("Previous Item"));
     connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 
     m_minMaxAction = new QAction(this);
     m_minMaxAction->setIcon(m_maximizeIcon);
-    m_minMaxAction->setText(tr("Maximize"));
+    m_minMaxAction->setText(Tr::tr("Maximize"));
 
     m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
     connect(m_closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
@@ -374,7 +373,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     // Window->Output Panes
     ActionContainer *mpanes = ActionManager::createMenu(Constants::M_VIEW_PANES);
     mview->addMenu(mpanes, Constants::G_VIEW_PANES);
-    mpanes->menu()->setTitle(tr("Out&put"));
+    mpanes->menu()->setTitle(Tr::tr("Out&put"));
     mpanes->appendGroup("Coreplugin.OutputPane.ActionsGroup");
     mpanes->appendGroup("Coreplugin.OutputPane.PanesGroup");
 
@@ -386,7 +385,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
-    cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F6")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F6")));
     m_prevToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::ARROW_UP_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
@@ -394,11 +393,11 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
     m_nextToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::ARROW_DOWN_TOOLBAR.icon()));
-    cmd->setDefaultKeySequence(QKeySequence(tr("F6")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_minMaxAction, "Coreplugin.OutputPane.minmax");
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Ctrl+Shift+9") : tr("Alt+Shift+9")));
+    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Shift+9") : Tr::tr("Alt+Shift+9")));
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");

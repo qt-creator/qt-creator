@@ -5,8 +5,8 @@
 
 #include "ifindfilter.h"
 #include "findplugin.h"
-
-#include <coreplugin/icore.h>
+#include "../coreplugintr.h"
+#include "../icore.h"
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -16,7 +16,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QCompleter>
-#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLayout>
@@ -36,7 +35,7 @@ static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
 {
     if (edit->text().isEmpty()) {
         if (errorMessage)
-            *errorMessage = FindToolWindow::tr("Empty search term.");
+            *errorMessage = Tr::tr("Empty search term.");
         return false;
     }
     if (Find::hasFindFlag(FindRegularExpression)) {
@@ -58,17 +57,17 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_instance = this;
 
     m_searchButton = new QPushButton(this);
-    m_searchButton->setText(QCoreApplication::translate("Core::Internal::FindDialog", "&Search", nullptr));
+    m_searchButton->setText(Tr::tr("&Search", nullptr));
     m_searchButton->setDefault(true);
 
     m_replaceButton = new QPushButton(this);
-    m_replaceButton->setText(QCoreApplication::translate("Core::Internal::FindDialog", "Search && &Replace", nullptr));
+    m_replaceButton->setText(Tr::tr("Search && &Replace", nullptr));
 
     m_searchTerm = new FancyLineEdit(this);
     m_searchTerm->setFiltering(true);
 
     m_searchLabel = new QLabel(this);
-    m_searchLabel->setText(QCoreApplication::translate("Core::Internal::FindDialog", "Search f&or:", nullptr));
+    m_searchLabel->setText(Tr::tr("Search f&or:", nullptr));
     m_searchLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
     m_searchLabel->setBuddy(m_searchTerm);
 
@@ -79,16 +78,16 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     m_optionsWidget = new QWidget(this);
 
     m_matchCase = new QCheckBox(m_optionsWidget);
-    m_matchCase->setText(QCoreApplication::translate("Core::Internal::FindDialog", "&Case sensitive", nullptr));
+    m_matchCase->setText(Tr::tr("&Case sensitive", nullptr));
 
     m_wholeWords = new QCheckBox(m_optionsWidget);
-    m_wholeWords->setText(QCoreApplication::translate("Core::Internal::FindDialog", "Whole words o&nly", nullptr));
+    m_wholeWords->setText(Tr::tr("Whole words o&nly", nullptr));
 
     m_regExp = new QCheckBox(m_optionsWidget);
-    m_regExp->setText(QCoreApplication::translate("Core::Internal::FindDialog", "Use re&gular expressions", nullptr));
+    m_regExp->setText(Tr::tr("Use re&gular expressions", nullptr));
 
     auto label = new QLabel(this);
-    label->setText(QCoreApplication::translate("Core::Internal::FindDialog", "Sco&pe:", nullptr));
+    label->setText(Tr::tr("Sco&pe:", nullptr));
     label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     label->setMinimumSize(QSize(80, 0));
     label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);

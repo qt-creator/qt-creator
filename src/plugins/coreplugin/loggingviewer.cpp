@@ -5,6 +5,7 @@
 
 #include "actionmanager/actionmanager.h"
 #include "coreicons.h"
+#include "coreplugintr.h"
 #include "icore.h"
 #include "loggingmanager.h"
 
@@ -214,9 +215,9 @@ QVariant LoggingCategoryModel::headerData(int section, Qt::Orientation orientati
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0 && section < 3) {
         switch (section) {
-        case 0: return tr("Category");
-        case 1: return tr("Type");
-        case 2: return tr("Color");
+        case 0: return Tr::tr("Category");
+        case 1: return Tr::tr("Type");
+        case 2: return Tr::tr("Color");
         }
     }
     return {};
@@ -326,7 +327,6 @@ public:
 
 class LoggingViewManagerWidget : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(LoggingViewManagerWidget)
 public:
     explicit LoggingViewManagerWidget(QWidget *parent);
     ~LoggingViewManagerWidget()
@@ -382,7 +382,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     : QDialog(parent)
     , m_manager(new LoggingViewManager)
 {
-    setWindowTitle(tr("Logging Category Viewer"));
+    setWindowTitle(Tr::tr("Logging Category Viewer"));
     setModal(false);
 
     auto mainLayout = new QVBoxLayout;
@@ -392,25 +392,25 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     // add further buttons..
     auto save = new QToolButton;
     save->setIcon(Utils::Icons::SAVEFILE.icon());
-    save->setToolTip(tr("Save Log"));
+    save->setToolTip(Tr::tr("Save Log"));
     buttonsLayout->addWidget(save);
     auto clean = new QToolButton;
     clean->setIcon(Utils::Icons::CLEAN.icon());
-    clean->setToolTip(tr("Clear"));
+    clean->setToolTip(Tr::tr("Clear"));
     buttonsLayout->addWidget(clean);
     auto stop = new QToolButton;
     stop->setIcon(Utils::Icons::STOP_SMALL.icon());
-    stop->setToolTip(tr("Stop Logging"));
+    stop->setToolTip(Tr::tr("Stop Logging"));
     buttonsLayout->addWidget(stop);
     auto qtInternal = new QToolButton;
     qtInternal->setIcon(Core::Icons::QTLOGO.icon());
-    qtInternal->setToolTip(tr("Toggle Qt Internal Logging"));
+    qtInternal->setToolTip(Tr::tr("Toggle Qt Internal Logging"));
     qtInternal->setCheckable(true);
     qtInternal->setChecked(false);
     buttonsLayout->addWidget(qtInternal);
     auto autoScroll = new QToolButton;
     autoScroll->setIcon(Utils::Icons::ARROW_DOWN.icon());
-    autoScroll->setToolTip(tr("Auto Scroll"));
+    autoScroll->setToolTip(Tr::tr("Auto Scroll"));
     autoScroll->setCheckable(true);
     autoScroll->setChecked(true);
     buttonsLayout->addWidget(autoScroll);
@@ -418,7 +418,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     auto icon = Utils::Icon({{":/utils/images/stopwatch.png", Utils::Theme::PanelTextColorMid}},
                             Utils::Icon::Tint);
     m_timestamps->setIcon(icon.icon());
-    m_timestamps->setToolTip(tr("Timestamps"));
+    m_timestamps->setToolTip(Tr::tr("Timestamps"));
     m_timestamps->setCheckable(true);
     m_timestamps->setChecked(true);
     buttonsLayout->addWidget(m_timestamps);
@@ -426,7 +426,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     icon = Utils::Icon({{":/utils/images/message.png", Utils::Theme::PanelTextColorMid}},
                        Utils::Icon::Tint);
     m_messageTypes->setIcon(icon.icon());
-    m_messageTypes->setToolTip(tr("Message Types"));
+    m_messageTypes->setToolTip(Tr::tr("Message Types"));
     m_messageTypes->setCheckable(true);
     m_messageTypes->setChecked(false);
     buttonsLayout->addWidget(m_messageTypes);
@@ -437,7 +437,7 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     auto horizontal = new QHBoxLayout;
     m_logView = new Utils::BaseTreeView;
     m_logModel = new Utils::ListModel<LogEntry>;
-    m_logModel->setHeader({tr("Timestamp"), tr("Category"), tr("Type"), tr("Message")});
+    m_logModel->setHeader({Tr::tr("Timestamp"), Tr::tr("Category"), Tr::tr("Type"), Tr::tr("Message")});
     m_logModel->setDataAccessor(&logEntryDataAccessor);
     m_logView->setModel(m_logModel);
     horizontal->addWidget(m_logView);
@@ -520,11 +520,11 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
         if (m_manager->isEnabled()) {
             m_manager->setEnabled(false);
             stop->setIcon(Utils::Icons::RUN_SMALL.icon());
-            stop->setToolTip(tr("Start Logging"));
+            stop->setToolTip(Tr::tr("Start Logging"));
         } else {
             m_manager->setEnabled(true);
             stop->setIcon(Utils::Icons::STOP_SMALL.icon());
-            stop->setToolTip(tr("Stop Logging"));
+            stop->setToolTip(Tr::tr("Stop Logging"));
         }
     });
     connect(qtInternal, &QToolButton::toggled, m_manager, &LoggingViewManager::setListQtInternal);
@@ -539,9 +539,9 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
 void LoggingViewManagerWidget::showLogViewContextMenu(const QPoint &pos) const
 {
     QMenu m;
-    auto copy = new QAction(tr("Copy Selected Logs"), &m);
+    auto copy = new QAction(Tr::tr("Copy Selected Logs"), &m);
     m.addAction(copy);
-    auto copyAll = new QAction(tr("Copy All"), &m);
+    auto copyAll = new QAction(Tr::tr("Copy All"), &m);
     m.addAction(copyAll);
     connect(copy, &QAction::triggered, &m, [this] {
         auto selectionModel = m_logView->selectionModel();
@@ -572,11 +572,11 @@ void LoggingViewManagerWidget::showLogCategoryContextMenu(const QPoint &pos) con
 {
     QMenu m;
     // minimal load/save - plugins could later provide presets on their own?
-    auto savePreset = new QAction(tr("Save Enabled as Preset..."), &m);
+    auto savePreset = new QAction(Tr::tr("Save Enabled as Preset..."), &m);
     m.addAction(savePreset);
-    auto loadPreset = new QAction(tr("Update from Preset..."), &m);
+    auto loadPreset = new QAction(Tr::tr("Update from Preset..."), &m);
     m.addAction(loadPreset);
-    auto uncheckAll = new QAction(tr("Uncheck All"), &m);
+    auto uncheckAll = new QAction(Tr::tr("Uncheck All"), &m);
     m.addAction(uncheckAll);
     connect(savePreset, &QAction::triggered,
             this, &LoggingViewManagerWidget::saveEnabledCategoryPreset);
@@ -595,7 +595,7 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
     if (enabled)
         m_manager->setEnabled(false);
     const Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                                 tr("Save Logs As"));
+                                                                 Tr::tr("Save Logs As"));
     if (fp.isEmpty())
         return;
     const bool useTS = m_timestamps->isChecked();
@@ -606,23 +606,23 @@ void LoggingViewManagerWidget::saveLoggingsToFile() const
             qint64 res = file.write( m_logModel->dataAt(row).outputLine(useTS, useLL).toUtf8());
             if (res == -1) {
                 QMessageBox::critical(
-                            ICore::dialogParent(), tr("Error"),
-                            tr("Failed to write logs to \"%1\".").arg(fp.toUserOutput()));
+                            ICore::dialogParent(), Tr::tr("Error"),
+                            Tr::tr("Failed to write logs to \"%1\".").arg(fp.toUserOutput()));
                 break;
             }
         }
         file.close();
     } else {
         QMessageBox::critical(
-                    ICore::dialogParent(), tr("Error"),
-                    tr("Failed to open file \"%1\" for writing logs.").arg(fp.toUserOutput()));
+                    ICore::dialogParent(), Tr::tr("Error"),
+                    Tr::tr("Failed to open file \"%1\" for writing logs.").arg(fp.toUserOutput()));
     }
 }
 
 void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
 {
     Utils::FilePath fp = Utils::FileUtils::getSaveFilePath(ICore::dialogParent(),
-                                                           tr("Save Enabled Categories As"));
+                                                           Tr::tr("Save Enabled Categories As"));
     if (fp.isEmpty())
         return;
     const QList<LoggingCategoryItem> enabled = m_categoryModel->enabledCategories();
@@ -641,30 +641,30 @@ void LoggingViewManagerWidget::saveEnabledCategoryPreset() const
     QJsonDocument doc(array);
     if (!fp.writeFileContents(doc.toJson(QJsonDocument::Compact)))
         QMessageBox::critical(
-                    ICore::dialogParent(), tr("Error"),
-                    tr("Failed to write preset file \"%1\".").arg(fp.toUserOutput()));
+                    ICore::dialogParent(), Tr::tr("Error"),
+                    Tr::tr("Failed to write preset file \"%1\".").arg(fp.toUserOutput()));
 }
 
 void LoggingViewManagerWidget::loadAndUpdateFromPreset()
 {
     Utils::FilePath fp = Utils::FileUtils::getOpenFilePath(ICore::dialogParent(),
-                                                           tr("Load Enabled Categories From"));
+                                                           Tr::tr("Load Enabled Categories From"));
     if (fp.isEmpty())
         return;
     // read file, update categories
     const Utils::expected_str<QByteArray> contents = fp.fileContents();
     if (!contents) {
         QMessageBox::critical(ICore::dialogParent(),
-                              tr("Error"),
-                              tr("Failed to open preset file \"%1\" for reading")
+                              Tr::tr("Error"),
+                              Tr::tr("Failed to open preset file \"%1\" for reading")
                                   .arg(fp.toUserOutput()));
         return;
     }
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(*contents, &error);
     if (error.error != QJsonParseError::NoError) {
-        QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                              tr("Failed to read preset file \"%1\": %2").arg(fp.toUserOutput())
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"),
+                              Tr::tr("Failed to read preset file \"%1\": %2").arg(fp.toUserOutput())
                               .arg(error.errorString()));
         return;
     }
@@ -691,8 +691,8 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     }
 
     if (formatError) {
-        QMessageBox::critical(ICore::dialogParent(), tr("Error"),
-                              tr("Unexpected preset file format."));
+        QMessageBox::critical(ICore::dialogParent(), Tr::tr("Error"),
+                              Tr::tr("Unexpected preset file format."));
     }
     for (const LoggingCategoryItem &item : presetItems)
         m_manager->appendOrUpdate(item.name, item.entry);

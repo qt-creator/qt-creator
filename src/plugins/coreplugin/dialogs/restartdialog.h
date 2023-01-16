@@ -12,8 +12,6 @@ namespace Core {
 
 class CORE_EXPORT RestartDialog : public QMessageBox
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::RestartDialog)
-
 public:
     RestartDialog(QWidget *parent, const QString &text);
 };

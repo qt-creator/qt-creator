@@ -4,6 +4,7 @@
 #include "basefilewizard.h"
 
 #include "basefilewizardfactory.h"
+#include "coreplugintr.h"
 #include "ifilewizardextension.h"
 
 #include <QMessageBox>
@@ -67,7 +68,7 @@ void BaseFileWizard::accept()
         reject();
         return;
     case BaseFileWizardFactory::OverwriteError:
-        QMessageBox::critical(nullptr, tr("Existing files"), errorMessage);
+        QMessageBox::critical(nullptr, Tr::tr("Existing files"), errorMessage);
         reject();
         return;
     case BaseFileWizardFactory::OverwriteOk:
@@ -82,7 +83,7 @@ void BaseFileWizard::accept()
 
     // Write
     if (!m_factory->writeFiles(m_files, &errorMessage)) {
-        QMessageBox::critical(parentWidget(), tr("File Generation Failure"), errorMessage);
+        QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), errorMessage);
         reject();
         return;
     }
@@ -93,7 +94,7 @@ void BaseFileWizard::accept()
         bool remove;
         if (!ex->processFiles(m_files, &remove, &errorMessage)) {
             if (!errorMessage.isEmpty())
-                QMessageBox::critical(parentWidget(), tr("File Generation Failure"), errorMessage);
+                QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), errorMessage);
             reject();
             return;
         }
@@ -110,7 +111,7 @@ void BaseFileWizard::accept()
     // Post generation handler
     if (!m_factory->postGenerateFiles(this, m_files, &errorMessage))
         if (!errorMessage.isEmpty())
-            QMessageBox::critical(nullptr, tr("File Generation Failure"), errorMessage);
+            QMessageBox::critical(nullptr, Tr::tr("File Generation Failure"), errorMessage);
 
     Wizard::accept();
 }
@@ -126,7 +127,7 @@ void BaseFileWizard::generateFileList()
     QString errorMessage;
     m_files = m_factory->generateFiles(this, &errorMessage);
     if (m_files.empty()) {
-        QMessageBox::critical(parentWidget(), tr("File Generation Failure"), errorMessage);
+        QMessageBox::critical(parentWidget(), Tr::tr("File Generation Failure"), errorMessage);
         reject();
     }
 }

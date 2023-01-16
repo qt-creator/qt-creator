@@ -3,13 +3,14 @@
 
 #include "designmode.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/idocument.h>
-#include <coreplugin/modemanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/coreicons.h>
+#include "coreconstants.h"
+#include "coreicons.h"
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/ieditor.h"
+#include "icore.h"
+#include "idocument.h"
+#include "modemanager.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -65,7 +66,7 @@ DesignMode::DesignMode()
     setEnabled(false);
     setContext(Context(Constants::C_DESIGN_MODE));
     setWidget(d->m_stackWidget);
-    setDisplayName(tr("Design"));
+    setDisplayName(Tr::tr("Design"));
     setIcon(Utils::Icon::modeIcon(Icons::MODE_DESIGN_CLASSIC,
                                   Icons::MODE_DESIGN_FLAT, Icons::MODE_DESIGN_FLAT_ACTIVE));
     setPriority(Constants::P_MODE_DESIGN);

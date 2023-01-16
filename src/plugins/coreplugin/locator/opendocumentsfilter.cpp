@@ -3,26 +3,25 @@
 
 #include "opendocumentsfilter.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/locator/basefilefilter.h>
+#include "basefilefilter.h"
+#include "../coreplugintr.h"
+
 #include <utils/filepath.h>
 #include <utils/link.h>
 #include <utils/linecolumn.h>
 
 #include <QAbstractItemModel>
-#include <QFileInfo>
 #include <QMutexLocker>
 #include <QRegularExpression>
 
-using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
+
+namespace Core::Internal {
 
 OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
-    setDisplayName(tr("Open Documents"));
+    setDisplayName(Tr::tr("Open Documents"));
     setDefaultShortcutString("o");
     setPriority(High);
     setDefaultIncludedByDefault(true);
@@ -106,3 +105,5 @@ void OpenDocumentsFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(selectionLength)
     BaseFileFilter::openEditorAt(selection);
 }
+
+} // Core::Internal

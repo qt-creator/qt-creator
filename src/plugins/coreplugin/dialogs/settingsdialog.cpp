@@ -3,9 +3,10 @@
 
 #include "settingsdialog.h"
 
-#include <coreplugin/icore.h>
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/iwizardfactory.h>
+#include "ioptionspage.h"
+#include "../coreplugintr.h"
+#include "../icore.h"
+#include "../iwizardfactory.h"
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -429,7 +430,7 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     m_filterLineEdit->setFiltering(true);
 
     createGui();
-    setWindowTitle(QCoreApplication::translate("Core::Internal::SettingsDialog", "Preferences"));
+    setWindowTitle(Tr::tr("Preferences"));
 
     m_model.setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 

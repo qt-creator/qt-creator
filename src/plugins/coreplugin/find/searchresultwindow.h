@@ -100,7 +100,6 @@ public:
         PreserveCaseDisabled
     };
 
-
     SearchResultWindow(QWidget *newSearchPanel);
     ~SearchResultWindow() override;
     static SearchResultWindow *instance();
@@ -108,7 +107,7 @@ public:
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget*> toolBarWidgets() const override;
 
-    QString displayName() const override { return tr("Search Results"); }
+    QString displayName() const override;
     int priorityInStatusBar() const override;
     void visibilityChanged(bool visible) override;
     bool hasFocus() const override;

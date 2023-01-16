@@ -4,13 +4,11 @@
 #include "mimetypesettings.h"
 
 #include "coreconstants.h"
+#include "coreplugintr.h"
+#include "editormanager/ieditorfactory.h"
+#include "editormanager/ieditorfactory_p.h"
 #include "icore.h"
 #include "mimetypemagicdialog.h"
-
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/editormanager/ieditorfactory_p.h>
-#include <coreplugin/editormanager/iexternaleditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -21,7 +19,6 @@
 #include <utils/stringutils.h>
 
 #include <QAbstractTableModel>
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFile>
@@ -130,9 +127,9 @@ QVariant MimeTypeSettingsModel::headerData(int section, Qt::Orientation orientat
         return QVariant();
 
     if (section == 0)
-        return tr("MIME Type");
+        return Tr::tr("MIME Type");
     else
-        return tr("Handler");
+        return Tr::tr("Handler");
 }
 
 QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) const
@@ -308,45 +305,45 @@ void MimeTypeSettingsPrivate::configureUi(QWidget *w)
     m_mimeTypesTreeView->setUniformRowHeights(true);
 
     auto resetButton = new QPushButton;
-    resetButton->setToolTip(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Reset all MIME type definitions to their defaults.", nullptr));
-    resetButton->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Reset MIME Types", nullptr));
+    resetButton->setToolTip(Tr::tr("Reset all MIME type definitions to their defaults."));
+    resetButton->setText(Tr::tr("Reset MIME Types"));
 
     m_resetHandlersButton = new QPushButton;
-    m_resetHandlersButton->setToolTip(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Reset the assigned handler for all MIME type definitions to the default.", nullptr));
-    m_resetHandlersButton->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Reset Handlers", nullptr));
+    m_resetHandlersButton->setToolTip(Tr::tr("Reset the assigned handler for all MIME type definitions to the default."));
+    m_resetHandlersButton->setText(Tr::tr("Reset Handlers"));
 
     auto patternsLabel = new QLabel;
-    patternsLabel->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Patterns:", nullptr));
+    patternsLabel->setText(Tr::tr("Patterns:"));
 
     m_patternsLineEdit = new QLineEdit;
     m_patternsLineEdit->setObjectName("patternsLineEdit");
-    m_patternsLineEdit->setToolTip(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "A semicolon-separated list of wildcarded file names.", nullptr));
+    m_patternsLineEdit->setToolTip(Tr::tr("A semicolon-separated list of wildcarded file names."));
 
     m_magicHeadersTreeWidget = new QTreeWidget;
     m_magicHeadersTreeWidget->setHeaderItem(new QTreeWidgetItem({
-        QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Magic Header"),
-        QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Type"),
-        QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Range"),
-        QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Priority")
+        Tr::tr("Magic Header"),
+        Tr::tr("Type"),
+        Tr::tr("Range"),
+        Tr::tr("Priority")
     }));
     m_magicHeadersTreeWidget->setRootIsDecorated(false);
     m_magicHeadersTreeWidget->setUniformRowHeights(true);
     m_magicHeadersTreeWidget->setColumnCount(4);
 
     m_addMagicButton = new QPushButton;
-    m_addMagicButton->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Add...", nullptr));
+    m_addMagicButton->setText(Tr::tr("Add..."));
 
     m_editMagicButton = new QPushButton;
-    m_editMagicButton->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Edit...", nullptr));
+    m_editMagicButton->setText(Tr::tr("Edit..."));
 
     m_removeMagicButton = new QPushButton;
-    m_removeMagicButton->setText(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Remove", nullptr));
+    m_removeMagicButton->setText(Tr::tr("Remove"));
 
     auto mimeTypesGroupBox = new QGroupBox;
-    mimeTypesGroupBox->setTitle(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Registered MIME Types", nullptr));
+    mimeTypesGroupBox->setTitle(Tr::tr("Registered MIME Types"));
 
     auto detailsGroupBox = new QGroupBox;
-    detailsGroupBox->setTitle(QCoreApplication::translate("Core::Internal::MimeTypeSettingsPage", "Details", nullptr));
+    detailsGroupBox->setTitle(Tr::tr("Details"));
 
     auto splitter = new QSplitter(w);
     splitter->setOrientation(Qt::Vertical);
@@ -556,8 +553,8 @@ void MimeTypeSettingsPrivate::resetMimeTypes()
     m_pendingModifiedMimeTypes.clear();
     m_userModifiedMimeTypes.clear(); // settings file will be removed with next settings-save
     QMessageBox::information(ICore::dialogParent(),
-                             tr("Reset MIME Types"),
-                             tr("Changes will take effect after restart."));
+                             Tr::tr("Reset MIME Types"),
+                             Tr::tr("Changes will take effect after restart."));
 }
 
 void MimeTypeSettingsPrivate::setFilterPattern(const QString &pattern)
@@ -714,7 +711,7 @@ MimeTypeSettings::MimeTypeSettings()
     : d(new MimeTypeSettingsPrivate)
 {
     setId(Constants::SETTINGS_ID_MIMETYPES);
-    setDisplayName(tr("MIME Types"));
+    setDisplayName(Tr::tr("MIME Types"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
 }
 

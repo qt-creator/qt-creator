@@ -722,7 +722,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Falla generando archivo</translation>
@@ -771,9 +771,6 @@
 Would you like to overwrite them?</source>
         <translation>Los siguientes archivos ya existen en el directorio %1: %2. ¿Quiere sobreescribirlos?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Revertir a la copia guardada</translation>
@@ -1006,9 +1003,6 @@ Would you like to overwrite them?</source>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expande a&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nombre de archivo&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;número de línea actual&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;número de columna actual&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;posición x  del editor en pantalla&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;posición y  del editor en pantalla&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;ancho del editor en pixeles&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;altura del editor en pixeles&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;ancho del editor en caracteres&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;altura del editor en caracteres&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
     <message>
         <source>Can&apos;t save file</source>
         <translation type="obsolete">No se pudo guardar el archivo</translation>
@@ -1037,23 +1031,14 @@ Would you like to overwrite them?</source>
         <source>Save File As</source>
         <translation>Guardar archivo como</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
     <message>
         <source>Activate %1</source>
         <translation>Activar %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Edición</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
     <message>
         <source>Split Left/Right</source>
         <translation>Dividir Izquierda/Derecha</translation>
@@ -1083,16 +1068,8 @@ Would you like to overwrite them?</source>
         <translation>Documento previo</translation>
     </message>
     <message>
-        <source>Alt+Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Next Document</source>
         <translation>Documento siguiente</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Previous Group</source>
@@ -1110,9 +1087,6 @@ Would you like to overwrite them?</source>
         <source>Move Document to Next Group</source>
         <translation>Mover documento al grupo siguiente</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
     <message id="===============EditorView====================">
         <source>Go Back</source>
         <translation type="unfinished">Ir atrás</translation>
@@ -1127,14 +1101,6 @@ Would you like to overwrite them?</source>
         <translation>Suplente</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation>Hacer escribible</translation>
-    </message>
-    <message>
         <source>File is writable</source>
         <translation>El archivo es escribible</translation>
     </message>
@@ -1142,9 +1108,6 @@ Would you like to overwrite them?</source>
         <source>Copy full path to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General</source>
         <translation></translation>
@@ -1211,9 +1174,6 @@ Would you like to overwrite them?</source>
         <source>Ignore modifications</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>Qt Creator</source>
         <translation></translation>
@@ -1367,41 +1327,10 @@ Would you like to overwrite them?</source>
         <comment>Title of dialog</comment>
         <translation>Nuevo...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation>Activar %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Dividir</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Activar panel %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nuevo proyecto</translation>
@@ -1411,9 +1340,6 @@ Would you like to overwrite them?</source>
         <source>1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>Documentos abiertos</translation>
@@ -1438,26 +1364,13 @@ Would you like to overwrite them?</source>
         <source>Close All Editors</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Abrir archivo &apos;%1&apos; con:</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
-    <message>
-        <source>Output</source>
-        <translation>Salida</translation>
     </message>
     <message>
         <source>Clear</source>
@@ -1475,9 +1388,6 @@ Would you like to overwrite them?</source>
         <source>Output &amp;Panes</source>
         <translation>&amp;Paneles de salida</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Detalles</translation>
@@ -1486,10 +1396,6 @@ Would you like to overwrite them?</source>
         <source>Error Details</source>
         <translatorcomment>Fehlermeldungen zu %1</translatorcomment>
         <translation>Detalles de errores</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
     </message>
     <message>
         <source>Installed Plugins</source>
@@ -1503,16 +1409,10 @@ Would you like to overwrite them?</source>
         <source>Plugin Errors of %1</source>
         <translation>Errores del plugin %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Procesos</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Don&apos;t Save</source>
         <translation type="obsolete">No guardar</translation>
@@ -1533,16 +1433,9 @@ Would you like to overwrite them?</source>
         <source>Save Selected</source>
         <translation>Guardar seleccionado</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Teclado</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation>Entorno</translation>
     </message>
     <message>
         <source>Import Keyboard Mapping Scheme</source>
@@ -1556,20 +1449,6 @@ Would you like to overwrite them?</source>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exportar esquema de mapeado de teclas</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Dividir</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Cerrar</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>Acerca de Qt Creator</translation>
@@ -1790,14 +1669,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::ModeManager</name>
+    <name>::Core</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation>Alternar al modo %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -1808,9 +1684,6 @@ Would you like to overwrite them?</source>
         <source>Unknown error</source>
         <translation>Error desconocido</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translatorcomment>TODO: Grammatical case problem</translatorcomment>
@@ -6072,7 +5945,7 @@ Skipping file.</source>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Filters</source>
         <translation>Filtros</translation>
@@ -7158,7 +7031,7 @@ Nombre base de librería: %1</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>Sistema de archivos</translation>
@@ -9010,7 +8883,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Filtro de configuración</translation>
@@ -9023,9 +8896,6 @@ p, li { white-space: pre-wrap; }
         <source>Prefix:</source>
         <translation>Prefijo:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Filtro genérico de directorios</translation>
@@ -9053,9 +8923,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 filter update: canceled</source>
         <translation>Filtro %1 actualiza: cancelado</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -9107,24 +8974,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Especifique una palabra corta o abreviatura que pueda usarse para restringir el completado de archivos de este arbol de directorios.
 Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y luego la palabra a buscar.</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
     <message>
         <source>Files in file system</source>
         <translation>Archivos en el sistema de archivos</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation>Ajustes de filtros</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Prefix:</source>
-        <translation>Prefijo:</translation>
     </message>
     <message>
         <location/>
@@ -9141,30 +8997,18 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation>Documentos abiertos</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Filtros disponibles</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Indexing</source>
         <translation>Indizando</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Refrescar</translation>
@@ -9185,9 +9029,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>&lt;type here&gt;</source>
         <translation>&lt;escribalo aquí&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsDialog</name>
     <message>
         <source>Configure Filters</source>
         <translation>Ajustar filtros</translation>
@@ -9196,11 +9037,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <location/>
         <source>Add</source>
         <translation>Agregar</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
     </message>
     <message>
         <location/>
@@ -9214,52 +9050,17 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
     <message>
         <location/>
-        <source>Edit...</source>
-        <translation>Editar...</translation>
-    </message>
-    <message>
-        <location/>
         <source>Refresh Interval:</source>
         <translation>Intervalo de refresco:</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (Prefix: %2)</source>
         <translation>%1 (Prefijo: %2)</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation>Ajustar filtros</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Agregar</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
     </message>
     <message>
         <location/>
         <source>Edit</source>
         <translation>Editar</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Refresh Interval:</source>
-        <translation>Intervalo de refresco:</translation>
-    </message>
-    <message>
-        <location/>
-        <source> min</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11865,7 +11666,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Core::Internal::SettingsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Preferences</source>
         <translation type="unfinished"></translation>

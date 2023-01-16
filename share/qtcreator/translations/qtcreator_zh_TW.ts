@@ -400,7 +400,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>產生檔案失敗</translation>
@@ -431,9 +431,6 @@
         <translation>專案目錄 %1 存在無法被覆蓋的檔案:
 %2。</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>回復到已儲存的狀態</translation>
@@ -702,16 +699,10 @@
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -811,13 +802,6 @@
         <source>min</source>
         <extracomment>unit for minutes</extracomment>
         <translation>分</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Exit Full Screen</source>
@@ -960,10 +944,6 @@
         <translation>縮放</translation>
     </message>
     <message>
-        <source>Show Sidebar</source>
-        <translation>顯示邊欄</translation>
-    </message>
-    <message>
         <source>Ctrl+0</source>
         <translation>Ctrl+0</translation>
     </message>
@@ -1008,27 +988,10 @@
         <source>Settings...</source>
         <translation>設定...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>一般訊息</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>新專案</translation>
@@ -1065,23 +1028,14 @@
         <source>Supported Platforms</source>
         <translation>支援的平台</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
     <message>
         <source>Open Documents</source>
         <translation>開啟文件</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>開啟檔案 &apos;%1&apos; 的方式：</translation>
@@ -1094,9 +1048,6 @@
         <source>Open file extension with:</source>
         <translation>開啟此副檔名的方式：</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>輸出</translation>
@@ -1141,9 +1092,6 @@
         <source>Output &amp;Panes</source>
         <translation>輸出窗格(&amp;P)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>詳情</translation>
@@ -1151,10 +1099,6 @@
     <message>
         <source>Error Details</source>
         <translation>錯誤詳情</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -1172,16 +1116,10 @@
         <source>Plugin Errors of %1</source>
         <translation>%1 的外掛程式錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>行程</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Do not Save</source>
         <translation>不要儲存</translation>
@@ -1189,10 +1127,6 @@
     <message>
         <source>Save All</source>
         <translation>全部儲存</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>儲存</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -1210,9 +1144,6 @@
         <source>Automatically save all files before building</source>
         <translation>建置前自動儲存所有檔案</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>鍵盤</translation>
@@ -1241,20 +1172,6 @@
         <source>Export Keyboard Mapping Scheme</source>
         <translation>匯出鍵盤映射機制</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>關於 Qt Creator</translation>
@@ -1272,16 +1189,10 @@
         <source>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;Based on Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;Built on %4 at %5&lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;Qt Creator %1 %8&lt;/h3&gt;基於 Qt %2 (%3 bit)&lt;br/&gt;&lt;br/&gt;建置於 %5 %4 &lt;br /&gt;&lt;br/&gt;%9&lt;br/&gt;Copyright 2008-%6 %7. 保留所有權利。&lt;br/&gt;&lt;br/&gt;此程式以「目前現況」（As-is）釋出，不做任何形式的保固，包括不做設計瑕疵上的保固、不保證適於銷售（Merchantability），也不保證適用於任何目的等等。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>切換至 &lt;b&gt;%1&lt;/b&gt; 模式 </translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -1291,9 +1202,6 @@
         <source>Unknown error</source>
         <translation>未知的錯誤</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
@@ -5952,7 +5860,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>定位器</translation>
@@ -6803,7 +6711,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>檔案系統</translation>
@@ -8156,7 +8064,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>過濾器設置</translation>
@@ -8169,16 +8077,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Prefix:</source>
         <translation>前置字串：</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>一般目錄過濾</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>過濾器設置</translation>
     </message>
     <message>
         <source>Select Directory</source>
@@ -8198,9 +8099,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>%1 filter update: canceled</source>
         <translation>%1 過濾器更新：已取消</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -8208,14 +8106,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
         <translation>指定檔案名稱過濾器，用逗號分隔。過濾器可以包含萬用字元符。</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>前置字串：</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>前置字串限制</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -8240,30 +8130,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>新增</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>編輯</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
-    <message>
         <source>Files in File System</source>
         <translation>在檔案系統中的檔案</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">過濾器設置</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>前置字串：</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>前置字串限制</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -8277,23 +8149,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Add Filter Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>開啟文件</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>可使用的過濾器</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -8310,9 +8169,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Indexing</source>
         <translation>建立索引中</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>刷新</translation>
@@ -8333,31 +8189,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>&lt;type here&gt;</source>
         <translation>&lt;在此輸入&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
     <message>
         <source>%1 (prefix: %2)</source>
         <translation>%1 (前置字串：%2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>過濾器設置</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation>編輯</translation>
     </message>
     <message>
         <source> min</source>
@@ -10425,14 +10263,10 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SettingsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Preferences</source>
         <translation>喜好設定</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>選項</translation>
     </message>
 </context>
 <context>
@@ -12633,7 +12467,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command</source>
         <translation>指令</translation>
@@ -12642,26 +12476,13 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Label</source>
         <translation>標籤</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>設計</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>Could not open url %1.</source>
         <translation>無法開啟網址 %1。</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -12670,10 +12491,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Remove Split</source>
         <translation>移除分割</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>設為可寫入</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -13189,11 +13006,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>開啟</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>開啟 &quot;%1&quot;</translation>
@@ -15128,7 +14941,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Core::HelpManager</name>
+    <name>::Core</name>
     <message>
         <source>Unfiltered</source>
         <translation>未過濾</translation>
@@ -15620,14 +15433,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>啟用 %1 窗格</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>啟用 %1 窗格</translation>
@@ -17810,7 +17616,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>::Core</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -17820,24 +17626,12 @@ Local pulls are not applied to the master branch.</source>
         <translation>新增工具</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>新增</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>移除工具</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>還原為預設工具</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>重置</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -17923,9 +17717,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Add Category</source>
         <translation>新增類別</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert variable</source>
         <translation>插入變數</translation>
@@ -18677,7 +18468,7 @@ Local pulls are not applied to the master branch.</source>
     <name>::CMakeProjectManager</name>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>未分類</translation>
@@ -18703,9 +18494,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Sample external tool text</extracomment>
         <translation>有用的文字</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Creates qm translation files that can be used by an application from the translator&apos;s ts files</source>
         <translation>從翻譯者翻譯好的 ts 檔產生給應用程式使用的 qm 檔</translation>
@@ -18766,9 +18554,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Edit with vi</source>
         <translation>使用 vi 進行編輯</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -18783,13 +18568,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&apos;%1&apos; finished</source>
         <translation>&apos;%1&apos; 已完成</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>設置...</translation>
-    </message>
     <message>
         <source>&amp;External</source>
         <translation>外部(&amp;E)</translation>
@@ -18801,13 +18579,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>錯誤：在 %1 的外部工具有重複的代碼</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">魔術標頭檔</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -18861,9 +18632,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意：取值範圍太大可能影響到 Qt Creator 開啟檔案的效能。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME 型態</translation>
@@ -18890,13 +18658,6 @@ Local pulls are not applied to the master branch.</source>
             <numerusform>%n 個樣式已在使用中。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>錯誤</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>沒有選中任何 MIME 型態。</translation>
@@ -18913,23 +18674,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>這些變更將在下次啟動 Qt Creator 時生效。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>MIME 型態</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>外部工具</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -21676,7 +21424,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
+    <name>::Core</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>覆寫現有檔案</translation>
@@ -21689,16 +21437,6 @@ Would you like to overwrite them?</source>
 %1 
 中。您要覆寫它們嗎？</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
-    <message>
-        <source>Close</source>
-        <translation>關閉</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -24274,7 +24012,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>啟動檔案瀏覽器失敗</translation>
@@ -24298,10 +24036,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>&apos;%1&apos; 傳回了以下錯誤：
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>設定...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -24339,9 +24073,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Could not delete file %1.</source>
         <translation type="unfinished">無法刪除檔案 %1。</translation>
     </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>無法建立資料夾 %1。</translation>
@@ -25574,18 +25305,10 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>指令映射</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>指令</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>標籤</translation>
     </message>
     <message>
         <source>Target</source>
@@ -25620,17 +25343,6 @@ Filter: %2
         <translation>重置為預設</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>重置</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>已註冊的 MIME 型態</translation>
     </message>
@@ -25639,24 +25351,12 @@ Filter: %2
         <translation>重置所有為預設值。</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>全部重置</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>詳情</translation>
-    </message>
-    <message>
         <source>Patterns:</source>
         <translation>樣式：</translation>
     </message>
     <message>
         <source>Magic Header</source>
         <translation>魔術標頭</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型態</translation>
     </message>
     <message>
         <source>Range</source>
@@ -25673,17 +25373,6 @@ Filter: %2
     <message>
         <source>Edit...</source>
         <translation>編輯...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>變數</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
@@ -27643,11 +27332,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
-    <message>
-        <source>File Error</source>
-        <translation>檔案錯誤</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Error while saving file: %1</source>
         <translation>儲存檔案時發生錯誤：%1</translation>
@@ -27685,24 +27370,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">使用 VCS 開啟 (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">設為可寫入</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">另存新檔...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>無法重新載入 %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">檔案已經由自動儲存的備份恢復。您可以使用「&lt;i&gt;儲存&lt;/i&gt;」來確認，或是用「&lt;i&gt;回復到已儲存&lt;/i&gt;」來丟棄變更。</translation>
@@ -27887,7 +27557,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -28872,7 +28542,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>::Core</name>
     <message>
         <source>Remove File</source>
         <translation type="unfinished">移除檔案</translation>
@@ -30254,7 +29924,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>::Core</name>
     <message>
         <source>Meta+O</source>
         <translation type="unfinished"></translation>
@@ -30263,9 +29933,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Alt+O</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation type="unfinished">使用 VCS 開啟 (%1)</translation>

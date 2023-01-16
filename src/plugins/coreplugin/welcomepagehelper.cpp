@@ -3,6 +3,8 @@
 
 #include "welcomepagehelper.h"
 
+#include "coreplugintr.h"
+
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
@@ -497,7 +499,7 @@ void ListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     const QFont tagsFont = sizedFont(10, option.widget);
     painter->setFont(tagsFont);
     const QFontMetrics fm = painter->fontMetrics();
-    const QString tagsLabelText = tr("Tags:");
+    const QString tagsLabelText = Tr::tr("Tags:");
     constexpr int tagsHorSpacing = 5;
     const QRect tagsLabelRect =
             QRect(0, 0, fm.horizontalAdvance(tagsLabelText) + tagsHorSpacing, fm.height())

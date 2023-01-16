@@ -3,9 +3,9 @@
 
 #include "spotlightlocatorfilter.h"
 
+#include "../coreplugintr.h"
 #include "../messagemanager.h"
 
-#include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -71,7 +71,7 @@ SpotlightIterator::SpotlightIterator(const QStringList &command)
     QObject::connect(m_process.get(), &QtcProcess::done,
                      m_process.get(), [this, cmd = command.first()] {
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
-            MessageManager::writeFlashing(SpotlightLocatorFilter::tr(
+            MessageManager::writeFlashing(Tr::tr(
                             "Locator: Error occurred when running \"%1\".").arg(cmd));
         }
         scheduleKillProcess();
@@ -196,24 +196,21 @@ static MacroExpander *createMacroExpander(const QString &query)
 {
     MacroExpander *expander = new MacroExpander;
     expander->registerVariable("Query",
-                               SpotlightLocatorFilter::tr("Locator query string."),
+                               Tr::tr("Locator query string."),
                                [query] { return query; });
     expander->registerVariable("Query:Escaped",
-                               SpotlightLocatorFilter::tr(
-                                   "Locator query string with quotes escaped with backslash."),
+                               Tr::tr("Locator query string with quotes escaped with backslash."),
                                [query] { return escaped(query); });
     expander->registerVariable("Query:EscapedWithWildcards",
-                               SpotlightLocatorFilter::tr(
-                                   "Locator query string with quotes escaped with backslash and "
-                                   "spaces replaced with \"*\" wildcards."),
+                               Tr::tr("Locator query string with quotes escaped with backslash and "
+                                      "spaces replaced with \"*\" wildcards."),
                                [query] {
                                    QString quoted = escaped(query);
                                    quoted.replace(' ', '*');
                                    return quoted;
                                });
     expander->registerVariable("Query:Regex",
-                               SpotlightLocatorFilter::tr(
-                                   "Locator query string as regular expression."),
+                               Tr::tr("Locator query string as regular expression."),
                                [query] {
                                    QString regex = query;
                                    regex = regex.replace('*', ".*");
@@ -228,9 +225,9 @@ SpotlightLocatorFilter::SpotlightLocatorFilter()
     setId("SpotlightFileNamesLocatorFilter");
     setDefaultShortcutString("md");
     setDefaultIncludedByDefault(false);
-    setDisplayName(tr("File Name Index"));
+    setDisplayName(Tr::tr("File Name Index"));
     setDescription(
-        tr("Matches files from a global file system index (Spotlight, Locate, Everything). Append "
+        Tr::tr("Matches files from a global file system index (Spotlight, Locate, Everything). Append "
            "\"+<number>\" or \":<number>\" to jump to the given line number. Append another "
            "\"+<number>\" or \":<number>\" to jump to the column number as well."));
     setConfigurable(true);
@@ -271,9 +268,9 @@ bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefres
     argumentsEdit->setText(m_arguments);
     FancyLineEdit *caseSensitiveArgumentsEdit = new FancyLineEdit;
     caseSensitiveArgumentsEdit->setText(m_caseSensitiveArguments);
-    layout->addRow(tr("Executable:"), commandEdit);
-    layout->addRow(tr("Arguments:"), argumentsEdit);
-    layout->addRow(tr("Case sensitive:"), caseSensitiveArgumentsEdit);
+    layout->addRow(Tr::tr("Executable:"), commandEdit);
+    layout->addRow(Tr::tr("Arguments:"), argumentsEdit);
+    layout->addRow(Tr::tr("Case sensitive:"), caseSensitiveArgumentsEdit);
     std::unique_ptr<MacroExpander> expander(createMacroExpander(""));
     auto chooser = new VariableChooser(&configWidget);
     chooser->addMacroExpanderProvider([expander = expander.get()] { return expander; });

@@ -2,29 +2,28 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsmanager.h"
-#include "iversioncontrol.h"
-#include "icore.h"
-#include "documentmanager.h"
-#include "idocument.h"
 
-#include <coreplugin/dialogs/addtovcsdialog.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
+#include "coreplugintr.h"
+#include "dialogs/addtovcsdialog.h"
+#include "documentmanager.h"
+#include "editormanager/editormanager.h"
+#include "icore.h"
+#include "idocument.h"
+#include "iversioncontrol.h"
 
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+
 #include <vcsbase/vcsbaseconstants.h>
 
-#include <QDir>
-#include <QString>
 #include <QList>
 #include <QMap>
-
-#include <QFileInfo>
 #include <QMessageBox>
+#include <QString>
 
 #include <optional>
 
@@ -263,7 +262,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
             Utils::InfoBar *infoBar = curDocument ? curDocument->infoBar() : nullptr;
             if (infoBar && infoBar->canInfoBeAdded(vcsWarning)) {
                 Utils::InfoBarEntry info(vcsWarning,
-                                         tr("%1 repository was detected but %1 is not configured.")
+                                         Tr::tr("%1 repository was detected but %1 is not configured.")
                                              .arg(versionControl->displayName()),
                                          Utils::InfoBarEntry::GlobalSuppression::Enabled);
                 d->m_unconfiguredVcs = versionControl;
@@ -335,8 +334,8 @@ FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &fileP
     const QString fileListForUi = "<ul><li>" + transform(filePaths, [](const FilePath &fp) {
         return fp.toUserOutput();
     }).join("</li><li>") + "</li></ul>";
-    const QString title = tr("Version Control");
-    const QString msg = tr("Remove the following files from the version control system (%2)? "
+    const QString title = Tr::tr("Version Control");
+    const QString msg = Tr::tr("Remove the following files from the version control system (%2)? "
                            "%1Note: This might remove the local file.").arg(fileListForUi, vc->displayName());
     const QMessageBox::StandardButton button =
         QMessageBox::question(ICore::dialogParent(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
@@ -353,29 +352,29 @@ FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &fileP
 
 QString VcsManager::msgAddToVcsTitle()
 {
-    return tr("Add to Version Control");
+    return Tr::tr("Add to Version Control");
 }
 
 QString VcsManager::msgPromptToAddToVcs(const QStringList &files, const IVersionControl *vc)
 {
     return files.size() == 1
-        ? tr("Add the file\n%1\nto version control (%2)?")
+        ? Tr::tr("Add the file\n%1\nto version control (%2)?")
               .arg(files.front(), vc->displayName())
-        : tr("Add the files\n%1\nto version control (%2)?")
+        : Tr::tr("Add the files\n%1\nto version control (%2)?")
               .arg(files.join(QString(QLatin1Char('\n'))), vc->displayName());
 }
 
 QString VcsManager::msgAddToVcsFailedTitle()
 {
-    return tr("Adding to Version Control Failed");
+    return Tr::tr("Adding to Version Control Failed");
 }
 
 QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
 {
     return files.size() == 1
-        ? tr("Could not add the file\n%1\nto version control (%2)\n")
+        ? Tr::tr("Could not add the file\n%1\nto version control (%2)\n")
               .arg(files.front(), vc->displayName())
-        : tr("Could not add the following files to version control (%1)\n%2")
+        : Tr::tr("Could not add the following files to version control (%1)\n%2")
               .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
 }
 

@@ -3,6 +3,8 @@
 
 #include "urllocatorfilter.h"
 
+#include "../coreplugintr.h"
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
@@ -31,7 +33,7 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
     setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
     resize(600, 400);
 
-    auto nameLabel = new QLabel(tr("Name:"));
+    auto nameLabel = new QLabel(Tr::tr("Name:"));
     nameLabel->setVisible(filter->isCustomFilter());
 
     nameEdit = new QLineEdit;
@@ -42,7 +44,7 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
     listWidget = new QListWidget;
     listWidget->setDragDropMode(QAbstractItemView::InternalMove);
     listWidget->setToolTip(
-        tr("Add \"%1\" placeholder for the query string.\nDouble-click to edit item."));
+        Tr::tr("Add \"%1\" placeholder for the query string.\nDouble-click to edit item."));
     const QStringList remoteUrls = m_filter->remoteUrls();
     for (const QString &url : remoteUrls) {
         auto item = new QListWidgetItem(url);
@@ -50,10 +52,10 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
 
-    auto add = new QPushButton(tr("Add"));
-    remove = new QPushButton(tr("Remove"));
-    moveUp = new QPushButton(tr("Move Up"));
-    moveDown = new QPushButton(tr("Move Down"));
+    auto add = new QPushButton(Tr::tr("Add"));
+    remove = new QPushButton(Tr::tr("Remove"));
+    moveUp = new QPushButton(Tr::tr("Move Up"));
+    moveDown = new QPushButton(Tr::tr("Move Down"));
 
     auto prefixLabel = new QLabel;
     prefixLabel->setText(Core::ILocatorFilter::msgPrefixLabel());
@@ -76,7 +78,7 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
 
     Grid {
         nameLabel, nameEdit, br,
-        Column { tr("URLs:"), st }, Row { listWidget, buttons}, br,
+        Column { Tr::tr("URLs:"), st }, Row { listWidget, buttons}, br,
         prefixLabel, Row { shortcutEdit, includeByDefault, st }, br,
         Span(2, buttonBox)
     }.attachTo(this);
@@ -152,7 +154,7 @@ void UrlFilterOptions::updateActionButtons()
 */
 
 UrlLocatorFilter::UrlLocatorFilter(Id id)
-    : UrlLocatorFilter(tr("URL Template"), id)
+    : UrlLocatorFilter(Tr::tr("URL Template"), id)
 {}
 
 UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)

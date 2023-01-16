@@ -8,17 +8,15 @@
 #include "locator.h"
 #include "locatorconstants.h"
 #include "urllocatorfilter.h"
-
-#include <utils/layoutbuilder.h>
-#include <utils/treemodel.h>
-
-#include <coreplugin/coreconstants.h>
+#include "../coreconstants.h"
+#include "../coreplugintr.h"
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
 #include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
@@ -151,8 +149,6 @@ QVariant CategoryItem::data(int column, int role) const
 
 class LocatorSettingsWidget : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::LocatorSettingsWidget)
-
 public:
     LocatorSettingsWidget()
     {
@@ -160,16 +156,16 @@ public:
         m_filters = Locator::filters();
         m_customFilters = m_plugin->customFilters();
 
-        auto addButton = new QPushButton(tr("Add..."));
+        auto addButton = new QPushButton(Tr::tr("Add..."));
 
-        auto refreshIntervalLabel = new QLabel(tr("Refresh interval:"));
+        auto refreshIntervalLabel = new QLabel(Tr::tr("Refresh interval:"));
         refreshIntervalLabel->setToolTip(
-            tr("Locator filters that do not update their cached data immediately, such as the "
+            Tr::tr("Locator filters that do not update their cached data immediately, such as the "
                "custom directory filters, update it after this time interval."));
 
         m_refreshInterval = new QSpinBox;
         m_refreshInterval->setToolTip(refreshIntervalLabel->toolTip());
-        m_refreshInterval->setSuffix(tr(" min"));
+        m_refreshInterval->setSuffix(Tr::tr(" min"));
         m_refreshInterval->setFrame(true);
         m_refreshInterval->setButtonSymbols(QAbstractSpinBox::PlusMinus);
         m_refreshInterval->setMaximum(320);
@@ -198,10 +194,10 @@ public:
         new HeaderViewStretcher(m_filterList->header(), FilterName);
         m_filterList->header()->setSortIndicator(FilterName, Qt::AscendingOrder);
 
-        m_removeButton = new QPushButton(tr("Remove"));
+        m_removeButton = new QPushButton(Tr::tr("Remove"));
         m_removeButton->setEnabled(false);
 
-        m_editButton = new QPushButton(tr("Edit..."));
+        m_editButton = new QPushButton(Tr::tr("Edit..."));
         m_editButton->setEnabled(false);
 
         using namespace Layouting;
@@ -234,11 +230,11 @@ public:
                 &LocatorSettingsWidget::removeCustomFilter);
 
         auto addMenu = new QMenu(addButton);
-        addMenu->addAction(tr("Files in Directories"), this, [this] {
+        addMenu->addAction(Tr::tr("Files in Directories"), this, [this] {
             addCustomFilter(new DirectoryFilter(Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
                                                     .withSuffix(m_customFilters.size() + 1)));
         });
-        addMenu->addAction(tr("URL Template"), this, [this] {
+        addMenu->addAction(Tr::tr("URL Template"), this, [this] {
             auto filter = new UrlLocatorFilter(
                 Id(Constants::CUSTOM_URL_FILTER_BASEID).withSuffix(m_customFilters.size() + 1));
             filter->setIsCustomFilter(true);
@@ -343,7 +339,7 @@ void LocatorSettingsWidget::restoreFilterStates()
 
 void LocatorSettingsWidget::initializeModel()
 {
-    m_model->setHeader({tr("Name"), tr("Prefix"), tr("Default")});
+    m_model->setHeader({Tr::tr("Name"), Tr::tr("Prefix"), Tr::tr("Default")});
     m_model->setHeaderToolTip({
         QString(),
         ILocatorFilter::msgPrefixToolTip(),
@@ -351,11 +347,11 @@ void LocatorSettingsWidget::initializeModel()
     });
     m_model->clear();
     QSet<ILocatorFilter *> customFilterSet = Utils::toSet(m_customFilters);
-    auto builtIn = new CategoryItem(tr("Built-in"), 0/*order*/);
+    auto builtIn = new CategoryItem(Tr::tr("Built-in"), 0/*order*/);
     for (ILocatorFilter *filter : std::as_const(m_filters))
         if (!filter->isHidden() && !customFilterSet.contains(filter))
             builtIn->appendChild(new FilterItem(filter));
-    m_customFilterRoot = new CategoryItem(tr("Custom"), 1/*order*/);
+    m_customFilterRoot = new CategoryItem(Tr::tr("Custom"), 1/*order*/);
     for (ILocatorFilter *customFilter : std::as_const(m_customFilters))
         m_customFilterRoot->appendChild(new FilterItem(customFilter));
 
@@ -434,7 +430,7 @@ void LocatorSettingsWidget::removeCustomFilter()
 LocatorSettingsPage::LocatorSettingsPage()
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
-    setDisplayName(QCoreApplication::translate("Locator", Constants::FILTER_OPTIONS_PAGE));
+    setDisplayName(QCoreApplication::translate("::Core", Constants::FILTER_OPTIONS_PAGE));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new LocatorSettingsWidget; });
 }

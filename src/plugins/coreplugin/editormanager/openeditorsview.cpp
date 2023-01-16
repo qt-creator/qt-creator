@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "openeditorsview.h"
+
+#include "documentmodel.h"
 #include "editormanager.h"
 #include "ieditor.h"
-#include "documentmodel.h"
+#include "../actionmanager/command.h"
+#include "../coreplugintr.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QMenu>
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 ////
 // OpenEditorsWidget
@@ -23,7 +23,7 @@ using namespace Core::Internal;
 
 OpenEditorsWidget::OpenEditorsWidget()
 {
-    setWindowTitle(tr("Open Documents"));
+    setWindowTitle(Tr::tr("Open Documents"));
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::DragOnly);
 
@@ -111,9 +111,8 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
 OpenEditorsViewFactory::OpenEditorsViewFactory()
 {
     setId("Open Documents");
-    setDisplayName(OpenEditorsWidget::tr("Open Documents"));
-    setActivationSequence(QKeySequence(useMacShortcuts ? OpenEditorsWidget::tr("Meta+O")
-                                                       : OpenEditorsWidget::tr("Alt+O")));
+    setDisplayName(Tr::tr("Open Documents"));
+    setActivationSequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+O") : Tr::tr("Alt+O")));
     setPriority(200);
 }
 
@@ -265,3 +264,5 @@ void ProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &parent, int star
     int realEnd = parent.isValid() || end == 0 ? end : end - 1;
     beginInsertRows(parent, realStart, realEnd);
 }
+
+} // Core::Internal

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "systemsettings.h"
+
 #include "coreconstants.h"
 #include "coreplugin.h"
+#include "coreplugintr.h"
 #include "editormanager/editormanager_p.h"
 #include "dialogs/restartdialog.h"
 #include "fileutils.h"
@@ -49,8 +51,8 @@ const char showCrashButtonKey[] = "ShowCrashButton";
 // TODO: move to somewhere in Utils
 static QString formatSize(qint64 size)
 {
-    QStringList units {QObject::tr("Bytes"), QObject::tr("KB"), QObject::tr("MB"),
-                       QObject::tr("GB"), QObject::tr("TB")};
+    QStringList units {Tr::tr("Bytes"), Tr::tr("KB"), Tr::tr("MB"),
+                       Tr::tr("GB"), Tr::tr("TB")};
     double outputSize = size;
     int i;
     for (i = 0; i < units.size() - 1; ++i) {
@@ -65,89 +67,87 @@ static QString formatSize(qint64 size)
 
 class SystemSettingsWidget : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::Internal::SystemSettings)
-
 public:
     SystemSettingsWidget()
         : m_fileSystemCaseSensitivityChooser(new QComboBox)
         , m_autoSuspendMinDocumentCount(new QSpinBox)
         , m_externalFileBrowserEdit(new QLineEdit)
-        , m_autoSuspendCheckBox(new QCheckBox(tr("Auto-suspend unmodified files")))
+        , m_autoSuspendCheckBox(new QCheckBox(Tr::tr("Auto-suspend unmodified files")))
         , m_maxRecentFilesSpinBox(new QSpinBox)
-        , m_enableCrashReportingCheckBox(new QCheckBox(tr("Enable crash reporting")))
+        , m_enableCrashReportingCheckBox(new QCheckBox(Tr::tr("Enable crash reporting")))
         , m_warnBeforeOpeningBigFiles(
-              new QCheckBox(tr("Warn before opening text files greater than")))
+              new QCheckBox(Tr::tr("Warn before opening text files greater than")))
         , m_bigFilesLimitSpinBox(new QSpinBox)
         , m_terminalComboBox(new QComboBox)
         , m_terminalOpenArgs(new QLineEdit)
         , m_terminalExecuteArgs(new QLineEdit)
         , m_patchChooser(new Utils::PathChooser)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
-        , m_askBeforeExitCheckBox(new QCheckBox(tr("Ask for confirmation before exiting")))
+        , m_askBeforeExitCheckBox(new QCheckBox(Tr::tr("Ask for confirmation before exiting")))
         , m_reloadBehavior(new QComboBox)
-        , m_autoSaveCheckBox(new QCheckBox(tr("Auto-save modified files")))
-        , m_clearCrashReportsButton(new QPushButton(tr("Clear Local Crash Reports")))
+        , m_autoSaveCheckBox(new QCheckBox(Tr::tr("Auto-save modified files")))
+        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports")))
         , m_crashReportsSizeText(new QLabel)
         , m_autoSaveInterval(new QSpinBox)
-        , m_autoSaveRefactoringCheckBox(new QCheckBox(tr("Auto-save files after refactoring")))
+        , m_autoSaveRefactoringCheckBox(new QCheckBox(Tr::tr("Auto-save files after refactoring")))
 
     {
         m_autoSuspendCheckBox->setToolTip(
-            tr("Automatically free resources of old documents that are not visible and not "
+            Tr::tr("Automatically free resources of old documents that are not visible and not "
                "modified. They stay visible in the list of open documents."));
         m_autoSuspendMinDocumentCount->setMinimum(1);
         m_autoSuspendMinDocumentCount->setMaximum(500);
         m_autoSuspendMinDocumentCount->setValue(30);
         m_enableCrashReportingCheckBox->setToolTip(
-            tr("Allow crashes to be automatically reported. Collected reports are "
+            Tr::tr("Allow crashes to be automatically reported. Collected reports are "
                "used for the sole purpose of fixing bugs."));
-        m_bigFilesLimitSpinBox->setSuffix(tr("MB"));
+        m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
         m_bigFilesLimitSpinBox->setMinimum(1);
         m_bigFilesLimitSpinBox->setMaximum(500);
         m_bigFilesLimitSpinBox->setValue(5);
         m_terminalExecuteArgs->setToolTip(
-            tr("Command line arguments used for \"Run in terminal\"."));
+            Tr::tr("Command line arguments used for \"Run in terminal\"."));
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(5);
         m_environmentChangesLabel->setSizePolicy(sizePolicy);
-        m_reloadBehavior->addItem(tr("Always Ask"));
-        m_reloadBehavior->addItem(tr("Reload All Unchanged Editors"));
-        m_reloadBehavior->addItem(tr("Ignore Modifications"));
-        m_autoSaveInterval->setSuffix(tr("min"));
+        m_reloadBehavior->addItem(Tr::tr("Always Ask"));
+        m_reloadBehavior->addItem(Tr::tr("Reload All Unchanged Editors"));
+        m_reloadBehavior->addItem(Tr::tr("Ignore Modifications"));
+        m_autoSaveInterval->setSuffix(Tr::tr("min"));
         QSizePolicy termSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
         termSizePolicy.setHorizontalStretch(3);
         m_terminalComboBox->setSizePolicy(termSizePolicy);
         m_terminalComboBox->setMinimumSize(QSize(100, 0));
         m_terminalComboBox->setEditable(true);
         m_terminalOpenArgs->setToolTip(
-            tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
+            Tr::tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
         m_autoSaveInterval->setMinimum(1);
 
-        auto fileSystemCaseSensitivityLabel = new QLabel(tr("File system case sensitivity:"));
+        auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));
         fileSystemCaseSensitivityLabel->setToolTip(
-            tr("Influences how file names are matched to decide if they are the same."));
-        auto autoSuspendLabel = new QLabel(tr("Files to keep open:"));
+            Tr::tr("Influences how file names are matched to decide if they are the same."));
+        auto autoSuspendLabel = new QLabel(Tr::tr("Files to keep open:"));
         autoSuspendLabel->setToolTip(
-            tr("Minimum number of open documents that should be kept in memory. Increasing this "
+            Tr::tr("Minimum number of open documents that should be kept in memory. Increasing this "
                "number will lead to greater resource usage when not manually closing documents."));
-        auto resetFileBrowserButton = new QPushButton(tr("Reset"));
-        resetFileBrowserButton->setToolTip(tr("Reset to default."));
+        auto resetFileBrowserButton = new QPushButton(Tr::tr("Reset"));
+        resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
         auto helpExternalFileBrowserButton = new QToolButton;
-        helpExternalFileBrowserButton->setText(tr("?"));
+        helpExternalFileBrowserButton->setText(Tr::tr("?"));
         auto helpCrashReportingButton = new QToolButton;
-        helpCrashReportingButton->setText(tr("?"));
-        auto resetTerminalButton = new QPushButton(tr("Reset"));
-        resetTerminalButton->setToolTip(tr("Reset to default.", "Terminal"));
-        auto patchCommandLabel = new QLabel(tr("Patch command:"));
-        auto environmentButton = new QPushButton(tr("Change..."));
+        helpCrashReportingButton->setText(Tr::tr("?"));
+        auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
+        resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
+        auto patchCommandLabel = new QLabel(Tr::tr("Patch command:"));
+        auto environmentButton = new QPushButton(Tr::tr("Change..."));
         environmentButton->setSizePolicy(QSizePolicy::Fixed,
                                          environmentButton->sizePolicy().verticalPolicy());
 
         Grid form;
         form.addRow(
-            {tr("Environment:"), Span(2, Row{m_environmentChangesLabel, environmentButton})});
+            {Tr::tr("Environment:"), Span(2, Row{m_environmentChangesLabel, environmentButton})});
         if (HostOsInfo::isAnyUnixHost()) {
-            form.addRow({tr("Terminal:"),
+            form.addRow({Tr::tr("Terminal:"),
                          Span(2,
                               Row{m_terminalComboBox,
                                   m_terminalOpenArgs,
@@ -155,7 +155,7 @@ public:
                                   resetTerminalButton})});
         }
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            form.addRow({tr("External file browser:"),
+            form.addRow({Tr::tr("External file browser:"),
                          Span(2,
                               Row{m_externalFileBrowserEdit,
                                   resetFileBrowserButton,
@@ -167,15 +167,15 @@ public:
                          Span(2, Row{m_fileSystemCaseSensitivityChooser, st})});
         }
         form.addRow(
-            {tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, st})});
+            {Tr::tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, st})});
         form.addRow(
-            {m_autoSaveCheckBox, Span(2, Row{tr("Interval:"), m_autoSaveInterval, st})});
+            {m_autoSaveCheckBox, Span(2, Row{Tr::tr("Interval:"), m_autoSaveInterval, st})});
         form.addRow(Span(3, m_autoSaveRefactoringCheckBox));
         form.addRow({m_autoSuspendCheckBox,
                      Span(2, Row{autoSuspendLabel, m_autoSuspendMinDocumentCount, st})});
         form.addRow(Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, st}));
         form.addRow(Span(3,
-                         Row{tr("Maximum number of entries in \"Recent Files\":"),
+                         Row{Tr::tr("Maximum number of entries in \"Recent Files\":"),
                              m_maxRecentFilesSpinBox,
                              st}));
         form.addRow(m_askBeforeExitCheckBox);
@@ -187,7 +187,7 @@ public:
 
         Column {
             Group {
-                title(tr("System")),
+                title(Tr::tr("System")),
                 Column { form, st }
             }
         }.attachTo(this);
@@ -208,21 +208,21 @@ public:
             m_externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         }
 
-        const QString patchToolTip = tr("Command used for reverting diff chunks.");
+        const QString patchToolTip = Tr::tr("Command used for reverting diff chunks.");
         patchCommandLabel->setToolTip(patchToolTip);
         m_patchChooser->setToolTip(patchToolTip);
         m_patchChooser->setExpectedKind(PathChooser::ExistingCommand);
         m_patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
         m_patchChooser->setFilePath(PatchTool::patchCommand());
         m_autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
-        m_autoSaveCheckBox->setToolTip(tr("Automatically creates temporary copies of "
+        m_autoSaveCheckBox->setToolTip(Tr::tr("Automatically creates temporary copies of "
                                           "modified files. If %1 is restarted after "
                                           "a crash or power failure, it asks whether to "
                                           "recover the auto-saved content.")
                                            .arg(Constants::IDE_DISPLAY_NAME));
         m_autoSaveRefactoringCheckBox->setChecked(EditorManager::autoSaveAfterRefactoring());
         m_autoSaveRefactoringCheckBox->setToolTip(
-            tr("Automatically saves all open files "
+            Tr::tr("Automatically saves all open files "
                "affected by a refactoring operation,\nprovided they were unmodified before the "
                "refactoring."));
         m_autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
@@ -247,10 +247,10 @@ public:
         m_enableCrashReportingCheckBox->setChecked(
             ICore::settings()->value(crashReportingEnabledKey).toBool());
         connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
-            showHelpDialog(tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
+            showHelpDialog(Tr::tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
         connect(m_enableCrashReportingCheckBox, &QCheckBox::stateChanged, this, [this] {
-            const QString restartText = tr("The change will take effect after restart.");
+            const QString restartText = Tr::tr("The change will take effect after restart.");
             Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
             restartDialog.exec();
             if (restartDialog.result() == QDialog::Accepted)
@@ -291,16 +291,16 @@ public:
             Qt::CaseSensitivity defaultSensitivity
                     = OsSpecificAspects::fileNameCaseSensitivity(HostOsInfo::hostOs());
             if (defaultSensitivity == Qt::CaseSensitive) {
-                m_fileSystemCaseSensitivityChooser->addItem(tr("Case Sensitive (Default)"),
+                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Sensitive (Default)"),
                                                             Qt::CaseSensitive);
             } else {
-                m_fileSystemCaseSensitivityChooser->addItem(tr("Case Sensitive"), Qt::CaseSensitive);
+                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Sensitive"), Qt::CaseSensitive);
             }
             if (defaultSensitivity == Qt::CaseInsensitive) {
-                m_fileSystemCaseSensitivityChooser->addItem(tr("Case Insensitive (Default)"),
+                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Insensitive (Default)"),
                                                             Qt::CaseInsensitive);
             } else {
-                m_fileSystemCaseSensitivityChooser->addItem(tr("Case Insensitive"),
+                m_fileSystemCaseSensitivityChooser->addItem(Tr::tr("Case Insensitive"),
                                                             Qt::CaseInsensitive);
             }
             const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
@@ -407,7 +407,7 @@ void SystemSettingsWidget::apply()
             EditorManagerPrivate::writeFileSystemSensitivity(settings, selectedSensitivity);
             RestartDialog dialog(
                 ICore::dialogParent(),
-                tr("The file system case sensitivity change will take effect after restart."));
+                Tr::tr("The file system case sensitivity change will take effect after restart."));
             dialog.exec();
         }
     }
@@ -445,7 +445,7 @@ void SystemSettingsWidget::updateEnvironmentChangesLabel()
 {
     const QString shortSummary = Utils::EnvironmentItem::toStringList(m_environmentChanges)
                                      .join("; ");
-    m_environmentChangesLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.")
+    m_environmentChangesLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.")
                                                               : shortSummary);
 }
 
@@ -485,13 +485,13 @@ void SystemSettingsWidget::updateClearCrashWidgets()
 void SystemSettingsWidget::showHelpForFileBrowser()
 {
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
-        showHelpDialog(tr("Variables"), UnixUtils::fileBrowserHelpText());
+        showHelpDialog(Tr::tr("Variables"), UnixUtils::fileBrowserHelpText());
 }
 
 SystemSettings::SystemSettings()
 {
     setId(Constants::SETTINGS_ID_SYSTEM);
-    setDisplayName(SystemSettingsWidget::tr("System"));
+    setDisplayName(Tr::tr("System"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new SystemSettingsWidget; });
 }

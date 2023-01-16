@@ -3,8 +3,9 @@
 
 #include "currentdocumentfind.h"
 
+#include "../coreplugintr.h"
+
 #include <aggregation/aggregate.h>
-#include <coreplugin/coreconstants.h>
 
 #include <utils/fadingindicator.h>
 #include <utils/qtcassert.h>
@@ -13,9 +14,7 @@
 #include <QApplication>
 #include <QWidget>
 
-using namespace Core;
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 CurrentDocumentFind::CurrentDocumentFind()
   : m_currentFind(nullptr)
@@ -128,7 +127,7 @@ int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
     QTC_CHECK(m_currentWidget);
     int count = m_currentFind->replaceAll(before, after, findFlags);
     Utils::FadingIndicator::showText(m_currentWidget,
-                                     tr("%n occurrences replaced.", nullptr, count),
+                                     Tr::tr("%n occurrences replaced.", nullptr, count),
                                      Utils::FadingIndicator::SmallText);
     return count;
 }
@@ -264,3 +263,5 @@ void CurrentDocumentFind::candidateAggregationChanged()
         emit candidateChanged();
     }
 }
+
+} // Core::Internal

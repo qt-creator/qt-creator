@@ -3,8 +3,9 @@
 
 #include "saveitemsdialog.h"
 
-#include <coreplugin/diffservice.h>
-#include <coreplugin/idocument.h>
+#include "../coreplugintr.h"
+#include "../diffservice.h"
+#include "../idocument.h"
 
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
@@ -24,18 +25,17 @@
 
 Q_DECLARE_METATYPE(Core::IDocument*)
 
-using namespace Core;
-using namespace Core::Internal;
+namespace Core::Internal {
 
 SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &items)
     : QDialog(parent)
-    , m_msgLabel(new QLabel(tr("The following files have unsaved changes:")))
+    , m_msgLabel(new QLabel(Tr::tr("The following files have unsaved changes:")))
     , m_treeWidget(new QTreeWidget)
-    , m_saveBeforeBuildCheckBox(new QCheckBox(tr("Automatically save all files before building")))
+    , m_saveBeforeBuildCheckBox(new QCheckBox(Tr::tr("Automatically save all files before building")))
     , m_buttonBox(new QDialogButtonBox)
 {
     resize(457, 200);
-    setWindowTitle(tr("Save Changes"));
+    setWindowTitle(Tr::tr("Save Changes"));
 
     m_treeWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeWidget->setTextElideMode(Qt::ElideLeft);
@@ -50,11 +50,11 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent, const QList<IDocument *> &item
                                                                ? QDialogButtonBox::ResetRole
                                                                : QDialogButtonBox::DestructiveRole;
     if (DiffService::instance()) {
-        m_diffButton = m_buttonBox->addButton(tr("&Diff"), discardButtonRole);
+        m_diffButton = m_buttonBox->addButton(Tr::tr("&Diff"), discardButtonRole);
         connect(m_diffButton, &QAbstractButton::clicked, this, &SaveItemsDialog::collectFilesToDiff);
     }
     m_buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Save);
-    QPushButton *discardButton = m_buttonBox->addButton(tr("Do &Not Save"), discardButtonRole);
+    QPushButton *discardButton = m_buttonBox->addButton(Tr::tr("Do &Not Save"), discardButtonRole);
     m_treeWidget->setFocus();
 
     m_saveBeforeBuildCheckBox->setVisible(false);
@@ -116,16 +116,16 @@ void SaveItemsDialog::updateButtons()
     int count = m_treeWidget->selectedItems().count();
     QPushButton *saveButton = m_buttonBox->button(QDialogButtonBox::Save);
     bool buttonsEnabled = true;
-    QString saveText = tr("&Save");
-    QString diffText = tr("&Diff && Cancel");
+    QString saveText = Tr::tr("&Save");
+    QString diffText = Tr::tr("&Diff && Cancel");
     if (count == m_treeWidget->topLevelItemCount()) {
-        saveText = tr("&Save All");
-        diffText = tr("&Diff All && Cancel");
+        saveText = Tr::tr("&Save All");
+        diffText = Tr::tr("&Diff All && Cancel");
     } else if (count == 0) {
         buttonsEnabled = false;
     } else {
-        saveText = tr("&Save Selected");
-        diffText = tr("&Diff Selected && Cancel");
+        saveText = Tr::tr("&Save Selected");
+        diffText = Tr::tr("&Diff Selected && Cancel");
     }
     saveButton->setEnabled(buttonsEnabled);
     saveButton->setText(saveText);
@@ -140,9 +140,9 @@ void SaveItemsDialog::adjustButtonWidths()
     // give save button a size that all texts fit in, so it doesn't get resized
     // Mac: make cancel + save button same size (work around dialog button box issue)
     QStringList possibleTexts;
-    possibleTexts << tr("Save") << tr("Save All");
+    possibleTexts << Tr::tr("Save") << Tr::tr("Save All");
     if (m_treeWidget->topLevelItemCount() > 1)
-        possibleTexts << tr("Save Selected");
+        possibleTexts << Tr::tr("Save Selected");
     int maxTextWidth = 0;
     QPushButton *saveButton = m_buttonBox->button(QDialogButtonBox::Save);
     for (const QString &text : std::as_const(possibleTexts)) {
@@ -208,3 +208,5 @@ bool SaveItemsDialog::alwaysSaveChecked()
 {
     return m_saveBeforeBuildCheckBox->isChecked();
 }
+
+} // Core::Internal

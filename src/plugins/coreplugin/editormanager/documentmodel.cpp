@@ -5,8 +5,9 @@
 #include "documentmodel_p.h"
 
 #include "ieditor.h"
-#include <coreplugin/documentmanager.h>
-#include <coreplugin/idocument.h>
+#include "../coreplugintr.h"
+#include "../documentmanager.h"
+#include "../idocument.h"
 
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
@@ -290,9 +291,9 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         // <no document> entry
         switch (role) {
         case Qt::DisplayRole:
-            return tr("<no document>");
+            return Tr::tr("<no document>");
         case Qt::ToolTipRole:
-            return tr("No document is selected.");
+            return Tr::tr("No document is selected.");
         default:
             return QVariant();
         }

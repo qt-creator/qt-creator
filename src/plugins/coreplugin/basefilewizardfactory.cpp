@@ -4,11 +4,9 @@
 #include "basefilewizardfactory.h"
 
 #include "basefilewizard.h"
+#include "coreplugintr.h"
 #include "dialogs/promptoverwritedialog.h"
 #include "editormanager/editormanager.h"
-#include "icontext.h"
-#include "icore.h"
-#include "ifilewizardextension.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -169,7 +167,7 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
         if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
             if (!EditorManager::openEditor(file.filePath(), file.editorId())) {
                 if (errorMessage)
-                    *errorMessage = tr("Failed to open an editor for \"%1\".").
+                    *errorMessage = Tr::tr("Failed to open an editor for \"%1\".").
                         arg(file.filePath().toUserOutput());
                 return false;
             }
@@ -194,9 +192,9 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     FilePaths existingFiles;
     bool oddStuffFound = false;
 
-    static const QString readOnlyMsg = tr("[read only]");
-    static const QString directoryMsg = tr("[folder]");
-    static const QString symLinkMsg = tr("[symbolic link]");
+    static const QString readOnlyMsg = Tr::tr("[read only]");
+    static const QString directoryMsg = Tr::tr("[folder]");
+    static const QString symLinkMsg = Tr::tr("[symbolic link]");
 
     for (const GeneratedFile &file : std::as_const(*files)) {
         const FilePath path = file.filePath();
@@ -236,7 +234,7 @@ BaseFileWizardFactory::OverwriteResult BaseFileWizardFactory::promptOverwrite(Ge
     }
 
     if (oddStuffFound) {
-        *errorMessage = tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
+        *errorMessage = Tr::tr("The project directory %1 contains files which cannot be overwritten:\n%2.")
                             .arg(commonExistingPath.toUserOutput(), fileNamesMsgPart);
         return OverwriteError;
     }

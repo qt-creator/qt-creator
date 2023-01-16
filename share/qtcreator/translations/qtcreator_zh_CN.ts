@@ -4314,7 +4314,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>无法创建目录 %1。</translation>
@@ -8743,9 +8743,6 @@ Set a valid executable first.</source>
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>File Generation Failure</source>
         <translation>生成文件失败</translation>
@@ -8754,9 +8751,6 @@ Set a valid executable first.</source>
         <source>Existing files</source>
         <translation>已存在的文件</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizardFactory</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -8779,9 +8773,6 @@ Set a valid executable first.</source>
         <translation type="unfinished">项目目录 %1 存在着无法被覆盖的文件:
 %2。</translation>
     </message>
-</context>
-<context>
-    <name>Core::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation type="unfinished">文本编码</translation>
@@ -8802,9 +8793,6 @@ Set a valid executable first.</source>
         <source>Save with Encoding</source>
         <translation type="unfinished">按编码保存</translation>
     </message>
-</context>
-<context>
-    <name>Core::CommandMappings</name>
     <message>
         <source>Command</source>
         <translation>命令</translation>
@@ -8830,10 +8818,6 @@ Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="unfinished">重置</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation type="unfinished">重置为默认。</translation>
     </message>
@@ -8845,16 +8829,10 @@ Set a valid executable first.</source>
         <source>Export...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>设计</translation>
     </message>
-</context>
-<context>
-    <name>Core::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation type="unfinished">标准目录过滤器</translation>
@@ -8881,9 +8859,6 @@ Set a valid executable first.</source>
         <source>%1 filter update: canceled</source>
         <translation type="unfinished">%1 过滤器更新: 已取消</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>File Error</source>
         <translation>文件错误</translation>
@@ -8917,9 +8892,6 @@ Set a valid executable first.</source>
         <source>An item named &quot;%1&quot; already exists at this location. Do you want to overwrite it?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>恢复到已保存的状态</translation>
@@ -8979,10 +8951,6 @@ Set a valid executable first.</source>
     <message>
         <source>Close Other Editors</source>
         <translation>关闭其它编辑器</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>文件错误</translation>
     </message>
     <message>
         <source>Close All Except Visible</source>
@@ -9046,13 +9014,6 @@ Continue?</source>
         <source>Close Document</source>
         <translation type="unfinished">关闭文档</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Split</source>
-        <translation>分栏</translation>
-    </message>
     <message>
         <source>Remove Split</source>
         <translation>删除分栏</translation>
@@ -9069,9 +9030,6 @@ Continue?</source>
         <source>Drag to drag documents between splits</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished">系统环境变量</translation>
@@ -9080,9 +9038,6 @@ Continue?</source>
         <source>Error while parsing external tool %1: %2</source>
         <translation type="unfinished">解析外部工具%1时发生错误: %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add</source>
         <translation>添加</translation>
@@ -9102,10 +9057,6 @@ Continue?</source>
     <message>
         <source>Executable:</source>
         <translation>执行档:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>参数:</translation>
     </message>
     <message>
         <source>Working directory:</source>
@@ -9236,9 +9187,6 @@ Continue?</source>
         <source>External Tools</source>
         <translation type="unfinished">外部工具</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>外部(&amp;E)</translation>
@@ -9247,9 +9195,6 @@ Continue?</source>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>错误: 在%1的外部工具有重复ID</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation type="unfinished"></translation>
@@ -9266,9 +9211,6 @@ Continue?</source>
         <source>&quot;%1&quot; finished with error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::FilePropertiesDialog</name>
     <message>
         <source>Name:</source>
         <translation type="unfinished">名称:</translation>
@@ -9278,99 +9220,21 @@ Continue?</source>
         <translation type="unfinished">路径:</translation>
     </message>
     <message>
-        <source>MIME type:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Default editor:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line endings:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Indentation:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Owner:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Group:</source>
-        <translation type="unfinished">组:</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Last read:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Last modified:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Readable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Writable:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
-    </message>
-    <message>
-        <source>Symbolic link:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Unknown</source>
         <translation type="unfinished">未知</translation>
-    </message>
-    <message>
-        <source>Windows (CRLF)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unix (LF)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mac (CR)</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mixed</source>
         <translation type="unfinished">混合</translation>
     </message>
     <message>
-        <source>%1 Spaces</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tabs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Undefined</source>
         <translation type="unfinished">未定义</translation>
     </message>
-</context>
-<context>
-    <name>Core::FileUtils</name>
     <message>
         <source>Failed to rename the include guard in file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation type="unfinished">查找/替换(&amp;F)</translation>
@@ -9391,9 +9255,6 @@ Continue?</source>
         <source>Ctrl+Shift+F</source>
         <translation type="unfinished">Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidget</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>打开 &quot;%1&quot;</translation>
@@ -9436,10 +9297,6 @@ Continue?</source>
         <translation type="unfinished">折叠全部</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
-    </message>
-    <message>
         <source>Computer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9447,13 +9304,6 @@ Continue?</source>
         <source>Home</source>
         <translation type="unfinished">主页</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation type="unfinished">项目</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>文件系统</translation>
@@ -9482,9 +9332,6 @@ Continue?</source>
         <source>Remove...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::ICore</name>
     <message>
         <source> (%1)</source>
         <translation type="unfinished"></translation>
@@ -9497,16 +9344,10 @@ Continue?</source>
         <source>Based on Qt %1 (%2, %3)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>文件由自动保存的备份恢复。选择“保存”来确认, 或者“恢复”回滚到已经保存的内容来丢弃修改。</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation type="unfinished">区分大小写</translation>
@@ -9535,9 +9376,6 @@ Continue?</source>
         <source>, </source>
         <translation type="unfinished">，</translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation type="unfinished">过滤器配置</translation>
@@ -9558,9 +9396,6 @@ Continue?</source>
         <source>Include the filter when not using a prefix for searches.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::IOutputPane</name>
     <message>
         <source>Use Regular Expressions</source>
         <translation type="unfinished">使用正则表达式</translation>
@@ -9577,16 +9412,10 @@ Continue?</source>
         <source>Filter output...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>使用VCS打开 (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation type="unfinished"></translation>
@@ -9599,9 +9428,6 @@ Continue?</source>
         <source>Inspect Wizard State</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>启动文件浏览器失败</translation>
@@ -9682,9 +9508,6 @@ Continue?</source>
         <source>Failed to remove file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ActionsFilter</name>
     <message>
         <source>Global Actions &amp; Actions from the Menu</source>
         <translation type="unfinished"></translation>
@@ -9693,9 +9516,6 @@ Continue?</source>
         <source>Triggers an action. If it is from the menu it matches any part of a menu hierarchy, separated by &quot;&gt;&quot;. For example &quot;sess def&quot; matches &quot;File &gt; Sessions &gt; Default&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::AddToVcsDialog</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation type="unfinished"></translation>
@@ -9704,16 +9524,10 @@ Continue?</source>
         <source>Add the files to version control (%1)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
     <message>
         <source>Activate %1 View</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation type="unfinished"></translation>
@@ -9856,21 +9670,11 @@ You will likely experience further problems using this instance of %3.</source>
         <source>%1 security policy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation type="unfinished">
             <numerusform></numerusform>
         </translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
     </message>
     <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
@@ -9879,204 +9683,20 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
 您可以在“定位器”的输入位置键入这个缩写和一个空格，然后输入搜索的词。</translation>
     </message>
     <message>
-        <source>Directories:</source>
-        <translation type="unfinished">目录:</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="unfinished">添加...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="unfinished">编辑...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentManagerPrivate</name>
-    <message>
-        <source>Ctrl+Shift+S</source>
-        <translation type="unfinished">Ctrl+Shift+S</translation>
-    </message>
-    <message>
-        <source>Save A&amp;ll</source>
-        <translation type="unfinished">保存所有文件(&amp;L)</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
-    <message>
-        <source>&lt;no document&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No document is selected.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
-    <message>
-        <source>Edit</source>
-        <translation>编辑</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
-    <message>
-        <source>Properties...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Revert File to Saved</source>
         <translation type="unfinished">恢复文件到已保存的状态</translation>
-    </message>
-    <message>
-        <source>Ctrl+W</source>
-        <translation type="unfinished">Ctrl+W</translation>
-    </message>
-    <message>
-        <source>Alternative Close</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+F4</source>
-        <translation type="unfinished">Ctrl+F4</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+W</source>
-        <translation type="unfinished">Ctrl+Shift+W</translation>
-    </message>
-    <message>
-        <source>Alt+Tab</source>
-        <translation type="unfinished">Alt+Tab</translation>
-    </message>
-    <message>
-        <source>Ctrl+Tab</source>
-        <translation type="unfinished">Ctrl+Tab</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+Tab</source>
-        <translation type="unfinished">Alt+Shift+Tab</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Tab</source>
-        <translation type="unfinished">Ctrl+Shift+Tab</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Left</source>
-        <translation type="unfinished">Ctrl+Alt+Left</translation>
-    </message>
-    <message>
-        <source>Alt+Left</source>
-        <translation type="unfinished">Alt+Left</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Right</source>
-        <translation type="unfinished">Ctrl+Alt+Right</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="unfinished">Alt+Right</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="unfinished">分栏</translation>
-    </message>
-    <message>
-        <source>Meta+E,2</source>
-        <translation type="unfinished">Meta+E,2</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,2</source>
-        <translation type="unfinished">Ctrl+E,2</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation type="unfinished">左右分栏</translation>
-    </message>
-    <message>
-        <source>Meta+E,3</source>
-        <translation type="unfinished">Meta+E,3</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,3</source>
-        <translation type="unfinished">Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+E,4</source>
-        <translation type="unfinished">Meta+E,4</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,4</source>
-        <translation type="unfinished">Ctrl+E,4</translation>
     </message>
     <message>
         <source>Remove Current Split</source>
         <translation type="unfinished">删除当前分隔</translation>
     </message>
     <message>
-        <source>Meta+E,0</source>
-        <translation type="unfinished">Meta+E,0</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,0</source>
-        <translation type="unfinished">Ctrl+E,0</translation>
-    </message>
-    <message>
         <source>Remove All Splits</source>
         <translation type="unfinished">删除所有分隔</translation>
     </message>
     <message>
-        <source>Meta+E,1</source>
-        <translation type="unfinished">Meta+E,1</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,1</source>
-        <translation type="unfinished">Ctrl+E,1</translation>
-    </message>
-    <message>
-        <source>Go to Previous Split or Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+E,i</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+E,i</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to Next Split or Window</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Meta+E,o</source>
-        <translation type="unfinished">Meta+E,o</translation>
-    </message>
-    <message>
-        <source>Ctrl+E,o</source>
-        <translation type="unfinished">Ctrl+E,o</translation>
-    </message>
-    <message>
         <source>Ad&amp;vanced</source>
         <translation type="unfinished">高级(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Current document</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>X-coordinate of the current editor&apos;s upper left corner, relative to screen.</source>
@@ -10085,18 +9705,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Y-coordinate of the current editor&apos;s upper left corner, relative to screen.</source>
         <translation type="unfinished">当前编辑器的左上角(相对屏幕来说)Y坐标轴。</translation>
-    </message>
-    <message>
-        <source>Could not open &quot;%1&quot;: Cannot open files of type &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not open &quot;%1&quot; for reading. Either the file does not exist or you do not have the permissions to open it.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not open &quot;%1&quot;: Unknown error.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file was not opened in %1 yet.</source>
@@ -10111,10 +9719,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="unfinished">&lt;b&gt;警告:&lt;/b&gt; 您正在改写一个只读文件。</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation type="unfinished">使文件可写</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation type="unfinished">保存%1(&amp;S)</translation>
     </message>
@@ -10127,36 +9731,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="unfinished">恢复%1 到已保存的状态</translation>
     </message>
     <message>
-        <source>Reload %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Close Others</source>
-        <translation>关闭其它</translation>
-    </message>
-    <message>
         <source>Cannot Open File</source>
         <translation type="unfinished">无法打开文件</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="unfinished">文件错误</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation type="unfinished">恢复到已保存的状态</translation>
     </message>
     <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
@@ -10174,9 +9754,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation type="unfinished">执行自定义的命令</translation>
@@ -10202,9 +9779,6 @@ Do you want to kill it?</source>
         <source>Starting command &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation type="unfinished"></translation>
@@ -10213,9 +9787,6 @@ Do you want to kill it?</source>
         <source>Runs an external tool that you have set up in the preferences (Environment &gt; External Tools).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation type="unfinished">文件系统中的文件</translation>
@@ -10244,9 +9815,6 @@ Do you want to kill it?</source>
         <source>Create</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation type="unfinished">包括隐藏文件</translation>
@@ -10255,9 +9823,6 @@ Do you want to kill it?</source>
         <source>Filter:</source>
         <translation type="unfinished">过滤器:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindDialog</name>
     <message>
         <source>&amp;Search</source>
         <translation type="unfinished">搜索(&amp;S)</translation>
@@ -10286,9 +9851,6 @@ Do you want to kill it?</source>
         <source>Sco&amp;pe:</source>
         <translation type="unfinished">范围(&amp;P):</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation type="unfinished">Shift+Enter</translation>
@@ -10362,16 +9924,8 @@ Do you want to kill it?</source>
         <translation type="unfinished">替换所有</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation type="unfinished">区分大小写</translation>
-    </message>
-    <message>
         <source>Whole Words Only</source>
         <translation type="unfinished">全词匹配</translation>
-    </message>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation type="unfinished">使用正则表达式</translation>
     </message>
     <message>
         <source>Preserve Case when Replacing</source>
@@ -10385,16 +9939,10 @@ Do you want to kill it?</source>
         <source>Replace with...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolWindow</name>
     <message>
         <source>Empty search term.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation type="unfinished">查找</translation>
@@ -10407,25 +9955,6 @@ Do you want to kill it?</source>
         <source>Replace with:</source>
         <translation type="unfinished">替换为:</translation>
     </message>
-    <message>
-        <source>Replace</source>
-        <translation type="unfinished">替换</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation type="unfinished">查找并替换</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation type="unfinished">替换所有</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation type="unfinished">高级...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
     <message>
         <source>&lt;System Language&gt;</source>
         <translation>&lt;系统语言&gt;</translation>
@@ -10441,10 +9970,6 @@ Do you want to kill it?</source>
     <message>
         <source>Language:</source>
         <translation>语言:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>重置</translation>
     </message>
     <message>
         <source>Reset to default.</source>
@@ -10492,9 +10017,6 @@ Do you want to kill it?</source>
         <source>Interface</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::JavaScriptFilter</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation type="unfinished"></translation>
@@ -10515,9 +10037,6 @@ Do you want to kill it?</source>
         <source>Copy to clipboard: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Locate...</source>
         <translation type="unfinished">定位...</translation>
@@ -10542,19 +10061,9 @@ Do you want to kill it?</source>
         <source>Updating Locator Caches</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation type="unfinished">可使用的过滤器</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
-    <message>
-        <source>Add...</source>
-        <translation type="unfinished">添加...</translation>
     </message>
     <message>
         <source>Refresh interval:</source>
@@ -10567,14 +10076,6 @@ Do you want to kill it?</source>
     <message>
         <source> min</source>
         <translation type="unfinished"> 分</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="unfinished">编辑...</translation>
     </message>
     <message>
         <source>Files in Directories</source>
@@ -10604,9 +10105,6 @@ Do you want to kill it?</source>
         <source>Custom</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Open as Centered Popup</source>
         <translation type="unfinished"></translation>
@@ -10616,10 +10114,6 @@ Do you want to kill it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Options</source>
-        <translation type="unfinished">选项</translation>
-    </message>
-    <message>
         <source>Type to locate</source>
         <translation type="unfinished">输入以定位</translation>
     </message>
@@ -10627,24 +10121,14 @@ Do you want to kill it?</source>
         <source>Type to locate (%1)</source>
         <translation type="unfinished">输入以定位(%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LoggingCategoryModel</name>
     <message>
         <source>Category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation type="unfinished">类型</translation>
-    </message>
-    <message>
         <source>Color</source>
         <translation type="unfinished">颜色</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
@@ -10808,11 +10292,6 @@ Do you want to kill it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New File</source>
-        <comment>Title of dialog</comment>
-        <translation type="unfinished">新建文件</translation>
-    </message>
-    <message>
         <source>Zoom In</source>
         <translation type="unfinished">放大</translation>
     </message>
@@ -10920,16 +10399,10 @@ Do you want to kill it?</source>
         <source>&lt;p&gt;Qt Creator developers can be reached at the Qt Creator mailing list:&lt;/p&gt;%1&lt;p&gt;or the #qt-creator channel on Libera.Chat IRC:&lt;/p&gt;%2&lt;p&gt;Our bug tracker is located at %3.&lt;/p&gt;&lt;p&gt;Please use %4 for bigger chunks of text.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>概要信息</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
     <message>
         <source>Add Magic Header</source>
         <translation>添加Magic Header</translation>
@@ -11014,16 +10487,10 @@ Do you want to kill it?</source>
         <source>Internal error: Type is invalid</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME 类型</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME 类型</translation>
@@ -11032,9 +10499,6 @@ Do you want to kill it?</source>
         <source>Handler</source>
         <translation>处理器</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>已注册的MIME 类型</translation>
@@ -11072,10 +10536,6 @@ Do you want to kill it?</source>
         <translation>编辑...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
-    <message>
         <source>Reset all MIME type definitions to their defaults.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11095,31 +10555,10 @@ Do you want to kill it?</source>
         <source>A semicolon-separated list of wildcarded file names.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Reset MIME Types</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Changes will take effect after restart.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分栏</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>Choose a template:</source>
         <translation>选择一个模板:</translation>
@@ -11152,23 +10591,14 @@ Do you want to kill it?</source>
         <source>Choose...</source>
         <translation type="unfinished">选择...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open Documents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>打开文件，用...</translation>
@@ -11177,9 +10607,6 @@ Do you want to kill it?</source>
         <source>Open file &quot;%1&quot; with:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>输出</translation>
@@ -11205,31 +10632,8 @@ Do you want to kill it?</source>
         <translation>F6</translation>
     </message>
     <message>
-        <source>Minimize</source>
-        <translation type="unfinished">最小化</translation>
-    </message>
-    <message>
-        <source>Maximize</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Out&amp;put</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+9</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alt+Shift+9</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>详情</translation>
     </message>
     <message>
         <source>Error Details</source>
@@ -11255,9 +10659,6 @@ Do you want to kill it?</source>
         <source>Plugin changes will take effect after restart.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginInstallWizard</name>
     <message>
         <source>Source</source>
         <translation type="unfinished"></translation>
@@ -11273,10 +10674,6 @@ Do you want to kill it?</source>
     <message>
         <source>Check Archive</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <source>Checking archive...</source>
@@ -11366,30 +10763,17 @@ Do you want to kill it?</source>
         <source>Failed to Copy Plugin Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>进程</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save All</source>
         <translation>保存所有</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>保存</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -11416,10 +10800,6 @@ Do you want to kill it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation type="unfinished">保存(&amp;S)</translation>
-    </message>
-    <message>
         <source>&amp;Diff &amp;&amp; Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11438,13 +10818,6 @@ Do you want to kill it?</source>
     <message>
         <source>&amp;Diff Selected &amp;&amp; Cancel</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
-    <message>
-        <source>Cancel</source>
-        <translation type="unfinished">取消</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -11502,16 +10875,10 @@ Do you want to kill it?</source>
         <source>No matches found.</source>
         <translation type="unfinished">未找到匹配。</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>首选项</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation type="unfinished"></translation>
@@ -11524,9 +10891,6 @@ Do you want to kill it?</source>
         <source>Record</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutInput</name>
     <message>
         <source>Key sequence:</source>
         <translation type="unfinished">键位顺序:</translation>
@@ -11543,9 +10907,6 @@ Do you want to kill it?</source>
         <source>Enter key sequence as text</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>键盘</translation>
@@ -11571,10 +10932,6 @@ Do you want to kill it?</source>
         <translation>导出键盘映射方案</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation type="unfinished">添加</translation>
-    </message>
-    <message>
         <source>Invalid key sequence.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11586,20 +10943,6 @@ Do you want to kill it?</source>
         <source>Key sequence has potential conflicts. &lt;a href=&quot;#conflicts&quot;&gt;Show.&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>分栏</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Locator: Error occurred when running &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -11629,10 +10972,6 @@ Do you want to kill it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Executable:</source>
-        <translation type="unfinished">执行档:</translation>
-    </message>
-    <message>
         <source>Arguments:</source>
         <translation type="unfinished">参数:</translation>
     </message>
@@ -11640,9 +10979,6 @@ Do you want to kill it?</source>
         <source>Case sensitive:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation type="unfinished"></translation>
@@ -11651,9 +10987,6 @@ Do you want to kill it?</source>
         <source>Could not open URL %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>Auto-suspend unmodified files</source>
         <translation type="unfinished"></translation>
@@ -11735,14 +11068,6 @@ Do you want to kill it?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation type="unfinished">重置</translation>
-    </message>
-    <message>
-        <source>Reset to default.</source>
-        <translation type="unfinished">重置为默认。</translation>
-    </message>
-    <message>
         <source>?</source>
         <translation type="unfinished">?</translation>
     </message>
@@ -11754,14 +11079,6 @@ Do you want to kill it?</source>
     <message>
         <source>Patch command:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Change...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Environment:</source>
-        <translation type="unfinished">环境:</translation>
     </message>
     <message>
         <source>Terminal:</source>
@@ -11813,10 +11130,6 @@ provided they were unmodified before the refactoring.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation type="unfinished">区分大小写</translation>
-    </message>
-    <message>
         <source>Case Insensitive (Default)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11829,16 +11142,9 @@ provided they were unmodified before the refactoring.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No changes to apply.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Variables</source>
         <translation type="unfinished">变量</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ThemeChooser</name>
     <message>
         <source>Current theme: %1</source>
         <translation type="unfinished"></translation>
@@ -11847,25 +11153,10 @@ provided they were unmodified before the refactoring.</source>
         <source>The theme change will take effect after restart.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::UrlFilterOptions</name>
-    <message>
-        <source>Name:</source>
-        <translation type="unfinished">名称:</translation>
-    </message>
     <message>
         <source>Add &quot;%1&quot; placeholder for the query string.
 Double-click to edit item.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="unfinished">添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -11879,9 +11170,6 @@ Double-click to edit item.</source>
         <source>URLs:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation type="unfinished"></translation>
@@ -11902,9 +11190,6 @@ Double-click to edit item.</source>
         <source>The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are registered trademarks of The Qt Company Ltd.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation type="unfinished">退出全屏模式</translation>
@@ -11913,9 +11198,6 @@ Double-click to edit item.</source>
         <source>Enter Full Screen</source>
         <translation type="unfinished">进入全屏模式</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
@@ -11928,30 +11210,14 @@ Double-click to edit item.</source>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;Literal &apos;}&apos; characters must be escaped as &quot;\}&quot;, &apos;\&apos; characters must be escaped as &quot;\\&quot;, and &quot;%{&quot; must be escaped as &quot;%\{&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::ListItemDelegate</name>
     <message>
         <source>Tags:</source>
         <translation type="unfinished">标签:</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>切换到&lt;b&gt;%1&lt;/b&gt; 模式 </translation>
     </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
         <translation type="unfinished">
@@ -11963,9 +11229,6 @@ Double-click to edit item.</source>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation type="unfinished">覆盖现有文件</translation>
@@ -11977,17 +11240,6 @@ Would you like to overwrite them?</source>
         <translation type="unfinished">以下文件已经存在于目录
 %1中。
 您想要覆盖吗？</translation>
-    </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
-    <message>
-        <source>Mixed</source>
-        <translation type="unfinished">混合</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="unfinished">使文件可写</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -12071,13 +11323,6 @@ No version control system found.</source>
 Do you want to check them out now?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::RestartDialog</name>
-    <message>
-        <source>Restart Required</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Later</source>
         <translation type="unfinished"></translation>
@@ -12086,9 +11331,6 @@ Do you want to check them out now?</source>
         <source>Restart Now</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>Expand All</source>
         <translation type="unfinished">展开全部</translation>
@@ -12106,10 +11348,6 @@ Do you want to check them out now?</source>
         <translation type="unfinished">%1 %2</translation>
     </message>
     <message>
-        <source>Collapse All</source>
-        <translation type="unfinished">折叠全部</translation>
-    </message>
-    <message>
         <source>History:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12117,9 +11355,6 @@ Do you want to check them out now?</source>
         <source>Search Results</source>
         <translation type="unfinished">搜索结果</translation>
     </message>
-</context>
-<context>
-    <name>Core::UrlLocatorFilter</name>
     <message>
         <source>Web Search</source>
         <translation type="unfinished">搜索网络</translation>
@@ -12128,13 +11363,6 @@ Do you want to check them out now?</source>
         <source>Qt Project Bugs</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>URL Template</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>Version Control</source>
         <translation>版本控制</translation>
@@ -17412,34 +16640,6 @@ Examining symbols and setting breakpoints by file name and line number may fail.
     </message>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Profile</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>in Debug mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>in Profile mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>in Release mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>with debug symbols (Debug or Profile mode)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>on optimized code (Profile or Release mode)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -24979,7 +24179,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>定位器</translation>
@@ -24997,17 +24197,13 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LoggingViewManagerWidget</name>
+    <name>::Core</name>
     <message>
         <source>Logging Category Viewer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save Log</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -25033,14 +24229,6 @@ Error: %5</source>
     <message>
         <source>Timestamp</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Category</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished">类型</translation>
     </message>
     <message>
         <source>Message</source>
@@ -25073,10 +24261,6 @@ Error: %5</source>
     <message>
         <source>Save Logs As</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
     </message>
     <message>
         <source>Failed to write logs to &quot;%1&quot;.</source>
@@ -26653,11 +25837,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Meta+O</source>
         <translation type="unfinished">Meta+O</translation>

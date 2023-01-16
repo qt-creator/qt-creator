@@ -2562,7 +2562,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>BaseFileWizard</name>
+    <name>::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Kunne ikke oprette mappen %1.</translation>
@@ -5665,9 +5665,6 @@ p, li { white-space: pre-wrap; }
         <comment>On Linux/macOS</comment>
         <translation>Alle filer (*)</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizard</name>
     <message>
         <source>Existing files</source>
         <translation>Eksisterende filer</translation>
@@ -5676,9 +5673,6 @@ p, li { white-space: pre-wrap; }
         <source>File Generation Failure</source>
         <translation>Filgenerering mislykkedes</translation>
     </message>
-</context>
-<context>
-    <name>Core::BaseFileWizardFactory</name>
     <message>
         <source>Failed to open an editor for &quot;%1&quot;.</source>
         <translation>Kunne ikke åbne en redigering for &quot;%1&quot;.</translation>
@@ -5701,9 +5695,6 @@ p, li { white-space: pre-wrap; }
         <translation>Projektmappen %1 indeholder filer som ikke kan overskrives:
 %2.</translation>
     </message>
-</context>
-<context>
-    <name>Core::CommandMappings</name>
     <message>
         <source>Command Mappings</source>
         <translation>Kommando kortlægninger</translation>
@@ -5736,16 +5727,10 @@ p, li { white-space: pre-wrap; }
         <source>Export...</source>
         <translation>Eksportér...</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Design</translation>
     </message>
-</context>
-<context>
-    <name>Core::DocumentManager</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
@@ -5779,9 +5764,6 @@ p, li { white-space: pre-wrap; }
         <source>Cannot reload %1</source>
         <translation>Kan ikke genindlæse %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Tilbagefør til gemt</translation>
@@ -5851,10 +5833,6 @@ Continue?</source>
 Fortsæt?</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>Filfejl</translation>
-    </message>
-    <message>
         <source>Close &quot;%1&quot;</source>
         <translation>Luk &quot;%1&quot;</translation>
     </message>
@@ -5894,16 +5872,9 @@ Fortsæt?</translation>
         <source>Close Document</source>
         <translation>Luk dokument</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
     <message>
         <source>Drag to drag documents between splits</source>
         <translation>Træk for at trække dokumenter mellem opdelinger</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Opdel</translation>
     </message>
     <message>
         <source>Remove Split</source>
@@ -5917,9 +5888,6 @@ Fortsæt?</translation>
         <source>File is writable</source>
         <translation>Filen er skrivbar</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
     <message>
         <source>&amp;External</source>
         <translation>&amp;Eksterne</translation>
@@ -5928,9 +5896,6 @@ Fortsæt?</translation>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Fejl: eksternt værktøj i %1 har duplikeret id</translation>
     </message>
-</context>
-<context>
-    <name>Core::Find</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>Fi&amp;nd/erstat</translation>
@@ -5951,9 +5916,6 @@ Fortsæt?</translation>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Skift+F</translation>
     </message>
-</context>
-<context>
-    <name>Core::ICore</name>
     <message>
         <source>Settings...</source>
         <translation>Indstillinger...</translation>
@@ -5970,16 +5932,10 @@ Fortsæt?</translation>
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Baseret på Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
         <translation>Filen blev genskabt fra automatisk gemt kopi. Vælg Gem for at bekræfte eller Tilbagefør til gemt for at forkaste ændringer.</translation>
     </message>
-</context>
-<context>
-    <name>Core::IFindFilter</name>
     <message>
         <source>Case sensitive</source>
         <translation>Forskel på store og små bogstaver</translation>
@@ -6008,9 +5964,6 @@ Fortsæt?</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Core::ILocatorFilter</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Filterkonfiguration</translation>
@@ -6031,16 +5984,10 @@ Fortsæt?</translation>
         <source>Include the filter when not using a prefix for searches.</source>
         <translation>Inkluder filteret når der ikke bruges et præfiks til søgninger.</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Åbn med VCS (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::IWizardFactory</name>
     <message>
         <source>Factory with id=&quot;%1&quot; already registered. Deleting.</source>
         <translation>Fabrik med id=&quot;%1&quot; er allerede registreret. Sletter.</translation>
@@ -6053,9 +6000,6 @@ Fortsæt?</translation>
         <source>Inspect Wizard State</source>
         <translation>Inspicer assistent-tilstand</translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>&amp;Vis detaljer</translation>
@@ -6064,13 +6008,6 @@ Fortsæt?</translation>
         <source>Do Not Show Again</source>
         <translation>Vis ikke igen</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Luk</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Start af filhåndtering mislykkedes</translation>
@@ -6135,9 +6072,6 @@ Fortsæt?</translation>
         <source>Could not delete file %1.</source>
         <translation>Kunne ikke slette filen %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::AddToVcsDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -6150,16 +6084,10 @@ Fortsæt?</translation>
         <source>Add the files to version control (%1)</source>
         <translation>Tilføj filerne til versionsstyring (%1)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CommandComboBox</name>
     <message>
         <source>Activate %1 View</source>
         <translation>Aktivér %1-visning</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CorePlugin</name>
     <message>
         <source>No themes found in installation.</source>
         <translation>Ingen temaer fundet i installationen.</translation>
@@ -6232,9 +6160,6 @@ Fortsæt?</translation>
         <source>A comment.</source>
         <translation>En kommentar.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::CurrentDocumentFind</name>
     <message numerus="yes">
         <source>%n occurrences replaced.</source>
         <translation>
@@ -6242,9 +6167,6 @@ Fortsæt?</translation>
             <numerusform>%n forekomster erstattet.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Generisk mappefilter</translation>
@@ -6268,9 +6190,6 @@ Fortsæt?</translation>
         <source>%1 filter update: canceled</source>
         <translation>%1 filter opdatering: annulleret</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Navn:</translation>
@@ -6297,9 +6216,6 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <source>Directories:</source>
         <translation>Mapper:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::DocumentModelPrivate</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;intet dokument&gt;</translation>
@@ -6308,16 +6224,10 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <source>No document is selected.</source>
         <translation>Intet dokument er valgt.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
     <message>
         <source>Edit</source>
         <translation>Rediger</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::EditorManagerPrivate</name>
     <message>
         <source>Properties...</source>
         <translation>Egenskaber...</translation>
@@ -6375,10 +6285,6 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <translation>Alt+Højre</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Opdel</translation>
-    </message>
-    <message>
         <source>Meta+E,2</source>
         <translation>Meta+E,2</translation>
     </message>
@@ -6387,20 +6293,12 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <translation>Ctrl+E,2</translation>
     </message>
     <message>
-        <source>Split Side by Side</source>
-        <translation>Opdel side-om-side</translation>
-    </message>
-    <message>
         <source>Meta+E,3</source>
         <translation>Meta+E,3</translation>
     </message>
     <message>
         <source>Ctrl+E,3</source>
         <translation>Ctrl+E,3</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Åbn i nyt vindue</translation>
     </message>
     <message>
         <source>Meta+E,4</source>
@@ -6499,10 +6397,6 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <translation>&lt;b&gt;Advarsel:&lt;/b&gt; du er ved at ændre en skrivebeskyttet fil.</translation>
     </message>
     <message>
-        <source>Make Writable</source>
-        <translation>Gør skrivbar</translation>
-    </message>
-    <message>
         <source>&amp;Save %1</source>
         <translation>&amp;Gem %1</translation>
     </message>
@@ -6527,24 +6421,12 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <translation>Luk alle, undtagen %1</translation>
     </message>
     <message>
-        <source>Close Others</source>
-        <translation>Luk andre</translation>
-    </message>
-    <message>
         <source>Cannot Open File</source>
         <translation>Kan ikke åbne fil</translation>
     </message>
     <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Kan ikke åbne filen til redigering med VCS.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Filfejl</translation>
-    </message>
-    <message>
-        <source>Revert to Saved</source>
-        <translation>Tilbagefør til gemt</translation>
     </message>
     <message>
         <source>You will lose your current changes if you proceed reverting %1.</source>
@@ -6562,9 +6444,6 @@ Det gør du ved at skrive denne genvej og et mellemrum i Lokatør-indtastningsfe
         <source>Cancel &amp;&amp; &amp;Diff</source>
         <translation>Annuller og &amp;diff</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExecuteFilter</name>
     <message>
         <source>Execute Custom Commands</source>
         <translation>Eksekver brugerdefineret kommandoer</translation>
@@ -6599,9 +6478,6 @@ Vil du dræbe den?</translation>
         <source>Could not start process: %1.</source>
         <translation>Kunne ikke starte process: %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Error while parsing external tool %1: %2</source>
         <translation>Fejl under parsing af eksternt værktøj %1: %2</translation>
@@ -6666,9 +6542,6 @@ Vil du dræbe den?</translation>
         <source>Edit with vi</source>
         <translation>Rediger med vi</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add tool.</source>
         <translation>Tilføj værktøj.</translation>
@@ -6680,10 +6553,6 @@ Vil du dræbe den?</translation>
     <message>
         <source>Remove tool.</source>
         <translation>Fjern værktøj.</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Revert tool to default.</source>
@@ -6797,9 +6666,6 @@ Vil du dræbe den?</translation>
         <source>PATH=/opt/bin:${PATH}</source>
         <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
         <translation>Ukategoriseret</translation>
@@ -6825,9 +6691,6 @@ Vil du dræbe den?</translation>
         <extracomment>Sample external tool text</extracomment>
         <translation>Nyttig tekst</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &quot;%1&quot; (expanded &quot;%2&quot;)</source>
         <translation>Kunne ikke finde eksekverbar for &quot;%1&quot; (udvidet &quot;%2&quot;)</translation>
@@ -6840,16 +6703,10 @@ Vil du dræbe den?</translation>
         <source>&quot;%1&quot; finished</source>
         <translation>&quot;%1&quot; fuldført</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolsFilter</name>
     <message>
         <source>Run External Tool</source>
         <translation>Kør eksternt værktøj</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilter</name>
     <message>
         <source>Files in File System</source>
         <translation>Filer i filsystem</translation>
@@ -6858,9 +6715,6 @@ Vil du dræbe den?</translation>
         <source>Create and Open &quot;%1&quot;</source>
         <translation>Opret og åbn &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Include hidden files</source>
         <translation>Inkluder skjulte filer</translation>
@@ -6869,9 +6723,6 @@ Vil du dræbe den?</translation>
         <source>Filter:</source>
         <translation>Filter:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindDialog</name>
     <message>
         <source>&amp;Search</source>
         <translation>&amp;Søg</translation>
@@ -6900,9 +6751,6 @@ Vil du dræbe den?</translation>
         <source>Sco&amp;pe:</source>
         <translation>&amp;Område:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolBar</name>
     <message>
         <source>Shift+Enter</source>
         <translation>Skift+Enter</translation>
@@ -6991,16 +6839,10 @@ Vil du dræbe den?</translation>
         <source>Replace with...</source>
         <translation>Erstat med...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindToolWindow</name>
     <message>
         <source>Empty search term.</source>
         <translation>Tomt søgeterm.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Find</translation>
@@ -7014,25 +6856,6 @@ Vil du dræbe den?</translation>
         <translation>Erstat med:</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Erstat</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Erstat og find</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Erstat alle</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Avanceret...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
-    <message>
         <source>User Interface</source>
         <translation>Brugerflade</translation>
     </message>
@@ -7044,10 +6867,6 @@ Vil du dræbe den?</translation>
         <source>Reset to default.</source>
         <comment>Color</comment>
         <translation>Nulstil til standard.</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Nulstil</translation>
     </message>
     <message>
         <source>Theme:</source>
@@ -7094,9 +6913,6 @@ Vil du dræbe den?</translation>
         <source>High DPI scaling:</source>
         <translation>Høj-DPI-skalering:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::Locator</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -7121,16 +6937,10 @@ Vil du dræbe den?</translation>
         <source>Updating Locator Caches</source>
         <translation>Opdaterer lokatør-mellemlagre</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Tilgængelige filtre</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsPage</name>
     <message>
         <source>Name</source>
         <translation>Navn</translation>
@@ -7151,24 +6961,9 @@ Vil du dræbe den?</translation>
         <source>Custom</source>
         <translation>Brugerdefineret</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorSettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfigurer filtre</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation>Tilføj...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Rediger...</translation>
     </message>
     <message>
         <source>Locator filters that do not update their cached data immediately, such as the custom directory filters, update it after this time interval.</source>
@@ -7182,9 +6977,6 @@ Vil du dræbe den?</translation>
         <source> min</source>
         <translation> min</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Genindlæs</translation>
@@ -7201,9 +6993,6 @@ Vil du dræbe den?</translation>
         <source>Options</source>
         <translation>Valgmuligheder</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Fil</translation>
@@ -7429,19 +7218,9 @@ Vil du dræbe den?</translation>
         <source>About &amp;Plugins...</source>
         <translation>Om &amp;plugins...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
     <message>
         <source>General Messages</source>
         <translation>Generelle meddelelser</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -7527,16 +7306,10 @@ Vil du dræbe den?</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note: Wide range values might impact performance when opening files.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Bemærk: værdier med stor bredde kan påvirke ydelse ved åbning af filer.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
     <message>
         <source>MIME Types</source>
         <translation>MIME-typer</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>MIME-type</translation>
@@ -7549,9 +7322,6 @@ Vil du dræbe den?</translation>
         <source>Undefined</source>
         <translation>Udefineret</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
     <message>
         <source>Registered MIME Types</source>
         <translation>Registreret MIME-typer</translation>
@@ -7559,14 +7329,6 @@ Vil du dræbe den?</translation>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation>Nulstil alle til standard.</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation>Nulstil alle</translation>
     </message>
     <message>
         <source>Details</source>
@@ -7589,21 +7351,6 @@ Vil du dræbe den?</translation>
         <translation>Prioritet</translation>
     </message>
     <message>
-        <source>Add...</source>
-        <translation>Tilføj...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Rediger...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
         <source>Reset MIME Types</source>
         <translation>Nulstil MIME-typer</translation>
     </message>
@@ -7611,20 +7358,6 @@ Vil du dræbe den?</translation>
         <source>Changes will take effect after restart.</source>
         <translation>Ændringer træder i kraft efter genstart.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Opdel</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Luk</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nyt projekt</translation>
@@ -7661,16 +7394,10 @@ Vil du dræbe den?</translation>
         <source>Supported Platforms</source>
         <translation>Understøttet platforme</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open Documents</source>
         <translation>Åbne dokumenter</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -7679,23 +7406,10 @@ Vil du dræbe den?</translation>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translation>Åbne dokumenter</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open File With...</source>
         <translation>Åbn fil med...</translation>
@@ -7708,9 +7422,6 @@ Vil du dræbe den?</translation>
         <source>Open file &quot;%1&quot; with:</source>
         <translation>Åbn filen &quot;%1&quot; med:</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Minimize Output Pane</source>
         <translation>Minimer outputrude</translation>
@@ -7755,9 +7466,6 @@ Vil du dræbe den?</translation>
         <source>Alt+Shift+9</source>
         <translation>Alt+Skift+9</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Show all</source>
         <translation>Vis alle</translation>
@@ -7767,16 +7475,8 @@ Vil du dræbe den?</translation>
         <translation>Vis alle installerede plugins, inklusiv grund-plugins og plugins som ikke er tilgængelige på denne platform.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
         <source>Error Details</source>
         <translation>Fejldetaljer</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Luk</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -7794,23 +7494,14 @@ Vil du dræbe den?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Plugin-fejl af %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Forløbsdetaljer til/fra</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Processer</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Filer uden skrivetilladelser</translation>
@@ -7818,10 +7509,6 @@ Vil du dræbe den?</translation>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Følgende filer har ingen skrivetilladelser. Vil du ændre tilladelserne?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Gør skrivbar</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -7839,9 +7526,6 @@ Vil du dræbe den?</translation>
         <source>Select all, if possible: </source>
         <translation>Vælg alle, hvis muligt: </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Save Changes</source>
         <translation>Gem ændringer</translation>
@@ -7861,10 +7545,6 @@ Vil du dræbe den?</translation>
     <message>
         <source>Do &amp;Not Save</source>
         <translation>Gem &amp;ikke</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Gem</translation>
     </message>
     <message>
         <source>&amp;Diff &amp;&amp; Cancel</source>
@@ -7891,23 +7571,12 @@ Vil du dræbe den?</translation>
         <translation>Gem alle</translation>
     </message>
     <message>
-        <source>Save</source>
-        <translation>Gem</translation>
-    </message>
-    <message>
         <source>Save Selected</source>
         <translation>Gem valgte</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Søgning blev annulleret.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuller</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters.</source>
@@ -7959,20 +7628,10 @@ Vil du dræbe den?</translation>
             <numerusform>%n match fundet.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SettingsDialog</name>
     <message>
         <source>Preferences</source>
         <translation>Præferencer</translation>
     </message>
-    <message>
-        <source>Options</source>
-        <translation>Valgmuligheder</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutButton</name>
     <message>
         <source>Click and type the new key sequence.</source>
         <translation>Klik og skriv den nye tastesekvens.</translation>
@@ -7985,16 +7644,10 @@ Vil du dræbe den?</translation>
         <source>Record</source>
         <translation>Optag</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Tastatur</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettingsWidget</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Tastaturgenveje</translation>
@@ -8020,10 +7673,6 @@ Vil du dræbe den?</translation>
         <translation>Brug &quot;Ctrl&quot;, &quot;Alt&quot;, &quot;Meta&quot;, og &quot;Shift&quot; som modifier-taster. Brug &quot;Escape&quot;, &quot;Backspace&quot;, &quot;Delete&quot;, &quot;Insert&quot;, &quot;Home&quot; osv. til specielle taster. Kombinér individuelle taster med &quot;+&quot;, og kombinér flere genveje til én genvej med &quot;,&quot;. F.eks. hvis brugeren skal holde Ctrl- og Shift-modifier-taster mens der trykkes på Escape, og så slippe og trykke på A, indtast da &quot;Ctrl+Shift+Escape,A&quot;.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nulstil</translation>
-    </message>
-    <message>
         <source>Reset to default.</source>
         <translation>Nulstil til standard.</translation>
     </message>
@@ -8047,27 +7696,10 @@ Vil du dræbe den?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Eksportér tastatur-kortlægningsskema</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Opdel</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Luk</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SpotlightLocatorFilter</name>
     <message>
         <source>Spotlight File Name Index</source>
         <translation>Spotlight-filnavnindeks</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>System Editor</source>
         <translation>Systemets redigering</translation>
@@ -8076,9 +7708,6 @@ Vil du dræbe den?</translation>
         <source>Could not open URL %1.</source>
         <translation>Kunne ikke åbne URL&apos;en %1.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemSettings</name>
     <message>
         <source>System</source>
         <translation>System</translation>
@@ -8138,10 +7767,6 @@ Vil du dræbe den?</translation>
         <translation>Nulstil til standard.</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Nulstil</translation>
-    </message>
-    <message>
         <source>External file browser:</source>
         <translation>Ekstern filbrowser:</translation>
     </message>
@@ -8171,10 +7796,6 @@ Vil du dræbe den?</translation>
         <translation>Forskel på store og små bogstaver (standard)</translation>
     </message>
     <message>
-        <source>Case Sensitive</source>
-        <translation>Forskel på store og små bogstaver</translation>
-    </message>
-    <message>
         <source>Case Insensitive (Default)</source>
         <translation>Ingen forskel på store og små bogstaver (standard)</translation>
     </message>
@@ -8202,31 +7823,18 @@ Vil du dræbe den?</translation>
         <source>Minimum number of open documents that should be kept in memory. Increasing this number will lead to greater resource usage when not manually closing documents.</source>
         <translation>Minimum antal åbne dokumenter som skal holdes i hukommelse. Øges dette nummer vil det lede til større ressourceforbrug når dokumenter ikke lukkedes manualt.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ThemeChooser</name>
     <message>
         <source>Current theme: %1</source>
         <translation>Aktuelle tema: %1</translation>
     </message>
     <message>
-        <source>Restart Required</source>
-        <translation>Genstart kræves</translation>
-    </message>
-    <message>
         <source>The theme change will take effect after restart.</source>
         <translation>Temaændringen træder i kraft efter genstartet.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Eksterne værktøjer</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About %1</source>
         <translation>Om %1</translation>
@@ -8244,9 +7852,6 @@ Vil du dræbe den?</translation>
         <source>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Copyright 2008-%6 %7. All rights reserved.&lt;br/&gt;&lt;br/&gt;The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;br/&gt;</source>
         <translation>&lt;h3&gt;%1&lt;/h3&gt;%2&lt;br/&gt;%3%4%5&lt;br/&gt;Ophavsret 2008-%6 %7. Alle rettigheder forbeholdt.&lt;br/&gt;&lt;br/&gt;Programmet leveres &quot;SOM ER&quot; UDEN GARANTI AF NOGEN SLAGS, INKLUSIV, GARANTIER VEDRØRENDE DESIGN, SALGBARHED OG EGNETHED TIL ET BESTEMT FORMÅL.&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WindowSupport</name>
     <message>
         <source>Exit Full Screen</source>
         <translation>Forlad fuldskærm</translation>
@@ -8255,9 +7860,6 @@ Vil du dræbe den?</translation>
         <source>Enter Full Screen</source>
         <translation>Gå i fuldskærm</translation>
     </message>
-</context>
-<context>
-    <name>Core::JsExpander</name>
     <message>
         <source>Error in &quot;%1&quot;: %2</source>
         <translation>Fejl i &quot;%1&quot;: %2</translation>
@@ -8270,37 +7872,18 @@ Vil du dræbe den?</translation>
         <source>Evaluate simple JavaScript statements.&lt;br&gt;The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</source>
         <translation>Evaluer enkle JavaScript-udsagn.&lt;br&gt;Udsagnet må ikke indeholde &apos;{&apos;- og &apos;}&apos;-tegn.</translation>
     </message>
-</context>
-<context>
-    <name>Core::LocatorManager</name>
     <message>
         <source>&lt;type here&gt;</source>
         <translation>&lt;skriv her&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ModeManager</name>
     <message>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Skift til &lt;b&gt;%1&lt;/b&gt;-tilstand</translation>
     </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
-    <message>
-        <source>Activate %1 View</source>
-        <translation>Aktivér %1-visning</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted</source>
         <translation>Yderligere output udeladt</translation>
     </message>
-</context>
-<context>
-    <name>Core::PatchTool</name>
     <message>
         <source>There is no patch-command configured in the general &quot;Environment&quot; settings.</source>
         <translation>Der er ikke konfigureret nogen patch-kommando i de generelle &quot;Miljø&quot;-indstillinger.</translation>
@@ -8329,9 +7912,6 @@ Vil du dræbe den?</translation>
         <source>&quot;%1&quot; failed (exit code %2).</source>
         <translation>&quot;%1&quot; mislykkedes (afslutningskode %2).</translation>
     </message>
-</context>
-<context>
-    <name>Core::PromptOverwriteDialog</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Overskriv eksisterende filer</translation>
@@ -8344,24 +7924,9 @@ Would you like to overwrite them?</source>
 %1.
 Vil du overskrive dem?</translation>
     </message>
-</context>
-<context>
-    <name>Core::ReadOnlyFilesDialog</name>
     <message>
         <source>Mixed</source>
         <translation>Blandet</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Gør skrivbar</translation>
-    </message>
-    <message>
-        <source>Open with VCS</source>
-        <translation>Åbn med VCS</translation>
-    </message>
-    <message>
-        <source>Save As</source>
-        <translation>Gem som</translation>
     </message>
     <message>
         <source>Failed to %1 File</source>
@@ -8419,9 +7984,6 @@ Do you want to check them out now?</source>
         <translation>Følgende filer er ikke checked out endnu.
 Vil du check dem out nu?</translation>
     </message>
-</context>
-<context>
-    <name>Core::SearchResultWindow</name>
     <message>
         <source>Expand All</source>
         <translation>Udfold alle</translation>
@@ -8446,9 +8008,6 @@ Vil du check dem out nu?</translation>
         <source>Search Results</source>
         <translation>Søgeresultater</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>Indsæt variabel</translation>
@@ -8473,13 +8032,6 @@ Vil du check dem out nu?</translation>
         <source>Select a variable to insert.</source>
         <translation>Vælg en variabel til indsættelse.</translation>
     </message>
-    <message>
-        <source>Variables</source>
-        <translation>Variabler</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>%1 repository blev detekteret men %1 er ikke konfigureret.</translation>
@@ -19688,7 +19240,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Locator</source>
         <translation>Lokatør</translation>
@@ -23028,7 +22580,7 @@ Ekskludering: %2
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>The file &quot;%1&quot; was renamed to &quot;%2&quot;, but the following projects could not be automatically changed: %3</source>
         <translation>Filen &quot;%1&quot; blev omdøbt til &quot;%2&quot;, men følgende projekter kunne ikke ændres automatisk: %3</translation>
@@ -23074,10 +22626,6 @@ Ekskludering: %2
         <translation>Hjem</translation>
     </message>
     <message>
-        <source>Projects</source>
-        <translation>Projekter</translation>
-    </message>
-    <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Åbn &quot;%1&quot;</translation>
     </message>
@@ -23085,9 +22633,6 @@ Ekskludering: %2
         <source>Open Project in &quot;%1&quot;</source>
         <translation>Åbn projekt i &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Core::FolderNavigationWidgetFactory</name>
     <message>
         <source>File System</source>
         <translation>Filsystem</translation>
@@ -23099,10 +22644,6 @@ Ekskludering: %2
     <message>
         <source>Alt+Y</source>
         <translation>Alt+Y</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Valgmuligheder</translation>
     </message>
     <message>
         <source>Add New...</source>
@@ -40772,7 +40313,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Core::FilePropertiesDialog</name>
+    <name>::Core</name>
     <message>
         <source>File Properties</source>
         <translation>Filegenskaber</translation>
@@ -40788,10 +40329,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Size:</source>
         <translation>Størrelse:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Navn:</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -40814,10 +40351,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Skrivbar:</translation>
     </message>
     <message>
-        <source>Executable:</source>
-        <translation>Eksekverbar:</translation>
-    </message>
-    <message>
         <source>Symbolic link:</source>
         <translation>Synbolsk link:</translation>
     </message>
@@ -40828,10 +40361,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Default editor:</source>
         <translation>Standardredigering:</translation>
-    </message>
-    <message>
-        <source>Undefined</source>
-        <translation>Udefineret</translation>
     </message>
     <message>
         <source>%1 Bytes</source>
@@ -41376,14 +40905,11 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     <name>::CMakeProjectManager</name>
 </context>
 <context>
-    <name>Core::HelpManager</name>
+    <name>::Core</name>
     <message>
         <source>Update Documentation</source>
         <translation>Opdater dokumentation</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::JavaScriptFilter</name>
     <message>
         <source>Evaluate JavaScript</source>
         <translation>Evaluer JavaScript</translation>
@@ -41400,9 +40926,6 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
         <source>Copy to clipboard: %1</source>
         <translation>Kopiér til udklipsholder: %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MenuBarFilter</name>
     <message>
         <source>Actions from the Menu</source>
         <translation>Handlinger fra menuen</translation>

@@ -7,9 +7,11 @@
 #include "actionmanager/actionmanager.h"
 #include "actionmanager/command.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 
 #include <app/app_version.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -126,12 +128,12 @@ void WindowSupport::updateFullScreenAction()
 {
     if (m_window->isFullScreen()) {
         if (Utils::HostOsInfo::isMacHost())
-            m_toggleFullScreenAction->setText(tr("Exit Full Screen"));
+            m_toggleFullScreenAction->setText(Tr::tr("Exit Full Screen"));
         else
             m_toggleFullScreenAction->setChecked(true);
     } else {
         if (Utils::HostOsInfo::isMacHost())
-            m_toggleFullScreenAction->setText(tr("Enter Full Screen"));
+            m_toggleFullScreenAction->setText(Tr::tr("Enter Full Screen"));
         else
             m_toggleFullScreenAction->setChecked(false);
     }

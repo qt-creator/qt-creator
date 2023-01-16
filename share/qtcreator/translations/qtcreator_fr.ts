@@ -729,19 +729,7 @@
     </message>
 </context>
 <context>
-    <name>Core::BaseFileWizard</name>
-    <message>
-        <source>Unable to create the directory %1.</source>
-        <translation type="obsolete">Impossible de créer le répertoire %1.</translation>
-    </message>
-    <message>
-        <source>Unable to open %1 for writing: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir %1 pour écrire : %2</translation>
-    </message>
-    <message>
-        <source>Error while writing to %1: %2</source>
-        <translation type="obsolete">Erreur pendant l&apos;écriture de %1 : %2</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>File Generation Failure</source>
         <translation>Échec de la génération du fichier</translation>
@@ -796,9 +784,6 @@ Would you like to overwrite them?</source>
 %2.
 Voulez vous les écraser ?</translation>
     </message>
-</context>
-<context>
-    <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
         <translation>Revenir à la version sauvegardée</translation>
@@ -1036,14 +1021,6 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec SCC. </translation>
     </message>
     <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Impossible de définir les permissions</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
-    </message>
-    <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation>Impossible d&apos;ouvrir le fichier pour édition avec VCS. </translation>
     </message>
@@ -1096,40 +1073,12 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">nav.net </translation>
     </message>
     <message>
-        <source>All Files (*)</source>
-        <translation type="obsolete">Tout les fichiers (*)</translation>
-    </message>
-    <message>
         <source>Opening File</source>
         <translation>Ouverture du Fichier</translation>
     </message>
     <message>
         <source>Cannot open file %1!</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier %1!</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le Fichier</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Le Fichier est en Lecture Seule</translation>
-    </message>
-    <message>
-        <source>The file %1 is read only.</source>
-        <translation type="obsolete">Le fichier %1 est en lecture seule.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save as ...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
     </message>
     <message>
         <source>Failed!</source>
@@ -1192,200 +1141,6 @@ Voulez vous les écraser ?</translation>
         <translation>Annuler</translation>
     </message>
     <message>
-        <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;current line number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;current column number&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;editor&apos;s x position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;editor&apos;s y position on screen&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;editor&apos;s width in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;editor&apos;s height in pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;editor&apos;s width in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;editor&apos;s height in characters&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;La variable&lt;/th&gt;&lt;th&gt;se développe en &lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nom de fichier&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%l&lt;/td&gt;&lt;td&gt;numéro de ligne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%c&lt;/td&gt;&lt;td&gt;numéro de colonne courante&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%x&lt;/td&gt;&lt;td&gt;abscisse de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%y&lt;/td&gt;&lt;td&gt;ordonnée de l&apos;éditeur à l&apos;écran&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%w&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%h&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en pixels&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%W&lt;/td&gt;&lt;td&gt;largeur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%H&lt;/td&gt;&lt;td&gt;hauteur de l&apos;éditeur en caractères&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Core::FileManager</name>
-    <message>
-        <source>Can&apos;t save file</source>
-        <translation type="obsolete">Impossible de sauver le fichier</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save changes to &apos;%1&apos;. Do you want to continue and loose your changes?</source>
-        <translation type="obsolete">Impossible de sauvegarder les modifications dans &quot;%1&quot;. Voulez vous continuer et perdre vos modifications ?</translation>
-    </message>
-    <message>
-        <source>Cannot save file</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer le fichier</translation>
-    </message>
-    <message>
-        <source>Cannot save changes to &apos;%1&apos;. Do you want to continue and lose your changes?</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer les modifications dans &quot;%1&quot;. Voulez-vous continuer et perdre vos modifications ?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-    <message>
-        <source>Overwrite?</source>
-        <translation type="obsolete">Écraser ?</translation>
-    </message>
-    <message>
-        <source>An item named &apos;%1&apos; already exists at this location. Do you want to overwrite it?</source>
-        <translation type="obsolete">Un élément nommé &quot;%1&apos; existe déjà. Voulez-vous l&quot;écraser ?</translation>
-    </message>
-    <message>
-        <source>Save File As</source>
-        <translation type="obsolete">Enregistrer sous</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le Fichier</translation>
-    </message>
-    <message>
-        <source>File is Read Only</source>
-        <translation type="obsolete">Le Fichier est en Lecture Seule</translation>
-    </message>
-    <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Le fichier &lt;i&gt;%1&lt;/i&gt; est en lecture seule.</translation>
-    </message>
-    <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save as...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-    <message>
-        <source>Cannot reload %1</source>
-        <translation type="obsolete">Impossible de recharger %1</translation>
-    </message>
-    <message>
-        <source>Save as ...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Activer %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditMode</name>
-    <message>
-        <source>Edit</source>
-        <translation>Éditer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorSplitter</name>
-    <message>
-        <source>Split Left/Right</source>
-        <translation type="obsolete">Scinder gauche/droite</translation>
-    </message>
-    <message>
-        <source>Split Top/Bottom</source>
-        <translation type="obsolete">Scinder haut/bas</translation>
-    </message>
-    <message>
-        <source>Unsplit</source>
-        <translation type="obsolete">Fermer la vue courante</translation>
-    </message>
-    <message>
-        <source>Default Splitter Layout</source>
-        <translation type="obsolete">Arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Save Current as Default</source>
-        <translation type="obsolete">Sauvegarder comme arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Restore Default Layout</source>
-        <translation type="obsolete">Restaurer l&apos;arrangement par défaut</translation>
-    </message>
-    <message>
-        <source>Previous Document</source>
-        <translation type="obsolete">Document précédent</translation>
-    </message>
-    <message>
-        <source>Alt+Left</source>
-        <translation type="obsolete">Alt+Gauche</translation>
-    </message>
-    <message>
-        <source>Next Document</source>
-        <translation type="obsolete">Document suivant</translation>
-    </message>
-    <message>
-        <source>Alt+Right</source>
-        <translation type="obsolete">Alt+Droite</translation>
-    </message>
-    <message>
-        <source>Previous Group</source>
-        <translation type="obsolete">Groupe précédent</translation>
-    </message>
-    <message>
-        <source>Next Group</source>
-        <translation type="obsolete">Groupe suivant</translation>
-    </message>
-    <message>
-        <source>Move Document to Previous Group</source>
-        <translation type="obsolete">Déplacer le document vers le groupe précédent</translation>
-    </message>
-    <message>
-        <source>Move Document to Next Group</source>
-        <translation type="obsolete">Déplacer le document vers le groupe suivant</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::EditorView</name>
-    <message>
-        <source>Go Back</source>
-        <translation type="obsolete">Précédent</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="obsolete">Suivant</translation>
-    </message>
-    <message>
-        <source>Placeholder</source>
-        <translation type="obsolete">Paramètre fictif</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>File is writable</source>
-        <translation type="obsolete">Le fichier est inscriptible</translation>
-    </message>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Copier le chemin complet vers le presse-papier</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::GeneralSettings</name>
-    <message>
-        <source>General settings</source>
-        <translation type="obsolete">Réglages généraux</translation>
-    </message>
-    <message>
-        <source>User &amp;interface color:</source>
-        <translation type="obsolete">Couleur de l&apos;&amp;interface utilisateur :</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
-    </message>
-    <message>
         <source>Terminal:</source>
         <translation>Terminal :</translation>
     </message>
@@ -1412,10 +1167,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>The language change will take effect after a restart of Qt Creator.</source>
         <translation>Le changement de langue prendra effet au prochain démarrage de Qt Creator.</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
     </message>
     <message>
         <source>Variables</source>
@@ -1518,17 +1269,6 @@ Voulez vous les écraser ?</translation>
         <comment>Button text</comment>
         <translation>Réinitialiser les avertissements</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MainWindow</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Output</source>
-        <translation type="obsolete">Sortie</translation>
-    </message>
     <message>
         <source>&amp;File</source>
         <translation>&amp;Fichier</translation>
@@ -1594,16 +1334,8 @@ Voulez vous les écraser ?</translation>
         <translation>&amp;Fichiers récents</translation>
     </message>
     <message>
-        <source>&amp;Save</source>
-        <translation>&amp;Enregistrer</translation>
-    </message>
-    <message>
         <source>Save</source>
         <translation>Enregistrer</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>Enregistrer &amp;sous...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+S</source>
@@ -1759,53 +1491,10 @@ Voulez vous les écraser ?</translation>
         <source>Settings...</source>
         <translation>Paramètres...</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MessageOutputWindow</name>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Général</translation>
-    </message>
     <message>
         <source>General Messages</source>
         <translation>Messages généraux</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::NavComboBox</name>
-    <message>
-        <source>Activate %1</source>
-        <translation type="obsolete">Activer %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationSubWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NavigationWidget</name>
-    <message>
-        <source>Hide Sidebar</source>
-        <translation type="obsolete">Masquer la barre latérale</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation type="obsolete">Afficher la barre latérale</translation>
-    </message>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation type="obsolete">Activer le panneau %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::NewDialog</name>
     <message>
         <source>New Project</source>
         <translation>Nouveau projet</translation>
@@ -1846,52 +1535,10 @@ Voulez vous les écraser ?</translation>
         <source>Supported Platforms</source>
         <translation>Plateformes supportées</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWidget</name>
-    <message>
-        <source>Open Documents</source>
-        <translatorcomment>NB:il ne s&apos;agit pas ici d&apos;une action mais du panneau affichant les documents ouverts</translatorcomment>
-        <translation>Documents ouverts</translation>
-    </message>
-    <message>
-        <source>Close %1</source>
-        <translation type="obsolete">Fermer %1</translation>
-    </message>
-    <message>
-        <source>Close Editor</source>
-        <translation type="obsolete">Fermer l&apos;éditeur</translation>
-    </message>
-    <message>
-        <source>Close All Except %1</source>
-        <translation type="obsolete">Fermer tout sauf %1</translation>
-    </message>
-    <message>
-        <source>Close &quot;%1&quot;</source>
-        <translation type="obsolete">Fermer &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close All Except &quot;%1&quot;</source>
-        <translation type="obsolete">Fermer tout sauf &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Close Other Editors</source>
-        <translation type="obsolete">Fermer les autres éditeurs</translation>
-    </message>
-    <message>
-        <source>Close All Editors</source>
-        <translation type="obsolete">Fermer tous les éditeurs</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::OpenEditorsWindow</name>
     <message>
         <source>*</source>
         <translation>*</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OpenWithDialog</name>
     <message>
         <source>Open file &apos;%1&apos; with:</source>
         <translation>Ouvrir le fichier %1 avec :</translation>
@@ -1904,9 +1551,6 @@ Voulez vous les écraser ?</translation>
         <source>Open file extension with:</source>
         <translation>Ouvrir ce type d&apos;extension avec :</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::OutputPaneManager</name>
     <message>
         <source>Output</source>
         <translation>Sortie</translation>
@@ -1951,9 +1595,6 @@ Voulez vous les écraser ?</translation>
         <source>Minimize Output Pane</source>
         <translation>Minimiser le panneau de sortie</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::PluginDialog</name>
     <message>
         <source>Details</source>
         <translation>Détails</translation>
@@ -1961,10 +1602,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Error Details</source>
         <translation>Détails de l&apos;erreur</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
     </message>
     <message>
         <source>Restart required.</source>
@@ -1983,16 +1620,10 @@ Voulez vous les écraser ?</translation>
         <source>Plugin Errors of %1</source>
         <translation>Erreurs du plug-in %1</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressView</name>
     <message>
         <source>Processes</source>
         <translation>Processus</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SaveItemsDialog</name>
     <message>
         <source>Don&apos;t Save</source>
         <translation type="obsolete">Ne pas enregistrer</translation>
@@ -2004,10 +1635,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Save All</source>
         <translation>Tout enregistrer</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation>Enregistrer</translation>
     </message>
     <message>
         <source>Save Selected</source>
@@ -2025,16 +1652,9 @@ Voulez vous les écraser ?</translation>
         <source>Automatically save all files before building</source>
         <translation>Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ShortcutSettings</name>
     <message>
         <source>Keyboard</source>
         <translation>Clavier</translation>
-    </message>
-    <message>
-        <source>Environment</source>
-        <translation type="obsolete">Environnement</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -2064,20 +1684,6 @@ Voulez vous les écraser ?</translation>
         <source>Export Keyboard Mapping Scheme</source>
         <translation>Exporter le mapping clavier</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SideBarWidget</name>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VersionDialog</name>
     <message>
         <source>About Qt Creator</source>
         <translation>À propos de Qt Creator</translation>
@@ -2240,7 +1846,7 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>Core::ModeManager</name>
+    <name>::Core</name>
     <message>
         <source>Switch to %1 mode</source>
         <translation type="obsolete">Basculer vers le mode %1</translation>
@@ -2249,9 +1855,6 @@ Voulez vous les écraser ?</translation>
         <source>Switch to &lt;b&gt;%1&lt;/b&gt; mode</source>
         <translation>Basculer vers le mode &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
     <message>
         <source>Exception at line %1: %2
 %3</source>
@@ -2262,9 +1865,6 @@ Voulez vous les écraser ?</translation>
         <source>Unknown error</source>
         <translation>Erreur inconnue</translation>
     </message>
-</context>
-<context>
-    <name>Core::StandardFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
@@ -9433,7 +9033,7 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     </message>
 </context>
 <context>
-    <name>Locator</name>
+    <name>::Core</name>
     <message>
         <source>Filters</source>
         <translation type="obsolete">Filtres</translation>
@@ -10773,7 +10373,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidgetFactory</name>
+    <name>::Core</name>
     <message>
         <source>File System</source>
         <translation>Système de fichier</translation>
@@ -10789,10 +10389,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Filter Files</source>
         <translation>Fichiers de filtre</translation>
-    </message>
-    <message>
-        <source>Synchronize with Editor</source>
-        <translation type="obsolete">Synchroniser avec l&apos;éditeur</translation>
     </message>
 </context>
 <context>
@@ -12321,10 +11917,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec le gestionnaire de versions. </translation>
     </message>
     <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Impossible de définir les permissions</translation>
-    </message>
-    <message>
         <source>Cannot set permissions to writable.</source>
         <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
@@ -12648,268 +12240,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
         <translation type="obsolete">Journal de compilation de l&apos;assistant de debogage pour &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Binary not found</source>
-        <translation type="obsolete">Binaire non trouvé</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;GDB debugging helpers&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML type dumper&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%6 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;QML observer&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last modified:&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%9 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <extracomment>Tooltip showing the debugging helper library file.</extracomment>
-        <translation type="obsolete">&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Assistants au débogage de GDB&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%3 octets&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Dumper de type QML&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%4&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%6 octets&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan=&quot;2&quot;&gt;&lt;b&gt;Observateur QML&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Fichier :&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%7&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dernière modification :&lt;/td&gt;&lt;td&gt;%8&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Taille :&lt;/td&gt;&lt;td&gt;%9 octets&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>This Qt Version has a unknown toolchain.</source>
-        <translation type="obsolete">La version de Qt a une chaîne de compilation inconnue.</translation>
-    </message>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt Version is meant for the desktop</comment>
-        <translation type="obsolete">Desktop</translation>
-    </message>
-    <message>
-        <source>Symbian</source>
-        <comment>Qt Version is meant for Symbian</comment>
-        <translation type="obsolete">Symbian</translation>
-    </message>
-    <message>
-        <source>Maemo</source>
-        <comment>Qt Version is meant for Maemo</comment>
-        <translation type="obsolete">Maemo</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation type="obsolete">Qt Simulator</translation>
-    </message>
-    <message>
-        <source>unkown</source>
-        <comment>No idea what this Qt Version is meant for!</comment>
-        <translation type="obsolete">inconnue</translation>
-    </message>
-    <message>
-        <source>Found Qt version %1, using mkspec %2 (%3)</source>
-        <translation type="obsolete">Version %1 de Qt trouvée, utilise le mkspec %2 (%3)</translation>
-    </message>
-    <message>
-        <source>The Qt Version identified by %1 is not installed. Run make install</source>
-        <translation type="obsolete">La version de Qt indentifiée par %1 n&apos;est pas installée. Lancez make install</translation>
-    </message>
-    <message>
-        <source>%1 does not specify a valid Qt installation</source>
-        <translation type="obsolete">%1 ne spécifie pas une installation de Qt valide</translation>
-    </message>
-    <message>
-        <source>Found Qt version %1, using mkspec %2</source>
-        <translation type="obsolete">Version %1 de Qt trouvée, utilise le mkspec %2</translation>
-    </message>
-    <message>
-        <source>Qt versions</source>
-        <translation type="obsolete">Versions de Qt</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Nom</translation>
-    </message>
-    <message>
-        <source>Debugging Helper</source>
-        <translation type="obsolete">Assistance au débogage</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="obsolete">+</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation type="obsolete">-</translation>
-    </message>
-    <message>
-        <source>Version Name:</source>
-        <translation type="obsolete">Nom de version :</translation>
-    </message>
-    <message>
-        <source>MinGw Directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>MSVC Version:</source>
-        <translation type="obsolete">Version de MSVC :</translation>
-    </message>
-    <message>
-        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Unable to detect MSVC version.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Impossible de détecter la version de MSVC.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Debugging Helper:</source>
-        <translation type="obsolete">Assistance au débogage :</translation>
-    </message>
-    <message>
-        <source>Show &amp;Log</source>
-        <translation type="obsolete">Afficher les &amp;log</translation>
-    </message>
-    <message>
-        <source>&amp;Rebuild</source>
-        <translation type="obsolete">&amp;Recompiler</translation>
-    </message>
-    <message>
-        <source>Default Qt Version:</source>
-        <translation type="obsolete">Version de Qt par défaut :</translation>
-    </message>
-    <message>
-        <source>QMake Location</source>
-        <translation type="obsolete">Emplacement de QMake</translation>
-    </message>
-    <message>
-        <source>QMake Location:</source>
-        <translation type="obsolete">Emplacement de QMake :</translation>
-    </message>
-    <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">SDK S60 :</translation>
-    </message>
-    <message>
-        <source>Carbide Directory:</source>
-        <translation type="obsolete">Répertoire de Carbide :</translation>
-    </message>
-    <message>
-        <source>MinGW Directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>CSL/GCCE Directory:</source>
-        <translation type="obsolete">Répertoire CSL/GCCE :</translation>
-    </message>
-    <message>
-        <source>qmake Location</source>
-        <translation type="obsolete">Emplacement de QMake</translation>
-    </message>
-    <message>
-        <source>Version name:</source>
-        <translation type="obsolete">Nom de version :</translation>
-    </message>
-    <message>
-        <source>qmake location:</source>
-        <translation type="obsolete">Emplacement de QMake :</translation>
-    </message>
-    <message>
-        <source>MinGW directory:</source>
-        <translation type="obsolete">Répertoire de MinGW :</translation>
-    </message>
-    <message>
-        <source>Toolchain:</source>
-        <translation type="obsolete">Chaîne d&apos;outils :</translation>
-    </message>
-    <message>
-        <source>CSL/GCCE directory:</source>
-        <translation type="obsolete">Répertoire CSL/GCCE :</translation>
-    </message>
-    <message>
-        <source>Carbide directory:</source>
-        <translation type="obsolete">Répertoire de Carbide :</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Assistance au débogage :</translation>
-    </message>
-    <message>
-        <source>Unable to detect MSVC version.</source>
-        <translation type="obsolete">Impossible de détecter la version de MSVC. </translation>
-    </message>
-    <message>
-        <source>Debugging helpers:</source>
-        <translation type="obsolete">Assistants de débogage : </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
-    </message>
-    <message>
-        <source>Edit Variable</source>
-        <translation type="obsolete">Éditer une variable</translation>
-    </message>
-    <message>
-        <source>Variable Name:</source>
-        <translation type="obsolete">Nom de variable :</translation>
-    </message>
-    <message>
-        <source>Assignment Operator:</source>
-        <translation type="obsolete">Opérateur d&apos;assignation :</translation>
-    </message>
-    <message>
-        <source>Variable:</source>
-        <translation type="obsolete">Variable :</translation>
-    </message>
-    <message>
-        <source>Append (+=)</source>
-        <translation type="obsolete">Ajouté à la fin (+=)</translation>
-    </message>
-    <message>
-        <source>Remove (-=)</source>
-        <translation type="obsolete">Supprimer (-=)</translation>
-    </message>
-    <message>
-        <source>Replace (~=)</source>
-        <translation type="obsolete">Remplacer (~=)</translation>
-    </message>
-    <message>
-        <source>Set (=)</source>
-        <translation type="obsolete">Définir (=)</translation>
-    </message>
-    <message>
-        <source>Unique (*=)</source>
-        <translation type="obsolete">Unique (*=)</translation>
-    </message>
-    <message>
-        <source>Select Item</source>
-        <translation type="obsolete">Sélectionner élément</translation>
-    </message>
-    <message>
-        <source>Edit Item</source>
-        <translation type="obsolete">Éditer l&apos;élément</translation>
-    </message>
-    <message>
-        <source>Select Items</source>
-        <translation type="obsolete">Sélectionner les éléments</translation>
-    </message>
-    <message>
-        <source>Edit Items</source>
-        <translation type="obsolete">Éditer les éléments</translation>
-    </message>
-    <message>
-        <source>Edit Values</source>
-        <translation type="obsolete">Éditer les valeurs</translation>
-    </message>
-    <message>
-        <source>Edit %1</source>
-        <translation type="obsolete">Éditer %1</translation>
-    </message>
-    <message>
-        <source>Edit Scope</source>
-        <translation type="obsolete">Éditer la portée</translation>
-    </message>
-    <message>
-        <source>Edit Advanced Expression</source>
-        <translation type="obsolete">Éditer les expressions avancées</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator nécessite une configuration de compilation pour compiler. Configurez une chaîne de compilation dans le mode Projet.</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a tool chain set up to build. Configure a tool chain in Project mode.</source>
-        <translation type="obsolete">Qt Creator requiert une chaîne de compilation pour compiler. Configurez-en une dans le mode Projet. </translation>
     </message>
     <message>
         <source>Make</source>
@@ -13427,7 +12757,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Locator::ILocatorFilter</name>
+    <name>::Core</name>
     <message>
         <source>Filter Configuration</source>
         <translation>Configuration du filtre</translation>
@@ -13440,16 +12770,9 @@ p, li { white-space: pre-wrap; }
         <source>Prefix:</source>
         <translation>Préfixe :</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilter</name>
     <message>
         <source>Generic Directory Filter</source>
         <translation>Filtre de dossier générique</translation>
-    </message>
-    <message>
-        <source>Filter Configuration</source>
-        <translation>Configuration du filtre</translation>
     </message>
     <message>
         <source>Choose a directory to add</source>
@@ -13474,9 +12797,6 @@ p, li { white-space: pre-wrap; }
         <source>%1 filter update: canceled</source>
         <translation>Mise à jour du filtre %1 : annulée</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::DirectoryFilterOptions</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -13490,25 +12810,9 @@ p, li { white-space: pre-wrap; }
         <translation>Spécifier les filtres de nom de fichier, séparés par la virgule. Les filtres peuvent contenir des caractères de remplacement.</translation>
     </message>
     <message>
-        <source>Prefix:</source>
-        <translation>Préfixe :</translation>
-    </message>
-    <message>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Spécifier un mot court ou une abbréviation qui peut être utilisé pour réstreindre les complétions aux fichiers de cette arborescence. Pour ce faire, entrer ce raccourci et un espace dans le champs localisation, puis ensuite le mot à chercher.</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Limiter au préfixe</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -13527,13 +12831,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Ajouter</translation>
     </message>
     <message>
-        <source>Edit</source>
-        <translation>Éditer</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilter</name>
-    <message>
         <source>Files in file system</source>
         <translation type="obsolete">Fichiers du système de fichier</translation>
     </message>
@@ -13541,20 +12838,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Files in File System</source>
         <translation>Fichiers dans le système de fichiers</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::FileSystemFilterOptions</name>
     <message>
         <source>Filter configuration</source>
         <translation type="obsolete">Configuration du filtre</translation>
-    </message>
-    <message>
-        <source>Prefix:</source>
-        <translation>Préfixe :</translation>
-    </message>
-    <message>
-        <source>Limit to prefix</source>
-        <translation>Limiter au préfixe</translation>
     </message>
     <message>
         <source>Include hidden files</source>
@@ -13568,9 +12854,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Add Filter Configuration</source>
         <translation>Ajouter un filtre de configuration</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::OpenDocumentsFilter</name>
     <message>
         <source>Open documents</source>
         <translation type="obsolete">Ouvrir des documents</translation>
@@ -13579,16 +12862,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Open Documents</source>
         <translation>Documents ouverts</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorFiltersFilter</name>
     <message>
         <source>Available filters</source>
         <translation>Filtres disponibles</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorPlugin</name>
     <message>
         <source>Ctrl+K</source>
         <translation>Ctrl+K</translation>
@@ -13605,9 +12882,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Indexing</source>
         <translation>Indexation</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::LocatorWidget</name>
     <message>
         <source>Refresh</source>
         <translation>Rafraîchir</translation>
@@ -13621,10 +12895,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Localiser...</translation>
     </message>
     <message>
-        <source>Type to locate</source>
-        <translation type="obsolete">Taper pour localiser</translation>
-    </message>
-    <message>
         <source>Options</source>
         <translation>Options</translation>
     </message>
@@ -13632,62 +12902,13 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>&lt;type here&gt;</source>
         <translation>&lt;taper ici&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsDialog</name>
-    <message>
-        <source>Configure Filters</source>
-        <translation type="obsolete">Configurer les filtres</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-    <message>
-        <source>Refresh Interval:</source>
-        <translation type="obsolete">Intervalle de raffraichissement :</translation>
-    </message>
-    <message>
-        <source> min</source>
-        <translation type="obsolete">min</translation>
-    </message>
-    <message>
-        <source>Refresh now!</source>
-        <translation type="obsolete">Raffraîchir maintenant !</translation>
-    </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsPage</name>
-    <message>
-        <source>%1 (Prefix: %2)</source>
-        <translation type="obsolete">%1 (Préfixe : %2)</translation>
-    </message>
     <message>
         <source>%1 (prefix: %2)</source>
         <translation>%1 (préfixe : %2)</translation>
     </message>
-</context>
-<context>
-    <name>Locator::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Configurer les filtres</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Edit</source>
@@ -17759,14 +16980,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Core::Internal::SettingsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Preferences</source>
         <translation>Préférences</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation>Options</translation>
     </message>
 </context>
 <context>
@@ -22654,7 +21871,7 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     </message>
 </context>
 <context>
-    <name>Core::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command</source>
         <translation>Commande</translation>
@@ -22663,9 +21880,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source>Label</source>
         <translation>Libellé</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -22682,30 +21896,13 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source>Clear Menu</source>
         <translation>Effacer le menu</translation>
     </message>
-</context>
-<context>
-    <name>Core::DesignMode</name>
     <message>
         <source>Design</source>
         <translation>Design</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SystemEditor</name>
     <message>
         <source>Could not open url %1.</source>
         <translation>Impossible d&apos;ouvrir l&apos;url %1.</translation>
-    </message>
-</context>
-<context>
-    <name>Core::EditorToolBar</name>
-    <message>
-        <source>Copy full path to clipboard</source>
-        <translation type="obsolete">Copier le chemin complet vers le presse-papier</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -22714,14 +21911,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     <message>
         <source>Remove Split</source>
         <translation>Supprimer la séparation</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Make writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
     </message>
     <message>
         <source>File is writable</source>
@@ -22742,14 +21931,11 @@ francis : je ne vois pas non plus. Ou un truc du genre &quot;Arriére plan crypt
     </message>
 </context>
 <context>
-    <name>Core::InteractiveSshConnection</name>
+    <name>::Core</name>
     <message>
         <source>Error sending input</source>
         <translation type="obsolete">Erreur lors de l&apos;envoi de l&apos;entrée</translation>
     </message>
-</context>
-<context>
-    <name>Core::SftpConnection</name>
     <message>
         <source>Error setting up SFTP subsystem</source>
         <translation type="obsolete">Erreur lors de la configuration du sous-systeme SFTP</translation>
@@ -24229,11 +23415,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Core::FolderNavigationWidget</name>
-    <message>
-        <source>Open</source>
-        <translation>Ouvrir</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Open parent folder</source>
         <translation type="obsolete">Ouvrir le dossier parent</translation>
@@ -24297,59 +23479,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Find in this directory...</source>
         <translation>Chercher dans ce dossier...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Montrer le contenu du dossier...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Ouvre une invite de commande ici...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Ouvrir un terminal ici...</translation>
-    </message>
-    <message>
-        <source>Launching a file browser failed</source>
-        <translation type="obsolete">Échec du lancement du navigateur de fichier</translation>
-    </message>
-    <message>
-        <source>Unable to start the file manager:
-
-%1
-
-</source>
-        <translation type="obsolete">Impossible de démarrer le gestionnaire de fichiers :
-
-%1
-
-</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; returned the following error:
-
-%2</source>
-        <translation type="obsolete">&apos;%1&apos; retourne l&apos;erreur suivante :
-
-%2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation type="obsolete">Paramètres...</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer Failed</source>
-        <translation type="obsolete">Échec du lancement de l&apos;explorateur Windows</translation>
-    </message>
-    <message>
-        <source>Launching Windows Explorer failed</source>
-        <translation type="obsolete">Échec du lancement de l&apos;Explorateur Windows</translation>
-    </message>
-    <message>
-        <source>Could not find explorer.exe in path to launch Windows Explorer.</source>
-        <translatorcomment>chemin ?</translatorcomment>
-        <translation type="obsolete">Impossible de trouver explorer.exe dans le path pour lancer l&apos;explorateur Windows.</translation>
     </message>
 </context>
 <context>
@@ -26656,7 +25785,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Core::HelpManager</name>
+    <name>::Core</name>
     <message>
         <source>Unfiltered</source>
         <translation>Sans filtre</translation>
@@ -27298,14 +26427,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandComboBox</name>
-    <message>
-        <source>Activate %1 Pane</source>
-        <translation>Activer le panneau %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::NavigationWidget</name>
+    <name>::Core</name>
     <message>
         <source>Activate %1 Pane</source>
         <translation>Activer le panneau %1</translation>
@@ -27313,93 +26435,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Hide Sidebar</source>
         <translation>Masquer la barre latérale</translation>
-    </message>
-    <message>
-        <source>Show Sidebar</source>
-        <translation>Afficher la barre latérale</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::SftpChannelPrivate</name>
-    <message>
-        <source>Server could not start sftp subsystem.</source>
-        <translation type="obsolete">Le serveur ne peut démarrer le sous-système sftp.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Paquet de type %1 inattendu.</translation>
-    </message>
-    <message>
-        <source>Protocol version mismatch: Expected %1, got %2</source>
-        <translation type="obsolete">Conflit de version de protocole : %1 attendue, %2 detectée</translation>
-    </message>
-    <message>
-        <source>Unknown error.</source>
-        <translation type="obsolete">Erreur inconnue.</translation>
-    </message>
-    <message>
-        <source>Created remote directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Création du répertoire distant &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Remote directory &apos;%1&apos; already exists.</source>
-        <translation type="obsolete">Le répertoire distant &quot;%1&quot; existe déjà.</translation>
-    </message>
-    <message>
-        <source>Error creating directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur lors de la création du répertoire &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Could not open local file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier local &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Remote directory could not be opened for reading.</source>
-        <translation type="obsolete">Le répertoire distant ne peut pas être ouvert pour lecture.</translation>
-    </message>
-    <message>
-        <source>Failed to list remote directory contents.</source>
-        <translation type="obsolete">Impossible de lister le contenu du répertoire distant.</translation>
-    </message>
-    <message>
-        <source>Failed to close remote directory.</source>
-        <translation type="obsolete">Impossible de fermer le répertoire distant.</translation>
-    </message>
-    <message>
-        <source>Failed to open remote file for reading.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier distant pour lecture.</translation>
-    </message>
-    <message>
-        <source>Failed retrieve information on the remote file (&apos;stat&apos; failed).</source>
-        <translation type="obsolete">Impossible de récupérer les informations  sur le fichier distant (&apos;échec de &apos;stat&apos;).</translation>
-    </message>
-    <message>
-        <source>Failed to read remote file.</source>
-        <translation type="obsolete">Impossible de lire le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Failed to close remote file.</source>
-        <translation type="obsolete">Impossible de fermer le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Failed to open remote file for writing.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier distant pour écriture.</translation>
-    </message>
-    <message>
-        <source>Failed to write remote file.</source>
-        <translation type="obsolete">Impossible d&apos;écrire sur le fichier distant.</translation>
-    </message>
-    <message>
-        <source>Cannot append to remote file: Server does not support the file size attribute.</source>
-        <translation type="obsolete">Impossible d&apos;ajouter à la fin du fichier distant : le serveur ne supporte pas l&apos;attribut taille du fichier.</translation>
-    </message>
-    <message>
-        <source>Server could not start session.</source>
-        <translation type="obsolete">Le serveur ne peut pas démarrer la session.</translation>
-    </message>
-    <message>
-        <source>Error reading local file: %1</source>
-        <translation type="obsolete">Erreur lors de la lecture du fichier local : %1</translation>
     </message>
 </context>
 <context>
@@ -27412,14 +26447,11 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::SshChannelManager</name>
+    <name>::Core</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Identifiant %1 du canal invalide</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Erreur dans le protocole SSH : %1</translation>
@@ -30126,7 +29158,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Core::ExternalToolConfig</name>
+    <name>::Core</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -30136,24 +29168,12 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <translation>Ajouter un outil</translation>
     </message>
     <message>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
         <source>Remove tool</source>
         <translation>Supprimer un outil</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Revert tool to default</source>
         <translation>Rétablir l&apos;outil par défaut</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation>Réinitialiser</translation>
     </message>
     <message>
         <source>Description:</source>
@@ -30237,131 +29257,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     <message>
         <source>Add Category</source>
         <translation>Ajouter une catégorie</translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Boîte de dialogue</translation>
-    </message>
-    <message>
-        <source>Value:</source>
-        <translation type="obsolete">Valeur : </translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation type="obsolete">Chaîne de caractères</translation>
-    </message>
-    <message>
-        <source>Byte</source>
-        <translation type="obsolete">Octet</translation>
-    </message>
-    <message>
-        <source>Use Recommended</source>
-        <translation type="obsolete">Utiliser le paramètre recommandé</translation>
-    </message>
-    <message>
-        <source>Start range:</source>
-        <translation type="obsolete">Début de l&apos;intervalle : </translation>
-    </message>
-    <message>
-        <source>End range:</source>
-        <translation type="obsolete">Fin de l&apos;intervalle : </translation>
-    </message>
-    <message>
-        <source>Priority:</source>
-        <translation type="obsolete">Priorité : </translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact on Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Registered MIME Types</source>
-        <translation type="obsolete">Types MIME enregistrés</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Détails</translation>
-    </message>
-    <message>
-        <source>Patterns:</source>
-        <translation type="obsolete">Motifs : </translation>
-    </message>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">En-tête magique</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>Range</source>
-        <translation type="obsolete">Intervalle</translation>
-    </message>
-    <message>
-        <source>Priority</source>
-        <translation type="obsolete">Priorité</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Éditer</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Reset all to default.</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut.</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-</context>
-<context>
-    <name>Core::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation type="obsolete">Variables</translation>
-    </message>
-    <message>
-        <source>Select a variable to insert.</source>
-        <translation type="obsolete">Sélectionner une variable à insérer. </translation>
     </message>
     <message>
         <source>Insert variable</source>
@@ -32250,7 +31145,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolModel</name>
+    <name>::Core</name>
     <message>
         <source>Uncategorized</source>
         <translation>Sans catégorie</translation>
@@ -32280,9 +31175,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <extracomment>Sample external tool text</extracomment>
         <translation>Texte utile</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalTool</name>
     <message>
         <source>Could not open tool specification %1 for reading: %2</source>
         <translation type="obsolete">Impossible d&apos;ouvrir les spécificatrions d&apos;outil %1 pour lecture : %2</translation>
@@ -32369,9 +31261,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Error while parsing external tool %1: %2</source>
         <translation>Erreur lors de l&apos;analyse de l&apos;outil externe %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ExternalToolRunner</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -32389,13 +31278,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>&apos;%1&apos; finished</source>
         <translation>&quot;%1&quot; a fini</translation>
     </message>
-</context>
-<context>
-    <name>Core::ExternalToolManager</name>
-    <message>
-        <source>Configure...</source>
-        <translation>Configurer...</translation>
-    </message>
     <message>
         <source>External</source>
         <translation type="obsolete">Externe</translation>
@@ -32405,19 +31287,8 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <translation>&amp;Externe</translation>
     </message>
     <message>
-        <source>Error while parsing external tool %1: %2</source>
-        <translation>Erreur lors du parsage de l&apos;outil externe %1 : %2</translation>
-    </message>
-    <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Erreur : outil externe dans %1 a un identifiant dupliqué</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeMagicDialog</name>
-    <message>
-        <source>Magic Header</source>
-        <translation type="obsolete">En-tête magique</translation>
     </message>
     <message>
         <source>Add Magic Header</source>
@@ -32471,9 +31342,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : de grands intervalles pourraient avoir un impact sur les performances de Qt Creator à l&apos;ouverture des fichiers. &lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsModel</name>
     <message>
         <source>MIME Type</source>
         <translation>Type MIME</translation>
@@ -32502,13 +31370,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
             <numerusform>%n motifs déjà utilisés.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPrivate</name>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
-    </message>
     <message>
         <source>No MIME type selected.</source>
         <translation>Pas de type MIME sélectionné. </translation>
@@ -32525,23 +31386,10 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Changes will take effect in the next time you start Qt Creator.</source>
         <translation>Les changements vont prendre effet au prochain démarrage de Qt Creator. </translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettings</name>
-    <message>
-        <source>MIME Types</source>
-        <translation>Types MIME</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::ToolSettings</name>
     <message>
         <source>External Tools</source>
         <translation>Outils externes</translation>
     </message>
-</context>
-<context>
-    <name>Core::VcsManager</name>
     <message>
         <source>%1 repository was detected but %1 is not configured.</source>
         <translation>Le dépôt %1 a été détecté mais %1 n&apos;est pas configuré.</translation>
@@ -36673,7 +35521,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Core::Internal::PromptOverwriteDialog</name>
+    <name>::Core</name>
     <message>
         <source>Overwrite Existing Files</source>
         <translation>Écraser les fichiers existants</translation>
@@ -36684,27 +35532,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
 Would you like to overwrite them?</source>
         <translation>Les fichiers suivants existent déjà dans le dossier %1. Voulez-vous les écraser ? </translation>
     </message>
-</context>
-<context>
-    <name>Core::IFile</name>
     <message>
         <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
         <translation type="obsolete">Le fichier a été restauré depuis une copie de sauvegarde automatique. Utilisez &lt;i&gt;Sauver&lt;/i&gt; pour confirmer ou &lt;i&gt;Retour à la sauvegarde&lt;/i&gt; pour effacer les changements. </translation>
     </message>
-</context>
-<context>
-    <name>Core::InfoBarDisplay</name>
     <message>
         <source>Do not show again</source>
         <translation>Ne plus afficher</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
-</context>
-<context>
-    <name>Core::OutputWindow</name>
     <message>
         <source>Additional output omitted
 </source>
@@ -39755,7 +38590,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Core::Internal</name>
+    <name>::Core</name>
     <message>
         <source>Launching a file browser failed</source>
         <translation>Échec du lancement du navigateur de fichier</translation>
@@ -39779,10 +38614,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>&apos;%1&apos; retourne l&apos;erreur suivante :
 
 %2</translation>
-    </message>
-    <message>
-        <source>Settings...</source>
-        <translation>Paramètres...</translation>
     </message>
     <message>
         <source>Launching Windows Explorer Failed</source>
@@ -39824,29 +38655,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <source>Could not delete file %1.</source>
         <translation>Impossible de supprimer le fichier %1.</translation>
     </message>
-    <message>
-        <source>Show in Explorer...</source>
-        <translation type="obsolete">Afficher dans l&apos;explorateur de fichier...</translation>
-    </message>
-    <message>
-        <source>Show in Finder...</source>
-        <translation type="obsolete">Afficher dans Finder...</translation>
-    </message>
-    <message>
-        <source>Show Containing Folder...</source>
-        <translation type="obsolete">Montrer le contenu du dossier...</translation>
-    </message>
-    <message>
-        <source>Open Command Prompt Here...</source>
-        <translation type="obsolete">Ouvre une invite de commande ici...</translation>
-    </message>
-    <message>
-        <source>Open Terminal Here...</source>
-        <translation type="obsolete">Ouvrir un terminal ici...</translation>
-    </message>
-</context>
-<context>
-    <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
         <translation>Impossible de créer le répertoire %1.</translation>
@@ -40873,18 +39681,10 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>Core::Internal::CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Mappages de commandes</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation>Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>Libellé</translation>
     </message>
     <message>
         <source>Target</source>
@@ -40919,17 +39719,6 @@ Filtre : %2
         <translation>Restaurer les paramètres par défaut</translation>
     </message>
     <message>
-        <source>Reset</source>
-        <translation>Réinitialiser</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
-    <message>
         <source>Registered MIME Types</source>
         <translation>Types MIME enregistrés</translation>
     </message>
@@ -40938,24 +39727,12 @@ Filtre : %2
         <translation>Restaurer tous les paramètres par défaut.</translation>
     </message>
     <message>
-        <source>Reset All</source>
-        <translation>Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
         <source>Patterns:</source>
         <translation>Motifs : </translation>
     </message>
     <message>
         <source>Magic Header</source>
         <translation>En-tête magique</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
     </message>
     <message>
         <source>Range</source>
@@ -40974,19 +39751,8 @@ Filtre : %2
         <translation>Modifier...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-    <message>
         <source>Filter</source>
         <translation>Filtre</translation>
-    </message>
-</context>
-<context>
-    <name>Core::Internal::VariableChooser</name>
-    <message>
-        <source>Variables</source>
-        <translation>Variables</translation>
     </message>
     <message>
         <source>Select a variable to insert.</source>
@@ -43168,15 +41934,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Core::DocumentManager</name>
+    <name>::Core</name>
     <message>
         <source>Could not save the files.</source>
         <comment>error message</comment>
         <translation>Impossible d&apos;enregistrer les fichiers.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Erreur de fichier</translation>
     </message>
     <message>
         <source>Error while saving file: %1</source>
@@ -43203,10 +41965,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">Le fichier est en lecture seule</translation>
     </message>
     <message>
-        <source>The file &lt;i&gt;%1&lt;/i&gt; is read only.</source>
-        <translation type="obsolete">Le fichier &lt;i&gt;%1&lt;/i&gt; est en lecture seule.</translation>
-    </message>
-    <message>
         <source>Make &amp;Writable</source>
         <translation type="obsolete">Rendre &amp;inscriptible</translation>
     </message>
@@ -43215,27 +41973,8 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">Enregistrer &amp;sous...</translation>
     </message>
     <message>
-        <source>Open with VCS (%1)</source>
-        <translation type="obsolete">Ouvrir avec VCS (%1)</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation type="obsolete">Rendre inscriptible</translation>
-    </message>
-    <message>
-        <source>Save As...</source>
-        <translation type="obsolete">Enregistrer sous...</translation>
-    </message>
-    <message>
         <source>Cannot reload %1</source>
         <translation>Impossible de recharger %1</translation>
-    </message>
-</context>
-<context>
-    <name>Core::IDocument</name>
-    <message>
-        <source>File was restored from auto-saved copy. Use &lt;i&gt;Save&lt;/i&gt; to confirm, or &lt;i&gt;Revert to Saved&lt;/i&gt; to discard changes.</source>
-        <translation type="obsolete">Le fichier a été restauré depuis une copie de sauvegarde automatique. Utilisez &lt;i&gt;Sauver&lt;/i&gt; pour confirmer ou &lt;i&gt;Retour à la sauvegarde&lt;/i&gt; pour effacer les changements. </translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -43415,7 +42154,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Locator::Internal::ExecuteFilter</name>
+    <name>::Core</name>
     <message>
         <source>Previous command is still running (&apos;%1&apos;).
 Do you want to kill it?</source>
@@ -44555,7 +43294,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Core::RemoveFileDialog</name>
+    <name>::Core</name>
     <message>
         <source>Remove File</source>
         <translation>Supprimer le fichier</translation>
@@ -46105,7 +44844,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>Core::Internal::OpenEditorsViewFactory</name>
+    <name>::Core</name>
     <message>
         <source>Meta+O</source>
         <translation>Meta+O</translation>
@@ -46114,9 +44853,6 @@ Oui :)</translatorcomment>
         <source>Alt+O</source>
         <translation>Alt+O</translation>
     </message>
-</context>
-<context>
-    <name>Core::IVersionControl</name>
     <message>
         <source>Open with VCS (%1)</source>
         <translation>Ouvrir avec VCS (%1)</translation>
@@ -48576,7 +47312,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ReadOnlyFilesDialog</name>
+    <name>::Core</name>
     <message>
         <source>Files Without Write Permissions</source>
         <translation>Fichiers sans permisions d&apos;écriture</translation>
@@ -48584,10 +47320,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     <message>
         <source>The following files have no write permissions. Do you want to change the permissions?</source>
         <translation>Les fichiers suivants n&apos;ont pas de permission d&apos;écriture. Souhaitez-vous changer les permissions ?</translation>
-    </message>
-    <message>
-        <source>Make Writable</source>
-        <translation>Rendre inscriptible</translation>
     </message>
     <message>
         <source>Open with VCS</source>
@@ -50662,7 +49394,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Core::ICore</name>
+    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -50675,9 +49407,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Based on Qt %1 (%2, %3 bit)</source>
         <translation>Basé sur Qt %1 (%2, %3 bit)</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::ProgressManagerPrivate</name>
     <message>
         <source>Toggle Progress Details</source>
         <translation>Activer/désactiver les détails de la progression</translation>
@@ -50690,9 +49419,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Alt+Shift+0</source>
         <translation>Alt+Shift+0</translation>
     </message>
-</context>
-<context>
-    <name>Core::VariableManager</name>
     <message>
         <source>%1: Full path including file name.</source>
         <translation>%1 : chemin complet incluant le nom du fichier.</translation>
@@ -52999,11 +51725,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::AddToVcsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialogue</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Add the file to version control (%1)</source>
         <translation>Ajouter le fichier au contrôle de version (%1)</translation>
@@ -53898,7 +52620,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Core::DocumentModel</name>
+    <name>::Core</name>
     <message>
         <source>&lt;no document&gt;</source>
         <translation>&lt;aucun document&gt;</translation>

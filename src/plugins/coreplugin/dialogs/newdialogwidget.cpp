@@ -3,8 +3,9 @@
 
 #include "newdialogwidget.h"
 
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
+#include "../coreplugintr.h"
+#include "../icontext.h"
+#include "../icore.h"
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -32,7 +33,7 @@ Q_DECLARE_METATYPE(Core::IWizardFactory*)
 
 using namespace Utils;
 
-namespace {
+namespace Core::Internal {
 
 const int ICON_SIZE = 48;
 const char LAST_CATEGORY_KEY[] = "Core/NewDialog/LastCategory";
@@ -41,9 +42,6 @@ const char ALLOW_ALL_TEMPLATES[] = "Core/NewDialog/AllowAllTemplates";
 const char SHOW_PLATOFORM_FILTER[] = "Core/NewDialog/ShowPlatformFilter";
 const char BLACKLISTED_CATEGORIES_KEY[] = "Core/NewDialog/BlacklistedCategories";
 const char ALTERNATIVE_WIZARD_STYLE[] = "Core/NewDialog/AlternativeWizardStyle";
-
-using namespace Core;
-using namespace Core::Internal;
 
 class WizardFactoryContainer
 {
@@ -150,13 +148,11 @@ public:
     }
 };
 
-}
+}  // Core::Internal
 
-Q_DECLARE_METATYPE(WizardFactoryContainer)
+Q_DECLARE_METATYPE(Core::Internal::WizardFactoryContainer)
 
-using namespace Core;
-using namespace Core::Internal;
-using namespace Layouting;
+namespace Core::Internal {
 
 NewDialogWidget::NewDialogWidget(QWidget *parent)
     : QDialog(parent)
@@ -197,11 +193,12 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     m_templateDescription->setFocusPolicy(Qt::NoFocus);
     m_templateDescription->setFrameShape(QFrame::NoFrame);
 
+    using namespace Layouting;
+
     Column { m_imageLabel, m_templateDescription }.attachTo(frame);
 
     Column {
-        Row { QCoreApplication::translate("Core::Internal::NewDialog", "Choose a template:"),
-              st, m_comboBox },
+        Row { Tr::tr("Choose a template:"), st, m_comboBox },
         Row { m_templateCategoryView, m_templatesView, frame },
         buttonBox
     }.attachTo(this);
@@ -211,7 +208,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     frame->setPalette(p);
     m_okButton = buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
-    m_okButton->setText(tr("Choose..."));
+    m_okButton->setText(Tr::tr("Choose..."));
 
     m_model = new QStandardItemModel(this);
 
@@ -279,10 +276,10 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
     m_model->clear();
     QStandardItem *parentItem = m_model->invisibleRootItem();
 
-    QStandardItem *projectKindItem = new QStandardItem(tr("Projects"));
+    QStandardItem *projectKindItem = new QStandardItem(Tr::tr("Projects"));
     projectKindItem->setData(IWizardFactory::ProjectWizard, Qt::UserRole);
     projectKindItem->setFlags({}); // disable item to prevent focus
-    QStandardItem *filesKindItem = new QStandardItem(tr("Files and Classes"));
+    QStandardItem *filesKindItem = new QStandardItem(Tr::tr("Files and Classes"));
     filesKindItem->setData(IWizardFactory::FileWizard, Qt::UserRole);
     filesKindItem->setFlags({}); // disable item to prevent focus
 
@@ -293,11 +290,11 @@ void NewDialogWidget::setWizardFactories(QList<IWizardFactory *> factories,
 
     const bool allowAllTemplates = ICore::settings()->value(ALLOW_ALL_TEMPLATES, true).toBool();
     if (allowAllTemplates)
-        m_comboBox->addItem(tr("All Templates"), Id().toSetting());
+        m_comboBox->addItem(Tr::tr("All Templates"), Id().toSetting());
 
     for (Id platform : availablePlatforms) {
         const QString displayNameForPlatform = IWizardFactory::displayNameForPlatform(platform);
-        m_comboBox->addItem(tr("%1 Templates").arg(displayNameForPlatform), platform.toSetting());
+        m_comboBox->addItem(Tr::tr("%1 Templates").arg(displayNameForPlatform), platform.toSetting());
     }
 
     m_comboBox->setCurrentIndex(0); // "All templates"
@@ -443,9 +440,9 @@ void NewDialogWidget::currentItemChanged(const QModelIndex &index)
             desciption.replace(QLatin1Char('\n'), QLatin1String("<br>"));
         desciption += QLatin1String("<br><br><b>");
         if (wizard->flags().testFlag(IWizardFactory::PlatformIndependent))
-            desciption += tr("Platform independent") + QLatin1String("</b>");
+            desciption += Tr::tr("Platform independent") + QLatin1String("</b>");
         else
-            desciption += tr("Supported Platforms")
+            desciption += Tr::tr("Supported Platforms")
                     + QLatin1String("</b>: <ul>")
                     + "<li>" + displayNamesForSupportedPlatforms.join("</li><li>") + "</li>"
                     + QLatin1String("</ul>");
@@ -511,3 +508,5 @@ void NewDialogWidget::setSelectedPlatform(int /*platform*/)
     //The static cast allows us to keep PlatformFilterProxyModel anonymous
     static_cast<PlatformFilterProxyModel *>(m_filterProxyModel)->setPlatform(selectedPlatform());
 }
+
+} // Core::Internal

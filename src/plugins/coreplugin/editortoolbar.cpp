@@ -3,13 +3,14 @@
 
 #include "editortoolbar.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/editormanager/documentmodel.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/icore.h>
+#include "actionmanager/actionmanager.h"
+#include "actionmanager/command.h"
+#include "coreplugintr.h"
+#include "editormanager/documentmodel.h"
+#include "editormanager/editormanager.h"
+#include "editormanager/editormanager_p.h"
+#include "editormanager/ieditor.h"
+#include "icore.h"
 
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
@@ -72,16 +73,16 @@ EditorToolBarPrivate::EditorToolBarPrivate(QWidget *parent, EditorToolBar *q) :
     m_lockButton(new QToolButton(q)),
     m_dragHandle(new QToolButton(q)),
     m_dragHandleMenu(nullptr),
-    m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), EditorManager::tr("Go Back"), parent)),
-    m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), EditorManager::tr("Go Forward"), parent)),
+    m_goBackAction(new QAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Go Back"), parent)),
+    m_goForwardAction(new QAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Go Forward"), parent)),
     m_backButton(new QToolButton(q)),
     m_forwardButton(new QToolButton(q)),
     m_splitButton(new QToolButton(q)),
     m_horizontalSplitAction(new QAction(Utils::Icons::SPLIT_HORIZONTAL.icon(),
-                                        EditorManager::tr("Split"), parent)),
+                                        Tr::tr("Split"), parent)),
     m_verticalSplitAction(new QAction(Utils::Icons::SPLIT_VERTICAL.icon(),
-                                      EditorManager::tr("Split Side by Side"), parent)),
-    m_splitNewWindowAction(new QAction(EditorManager::tr("Open in New Window"), parent)),
+                                      Tr::tr("Split Side by Side"), parent)),
+    m_splitNewWindowAction(new QAction(Tr::tr("Open in New Window"), parent)),
     m_closeSplitButton(new QToolButton(q)),
     m_activeToolBar(nullptr),
     m_toolBarPlaceholder(new QWidget(q)),
@@ -109,7 +110,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_lockButton->setEnabled(false);
 
     d->m_dragHandle->setProperty("noArrow", true);
-    d->m_dragHandle->setToolTip(tr("Drag to drag documents between splits"));
+    d->m_dragHandle->setToolTip(Tr::tr("Drag to drag documents between splits"));
     d->m_dragHandle->installEventFilter(this);
     d->m_dragHandleMenu = new QMenu(d->m_dragHandle);
     d->m_dragHandle->setMenu(d->m_dragHandleMenu);
@@ -138,7 +139,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
     d->m_forwardButton->setDefaultAction(d->m_goForwardAction);
 
     d->m_splitButton->setIcon(Utils::Icons::SPLIT_HORIZONTAL_TOOLBAR.icon());
-    d->m_splitButton->setToolTip(tr("Split"));
+    d->m_splitButton->setToolTip(Tr::tr("Split"));
     d->m_splitButton->setPopupMode(QToolButton::InstantPopup);
     d->m_splitButton->setProperty("noArrow", true);
     auto splitMenu = new QMenu(d->m_splitButton);
@@ -347,10 +348,10 @@ void EditorToolBar::setCanGoForward(bool canGoForward)
 
 void EditorToolBar::updateActionShortcuts()
 {
-    d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(EditorManager::tr("Close Document")));
+    d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(Tr::tr("Close Document")));
     d->m_goBackAction->setToolTip(ActionManager::command(Constants::GO_BACK)->action()->toolTip());
     d->m_goForwardAction->setToolTip(ActionManager::command(Constants::GO_FORWARD)->action()->toolTip());
-    d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
+    d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(Tr::tr("Remove Split")));
 }
 
 void EditorToolBar::checkDocumentStatus(IDocument *document)
@@ -383,12 +384,12 @@ void EditorToolBar::updateDocumentStatus(IDocument *document)
         const static QIcon locked = Utils::Icons::LOCKED_TOOLBAR.icon();
         d->m_lockButton->setIcon(locked);
         d->m_lockButton->setEnabled(true);
-        d->m_lockButton->setToolTip(tr("Make Writable"));
+        d->m_lockButton->setToolTip(Tr::tr("Make Writable"));
     } else {
         const static QIcon unlocked = Utils::Icons::UNLOCKED_TOOLBAR.icon();
         d->m_lockButton->setIcon(unlocked);
         d->m_lockButton->setEnabled(false);
-        d->m_lockButton->setToolTip(tr("File is writable"));
+        d->m_lockButton->setToolTip(Tr::tr("File is writable"));
     }
 
     if (document->filePath().isEmpty())

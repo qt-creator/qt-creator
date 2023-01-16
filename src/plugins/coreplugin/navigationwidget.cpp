@@ -228,7 +228,7 @@ void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &fac
         const Id actionId = id.withPrefix("QtCreator.Sidebar.");
 
         if (!ActionManager::command(actionId)) {
-            QAction *action = new QAction(tr("Activate %1 View").arg(factory->displayName()), this);
+            QAction *action = new QAction(Tr::tr("Activate %1 View").arg(factory->displayName()), this);
             d->m_actionMap.insert(action, id);
             connect(action, &QAction::triggered, this, [this, action] {
                 NavigationWidget::activateSubWidget(d->m_actionMap[action], Side::Left);

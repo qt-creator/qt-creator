@@ -45,7 +45,6 @@ private:
 
 class OpenEditorsWidget : public OpenDocumentsTreeView
 {
-    Q_DECLARE_TR_FUNCTIONS(OpenEditorsWidget)
 public:
     OpenEditorsWidget();
     ~OpenEditorsWidget() override;

@@ -1,12 +1,12 @@
 // Copyright (C) 2016 Thorben Kroeger <thorbenkroeger@gmail.com>.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "coreconstants.h"
-#include "icore.h"
-#include "manhattanstyle.h"
 #include "themechooser.h"
 
+#include "coreconstants.h"
+#include "coreplugintr.h"
 #include "dialogs/restartdialog.h"
+#include "icore.h"
 
 #include <utils/algorithm.h>
 #include <utils/theme/theme.h>
@@ -46,7 +46,7 @@ QString ThemeEntry::displayName() const
     if (m_displayName.isEmpty() && !m_filePath.isEmpty()) {
         QSettings settings(m_filePath, QSettings::IniFormat);
         m_displayName = settings.value(QLatin1String(themeNameKey),
-                                       QCoreApplication::tr("unnamed")).toString();
+                                       Tr::tr("unnamed")).toString();
     }
     return m_displayName;
 }
@@ -118,8 +118,7 @@ ThemeChooserPrivate::ThemeChooserPrivate(QWidget *widget)
     auto layout = new QHBoxLayout(widget);
     layout->addWidget(m_themeComboBox);
     auto overriddenLabel = new QLabel;
-    overriddenLabel->setText(ThemeChooser::tr("Current theme: %1")
-                             .arg(creatorTheme()->displayName()));
+    overriddenLabel->setText(Tr::tr("Current theme: %1").arg(creatorTheme()->displayName()));
     layout->addWidget(overriddenLabel);
     layout->setContentsMargins(0, 0, 0, 0);
     auto horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -167,7 +166,7 @@ void ThemeChooser::apply()
         // save filename of selected theme in global config
         settings->setValueWithDefault(Constants::SETTINGS_THEME, themeId, defaultThemeId());
         RestartDialog restartDialog(ICore::dialogParent(),
-                                    tr("The theme change will take effect after restart."));
+                                    Tr::tr("The theme change will take effect after restart."));
         restartDialog.exec();
     }
 }

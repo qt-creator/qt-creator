@@ -4,6 +4,11 @@
 #include "externaltoolconfig.h"
 
 #include "ioptionspage.h"
+#include "../coreconstants.h"
+#include "../coreplugintr.h"
+#include "../externaltool.h"
+#include "../externaltoolmanager.h"
+#include "../icore.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -16,11 +21,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/variablechooser.h>
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/externaltool.h>
-#include <coreplugin/externaltoolmanager.h>
-#include <coreplugin/icore.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -49,8 +49,6 @@ const Qt::ItemFlags TOOL_ITEM_FLAGS = Qt::ItemIsSelectable | Qt::ItemIsEnabled |
 
 class ExternalToolModel final : public QAbstractItemModel
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::ExternalToolConfig)
-
 public:
     ExternalToolModel() = default;
     ~ExternalToolModel() final;
@@ -132,9 +130,9 @@ QVariant ExternalToolModel::data(const QString &category, int role)
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        return category.isEmpty() ? tr("Uncategorized") : category;
+        return category.isEmpty() ? Tr::tr("Uncategorized") : category;
     case Qt::ToolTipRole:
-        return category.isEmpty() ? tr("Tools that will appear directly under the External Tools menu.") : QVariant();
+        return category.isEmpty() ? Tr::tr("Tools that will appear directly under the External Tools menu.") : QVariant();
     default:
         break;
     }
@@ -333,7 +331,7 @@ void ExternalToolModel::revertTool(const QModelIndex &modelIndex)
 
 QModelIndex ExternalToolModel::addCategory()
 {
-    const QString &categoryBase = tr("New Category");
+    const QString &categoryBase = Tr::tr("New Category");
     QString category = categoryBase;
     int count = 0;
     while (m_tools.contains(category)) {
@@ -360,10 +358,10 @@ QModelIndex ExternalToolModel::addTool(const QModelIndex &atIndex)
 
     auto tool = new ExternalTool;
     tool->setDisplayCategory(category);
-    tool->setDisplayName(tr("New Tool"));
-    tool->setDescription(tr("This tool prints a line of useful text"));
+    tool->setDisplayName(Tr::tr("New Tool"));
+    tool->setDescription(Tr::tr("This tool prints a line of useful text"));
     //: Sample external tool text
-    const QString text = tr("Useful text");
+    const QString text = Tr::tr("Useful text");
     if (HostOsInfo::isWindowsHost()) {
         tool->setExecutables({"cmd"});
         tool->setArguments("/c echo " + text);
@@ -410,15 +408,13 @@ void ExternalToolModel::removeTool(const QModelIndex &modelIndex)
 static void fillBaseEnvironmentComboBox(QComboBox *box)
 {
     box->clear();
-    box->addItem(ExternalTool::tr("System Environment"), QByteArray());
+    box->addItem(Tr::tr("System Environment"), QByteArray());
     for (const EnvironmentProvider &provider : EnvironmentProvider::providers())
         box->addItem(provider.displayName, Id::fromName(provider.id).toSetting());
 }
 
 class ExternalToolConfig final : public IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Core::ExternalToolConfig)
-
 public:
     ExternalToolConfig();
 
@@ -468,14 +464,14 @@ ExternalToolConfig::ExternalToolConfig()
     m_toolTree->header()->setVisible(false);
     m_toolTree->header()->setDefaultSectionSize(21);
 
-    auto addButton = new QPushButton(tr("Add"));
-    addButton->setToolTip(tr("Add tool."));
+    auto addButton = new QPushButton(Tr::tr("Add"));
+    addButton->setToolTip(Tr::tr("Add tool."));
 
-    m_removeButton = new QPushButton(tr("Remove"));
-    m_removeButton->setToolTip(tr("Remove tool."));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
+    m_removeButton->setToolTip(Tr::tr("Remove tool."));
 
-    m_revertButton = new QPushButton(tr("Reset"));
-    m_revertButton->setToolTip(tr("Revert tool to default."));
+    m_revertButton = new QPushButton(Tr::tr("Reset"));
+    m_revertButton->setToolTip(Tr::tr("Revert tool to default."));
 
     auto scrollArea = new QScrollArea(this);
     QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -504,20 +500,20 @@ ExternalToolConfig::ExternalToolConfig()
 
     m_workingDirectory = new PathChooser(m_infoWidget);
 
-    auto outputLabel = new QLabel(tr("Output:"));
-    outputLabel->setToolTip(tr("<html><head/><body>\n"
+    auto outputLabel = new QLabel(Tr::tr("Output:"));
+    outputLabel->setToolTip(Tr::tr("<html><head/><body>\n"
         "<p>What to do with the executable's standard output.\n"
         "<ul><li>Ignore: Do nothing with it.</li><li>Show in General Messages.</li>"
         "<li>Replace selection: Replace the current selection in the current document with it.</li>"
         "</ul></p></body></html>\n"));
 
     m_outputBehavior = new QComboBox(m_infoWidget);
-    m_outputBehavior->addItem(tr("Ignore"));
-    m_outputBehavior->addItem(tr("Show in General Messages"));
-    m_outputBehavior->addItem(tr("Replace Selection"));
+    m_outputBehavior->addItem(Tr::tr("Ignore"));
+    m_outputBehavior->addItem(Tr::tr("Show in General Messages"));
+    m_outputBehavior->addItem(Tr::tr("Replace Selection"));
 
-    auto errorOutputLabel = new QLabel(tr("Error output:"));
-    errorOutputLabel->setToolTip(tr("<html><head><body>\n"
+    auto errorOutputLabel = new QLabel(Tr::tr("Error output:"));
+    errorOutputLabel->setToolTip(Tr::tr("<html><head><body>\n"
         "<p >What to do with the executable's standard error output.</p>\n"
         "<ul><li>Ignore: Do nothing with it.</li>\n"
         "<li>Show in General Messages.</li>\n"
@@ -525,23 +521,23 @@ ExternalToolConfig::ExternalToolConfig()
         "</ul></body></html>"));
 
     m_errorOutputBehavior = new QComboBox(m_infoWidget);
-    m_errorOutputBehavior->addItem(tr("Ignore"));
-    m_errorOutputBehavior->addItem(tr("Show in General Messages"));
-    m_errorOutputBehavior->addItem(tr("Replace Selection"));
+    m_errorOutputBehavior->addItem(Tr::tr("Ignore"));
+    m_errorOutputBehavior->addItem(Tr::tr("Show in General Messages"));
+    m_errorOutputBehavior->addItem(Tr::tr("Replace Selection"));
 
-    m_environmentLabel = new QLabel(tr("No changes to apply."));
+    m_environmentLabel = new QLabel(Tr::tr("No changes to apply."));
     m_environmentLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    auto environmentButton = new QPushButton(tr("Change..."));
+    auto environmentButton = new QPushButton(Tr::tr("Change..."));
 
-    m_modifiesDocumentCheckbox = new QCheckBox(tr("Modifies current document"));
-    m_modifiesDocumentCheckbox->setToolTip(tr("If the tool modifies the current document, "
+    m_modifiesDocumentCheckbox = new QCheckBox(Tr::tr("Modifies current document"));
+    m_modifiesDocumentCheckbox->setToolTip(Tr::tr("If the tool modifies the current document, "
         "set this flag to ensure that the document is saved before "
         "running the tool and is reloaded after the tool finished."));
 
-    auto inputLabel = new QLabel(tr("Input:"));
-    inputLabel->setToolTip(tr("Text to pass to the executable via standard input. Leave "
-                              "empty if the executable should not receive any input."));
+    auto inputLabel = new QLabel(Tr::tr("Input:"));
+    inputLabel->setToolTip(Tr::tr("Text to pass to the executable via standard input. Leave "
+                                  "empty if the executable should not receive any input."));
 
     m_inputText = new QPlainTextEdit(m_infoWidget);
     QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -558,14 +554,14 @@ ExternalToolConfig::ExternalToolConfig()
     using namespace Layouting;
 
     Form {
-        tr("Description:"), m_description, br,
-        tr("Executable:"), m_executable, br,
-        tr("Arguments:"), m_arguments, br,
-        tr("Working directory:"), m_workingDirectory, br,
+        Tr::tr("Description:"), m_description, br,
+        Tr::tr("Executable:"), m_executable, br,
+        Tr::tr("Arguments:"), m_arguments, br,
+        Tr::tr("Working directory:"), m_workingDirectory, br,
         outputLabel, m_outputBehavior, br,
         errorOutputLabel, m_errorOutputBehavior, br,
-        tr("Base environment:"), m_baseEnvironment, br,
-        tr("Environment:"),  m_environmentLabel, environmentButton, br,
+        Tr::tr("Base environment:"), m_baseEnvironment, br,
+        Tr::tr("Environment:"),  m_environmentLabel, environmentButton, br,
         empty, m_modifiesDocumentCheckbox, br,
         inputLabel, m_inputText
     }.attachTo(m_infoWidget, WithMargins);
@@ -631,10 +627,10 @@ ExternalToolConfig::ExternalToolConfig()
 
     auto menu = new QMenu(addButton);
     addButton->setMenu(menu);
-    auto addTool = new QAction(tr("Add Tool"), this);
+    auto addTool = new QAction(Tr::tr("Add Tool"), this);
     menu->addAction(addTool);
     connect(addTool, &QAction::triggered, this, &ExternalToolConfig::addTool);
-    auto addCategory = new QAction(tr("Add Category"), this);
+    auto addCategory = new QAction(Tr::tr("Add Category"), this);
     menu->addAction(addCategory);
     connect(addCategory, &QAction::triggered, this, &ExternalToolConfig::addCategory);
 
@@ -926,8 +922,8 @@ void ExternalToolConfig::updateEffectiveArguments()
 void ExternalToolConfig::editEnvironmentChanges()
 {
     const QString placeholderText = HostOsInfo::isWindowsHost()
-            ? tr("PATH=C:\\dev\\bin;${PATH}")
-            : tr("PATH=/opt/bin:${PATH}");
+            ? Tr::tr("PATH=C:\\dev\\bin;${PATH}")
+            : Tr::tr("PATH=/opt/bin:${PATH}");
     const auto newItems = EnvironmentDialog::getEnvironmentItems(m_environmentLabel,
                                                                  m_environment,
                                                                  placeholderText);
@@ -942,7 +938,7 @@ void ExternalToolConfig::updateEnvironmentLabel()
     QString shortSummary = EnvironmentItem::toStringList(m_environment).join("; ");
     QFontMetrics fm(m_environmentLabel->font());
     shortSummary = fm.elidedText(shortSummary, Qt::ElideRight, m_environmentLabel->width());
-    m_environmentLabel->setText(shortSummary.isEmpty() ? tr("No changes to apply.") : shortSummary);
+    m_environmentLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
 }
 
 // ToolSettingsPage
@@ -950,7 +946,7 @@ void ExternalToolConfig::updateEnvironmentLabel()
 ToolSettings::ToolSettings()
 {
     setId(Constants::SETTINGS_ID_TOOLS);
-    setDisplayName(ExternalToolConfig::tr("External Tools"));
+    setDisplayName(Tr::tr("External Tools"));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new ExternalToolConfig; });
 }

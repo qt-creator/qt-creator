@@ -6,6 +6,7 @@
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
 #include "coreconstants.h"
+#include "coreplugintr.h"
 #include "icore.h"
 #include "locator/locatormanager.h"
 
@@ -31,16 +32,15 @@ size_t qHash(const QPointer<QAction> &p, size_t seed)
 }
 QT_END_NAMESPACE
 
-using namespace Core::Internal;
-using namespace Core;
+namespace Core::Internal {
 
 ActionsFilter::ActionsFilter()
 {
     setId("Actions from the menu");
-    setDisplayName(tr("Global Actions & Actions from the Menu"));
-    setDescription(
-        tr("Triggers an action. If it is from the menu it matches any part of a menu hierarchy, "
-           "separated by \">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
+    setDisplayName(Tr::tr("Global Actions & Actions from the Menu"));
+    setDescription(Tr::tr("Triggers an action. If it is from the menu it matches any part "
+                          "of a menu hierarchy, separated by \">\". For example \"sess def\" "
+                          "matches \"File > Sessions > Default\"."));
     setDefaultShortcutString("t");
     setDefaultSearchText({});
     setDefaultKeySequence(QKeySequence("Ctrl+Shift+K"));
@@ -341,3 +341,5 @@ void ActionsFilter::restoreState(const QJsonObject &object)
             m_lastTriggered.append({nullptr, Utils::Id::fromString(command.toString())});
     }
 }
+
+} // Core::Internal

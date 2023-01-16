@@ -3,7 +3,8 @@
 
 #include "generatedfile.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include "coreplugintr.h"
+#include "editormanager/editormanager.h"
 
 #include <utils/fileutils.h>
 #include <utils/textfileformat.h>
@@ -138,8 +139,7 @@ bool GeneratedFile::write(QString *errorMessage) const
     const FilePath parentDir = m_d->path.parentDir();
     if (!parentDir.isDir()) {
         if (!parentDir.createDir()) {
-            *errorMessage = QCoreApplication::translate("BaseFileWizard",
-                                                        "Unable to create the directory %1.")
+            *errorMessage = Tr::tr("Unable to create the directory %1.")
                                 .arg(parentDir.toUserOutput());
             return false;
         }
