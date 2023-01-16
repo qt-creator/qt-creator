@@ -877,10 +877,21 @@ void FilePath::setPath(QStringView path)
     setParts(scheme(), host(), path);
 }
 
-void FilePath::setFromString(const QStringView fileNameView)
+void FilePath::setFromString(QStringView fileNameView)
 {
     static const QStringView qtcDevSlash(u"__qtc_devices__/");
     static const QStringView colonSlashSlash(u"://");
+
+#if 1
+    // FIXME: Remove below once the calling code is adjusted
+    QString dummy;
+    if (fileNameView.contains(u'\\')) {
+        QTC_CHECK(false);
+        dummy = fileNameView.toString();
+        dummy.replace('\\', '/');
+        fileNameView = dummy;
+    }
+#endif
 
     const QChar slash('/');
 
