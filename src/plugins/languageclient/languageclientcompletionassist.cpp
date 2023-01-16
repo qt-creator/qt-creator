@@ -289,7 +289,12 @@ public:
     {
         if (!proposal)
             return;
-        updateModel(proposal->model(), prefix);
+        if (proposal->id() != TextEditor::Constants::GENERIC_PROPOSAL_ID) {
+            // We received something else than a generic proposal so we cannot update the model
+            closeProposal();
+            return;
+        }
+        updateModel(proposal->model().staticCast<GenericProposalModel>(), prefix);
         delete proposal;
     }
 

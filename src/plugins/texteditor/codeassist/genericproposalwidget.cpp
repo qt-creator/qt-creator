@@ -392,12 +392,12 @@ void GenericProposalWidget::setIsSynchronized(bool isSync)
     d->m_isSynchronized = isSync;
 }
 
-void GenericProposalWidget::updateModel(ProposalModelPtr model, const QString &prefix)
+void GenericProposalWidget::updateModel(GenericProposalModelPtr model, const QString &prefix)
 {
     QString currentText;
     if (d->m_explicitlySelected)
         currentText = d->m_model->text(d->m_completionListView->currentIndex().row());
-    d->m_model = model.staticCast<GenericProposalModel>();
+    d->m_model = model;
     if (d->m_model->containsDuplicates())
         d->m_model->removeDuplicates();
     d->m_completionListView->setModel(new ModelAdapter(d->m_model, d->m_completionListView));
