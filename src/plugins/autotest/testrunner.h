@@ -62,7 +62,6 @@ private:
 
     int precheckTestConfigurations();
     bool currentConfigValid();
-    void setUpProcess();
     void setUpProcessEnv();
     void scheduleNext();
     void cancelCurrent(CancelReason reason);
