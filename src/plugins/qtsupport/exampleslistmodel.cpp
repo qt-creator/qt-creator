@@ -263,16 +263,25 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
     return pixmap;
 }
 
-ExamplesListModel::ExamplesListModel(QObject *parent)
+ExamplesListModel::ExamplesListModel(ExampleSetModel *exampleSetModel,
+                                     bool isExamples,
+                                     QObject *parent)
     : Core::ListModel(parent)
+    , m_exampleSetModel(exampleSetModel)
+    , m_isExamples(isExamples)
 {
-    connect(&m_exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
-            this, &ExamplesListModel::updateExamples);
+    if (isExamples) {
+        connect(m_exampleSetModel,
+                &ExampleSetModel::selectedExampleSetChanged,
+                this,
+                &ExamplesListModel::updateExamples);
+    }
     connect(Core::HelpManager::Signals::instance(),
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &ExamplesListModel::updateExamples);
     setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
+    updateExamples();
 }
 
 static QString fixStringForTags(const QString &string)
@@ -332,11 +341,11 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     return ok || debugExamples();
 }
 
-static QList<ListItem *> parseExamples(QXmlStreamReader *reader,
-                                       const QString &projectsOffset,
-                                       const QString &examplesInstallPath)
+static QList<ExampleItem *> parseExamples(QXmlStreamReader *reader,
+                                          const QString &projectsOffset,
+                                          const QString &examplesInstallPath)
 {
-    QList<ListItem *> result;
+    QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -389,11 +398,11 @@ static QList<ListItem *> parseExamples(QXmlStreamReader *reader,
     return result;
 }
 
-static QList<ListItem *> parseDemos(QXmlStreamReader *reader,
-                                    const QString &projectsOffset,
-                                    const QString &demosInstallPath)
+static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
+                                       const QString &projectsOffset,
+                                       const QString &demosInstallPath)
 {
-    QList<ListItem *> result;
+    QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -437,9 +446,9 @@ static QList<ListItem *> parseDemos(QXmlStreamReader *reader,
     return result;
 }
 
-static QList<ListItem *> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
+static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
 {
-    QList<ListItem *> result;
+    QList<ExampleItem *> result;
     std::unique_ptr<ExampleItem> item;
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
@@ -489,12 +498,12 @@ void ExamplesListModel::updateExamples()
     QString examplesInstallPath;
     QString demosInstallPath;
 
-    const QStringList sources = m_exampleSetModel.exampleSources(&examplesInstallPath,
-                                                                 &demosInstallPath);
+    const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
+                                                                  &demosInstallPath);
 
     clear();
 
-    QList<ListItem *> items;
+    QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
         QFile exampleFile(exampleSource);
         if (!exampleFile.open(QIODevice::ReadOnly)) {
@@ -514,11 +523,11 @@ void ExamplesListModel::updateExamples()
         while (!reader.atEnd())
             switch (reader.readNext()) {
             case QXmlStreamReader::StartElement:
-                if (reader.name() == QLatin1String("examples"))
+                if (m_isExamples && reader.name() == QLatin1String("examples"))
                     items += parseExamples(&reader, examplesDir.path(), examplesInstallPath);
-                else if (reader.name() == QLatin1String("demos"))
+                else if (m_isExamples && reader.name() == QLatin1String("demos"))
                     items += parseDemos(&reader, demosDir.path(), demosInstallPath);
-                else if (reader.name() == QLatin1String("tutorials"))
+                else if (!m_isExamples && reader.name() == QLatin1String("tutorials"))
                     items += parseTutorials(&reader, examplesDir.path());
                 break;
             default: // nothing
@@ -531,7 +540,18 @@ void ExamplesListModel::updateExamples()
                 << ": " << reader.errorString();
         }
     }
-    appendItems(items);
+    if (m_isExamples) {
+        if (m_exampleSetModel->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)) {
+            items = Utils::filtered(items, [](ExampleItem *item) {
+                return item->tags.contains("android");
+            });
+        } else if (m_exampleSetModel->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)) {
+            items = Utils::filtered(items,
+                                    [](ExampleItem *item) { return item->tags.contains("ios"); });
+        }
+    }
+
+    appendItems(static_container_cast<ListItem *>(items));
 }
 
 void ExampleSetModel::updateQtVersionList()
@@ -692,46 +712,6 @@ void ExampleSetModel::tryToInitialize()
             this, &ExampleSetModel::updateQtVersionList);
 
     updateQtVersionList();
-}
-
-
-ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent) :
-    Core::ListModelFilter(sourceModel, parent),
-    m_showTutorialsOnly(showTutorialsOnly),
-    m_examplesListModel(sourceModel)
-{
-}
-
-bool ExamplesListModelFilter::leaveFilterAcceptsRowBeforeFiltering(const Core::ListItem *item,
-                                                                   bool *earlyExitResult) const
-{
-    QTC_ASSERT(earlyExitResult, return false);
-
-    const bool isTutorial = static_cast<const ExampleItem *>(item)->type == Tutorial;
-
-    if (m_showTutorialsOnly) {
-        *earlyExitResult = isTutorial;
-        return !isTutorial;
-    }
-
-    if (isTutorial) {
-        *earlyExitResult = false;
-        return true;
-    }
-
-    if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)
-        && !item->tags.contains("android")) {
-        *earlyExitResult = false;
-        return true;
-    }
-
-    if (m_examplesListModel->exampleSetModel()->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)
-        && !item->tags.contains("ios")) {
-        *earlyExitResult = false;
-        return true;
-    }
-
-    return false;
 }
 
 } // namespace Internal

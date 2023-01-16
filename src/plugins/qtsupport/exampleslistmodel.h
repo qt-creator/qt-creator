@@ -104,27 +104,13 @@ class ExamplesListModel : public Core::ListModel
 {
     Q_OBJECT
 public:
-    explicit ExamplesListModel(QObject *parent);
+    explicit ExamplesListModel(ExampleSetModel *exampleSetModel, bool isExamples, QObject *parent);
 
     void updateExamples();
 
-    ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
-
 private:
-    ExampleSetModel m_exampleSetModel;
-};
-
-class ExamplesListModelFilter : public Core::ListModelFilter
-{
-public:
-    ExamplesListModelFilter(ExamplesListModel *sourceModel, bool showTutorialsOnly, QObject *parent);
-
-protected:
-    bool leaveFilterAcceptsRowBeforeFiltering(const Core::ListItem *item,
-                                              bool *earlyExitResult) const override;
-private:
-    const bool m_showTutorialsOnly;
-    ExamplesListModel *m_examplesListModel = nullptr;
+    ExampleSetModel *m_exampleSetModel;
+    bool m_isExamples;
 };
 
 } // namespace Internal

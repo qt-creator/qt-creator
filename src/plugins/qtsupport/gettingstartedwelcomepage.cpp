@@ -46,6 +46,8 @@ namespace Internal {
 
 const char C_FALLBACK_ROOT[] = "ProjectsFallbackRoot";
 
+Q_GLOBAL_STATIC(ExampleSetModel, s_exampleSetModel)
+
 ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
     : m_showExamples(showExamples)
 {
@@ -258,10 +260,9 @@ public:
         : m_isExamples(isExamples)
     {
         m_exampleDelegate.setShowExamples(isExamples);
-        static auto s_examplesModel = new ExamplesListModel(this);
-        m_examplesModel = s_examplesModel;
 
-        auto filteredModel = new ExamplesListModelFilter(m_examplesModel, !m_isExamples, this);
+        auto examplesModel = new ExamplesListModel(s_exampleSetModel, isExamples, this);
+        auto filteredModel = new ListModelFilter(examplesModel, this);
 
         auto searchBox = new SearchBox(this);
         m_searcher = searchBox->m_lineEdit;
@@ -284,13 +285,16 @@ public:
             exampleSetSelector->setPalette(pal);
             exampleSetSelector->setMinimumWidth(Core::ListItemDelegate::GridItemWidth);
             exampleSetSelector->setMaximumWidth(Core::ListItemDelegate::GridItemWidth);
-            ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
-            exampleSetSelector->setModel(exampleSetModel);
-            exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
-            connect(exampleSetSelector, &QComboBox::activated,
-                    exampleSetModel, &ExampleSetModel::selectExampleSet);
-            connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
-                    exampleSetSelector, &QComboBox::setCurrentIndex);
+            exampleSetSelector->setModel(s_exampleSetModel);
+            exampleSetSelector->setCurrentIndex(s_exampleSetModel->selectedExampleSet());
+            connect(exampleSetSelector,
+                    &QComboBox::activated,
+                    s_exampleSetModel,
+                    &ExampleSetModel::selectExampleSet);
+            connect(s_exampleSetModel,
+                    &ExampleSetModel::selectedExampleSetChanged,
+                    exampleSetSelector,
+                    &QComboBox::setCurrentIndex);
 
             hbox->setSpacing(Core::WelcomePageHelpers::HSpacing);
             hbox->addWidget(exampleSetSelector);
@@ -311,8 +315,10 @@ public:
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
-        connect(m_searcher, &QLineEdit::textChanged,
-                filteredModel, &ExamplesListModelFilter::setSearchString);
+        connect(m_searcher,
+                &QLineEdit::textChanged,
+                filteredModel,
+                &ListModelFilter::setSearchString);
     }
 
     void onTagClicked(const QString &tag)
@@ -324,7 +330,6 @@ public:
 
     const bool m_isExamples;
     ExampleDelegate m_exampleDelegate;
-    QPointer<ExamplesListModel> m_examplesModel;
     QLineEdit *m_searcher;
 };
 
