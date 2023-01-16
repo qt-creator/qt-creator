@@ -17,11 +17,10 @@ using namespace Utils;
 namespace Autotest {
 namespace Internal {
 
-GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                     QtcProcess *testApplication,
+GTestOutputReader::GTestOutputReader(QtcProcess *testApplication,
                                      const FilePath &buildDirectory,
                                      const FilePath &projectFile)
-    : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
     if (testApplication) {
@@ -121,7 +120,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult.setResult(ResultType::MessageInternal);
         testResult.setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
-        m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
+        // TODO: bump progress?
     } else if (ExactMatch match = testSetFail.match(line)) {
         m_testSetStarted = false;
         TestResult testResult = createDefaultResult();
@@ -132,7 +131,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult.setResult(ResultType::MessageInternal);
         testResult.setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
         reportResult(testResult);
-        m_futureInterface.setProgressValue(m_futureInterface.progressValue() + 1);
+        // TODO: bump progress?
     } else if (ExactMatch match = testSetSkipped.match(line)) {
         if (!m_testSetStarted)  // ignore SKIPPED at summary
             return;

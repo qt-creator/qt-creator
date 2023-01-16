@@ -5,6 +5,7 @@
 
 #include "boosttestsettings.h"
 #include "boosttestresult.h"
+
 #include "../autotesttr.h"
 #include "../testtreeitem.h"
 
@@ -21,12 +22,11 @@ namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
-BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                             QtcProcess *testApplication,
+BoostTestOutputReader::BoostTestOutputReader(QtcProcess *testApplication,
                                              const FilePath &buildDirectory,
                                              const FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
-    : TestOutputReader(futureInterface, testApplication, buildDirectory)
+    : TestOutputReader(testApplication, buildDirectory)
     , m_projectFile(projectFile)
     , m_logLevel(log)
     , m_reportLevel(report)

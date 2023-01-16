@@ -11,18 +11,16 @@
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
-#include <utils/stringutils.h>
 
 using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *BoostTestConfiguration::createOutputReader(
-        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
+TestOutputReader *BoostTestConfiguration::createOutputReader(QtcProcess *app) const
 {
     auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
-    return new BoostTestOutputReader(fi, app, buildDirectory(), projectFile(),
+    return new BoostTestOutputReader(app, buildDirectory(), projectFile(),
                                      LogLevel(settings->logLevel.value()),
                                      ReportLevel(settings->reportLevel.value()));
 }

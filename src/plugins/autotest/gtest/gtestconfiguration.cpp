@@ -5,22 +5,21 @@
 
 #include "gtestoutputreader.h"
 #include "gtestsettings.h"
+
 #include "../autotestplugin.h"
 #include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
-#include <utils/stringutils.h>
 
 using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *GTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                         QtcProcess *app) const
+TestOutputReader *GTestConfiguration::createOutputReader(QtcProcess *app) const
 {
-    return new GTestOutputReader(fi, app, buildDirectory(), projectFile());
+    return new GTestOutputReader(app, buildDirectory(), projectFile());
 }
 
 QStringList filterInterfering(const QStringList &provided, QStringList *omitted)

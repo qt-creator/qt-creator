@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "catchconfiguration.h"
+
 #include "catchoutputreader.h"
 #include "catchtestsettings.h"
 
@@ -9,17 +10,14 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
-#include <utils/stringutils.h>
-
 using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
 
-TestOutputReader *CatchConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                         QtcProcess *app) const
+TestOutputReader *CatchConfiguration::createOutputReader(QtcProcess *app) const
 {
-    return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
+    return new CatchOutputReader(app, buildDirectory(), projectFile());
 }
 
 static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
