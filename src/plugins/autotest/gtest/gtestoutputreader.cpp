@@ -24,9 +24,9 @@ GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResult> &futureI
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
-    if (m_testApplication) {
-        connect(m_testApplication, &QtcProcess::done, this, [this] {
-            const int exitCode = m_testApplication->exitCode();
+    if (testApplication) {
+        connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+            const int exitCode = testApplication->exitCode();
             if (exitCode == 1 && !m_description.isEmpty()) {
                 createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")
                                       .arg(m_description).arg(id()), ResultType::MessageFatal);

@@ -47,7 +47,6 @@ protected:
 
     void reportResult(const TestResult &result);
     QFutureInterface<TestResult> m_futureInterface;
-    Utils::QtcProcess *m_testApplication;  // not owned
     Utils::FilePath m_buildDir;
     QString m_id;
     QHash<ResultType, int> m_summary;

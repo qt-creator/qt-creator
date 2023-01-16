@@ -31,8 +31,12 @@ BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> 
     , m_logLevel(log)
     , m_reportLevel(report)
 {
-    if (m_testApplication)
-        connect(m_testApplication, &QtcProcess::done, this, &BoostTestOutputReader::onDone);
+    if (!testApplication)
+        return;
+
+    connect(testApplication, &QtcProcess::done, this, [this, testApplication] {
+        onDone(testApplication->exitCode());
+    });
 }
 
 // content of "error:..." / "info:..." / ... messages
@@ -378,10 +382,10 @@ TestResult BoostTestOutputReader::createDefaultResult() const
     return BoostTestResult(id(), m_currentModule, m_projectFile, m_currentTest, m_currentSuite);
 }
 
-void BoostTestOutputReader::onDone() {
-    int exitCode = m_testApplication->exitCode();
+void BoostTestOutputReader::onDone(int exitCode)
+{
     if (m_reportLevel == ReportLevel::No && m_testCaseCount != -1) {
-        int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
+        const int reportedFailsAndSkips = m_summary[ResultType::Fail] + m_summary[ResultType::Skip];
         m_summary.insert(ResultType::Pass, m_testCaseCount - reportedFailsAndSkips);
     }
     // boost::exit_success (0), boost::exit_test_failure (201)

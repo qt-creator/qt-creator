@@ -29,7 +29,6 @@ FilePath TestOutputReader::constructSourceFilePath(const FilePath &path, const Q
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
                                    QtcProcess *testApplication, const FilePath &buildDirectory)
     : m_futureInterface(futureInterface)
-    , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
     , m_id(testApplication ? testApplication->commandLine().executable().toUserOutput() : QString())
 {
@@ -41,11 +40,11 @@ TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInt
         return line;
     };
 
-    if (m_testApplication) {
-        m_testApplication->setStdOutLineCallback([this, &chopLineBreak](const QString &line) {
+    if (testApplication) {
+        testApplication->setStdOutLineCallback([this, &chopLineBreak](const QString &line) {
             processStdOutput(chopLineBreak(line.toUtf8()));
         });
-        m_testApplication->setStdErrLineCallback([this, &chopLineBreak](const QString &line) {
+        testApplication->setStdErrLineCallback([this, &chopLineBreak](const QString &line) {
             processStdError(chopLineBreak(line.toUtf8()));
         });
     }
