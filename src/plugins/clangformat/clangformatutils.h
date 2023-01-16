@@ -29,8 +29,8 @@ ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
     const ProjectExplorer::Project *project);
 ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils::FilePath &filePath);
 
-// Is the style from the matching .clang-format file or global one if it's not found.
-QString configForFile(Utils::FilePath fileName);
+Utils::FilePath configForFile(const Utils::FilePath &fileName);
+Utils::FilePath findConfig(const Utils::FilePath &fileName);
 
 bool getProjectOverriddenSettings(const ProjectExplorer::Project *project);
 

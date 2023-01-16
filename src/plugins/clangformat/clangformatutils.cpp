@@ -176,16 +176,6 @@ clang::format::FormatStyle qtcStyle()
     return style;
 }
 
-static bool useGlobalOverriddenSettings()
-{
-    return ClangFormatSettings::instance().overrideDefaultFile();
-}
-
-QString currentProjectUniqueId()
-{
-    return projectUniqueId(SessionManager::startupProject());
-}
-
 QString projectUniqueId(ProjectExplorer::Project *project)
 {
     if (!project)
@@ -194,12 +184,6 @@ QString projectUniqueId(ProjectExplorer::Project *project)
     return QString::fromUtf8(QCryptographicHash::hash(project->projectFilePath().toString().toUtf8(),
                                                       QCryptographicHash::Md5)
                                  .toHex(0));
-}
-
-static bool useProjectOverriddenSettings()
-{
-    const Project *project = SessionManager::startupProject();
-    return getProjectOverriddenSettings(project);
 }
 
 bool getProjectUseGlobalSettings(const ProjectExplorer::Project *project)
@@ -253,55 +237,37 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
                : getProjectIndentationOrFormattingSettings(project);
 }
 
-static Utils::FilePath globalPath()
+Utils::FilePath findConfig(const Utils::FilePath &fileName)
 {
-    return Core::ICore::userResourcePath();
-}
+    Utils::FilePath parentDirectory = fileName.parentDir();
+    while (parentDirectory.exists()) {
+        Utils::FilePath settingsFilePath = parentDirectory / Constants::SETTINGS_FILE_NAME;
+        if (settingsFilePath.exists())
+            return settingsFilePath;
 
-static Utils::FilePath projectPath()
-{
-    const Project *project = SessionManager::startupProject();
-    if (project)
-        return globalPath().pathAppended("clang-format/" + currentProjectUniqueId());
+        Utils::FilePath settingsAltFilePath = parentDirectory / Constants::SETTINGS_FILE_ALT_NAME;
+        if (settingsAltFilePath.exists())
+            return settingsAltFilePath;
 
+        parentDirectory = parentDirectory.parentDir();
+    }
     return Utils::FilePath();
 }
 
-static QString findConfig(Utils::FilePath fileName)
+Utils::FilePath configForFile(const Utils::FilePath &fileName)
 {
-    QDir parentDir(fileName.parentDir().toString());
-    while (!parentDir.exists(Constants::SETTINGS_FILE_NAME)
-           && !parentDir.exists(Constants::SETTINGS_FILE_ALT_NAME)) {
-        if (!parentDir.cdUp())
-            return QString();
-    }
+    if (!getCurrentOverriddenSettings(fileName))
+        return findConfig(fileName);
 
-    if (parentDir.exists(Constants::SETTINGS_FILE_NAME))
-        return parentDir.filePath(Constants::SETTINGS_FILE_NAME);
-    return parentDir.filePath(Constants::SETTINGS_FILE_ALT_NAME);
-}
+    const ProjectExplorer::Project *projectForFile
+        = ProjectExplorer::SessionManager::projectForFile(fileName);
 
-static QString configForFile(Utils::FilePath fileName, bool checkForSettings)
-{
-    QDir overrideDir;
-    if (!checkForSettings || useProjectOverriddenSettings()) {
-        overrideDir.setPath(projectPath().toString());
-        if (!overrideDir.isEmpty() && overrideDir.exists(Constants::SETTINGS_FILE_NAME))
-            return overrideDir.filePath(Constants::SETTINGS_FILE_NAME);
-    }
+    const TextEditor::ICodeStylePreferences *preferences
+        = projectForFile
+              ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
+              : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 
-    if (!checkForSettings || useGlobalOverriddenSettings()) {
-        overrideDir.setPath(globalPath().toString());
-        if (!overrideDir.isEmpty() && overrideDir.exists(Constants::SETTINGS_FILE_NAME))
-            return overrideDir.filePath(Constants::SETTINGS_FILE_NAME);
-    }
-
-    return findConfig(fileName);
-}
-
-QString configForFile(Utils::FilePath fileName)
-{
-    return configForFile(fileName, true);
+    return filePathToCurrentSettings(preferences);
 }
 
 void addQtcStatementMacros(clang::format::FormatStyle &style)
