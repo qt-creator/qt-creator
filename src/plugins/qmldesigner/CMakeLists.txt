@@ -161,6 +161,8 @@ extend_qtc_library(QmlDesignerCore
     meshimagecachecollector.cpp
     meshimagecachecollector.h
     synchronousimagecache.cpp
+    textureimagecachecollector.cpp
+    textureimagecachecollector.h
     timestampprovider.cpp
     timestampprovider.h
     timestampproviderinterface.h
@@ -774,6 +776,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/propertyeditor
   SOURCES
     aligndistribute.cpp aligndistribute.h
+    assetimageprovider.cpp assetimageprovider.h
     colorpalettebackend.cpp colorpalettebackend.h
     designerpropertymap.cpp designerpropertymap.h
     fileresourcesmodel.cpp fileresourcesmodel.h
@@ -785,7 +788,6 @@ extend_qtc_plugin(QmlDesigner
     gradientpresetitem.cpp gradientpresetitem.h
     gradientpresetlistmodel.cpp gradientpresetlistmodel.h
     propertyeditorcontextobject.cpp propertyeditorcontextobject.h
-    propertyeditorimageprovider.cpp propertyeditorimageprovider.h
     propertyeditorqmlbackend.cpp propertyeditorqmlbackend.h
     propertyeditortransaction.cpp propertyeditortransaction.h
     propertyeditorvalue.cpp propertyeditorvalue.h

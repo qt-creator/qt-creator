@@ -17,9 +17,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class PropertyEditorImageProvider;
+class AssetImageProvider;
 class TextureEditorContextObject;
-class TextureEditorImageProvider;
 class TextureEditorTransaction;
 class TextureEditorView;
 
@@ -65,7 +64,7 @@ private:
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<TextureEditorTransaction> m_textureEditorTransaction;
     QScopedPointer<TextureEditorContextObject> m_contextObject;
-    PropertyEditorImageProvider *m_textureEditorImageProvider = nullptr;
+    AssetImageProvider *m_textureEditorImageProvider = nullptr;
 };
 
 } // namespace QmlDesigner

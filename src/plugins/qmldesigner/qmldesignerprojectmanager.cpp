@@ -31,7 +31,10 @@
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/meshimagecachecollector.h>
+#include <imagecache/textureimagecachecollector.h>
 #include <imagecache/timestampprovider.h>
+
+#include <utils/asset.h>
 
 #include <coreplugin/icore.h>
 
@@ -76,8 +79,9 @@ public:
     }
 };
 
-auto makeCollecterDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
-                                  MeshImageCacheCollector &meshImageCollector)
+auto makeCollectorDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
+                                  MeshImageCacheCollector &meshImageCollector,
+                                  TextureImageCacheCollector &textureImageCollector)
 {
     return std::make_tuple(
         std::make_pair([](Utils::SmallStringView filePath,
@@ -91,8 +95,17 @@ auto makeCollecterDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
                [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData) {
                 return filePath.endsWith(".mesh") || filePath.startsWith("#");
             },
-            &meshImageCollector));
-}
+            &meshImageCollector),
+        std::make_pair(
+            [](Utils::SmallStringView filePath,
+               [[maybe_unused]] Utils::SmallStringView state,
+               [[maybe_unused]] const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData) {
+                Asset asset {QString(filePath)};
+                Asset::Type type = asset.type();
+                return type == Asset::Type::Image || type == Asset::Type::Texture3D;
+            },
+            &textureImageCollector));
+        }
 } // namespace
 
 class QmlDesignerProjectManager::ImageCacheData
@@ -111,10 +124,14 @@ public:
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
     MeshImageCacheCollector meshImageCollector;
+    TextureImageCacheCollector textureImageCollector;
     ImageCacheCollector nodeInstanceCollector;
-    ImageCacheDispatchCollector<decltype(makeCollecterDispatcherChain(nodeInstanceCollector,
-                                                                      meshImageCollector))>
-        dispatchCollector{makeCollecterDispatcherChain(nodeInstanceCollector, meshImageCollector)};
+    ImageCacheDispatchCollector<decltype(makeCollectorDispatcherChain(nodeInstanceCollector,
+                                                                      meshImageCollector,
+                                                                      textureImageCollector))>
+        dispatchCollector{makeCollectorDispatcherChain(nodeInstanceCollector,
+                                                       meshImageCollector,
+                                                       textureImageCollector)};
     ImageCacheGenerator generator{dispatchCollector, storage};
     TimeStampProvider timeStampProvider;
     AsynchronousImageCache asynchronousImageCache{storage, generator, timeStampProvider};

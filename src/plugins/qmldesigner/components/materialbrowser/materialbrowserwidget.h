@@ -24,11 +24,11 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class AssetImageProvider;
 class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
 class PreviewImageProvider;
-class PropertyEditorImageProvider;
 
 class MaterialBrowserWidget : public QFrame
 {
@@ -80,7 +80,7 @@ private:
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
-    PropertyEditorImageProvider *m_textureImageProvider = nullptr;
+    AssetImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
 
     QString m_filterText;

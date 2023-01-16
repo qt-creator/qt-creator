@@ -61,9 +61,10 @@ Rectangle {
     Image {
         source: "image://materialBrowserTex/" + textureSource
         asynchronous: true
-        sourceSize.width: root.width - 10
-        sourceSize.height: root.height - 10
+        width: root.width - 10
+        height: root.height - 10
         anchors.centerIn: parent
         smooth: true
+        fillMode: Image.PreserveAspectFit
     }
 }

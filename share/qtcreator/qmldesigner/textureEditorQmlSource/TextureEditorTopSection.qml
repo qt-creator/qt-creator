@@ -35,8 +35,9 @@ Column {
         Image {
             id: texturePreview
             asynchronous: true
-            sourceSize.width: 150
-            sourceSize.height: 150
+            width: 150
+            height: 150
+            fillMode: Image.PreserveAspectFit
             anchors.centerIn: parent
             source: "image://qmldesigner_thumbnails/" + resolveResourcePath(backendValues.source.valueToString)
         }

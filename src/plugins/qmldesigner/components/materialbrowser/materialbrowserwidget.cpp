@@ -7,10 +7,10 @@
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
 
+#include <assetimageprovider.h>
 #include <designeractionmanager.h>
 #include <designermcumanager.h>
 #include <documentmanager.h>
-#include <propertyeditorimageprovider.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <variantproperty.h>
@@ -152,7 +152,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
-    m_textureImageProvider = new PropertyEditorImageProvider(imageCache, defaultImage);
+    m_textureImageProvider = new AssetImageProvider(imageCache, defaultImage);
 
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);

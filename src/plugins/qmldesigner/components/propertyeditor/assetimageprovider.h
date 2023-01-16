@@ -1,26 +1,26 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #pragma once
 
-#include "imagecache/smallimagecacheprovider.h"
+#include "imagecache/midsizeimagecacheprovider.h"
 
 #include <QQuickAsyncImageProvider>
 
 namespace QmlDesigner {
 
-class PropertyEditorImageProvider : public QQuickAsyncImageProvider
+class AssetImageProvider : public QQuickAsyncImageProvider
 {
 public:
-    PropertyEditorImageProvider(AsynchronousImageCache &imageCache, const QImage &defaultImage = {})
-        : m_smallImageCacheProvider(imageCache, defaultImage)
+    AssetImageProvider(AsynchronousImageCache &imageCache, const QImage &defaultImage = {})
+        : m_imageCacheProvider(imageCache, defaultImage)
     {}
 
     QQuickImageResponse *requestImageResponse(const QString &id,
                                               const QSize &requestedSize) override;
 
 private:
-    SmallImageCacheProvider m_smallImageCacheProvider;
+    MidSizeImageCacheProvider m_imageCacheProvider;
 };
 
 } // namespace QmlDesigner

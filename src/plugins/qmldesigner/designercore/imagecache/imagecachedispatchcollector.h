@@ -84,9 +84,10 @@ private:
                        Utils::SmallStringView,
                        const ImageCache::AuxiliaryData &,
                        CaptureCallback,
-                       AbortCallback)
+                       AbortCallback abortCallback)
     {
         qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
+        abortCallback(ImageCache::AbortReason::Failed);
     }
 
     template<typename Collector, typename... Collectors>

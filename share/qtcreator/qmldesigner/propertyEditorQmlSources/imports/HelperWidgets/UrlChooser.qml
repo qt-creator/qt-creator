@@ -116,8 +116,6 @@ Row {
                     Image {
                         id: thumbnail
                         asynchronous: true
-                        sourceSize.height: 96
-                        sourceSize.width: 96
                         height: 96
                         width: 96
                         fillMode: Image.PreserveAspectFit

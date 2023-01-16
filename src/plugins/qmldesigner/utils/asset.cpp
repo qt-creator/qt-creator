@@ -10,7 +10,9 @@ namespace QmlDesigner {
 Asset::Asset(const QString &filePath)
     : m_filePath(filePath)
 {
-    m_suffix = "*." + filePath.split('.').last().toLower();
+    const QStringList split = filePath.split('.');
+    if (split.size() > 1)
+        m_suffix = "*." + split.last().toLower();
 }
 
 
