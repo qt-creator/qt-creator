@@ -183,7 +183,7 @@
         \li Wizard Template
         \li Purpose
     \row
-        \li {1,4} Qt Quick Files
+        \li {1,5} Qt Quick Files
         \li Flow Item and Flow View
         \li Generate components that you can use to design the
             \l{Designing Application Flows}{application flow}.
@@ -202,6 +202,10 @@
         \li Qt Quick Views
         \li Generates a Grid View or a List View. For more information, see
             \l{List and Grid Views}.
+    \row
+        \li Qt Quick UI Form
+        \li Creates a UI file along with a matching QML file for
+            implementation purposes.
     \row
         \li {1,9} Qt Quick Controls
         \li Custom Button
@@ -225,7 +229,7 @@
         \li \l Pane
         \li Provides a background that matches the UI style and theme.
     \row
-        \li StackView
+        \li Stacked Layout
         \li Provides a stack-based navigation model.
     \row
         \li SwipeView
