@@ -307,12 +307,6 @@ QString configForFile(Utils::FilePath fileName)
     return configForFile(fileName, true);
 }
 
-Utils::FilePath assumedPathForConfig(const QString &configFile)
-{
-    Utils::FilePath fileName = Utils::FilePath::fromString(configFile);
-    return fileName.parentDir().pathAppended("test.cpp");
-}
-
 static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = QByteArray())
 {
     if (!baseStyle.isEmpty()) {
@@ -357,56 +351,6 @@ void createStyleFileIfNeeded(bool isGlobal)
         newStyleFile << clang::format::configurationAsText(constructStyle());
         newStyleFile.close();
     }
-}
-
-static QByteArray configBaseStyleName(const QString &configFile)
-{
-    if (configFile.isEmpty())
-        return QByteArray();
-
-    QFile config(configFile);
-    if (!config.open(QIODevice::ReadOnly))
-        return QByteArray();
-
-    const QByteArray content = config.readAll();
-    const char basedOnStyle[] = "BasedOnStyle:";
-    int basedOnStyleIndex = content.indexOf(basedOnStyle);
-    if (basedOnStyleIndex < 0)
-        return QByteArray();
-
-    basedOnStyleIndex += sizeof(basedOnStyle) - 1;
-    const int endOfLineIndex = content.indexOf('\n', basedOnStyleIndex);
-    return content
-        .mid(basedOnStyleIndex, endOfLineIndex < 0 ? -1 : endOfLineIndex - basedOnStyleIndex)
-        .trimmed();
-}
-
-static clang::format::FormatStyle styleForFile(Utils::FilePath fileName, bool checkForSettings)
-{
-    QString configFile = configForFile(fileName, checkForSettings);
-    if (configFile.isEmpty()) {
-        // If no configuration is found create a global one (if it does not yet exist) and use it.
-        createStyleFileIfNeeded(true);
-        configFile = globalPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
-    }
-
-    fileName = assumedPathForConfig(configFile);
-    Expected<FormatStyle> style = format::getStyle("file",
-                                                   fileName.toString().toStdString(),
-                                                   "none");
-    if (style)
-        return *style;
-
-    handleAllErrors(style.takeError(), [](const ErrorInfoBase &) {
-        // do nothing
-    });
-
-    return constructStyle(configBaseStyleName(configFile));
-}
-
-clang::format::FormatStyle styleForFile(Utils::FilePath fileName)
-{
-    return styleForFile(fileName, true);
 }
 
 void addQtcStatementMacros(clang::format::FormatStyle &style)
@@ -457,27 +401,5 @@ std::string readFile(const QString &path)
     }
 
     return settings;
-}
-
-std::string currentProjectConfigText()
-{
-    const QString configPath = projectPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
-    return readFile(configPath);
-}
-
-std::string currentGlobalConfigText()
-{
-    const QString configPath = globalPath().pathAppended(Constants::SETTINGS_FILE_NAME).toString();
-    return readFile(configPath);
-}
-
-clang::format::FormatStyle currentProjectStyle()
-{
-    return styleForFile(projectPath().pathAppended(Constants::SAMPLE_FILE_NAME), false);
-}
-
-clang::format::FormatStyle currentGlobalStyle()
-{
-    return styleForFile(globalPath().pathAppended(Constants::SAMPLE_FILE_NAME), false);
 }
 } // namespace ClangFormat
