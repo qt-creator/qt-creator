@@ -32,6 +32,26 @@ inline ExtensionSystem::IPlugin *licenseCheckerPlugin()
         return pluginSpec->plugin();
     return nullptr;
 }
+
+inline ExtensionSystem::IPlugin *dsLicenseCheckerPlugin()
+{
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("DSLicense")));
+
+    if (pluginSpec)
+        return pluginSpec->plugin();
+    return nullptr;
+}
+
+inline bool dsLicenseCheckerPluginExists()
+{
+    const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
+        ExtensionSystem::PluginManager::plugins(),
+        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("DSLicense")));
+
+    return pluginSpec;
+}
 } // namespace Internal
 
 inline FoundLicense checkLicense()
@@ -92,6 +112,25 @@ inline QString licenseeEmail()
             return retVal;
     }
     return {};
+}
+
+inline bool checkEnterpriseLicense()
+{
+    if (auto plugin = Internal::dsLicenseCheckerPlugin()) {
+        bool retVal = false;
+        bool success = QMetaObject::invokeMethod(plugin,
+                                                 "checkEnterpriseLicense",
+                                                 Qt::DirectConnection,
+                                                 Q_RETURN_ARG(bool, retVal));
+
+        if (success)
+            return retVal;
+    }
+
+    if (Internal::dsLicenseCheckerPluginExists())
+        return false;
+
+    return true;
 }
 
 } // namespace Utils
