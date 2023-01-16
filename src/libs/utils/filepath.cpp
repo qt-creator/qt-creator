@@ -1332,10 +1332,9 @@ void join(QString &left, const QString &right)
     if (r.startsWith('/'))
         r = r.mid(1);
 
-    if (left.isEmpty() || left.endsWith('/'))
-        left += r;
-    else
-        left += '/' + r;
+    if (!left.endsWith('/'))
+        left += '/';
+    left += r;
 }
 
 FilePath FilePath::pathAppended(const QString &path) const
@@ -1343,13 +1342,14 @@ FilePath FilePath::pathAppended(const QString &path) const
     if (path.isEmpty())
         return *this;
 
-    FilePath other = FilePath::fromString(path);
+    QString other = path;
+    other.replace('\\', '/');
 
     if (isEmpty())
-        return other;
+        return FilePath::fromString(other);
 
     QString p = this->path();
-    join(p, other.path());
+    join(p, other);
 
     return withNewPath(p);
 }
