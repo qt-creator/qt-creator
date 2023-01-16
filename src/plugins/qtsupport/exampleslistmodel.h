@@ -108,15 +108,9 @@ public:
 
     void updateExamples();
 
-    QStringList exampleSets() const;
     ExampleSetModel *exampleSetModel() { return &m_exampleSetModel; }
 
-signals:
-    void selectedExampleSetChanged(int);
-
 private:
-    void updateSelectedQtVersion();
-
     ExampleSetModel m_exampleSetModel;
 };
 
