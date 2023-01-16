@@ -13,7 +13,10 @@ Section {
     anchors.right: parent.right
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Source") }
+        PropertyLabel {
+            text: qsTr("Source")
+            tooltip: qsTr("Adds an image from the local file system.")
+        }
 
         SecondColumnLayout {
             UrlChooser {
@@ -23,7 +26,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Fill mode") }
+        PropertyLabel {
+            text: qsTr("Fill mode")
+            tooltip: qsTr("Sets how the image fits in the content box.")
+        }
 
         SecondColumnLayout {
             ComboBox {
@@ -40,6 +46,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Source size")
+            tooltip: qsTr("Sets the width and height of the image.")
             blockedByTemplate: !backendValues.sourceSize.isAvailable
         }
 
@@ -59,6 +66,7 @@ Section {
             ControlLabel {
                 //: The width of the object
                 text: qsTr("W", "width")
+                tooltip: qsTr("Width.")
                 enabled: backendValues.sourceSize_width.isAvailable
             }
 
@@ -79,6 +87,7 @@ Section {
             ControlLabel {
                 //: The height of the object
                 text: qsTr("H", "height")
+                tooltip: qsTr("Height.")
                 enabled: backendValues.sourceSize_height.isAvailable
             }
 /*
@@ -90,7 +99,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Alignment H") }
+        PropertyLabel {
+            text: qsTr("Alignment H")
+            tooltip: qsTr("Sets the horizontal alignment of the image.")
+        }
 
         SecondColumnLayout {
             ComboBox {
@@ -105,7 +117,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Alignment V") }
+        PropertyLabel {
+            text: qsTr("Alignment V")
+            tooltip: qsTr("Sets the vertical alignment of the image.")
+        }
 
         SecondColumnLayout {
             ComboBox {
@@ -212,7 +227,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Smooth")
-            tooltip: qsTr("Smoothly filters the image when it is scaled or transformed.")
+            tooltip: qsTr("Uses smooth filtering when the image is scaled or transformed.")
             blockedByTemplate: !backendValues.smooth.isAvailable
         }
 
