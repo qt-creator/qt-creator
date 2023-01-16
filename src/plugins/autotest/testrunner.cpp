@@ -72,8 +72,6 @@ TestRunner::TestRunner()
 
     m_cancelTimer.setSingleShot(true);
     connect(&m_cancelTimer, &QTimer::timeout, this, [this] { cancelCurrent(Timeout); });
-    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::resultReadyAt,
-            this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
     connect(&m_futureWatcher, &QFutureWatcher<TestResult>::finished,
             this, &TestRunner::onFinished);
     connect(this, &TestRunner::requestStopTestRun,
@@ -239,7 +237,7 @@ void TestRunner::scheduleNext()
     QTC_ASSERT(!m_currentOutputReader, delete m_currentOutputReader);
     m_currentOutputReader = m_currentConfig->createOutputReader(*m_fakeFutureInterface, m_currentProcess);
     QTC_ASSERT(m_currentOutputReader, onProcessDone(); return);
-
+    connect(m_currentOutputReader, &TestOutputReader::newResult, this, &TestRunner::testResultReady);
     connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
             TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
@@ -654,6 +652,7 @@ void TestRunner::debugTests()
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->createOutputReader(*futureInterface, nullptr);
+        connect(outputreader, &TestOutputReader::newResult, this, &TestRunner::testResultReady);
         outputreader->setId(inferior.command.executable().toString());
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);

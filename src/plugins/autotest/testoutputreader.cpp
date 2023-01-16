@@ -74,7 +74,7 @@ void TestOutputReader::reportCrash()
     TestResult result = createDefaultResult();
     result.setDescription(Tr::tr("Test executable crashed."));
     result.setResult(ResultType::MessageFatal);
-    m_futureInterface.reportResult(result);
+    emit newResult(result);
 }
 
 void TestOutputReader::createAndReportResult(const QString &message, ResultType type)
@@ -109,7 +109,7 @@ void TestOutputReader::reportResult(const TestResult &result)
 {
     if (m_sanitizerResult.isValid())
         sendAndResetSanitizerResult();
-    m_futureInterface.reportResult(result);
+    emit newResult(result);
     m_hadValidOutput = true;
 }
 
@@ -173,7 +173,7 @@ void TestOutputReader::sendAndResetSanitizerResult()
         }
     }
 
-    m_futureInterface.reportResult(m_sanitizerResult);
+    emit newResult(m_sanitizerResult);
     m_hadValidOutput = true;
     m_sanitizerLines.clear();
     m_sanitizerResult = {};

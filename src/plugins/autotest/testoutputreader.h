@@ -33,6 +33,7 @@ public:
 
     void resetCommandlineColor();
 signals:
+    void newResult(const TestResult &result);
     void newOutputLineAvailable(const QByteArray &outputLine, OutputChannel channel);
 protected:
     static Utils::FilePath constructSourceFilePath(const Utils::FilePath &base,
