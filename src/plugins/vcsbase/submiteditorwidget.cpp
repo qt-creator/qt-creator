@@ -107,6 +107,7 @@ struct SubmitEditorWidgetPrivate
     QShortcut *m_submitShortcut = nullptr;
     QActionPushButton *m_submitButton = nullptr;
     QString m_description;
+    QTimer delayedVerifyDescriptionTimer;
 
     int m_lineWidth = defaultLineWidth;
     int m_activatedRow = -1;
@@ -148,6 +149,11 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->description->setWordWrapMode(QTextOption::WordWrap);
 
     d->descriptionLayout->addWidget(d->description);
+
+    d->delayedVerifyDescriptionTimer.setSingleShot(true);
+    d->delayedVerifyDescriptionTimer.setInterval(500);
+    connect(&d->delayedVerifyDescriptionTimer, &QTimer::timeout,
+            this, &SubmitEditorWidget::verifyDescription);
 
     auto groupBox = new QGroupBox(tr("F&iles"));
     groupBox->setObjectName("groupBox");
@@ -589,7 +595,7 @@ void SubmitEditorWidget::verifyDescription()
 
     enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
     QStringList hints;
-    if (subjectLength < MinSubjectLength)
+    if (0 < subjectLength && subjectLength < MinSubjectLength)
         hints.append(warning + tr("Warning: The commit subject is very short."));
 
     if (subjectLength > MaxSubjectLength)
@@ -617,7 +623,7 @@ void SubmitEditorWidget::verifyDescription()
 void SubmitEditorWidget::descriptionTextChanged()
 {
     d->m_description = cleanupDescription(d->description->toPlainText());
-    verifyDescription();
+    d->delayedVerifyDescriptionTimer.start();
     wrapDescription();
     trimDescription();
     // append field entries
