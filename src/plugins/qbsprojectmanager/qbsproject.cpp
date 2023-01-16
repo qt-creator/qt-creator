@@ -498,7 +498,7 @@ FilePath QbsBuildSystem::installRoot()
             if (!step->enabled())
                 continue;
             if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
-                return FilePath::fromString(qbsInstallStep->installRoot());
+                return FilePath::fromUserInput(qbsInstallStep->installRoot());
         }
     }
     const QbsBuildStep * const buildStep = m_buildConfiguration->qbsStep();

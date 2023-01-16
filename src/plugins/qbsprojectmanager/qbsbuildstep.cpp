@@ -387,11 +387,11 @@ Utils::FilePath QbsBuildStep::installRoot(VariableHandling variableHandling) con
     const QString root =
             qbsConfiguration(variableHandling).value(Constants::QBS_INSTALL_ROOT_KEY).toString();
     if (!root.isNull())
-        return Utils::FilePath::fromString(root);
+        return Utils::FilePath::fromUserInput(root);
     QString defaultInstallDir = QbsSettings::defaultInstallDirTemplate();
     if (variableHandling == VariableHandling::ExpandVariables)
         defaultInstallDir = macroExpander()->expand(defaultInstallDir);
-    return FilePath::fromString(defaultInstallDir);
+    return FilePath::fromUserInput(defaultInstallDir);
 }
 
 int QbsBuildStep::maxJobs() const
