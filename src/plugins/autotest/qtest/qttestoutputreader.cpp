@@ -14,6 +14,8 @@
 
 #include <cctype>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -104,9 +106,9 @@ static QString constructBenchmarkInformation(const QString &metric, double value
 }
 
 QtTestOutputReader::QtTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                       Utils::QtcProcess *testApplication,
-                                       const Utils::FilePath &buildDirectory,
-                                       const Utils::FilePath &projectFile,
+                                       QtcProcess *testApplication,
+                                       const FilePath &buildDirectory,
+                                       const FilePath &projectFile,
                                        OutputMode mode, TestType type)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)

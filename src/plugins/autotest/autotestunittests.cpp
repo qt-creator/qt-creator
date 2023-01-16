@@ -68,7 +68,7 @@ void AutoTestUnitTests::initTestCase()
     if (!qtcEnvironmentVariableIsEmpty("BOOST_INCLUDE_DIR")) {
         m_checkBoost = true;
     } else {
-        if (Utils::HostOsInfo::isLinuxHost()
+        if (HostOsInfo::isLinuxHost()
                 && (QFileInfo::exists("/usr/include/boost/version.hpp")
                     || QFileInfo::exists("/usr/local/include/boost/version.hpp"))) {
             qDebug() << "Found boost at system level - will run boost parser test.";
@@ -77,7 +77,7 @@ void AutoTestUnitTests::initTestCase()
     }
 
     // Enable quick check for derived tests
-    static const Utils::Id id = Utils::Id("AutoTest.Framework.QtTest");
+    static const Id id = Id("AutoTest.Framework.QtTest");
     static_cast<Autotest::Internal::QtTestSettings *>(
         TestFrameworkManager::frameworkForId(id)->testSettings())
         ->quickCheckForDerivedTests.setValue(true);
@@ -257,7 +257,7 @@ void AutoTestUnitTests::testCodeParserBoostTest()
 
     QCOMPARE(m_model->boostTestNamesCount(), 5);
 
-    const Utils::FilePath basePath = projectInfo->projectRoot();
+    const FilePath basePath = projectInfo->projectRoot();
     QVERIFY(!basePath.isEmpty());
 
     QMap<QString, int> expectedSuitesAndTests;

@@ -16,6 +16,8 @@
 #include <QFontMetrics>
 #include <QIcon>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -83,7 +85,7 @@ QVariant TestResultItem::data(int column, int role) const
     case Qt::DisplayRole:
         return m_testResult.isValid() ? m_testResult.outputString(true) : QVariant();
     default:
-        return Utils::TreeItem::data(column, role);
+        return TreeItem::data(column, role);
     }
 }
 
@@ -198,7 +200,7 @@ QString TestResultItem::resultString() const
 /********************************* TestResultModel *****************************************/
 
 TestResultModel::TestResultModel(QObject *parent)
-    : Utils::TreeModel<TestResultItem>(new TestResultItem({}), parent)
+    : TreeModel<TestResultItem>(new TestResultItem({}), parent)
 {
     connect(TestRunner::instance(), &TestRunner::reportSummary,
             this, [this](const QString &id, const QHash<ResultType, int> &summary){
@@ -281,7 +283,7 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
         if (autoExpand) {
             parentItem->expand();
             newItem->expand();
-            newItem->forAllChildren([](Utils::TreeItem *it) { it->expand(); });
+            newItem->forAllChildren([](TreeItem *it) { it->expand(); });
         }
         updateParent(newItem);
     } else {
@@ -399,7 +401,7 @@ TestResultItem *TestResultModel::findParentItemFor(const TestResultItem *item,
         return root;
 
     bool needsIntermediate = false;
-    auto predicate = [result, &needsIntermediate](Utils::TreeItem *it) {
+    auto predicate = [result, &needsIntermediate](TreeItem *it) {
         TestResultItem *currentItem = static_cast<TestResultItem *>(it);
         return currentItem->testResult().isDirectParentOf(result, &needsIntermediate);
     };

@@ -106,7 +106,7 @@ GTestSettings::GTestSettings()
     });
 }
 
-GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Utils::Id settingsId)
+GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

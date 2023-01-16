@@ -11,11 +11,13 @@
 
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 TestOutputReader *CatchConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
-                                                         Utils::QtcProcess *app) const
+                                                         QtcProcess *app) const
 {
     return new CatchOutputReader(fi, app, buildDirectory(), projectFile());
 }
@@ -115,7 +117,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     return arguments;
 }
 
-Utils::Environment CatchConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment CatchConfiguration::filteredEnvironment(const Environment &original) const
 {
     return original;
 }

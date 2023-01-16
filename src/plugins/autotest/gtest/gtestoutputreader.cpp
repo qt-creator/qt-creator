@@ -12,25 +12,27 @@
 
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 GTestOutputReader::GTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                     Utils::QtcProcess *testApplication,
-                                     const Utils::FilePath &buildDirectory,
-                                     const Utils::FilePath &projectFile)
+                                     QtcProcess *testApplication,
+                                     const FilePath &buildDirectory,
+                                     const FilePath &projectFile)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {
     if (m_testApplication) {
-        connect(m_testApplication, &Utils::QtcProcess::done, this, [this] {
+        connect(m_testApplication, &QtcProcess::done, this, [this] {
             const int exitCode = m_testApplication->exitCode();
             if (exitCode == 1 && !m_description.isEmpty()) {
                 createAndReportResult(Tr::tr("Running tests failed.\n %1\nExecutable: %2")
                                       .arg(m_description).arg(id()), ResultType::MessageFatal);
             }
             // on Windows abort() will result in normal termination, but exit code will be set to 3
-            if (Utils::HostOsInfo::isWindowsHost() && exitCode == 3)
+            if (HostOsInfo::isWindowsHost() && exitCode == 3)
                 reportCrash();
         });
     }
@@ -156,7 +158,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResult testResult = createDefaultResult();
         testResult.setResult(type);
         testResult.setLine(match.captured(3).toInt());
-        const Utils::FilePath file = constructSourceFilePath(m_buildDir, match.captured(2));
+        const FilePath file = constructSourceFilePath(m_buildDir, match.captured(2));
         if (file.exists())
             testResult.setFileName(file);
         testResult.setDescription(match.captured(4));
@@ -219,7 +221,7 @@ void GTestOutputReader::handleDescriptionAndReportResult(const TestResult &testR
         result = createDefaultResult();
         result.setResult(ResultType::MessageLocation);
         result.setLine(innerMatch.captured(2).toInt());
-        const Utils::FilePath file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
+        const FilePath file = constructSourceFilePath(m_buildDir, innerMatch.captured(1));
         if (file.exists())
             result.setFileName(file);
         resultDescription << output;

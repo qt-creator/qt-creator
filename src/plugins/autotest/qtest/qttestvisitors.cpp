@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 
 using namespace CPlusPlus;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -36,7 +37,7 @@ bool TestVisitor::visit(Class *symbol)
         Symbol *member = symbol->memberAt(i);
         Type *type = member->type().type();
 
-        const QString className = o.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(
+        const QString className = o.prettyName(LookupContext::fullyQualifiedName(
                                                    member->enclosingClass()));
         if (className != m_className)
             continue;
@@ -51,12 +52,12 @@ bool TestVisitor::visit(Class *symbol)
                 Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
                             func, m_snapshot, true);
                 if (functionDefinition && functionDefinition->fileId()) {
-                    locationAndType.m_filePath = Utils::FilePath::fromString(
+                    locationAndType.m_filePath = FilePath::fromString(
                                 QString::fromUtf8(functionDefinition->fileName()));
                     locationAndType.m_line = functionDefinition->line();
                     locationAndType.m_column = functionDefinition->column() - 1;
                 } else { // if we cannot find the definition use declaration as fallback
-                    locationAndType.m_filePath = Utils::FilePath::fromString(
+                    locationAndType.m_filePath = FilePath::fromString(
                                 QString::fromUtf8(member->fileName()));
                     locationAndType.m_line = member->line();
                     locationAndType.m_column = member->column() - 1;
@@ -74,7 +75,7 @@ bool TestVisitor::visit(Class *symbol)
         }
         for (int counter = 0, end = symbol->baseClassCount(); counter < end; ++counter) {
             if (BaseClass *base = symbol->baseClassAt(counter)) {
-                const QString &baseClassName = o.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(base));
+                const QString &baseClassName = o.prettyName(LookupContext::fullyQualifiedName(base));
                 if (baseClassName != "QObject")
                     m_baseClasses.insert(baseClassName);
             }
@@ -171,7 +172,7 @@ bool TestDataFunctionVisitor::visit(FunctionDefinitionAST *ast)
 
         LookupContext lc;
         const QString prettyName =
-                m_overview.prettyName(CPlusPlus::LookupContext::fullyQualifiedName(ast->symbol));
+                m_overview.prettyName(LookupContext::fullyQualifiedName(ast->symbol));
         // do not handle functions that aren't real test data functions
         if (!prettyName.endsWith("_data"))
             return false;

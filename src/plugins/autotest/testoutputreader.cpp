@@ -16,18 +16,18 @@
 #include <QFileInfo>
 #include <QProcess>
 
+using namespace Utils;
+
 namespace Autotest {
 
-Utils::FilePath TestOutputReader::constructSourceFilePath(const Utils::FilePath &path,
-                                                          const QString &file)
+FilePath TestOutputReader::constructSourceFilePath(const FilePath &path, const QString &file)
 {
-    const Utils::FilePath filePath = path.resolvePath(file);
-    return filePath.isReadableFile() ? filePath : Utils::FilePath();
+    const FilePath filePath = path.resolvePath(file);
+    return filePath.isReadableFile() ? filePath : FilePath();
 }
 
 TestOutputReader::TestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                   Utils::QtcProcess *testApplication,
-                                   const Utils::FilePath &buildDirectory)
+                                   QtcProcess *testApplication, const FilePath &buildDirectory)
     : m_futureInterface(futureInterface)
     , m_testApplication(testApplication)
     , m_buildDir(buildDirectory)
@@ -149,10 +149,10 @@ void TestOutputReader::checkForSanitizerOutput(const QByteArray &line)
         m_sanitizerLines.append("Sanitizer Issue");
         m_sanitizerLines.append(lineStr);
         if (m_sanitizerOutputMode == SanitizerOutputMode::Ubsan) {
-            const Utils::FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
+            const FilePath path = constructSourceFilePath(m_buildDir, match.captured(1));
             // path may be empty if not existing - so, provide at least what we have
             m_sanitizerResult.setFileName(
-                path.exists() ? path : Utils::FilePath::fromString(match.captured(1)));
+                path.exists() ? path : FilePath::fromString(match.captured(1)));
             m_sanitizerResult.setLine(match.captured(2).toInt());
         }
     }

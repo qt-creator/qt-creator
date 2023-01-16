@@ -32,6 +32,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -48,10 +50,8 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     m_view->setItemDelegate(new TestTreeItemDelegate(this));
 
     QPalette pal;
-    pal.setColor(QPalette::Window,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
     m_missingFrameworksWidget = new QFrame;
     m_missingFrameworksWidget->setPalette(pal);
     m_missingFrameworksWidget->setAutoFillBackground(true);
@@ -70,7 +70,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
 
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
 
-    m_progressIndicator = new Utils::ProgressIndicator(Utils::ProgressIndicatorSize::Medium, this);
+    m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
     m_progressIndicator->attachToWidget(m_view);
     m_progressIndicator->hide();
 
@@ -94,8 +94,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     });
     connect(m_model, &TestTreeModel::testTreeModelChanged,
             this, &TestNavigationWidget::reapplyCachedExpandedState);
-    connect(m_progressTimer, &QTimer::timeout,
-            m_progressIndicator, &Utils::ProgressIndicator::show);
+    connect(m_progressTimer, &QTimer::timeout, m_progressIndicator, &ProgressIndicator::show);
     connect(m_view, &TestTreeView::expanded, this, &TestNavigationWidget::updateExpandedStateCache);
     connect(m_view, &TestTreeView::collapsed, this, &TestNavigationWidget::updateExpandedStateCache);
 }
@@ -233,8 +232,8 @@ void TestNavigationWidget::updateExpandedStateCache()
 {
     m_expandedStateCache.evolve(ITestBase::Framework);
 
-    for (Utils::TreeItem *rootNode : *m_model->rootItem()) {
-        rootNode->forAllChildren([this](Utils::TreeItem *child) {
+    for (TreeItem *rootNode : *m_model->rootItem()) {
+        rootNode->forAllChildren([this](TreeItem *child) {
             m_expandedStateCache.insert(static_cast<ITestTreeItem *>(child),
                                         m_view->isExpanded(child->index()));
         });
@@ -243,7 +242,7 @@ void TestNavigationWidget::updateExpandedStateCache()
 
 void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
-    const Utils::Link link = index.data(LinkRole).value<Utils::Link>();
+    const Link link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
         Core::EditorManager::openEditorAt(link);
 }

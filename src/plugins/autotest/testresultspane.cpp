@@ -56,7 +56,7 @@ namespace Autotest {
 namespace Internal {
 
 ResultsTreeView::ResultsTreeView(QWidget *parent)
-    : Utils::TreeView(parent)
+    : TreeView(parent)
 {
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(NoFrame);
@@ -84,10 +84,8 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     visualOutputWidget->setLayout(outputLayout);
 
     QPalette pal;
-    pal.setColor(QPalette::Window,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarBackground));
-    pal.setColor(QPalette::WindowText,
-                 Utils::creatorTheme()->color(Utils::Theme::InfoBarText));
+    pal.setColor(QPalette::Window, creatorTheme()->color(Theme::InfoBarBackground));
+    pal.setColor(QPalette::WindowText, creatorTheme()->color(Theme::InfoBarText));
     m_summaryWidget = new QFrame;
     m_summaryWidget->setPalette(pal);
     m_summaryWidget->setAutoFillBackground(true);
@@ -130,10 +128,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     createToolButtons();
 
-    connect(m_treeView, &Utils::TreeView::activated, this, &TestResultsPane::onItemActivated);
+    connect(m_treeView, &TreeView::activated, this, &TestResultsPane::onItemActivated);
     connect(m_treeView->selectionModel(), &QItemSelectionModel::currentChanged,
             trd, &TestResultDelegate::currentChanged);
-    connect(m_treeView, &Utils::TreeView::customContextMenuRequested,
+    connect(m_treeView, &TreeView::customContextMenuRequested,
             this, &TestResultsPane::onCustomContextMenuRequested);
     connect(m_treeView, &ResultsTreeView::copyShortcutTriggered, this, [this] {
         onCopyItemTriggered(getTestResult(m_treeView->currentIndex()));
@@ -167,25 +165,21 @@ void TestResultsPane::createToolButtons()
     });
 
     m_runAll = new QToolButton(m_treeView);
-    m_runAll->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runAll->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action(),
                     Utils::Icons::RUN_SMALL_TOOLBAR.icon()));
 
     m_runSelected = new QToolButton(m_treeView);
-    m_runSelected->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runSelected->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action(),
                     Utils::Icons::RUN_SELECTED_TOOLBAR.icon()));
 
     m_runFailed = new QToolButton(m_treeView);
-    m_runFailed->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runFailed->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_FAILED_ID)->action(),
                     Icons::RUN_FAILED_TOOLBAR.icon()));
     m_runFile = new QToolButton(m_treeView);
-    m_runFile->setDefaultAction(
-                Utils::ProxyAction::proxyActionWithIcon(
+    m_runFile->setDefaultAction(ProxyAction::proxyActionWithIcon(
                     ActionManager::command(Constants::ACTION_RUN_FILE_ID)->action(),
                     Utils::Icons::RUN_FILE_TOOLBAR.icon()));
 
@@ -248,22 +242,22 @@ static void checkAndFineTuneColors(QTextCharFormat *format)
     const QColor bgColor = format->background().color();
     QColor fgColor = format->foreground().color();
 
-    if (Utils::StyleHelper::isReadableOn(bgColor, fgColor))
+    if (StyleHelper::isReadableOn(bgColor, fgColor))
         return;
 
     int h, s, v;
     fgColor.getHsv(&h, &s, &v);
     // adjust the color value to ensure better readability
-    if (Utils::StyleHelper::luminance(bgColor) < .5)
+    if (StyleHelper::luminance(bgColor) < .5)
         v = v + 64;
     else
         v = v - 64;
 
     fgColor.setHsv(h, s, v);
-    if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor)) {
+    if (!StyleHelper::isReadableOn(bgColor, fgColor)) {
         s = (s + 128) % 255;    // adjust the saturation to ensure better readability
         fgColor.setHsv(h, s, v);
-        if (!Utils::StyleHelper::isReadableOn(bgColor, fgColor))
+        if (!StyleHelper::isReadableOn(bgColor, fgColor))
             return;
     }
 
@@ -278,9 +272,9 @@ void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel 
         return;
     }
 
-    const Utils::FormattedText formattedText
-            = Utils::FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
-    const QList<Utils::FormattedText> formatted = channel == OutputChannel::StdOut
+    const FormattedText formattedText
+            = FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
+    const QList<FormattedText> formatted = channel == OutputChannel::StdOut
             ? m_stdOutHandler.parseText(formattedText)
             : m_stdErrHandler.parseText(formattedText);
 
@@ -332,9 +326,9 @@ void TestResultsPane::clearContents()
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
-    m_defaultFormat.setBackground(Utils::creatorTheme()->palette().color(
+    m_defaultFormat.setBackground(creatorTheme()->palette().color(
                                       m_textOutput->backgroundRole()));
-    m_defaultFormat.setForeground(Utils::creatorTheme()->palette().color(
+    m_defaultFormat.setForeground(creatorTheme()->palette().color(
                                       m_textOutput->foregroundRole()));
 
     // in case they had been forgotten to reset
@@ -402,7 +396,7 @@ void TestResultsPane::goToNext()
 
     // if we have no current or could not find a next one, use the first item of the whole tree
     if (!nextCurrentIndex.isValid()) {
-        Utils::TreeItem *rootItem = m_model->itemForIndex(QModelIndex());
+        TreeItem *rootItem = m_model->itemForIndex(QModelIndex());
         // if the tree does not contain any item - don't do anything
         if (!rootItem || !rootItem->childCount())
             return;
@@ -459,7 +453,7 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
 
     const TestResult testResult = m_filterModel->testResult(index);
     if (testResult.isValid() && !testResult.fileName().isEmpty())
-        EditorManager::openEditorAt(Utils::Link{testResult.fileName(), testResult.line(), 0});
+        EditorManager::openEditorAt(Link{testResult.fileName(), testResult.line(), 0});
 }
 
 void TestResultsPane::onRunAllTriggered()
@@ -754,7 +748,7 @@ void TestResultsPane::createMarks(const QModelIndex &parent)
                 || (isLocationItem && interested.contains(parentType))) {
             TestEditorMark *mark = new TestEditorMark(index, result.fileName(), result.line());
             mark->setIcon(index.data(Qt::DecorationRole).value<QIcon>());
-            mark->setColor(Utils::Theme::OutputPanes_TestFailTextColor);
+            mark->setColor(Theme::OutputPanes_TestFailTextColor);
             mark->setPriority(TextEditor::TextMark::NormalPriority);
             mark->setToolTip(result.description());
             m_marks << mark;

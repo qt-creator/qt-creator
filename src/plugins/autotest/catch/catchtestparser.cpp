@@ -92,7 +92,7 @@ static bool hasCatchNames(const CPlusPlus::Document::Ptr &document)
 }
 
 bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                      const Utils::FilePath &fileName)
+                                      const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
@@ -117,9 +117,9 @@ bool CatchTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
-    Utils::FilePath proFile;
+    FilePath proFile;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
-    proFile = Utils::FilePath::fromString(projectPart->projectFile);
+    proFile = FilePath::fromString(projectPart->projectFile);
 
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);
     const CatchTestCodeLocationList foundTests = codeParser.findTests();

@@ -12,6 +12,8 @@
 
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -22,7 +24,7 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 }
 
 TestOutputReader *QuickTestConfiguration::createOutputReader(
-        const QFutureInterface<TestResult> &fi, Utils::QtcProcess *app) const
+        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
@@ -64,7 +66,7 @@ QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     return arguments;
 }
 
-Utils::Environment QuickTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment QuickTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     return QTestUtils::prepareBasicEnvironment(original);
 }

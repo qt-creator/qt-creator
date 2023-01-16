@@ -14,6 +14,8 @@
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -72,7 +74,7 @@ TestTreeItem *CatchTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (result->framework->grouping()) {
-            const Utils::FilePath path = result->fileName.absolutePath();
+            const FilePath path = result->fileName.absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
@@ -123,7 +125,7 @@ bool CatchTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *CatchTreeItem::createParentGroupNode() const
 {
-    const Utils::FilePath absPath = filePath().absolutePath();
+    const FilePath absPath = filePath().absolutePath();
     return new CatchTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
@@ -172,7 +174,7 @@ struct CatchTestCases
 };
 
 static void collectTestInfo(const TestTreeItem *item,
-                            QHash<Utils::FilePath, CatchTestCases> &testCasesForProfile,
+                            QHash<FilePath, CatchTestCases> &testCasesForProfile,
                             bool ignoreCheckState)
 {
     QTC_ASSERT(item, return);
@@ -189,7 +191,7 @@ static void collectTestInfo(const TestTreeItem *item,
     QTC_ASSERT(childCount != 0, return);
     QTC_ASSERT(item->type() == TestTreeItem::TestSuite, return);
     if (ignoreCheckState || item->checked() == Qt::Checked) {
-        const Utils::FilePath &projectFile = item->childItem(0)->proFile();
+        const FilePath &projectFile = item->childItem(0)->proFile();
         item->forAllChildItems([&testCasesForProfile, &projectFile](TestTreeItem *it) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
             testCasesForProfile[projectFile].names.append(current->testCasesString());
@@ -210,7 +212,7 @@ static void collectTestInfo(const TestTreeItem *item,
 }
 
 static void collectFailedTestInfo(const CatchTreeItem *item,
-                                  QHash<Utils::FilePath, CatchTestCases> &testCasesForProfile)
+                                  QHash<FilePath, CatchTestCases> &testCasesForProfile)
 {
     QTC_ASSERT(item, return);
     QTC_ASSERT(item->type() == TestTreeItem::Root, return);
@@ -246,7 +248,7 @@ QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
     if (!project || type() != Root)
         return result;
 
-    QHash<Utils::FilePath, CatchTestCases> testCasesForProFile;
+    QHash<FilePath, CatchTestCases> testCasesForProFile;
     collectFailedTestInfo(this, testCasesForProFile);
 
     for (auto it = testCasesForProFile.begin(), end = testCasesForProFile.end(); it != end; ++it) {
@@ -263,7 +265,7 @@ QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
     return result;
 }
 
-QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
     const auto cppMM = CppEditor::CppModelManager::instance();
@@ -316,7 +318,7 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurations(bool ignoreChec
     if (!project || type() != Root)
         return result;
 
-    QHash<Utils::FilePath, CatchTestCases> testCasesForProfile;
+    QHash<FilePath, CatchTestCases> testCasesForProfile;
     for (int row = 0, end = childCount(); row < end; ++row)
         collectTestInfo(childItem(row), testCasesForProfile, ignoreCheckState);
 

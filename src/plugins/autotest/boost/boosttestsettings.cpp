@@ -81,7 +81,7 @@ BoostTestSettings::BoostTestSettings()
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
 }
 
-BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils::Id settingsId)
+BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Id settingsId)
 {
     setId(settingsId);
     setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);

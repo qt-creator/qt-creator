@@ -6,6 +6,8 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+using namespace Utils;
+
 namespace Autotest {
 
 TestResult::TestResult(const QString &id, const QString &name, const ResultHooks &hooks)
@@ -131,33 +133,33 @@ QColor TestResult::colorForType(const ResultType type)
     if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
         return QColor("transparent");
 
-    Utils::Theme *creatorTheme = Utils::creatorTheme();
+    const Theme *theme = creatorTheme();
     switch (type) {
     case ResultType::Pass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestPassTextColor);
+        return theme->color(Theme::OutputPanes_TestPassTextColor);
     case ResultType::Fail:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFailTextColor);
+        return theme->color(Theme::OutputPanes_TestFailTextColor);
     case ResultType::ExpectedFail:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXFailTextColor);
+        return theme->color(Theme::OutputPanes_TestXFailTextColor);
     case ResultType::UnexpectedPass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXPassTextColor);
+        return theme->color(Theme::OutputPanes_TestXPassTextColor);
     case ResultType::Skip:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestSkipTextColor);
+        return theme->color(Theme::OutputPanes_TestSkipTextColor);
     case ResultType::MessageDebug:
     case ResultType::MessageInfo:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestDebugTextColor);
+        return theme->color(Theme::OutputPanes_TestDebugTextColor);
     case ResultType::MessageWarn:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
+        return theme->color(Theme::OutputPanes_TestWarnTextColor);
     case ResultType::MessageFatal:
     case ResultType::MessageSystem:
     case ResultType::MessageError:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
+        return theme->color(Theme::OutputPanes_TestFatalTextColor);
     case ResultType::BlacklistedPass:
     case ResultType::BlacklistedFail:
     case ResultType::BlacklistedXPass:
     case ResultType::BlacklistedXFail:
     default:
-        return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
+        return theme->color(Theme::OutputPanes_StdOutTextColor);
     }
 }
 

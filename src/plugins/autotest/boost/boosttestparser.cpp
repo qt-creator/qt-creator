@@ -78,8 +78,8 @@ static bool hasBoostTestMacros(const CPlusPlus::Document::Ptr &doc)
     return false;
 }
 
-static BoostTestParseResult *createParseResult(const QString &name, const Utils::FilePath &filePath,
-                                               const Utils::FilePath &projectFile,
+static BoostTestParseResult *createParseResult(const QString &name, const FilePath &filePath,
+                                               const FilePath &projectFile,
                                                ITestFramework *framework,
                                                TestTreeItem::Type type, const BoostTestInfo &info)
 {
@@ -97,7 +97,7 @@ static BoostTestParseResult *createParseResult(const QString &name, const Utils:
 }
 
 bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                      const Utils::FilePath &fileName)
+                                      const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
@@ -109,7 +109,7 @@ bool BoostTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
-    const auto projectFile = Utils::FilePath::fromString(projectPart->projectFile);
+    const auto projectFile = FilePath::fromString(projectPart->projectFile);
     const QByteArray &fileContent = getFileContent(fileName);
 
     BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, m_cppSnapshot);

@@ -9,6 +9,8 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -30,9 +32,9 @@ namespace CatchXml {
 }
 
 CatchOutputReader::CatchOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                     Utils::QtcProcess *testApplication,
-                                     const Utils::FilePath &buildDirectory,
-                                     const Utils::FilePath &projectFile)
+                                     QtcProcess *testApplication,
+                                     const FilePath &buildDirectory,
+                                     const FilePath &projectFile)
     : TestOutputReader (futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
 {

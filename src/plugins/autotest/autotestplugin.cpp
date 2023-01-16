@@ -66,6 +66,7 @@
 #endif
 
 using namespace Core;
+using namespace Utils;
 
 namespace Autotest {
 namespace Internal {
@@ -361,7 +362,7 @@ void AutotestPluginPrivate::onRunFileTriggered()
     if (!document)
         return;
 
-    const Utils::FilePath &fileName = document->filePath();
+    const FilePath &fileName = document->filePath();
     if (fileName.isEmpty())
         return;
 
@@ -398,7 +399,7 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
 
     // check whether we have been triggered on a test function definition
     const int line = currentEditor->currentLine();
-    const Utils::FilePath &filePath = currentEditor->textDocument()->filePath();
+    const FilePath &filePath = currentEditor->textDocument()->filePath();
     QList<ITestTreeItem *> filteredItems = Utils::filtered(testsItems, [&](ITestTreeItem *it){
         return it->line() == line && it->filePath() == filePath;
     });

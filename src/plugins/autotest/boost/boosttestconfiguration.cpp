@@ -13,11 +13,13 @@
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 TestOutputReader *BoostTestConfiguration::createOutputReader(
-        const QFutureInterface<TestResult> &fi, Utils::QtcProcess *app) const
+        const QFutureInterface<TestResult> &fi, QtcProcess *app) const
 {
     auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
     return new BoostTestOutputReader(fi, app, buildDirectory(), projectFile(),
@@ -113,11 +115,11 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
     return arguments;
 }
 
-Utils::Environment BoostTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment BoostTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     const QStringList interferingEnv = interfering(InterferingType::EnvironmentVariables);
 
-    Utils::Environment result = original;
+    Environment result = original;
     if (!result.hasKey("BOOST_TEST_COLOR_OUTPUT"))
         result.set("BOOST_TEST_COLOR_OUTPUT", "1");  // use colored output by default
     for (const QString &key : interferingEnv)

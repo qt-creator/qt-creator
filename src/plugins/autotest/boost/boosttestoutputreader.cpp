@@ -14,15 +14,17 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 static Q_LOGGING_CATEGORY(orLog, "qtc.autotest.boost.outputreader", QtWarningMsg)
 
 BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> &futureInterface,
-                                             Utils::QtcProcess *testApplication,
-                                             const Utils::FilePath &buildDirectory,
-                                             const Utils::FilePath &projectFile,
+                                             QtcProcess *testApplication,
+                                             const FilePath &buildDirectory,
+                                             const FilePath &projectFile,
                                              LogLevel log, ReportLevel report)
     : TestOutputReader(futureInterface, testApplication, buildDirectory)
     , m_projectFile(projectFile)
@@ -30,7 +32,7 @@ BoostTestOutputReader::BoostTestOutputReader(const QFutureInterface<TestResult> 
     , m_reportLevel(report)
 {
     if (m_testApplication)
-        connect(m_testApplication, &Utils::QtcProcess::done, this, &BoostTestOutputReader::onDone);
+        connect(m_testApplication, &QtcProcess::done, this, &BoostTestOutputReader::onDone);
 }
 
 // content of "error:..." / "info:..." / ... messages
