@@ -68,7 +68,7 @@ public:
 
     Core::IDocument *document() const override;
 
-    QWidget *toolBar() override;
+    QWidget *toolBar() override { return nullptr; }
 
     QStringList checkedFiles() const;
 

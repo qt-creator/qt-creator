@@ -54,7 +54,6 @@
 #include <cstring>
 
 enum { debug = 0 };
-enum { wantToolBar = 0 };
 
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const QString &word)
@@ -115,7 +114,6 @@ public:
                                VcsBaseSubmitEditor *q);
 
     SubmitEditorWidget *m_widget;
-    QToolBar *m_toolWidget = nullptr;
     VcsBaseSubmitEditorParameters m_parameters;
     QString m_displayName;
     FilePath m_checkScriptWorkingDirectory;
@@ -224,7 +222,6 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
 
 VcsBaseSubmitEditor::~VcsBaseSubmitEditor()
 {
-    delete d->m_toolWidget;
     delete d->m_widget;
     delete d;
 }
@@ -336,38 +333,6 @@ FilePath VcsBaseSubmitEditor::checkScriptWorkingDirectory() const
 void VcsBaseSubmitEditor::setCheckScriptWorkingDirectory(const FilePath &s)
 {
     d->m_checkScriptWorkingDirectory = s;
-}
-
-static QToolBar *createToolBar(const QWidget *someWidget, QAction *submitAction, QAction *diffAction)
-{
-    // Create
-    auto toolBar = new QToolBar;
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    toolBar->setIconSize(QSize(size, size));
-    toolBar->addSeparator();
-
-    if (submitAction)
-        toolBar->addAction(submitAction);
-    if (diffAction)
-        toolBar->addAction(diffAction);
-    return toolBar;
-}
-
-QWidget *VcsBaseSubmitEditor::toolBar()
-{
-    if (!wantToolBar)
-        return nullptr;
-
-    if (d->m_toolWidget)
-        return d->m_toolWidget;
-
-    if (!d->m_diffAction && !d->m_submitAction)
-        return nullptr;
-
-    // Create
-    d->m_toolWidget = createToolBar(d->m_widget, d->m_submitAction, d->m_diffAction);
-    return d->m_toolWidget;
 }
 
 QStringList VcsBaseSubmitEditor::checkedFiles() const
