@@ -120,7 +120,7 @@ bool SquishPluginPrivate::initializeGlobalScripts()
 
         // FIXME? comma, special characters in paths
         const Utils::FilePaths globalDirs = Utils::transform(
-                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromString);
+                    output.trimmed().split(',', Qt::SkipEmptyParts), &Utils::FilePath::fromUserInput);
         SquishFileHandler::instance()->setSharedFolders(globalDirs);
     });
     return true;

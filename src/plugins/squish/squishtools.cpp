@@ -976,7 +976,7 @@ Utils::Links SquishTools::setBreakpoints()
     for (const GlobalBreakpoint &gb : globalBPs) {
         if (!gb->isEnabled())
             continue;
-        const Utils::FilePath filePath = Utils::FilePath::fromString(
+        const Utils::FilePath filePath = Utils::FilePath::fromUserInput(
                     gb->data(BreakpointFileColumn, Qt::DisplayRole).toString());
         auto fileName = filePath.canonicalPath().toUserOutput();
         if (fileName.isEmpty())

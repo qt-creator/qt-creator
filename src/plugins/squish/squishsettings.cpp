@@ -46,7 +46,7 @@ SquishSettings::SquishSettings()
         QTC_ASSERT(edit, return false);
         if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
             return false;
-        const FilePath squishServer = FilePath::fromString(edit->text())
+        const FilePath squishServer = FilePath::fromUserInput(edit->text())
                 .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
         const bool valid = squishServer.isExecutableFile();
         if (!valid && error)

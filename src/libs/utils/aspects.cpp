@@ -1230,7 +1230,7 @@ void StringAspect::update()
     const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
 
     if (d->m_pathChooserDisplay) {
-        d->m_pathChooserDisplay->setFilePath(FilePath::fromString(displayedString));
+        d->m_pathChooserDisplay->setFilePath(FilePath::fromUserInput(displayedString));
         d->updateWidgetFromCheckStatus(this, d->m_pathChooserDisplay.data());
     }
 

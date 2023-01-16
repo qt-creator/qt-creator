@@ -219,7 +219,7 @@ static QPair<FilePath, QString> clangIncludeDirAndVersion(const FilePath &clangT
     const FilePath dynamicResourceDir = queryResourceDir(clangToolPath);
     const QString dynamicVersion = queryVersion(clangToolPath, QueryFailMode::Noisy);
     if (dynamicResourceDir.isEmpty() || dynamicVersion.isEmpty())
-        return {FilePath::fromString(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
+        return {FilePath::fromUserInput(CLANG_INCLUDE_DIR), QString(CLANG_VERSION)};
     return {dynamicResourceDir / "include", dynamicVersion};
 }
 
