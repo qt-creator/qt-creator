@@ -109,8 +109,11 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
 void LanguageClientManager::restartClient(Client *client)
 {
     QTC_ASSERT(managerInstance, return);
+    if (!client)
+        return;
     managerInstance->m_restartingClients.insert(client);
-    shutdownClient(client);
+    if (client->reachable())
+        client->shutdown();
 }
 
 void LanguageClientManager::clientStarted(Client *client)
