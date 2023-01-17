@@ -109,15 +109,15 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *parent)
 {
     auto permissionsGroupBox = new QGroupBox(parent);
-    permissionsGroupBox->setTitle(Tr::tr("Permissions"));
+    permissionsGroupBox->setTitle(::Android::Tr::tr("Permissions"));
     auto layout = new QGridLayout(permissionsGroupBox);
 
     m_defaultPermissonsCheckBox = new QCheckBox(this);
-    m_defaultPermissonsCheckBox->setText(Tr::tr("Include default permissions for Qt modules."));
+    m_defaultPermissonsCheckBox->setText(::Android::Tr::tr("Include default permissions for Qt modules."));
     layout->addWidget(m_defaultPermissonsCheckBox, 0, 0);
 
     m_defaultFeaturesCheckBox = new QCheckBox(this);
-    m_defaultFeaturesCheckBox->setText(Tr::tr("Include default features for Qt modules."));
+    m_defaultFeaturesCheckBox->setText(::Android::Tr::tr("Include default features for Qt modules."));
     layout->addWidget(m_defaultFeaturesCheckBox, 1, 0);
 
     m_permissionsComboBox = new QComboBox(permissionsGroupBox);
@@ -257,7 +257,7 @@ QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *paren
     layout->addWidget(m_permissionsComboBox, 2, 0);
 
     m_addPermissionButton = new QPushButton(permissionsGroupBox);
-    m_addPermissionButton->setText(Tr::tr("Add"));
+    m_addPermissionButton->setText(::Android::Tr::tr("Add"));
     layout->addWidget(m_addPermissionButton, 2, 1);
 
     m_permissionsModel = new PermissionsModel(this);
@@ -267,7 +267,7 @@ QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *paren
     layout->addWidget(m_permissionsListView, 3, 0, 3, 1);
 
     m_removePermissionButton = new QPushButton(permissionsGroupBox);
-    m_removePermissionButton->setText(Tr::tr("Remove"));
+    m_removePermissionButton->setText(::Android::Tr::tr("Remove"));
     layout->addWidget(m_removePermissionButton, 3, 1);
 
     permissionsGroupBox->setLayout(layout);
@@ -290,11 +290,11 @@ QGroupBox *AndroidManifestEditorWidget::createPermissionsGroupBox(QWidget *paren
 QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
 {
     auto packageGroupBox = new QGroupBox(parent);
-    packageGroupBox->setTitle(Tr::tr("Package"));
+    packageGroupBox->setTitle(::Android::Tr::tr("Package"));
     auto formLayout = new QFormLayout();
 
     m_packageNameLineEdit = new QLineEdit(packageGroupBox);
-    m_packageNameLineEdit->setToolTip(Tr::tr(
+    m_packageNameLineEdit->setToolTip(::Android::Tr::tr(
         "<p align=\"justify\">Please choose a valid package name for your application (for "
         "example, \"org.example.myapplication\").</p><p align=\"justify\">Packages are usually "
         "defined using a hierarchical naming pattern, with levels in the hierarchy separated "
@@ -306,10 +306,10 @@ QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
         "conventions for disambiguating package names and rules for naming packages when the "
         "Internet domain name cannot be directly used as a package name are described in "
         "section 7.7 of the Java Language Specification.</p>"));
-    formLayout->addRow(Tr::tr("Package name:"), m_packageNameLineEdit);
+    formLayout->addRow(::Android::Tr::tr("Package name:"), m_packageNameLineEdit);
 
     m_packageNameWarning = new QLabel;
-    m_packageNameWarning->setText(Tr::tr("The package name is not valid."));
+    m_packageNameWarning->setText(::Android::Tr::tr("The package name is not valid."));
     m_packageNameWarning->setVisible(false);
 
     m_packageNameWarningIcon = new QLabel;
@@ -325,25 +325,25 @@ QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
     formLayout->addRow(QString(), warningRow);
 
     m_versionCodeLineEdit = new QLineEdit(packageGroupBox);
-    formLayout->addRow(Tr::tr("Version code:"), m_versionCodeLineEdit);
+    formLayout->addRow(::Android::Tr::tr("Version code:"), m_versionCodeLineEdit);
 
     m_versionNameLinedit = new QLineEdit(packageGroupBox);
-    formLayout->addRow(Tr::tr("Version name:"), m_versionNameLinedit);
+    formLayout->addRow(::Android::Tr::tr("Version name:"), m_versionNameLinedit);
 
     m_androidMinSdkVersion = new QComboBox(packageGroupBox);
     m_androidMinSdkVersion->setToolTip(
-                Tr::tr("Sets the minimum required version on which this application can be run."));
-    m_androidMinSdkVersion->addItem(Tr::tr("Not set"), 0);
+                ::Android::Tr::tr("Sets the minimum required version on which this application can be run."));
+    m_androidMinSdkVersion->addItem(::Android::Tr::tr("Not set"), 0);
 
-    formLayout->addRow(Tr::tr("Minimum required SDK:"), m_androidMinSdkVersion);
+    formLayout->addRow(::Android::Tr::tr("Minimum required SDK:"), m_androidMinSdkVersion);
 
     m_androidTargetSdkVersion = new QComboBox(packageGroupBox);
     m_androidTargetSdkVersion->setToolTip(
-                Tr::tr("Sets the target SDK. Set this to the highest tested version. "
+                ::Android::Tr::tr("Sets the target SDK. Set this to the highest tested version. "
                        "This disables compatibility behavior of the system for your application."));
-    m_androidTargetSdkVersion->addItem(Tr::tr("Not set"), 0);
+    m_androidTargetSdkVersion->addItem(::Android::Tr::tr("Not set"), 0);
 
-    formLayout->addRow(Tr::tr("Target SDK:"), m_androidTargetSdkVersion);
+    formLayout->addRow(::Android::Tr::tr("Target SDK:"), m_androidTargetSdkVersion);
 
     packageGroupBox->setLayout(formLayout);
 
@@ -363,17 +363,17 @@ QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
 QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGroupBox(QWidget *parent)
 {
     auto applicationGroupBox = new QGroupBox(parent);
-    applicationGroupBox->setTitle(Tr::tr("Application"));
+    applicationGroupBox->setTitle(::Android::Tr::tr("Application"));
     auto formLayout = new QFormLayout();
 
     m_appNameLineEdit = new QLineEdit(applicationGroupBox);
-    formLayout->addRow(Tr::tr("Application name:"), m_appNameLineEdit);
+    formLayout->addRow(::Android::Tr::tr("Application name:"), m_appNameLineEdit);
 
     m_activityNameLineEdit = new QLineEdit(applicationGroupBox);
-    formLayout->addRow(Tr::tr("Activity name:"), m_activityNameLineEdit);
+    formLayout->addRow(::Android::Tr::tr("Activity name:"), m_activityNameLineEdit);
 
     m_styleExtractMethod = new QComboBox(applicationGroupBox);
-    formLayout->addRow(Tr::tr("Style extraction:"), m_styleExtractMethod);
+    formLayout->addRow(::Android::Tr::tr("Style extraction:"), m_styleExtractMethod);
     const QList<QStringList> styleMethodsMap = {
         {"default",
          "In most cases this will be the same as \"full\", but it can also be something else "
@@ -387,7 +387,7 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
     }
 
     m_screenOrientation = new QComboBox(applicationGroupBox);
-    formLayout->addRow(Tr::tr("Screen orientation:"), m_screenOrientation);
+    formLayout->addRow(::Android::Tr::tr("Screen orientation:"), m_screenOrientation);
     // https://developer.android.com/guide/topics/manifest/activity-element#screen
     const QList<QStringList> screenOrientationMap = {
         {"unspecified", "The default value. The system chooses the orientation. The policy it uses, and therefore the "
@@ -436,16 +436,16 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
 QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
 {
     auto otherGroupBox = new QGroupBox(parent);
-    otherGroupBox->setTitle(Tr::tr("Advanced"));
+    otherGroupBox->setTitle(::Android::Tr::tr("Advanced"));
     m_advanvedTabWidget = new QTabWidget(otherGroupBox);
     auto formLayout = new QFormLayout();
 
     m_iconButtons = new AndroidManifestEditorIconContainerWidget(otherGroupBox, m_textEditorWidget);
-    m_advanvedTabWidget->addTab(m_iconButtons, Tr::tr("Application icon"));
+    m_advanvedTabWidget->addTab(m_iconButtons, ::Android::Tr::tr("Application icon"));
 
     m_splashButtons = new SplashScreenContainerWidget(otherGroupBox,
                                                       m_textEditorWidget);
-    m_advanvedTabWidget->addTab(m_splashButtons, Tr::tr("Splash screen"));
+    m_advanvedTabWidget->addTab(m_splashButtons, ::Android::Tr::tr("Splash screen"));
 
     connect(m_splashButtons, &SplashScreenContainerWidget::splashScreensModified,
             this, [this] { setDirty(); });
@@ -610,13 +610,13 @@ bool AndroidManifestEditorWidget::checkDocument(const QDomDocument &doc, QString
 {
     QDomElement manifest = doc.documentElement();
     if (manifest.tagName() != QLatin1String("manifest")) {
-        *errorMessage = Tr::tr("The structure of the Android manifest file is corrupted. Expected a top level 'manifest' node.");
+        *errorMessage = ::Android::Tr::tr("The structure of the Android manifest file is corrupted. Expected a top level 'manifest' node.");
         *errorLine = -1;
         *errorColumn = -1;
         return false;
     } else if (manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).isNull()) {
         // missing either application or activity element
-        *errorMessage = Tr::tr("The structure of the Android manifest file is corrupted. Expected an 'application' and 'activity' sub node.");
+        *errorMessage = ::Android::Tr::tr("The structure of the Android manifest file is corrupted. Expected an 'application' and 'activity' sub node.");
         *errorLine = -1;
         *errorColumn = -1;
         return false;
@@ -665,7 +665,7 @@ void AndroidManifestEditorWidget::updateSdkVersions()
     }
 
     for (int i = minSdk; i <= targetSdk; ++i) {
-        const QString apiStr = Tr::tr("API %1: %2").arg(i)
+        const QString apiStr = ::Android::Tr::tr("API %1: %2").arg(i)
                 .arg(AndroidManager::androidNameForApiLevel(i));
         m_androidMinSdkVersion->addItem(apiStr, i);
         m_androidTargetSdkVersion->addItem(apiStr, i);
@@ -677,11 +677,11 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
     InfoBar *infoBar = m_textEditorWidget->textDocument()->infoBar();
     QString text;
     if (line < 0)
-        text = Tr::tr("Could not parse file: \"%1\".").arg(errorMessage);
+        text = ::Android::Tr::tr("Could not parse file: \"%1\".").arg(errorMessage);
     else
-        text = Tr::tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
+        text = ::Android::Tr::tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     InfoBarEntry infoBarEntry(infoBarId, text);
-    infoBarEntry.addCustomButton(Tr::tr("Goto error"), [this] {
+    infoBarEntry.addCustomButton(::Android::Tr::tr("Goto error"), [this] {
         m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
     });
     infoBar->removeInfo(infoBarId);

@@ -643,8 +643,9 @@ static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
 
     const QString typeString = type.toString();
     if (typeString.isNull()) {
-        printMessage(Tr::tr("Parsing error: the type entry in JSON kit files must be a string, "
-                            "defaulting to \"path\"")
+        printMessage(::McuSupport::Tr::tr(
+                         "Parsing error: the type entry in JSON kit files must be a string, "
+                         "defaulting to \"path\"")
                          .arg(typeString),
                      true);
 
@@ -655,7 +656,7 @@ static Utils::PathChooser::Kind parseLineEditType(const QJsonValue &type)
     } else if (typeString.compare("path", Qt::CaseInsensitive) == 0) {
         return Utils::PathChooser::ExistingDirectory;
     } else {
-        printMessage(Tr::tr(
+        printMessage(::McuSupport::Tr::tr(
                          "Parsing error: the type entry \"%2\" in JSON kit files is not supported, "
                          "defaulting to \"path\"")
                          .arg(typeString),

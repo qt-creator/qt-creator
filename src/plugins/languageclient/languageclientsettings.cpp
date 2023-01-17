@@ -1078,7 +1078,7 @@ TextEditor::BaseTextEditor *jsonEditor()
             return;
         auto mark = new TextMark(Utils::FilePath(),
                                  lineColumn->line,
-                                 {Tr::tr("JSON Error"), jsonMarkId});
+                                 {::LanguageClient::Tr::tr("JSON Error"), jsonMarkId});
         mark->setLineAnnotation(error.errorString());
         mark->setColor(Utils::Theme::CodeModel_Error_TextMarkColor);
         mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());
