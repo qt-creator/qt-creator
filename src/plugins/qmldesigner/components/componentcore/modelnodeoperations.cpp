@@ -32,6 +32,7 @@
 
 #include <designermcumanager.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerconstants.h>
 
 #include <coreplugin/messagebox.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -1642,10 +1643,10 @@ void openEffectMaker(const QString &filePath)
 
     Utils::FilePath projectPath = target->project()->projectDirectory();
     QString effectName = QFileInfo(filePath).baseName();
-    QString effectResDir = "asset_imports/Effects/" + effectName;
-    Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir);
+    QString effectResDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects/" + effectName;
+    Utils::FilePath effectResPath = projectPath.pathAppended(effectResDir);
     if (!effectResPath.exists())
-        QDir(projectPath.toString()).mkpath(effectResDir);
+        QDir().mkpath(effectResPath.toString());
 
     const QtSupport::QtVersion *baseQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (baseQtVersion) {
@@ -1679,7 +1680,7 @@ void openEffectMaker(const QString &filePath)
 
 Utils::FilePath getEffectsImportDirectory()
 {
-    QString defaultDir = "asset_imports/Effects";
+    QString defaultDir = QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER) + "/Effects";
     Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     Utils::FilePath effectsPath = projectPath.pathAppended(defaultDir);
 
@@ -1698,13 +1699,7 @@ QString getEffectsDefaultDirectory(const QString &defaultDir)
 
 QString getEffectIcon(const QString &effectPath)
 {
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << __FUNCTION__ << "No project open";
-        return QString();
-    }
-
-    Utils::FilePath projectPath = target->project()->projectDirectory();
+    Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
     QString effectName = QFileInfo(effectPath).baseName();
     QString effectResDir = "asset_imports/Effects/" + effectName;
     Utils::FilePath effectResPath = projectPath.resolvePath(effectResDir + "/" + effectName + ".qml");
@@ -1737,6 +1732,15 @@ bool validateEffect(const QString &effectPath)
         return false;
     }
     return true;
+}
+
+bool deleteEffectResources(const QString &effectName)
+{
+    Utils::FilePath effectResPath = getEffectsImportDirectory().resolvePath(effectName);
+    if (effectResPath.exists())
+         return effectResPath.removeRecursively();
+
+    return false;
 }
 
 Utils::FilePath getImagesDefaultDirectory()
