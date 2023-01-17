@@ -15,7 +15,7 @@
 #include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
-#include <QAbstractButton>>
+#include <QAbstractButton>
 #include <QDialogButtonBox>
 #include <QGridLayout>
 #include <QLabel>
