@@ -10,30 +10,30 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
-#include "texteditorconstants.h"
+#include "texteditortr.h"
 #include "textindenter.h"
 #include "typingsettings.h"
+
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <utils/guard.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
 #include <QAction>
 #include <QApplication>
-#include <QDir>
-#include <QFileInfo>
 #include <QFutureInterface>
 #include <QScrollBar>
 #include <QStringList>
 #include <QTextCodec>
-
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace Utils;
@@ -368,7 +368,7 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
         if (diffService && !leftFilePath.isEmpty() && !rightFilePath.isEmpty())
             diffService->diffFiles(leftFilePath, rightFilePath);
     };
-    auto diffAction = new QAction(tr("Diff Against Current File"), parent);
+    auto diffAction = new QAction(Tr::tr("Diff Against Current File"), parent);
     QObject::connect(diffAction, &QAction::triggered, parent, diffAgainstCurrentFile);
     return diffAction;
 }
@@ -770,7 +770,7 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
         } else if (chunks > 1) {
             QFutureInterface<void> interface;
             interface.setProgressRange(0, chunks);
-            ProgressManager::addTask(interface.future(), tr("Opening File"),
+            ProgressManager::addTask(interface.future(), Tr::tr("Opening File"),
                                      Constants::TASK_OPEN_FILE);
             interface.reportStarted();
 

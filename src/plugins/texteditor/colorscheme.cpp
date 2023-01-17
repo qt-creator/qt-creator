@@ -4,6 +4,7 @@
 #include "colorscheme.h"
 
 #include "texteditorconstants.h"
+#include "texteditortr.h"
 
 #include <utils/fileutils.h>
 
@@ -298,7 +299,7 @@ bool ColorSchemeReader::read(const FilePath &filePath, ColorScheme *scheme)
     if (readNextStartElement() && name() == QLatin1String("style-scheme"))
         readStyleScheme();
     else
-        raiseError(QCoreApplication::translate("TextEditor::Internal::ColorScheme", "Not a color scheme file."));
+        raiseError(Tr::tr("Not a color scheme file."));
 
     return true;
 }

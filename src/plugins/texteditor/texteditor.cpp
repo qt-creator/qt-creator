@@ -2,22 +2,24 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "texteditor.h"
-#include "texteditor_p.h"
-#include "displaysettings.h"
-#include "marginsettings.h"
-#include "fontsettings.h"
-#include "texteditoractionhandler.h"
 
 #include "autocompleter.h"
 #include "basehoverhandler.h"
 #include "behaviorsettings.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
+#include "codeassist/assistinterface.h"
+#include "codeassist/codeassistant.h"
+#include "codeassist/completionassistprovider.h"
+#include "codeassist/documentcontentcompletion.h"
 #include "completionsettings.h"
+#include "displaysettings.h"
 #include "extraencodingsettings.h"
+#include "fontsettings.h"
 #include "highlighter.h"
 #include "highlightersettings.h"
 #include "icodestylepreferences.h"
+#include "marginsettings.h"
 #include "refactoroverlay.h"
 #include "snippets/snippetoverlay.h"
 #include "storagesettings.h"
@@ -25,17 +27,16 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
+#include "texteditor_p.h"
+#include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
 #include "texteditorsettings.h"
+#include "texteditortr.h"
 #include "typingsettings.h"
 
-#include <texteditor/codeassist/assistinterface.h>
-#include <texteditor/codeassist/codeassistant.h>
-#include <texteditor/codeassist/completionassistprovider.h>
-#include <texteditor/codeassist/documentcontentcompletion.h>
-
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -45,6 +46,7 @@
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/manhattanstyle.h>
+
 #include <utils/algorithm.h>
 #include <utils/camelcasecursor.h>
 #include <utils/dropsupport.h>
@@ -153,7 +155,7 @@ public:
         : FixedSizeClickLabel(parent)
         , m_editor(parent)
     {
-        setMaxText(TextEditorWidget::tr("Line: 9999, Col: 999"));
+        setMaxText(Tr::tr("Line: 9999, Col: 999"));
         connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnLabel::update);
         connect(this, &FixedSizeClickLabel::clicked, ActionManager::instance(), [this] {
             emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
@@ -174,9 +176,9 @@ private:
         const int line = block.blockNumber() + 1;
         const TabSettings &tabSettings = m_editor->textDocument()->tabSettings();
         const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
-        const QString text = TextEditorWidget::tr("Line: %1, Col: %2");
+        const QString text = Tr::tr("Line: %1, Col: %2");
         setText(text.arg(line).arg(column));
-        const QString toolTipText = TextEditorWidget::tr("Cursor position: %1");
+        const QString toolTipText = Tr::tr("Cursor position: %1");
         setToolTip(toolTipText.arg(QString::number(cursor.position())));
         QFont f = font();
         f.setItalic(m_editor->multiTextCursor().hasMultipleCursors());
@@ -1056,7 +1058,7 @@ static QLayout *createSeparatorLayout()
 
     QFrame* separator1 = createSeparator(styleSheet);
     QFrame* separator2 = createSeparator(styleSheet);
-    auto label = new QLabel(TextEditorWidget::tr("Other annotations"));
+    auto label = new QLabel(Tr::tr("Other annotations"));
     label->setStyleSheet(styleSheet);
 
     auto layout = new QHBoxLayout;
@@ -1333,7 +1335,7 @@ void TextEditorWidget::print(QPrinter *printer)
     const bool oldFullPage = printer->fullPage();
     printer->setFullPage(true);
     auto dlg = new QPrintDialog(printer, this);
-    dlg->setWindowTitle(tr("Print Document"));
+    dlg->setWindowTitle(Tr::tr("Print Document"));
     if (dlg->exec() == QDialog::Accepted)
         d->print(printer);
     printer->setFullPage(oldFullPage);
@@ -1653,7 +1655,7 @@ void TextEditorWidget::selectEncoding()
     case CodecSelector::Reload: {
         QString errorString;
         if (!doc->reload(&errorString, codecSelector.selectedCodec())) {
-            QMessageBox::critical(this, tr("File Error"), errorString);
+            QMessageBox::critical(this, Tr::tr("File Error"), errorString);
             break;
         }
         break; }
@@ -1690,7 +1692,7 @@ void TextEditorWidget::updateTextCodecLabel()
 
 QString TextEditorWidget::msgTextTooLarge(quint64 size)
 {
-    return tr("The text is too large to be displayed (%1 MB).").
+    return Tr::tr("The text is too large to be displayed (%1 MB).").
            arg(size >> 20);
 }
 
@@ -1720,9 +1722,9 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
         InfoBarEntry info(selectEncodingId,
-            TextEditorWidget::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
+            Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
                 .arg(m_document->displayName(), QString::fromLatin1(m_document->codec()->name())));
-        info.addCustomButton(TextEditorWidget::tr("Select Encoding"), [this] { q->selectEncoding(); });
+        info.addCustomButton(Tr::tr("Select Encoding"), [this] { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);
@@ -2876,7 +2878,7 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
     SnippetParseResult result = parse(snippet);
     if (std::holds_alternative<SnippetParseError>(result)) {
         const auto &error = std::get<SnippetParseError>(result);
-        QMessageBox::warning(this, tr("Snippet Parse Error"), error.htmlMessage());
+        QMessageBox::warning(this, Tr::tr("Snippet Parse Error"), error.htmlMessage());
         return;
     }
     QTC_ASSERT(std::holds_alternative<ParsedSnippet>(result), return);
@@ -3367,10 +3369,10 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
     if (definitions.isEmpty() && infoBar->canInfoBeAdded(missing)
         && !TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName)) {
         InfoBarEntry info(missing,
-                          BaseTextEditor::tr("A highlight definition was not found for this file. "
-                                             "Would you like to download additional highlight definition files?"),
+                          Tr::tr("A highlight definition was not found for this file. "
+                                 "Would you like to download additional highlight definition files?"),
                           InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(BaseTextEditor::tr("Download Definitions"), [missing, this]() {
+        info.addCustomButton(Tr::tr("Download Definitions"), [missing, this]() {
             m_document->infoBar()->removeInfo(missing);
             Highlighter::downloadDefinitions();
         });
@@ -3379,14 +3381,14 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const Highlighter::Definitions
         infoBar->addInfo(info);
     } else if (definitions.size() > 1) {
         InfoBarEntry info(multiple,
-                          BaseTextEditor::tr("More than one highlight definition was found for this file. "
-                                             "Which one should be used to highlight this file?"));
+                          Tr::tr("More than one highlight definition was found for this file. "
+                                 "Which one should be used to highlight this file?"));
         info.setComboInfo(Utils::transform(definitions, &Highlighter::Definition::name),
                           [this](const InfoBarEntry::ComboInfo &info) {
             this->configureGenericHighlighter(Highlighter::definitionForName(info.displayText));
         });
 
-        info.addCustomButton(BaseTextEditor::tr("Remember My Choice"), [multiple, this]() {
+        info.addCustomButton(Tr::tr("Remember My Choice"), [multiple, this]() {
             m_document->infoBar()->removeInfo(multiple);
             rememberCurrentSyntaxDefinition();
         });
@@ -6316,8 +6318,7 @@ void TextEditorWidget::wheelEvent(QWheelEvent *e)
 static void showZoomIndicator(QWidget *editor, const int newZoom)
 {
     Utils::FadingIndicator::showText(editor,
-                                     QCoreApplication::translate("TextEditor::TextEditorWidget",
-                                                                 "Zoom: %1%").arg(newZoom),
+                                     Tr::tr("Zoom: %1%").arg(newZoom),
                                      Utils::FadingIndicator::SmallText);
 }
 
@@ -8077,8 +8078,8 @@ void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
         TextDocument *doc = textDocument();
         if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
             a->setVisible(true);
-            a->setText(doc->format().hasUtf8Bom ? tr("Delete UTF-8 BOM on Save")
-                                                : tr("Add UTF-8 BOM on Save"));
+            a->setText(doc->format().hasUtf8Bom ? Tr::tr("Delete UTF-8 BOM on Save")
+                                                : Tr::tr("Add UTF-8 BOM on Save"));
         } else {
             a->setVisible(false);
         }

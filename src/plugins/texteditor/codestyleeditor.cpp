@@ -7,17 +7,18 @@
 #include "icodestylepreferencesfactory.h"
 #include "icodestylepreferences.h"
 #include "codestyleselectorwidget.h"
-#include "texteditorsettings.h"
+#include "texteditortr.h"
 #include "displaysettings.h"
 #include "tabsettings.h"
 #include "indenter.h"
 #include "snippets/snippeteditor.h"
 #include "snippets/snippetprovider.h"
+
 #include <QVBoxLayout>
 #include <QTextBlock>
 #include <QLabel>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
                                  ICodeStylePreferences *codeStyle,
@@ -45,9 +46,9 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     }
 
     QLabel *label = new QLabel(
-        tr("Edit preview contents to see how the current settings "
-           "are applied to custom code snippets. Changes in the preview "
-           "do not affect the current settings."), this);
+        Tr::tr("Edit preview contents to see how the current settings "
+               "are applied to custom code snippets. Changes in the preview "
+               "do not affect the current settings."), this);
     QFont font = label->font();
     font.setItalic(true);
     label->setFont(font);
@@ -106,3 +107,5 @@ void CodeStyleEditor::finish()
     if (m_widget)
         m_widget->finish();
 }
+
+} // TextEditor

@@ -37,7 +37,6 @@ public:
 
 class TEXTEDITOR_EXPORT TextMark
 {
-    Q_DECLARE_TR_FUNCTIONS(TextEditor::TextMark)
 public:
     TextMark(const Utils::FilePath &fileName,
              int lineNumber,

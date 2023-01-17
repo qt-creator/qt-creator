@@ -19247,7 +19247,7 @@ when they are not required, which will improve performance in most cases.</sourc
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Неиспользуемая переменная</translation>
@@ -40867,7 +40867,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Невозможно применить рефакторинг.</translation>
@@ -43735,9 +43735,6 @@ Row: %4, Column: %5
         <source>File was modified.</source>
         <translation>Файл изменился.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Searching</source>
         <translation>Идёт поиск</translation>
@@ -43762,9 +43759,6 @@ Row: %4, Column: %5
             <numerusform>%n найдено.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to download additional highlight definition files?</source>
         <translation>Не удалось найти определения подсветки для этого файла. Загрузить дополнительные файлы определений подсветки?</translation>
@@ -43781,9 +43775,6 @@ Row: %4, Column: %5
         <source>Remember My Choice</source>
         <translation>Запомнить мой выбор</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -43793,9 +43784,6 @@ Row: %4, Column: %5
         <source>Behavior</source>
         <translation>Поведение</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>Отображать контекстную справку или информацию о типе при наведении курсора мыши.</translation>
@@ -43812,16 +43800,10 @@ Row: %4, Column: %5
         <source>Windows (CRLF)</source>
         <translation>Windows (CRLF)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Измените текст предпросмотра, чтобы увидеть, как текущие настройки влияют на разные участки кода. Изменения предпросмотра не влияют на текущие настройки.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Копирование стиля кода</translation>
@@ -43870,16 +43852,10 @@ Row: %4, Column: %5
         <source>%1 [built-in]</source>
         <translation>%1 [встроенный]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Отображение</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation>Файлы в системе</translation>
@@ -43911,9 +43887,6 @@ Excluding: %3
         <source>Directory to Search</source>
         <translation>Каталог поиска</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Color Scheme for Theme &quot;%1&quot;</source>
         <translation>Цветовая схема темы «%1»</translation>
@@ -43939,10 +43912,6 @@ Excluding: %3
         <translation>Вы действительно желаете навсегда удалить эту цветовую схему?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Цветовая схема изменена</translation>
     </message>
@@ -43958,16 +43927,10 @@ Excluding: %3
         <source>Font &amp;&amp; Colors</source>
         <translation>Шрифт и цвета</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 из %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Highlighter</name>
     <message>
         <source>Highlighter updates: done</source>
         <translation>Обновление подсветки: готово</translation>
@@ -43976,9 +43939,6 @@ Excluding: %3
         <source>Highlighter updates:</source>
         <translation>Обновление подсветки:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Набор текста</translation>
@@ -44020,10 +43980,6 @@ Specifies how backspace interacts with indentation.
 &lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Обычное</translation>
     </message>
     <message>
         <source>Follows Previous Indents</source>
@@ -44196,16 +44152,9 @@ Specifies how backspace interacts with indentation.
         <source>List of wildcard-aware file patterns, separated by commas or semicolons.</source>
         <translation>Список шаблонов имён файлов, разделенных запятыми или точками с запятой.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Изменение стиля кода</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Имя стиля кода:</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -44215,13 +44164,6 @@ Specifies how backspace interacts with indentation.
         <source>Copy Built-in Code Style</source>
         <translation>Скопировать встроенный стиль</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (копия)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
     <message>
         <source>Current settings:</source>
         <translation>Текущие настройки:</translation>
@@ -44246,16 +44188,10 @@ Specifies how backspace interacts with indentation.
         <source>Import...</source>
         <translation>Импорт...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Это не файл цветовой схемы.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>Жирный</translation>
@@ -44345,13 +44281,6 @@ Specifies how backspace interacts with indentation.
         <source>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Builtin color schemes need to be &lt;a href=&quot;copy&quot;&gt;copied&lt;/a&gt;&lt;br/&gt; before they can be changed&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Чтобы изменить встроенные цветовые схемы,&lt;br/&gt;необходимо их сначала &lt;a href=&quot;copy&quot;&gt;скопировать&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation>Поведение</translation>
-    </message>
     <message>
         <source>Activate completion:</source>
         <translation>Вызывать дополнение:</translation>
@@ -44379,10 +44308,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>When Triggered</source>
         <translation>Когда явно требуется</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Всегда</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -44508,9 +44433,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Overwrite closing punctuation</source>
         <translation>Переписывать закрывающую пунктуацию</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display line &amp;numbers</source>
         <translation>Показывать &amp;номера строк</translation>
@@ -44603,9 +44525,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Between lines</source>
         <translation>Между строк</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Текущий файл</translation>
@@ -44620,9 +44539,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Путь к файлу: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Открытые документы</translation>
@@ -44636,13 +44552,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
 %1</source>
         <translation>Открытые документы
 %1</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Шрифт</translation>
     </message>
     <message>
         <source>Family:</source>
@@ -44661,10 +44570,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Цветовая схема</translation>
     </message>
     <message>
-        <source>Copy...</source>
-        <translation>Копировать...</translation>
-    </message>
-    <message>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -44672,9 +44577,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Zoom:</source>
         <translation>Масштаб:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
     <message>
         <source>Syntax Highlight Definition Files</source>
         <translation>Файлы определений подсветки синтаксиса</translation>
@@ -44705,10 +44607,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Загрузить отсутствующие и обновить существующие файлы определения синтаксиса.</translation>
     </message>
     <message>
-        <source>Download Definitions</source>
-        <translation>Загрузить</translation>
-    </message>
-    <message>
         <source>Reload externally modified definition files.</source>
         <translation>Перезагрузить из-вне изменённые файлы определений.</translation>
     </message>
@@ -44724,9 +44622,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Download finished</source>
         <translation>Загрузка завершена</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1, Column %2</source>
         <translation>Строка %1, столбец %2</translation>
@@ -44743,16 +44638,10 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Line in Current Document</source>
         <translation>Строка в текущем документе</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Контур</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Обзор недоступен</translation>
@@ -44769,9 +44658,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Sort Alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Snippets</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
@@ -44857,16 +44743,10 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <comment>group:&apos;Text&apos; trigger:&apos;global&apos;</comment>
         <translation>пример</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Не удалось создать каталог пользовательских фрагментов %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Group: </source>
         <translation>Группа:</translation>
@@ -44874,10 +44754,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     <message>
         <source>Add</source>
         <translation>Добавить</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -44907,13 +44783,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Snippets</source>
         <translation>Фрагменты</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
-    <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
     <message>
         <source>Not a valid trigger.</source>
         <translation>Неверный инициатор.</translation>
@@ -44930,9 +44799,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Error reverting snippet.</source>
         <translation>Ошибка отката фрагмента.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Табуляция и отступы</translation>
@@ -45037,9 +44903,6 @@ Influences the indentation of continuation lines.
         <source>&lt;i&gt;Code indentation is configured in &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; and &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt; settings.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Отступы в коде задаются в настройках &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; и &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt;.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
@@ -45544,9 +45407,6 @@ Influences the indentation of continuation lines.
         <source>Go to Next Word Camel Case with Selection</source>
         <translation>Перейти к следующему слову с выделением с учётом Верблюжьего Регистра</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Ctrl+Space</source>
         <translation></translation>
@@ -45600,16 +45460,10 @@ Influences the indentation of continuation lines.
         <source>Current document&apos;s font size in points.</source>
         <translation>Размер шрифта в точках в текущем документе.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::SearchEngine</name>
     <message>
         <source>Internal</source>
         <translation>Внутренний</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Diff Against Current File</source>
         <translation>Сравнить с текущим файлом</translation>
@@ -45618,9 +45472,6 @@ Influences the indentation of continuation lines.
         <source>Opening File</source>
         <translation>Открытие файла</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Текст</translation>
@@ -46118,10 +45969,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Применимо к заголовкам фиксаций в истории VCS.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>Цвет подчёркивания ошибок.</translation>
     </message>
@@ -46181,9 +46028,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Writable arguments of a function call.</source>
         <translation>Записываемые аргументы вызова функции.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Cursor position: %1</source>
         <translation>Положение курсора: %1</translation>

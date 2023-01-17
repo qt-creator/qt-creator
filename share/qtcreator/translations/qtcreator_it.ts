@@ -9234,14 +9234,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Frammenti</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
+    <name>::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation>Frammenti</translation>
@@ -9540,7 +9533,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 trovati</translation>
@@ -9553,9 +9546,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>Use Regular E&amp;xpressions</source>
         <translation>Usa &amp;Espressioni Regolari</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>senza titolo</translation>
@@ -9564,9 +9554,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Dati binari&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Print Document</source>
         <translation>Stampa il Documento</translation>
@@ -9579,9 +9566,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>Select Encoding</source>
         <translation>Seleziona Codifica</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Riga: %1, Col: %2</translation>
@@ -9590,9 +9574,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>Line: %1, Col: 999</source>
         <translation>Riga: %1, Col: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Storage</source>
         <translation>Salvataggio</translation>
@@ -9687,9 +9668,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>In leading white space</source>
         <translation>Sugli spazi all&apos;inizio</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Visualizzazione</translation>
@@ -9759,9 +9737,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>Mark text changes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation>Font &amp; Colori</translation>
@@ -9808,9 +9783,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation type="obsolete">
         Questo è solo un esempio.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Codifica del Testo</translation>
@@ -9833,16 +9805,10 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Save with Encoding</source>
         <translation>Salva con Codifica</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>File Corrente</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on Disk</source>
         <translation>File sul Disco</translation>
@@ -9863,9 +9829,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Directory to search</source>
         <translation>Cartella di ricerca</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Tipo di carattere</translation>
@@ -9928,9 +9891,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Delete</source>
         <translation type="unfinished">Elimina</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1</source>
         <translation>Riga %1</translation>
@@ -9939,9 +9899,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Line in current document</source>
         <translation>Riga nel documento corrente</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation>Crea un file di testo (.txt).</translation>
@@ -9974,9 +9931,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Alt+Return</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Annulla</translation>
@@ -10161,9 +10115,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>&lt;line number&gt;</source>
         <translation>&lt;numero di riga&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Testo</translation>
@@ -10283,10 +10234,6 @@ Queste codifiche dovrebbero andare bene:</translation>
     <message>
         <source>Behavior</source>
         <translation>Comportamento</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Visualizzazione</translation>
     </message>
 </context>
 <context>
@@ -11329,7 +11276,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation type="unfinished">Grassetto</translation>
@@ -12514,14 +12461,11 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation type="unfinished"></translation>

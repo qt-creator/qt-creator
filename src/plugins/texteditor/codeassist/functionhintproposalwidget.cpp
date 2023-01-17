@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "functionhintproposalwidget.h"
+
 #include "ifunctionhintproposalmodel.h"
 #include "codeassistant.h"
+#include "../texteditortr.h"
 
 #include <utils/algorithm.h>
 #include <utils/faketooltip.h>
@@ -341,7 +343,7 @@ bool FunctionHintProposalWidget::updateAndCheck(const QString &prefix)
 void FunctionHintProposalWidget::updateContent()
 {
     d->m_hintLabel->setText(d->m_model->text(d->m_currentHint));
-    d->m_numberLabel->setText(tr("%1 of %2").arg(d->m_currentHint + 1).arg(d->m_totalHints));
+    d->m_numberLabel->setText(Tr::tr("%1 of %2").arg(d->m_currentHint + 1).arg(d->m_totalHints));
     updatePosition();
 }
 

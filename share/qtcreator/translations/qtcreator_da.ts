@@ -15320,7 +15320,7 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Ubrugt variabel</translation>
@@ -31622,7 +31622,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Genfaktoring kan ikke anvendes.</translation>
@@ -34001,9 +34001,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Text Editor</source>
         <translation>Tekstredigering</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Searching</source>
         <translation>Søger</translation>
@@ -34026,9 +34023,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Aborting replace.</source>
         <translation>Afbryder erstat.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>En fremhævningsdefinitioner blev ikke fundet til denne fil. Vil du prøve at finde en?</translation>
@@ -34037,17 +34031,11 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Show Highlighter Options...</source>
         <translation>Vis fremhæver-valgmuligheder...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globale</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>Viser kontekstfølsom hjælp eller skriv information ved musover.</translation>
@@ -34056,16 +34044,10 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Displays context-sensitive help or type information on Shift+Mouseover.</source>
         <translation>Viser kontekstfølsom hjælp eller skriv information ved Skift+musover.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Rediger forhåndsvisningens indhold for at se hvordan de aktuelle indstillinger anvendes på brugerdefineret kode-snippets. Ændringer i forhåndsvisningen påvirker ikke de aktuelle indstillinger.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Kopiér kodestil</translation>
@@ -34114,9 +34096,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>%1 [built-in]</source>
         <translation>%1 [indbygget]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation>Filer i filsystem</translation>
@@ -34148,9 +34127,6 @@ Ekskludering: %3
         <source>Directory to Search</source>
         <translation>Mappe der skal søges i</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>Skrifttype og farver</translation>
@@ -34180,10 +34156,6 @@ Ekskludering: %3
         <translation>Er du sikker på, at du vil slette dette farveskema permanent?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Farveskema ændret</translation>
     </message>
@@ -34195,16 +34167,10 @@ Ekskludering: %3
         <source>Discard</source>
         <translation>Forkast</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 af %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Generisk fremhæver</translation>
@@ -34233,9 +34199,6 @@ Ekskludering: %3
         <source>Not possible to retrieve data.</source>
         <translation>Ikke muligt at hente data.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Skrivning</translation>
@@ -34277,10 +34240,6 @@ Angiver hvordan backspace interagerer med indrykning.
 &lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
     </message>
     <message>
         <source>Follows Previous Indents</source>
@@ -34434,16 +34393,9 @@ Angiver hvordan backspace interagerer med indrykning.
 &lt;p&gt;Bemærk at UTF-8 BOM&apos;er er ualmindelige og behandles ukorrekt af nogle redigeringer, så det giver faktisk ikke så meget mening at tilføje det.&lt;/p&gt;
 &lt;p&gt;Indstillingen påvirker &lt;b&gt;ikke&lt;/b&gt; brugen af UTF-16 og UTF-32 BOM&apos;er.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Rediger kodestil</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Kodestilnavn:</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -34453,13 +34405,6 @@ Angiver hvordan backspace interagerer med indrykning.
         <source>Copy Built-in Code Style</source>
         <translation>Kopiér indbygget kodestil</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (kopi)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
     <message>
         <source>Current settings:</source>
         <translation>Aktuelle indstillinger:</translation>
@@ -34484,9 +34429,6 @@ Angiver hvordan backspace interagerer med indrykning.
         <source>Import...</source>
         <translation>Importér...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Tekstkodning</translation>
@@ -34507,16 +34449,10 @@ Angiver hvordan backspace interagerer med indrykning.
         <source>Save with Encoding</source>
         <translation>Gem med kodning</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Ikke en farvetema-fil.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Foreground:</source>
         <translation>Forgrund:</translation>
@@ -34601,9 +34537,6 @@ Angiver hvordan backspace interagerer med indrykning.
         <source>Relative Background</source>
         <translation>Relativ baggrund</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
     <message>
         <source>Behavior</source>
         <translation>Adfærd</translation>
@@ -34635,10 +34568,6 @@ Angiver hvordan backspace interagerer med indrykning.
     <message>
         <source>When Triggered</source>
         <translation>Når udløst</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Altid</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -34756,9 +34685,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Completion</source>
         <translation>Færdiggørelse</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>Tekstombrydning</translation>
@@ -34855,9 +34781,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Between lines</source>
         <translation>Mellem linjer</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Aktuel fil</translation>
@@ -34872,9 +34795,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Filsti: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Åbne dokumenter</translation>
@@ -34888,13 +34808,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
 %1</source>
         <translation>Åbne dokumenter
 %1</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Skrifttype</translation>
     </message>
     <message>
         <source>Antialias</source>
@@ -34921,17 +34834,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Farveskema</translation>
     </message>
     <message>
-        <source>Copy...</source>
-        <translation>Kopiér...</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -34950,16 +34852,9 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <translation>Brug tilbagefaldsplacering</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
         <source>Ignored file patterns:</source>
         <translation>Ignoreret filmønstre:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in Current Document</source>
         <translation>Linje i aktuelt dokument</translation>
@@ -34976,9 +34871,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Column %1</source>
         <translation>Kolonne %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -35027,9 +34919,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>There is already one download in progress. Please wait until it is finished.</source>
         <translation>Der er allerede en download i gang. Vent venligst til den er færdig.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::MultiDefinitionDownloader</name>
     <message>
         <source>Downloading Highlighting Definitions</source>
         <translation>Downloader fremhævningsdefinitioner</translation>
@@ -35050,16 +34939,10 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Download Error</source>
         <translation>Fejl ved download</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Overblik</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Intet overblik tilgængeligt</translation>
@@ -35072,23 +34955,13 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Filter tree</source>
         <translation>Filtrer træ</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Kan ikke oprette bruger snippet-mappen %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -35106,9 +34979,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Group: </source>
         <translation>Gruppe: </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Snippets</translation>
@@ -35124,13 +34994,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
     <message>
         <source>No snippet selected.</source>
         <translation>Ingen snippet valgt.</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
-    <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
     </message>
     <message>
         <source>Not a valid trigger.</source>
@@ -35148,9 +35011,6 @@ Derudover indsætter Skift+Enter et undvigetegn ved markørens placering og flyt
         <source>Error reverting snippet.</source>
         <translation>Fejl ved hentning af snippet.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatorer og indrykning</translation>
@@ -35255,9 +35115,6 @@ Påvirker indrykningen af fortsatte linjer.
         <source>&lt;i&gt;Code indentation is configured in &lt;a href=&quot;C++&quot;&gt;C++&lt;/a&gt; and &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt; settings.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Kodeindrykning er konfigureret i &lt;a href=&quot;C++&quot;&gt;C++-&lt;/a&gt; og &lt;a href=&quot;QtQuick&quot;&gt;Qt Quick&lt;/a&gt;-indstillinger.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>
@@ -35734,9 +35591,6 @@ Påvirker indrykningen af fortsatte linjer.
         <source>Go to Next Word Camel Case with Selection</source>
         <translation>Gå til næste ord med markering (camel case)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Trigger Completion</source>
         <translation>Udløs færdiggørelse</translation>
@@ -35790,16 +35644,10 @@ Påvirker indrykningen af fortsatte linjer.
         <source>Current document&apos;s font size in points.</source>
         <translation>Aktuelt dokuments skriftstørrelse i punkter.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::SearchEngine</name>
     <message>
         <source>Internal</source>
         <translation>Intern</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Diff Against Current File</source>
         <translation>Diff mod aktuelle fil</translation>
@@ -35808,16 +35656,10 @@ Påvirker indrykningen af fortsatte linjer.
         <source>Opening File</source>
         <translation>Åbner fil</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
         <translation>&lt;linje&gt;:&lt;kolonne&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -36291,10 +36133,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Anvendt på linjer som beskriver ændringer i VCS-log.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Fejl</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>Understregningsfarve til fejldiagnostik.</translation>
     </message>
@@ -36330,17 +36168,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Writable arguments of a function call.</source>
         <translation>Skrivbare argumenter af et funktionskald.</translation>
     </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Adfærd</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Visning</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Print Document</source>
         <translation>Udskriv dokument</translation>
@@ -41383,7 +41210,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::Snippets</name>
+    <name>::TextEditor</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>

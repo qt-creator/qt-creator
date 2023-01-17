@@ -19061,9 +19061,6 @@ with a password, which you can enter below.</source>
         <source>Translate this string</source>
         <translation type="vanished">Перекласти цей рядок</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Search</source>
         <translation type="vanished">Пошук</translation>
@@ -19092,32 +19089,6 @@ with a password, which you can enter below.</source>
         <source>Aborting replace.</source>
         <translation>Скасування заміни.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
-    <message>
-        <source>untitled</source>
-        <translation type="vanished">без назви</translation>
-    </message>
-    <message>
-        <source>Opening file</source>
-        <translation type="vanished">Відкриття файлу</translation>
-    </message>
-    <message>
-        <source>Opening File</source>
-        <translation type="vanished">Відкриття файлу</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="vanished">Рядок: %1, Стовпець: %2</translation>
-    </message>
-    <message>
-        <source>Line: 9999, Col: 999</source>
-        <translation type="vanished">Рядок: 9999, Стовпець: 999</translation>
-    </message>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Визначення підсвітки не було знайдено для цього файлу. Бажаєте спробувати знайти?</translation>
@@ -19126,44 +19097,6 @@ with a password, which you can enter below.</source>
         <source>Show Highlighter Options...</source>
         <translation>Показати опції підсвітки...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorWidget</name>
-    <message>
-        <source>CTRL+D</source>
-        <translation type="vanished">CTRL+D</translation>
-    </message>
-    <message>
-        <source>Print Document</source>
-        <translation type="vanished">Друк документа</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="vanished">&lt;b&gt;Помилка:&lt;/b&gt; Не вдалось декодувати &quot;%1&quot; з кодуванням &quot;%2&quot;. Редагування неможливе.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="vanished">Обрати кодування</translation>
-    </message>
-    <message>
-        <source>Delete UTF-8 BOM on Save</source>
-        <translation type="vanished">Видалити UTF-8 BOM при збереженні</translation>
-    </message>
-    <message>
-        <source>Add UTF-8 BOM on Save</source>
-        <translation type="vanished">Додати UTF-8 BOM при збереженні</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-    <message>
-        <source>The text is too large to be displayed (%1 MB).</source>
-        <translation type="vanished">Текст завеликий для відображення (%1 МБ).</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -19173,16 +19106,10 @@ with a password, which you can enter below.</source>
         <source>Global</source>
         <translation type="vanished">Глобальні</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Змініть текст попереднього перегляду, щоб побачити як поточні налаштування застосовуються до власних фрагментів коду. Зміни в попередньому перегляді не впливають на поточні налаштування.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Копіювати стиль коду</translation>
@@ -19231,9 +19158,6 @@ with a password, which you can enter below.</source>
         <source>%1 [built-in]</source>
         <translation>%1 [вбудований]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation type="vanished">Файли в файловій системі</translation>
@@ -19287,9 +19211,6 @@ Filter: %2
         <source>Directory to search</source>
         <translation type="vanished">Тека пошуку</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>Шрифти та кольори</translation>
@@ -19319,10 +19240,6 @@ Filter: %2
         <translation>Ви впевнені, що хочете назавжди видалити цю кольорову схему?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Кольорова схема змінена</translation>
     </message>
@@ -19334,16 +19251,10 @@ Filter: %2
         <source>Discard</source>
         <translation>Відкинути</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 з %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Типова підсвітка</translation>
@@ -19372,16 +19283,9 @@ Filter: %2
         <source>Not possible to retrieve data.</source>
         <translation>Неможливо отримати дані.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Редагування стиля коду</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Назва стиля коду:</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -19391,13 +19295,6 @@ Filter: %2
         <source>Copy Built-in Code Style</source>
         <translation>Копіювати вбудований стиль коду</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (копія)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Кодування тексту</translation>
@@ -19424,16 +19321,10 @@ The following encodings are likely to fit:</source>
         <source>Save with Encoding</source>
         <translation>Зберегти в кодуванні</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Не є файлом кольорової схеми.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>Жирний</translation>
@@ -19502,9 +19393,6 @@ The following encodings are likely to fit:</source>
         <source>Dash-Dot-Dot Underline</source>
         <translation>Штрих-пунктир з двома крапкам</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Поточний файл</translation>
@@ -19523,16 +19411,10 @@ The following encodings are likely to fit:</source>
         <translation>Шлях до файлу: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation type="vanished">Користувацька</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Шрифт</translation>
@@ -19566,13 +19448,6 @@ The following encodings are likely to fit:</source>
         <translation>Копіювати...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
-    <message>
         <source>Line %1, Column %2</source>
         <translation>Рядок: %1, Стовпець: %2</translation>
     </message>
@@ -19588,9 +19463,6 @@ The following encodings are likely to fit:</source>
         <source>Line in Current Document</source>
         <translation>Рядок в поточному документі</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Installed</source>
         <translation>Встановлене</translation>
@@ -19639,48 +19511,10 @@ The following encodings are likely to fit:</source>
         <source>Download Selected Definitions</source>
         <translation>Звантажити обрані визначення</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
-    <message>
-        <source>Registering definitions</source>
-        <translation type="vanished">Реєстрація визначень</translation>
-    </message>
-    <message>
-        <source>Downloading definitions</source>
-        <translation type="vanished">Звантаження визначень</translation>
-    </message>
-    <message>
-        <source>Error downloading selected definition(s).</source>
-        <translation type="vanished">Помилка звантаження обраних визначень.</translation>
-    </message>
-    <message>
-        <source>Error downloading one or more definitions.</source>
-        <translation type="vanished">Помилка звантаження одного чи більше визначень.</translation>
-    </message>
-    <message>
-        <source>Please check the directory&apos;s access rights.</source>
-        <translation type="vanished">Будь ласка, перевірте права доступу до теки.</translation>
-    </message>
-    <message>
-        <source>
-Please check the directory&apos;s access rights.</source>
-        <translation type="vanished">Будь ласка, перевірте права доступу до теки.</translation>
-    </message>
-    <message>
-        <source>Download Error</source>
-        <translation type="vanished">Помилка звантаження</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Огляд</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Огляд не доступний</translation>
@@ -19693,38 +19527,14 @@ Please check the directory&apos;s access rights.</source>
         <source>Filter tree</source>
         <translation>Фільтрувати дерево</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
-    <message>
-        <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
-        <translation type="vanished">Визначення підсвітки не було знайдено для цього файлу. Бажаєте спробувати знайти?</translation>
-    </message>
-    <message>
-        <source>Show Highlighter Options...</source>
-        <translation type="vanished">Показати опції підсвітки...</translation>
-    </message>
-    <message>
-        <source>Show highlighter options...</source>
-        <translation type="vanished">Показати опції підсвітки...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
     <message>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Неможливо створити користувацьку теку фрагментів%1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Фрагменти</translation>
@@ -19740,13 +19550,6 @@ Please check the directory&apos;s access rights.</source>
     <message>
         <source>No snippet selected.</source>
         <translation>Фрагмент не обрано.</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
-    <message>
-        <source>Error</source>
-        <translation>Помилка</translation>
     </message>
     <message>
         <source>Not a valid trigger.</source>
@@ -19764,9 +19567,6 @@ Please check the directory&apos;s access rights.</source>
         <source>Error reverting snippet.</source>
         <translation>Помилка відновлення фрагмента.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
         <translation type="vanished">Створює текстовий файл. Типове розширення - &lt;tt&gt;.txt&lt;/tt&gt;. Ви можете вказати інше розширення, як частину імені файлу.</translation>
@@ -19843,415 +19643,9 @@ Please check the directory&apos;s access rights.</source>
         <source>Current document&apos;s font size in points.</source>
         <translation>Розмір шрифту поточного документа в точках.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="vanished">&amp;Повернути</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="vanished">П&amp;овторити</translation>
-    </message>
-    <message>
-        <source>Select Encoding...</source>
-        <translation type="vanished">Обрати кодування...</translation>
-    </message>
-    <message>
-        <source>Auto-&amp;indent Selection</source>
-        <translation type="vanished">Автовід&amp;ступи у виділеному</translation>
-    </message>
-    <message>
-        <source>Ctrl+I</source>
-        <translation type="vanished">Ctrl+I</translation>
-    </message>
-    <message>
-        <source>&amp;Rewrap Paragraph</source>
-        <translation type="vanished">Пере&amp;робити переноси в абзаці</translation>
-    </message>
-    <message>
-        <source>&amp;Visualize Whitespace</source>
-        <translation type="vanished">&amp;Візуалізовувати пропуски</translation>
-    </message>
-    <message>
-        <source>Clean Whitespace</source>
-        <translation type="vanished">Очистити пропуски</translation>
-    </message>
-    <message>
-        <source>Enable Text &amp;Wrapping</source>
-        <translation type="vanished">Увімкнути &amp;перенесення тексту</translation>
-    </message>
-    <message>
-        <source>Ctrl+/</source>
-        <translation type="vanished">Ctrl+/</translation>
-    </message>
-    <message>
-        <source>Cut &amp;Line</source>
-        <translation type="vanished">Вирі&amp;зати рядок</translation>
-    </message>
-    <message>
-        <source>Shift+Del</source>
-        <translation type="vanished">Shift+Del</translation>
-    </message>
-    <message>
-        <source>Delete &amp;Line</source>
-        <translation type="vanished">Вида&amp;лити рядок</translation>
-    </message>
-    <message>
-        <source>Delete Word from Cursor On</source>
-        <translation type="vanished">Видалити слово під курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word Camel Case from Cursor On</source>
-        <translation type="vanished">Видалити слово в Camel Case під курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word up to Cursor</source>
-        <translation type="vanished">Видалити слово перед курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word Camel Case up to Cursor</source>
-        <translation type="vanished">Видалити слово в Camel Case перед курсором</translation>
-    </message>
-    <message>
-        <source>Ctrl+&lt;</source>
-        <translation type="vanished">Ctrl+&lt;</translation>
-    </message>
-    <message>
-        <source>Ctrl+&gt;</source>
-        <translation type="vanished">Ctrl+&gt;</translation>
-    </message>
-    <message>
-        <source>Meta+0</source>
-        <translation type="vanished">Meta+0</translation>
-    </message>
-    <message>
-        <source>Go to Block Start with Selection</source>
-        <translation type="vanished">Перейти на початок блока у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Block End with Selection</source>
-        <translation type="vanished">Перейти на початок блока у виділеному</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+U</source>
-        <translation type="vanished">Meta+Shift+U</translation>
-    </message>
-    <message>
-        <source>Meta+U</source>
-        <translation type="vanished">Meta+U</translation>
-    </message>
-    <message>
-        <source>Paste from Clipboard History</source>
-        <translation type="vanished">Вставити з історії буферу обміну</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
-        <source>Indent</source>
-        <translation type="vanished">Зробити відступ</translation>
-    </message>
-    <message>
-        <source>Unindent</source>
-        <translation type="vanished">Скасувати відступ</translation>
-    </message>
-    <message>
-        <source>Follow Symbol Under Cursor</source>
-        <translation type="vanished">Йти за символом під курсором</translation>
-    </message>
-    <message>
-        <source>Follow Symbol Under Cursor in Next Split</source>
-        <translation type="vanished">Йти за символом під курсором в наступній розбивці</translation>
-    </message>
-    <message>
-        <source>Meta+E, F2</source>
-        <translation type="vanished">Meta+E, F2</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, F2</source>
-        <translation type="vanished">Ctrl+E, F2</translation>
-    </message>
-    <message>
-        <source>Jump To File Under Cursor</source>
-        <translation type="vanished">Перейти до файлу під курсором</translation>
-    </message>
-    <message>
-        <source>Jump to File Under Cursor in Next Split</source>
-        <translation type="vanished">Перейти до файлу під курсором в наступній розбивці</translation>
-    </message>
-    <message>
-        <source>Go to Line Start</source>
-        <translation type="vanished">Перейти на початок рядка</translation>
-    </message>
-    <message>
-        <source>Go to Line End</source>
-        <translation type="vanished">Перейти на кінець рядка</translation>
-    </message>
-    <message>
-        <source>Go to Next Line</source>
-        <translation type="vanished">Перейти на наступний рядок</translation>
-    </message>
-    <message>
-        <source>Go to Previous Line</source>
-        <translation type="vanished">Перейти на попередній рядок</translation>
-    </message>
-    <message>
-        <source>Go to Previous Character</source>
-        <translation type="vanished">Перейти до попереднього символу</translation>
-    </message>
-    <message>
-        <source>Go to Next Character</source>
-        <translation type="vanished">Перейти до наступного символу</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word</source>
-        <translation type="vanished">Перейти до попереднього слова</translation>
-    </message>
-    <message>
-        <source>Go to Next Word</source>
-        <translation type="vanished">Перейти до наступного слова</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word Camel Case</source>
-        <translation type="vanished">Перейти до попереднього слова у Camel Case</translation>
-    </message>
-    <message>
-        <source>Go to Next Word Camel Case</source>
-        <translation type="vanished">Перейти до наступного слова у Camel Case</translation>
-    </message>
-    <message>
-        <source>Go to Line Start with Selection</source>
-        <translation type="vanished">Перейти на початок рядка у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Line End with Selection</source>
-        <translation type="vanished">Перейти на кінець рядка у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Line with Selection</source>
-        <translation type="vanished">Перейти на наступний рядок у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Line with Selection</source>
-        <translation type="vanished">Перейти на попередній рядок у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Character with Selection</source>
-        <translation type="vanished">Перейти до попереднього символу у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Character with Selection</source>
-        <translation type="vanished">Перейти до наступного символу у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word with Selection</source>
-        <translation type="vanished">Перейти до попереднього слова у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Word with Selection</source>
-        <translation type="vanished">Перейти до наступного слова у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word Camel Case with Selection</source>
-        <translation type="vanished">Перейти до попереднього слова у Camel Case у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Word Camel Case with Selection</source>
-        <translation type="vanished">Перейти до наступного слова у Camel Case у виділеному</translation>
-    </message>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
         <translation>&lt;рядок&gt;:&lt;стовпець&gt;</translation>
-    </message>
-    <message>
-        <source>Fold</source>
-        <translation type="vanished">Згорнути</translation>
-    </message>
-    <message>
-        <source>Meta+E, R</source>
-        <translation type="vanished">Meta+E, R</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, R</source>
-        <translation type="vanished">Ctrl+E, R</translation>
-    </message>
-    <message>
-        <source>Meta+E, Meta+V</source>
-        <translation type="vanished">Meta+E, Meta+V</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Ctrl+V</source>
-        <translation type="vanished">Ctrl+E, Ctrl+V</translation>
-    </message>
-    <message>
-        <source>Meta+E, Meta+W</source>
-        <translation type="vanished">Meta+E, Meta+W</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Ctrl+W</source>
-        <translation type="vanished">Ctrl+E, Ctrl+W</translation>
-    </message>
-    <message>
-        <source>Toggle Comment &amp;Selection</source>
-        <translation type="vanished">Роз&amp;коментувати/закоментувати виділене</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Line</source>
-        <translation type="vanished">&amp;Копіювати рядок</translation>
-    </message>
-    <message>
-        <source>Ctrl+Ins</source>
-        <translation type="vanished">Ctrl+Ins</translation>
-    </message>
-    <message>
-        <source>Unfold</source>
-        <translation type="vanished">Розгорнути</translation>
-    </message>
-    <message>
-        <source>Increase Font Size</source>
-        <translation type="vanished">Збільшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation type="vanished">Зменшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Toggle &amp;Fold All</source>
-        <translation type="vanished">Роз&amp;горнути/згорнути все</translation>
-    </message>
-    <message>
-        <source>Reset Font Size</source>
-        <translation type="vanished">Відновити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Go to Block Start</source>
-        <translation type="vanished">Перейти на початок блока</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation type="vanished">Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Go to Block End</source>
-        <translation type="vanished">Перейти на кінець блока</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation type="vanished">Ctrl+]</translation>
-    </message>
-    <message>
-        <source>Ctrl+{</source>
-        <translation type="vanished">Ctrl+{</translation>
-    </message>
-    <message>
-        <source>Ctrl+}</source>
-        <translation type="vanished">Ctrl+}</translation>
-    </message>
-    <message>
-        <source>Select Block Up</source>
-        <translation type="vanished">Виділити блок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+U</source>
-        <translation type="vanished">Ctrl+U</translation>
-    </message>
-    <message>
-        <source>Select Block Down</source>
-        <translation type="vanished">Виділити блок вниз</translation>
-    </message>
-    <message>
-        <source>Move Line Up</source>
-        <translation type="vanished">Пересунути рядок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Up</source>
-        <translation type="vanished">Ctrl+Shift+Up</translation>
-    </message>
-    <message>
-        <source>Move Line Down</source>
-        <translation type="vanished">Пересунути рядок вниз</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Down</source>
-        <translation type="vanished">Ctrl+Shift+Down</translation>
-    </message>
-    <message>
-        <source>Copy Line Up</source>
-        <translation type="vanished">Скопіювати рядок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Up</source>
-        <translation type="vanished">Ctrl+Alt+Up</translation>
-    </message>
-    <message>
-        <source>Copy Line Down</source>
-        <translation type="vanished">Скопіювати рядок вниз</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Down</source>
-        <translation type="vanished">Ctrl+Alt+Down</translation>
-    </message>
-    <message>
-        <source>Join Lines</source>
-        <translation type="vanished">Об&apos;єднати рядки</translation>
-    </message>
-    <message>
-        <source>Ctrl+J</source>
-        <translation type="vanished">Ctrl+J</translation>
-    </message>
-    <message>
-        <source>Insert Line Above Current Line</source>
-        <translation type="vanished">Вставити рядок перед поточним</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Return</source>
-        <translation type="vanished">Ctrl+Shift+Return</translation>
-    </message>
-    <message>
-        <source>Insert Line Below Current Line</source>
-        <translation type="vanished">Вставити рядок після поточного</translation>
-    </message>
-    <message>
-        <source>Ctrl+Return</source>
-        <translation type="vanished">Ctrl+Return</translation>
-    </message>
-    <message>
-        <source>Uppercase Selection</source>
-        <translation type="vanished">До верхнього регістру</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+U</source>
-        <translation type="vanished">Alt+Shift+U</translation>
-    </message>
-    <message>
-        <source>Lowercase Selection</source>
-        <translation type="vanished">До нижнього регістру</translation>
-    </message>
-    <message>
-        <source>Alt+U</source>
-        <translation type="vanished">Alt+U</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
-    <message>
-        <source>Text</source>
-        <translation>Текст</translation>
     </message>
     <message>
         <source>Generic text.
@@ -20426,14 +19820,6 @@ Applied to text, if no other rules matching.</source>
 Will not be applied to whitespace in comments and strings.</source>
         <translation>Пропуски.
 Не застосовується до пропусків в коментарях та рядках.</translation>
-    </message>
-    <message>
-        <source>Zoom: %1%</source>
-        <translation type="vanished">Масштаб: %1%</translation>
-    </message>
-    <message>
-        <source>Operators. (For example operator++ operator-=)</source>
-        <translation type="vanished">Оператори. (Наприклад: operator++ operator-=)</translation>
     </message>
     <message>
         <source>Doxygen tags.</source>
@@ -20704,10 +20090,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Applied to lines describing changes in VCS log.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Помилка</translation>
     </message>
     <message>
         <source>Underline color of error diagnostics.</source>
@@ -23058,14 +22440,11 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Набір тексту</translation>
@@ -23289,20 +22668,9 @@ Specifies how backspace interacts with indentation.
         <source>Enable smart selection changing</source>
         <translation>Увімкнути зміну &quot;розумного&quot; виділення</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Поточні налаштування:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Копіювати...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -23319,13 +22687,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Import...</source>
         <translation>Імпортувати...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Відображення</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -23399,13 +22760,6 @@ Specifies how backspace interacts with indentation.
         <source>Highlight search results on the scrollbar</source>
         <translation>Підсвічувати результати пошуку в панелі прокрутки</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -23425,19 +22779,8 @@ Specifies how backspace interacts with indentation.
         <translation>Використовувати запасне розташування</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Поведінка</translation>
-    </message>
-    <message>
         <source>Ignored file patterns:</source>
         <translation>Шаблони файлів для ігнорування:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -23446,10 +22789,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Add</source>
         <translation>Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -23462,13 +22801,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Reset All</source>
         <translation>Скинути все</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -24889,14 +24221,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 знайдено</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Відкриті документи</translation>
@@ -29867,7 +29196,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
         <translation type="vanished">Відображати контекстну довідку або інформацію про тип при наведенні вказівника миші.</translation>
@@ -30967,7 +30296,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Створити функції-члени для отримання та встановлення значення</translation>
@@ -33336,7 +32665,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Неможливо застосувати рефакторинг.</translation>
@@ -37321,7 +36650,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Невикористана змінна</translation>
@@ -38652,7 +37981,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::MultiDefinitionDownloader</name>
+    <name>::TextEditor</name>
     <message>
         <source>Downloading Highlighting Definitions</source>
         <translation>Звантаження визначень підсвітки</translation>
@@ -38672,441 +38001,6 @@ Install an SDK of at least API version %1.</source>
     <message>
         <source>Download Error</source>
         <translation>Помилка звантаження</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandlerPrivate</name>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="vanished">&amp;Повернути</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="vanished">П&amp;овторити</translation>
-    </message>
-    <message>
-        <source>Delete &amp;Line</source>
-        <translation type="vanished">Вида&amp;лити рядок</translation>
-    </message>
-    <message>
-        <source>Delete Word from Cursor On</source>
-        <translation type="vanished">Видалити слово під курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word Camel Case from Cursor On</source>
-        <translation type="vanished">Видалити слово в Camel Case під курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word up to Cursor</source>
-        <translation type="vanished">Видалити слово перед курсором</translation>
-    </message>
-    <message>
-        <source>Delete Word Camel Case up to Cursor</source>
-        <translation type="vanished">Видалити слово в Camel Case перед курсором</translation>
-    </message>
-    <message>
-        <source>Go to Block Start with Selection</source>
-        <translation type="vanished">Перейти на початок блока у виділеному</translation>
-    </message>
-    <message>
-        <source>Ctrl+{</source>
-        <translation type="vanished">Ctrl+{</translation>
-    </message>
-    <message>
-        <source>Go to Block End with Selection</source>
-        <translation type="vanished">Перейти на початок блока у виділеному</translation>
-    </message>
-    <message>
-        <source>Ctrl+}</source>
-        <translation type="vanished">Ctrl+}</translation>
-    </message>
-    <message>
-        <source>Move Line Up</source>
-        <translation type="vanished">Пересунути рядок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Up</source>
-        <translation type="vanished">Ctrl+Shift+Up</translation>
-    </message>
-    <message>
-        <source>Move Line Down</source>
-        <translation type="vanished">Пересунути рядок вниз</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Down</source>
-        <translation type="vanished">Ctrl+Shift+Down</translation>
-    </message>
-    <message>
-        <source>Copy Line Up</source>
-        <translation type="vanished">Скопіювати рядок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Up</source>
-        <translation type="vanished">Ctrl+Alt+Up</translation>
-    </message>
-    <message>
-        <source>Copy Line Down</source>
-        <translation type="vanished">Скопіювати рядок вниз</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+Down</source>
-        <translation type="vanished">Ctrl+Alt+Down</translation>
-    </message>
-    <message>
-        <source>Join Lines</source>
-        <translation type="vanished">Об&apos;єднати рядки</translation>
-    </message>
-    <message>
-        <source>Ctrl+J</source>
-        <translation type="vanished">Ctrl+J</translation>
-    </message>
-    <message>
-        <source>Insert Line Above Current Line</source>
-        <translation type="vanished">Вставити рядок перед поточним</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+Return</source>
-        <translation type="vanished">Ctrl+Shift+Return</translation>
-    </message>
-    <message>
-        <source>Insert Line Below Current Line</source>
-        <translation type="vanished">Вставити рядок після поточного</translation>
-    </message>
-    <message>
-        <source>Ctrl+Return</source>
-        <translation type="vanished">Ctrl+Return</translation>
-    </message>
-    <message>
-        <source>Indent</source>
-        <translation type="vanished">Зробити відступ</translation>
-    </message>
-    <message>
-        <source>Unindent</source>
-        <translation type="vanished">Скасувати відступ</translation>
-    </message>
-    <message>
-        <source>Follow Symbol Under Cursor</source>
-        <translation type="vanished">Йти за символом під курсором</translation>
-    </message>
-    <message>
-        <source>Follow Symbol Under Cursor in Next Split</source>
-        <translation type="vanished">Йти за символом під курсором в наступній розбивці</translation>
-    </message>
-    <message>
-        <source>Meta+E, F2</source>
-        <translation type="vanished">Meta+E, F2</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, F2</source>
-        <translation type="vanished">Ctrl+E, F2</translation>
-    </message>
-    <message>
-        <source>Jump To File Under Cursor</source>
-        <translation type="vanished">Перейти до файлу під курсором</translation>
-    </message>
-    <message>
-        <source>Jump to File Under Cursor in Next Split</source>
-        <translation type="vanished">Перейти до файлу під курсором в наступній розбивці</translation>
-    </message>
-    <message>
-        <source>Move the View a Page Up and Keep the Cursor Position</source>
-        <translation type="vanished">Перенести перегляд на сторінку вище і зберегти позицію курсора</translation>
-    </message>
-    <message>
-        <source>Ctrl+PgUp</source>
-        <translation type="vanished">Ctrl+PgUp</translation>
-    </message>
-    <message>
-        <source>Move the View a Page Down and Keep the Cursor Position</source>
-        <translation type="vanished">Перенести перегляд на сторінку нижче і зберегти позицію курсора</translation>
-    </message>
-    <message>
-        <source>Ctrl+PgDown</source>
-        <translation type="vanished">Ctrl+PgDown</translation>
-    </message>
-    <message>
-        <source>Move the View a Line Up and Keep the Cursor Position</source>
-        <translation type="vanished">Перенести перегляд на рядок вище і зберегти позицію курсора</translation>
-    </message>
-    <message>
-        <source>Ctrl+Up</source>
-        <translation type="vanished">Ctrl+Up</translation>
-    </message>
-    <message>
-        <source>Move the View a Line Down and Keep the Cursor Position</source>
-        <translation type="vanished">Перенести перегляд на рядок нижче і зберегти позицію курсора</translation>
-    </message>
-    <message>
-        <source>Ctrl+Down</source>
-        <translation type="vanished">Ctrl+Down</translation>
-    </message>
-    <message>
-        <source>Select Encoding...</source>
-        <translation type="vanished">Обрати кодування...</translation>
-    </message>
-    <message>
-        <source>Paste from Clipboard History</source>
-        <translation type="vanished">Вставити з історії буферу обміну</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+V</source>
-        <translation type="vanished">Ctrl+Shift+V</translation>
-    </message>
-    <message>
-        <source>Auto-&amp;indent Selection</source>
-        <translation type="vanished">Автовід&amp;ступи у виділеному</translation>
-    </message>
-    <message>
-        <source>Ctrl+I</source>
-        <translation type="vanished">Ctrl+I</translation>
-    </message>
-    <message>
-        <source>&amp;Rewrap Paragraph</source>
-        <translation type="vanished">Пере&amp;робити переноси в абзаці</translation>
-    </message>
-    <message>
-        <source>Meta+E, R</source>
-        <translation type="vanished">Meta+E, R</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, R</source>
-        <translation type="vanished">Ctrl+E, R</translation>
-    </message>
-    <message>
-        <source>&amp;Visualize Whitespace</source>
-        <translation type="vanished">&amp;Візуалізовувати пропуски</translation>
-    </message>
-    <message>
-        <source>Meta+E, Meta+V</source>
-        <translation type="vanished">Meta+E, Meta+V</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Ctrl+V</source>
-        <translation type="vanished">Ctrl+E, Ctrl+V</translation>
-    </message>
-    <message>
-        <source>Clean Whitespace</source>
-        <translation type="vanished">Очистити пропуски</translation>
-    </message>
-    <message>
-        <source>Enable Text &amp;Wrapping</source>
-        <translation type="vanished">Увімкнути &amp;перенесення тексту</translation>
-    </message>
-    <message>
-        <source>Meta+E, Meta+W</source>
-        <translation type="vanished">Meta+E, Meta+W</translation>
-    </message>
-    <message>
-        <source>Ctrl+E, Ctrl+W</source>
-        <translation type="vanished">Ctrl+E, Ctrl+W</translation>
-    </message>
-    <message>
-        <source>Toggle Comment &amp;Selection</source>
-        <translation type="vanished">Роз&amp;коментувати/закоментувати виділене</translation>
-    </message>
-    <message>
-        <source>Ctrl+/</source>
-        <translation type="vanished">Ctrl+/</translation>
-    </message>
-    <message>
-        <source>Cut &amp;Line</source>
-        <translation type="vanished">Вирі&amp;зати рядок</translation>
-    </message>
-    <message>
-        <source>Shift+Del</source>
-        <translation type="vanished">Shift+Del</translation>
-    </message>
-    <message>
-        <source>Copy &amp;Line</source>
-        <translation type="vanished">&amp;Копіювати рядок</translation>
-    </message>
-    <message>
-        <source>Ctrl+Ins</source>
-        <translation type="vanished">Ctrl+Ins</translation>
-    </message>
-    <message>
-        <source>Uppercase Selection</source>
-        <translation type="vanished">До верхнього регістру</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+U</source>
-        <translation type="vanished">Meta+Shift+U</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+U</source>
-        <translation type="vanished">Alt+Shift+U</translation>
-    </message>
-    <message>
-        <source>Lowercase Selection</source>
-        <translation type="vanished">До нижнього регістру</translation>
-    </message>
-    <message>
-        <source>Meta+U</source>
-        <translation type="vanished">Meta+U</translation>
-    </message>
-    <message>
-        <source>Alt+U</source>
-        <translation type="vanished">Alt+U</translation>
-    </message>
-    <message>
-        <source>Fold</source>
-        <translation type="vanished">Згорнути</translation>
-    </message>
-    <message>
-        <source>Ctrl+&lt;</source>
-        <translation type="vanished">Ctrl+&lt;</translation>
-    </message>
-    <message>
-        <source>Unfold</source>
-        <translation type="vanished">Розгорнути</translation>
-    </message>
-    <message>
-        <source>Ctrl+&gt;</source>
-        <translation type="vanished">Ctrl+&gt;</translation>
-    </message>
-    <message>
-        <source>Toggle &amp;Fold All</source>
-        <translation type="vanished">Роз&amp;горнути/згорнути все</translation>
-    </message>
-    <message>
-        <source>Increase Font Size</source>
-        <translation type="vanished">Збільшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Ctrl++</source>
-        <translation type="vanished">Ctrl++</translation>
-    </message>
-    <message>
-        <source>Decrease Font Size</source>
-        <translation type="vanished">Зменшити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Ctrl+-</source>
-        <translation type="vanished">Ctrl+-</translation>
-    </message>
-    <message>
-        <source>Reset Font Size</source>
-        <translation type="vanished">Відновити розмір шрифту</translation>
-    </message>
-    <message>
-        <source>Meta+0</source>
-        <translation type="vanished">Meta+0</translation>
-    </message>
-    <message>
-        <source>Ctrl+0</source>
-        <translation type="vanished">Ctrl+0</translation>
-    </message>
-    <message>
-        <source>Go to Block Start</source>
-        <translation type="vanished">Перейти на початок блока</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation type="vanished">Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Go to Block End</source>
-        <translation type="vanished">Перейти на кінець блока</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation type="vanished">Ctrl+]</translation>
-    </message>
-    <message>
-        <source>Select Block Up</source>
-        <translation type="vanished">Виділити блок вгору</translation>
-    </message>
-    <message>
-        <source>Ctrl+U</source>
-        <translation type="vanished">Ctrl+U</translation>
-    </message>
-    <message>
-        <source>Select Block Down</source>
-        <translation type="vanished">Виділити блок вниз</translation>
-    </message>
-    <message>
-        <source>Go to Line Start</source>
-        <translation type="vanished">Перейти на початок рядка</translation>
-    </message>
-    <message>
-        <source>Go to Line End</source>
-        <translation type="vanished">Перейти на кінець рядка</translation>
-    </message>
-    <message>
-        <source>Go to Next Line</source>
-        <translation type="vanished">Перейти на наступний рядок</translation>
-    </message>
-    <message>
-        <source>Go to Previous Line</source>
-        <translation type="vanished">Перейти на попередній рядок</translation>
-    </message>
-    <message>
-        <source>Go to Previous Character</source>
-        <translation type="vanished">Перейти до попереднього символу</translation>
-    </message>
-    <message>
-        <source>Go to Next Character</source>
-        <translation type="vanished">Перейти до наступного символу</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word</source>
-        <translation type="vanished">Перейти до попереднього слова</translation>
-    </message>
-    <message>
-        <source>Go to Next Word</source>
-        <translation type="vanished">Перейти до наступного слова</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word Camel Case</source>
-        <translation type="vanished">Перейти до попереднього слова у Camel Case</translation>
-    </message>
-    <message>
-        <source>Go to Next Word Camel Case</source>
-        <translation type="vanished">Перейти до наступного слова у Camel Case</translation>
-    </message>
-    <message>
-        <source>Go to Line Start with Selection</source>
-        <translation type="vanished">Перейти на початок рядка у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Line End with Selection</source>
-        <translation type="vanished">Перейти на кінець рядка у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Line with Selection</source>
-        <translation type="vanished">Перейти на наступний рядок у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Line with Selection</source>
-        <translation type="vanished">Перейти на попередній рядок у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Character with Selection</source>
-        <translation type="vanished">Перейти до попереднього символу у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Character with Selection</source>
-        <translation type="vanished">Перейти до наступного символу у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word with Selection</source>
-        <translation type="vanished">Перейти до попереднього слова у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Word with Selection</source>
-        <translation type="vanished">Перейти до наступного слова у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Previous Word Camel Case with Selection</source>
-        <translation type="vanished">Перейти до попереднього слова у Camel Case у виділеному</translation>
-    </message>
-    <message>
-        <source>Go to Next Word Camel Case with Selection</source>
-        <translation type="vanished">Перейти до наступного слова у Camel Case у виділеному</translation>
-    </message>
-    <message>
-        <source>&lt;line&gt;:&lt;column&gt;</source>
-        <translation type="vanished">&lt;рядок&gt;:&lt;стовпець&gt;</translation>
     </message>
 </context>
 <context>
@@ -41994,29 +40888,11 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>TextEditor::TextDocument</name>
+    <name>::TextEditor</name>
     <message>
         <source>Opening File</source>
         <translation>Відкриття файлу</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorWidgetPrivate</name>
-    <message>
-        <source>CTRL+D</source>
-        <translation type="vanished">CTRL+D</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="vanished">Рядок: %1, Стовпець: %2</translation>
-    </message>
-    <message>
-        <source>Line: 9999, Col: 999</source>
-        <translation type="vanished">Рядок: 9999, Стовпець: 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -43295,7 +42171,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
+    <name>::TextEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>
@@ -43419,10 +42295,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Ctrl+E, F2</source>
         <translation>Ctrl+E, F2</translation>
-    </message>
-    <message>
-        <source>Jump To File Under Cursor</source>
-        <translation type="vanished">Перейти до файлу під курсором</translation>
     </message>
     <message>
         <source>Jump to File Under Cursor</source>

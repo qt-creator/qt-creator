@@ -11848,7 +11848,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Searching</source>
         <translation>Suche</translation>
@@ -11871,9 +11871,6 @@ Rename %2 to %3 anyway?</source>
         <source>Aborting replace.</source>
         <translation>Breche Ersetzung ab.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to download additional highlight definition files?</source>
         <translation>Für diese Datei ist keine Definition der Syntaxhervorhebung vorhanden. Möchten Sie weitere Definitionen der Syntaxhervorhebung herunterladen?</translation>
@@ -11890,16 +11887,10 @@ Rename %2 to %3 anyway?</source>
         <source>Remember My Choice</source>
         <translation>Meine Auswahl speichern</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Keine Farbschema-Datei.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>Fett</translation>
@@ -11988,9 +11979,6 @@ Rename %2 to %3 anyway?</source>
         <source>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Builtin color schemes need to be &lt;a href=&quot;copy&quot;&gt;copied&lt;/a&gt;&lt;br/&gt; before they can be changed&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Mitgelieferte Farbschemata müssen &lt;a href=&quot;copy&quot;&gt;kopiert&lt;/a&gt;&lt;br/&gt; werden, bevor sie geändert werden können&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Aktuelle Datei</translation>
@@ -12004,13 +11992,6 @@ Rename %2 to %3 anyway?</source>
 %2</source>
         <translation>Pfad zu Datei: %1
 %2</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Zeichensatz</translation>
     </message>
     <message>
         <source>Family:</source>
@@ -12110,9 +12091,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Font &amp;&amp; Colors</source>
         <translation>Zeichensatz &amp;&amp; Farben</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Jumps to the given line in the current document.</source>
         <translation>Springt im aktuellen Dokument zur angegebenen Zeile.</translation>
@@ -15239,7 +15217,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
+    <name>::TextEditor</name>
     <message>
         <source>Ctrl+Space</source>
         <translation>Ctrl+Space</translation>
@@ -15973,7 +15951,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
+    <name>::TextEditor</name>
     <message>
         <source>No outline available</source>
         <translation>Überblick nicht verfügbar</translation>
@@ -15990,9 +15968,6 @@ Möchten Sie sie überschreiben?</translation>
         <source>Sort Alphabetically</source>
         <translation>Alphabetisch sortieren</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Überblick</translation>
@@ -16611,7 +16586,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
+    <name>::TextEditor</name>
     <message>
         <source>Error</source>
         <translation>Fehler</translation>
@@ -19646,7 +19621,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -19656,16 +19631,10 @@ Speichern fehlgeschlagen.</translation>
         <source>Behavior</source>
         <translation>Verhalten</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 von %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Das Snippet-Verzeichnis des Nutzers konnte nicht erstellt werden: %1</translation>
@@ -21027,11 +20996,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Copy...</source>
-        <translation>Kopieren...</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
@@ -21069,10 +21034,6 @@ When disabled, moves targets straight to the current mouse position.</source>
         <translation>Möchten Sie diesen Coding-Stil endgültig löschen?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
-    <message>
         <source>Import Code Style</source>
         <translation>Coding Style importieren</translation>
     </message>
@@ -21096,9 +21057,6 @@ When disabled, moves targets straight to the current mouse position.</source>
         <source>%1 [built-in]</source>
         <translation>%1 [eingebaut]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation>Dateien aus Dateisystem</translation>
@@ -21184,7 +21142,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Ändern Sie den Inhalt der Vorschau, um zu sehen wie sich die aktuellen Einstellungen auf die benutzerdefinierten Snippets auswirken. Änderungen der Vorschau haben keinen Einfluss auf die Einstellungen.</translation>
@@ -22095,7 +22053,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Typing</source>
         <translation>Beim Tippen</translation>
@@ -22330,9 +22288,6 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>Windows (CRLF)</source>
         <translation>Windows (CRLF)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Anzeige</translation>
@@ -22457,9 +22412,6 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>Between lines</source>
         <translation>Zwischen den Zeilen</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
     <message>
         <source>Syntax Highlight Definition Files</source>
         <translation>Definitionsdateien für die Syntaxhervorhebung</translation>
@@ -22489,10 +22441,6 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <translation>Fehlende Syntax-Definitionsdateien herunterladen und bestehende aktualisieren.</translation>
     </message>
     <message>
-        <source>Download Definitions</source>
-        <translation>Definitionen herunterladen</translation>
-    </message>
-    <message>
         <source>Reload externally modified definition files.</source>
         <translation>Extern geänderte Definitionsdateien neu laden.</translation>
     </message>
@@ -22508,16 +22456,9 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>Download finished</source>
         <translation>Herunterladen beendet</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Hinzufügen</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -22540,10 +22481,6 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <translation>Fehler beim Speichern der Snippet-Sammlung</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>Kein Snippet ausgewählt.</translation>
     </message>
@@ -22551,9 +22488,6 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
         <source>Snippets</source>
         <translation>Snippets</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatoren und Einrückung</translation>
@@ -24670,7 +24604,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
+    <name>::TextEditor</name>
     <message>
         <source>Open Documents</source>
         <translation>Offene Dokumente</translation>
@@ -27921,7 +27855,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Refaktorisierung konnte nicht angewandt werden.</translation>
@@ -30871,7 +30805,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Unbenutzte Variable</translation>
@@ -34277,7 +34211,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>TextEditor::TextDocument</name>
+    <name>::TextEditor</name>
     <message>
         <source>Diff Against Current File</source>
         <translation>Mit aktueller Datei vergleichen</translation>
@@ -34286,9 +34220,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
         <source>Opening File</source>
         <translation>Öffne Datei</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Cursor position: %1</source>
         <translation>Position der Einfügemarke: %1</translation>
@@ -35491,7 +35422,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
+    <name>::TextEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
@@ -38224,11 +38155,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation>Verhalten</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Activate completion:</source>
         <translation>Code-Vervollständigung aktivieren:</translation>
@@ -38242,10 +38169,6 @@ Sie werden erhalten.</numerusform>
         <translation>Vollständig</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Keine</translation>
-    </message>
-    <message>
         <source>First Letter</source>
         <translation>Erster Buchstabe</translation>
     </message>
@@ -38256,10 +38179,6 @@ Sie werden erhalten.</numerusform>
     <message>
         <source>When Triggered</source>
         <translation>Auf Anforderung</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Immer</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -40270,7 +40189,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::TextEditorSettings</name>
+    <name>::TextEditor</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -40830,10 +40749,6 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
         <translation>Wird auf Titel von Commits in einem Versionskontroll-Log angewendet.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Fehler</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>Unterstreichung von Fehlern.</translation>
     </message>
@@ -40974,7 +40889,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::SearchEngine</name>
+    <name>::TextEditor</name>
     <message>
         <source>Internal</source>
         <translation>Intern</translation>
@@ -41369,7 +41284,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::Snippets</name>
+    <name>::TextEditor</name>
     <message>
         <source>derived from QObject</source>
         <comment>group:&apos;C++&apos; trigger:&apos;class&apos;</comment>
@@ -43592,7 +43507,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Highlighter</name>
+    <name>::TextEditor</name>
     <message>
         <source>Highlighter updates: done</source>
         <translation>Aktualisierungen der Syntaxhervorhebung: abgeschlossen</translation>
@@ -56181,7 +56096,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>Snippet</name>
+    <name>::TextEditor</name>
     <message>
         <source>Expected delimiter after mangler ID.</source>
         <translation type="unfinished"></translation>
@@ -56194,9 +56109,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Missing closing variable delimiter for:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextMark</name>
     <message>
         <source>Show Diagnostic Settings</source>
         <translation>Diagnosekonfiguration anzeigen</translation>

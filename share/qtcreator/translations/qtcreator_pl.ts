@@ -1200,7 +1200,7 @@
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Pogrubiony</translation>
@@ -1284,13 +1284,6 @@
     <message>
         <source>Color:</source>
         <translation>Kolor:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Czcionka</translation>
     </message>
     <message>
         <source>Family:</source>
@@ -8823,7 +8816,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Searching</source>
         <translation>Przeszukiwanie</translation>
@@ -8848,9 +8841,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
             <numerusform>%n znalezień.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Definicja podświetleń dla tego pliku nie została znaleziona. Czy chcesz spróbować ją znaleźć?</translation>
@@ -8859,9 +8849,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Show Highlighter Options...</source>
         <translation>Pokaż opcje podświetlania...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Kodowanie tekstu</translation>
@@ -8882,16 +8869,10 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Save with Encoding</source>
         <translation>Zachowaj z kodowaniem</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Nie jest to plik ze schematem kolorów.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Bieżący plik</translation>
@@ -8906,9 +8887,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Ścieżka pliku: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>Czcionki i kolory</translation>
@@ -8938,10 +8916,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Czy usunąć ten schemat kolorów bezpowrotnie?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Schemat kolorów został zmieniony</translation>
     </message>
@@ -8953,9 +8927,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Discard</source>
         <translation>Odrzuć</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1, Column %2</source>
         <translation>Linia %1, kolumna %2</translation>
@@ -8972,16 +8943,10 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Line in Current Document</source>
         <translation>Linia w bieżącym dokumencie</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
         <translation>&lt;linia&gt;:&lt;kolumna&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Ctrl+Space</source>
         <translation>Ctrl+Space</translation>
@@ -9035,9 +9000,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Current document&apos;s font size in points.</source>
         <translation>Rozmiar czcionki bieżącego dokumentu w punktach.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -9483,10 +9445,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     <message>
         <source>Applied to lines describing changes in VCS log.</source>
         <translation>Stosowane do linii opisujących zmiany w logu systemu kontroli wersji.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Błędy</translation>
     </message>
     <message>
         <source>Underline color of error diagnostics.</source>
@@ -13331,7 +13289,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::HighlighterSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Ogólne podświetlanie</translation>
@@ -13360,9 +13318,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Not possible to retrieve data.</source>
         <translation>Nie można odebrać danych.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Nazwa</translation>
@@ -13411,9 +13366,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Download Selected Definitions</source>
         <translation>Pobierz zaznaczone definicje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Konspekt nie jest dostępny</translation>
@@ -13426,9 +13378,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Filter tree</source>
         <translation>Przefiltruj drzewo</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Konspekt</translation>
@@ -15486,7 +15435,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
+    <name>::TextEditor</name>
     <message>
         <source>Error</source>
         <translation>Błąd</translation>
@@ -15507,9 +15456,6 @@ Ponowić próbę?</translation>
         <source>Error reverting snippet.</source>
         <translation>Nie można odwrócić urywku.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Urywki</translation>
@@ -15517,10 +15463,6 @@ Ponowić próbę?</translation>
     <message>
         <source>Error While Saving Snippet Collection</source>
         <translation>Błąd zapisu kolekcji urywków</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Błąd</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
@@ -17203,22 +17145,16 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalne</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 z %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Nie można utworzyć katalogu z urywkami użytkownika %1</translation>
@@ -18243,14 +18179,11 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Zmodyfikuj zawartość podglądu, aby zobaczyć, jak bieżące ustawienia zostaną zastosowane do własnych fragmentów kodu. Zmiany w podglądzie nie wpływają na bieżące ustawienia.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Zmodyfikuj styl kodu</translation>
@@ -18271,20 +18204,9 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>%1 (Copy)</source>
         <translation>%1 (Kopia)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Skopiuj styl kodu</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Nazwa stylu kodu:</translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (Kopia)</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
@@ -18293,10 +18215,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation>Czy usunąć ten styl kodu bezpowrotnie?</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -18322,9 +18240,6 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
         <source>%1 [built-in]</source>
         <translation>%1 [wbudowane]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation>Pliki w systemie plików</translation>
@@ -19332,14 +19247,11 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Pisanie</translation>
@@ -19539,20 +19451,9 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <source>Enable smart selection changing</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Bieżące ustawienia:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Kopiuj...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -19569,13 +19470,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     <message>
         <source>Import...</source>
         <translation>Importuj...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Wyświetlanie</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -19665,13 +19559,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <source>Aligned at right side</source>
         <translation>Wyrównane do prawej strony</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -19691,19 +19578,8 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Użyj położenia zastępczego</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Zachowanie</translation>
-    </message>
-    <message>
         <source>Ignored file patterns:</source>
         <translation>Ignorowane wzorce plików:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -19712,10 +19588,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -19728,13 +19600,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     <message>
         <source>Reset All</source>
         <translation>Przywróć wszystko</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -21817,7 +21682,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
+    <name>::TextEditor</name>
     <message>
         <source>Open Documents</source>
         <translation>Otwarte dokumenty</translation>
@@ -25402,7 +25267,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>Pokazuje pomoc kontekstową lub informację o typie po najechaniu kursorem myszy.</translation>
@@ -25411,9 +25276,6 @@ Zdalny: %4</translation>
         <source>Displays context-sensitive help or type information on Shift+Mouseover.</source>
         <translation>Pokazuje pomoc kontekstową lub informację o typie po naciśnięciu klawisza Shift i najechaniu kursorem myszy.</translation>
     </message>
-</context>
-<context>
-    <name>RefactoringFile::apply</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Nie można zrefaktoryzować.</translation>
@@ -27989,7 +27851,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Nieużywana zmienna</translation>
@@ -31831,7 +31693,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::MultiDefinitionDownloader</name>
+    <name>::TextEditor</name>
     <message>
         <source>Downloading Highlighting Definitions</source>
         <translation>Pobieranie definicji podświetleń</translation>
@@ -31852,16 +31714,10 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Download Error</source>
         <translation>Błąd pobierania</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Opening File</source>
         <translation>Otwieranie pliku</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Print Document</source>
         <translation>Wydruk dokumentu</translation>
@@ -33113,7 +32969,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
+    <name>::TextEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
@@ -36053,7 +35909,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Dodaj metodę zwracającą (getter) i ustawiającą (setter)</translation>
@@ -36662,11 +36518,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
-    <message>
-        <source>Behavior</source>
-        <translation>Zachowanie</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Activate completion:</source>
         <translation>Uaktywniaj uzupełnianie:</translation>
@@ -36680,10 +36532,6 @@ Czy nadpisać go?</translation>
         <translation>Pełne</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Brak</translation>
-    </message>
-    <message>
         <source>First Letter</source>
         <translation>Tylko pierwsza litera</translation>
     </message>
@@ -36694,10 +36542,6 @@ Czy nadpisać go?</translation>
     <message>
         <source>When Triggered</source>
         <translation>Po wyzwoleniu</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Zawsze</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -38878,7 +38722,7 @@ Wiersz: %4, kolumna: %5
     </message>
 </context>
 <context>
-    <name>TextEditorWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
         <translation>&lt;b&gt;Błąd:&lt;/b&gt; Nie można odkodować &quot;%1&quot; używając kodowania &quot;%2&quot;. Edycja nie jest możliwa.</translation>
@@ -40309,7 +40153,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::InternalEngine</name>
+    <name>::TextEditor</name>
     <message>
         <source>Internal</source>
         <translation>Wewnętrzny</translation>
@@ -40769,7 +40613,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>TextEditorWidgetPrivate</name>
+    <name>::TextEditor</name>
     <message>
         <source>Other annotations:</source>
         <translation>Inne adnotacje:</translation>

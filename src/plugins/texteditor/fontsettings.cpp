@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fontsettings.h"
+
 #include "fontsettingspage.h"
+#include "texteditortr.h"
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -158,10 +160,8 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setFontStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     }
 
-    if (category == C_OCCURRENCES_UNUSED) {
-        tf.setToolTip(QCoreApplication::translate("FontSettings_C_OCCURRENCES_UNUSED",
-                                                  "Unused variable"));
-    }
+    if (category == C_OCCURRENCES_UNUSED)
+        tf.setToolTip(Tr::tr("Unused variable"));
 
     if (f.foreground().isValid() && !isOverlayCategory(category))
         tf.setForeground(f.foreground());

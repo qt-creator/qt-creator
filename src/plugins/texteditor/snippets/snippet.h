@@ -16,7 +16,6 @@ namespace TextEditor {
 
 class TEXTEDITOR_EXPORT Snippet
 {
-    Q_DECLARE_TR_FUNCTIONS(Snippet)
 public:
     explicit Snippet(const QString &groupId = QString(), const QString &id = QString());
     ~Snippet();

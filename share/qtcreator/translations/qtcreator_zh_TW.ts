@@ -8570,7 +8570,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>搜尋</translation>
@@ -8579,9 +8579,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>List of comma separated wildcard filters</source>
         <translation>以逗號分隔的萬用字元符過濾器列表</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
@@ -8590,9 +8587,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Opening file</source>
         <translation>開啟檔案中</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>行：%1，欄：%2</translation>
@@ -8601,17 +8595,11 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Line: 9999, Col: 999</source>
         <translation>行：9999，欄：9999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>全域</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>字型與顏色</translation>
@@ -8652,9 +8640,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Discard</source>
         <translation>丟棄</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>文字編碼</translation>
@@ -8677,9 +8662,6 @@ The following encodings are likely to fit:</source>
         <source>Save with Encoding</source>
         <translation>根據編碼儲存</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>目前檔案</translation>
@@ -8694,9 +8676,6 @@ The following encodings are likely to fit:</source>
         <translation>檔案路徑：&apos;%1&apos;
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>家族：</translation>
@@ -8722,10 +8701,6 @@ The following encodings are likely to fit:</source>
         <translation>複製...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>刪除</translation>
-    </message>
-    <message>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -8733,9 +8708,6 @@ The following encodings are likely to fit:</source>
         <source>Zoom:</source>
         <translation>縮放：</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1</source>
         <translation>行 %1</translation>
@@ -8744,9 +8716,6 @@ The following encodings are likely to fit:</source>
         <source>Line in Current Document</source>
         <translation>目前文件裡的行</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
         <translation>建立文字檔案。預設的副檔名是 &lt;tt&gt;.txt&lt;/tt&gt;。您可以在指定檔名時直接加副檔名。</translation>
@@ -8811,9 +8780,6 @@ The following encodings are likely to fit:</source>
         <source>Current document&apos;s font size in points.</source>
         <translation>目前文件的字型大小，以點為單位。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
@@ -9218,9 +9184,6 @@ The following encodings are likely to fit:</source>
         <source>&lt;line number&gt;</source>
         <translation>&lt;行號&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -10153,7 +10116,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>粗體</translation>
@@ -11034,14 +10997,11 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>不是一個色彩機制檔。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>自訂</translation>
@@ -17197,7 +17157,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::HighlighterSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>一般突顯器</translation>
@@ -17226,9 +17186,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Not possible to retrieve data.</source>
         <translation>無法取得資料。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -17277,9 +17234,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <source>Download Selected Definitions</source>
         <translation>下載已選取的定義</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>正在註冊定義</translation>
@@ -17306,9 +17260,6 @@ Please check the directory&apos;s access rights.</source>
         <source>Download Error</source>
         <translation>下載錯誤</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>沒有可用大綱</translation>
@@ -17321,16 +17272,10 @@ Please check the directory&apos;s access rights.</source>
         <source>Filter tree</source>
         <translation>過濾樹狀圖</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>大綱</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>找不到此檔案的突顯定義。您要試著找找看嗎？</translation>
@@ -20453,7 +20398,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -20486,16 +20431,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>The text is too large to be displayed (%1 MB).</source>
         <translation>文字過大，無法顯示（%1 MB)。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>文字</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>錯誤</translation>
@@ -20516,9 +20451,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>Error reverting snippet.</source>
         <translation>回復片段時發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>片段</translation>
@@ -20526,10 +20458,6 @@ You can build the application and deploy it on desktop and mobile target platfor
     <message>
         <source>Error While Saving Snippet Collection</source>
         <translation>儲存片段收藏時發生錯誤</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>錯誤</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
@@ -22703,14 +22631,11 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>無法建立使用者片段目錄 %1</translation>
@@ -25055,7 +24980,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit Code Style</source>
         <translation>編輯代碼風格</translation>
@@ -25076,20 +25001,9 @@ Remote error output was: %1</source>
         <source>%1 (Copy)</source>
         <translation>%1 (複製)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>複製代碼風格</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>代碼風格名稱：</translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (複製)</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
@@ -25098,10 +25012,6 @@ Remote error output was: %1</source>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation>您確定要永久刪除這個代碼風格嗎？</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>刪除</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -25131,9 +25041,6 @@ Remote error output was: %1</source>
         <source>%1 [built-in]</source>
         <translation>%1 [內建]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>在檔案系統中的檔案</translation>
@@ -25188,7 +25095,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>編輯預覽內容來查看目前的設定如何套用到自訂代碼片段。在預覽中的變更並不會影響目前的設定。</translation>
@@ -25978,14 +25885,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -26172,20 +26076,9 @@ Specifies how backspace interacts with indentation.
         <source>Using keyboard shortcut (Alt)</source>
         <translation>使用鍵盤捷徑 (Alt)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>目前設定：</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>複製...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -26202,13 +26095,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Import...</source>
         <translation>匯入...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>顯示</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -26262,13 +26148,6 @@ Specifies how backspace interacts with indentation.
         <source>Display right &amp;margin at column:</source>
         <translation>顯示在欄右邊的邊界(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -26288,23 +26167,12 @@ Specifies how backspace interacts with indentation.
         <translation>使用預設位置</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>行為</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation>當找不到突顯的定義時警示</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>被忽略的檔案樣式：</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -26313,10 +26181,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Add</source>
         <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -26329,13 +26193,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Reset All</source>
         <translation>全部重置</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -27867,14 +27724,11 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>找到 %1 </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>開啟文件</translation>

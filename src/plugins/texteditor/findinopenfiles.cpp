@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "findinopenfiles.h"
-#include "textdocument.h"
 
-#include <utils/filesearch.h>
+#include "textdocument.h"
+#include "texteditortr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 
+#include <utils/filesearch.h>
+
 #include <QSettings>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+namespace TextEditor::Internal {
 
 FindInOpenFiles::FindInOpenFiles()
 {
@@ -29,7 +31,7 @@ QString FindInOpenFiles::id() const
 
 QString FindInOpenFiles::displayName() const
 {
-    return tr("Open Documents");
+    return Tr::tr("Open Documents");
 }
 
 Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
@@ -65,13 +67,13 @@ QVariant FindInOpenFiles::additionalParameters() const
 
 QString FindInOpenFiles::label() const
 {
-    return tr("Open documents:");
+    return Tr::tr("Open documents:");
 }
 
 QString FindInOpenFiles::toolTip() const
 {
     // %1 is filled by BaseFileFind::runNewSearch
-    return tr("Open Documents\n%1");
+    return Tr::tr("Open Documents\n%1");
 }
 
 bool FindInOpenFiles::isEnabled() const
@@ -97,3 +99,5 @@ void FindInOpenFiles::updateEnabledState()
 {
     emit enabledChanged(isEnabled());
 }
+
+} // TextEditor::Internal

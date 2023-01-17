@@ -12992,20 +12992,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Kousky</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Kousky</translation>
-    </message>
-</context>
-<context>
     <name>StartExternalDialog</name>
     <message>
         <source>Start Debugger</source>
@@ -13485,7 +13471,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>Hledat</translation>
@@ -13493,10 +13479,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Aborting replace.</source>
         <translation>Ruší se nahrazování.</translation>
-    </message>
-    <message>
-        <source>%1 found</source>
-        <translation type="obsolete">%1 nalezen</translation>
     </message>
     <message>
         <source>List of comma separated wildcard filters</source>
@@ -13510,9 +13492,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Use Regular E&amp;xpressions</source>
         <translation type="obsolete">Používat pravidelně se opakující &amp;výrazy</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>bez názvu</translation>
@@ -13526,25 +13505,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation>Otevírán soubor</translation>
     </message>
     <message>
-        <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="obsolete">&lt;em&gt;Binární data&lt;/em&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
-    <message>
-        <source>Print Document</source>
-        <translation type="obsolete">Vytisknout dokument</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="obsolete">&lt;b&gt;Chyba:&lt;/b&gt; Soubor &quot;%1&quot; se nepodařilo rozluštit s kódováním &quot;%2&quot;. Nelze jej upravovat.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="obsolete">Vybrat kódování</translation>
-    </message>
-    <message>
         <source>Line: %1, Col: %2</source>
         <translation>Řádek: %1, sloupec: %2</translation>
     </message>
@@ -13552,144 +13512,11 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Line: 9999, Col: 999</source>
         <translation>Řádek: 9999, sloupec: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="obsolete">Řádek: %1, sloupec: %2</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: 999</source>
-        <translation type="obsolete">Řádek: %1, sloupec: 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
-    <message>
-        <source>Storage</source>
-        <translation type="obsolete">Ukládání</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace on saving.</source>
-        <translation type="obsolete">Odstraní při ukládání prázdné znaky na konci řádků.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Vyčistit prázdné znaky</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Vyčistí prázdné znaky v celém dokumentu a nejen ve změněných částech.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">V celém &amp;dokumentu</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Opraví prázdné znaky na začátku řádků podle nastavení zarážek.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Opravit odsazení</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Doplnit nový řádek na konci souboru</translation>
-    </message>
-    <message>
-        <source>Tabs and Indentation</source>
-        <translation type="obsolete">Zarážky odsazení</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Šířka &amp;zarážky:</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">&amp;Velikost odsazení:</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">Zpětná klávesa (Backspace) jde zpět o jednu stupeň odsazení. Sleduje tedy hloubku odsazení místo toho, aby smazala jen jeden znak.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">&amp;Zpětná klávesa sleduje hloubku odsazení</translation>
-    </message>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Vložit místo zarážek prázdné &amp;znaky (mezery)</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In leading white space</source>
-        <translation type="obsolete">Pouze v prázdných znacích (mezerách) na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Automaticky určit založeno na nejbližším odsazeném řádku (předchozí řádek upřednostňován před dalším řádkem)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Založeno na okolních řádcích</translation>
-    </message>
-    <message>
-        <source>Block indentation style:</source>
-        <translation type="obsolete">Styl odsazení bloku:</translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Vyloučit závorky</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Zahrnout závorky</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Styl GNU</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Myš</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Povolit přibližování a oddalování pomocí &amp;kolečka myši</translation>
-    </message>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Celkové</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Rozhýbat odpovídající závorky</translation>
@@ -13699,16 +13526,9 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Navedení</translation>
     </message>
     <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
         <source>Mark text changes</source>
         <translation type="obsolete">Vyznačit textové změny</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation type="obsolete">Písmo &amp; barvy</translation>
@@ -13757,9 +13577,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Discard</source>
         <translation>Zahodit</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Kódování textu</translation>
@@ -13786,9 +13603,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Save with Encoding</source>
         <translation>Uložit s kódováním</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Nynější soubor</translation>
@@ -13803,36 +13617,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Souborová cesta: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
-    <message>
-        <source>Files on Disk</source>
-        <translation type="obsolete">Soubory na nosiči dat</translation>
-    </message>
-    <message>
-        <source>Files on File System</source>
-        <translation type="obsolete">Soubory v souborovém systému</translation>
-    </message>
-    <message>
-        <source>&amp;Directory:</source>
-        <translation type="obsolete">&amp;Adresář:</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Procházet</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translation type="obsolete">&amp;Vzor hledání pro názvy souborů:</translation>
-    </message>
-    <message>
-        <source>Directory to search</source>
-        <translation type="obsolete">Adresář k prohledání</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Písmo</translation>
@@ -13858,10 +13642,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <translation>Kopírovat...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Smazat</translation>
-    </message>
-    <message>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -13869,9 +13649,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Zoom:</source>
         <translation>Zvětšení:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in current document</source>
         <translation type="obsolete">Řádek v nynějším dokumentu</translation>
@@ -13892,9 +13669,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Line in Current Document</source>
         <translation>Řádek v nynějším dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation type="obsolete">Vytvoří textový soubor (.txt).</translation>
@@ -13963,9 +13737,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Current document&apos;s font size in points.</source>
         <translation>Velikost písma v nynějším dokumentu.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
@@ -14526,9 +14297,6 @@ Zdá se, že následující kódování odpovídají souboru:</translation>
         <source>Ctrl+Alt+Down</source>
         <translation>Ctrl+Alt+Down</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -14976,10 +14744,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     <message>
         <source>Diff Location</source>
         <translation>Porovnávané umístění</translation>
-    </message>
-    <message>
-        <source>Text Editor</source>
-        <translation type="obsolete">Textový editor</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -16589,7 +16353,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Tučné</translation>
@@ -19265,14 +19029,11 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Není souborem znázornění barev.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Uživatelsky stanovený</translation>
@@ -28918,168 +28679,14 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>BehaviorSettingsWidget</name>
-    <message>
-        <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
-        <translation type="obsolete">Opravy, které se automaticky provádějí bezprostředně před uložením souboru na disk.</translation>
-    </message>
-    <message>
-        <source>Cleanups Upon Saving</source>
-        <translation type="obsolete">Opravy při uložení</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace upon saving.</source>
-        <translation type="obsolete">Odstraní při ukládání prázdné znaky na konci řádků.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Vyčistit prázdné znaky</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Vyčistí prázdné znaky v celém dokumentu a nejen ve změněných částech.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">V celém &amp;dokumentu</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Opraví prázdné znaky na začátku řádků podle nastavení zarážek.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Opravit odsazení</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Doplnit nový řádek na konci souboru</translation>
-    </message>
-    <message>
-        <source>File Encodings</source>
-        <translation type="obsolete">Kódování souborů</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Default encoding: </source>
         <translation type="obsolete">Výchozí kódování: </translation>
     </message>
     <message>
-        <source>UTF-8 BOM:</source>
-        <translation type="obsolete">UTF-8 BOM:</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Keep If Already Present: &lt;/i&gt;save the file with a BOM if it already had one when it was loaded.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
-&lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Udává, jak se chovají textové editory, co se týče UTF-8 BOM (Byte Order Marks). Na výběr je:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Přidat, je-li kódování UTF-8&lt;/i&gt; Vždy přidat. BOM při ukládání souboru s kódováním UTF-8. Toto však nebude fungovat, je-li kódování &lt;i&gt;System&lt;/i&gt;, neboť Qt Creator v tomto případě kódování nedokáže určit.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Zachovat, je-li už přítomno: &lt;/i&gt;Uložit soubor s BOM, pokud jej mělo již při nahrání, což bylo zjištěno.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Smazat vždy:&lt;/i&gt; Nikdy nezapisovat UTF-8 BOM, existující podle okolností odstranit.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Dejte pozor na to, že UTF-8 BOMs nejsou běžné a některé editory s nimi nezacházejí správně. Z toho důvodu to nedává obvykle skoro žádný smysl je přidávat.&lt;/p&gt;
-&lt;p&gt;Toto nastavení &lt;b&gt;neovlivní&lt;/b&gt; používání UTF-16 a UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add If Encoding Is UTF-8</source>
-        <translation type="obsolete">Přidat, pokud je kódování UTF-8</translation>
-    </message>
-    <message>
-        <source>Keep If Already Present</source>
-        <translation type="obsolete">Zachovat, pokud je už přítomno</translation>
-    </message>
-    <message>
-        <source>Always Delete</source>
-        <translation type="obsolete">Smazat vždy</translation>
-    </message>
-    <message>
         <source>Mouse</source>
         <translation type="obsolete">Myš</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Povolit navádění &amp;myší</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Povolit přibližování a oddalování pomocí &amp;kolečka myši</translation>
-    </message>
-    <message>
-        <source>Typing</source>
-        <translation type="obsolete">Při psaní</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
-        <source>Backspace indentation:</source>
-        <translation type="obsolete">Odsazení při zpětné klávese (Backspace):</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifies how backspace interacts with indentation.
-
-&lt;ul&gt;
-&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
-&lt;/li&gt;
-
-&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
-&lt;/li&gt;
-
-&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
-
-&lt;ul&gt;
-&lt;li&gt;Žádné: Žádné zvláštní chování. Obvyklé chování zpětné klávesy.
-&lt;/li&gt;
-
-&lt;li&gt;Sledovat předchozí odsazení: V prázdném místě na začátku je ukazovátko postaveno zpět na nejbližší úroveň odsazení použitou na předchozích řádcích.
-&lt;/li&gt;
-
-&lt;li&gt;Zrušit odsazení: Pokud je znak nacházející se za ukazovátkem mezera, chová se zpětná klávesa jako zpětný tabulátor.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Žádné</translation>
-    </message>
-    <message>
-        <source>Follows Previous Indents</source>
-        <translation type="obsolete">Sledovat předchozí odsazení</translation>
-    </message>
-    <message>
-        <source>Unindents</source>
-        <translation type="obsolete">Zrušit odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
-    </message>
-    <message>
-        <source>Always write a newline character at the end of the file.</source>
-        <translation type="obsolete">Vždy psát znak pro nový řádek na konci souboru.</translation>
     </message>
     <message>
         <source>Enable &amp;tooltips only when Shift key is down</source>
@@ -29151,88 +28758,14 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     </message>
 </context>
 <context>
-    <name>SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Group: </source>
-        <translation type="obsolete">Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Revert Built-in</source>
-        <translation type="obsolete">Vrátit zpět vnitřní kousek</translation>
-    </message>
-    <message>
-        <source>Restore Removed Built-ins</source>
-        <translation type="obsolete">Obnovit všechny vnitřní kousky</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Nastavit znovu vše</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Tab settings:</source>
-        <translation type="obsolete">Nastavení zarážek:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Vložit místo zarážek prázdné &amp;znaky (mezery)</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation type="obsolete">Automaticky určit vycházeje z nejbližšího odsazeného řádku (předchozí řádek upřednostňován před dalším řádkem)</translation>
     </message>
     <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Založeno na okolních řádcích</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Povolit automatické &amp;odsazení</translation>
-    </message>
-    <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
         <translation type="obsolete">Zpětná klávesa (Backspace) jde zpět o jednu úroveň odsazení. Sleduje tedy hloubku odsazení místo toho, aby smazala jen jeden znak.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">&amp;Zpětná klávesa sleduje hloubku odsazení</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Klávesa pro zarážku provede automatické odsazení:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikdy</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Pouze v prázdném místu na začátku řádku</translation>
     </message>
 </context>
 <context>
@@ -37811,7 +37344,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -37844,16 +37377,10 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Add UTF-8 BOM on Save</source>
         <translation>Přidat UTF-8 BOM při uložení</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 z %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
         <translation type="obsolete">Nastavení:</translation>
@@ -37871,16 +37398,9 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Restore</source>
         <translation type="obsolete">Obnovit</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Obecné zvýrazňování</translation>
-    </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation type="obsolete">Stáhnout vymezení</translation>
     </message>
     <message>
         <source>Download Definitions...</source>
@@ -37906,9 +37426,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Not possible to retrieve data.</source>
         <translation>Nepodařilo se dostat žádná data.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -37957,9 +37474,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Download Selected Definitions</source>
         <translation>Stáhnout vybrané soubory s definicemi</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>Přihlašují se definice</translation>
@@ -37990,9 +37504,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Download Error</source>
         <translation>Chyba při stahování</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Přehled není dostupný</translation>
@@ -38005,16 +37516,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Filter tree</source>
         <translation>Přefiltrovat strom</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Přehled</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Pro tento soubor se nepodařilo najít žádnou definici zvýrazňování skladby. Chcete se pokusit nějakou definici najít?</translation>
@@ -38031,23 +37536,10 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Show highlighter options</source>
         <translation type="obsolete">Ukázat nastavení vymezení zvýrazňování skladby</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Text</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Nepodařilo se vytvořit adresář na uživatelské úryvky %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Chyba</translation>
@@ -38068,9 +37560,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Error reverting snippet.</source>
         <translation>Chyba při vracení úryvku zpět.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Úryvky</translation>
@@ -38078,10 +37567,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Error While Saving Snippet Collection</source>
         <translation>Chyba při ukládání sbírky úryvků</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Chyba</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
@@ -39363,35 +38848,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Current settings:</source>
-        <translation type="obsolete">Nynější nastavení:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation type="obsolete">Kopírovat...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Upravit...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Kopírovat styl kódování</translation>
@@ -39411,10 +38868,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation>Jste si jist, že chcete tento styl kódování smazat natrvalo?</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Smazat</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -40535,21 +39988,14 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Změnou obsahu náhledu zjistíte, jak se nynější nastavení projeví na uživatelsky stanovených úryvcích kódu. Změny v náhledu nemají žádný vliv na současná nastavení.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Upravit styl kódování</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Název stylu kódování:</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -40559,13 +40005,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Copy Built-in Code Style</source>
         <translation>Kopírovat vestavěný styl kódování</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (kopie)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>Soubory v souborovém systému</translation>
@@ -42681,14 +42120,11 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Při psaní</translation>
@@ -42903,20 +42339,9 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Pressing Alt displays context-sensitive help or type information as tooltips.</source>
         <translation>Stisknutí klávesy Alt zobrazí vysvětlivky s kontextovou nápovědou nebo informací o typu.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Nynější nastavení:</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Kopírovat...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -42933,13 +42358,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Import...</source>
         <translation>Importovat...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Zobrazení</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -43009,13 +42427,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <source>Shows tabs and spaces.</source>
         <translation>Ukáže tabulátory a mezery.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -43035,23 +42446,12 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation>Použít záložní umístění</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Chování</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation type="obsolete">Zobrazit upozornění, pokud se nepodařilo najít žádný soubor s definicí</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>Vyloučené soubory (vzor hledání):</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -43060,10 +42460,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -43076,13 +42472,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Reset All</source>
         <translation>Nastavit znovu vše</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -46620,14 +46009,11 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 nalezen</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Otevřené dokumenty</translation>
@@ -52547,7 +51933,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
         <translation>Zobrazit kontextově citlivou nápovědu nebo informace o typu, když se ukazovátko myši nachází nad prvkem.</translation>
@@ -54381,7 +53767,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Refaktoring se nepodařilo použít.</translation>
@@ -55539,7 +54925,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Vytvořit funkce Getter a Setter</translation>
@@ -57990,7 +57376,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation>Nepoužívaná proměnná</translation>

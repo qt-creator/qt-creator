@@ -38,6 +38,7 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/texteditortr.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
@@ -60,13 +61,12 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <QDebug>
-#include <QDir>
-#include <QFileInfo>
-
 #include <QAction>
 #include <QApplication>
+#include <QDebug>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMenu>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -208,13 +208,13 @@ public:
         setActionsProvider([info] {
             QAction *copyToClipboardAction = new QAction;
             copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-            copyToClipboardAction->setToolTip(TextMark::tr("Copy SHA1 to Clipboard"));
+            copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy SHA1 to Clipboard"));
             QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
                 Utils::setClipboardAndSelection(info.sha1);
             });
             QAction *showAction = new QAction;
             showAction->setIcon(Utils::Icons::ZOOM.icon());
-            showAction->setToolTip(TextMark::tr("Show Commit %1").arg(info.sha1.left(8)));
+            showAction->setToolTip(TextEditor::Tr::tr("Show Commit %1").arg(info.sha1.left(8)));
             QObject::connect(showAction, &QAction::triggered, [info] {
                 GitClient::instance()->show(info.fileName, info.sha1);
             });

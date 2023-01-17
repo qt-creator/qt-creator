@@ -15208,21 +15208,11 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::0</name>
+    <name>::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation type="obsolete">Kódrészlet</translation>
     </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Kódrészlet</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
     <message>
         <source>Snippets</source>
         <translation>Kódrészlet</translation>
@@ -15729,7 +15719,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>TextEditor::0</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation type="obsolete">%1 gefunden</translation>
@@ -16192,9 +16182,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Behavior</source>
         <translation type="obsolete">Viselkedés</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>%1 found</source>
         <translation>%1 gefunden</translation>
@@ -16207,9 +16194,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Use Regular E&amp;xpressions</source>
         <translation>Reguláris kife&amp;jezések használata</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
@@ -16218,9 +16202,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Binäre Daten&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Print Document</source>
         <translation>Dokumentum nyomtatása</translation>
@@ -16233,9 +16214,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Select Encoding</source>
         <translation>Kódolás kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Sor: %1, Oszlop: %2</translation>
@@ -16244,9 +16222,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Line: %1, Col: 999</source>
         <translation>Sor: %1, Oszlop: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Tabs and Indentation</source>
         <translation>Tabulátorok és behúzás</translation>
@@ -16323,9 +16298,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&amp;Ensure newline at end of file</source>
         <translation>&amp;Győzödjön meg, hogy újsor van a fájlok végén</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Kijelzés</translation>
@@ -16382,9 +16354,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Enable &amp;mouse navigation</source>
         <translation>&amp;Egér navigálás engedélyezése</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation>Betű &amp; színek</translation>
@@ -16425,9 +16394,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Discard</source>
         <translation>Eldobás</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::0</name>
     <message>
         <source>Text Encoding</source>
         <translation type="obsolete">Szöveg kódolás</translation>
@@ -16558,9 +16524,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Meta+Space</source>
         <translation type="obsolete">Meta+Space</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Szöveg kódolás</translation>
@@ -16583,16 +16546,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Save with Encoding</source>
         <translation>Mentés kódolással</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Ez nem egy színterv fájl.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>Félkövér</translation>
@@ -16617,16 +16574,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>x</source>
         <translation>x</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Aktuális fájl</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on Disk</source>
         <translation>Lemezen levő fájlok</translation>
@@ -16647,16 +16598,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Directory to search</source>
         <translation>Könyvtárra keresés</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Felöltöztetett</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Betű</translation>
@@ -16682,13 +16627,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>Másolás...</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Törlés</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
-    <message>
         <source>Line %1</source>
         <translation>%1-es sor</translation>
     </message>
@@ -16696,9 +16634,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Line in current document</source>
         <translation>Sor az aktuális dokumentumban</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation>Szöveges fájl létrehozása(.txt.</translation>
@@ -16731,9 +16666,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Alt+Return</source>
         <translation>Alt+Return</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Visszacsinál</translation>
@@ -16926,9 +16858,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>&lt;line number&gt;</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Szöveg</translation>
@@ -17048,10 +16977,6 @@ A következő kódolás valószínűleg erre illik:</translation>
     <message>
         <source>Behavior</source>
         <translation>Viselkedés</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Kijelzés</translation>
     </message>
 </context>
 <context>

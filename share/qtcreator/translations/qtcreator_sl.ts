@@ -9139,7 +9139,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>najdenih: %1</translation>
@@ -9152,9 +9152,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Use regular e&amp;xpressions</source>
         <translation type="obsolete">Uporabi r&amp;egularne izraze</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>neimenovana</translation>
@@ -9171,9 +9168,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation type="obsolete">&lt;em&gt;Dvojiški podatki&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Vrstica: %1, Stolpec: %2</translation>
@@ -9183,140 +9177,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Vrstica: 9999, Stolpec: 999</translation>
     </message>
     <message>
-        <source>Print Document</source>
-        <translation type="obsolete">Natisni dokument</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation type="obsolete">&lt;b&gt;Napaka:&lt;/b&gt; »%1« ni moč dekodirati z naborom znakov »%2«. Urejanje ni možno.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="obsolete">Izberite nabor znakov</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
-    <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalno</translation>
     </message>
-    <message>
-        <source>Storage</source>
-        <translation type="obsolete">Shranjevanje</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace on saving.</source>
-        <translation type="obsolete">Pri shranjevanju odstrani presledke na koncu vrstic.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Počisti presledke</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Počisti presledke v celotnem dokumentu in ne samo v spremenjenih vrsticah.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">V celotnem &amp;dokumentu</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Popravi presledke na začetku vrstic v skladu z nastavitvami tabulatorja.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Počisti zamikanje</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Zagotovi novo vrstico na koncu datoteke</translation>
-    </message>
-    <message>
-        <source>Tabs and Indentation</source>
-        <translation type="obsolete">Tabulator in zamikanje</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Velikost &amp;tabulatorja:</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Velikost &amp;zamika:</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">Vračalka gre nazaj za en zamik in ne za en presledek.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">&amp;Vračalka sledi zamikom</translation>
-    </message>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Vstavi &amp;presledke in ne tabulatorjev</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Omogoči &amp;samodejno zamikanje</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">Tabulator izvede samodejni zamik:</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Nikoli</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vedno</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Ugotovi samodejno glede na najbližjo zamaknjeno vrstico (predhodna vrstica ima prednost pred naslednjo)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Temelječe na okoliških vrsticah</translation>
-    </message>
-    <message>
-        <source>Block indentation style:</source>
-        <translation type="obsolete">Slog zamikanja bloka:</translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Izvzemi oklepaje</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Vključi oklepaje</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">GNU-jevski slog</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">V praznini na začetku</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Miška</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Omogoči krmarjenje z &amp;miško</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Omogoči povečevanje/zmanjševanje s &amp;koleščkom</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Prikaz</translation>
@@ -9386,9 +9250,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Center &amp;cursor on scroll</source>
         <translation>Ob premiku &amp;usredišči kazalec</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Copy Color Scheme</source>
         <translation>Skopiraj barvno shemo</translation>
@@ -9414,10 +9275,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Ali res želite trajno izbrisati to barvno shemo?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Izbriši</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Spremenjena barvna shema</translation>
     </message>
@@ -9429,9 +9286,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Discard</source>
         <translation>Zavrzi</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Nabor znakov</translation>
@@ -9454,9 +9308,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Save with Encoding</source>
         <translation>Shrani z naborom znakov</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>Datoteke v datotečnem sistemu</translation>
@@ -9477,9 +9328,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Directory to search</source>
         <translation>Išči v mapi</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Pisava</translation>
@@ -9524,9 +9372,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Zoom:</source>
         <translation>Povečava:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1</source>
         <translation>Vrstica %1</translation>
@@ -9539,9 +9384,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Line in current document</source>
         <translation type="obsolete">Vrstica v trenutnem dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file. The default file extension is &lt;tt&gt;.txt&lt;/tt&gt;. You can specify a different extension as part of the filename.</source>
         <translation>Ustvari besedilno datoteko. Privzeta končnica datoteke je &lt;tt&gt;.txt&lt;/tt&gt;. Kot del imena datoteke lahko določite drugo končnico.</translation>
@@ -9598,9 +9440,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Current document&apos;s font size in points.</source>
         <translation>Velikost pisave trenutnega dokumenta v pikah.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Razveljavi</translation>
@@ -9941,9 +9780,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>(Un)&amp;Collapse All</source>
         <translation type="obsolete">Raz&amp;širi/skrči vse</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Besedilo</translation>
@@ -10075,10 +9911,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     <message>
         <source>Behavior</source>
         <translation>Obnašanje</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Prikaz</translation>
     </message>
 </context>
 <context>
@@ -11232,7 +11064,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Polkrepko</translation>
@@ -12802,21 +12634,15 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>Ni datoteka z barvno shemo.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Trenutna datoteka</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Prilagojeno</translation>
@@ -20014,7 +19840,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
         <translation>Dejanja čiščenja, ki se samodejno izvedejo tik pred shranjevanjem datoteke na disk.</translation>
@@ -20199,7 +20025,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>SnippetsSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -20234,23 +20060,9 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <source>Reset All</source>
         <translation>Ponastavi vse</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
     <message>
         <source>Tab settings:</source>
         <translation>Nastavitve tabulatorja:</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
     </message>
     <message>
         <location/>
@@ -27777,7 +27589,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
@@ -27802,16 +27614,10 @@ Ali jih želite dodati v projekt?</translation>
         <source>Select Encoding</source>
         <translation>Izberite kodiranje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 od %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
         <translation>Nastavitve:</translation>
@@ -27829,9 +27635,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Restore</source>
         <translation>Obnovi</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Splošno poudarjanje</translation>
@@ -27860,9 +27663,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Not possible to retrieve data.</source>
         <translation>Podatkov ni moč pridobiti.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -27876,10 +27676,6 @@ Ali jih želite dodati v projekt?</translation>
         <translation>Na voljo</translation>
     </message>
     <message>
-        <source>Download Definitions</source>
-        <translation>Dobi določila</translation>
-    </message>
-    <message>
         <source>Download Information</source>
         <translation>Podatki o prejemanju</translation>
     </message>
@@ -27887,9 +27683,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>There is already one download in progress. Please wait until it is finished.</source>
         <translation>Eno prejemanje je že v teku. Počakajte, da se zaključi.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>Registriranje definicij</translation>
@@ -27916,9 +27709,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Download Error</source>
         <translation>Napaka pri prejemanju</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Na voljo ni nobenega obrisa</translation>
@@ -27931,16 +27721,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>Filter tree</source>
         <translation>Filtriraj drevo</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Obris</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Za to datoteko ni bilo moč najti določila za poudarjanje. Ali ga želite poskusiti najti?</translation>
@@ -27949,23 +27733,10 @@ Preverite pravice za dostop do mape.</translation>
         <source>Show highlighter options</source>
         <translation>Prikaži možnosti poudarjanja ...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Besedilo</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Uporabniške mape za izrezke (%1) ni moč ustvariti.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Napaka</translation>
@@ -27986,9 +27757,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Error reverting snippet.</source>
         <translation>Napaka pri povrnitvi izrezka.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Izrezki</translation>
@@ -27996,10 +27764,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>Error While Saving Snippet Collection</source>
         <translation>Napaka med shranjevanjem zbirke izrezkov</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Napaka</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
@@ -29593,31 +29357,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Pattern</source>
         <translation type="obsolete">Vzorec</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Odseki</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Odseki</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="obsolete">Vrstica: %1, Stolpec: %2</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: 999</source>
-        <translation type="obsolete">Vrstica: %1, Stolpec: 999</translation>
     </message>
 </context>
 <context>

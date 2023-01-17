@@ -7,11 +7,13 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditortr.h"
 #include "texteditorsettings.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -229,7 +231,7 @@ void Highlighter::downloadDefinitions(std::function<void()> callback) {
     auto downloader =
         new KSyntaxHighlighting::DefinitionDownloader(highlightRepository());
     connect(downloader, &KSyntaxHighlighting::DefinitionDownloader::done, [downloader, callback]() {
-        Core::MessageManager::writeFlashing(tr("Highlighter updates: done"));
+        Core::MessageManager::writeFlashing(Tr::tr("Highlighter updates: done"));
         downloader->deleteLater();
         reload();
         if (callback)
@@ -238,9 +240,9 @@ void Highlighter::downloadDefinitions(std::function<void()> callback) {
     connect(downloader,
             &KSyntaxHighlighting::DefinitionDownloader::informationMessage,
             [](const QString &message) {
-                Core::MessageManager::writeSilently(tr("Highlighter updates:") + ' ' + message);
+                Core::MessageManager::writeSilently(Tr::tr("Highlighter updates:") + ' ' + message);
             });
-    Core::MessageManager::writeDisrupting(tr("Highlighter updates: starting"));
+    Core::MessageManager::writeDisrupting(Tr::tr("Highlighter updates: starting"));
     downloader->start();
 }
 

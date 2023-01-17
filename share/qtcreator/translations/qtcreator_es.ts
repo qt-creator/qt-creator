@@ -9359,14 +9359,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation>Fragmentos</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
+    <name>::TextEditor</name>
     <message>
         <source>Snippets</source>
         <translation>Fragmentos</translation>
@@ -9665,7 +9658,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 encontrado</translation>
@@ -9678,9 +9671,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Use Regular E&amp;xpressions</source>
         <translation>Usar &amp;expresiones regulares</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translation>sin título</translation>
@@ -9689,9 +9679,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
         <translation>&lt;em&gt;Datos binarios&lt;/em&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>Print Document</source>
         <translation>Imprimir documento</translation>
@@ -9704,9 +9691,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Select Encoding</source>
         <translation>Seleccióne codificación</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
     <message>
         <source>Line: %1, Col: %2</source>
         <translation>Línea: %1, Col: %2</translation>
@@ -9715,9 +9699,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Line: %1, Col: 999</source>
         <translation>Línea: %1, Col: 999</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Storage</source>
         <translation>Almacenamiento</translation>
@@ -9812,9 +9793,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>In leading white space</source>
         <translation>Cuando empiece con un espacio</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation>Mostrar</translation>
@@ -9884,9 +9862,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Mark text changes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation>Fuentes &amp; colores</translation>
@@ -9932,9 +9907,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         This is only an example.</source>
         <translation type="obsolete">Esto es simplemente un ejemplo.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Codificación de caracteres</translation>
@@ -9956,16 +9928,10 @@ The following encodings are likely to fit:</source>
         <source>Save with Encoding</source>
         <translation>Guardar con codificación</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>Archivo actual</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
     <message>
         <source>Files on Disk</source>
         <translation>Archivos en disco</translation>
@@ -9986,9 +9952,6 @@ The following encodings are likely to fit:</source>
         <source>Directory to search</source>
         <translation>Directorio a buscar</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Fuente</translation>
@@ -10047,9 +10010,6 @@ The following encodings are likely to fit:</source>
         <source>Delete</source>
         <translation type="unfinished">Suprimir</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in current document</source>
         <translation>Línea en el documento actual</translation>
@@ -10058,9 +10018,6 @@ The following encodings are likely to fit:</source>
         <source>Line %1</source>
         <translation>Línea %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation>Crea un archivo de texto (.txt).</translation>
@@ -10093,9 +10050,6 @@ The following encodings are likely to fit:</source>
         <source>Alt+Return</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Des&amp;hacer</translation>
@@ -10280,9 +10234,6 @@ The following encodings are likely to fit:</source>
         <source>&lt;line number&gt;</source>
         <translation>&lt;número de línea&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Texto</translation>
@@ -11495,7 +11446,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation type="unfinished">Negritas</translation>
@@ -12754,14 +12705,11 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation type="unfinished"></translation>

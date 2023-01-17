@@ -1881,7 +1881,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
@@ -1913,10 +1913,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>When Triggered</source>
         <translation>トリガー時</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>常時</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -5979,14 +5975,11 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>タイピング</translation>
@@ -6028,10 +6021,6 @@ Backspace キーが押された時のインデントの動作を指定します�
 &lt;/li&gt;
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
 </translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>しない</translation>
     </message>
     <message>
         <source>Follows Previous Indents</source>
@@ -6221,13 +6210,6 @@ Backspace キーが押された時のインデントの動作を指定します�
         <source>Prefer single line comments</source>
         <translation>一行形式のコメントを優先する</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>現在の設定:</translation>
@@ -6252,9 +6234,6 @@ Backspace キーが押された時のインデントの動作を指定します�
         <source>Import...</source>
         <translation>インポート...</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Foreground:</source>
         <translation>前景色:</translation>
@@ -6347,9 +6326,6 @@ Backspace キーが押された時のインデントの動作を指定します�
         <source>Color:</source>
         <translation>色:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>行の折り返し</translation>
@@ -6462,13 +6438,6 @@ Backspace キーが押された時のインデントの動作を指定します�
         <source>Use context-specific margin</source>
         <translation>文脈に応じたマージンを使用する</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>フォント</translation>
-    </message>
     <message>
         <source>Family:</source>
         <translation>フォント名:</translation>
@@ -6494,19 +6463,8 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>カラースキーム</translation>
     </message>
     <message>
-        <source>Copy...</source>
-        <translation>コピー...</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation>削除</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -6525,10 +6483,6 @@ Backspace キーが押された時のインデントの動作を指定します�
     <message>
         <source>Use fallback location</source>
         <translation>代替パスを使用する</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>動作</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
@@ -6574,9 +6528,6 @@ Backspace キーが押された時のインデントの動作を指定します�
         <source>Download finished</source>
         <translation>ダウンロードの完了</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -6614,23 +6565,12 @@ Backspace キーが押された時のインデントの動作を指定します�
         <translation>利用可能</translation>
     </message>
     <message>
-        <source>Download Definitions</source>
-        <translation>定義をダウンロード</translation>
-    </message>
-    <message>
         <source>Download Information</source>
         <translation>ダウンロード情報</translation>
     </message>
     <message>
         <source>There is already one download in progress. Please wait until it is finished.</source>
         <translation>実行中のダウンロードが完了するまでお待ちください。</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -6639,10 +6579,6 @@ Backspace キーが押された時のインデントの動作を指定します�
     <message>
         <source>Add</source>
         <translation>追加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -6671,13 +6607,6 @@ Backspace キーが押された時のインデントの動作を指定します�
     <message>
         <source>Snippets</source>
         <translation>テンプレート</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -14674,7 +14603,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>::TextEditor</name>
     <message>
         <source>Convert to Stack Variable</source>
         <translation>スタック変数に変換</translation>
@@ -29818,7 +29747,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Searching</source>
         <translation>検索中</translation>
@@ -29843,35 +29772,19 @@ In addition, device connectivity will be tested.</source>
         <source>Aborting replace.</source>
         <translation>置換を中止しています。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CountingLabel</name>
     <message>
         <source>%1 found</source>
         <translation>一致 %1 件</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>グローバル</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>動作</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
-    <message>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>文字コードの指定</translation>
@@ -29892,16 +29805,10 @@ In addition, device connectivity will be tested.</source>
         <source>Save with Encoding</source>
         <translation>指定された文字コードで保存</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>プレビューの内容を編集して現在の設定がコードにどのような影響を与えるかを確認してください。プレビューでの変更内容は現在の設定には何も影響を与えません。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>コードスタイルを編集</translation>
@@ -29922,20 +29829,9 @@ In addition, device connectivity will be tested.</source>
         <source>%1 (Copy)</source>
         <translation>%1 (コピー)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
         <translation>コードスタイルをコピー</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>コードスタイル名:</translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (コピー)</translation>
     </message>
     <message>
         <source>Delete Code Style</source>
@@ -29944,10 +29840,6 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation>このコードスタイルを完全に削除しますか？</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -29973,16 +29865,10 @@ In addition, device connectivity will be tested.</source>
         <source>%1 [built-in]</source>
         <translation>%1 [ビルトイン]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>カラースキームファイルではありません。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>現在のファイル</translation>
@@ -29997,9 +29883,6 @@ In addition, device connectivity will be tested.</source>
         <translation>ファイルパス: %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Directory</source>
         <translation>ディレクトリ</translation>
@@ -30033,9 +29916,6 @@ Filter: %2
         <source>Files in File System</source>
         <translation>ファイルシステム上のファイル</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>開いているドキュメント</translation>
@@ -30050,9 +29930,6 @@ Filter: %2
         <translation>開いているドキュメント
 %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>フォント &amp;&amp; 色</translation>
@@ -30082,10 +29959,6 @@ Filter: %2
         <translation>このカラースキームを完全に削除しますか？</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>変更されたカラースキーム</translation>
     </message>
@@ -30096,13 +29969,6 @@ Filter: %2
     <message>
         <source>Discard</source>
         <translation>破棄</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
-    <message>
-        <source>Generic Highlighter</source>
-        <translation>汎用ハイライタ</translation>
     </message>
     <message>
         <source>Download Definitions...</source>
@@ -30128,9 +29994,6 @@ Filter: %2
         <source>Not possible to retrieve data.</source>
         <translation>データを受信できません。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in Current Document</source>
         <translation>現在のドキュメントの行番号</translation>
@@ -30147,9 +30010,6 @@ Filter: %2
         <source>Column %1</source>
         <translation>%1 列</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>アウトライン利用不可</translation>
@@ -30166,40 +30026,21 @@ Filter: %2
         <source>Sort Alphabetically</source>
         <translation>アルファベット順にソート</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>アウトライン</translation>
     </message>
-</context>
-<context>
-    <name>RefactoringFile::apply</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>リファクターを適用出来ませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
     <message>
         <source>Text</source>
         <translation>テキスト</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>ユーザーテンプレートディレクトリ %1 を作成できません</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
     </message>
     <message>
         <source>Not a valid trigger.</source>
@@ -30217,28 +30058,6 @@ Filter: %2
         <source>Error reverting snippet.</source>
         <translation>テンプレートを元に戻そうとしてエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
-    <message>
-        <source>Snippets</source>
-        <translation>テンプレート</translation>
-    </message>
-    <message>
-        <source>Error While Saving Snippet Collection</source>
-        <translation>テンプレートコレクション保存中にエラー</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>No snippet selected.</source>
-        <translation>テンプレートが選択されていません。</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Meta+Space</source>
         <translation>Meta+Space</translation>
@@ -30287,13 +30106,6 @@ Filter: %2
     <message>
         <source>Current document&apos;s font size in points.</source>
         <translation>現在のドキュメントのフォントサイズです。</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditorSettings</name>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
     </message>
     <message>
         <source>Generic text.
@@ -30738,10 +30550,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>バージョン管理システムのログにおいて変更を記載した行に適用されます。</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>エラー判定時の下線の色です。</translation>
     </message>
@@ -30776,14 +30584,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Declaration of a function, variable, and so on.</source>
         <translation>関数や変数などの宣言です。</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>動作</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>表示</translation>
     </message>
 </context>
 <context>
@@ -32930,7 +32730,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>マウスオーバーでコンテキストヘルプや型情報を表示します。</translation>
@@ -32939,9 +32739,6 @@ kill しますか？</translation>
         <source>Displays context-sensitive help or type information on Shift+Mouseover.</source>
         <translation>Shift+マウスオーバーでコンテキストヘルプや型情報を表示します。</translation>
     </message>
-</context>
-<context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
     <message>
         <source>Unused variable</source>
         <translation>未使用の変数</translation>
@@ -34034,7 +33831,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::MultiDefinitionDownloader</name>
+    <name>::TextEditor</name>
     <message>
         <source>Downloading Highlighting Definitions</source>
         <translation>ハイライト定義をダウンロード中</translation>
@@ -41502,14 +41299,11 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>TextEditor::TextDocument</name>
+    <name>::TextEditor</name>
     <message>
         <source>Opening File</source>
         <translation>ファイルを開いています</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>このファイル用のハイライト定義が見つかりませんでした。定義を探しますか？</translation>
@@ -41518,13 +41312,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Show Highlighter Options...</source>
         <translation>ハイライトオプションの表示...</translation>
     </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation>定義をダウンロード</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation>行番号: 9999, 列位置: 999</translation>
@@ -41565,32 +41352,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Add UTF-8 BOM on Save</source>
         <translation>保存時に UTF-8 BOM を追加</translation>
     </message>
-</context>
-<context>
-    <name>TextEditorWidget</name>
     <message>
         <source>CTRL+D</source>
         <translation>CTRL+D</translation>
     </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translation>&lt;b&gt;エラー:&lt;/b&gt; &quot;%1&quot; を文字コード &quot;%2&quot; ではデコードできませんでした。編集できません。</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation>文字コードの選択</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation>行番号: %1, 列位置: %2</translation>
-    </message>
-    <message>
-        <source>Line: 9999, Col: 999</source>
-        <translation>行番号: 9999, 列位置: 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -42042,13 +41807,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Go to Next Word Camel Case with Selection</source>
         <translation>次の単語のキャメルケースに移動し、選択状態にする</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
-    <message>
-        <source>&lt;line&gt;:&lt;column&gt;</source>
-        <translation>&lt;行&gt;:&lt;列&gt;</translation>
     </message>
 </context>
 <context>
@@ -49262,504 +49020,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TextEditor::DisplaySettingsPage</name>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Copy Color Scheme</source>
-        <translation>カラースキームをコピー</translation>
-    </message>
-    <message>
-        <source>Color scheme name:</source>
-        <translation>カラースキーム名:</translation>
-    </message>
-    <message>
-        <source>%1 (copy)</source>
-        <translation>%1 (コピー)</translation>
-    </message>
-    <message>
-        <source>Delete Color Scheme</source>
-        <translation>カラースキームを削除</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete this color scheme permanently?</source>
-        <translation>このカラースキームを完全に削除しますか？</translation>
-    </message>
-    <message>
-        <source>Color Scheme Changed</source>
-        <translation>変更されたカラースキーム</translation>
-    </message>
-    <message>
-        <source>The color scheme &quot;%1&quot; was modified, do you want to save the changes?</source>
-        <translation>このカラースキーム &quot;%1&quot; は変更されています。変更内容をセーブしますか？</translation>
-    </message>
-    <message>
-        <source>Discard</source>
-        <translation>破棄</translation>
-    </message>
-    <message>
-        <source>Font &amp;&amp; Colors</source>
-        <translation>フォント &amp;&amp; 色</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
-    <message>
-        <source>Text</source>
-        <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Link</source>
-        <translation>リンク</translation>
-    </message>
-    <message>
-        <source>Links that follow symbol under cursor.</source>
-        <translation>カーソル位置のシンボルの定義へのリンクです。</translation>
-    </message>
-    <message>
-        <source>Selection</source>
-        <translation>選択部分</translation>
-    </message>
-    <message>
-        <source>Selected text.</source>
-        <translation>選択したテキストです。</translation>
-    </message>
-    <message>
-        <source>Line Number</source>
-        <translation>行番号</translation>
-    </message>
-    <message>
-        <source>Line numbers located on the left side of the editor.</source>
-        <translation>エディタの左側に配置される行番号です。</translation>
-    </message>
-    <message>
-        <source>Search Result</source>
-        <translation>検索結果</translation>
-    </message>
-    <message>
-        <source>Highlighted search results inside the editor.</source>
-        <translation>エディタ内で強調表示される検索結果です。</translation>
-    </message>
-    <message>
-        <source>Search Scope</source>
-        <translation>検索範囲</translation>
-    </message>
-    <message>
-        <source>Section where the pattern is searched in.</source>
-        <translation>パターンの検索範囲です。</translation>
-    </message>
-    <message>
-        <source>Parentheses</source>
-        <translation>括弧</translation>
-    </message>
-    <message>
-        <source>Displayed when matching parentheses, square brackets or curly brackets are found.</source>
-        <translation>対応する括弧や鍵括弧、波括弧が見つかっている時の表示です。</translation>
-    </message>
-    <message>
-        <source>Mismatched Parentheses</source>
-        <translation>未対応の括弧</translation>
-    </message>
-    <message>
-        <source>Displayed when mismatched parentheses, square brackets, or curly brackets are found.</source>
-        <translation>対応する括弧や鍵括弧、波括弧が見つからない時の表示です。</translation>
-    </message>
-    <message>
-        <source>Auto Complete</source>
-        <translation>自動補完</translation>
-    </message>
-    <message>
-        <source>Displayed when a character is automatically inserted like brackets or quotes.</source>
-        <translation>括弧や引用符などの文字が自動的に挿入された場合に表示されます。</translation>
-    </message>
-    <message>
-        <source>Current Line</source>
-        <translation>現在行</translation>
-    </message>
-    <message>
-        <source>Line where the cursor is placed in.</source>
-        <translation>カーソルの存在する行です。</translation>
-    </message>
-    <message>
-        <source>Current Line Number</source>
-        <translation>現在の行番号</translation>
-    </message>
-    <message>
-        <source>Line number located on the left side of the editor where the cursor is placed in.</source>
-        <translation>カーソルが存在するエディタの左側に配置される行番号です。</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation>出現箇所</translation>
-    </message>
-    <message>
-        <source>Occurrences of the symbol under the cursor.
-(Only the background will be applied.)</source>
-        <translation>カーソルの位置にあるシンボルの出現箇所です。
-(バックグラウンドだけ適用されます。)</translation>
-    </message>
-    <message>
-        <source>Unused Occurrence</source>
-        <translation>未使用変数の出現箇所</translation>
-    </message>
-    <message>
-        <source>Occurrences of unused variables.</source>
-        <translation>未使用の変数の出現箇所です。</translation>
-    </message>
-    <message>
-        <source>Renaming Occurrence</source>
-        <translation>名前変更中シンボルの出現箇所</translation>
-    </message>
-    <message>
-        <source>Occurrences of a symbol that will be renamed.</source>
-        <translation>名前を変更しようとしているシンボルの出現箇所です。</translation>
-    </message>
-    <message>
-        <source>Number literal.</source>
-        <translation>数字リテラルです。</translation>
-    </message>
-    <message>
-        <source>String</source>
-        <translation>文字列</translation>
-    </message>
-    <message>
-        <source>Character and string literals.</source>
-        <translation>文字と文字列リテラルです。</translation>
-    </message>
-    <message>
-        <source>Primitive Type</source>
-        <translation>プリミティブ型</translation>
-    </message>
-    <message>
-        <source>Name of a primitive data type.</source>
-        <translation>プリミティブなデータ型の名前です。</translation>
-    </message>
-    <message>
-        <source>Name of a type.</source>
-        <translation>型名です。</translation>
-    </message>
-    <message>
-        <source>Local variables.</source>
-        <translation>ローカル変数です。</translation>
-    </message>
-    <message>
-        <source>Field</source>
-        <translation>フィールド</translation>
-    </message>
-    <message>
-        <source>Class&apos; data members.</source>
-        <translation>クラスのデータメンバです。</translation>
-    </message>
-    <message>
-        <source>Global variables.</source>
-        <translation>グローバル変数です。</translation>
-    </message>
-    <message>
-        <source>Enumeration</source>
-        <translation>列挙型</translation>
-    </message>
-    <message>
-        <source>Applied to enumeration items.</source>
-        <translation>列挙型のアイテムに適用されます。</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>関数</translation>
-    </message>
-    <message>
-        <source>Name of a function.</source>
-        <translation>関数名です。</translation>
-    </message>
-    <message>
-        <source>Virtual Function</source>
-        <translation>仮想関数</translation>
-    </message>
-    <message>
-        <source>Name of function declared as virtual.</source>
-        <translation>virtual として宣言されている関数名です。</translation>
-    </message>
-    <message>
-        <source>QML Binding</source>
-        <translation>QML バインディング</translation>
-    </message>
-    <message>
-        <source>QML item property, that allows a binding to another property.</source>
-        <translation>別のプロパティにバインド可能な QML アイテムのプロパティです。</translation>
-    </message>
-    <message>
-        <source>QML Local Id</source>
-        <translation>QML ローカル ID</translation>
-    </message>
-    <message>
-        <source>QML item id within a QML file.</source>
-        <translation>QML ファイル内の QML アイテムの ID です。</translation>
-    </message>
-    <message>
-        <source>QML Root Object Property</source>
-        <translation>QML ルートオブジェクトプロパティ</translation>
-    </message>
-    <message>
-        <source>QML property of a parent item.</source>
-        <translation>親アイテムの QML プロパティです。</translation>
-    </message>
-    <message>
-        <source>QML Scope Object Property</source>
-        <translation>QML スコープオブジェクトプロパティ</translation>
-    </message>
-    <message>
-        <source>Property of the same QML item.</source>
-        <translation>同一 QML アイテムのプロパティです。</translation>
-    </message>
-    <message>
-        <source>QML State Name</source>
-        <translation>QML 状態名</translation>
-    </message>
-    <message>
-        <source>Name of a QML state.</source>
-        <translation>QML の状態名です。</translation>
-    </message>
-    <message>
-        <source>QML Type Name</source>
-        <translation>QML 型名</translation>
-    </message>
-    <message>
-        <source>Name of a QML type.</source>
-        <translation>QML の型名です。</translation>
-    </message>
-    <message>
-        <source>QML External Id</source>
-        <translation>QML 外部 ID</translation>
-    </message>
-    <message>
-        <source>QML id defined in another QML file.</source>
-        <translation>別の QML ファイルで定義されている QML ID です。</translation>
-    </message>
-    <message>
-        <source>QML External Object Property</source>
-        <translation>QML 外部オブジェクトプロパティ</translation>
-    </message>
-    <message>
-        <source>QML property defined in another QML file.</source>
-        <translation>別の QML ファイルで定義されている QML プロパティです。</translation>
-    </message>
-    <message>
-        <source>JavaScript Scope Var</source>
-        <translation>JavaScript スコープ変数</translation>
-    </message>
-    <message>
-        <source>Variables defined inside the JavaScript file.</source>
-        <translation>JavaScript ファイル内で定義されている変数です。</translation>
-    </message>
-    <message>
-        <source>JavaScript Import</source>
-        <translation>JavaScript Import</translation>
-    </message>
-    <message>
-        <source>Name of a JavaScript import inside a QML file.</source>
-        <translation>QML ファイル内でインポートされている JavaScript の名前です。</translation>
-    </message>
-    <message>
-        <source>JavaScript Global Variable</source>
-        <translation>JavaScript グローバル変数</translation>
-    </message>
-    <message>
-        <source>Variables defined outside the script.</source>
-        <translation>外部のスクリプトで定義されている変数です。</translation>
-    </message>
-    <message>
-        <source>Keyword</source>
-        <translation>キーワード</translation>
-    </message>
-    <message>
-        <source>Reserved keywords of the programming language except keywords denoting primitive types.</source>
-        <translation>プログラム言語によって予約されているキーワードです(プリミティブ型を示すキーワードを除く)。</translation>
-    </message>
-    <message>
-        <source>Operator</source>
-        <translation>演算子</translation>
-    </message>
-    <message>
-        <source>Preprocessor</source>
-        <translation>プリプロセッサ</translation>
-    </message>
-    <message>
-        <source>Preprocessor directives.</source>
-        <translation>プリプロセッサディレクティブです。</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation>ラベル</translation>
-    </message>
-    <message>
-        <source>Labels for goto statements.</source>
-        <translation>goto ステートメント用のラベルです。</translation>
-    </message>
-    <message>
-        <source>Comment</source>
-        <translation>コメント</translation>
-    </message>
-    <message>
-        <source>All style of comments except Doxygen comments.</source>
-        <translation>Doxgen 用のコメント以外のすべてのコメントです。</translation>
-    </message>
-    <message>
-        <source>Doxygen Comment</source>
-        <translation>Doxygen 用コメント</translation>
-    </message>
-    <message>
-        <source>Doxygen comments.</source>
-        <translation>Doxygen 用のコメントです。</translation>
-    </message>
-    <message>
-        <source>Doxygen Tag</source>
-        <translation>Doxygen 用タグ</translation>
-    </message>
-    <message>
-        <source>Doxygen tags.</source>
-        <translation>Doxygen 用のタグです。</translation>
-    </message>
-    <message>
-        <source>Visual Whitespace</source>
-        <translation>空白の可視化</translation>
-    </message>
-    <message>
-        <source>Whitespace.
-Will not be applied to whitespace in comments and strings.</source>
-        <translation>空白です。
-コメントや文字列内の空白には適用されません。</translation>
-    </message>
-    <message>
-        <source>Disabled Code</source>
-        <translation>無効化されたコード</translation>
-    </message>
-    <message>
-        <source>Code disabled by preprocessor directives.</source>
-        <translation>プリプロセッサ ディレクティブによって無効化されたコードです。</translation>
-    </message>
-    <message>
-        <source>Added Line</source>
-        <translation>追加された行</translation>
-    </message>
-    <message>
-        <source>Applied to added lines in differences (in diff editor).</source>
-        <translation>差分内の追加された行に適用されます (差分エディタ)。</translation>
-    </message>
-    <message>
-        <source>Removed Line</source>
-        <translation>削除された行</translation>
-    </message>
-    <message>
-        <source>Applied to removed lines in differences (in diff editor).</source>
-        <translation>差分内の削除された行に適用されます (差分エディタ)。</translation>
-    </message>
-    <message>
-        <source>Diff File</source>
-        <translation>差分ファイル</translation>
-    </message>
-    <message>
-        <source>Compared files (in diff editor).</source>
-        <translation>比較しているファイルです (差分エディタ)。</translation>
-    </message>
-    <message>
-        <source>Diff Location</source>
-        <translation>差分の位置</translation>
-    </message>
-    <message>
-        <source>Location in the files where the difference is (in diff editor).</source>
-        <translation>ファイルの差分がある位置です(差分エディタ)。</translation>
-    </message>
-    <message>
-        <source>Diff File Line</source>
-        <translation>差分のファイル行</translation>
-    </message>
-    <message>
-        <source>Applied to lines with file information in differences (in side-by-side diff editor).</source>
-        <translation>差分のファイル情報が含まれる行に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Diff Context Line</source>
-        <translation>差分のコンテキスト行</translation>
-    </message>
-    <message>
-        <source>Applied to lines describing hidden context in differences (in side-by-side diff editor).</source>
-        <translation>差分の隠されたコンテキストが記述された行に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Diff Source Line</source>
-        <translation>差分の比較元の行</translation>
-    </message>
-    <message>
-        <source>Applied to source lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>差分の比較元の変更された行に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Diff Source Character</source>
-        <translation>差分の比較元の文字</translation>
-    </message>
-    <message>
-        <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation>差分の削除された文字列に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Diff Destination Line</source>
-        <translation>差分の比較先の行</translation>
-    </message>
-    <message>
-        <source>Applied to destination lines with changes in differences (in side-by-side diff editor).</source>
-        <translation>差分の比較先の変更された行に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Diff Destination Character</source>
-        <translation>差分の比較先の文字</translation>
-    </message>
-    <message>
-        <source>Applied to added characters in differences (in side-by-side diff editor).</source>
-        <translation>差分の追加された文字列に適用されます(サイドバイサイド差分エディタにて)。</translation>
-    </message>
-    <message>
-        <source>Log Change Line</source>
-        <translation>ログの変更行</translation>
-    </message>
-    <message>
-        <source>Applied to lines describing changes in VCS log.</source>
-        <translation>バージョン管理システムのログにおいて変更を記載した行に適用されます。</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>エラー</translation>
-    </message>
-    <message>
-        <source>Underline color of error diagnostics.</source>
-        <translation>エラー判定時の下線の色です。</translation>
-    </message>
-    <message>
-        <source>Error Context</source>
-        <translation>エラーコンテキスト</translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of error diagnostics.</source>
-        <translation>エラー判定時のコンテキストの下線の色です。</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation>警告</translation>
-    </message>
-    <message>
-        <source>Underline color of warning diagnostics.</source>
-        <translation>警告判定時の下線の色です。</translation>
-    </message>
-    <message>
-        <source>Warning Context</source>
-        <translation>警告コンテキスト</translation>
-    </message>
-    <message>
-        <source>Underline color of the contexts of warning diagnostics.</source>
-        <translation>警告判定時のコンテキストの下線の色です。</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TextMark</name>
+    <name>::TextEditor</name>
     <message>
         <source>Show Diagnostic Settings</source>
         <translation>診断設定を表示する</translation>

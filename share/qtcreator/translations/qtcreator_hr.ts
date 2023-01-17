@@ -7793,7 +7793,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Typing</source>
         <translation>Tipkanje</translation>
@@ -7986,9 +7986,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>On Shift+Mouseover</source>
         <translation>Shift+Miš iznad objekta</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
     <message>
         <source>Current settings:</source>
         <translation>Trenutačne postavke:</translation>
@@ -8013,9 +8010,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>Import...</source>
         <translation>Uvezi …</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Builtin color schemes need to be &lt;a href=&quot;copy&quot;&gt;copied&lt;/a&gt;&lt;br/&gt; before they can be changed&lt;/b&gt;&lt;/p&gt;</source>
         <translation>&lt;p align=&apos;center&apos;&gt;&lt;b&gt;Ugrađene sustave boja moraš &lt;a href=&quot;copy&quot;&gt;kopirati&lt;/a&gt;&lt;br/&gt; prije nego što ih možeš promijeniti&lt;/b&gt;&lt;/p&gt;</translation>
@@ -8104,9 +8098,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <source>Dash-Dot-Dot Underline</source>
         <translation>Crtica-točka-točka podcrtavanje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
     <message>
         <source>Behavior</source>
         <translation>Način ponašanja</translation>
@@ -8124,10 +8115,6 @@ Specificira način uvlačenja s povratnom tipkom.
         <translation>Potpuno</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>Bez</translation>
-    </message>
-    <message>
         <source>First Letter</source>
         <translation>Prvo slovo</translation>
     </message>
@@ -8138,10 +8125,6 @@ Specificira način uvlačenja s povratnom tipkom.
     <message>
         <source>When Triggered</source>
         <translation>Prilikom okidanja</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>Uvijek</translation>
     </message>
     <message>
         <source>Timeout in ms:</source>
@@ -8257,9 +8240,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Completion</source>
         <translation>Dovršavanje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Text Wrapping</source>
         <translation>Prelamanje teksta</translation>
@@ -8356,13 +8336,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Between lines</source>
         <translation>Između redaka</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
-    <message>
-        <source>Font</source>
-        <translation>Font</translation>
-    </message>
     <message>
         <source>Size:</source>
         <translation>Veličina:</translation>
@@ -8388,16 +8361,9 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>Shema boja</translation>
     </message>
     <message>
-        <source>Copy...</source>
-        <translation>Kopiraj …</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt; engine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Definicije za isticanje omogućuje &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -8426,16 +8392,9 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Ignored file patterns:</source>
         <translation>Zanemareni uzorci za datoteke:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -8453,9 +8412,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Group: </source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation>Tabulatori i uvlake</translation>
@@ -33972,14 +33928,11 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TextEditor::SearchEngine</name>
+    <name>::TextEditor</name>
     <message>
         <source>Internal</source>
         <translation>Unutarnje</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Searching</source>
         <translation>Pretraživanje</translation>
@@ -34004,17 +33957,11 @@ Row: %4, Column: %5
             <numerusform>%n nađenih.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globalno</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Displays context-sensitive help or type information on mouseover.</source>
         <translation>Prikazuje kontekstnu pomoć ili upiši podatke prilikom korištenja &quot;Miš iznad objekta&quot;.</translation>
@@ -34023,16 +33970,10 @@ Row: %4, Column: %5
         <source>Displays context-sensitive help or type information on Shift+Mouseover.</source>
         <translation>Prikazuje kontekstnu pomoć ili upiši podatke prilikom korištenja &quot;Shift+Miš iznad objekta&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 od %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Vrsta kodiranja teksta</translation>
@@ -34053,16 +33994,10 @@ Row: %4, Column: %5
         <source>Save with Encoding</source>
         <translation>Spremi s kodiranjem</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Uredi sadržaj pregleda za prikaz primjene trenutačnih postavaka na prilagođene isječke koda. Promjene u pregledu ne utječu na trenutačne postavke.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation type="unfinished"></translation>
@@ -34083,19 +34018,8 @@ Row: %4, Column: %5
         <source>%1 (Copy)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
     <message>
         <source>Copy Code Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (Copy)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -34105,10 +34029,6 @@ Row: %4, Column: %5
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -34134,16 +34054,10 @@ Row: %4, Column: %5
         <source>%1 [built-in]</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation type="unfinished"></translation>
@@ -34157,9 +34071,6 @@ Row: %4, Column: %5
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files in File System</source>
         <translation type="unfinished">Datoteke u datotečnom sustavu</translation>
@@ -34188,9 +34099,6 @@ Excluding: %3
         <source>Directory to Search</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation type="unfinished">Otvori dokumente</translation>
@@ -34204,16 +34112,10 @@ Excluding: %3
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
     <message>
         <source>Unused variable</source>
         <translation>Neupotrijebljena varijabla</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp;&amp; Colors</source>
         <translation>Font &amp;i boje</translation>
@@ -34243,10 +34145,6 @@ Excluding: %3
         <translation>Zaista želiš zauvijek ukloniti ovaj sustav boja?</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
         <source>Color Scheme Changed</source>
         <translation>Sustav boja se je promijenio</translation>
     </message>
@@ -34258,9 +34156,6 @@ Excluding: %3
         <source>Discard</source>
         <translation>Odbaci</translation>
     </message>
-</context>
-<context>
-    <name>::TextEditor</name>
     <message>
         <source>Cannot create temporary file &quot;%1&quot;: %2.</source>
         <translation>Nije moguće stvoriti privremenu datoteku &quot;%1&quot;: %2.</translation>
@@ -34301,9 +34196,6 @@ Excluding: %3
         <source>Text Editor</source>
         <translation>Uređivač teksta</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Highlighter</name>
     <message>
         <source>Highlighter updates: done</source>
         <translation>Aktualiziranja alata za isticanje: gotovo</translation>
@@ -34312,9 +34204,6 @@ Excluding: %3
         <source>Highlighter updates:</source>
         <translation>Aktualiziranja alata za isticanje:</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::HighlighterSettingsPage</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Generični alat za isticanje</translation>
@@ -34323,9 +34212,6 @@ Excluding: %3
         <source>Update finished</source>
         <translation>Aktualiziranje je dovršeno</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line in Current Document</source>
         <translation>Redak u trenutačnom dokumentu</translation>
@@ -34342,9 +34228,6 @@ Excluding: %3
         <source>Column %1</source>
         <translation>%1. stupac</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Nema obrisa</translation>
@@ -34357,23 +34240,14 @@ Excluding: %3
         <source>Filter tree</source>
         <translation>Filtriraj stablo</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Obris</translation>
     </message>
-</context>
-<context>
-    <name>RefactoringFile::apply</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Nije moguće primijeniti refactoring.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Snippets</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
@@ -34454,16 +34328,10 @@ Excluding: %3
         <comment>group:&apos;Text&apos; trigger:&apos;global&apos;</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Nije moguće stvoriti direktorij %1 za korisničke isječke</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Greška</translation>
@@ -34484,9 +34352,6 @@ Excluding: %3
         <source>Error reverting snippet.</source>
         <translation>Greška prilikom vraćanja isječka.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Isječci</translation>
@@ -34496,16 +34361,9 @@ Excluding: %3
         <translation>Greška prilikom spremanja kolekcije isječaka</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation>Nijedan isječak nije odabran.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Diff Against Current File</source>
         <translation>Razlike prema odabranoj datoteci</translation>
@@ -34514,9 +34372,6 @@ Excluding: %3
         <source>Opening File</source>
         <translation>Otvaranje datoteke</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation>9999. redak, 999. stupac</translation>
@@ -34561,16 +34416,9 @@ Excluding: %3
         <source>Add UTF-8 BOM on Save</source>
         <translation>Dodaj UTF-8 BOM prilikom spremanja</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to update highlight definition files?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Update Definitions</source>
-        <translation>Aktualiziraj definicije</translation>
     </message>
     <message>
         <source>More than one highlight definition was found for this file. Which one should be used to highlight this file?</source>
@@ -34580,9 +34428,6 @@ Excluding: %3
         <source>Remember My Choice</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -35067,16 +34912,10 @@ Excluding: %3
         <source>Go to Next Word Camel Case with Selection</source>
         <translation>Prijeđi na sljedeću „dvogrbu” riječ s odabirom</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&lt;line&gt;:&lt;column&gt;</source>
         <translation>&lt;redak&gt;:&lt;stupac&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Trigger Completion</source>
         <translation>Okini kompletiranje</translation>
@@ -35130,9 +34969,6 @@ Excluding: %3
         <source>Current document&apos;s font size in points.</source>
         <translation>Font veličina trenutačnog dokumenta, u točkama.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -35614,10 +35450,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <translation>Primijenjuje se retke koji opisuju promjene u VCS log-zapisu.</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Greška</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation>Boja podcrtavanja dijagnoza za greške.</translation>
     </message>
@@ -35652,14 +35484,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     <message>
         <source>Writable arguments of a function call.</source>
         <translation>Pisani argumenti poziva funkcije.</translation>
-    </message>
-    <message>
-        <source>Behavior</source>
-        <translation>Način ponašanja</translation>
-    </message>
-    <message>
-        <source>Display</source>
-        <translation>Prikaz</translation>
     </message>
 </context>
 <context>

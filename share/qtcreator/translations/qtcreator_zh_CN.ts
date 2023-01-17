@@ -19487,7 +19487,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FontSettings_C_OCCURRENCES_UNUSED</name>
+    <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
         <translation type="unfinished">未使用的变量</translation>
@@ -39316,7 +39316,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation type="unfinished"></translation>
@@ -41250,7 +41250,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Snippet</name>
+    <name>::TextEditor</name>
     <message>
         <source>Expected delimiter after mangler ID.</source>
         <translation type="unfinished"></translation>
@@ -42796,9 +42796,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>File was modified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseFileFind</name>
     <message>
         <source>Searching</source>
         <translation type="unfinished">搜索中</translation>
@@ -42819,9 +42816,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Aborting replace.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to download additional highlight definition files?</source>
         <translation type="unfinished"></translation>
@@ -42838,9 +42832,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Remember My Choice</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -42850,9 +42841,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Behavior</source>
         <translation type="unfinished">行为</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>打字</translation>
@@ -42896,10 +42884,6 @@ Specifies how backspace interacts with indentation.
 </translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
         <source>Follows Previous Indents</source>
         <translation>跟随之前的缩进</translation>
     </message>
@@ -42914,10 +42898,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Never</source>
         <translation>从不</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation>总是</translation>
     </message>
     <message>
         <source>In Leading White Space</source>
@@ -43081,23 +43061,9 @@ Specifies how backspace interacts with indentation.
         <source>Windows (CRLF)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>编辑预览内容来查看当前设置如何应用到自定义代码段。在预览中修改并不影响当前设置。</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Copy...</source>
-        <translation type="unfinished">复制...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
     </message>
     <message>
         <source>Import...</source>
@@ -43159,9 +43125,6 @@ Specifies how backspace interacts with indentation.
         <source>%1 [built-in]</source>
         <translation>%1 [内置]</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Display</source>
         <translation type="unfinished">显示</translation>
@@ -43286,9 +43249,6 @@ Specifies how backspace interacts with indentation.
         <source>Wrapping</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Director&amp;y:</source>
         <translation>目录(&amp;Y):</translation>
@@ -43317,9 +43277,6 @@ Excluding: %3
         <source>Directory to Search</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Family:</source>
         <translation>字型:</translation>
@@ -43329,20 +43286,12 @@ Excluding: %3
         <translation>字号:</translation>
     </message>
     <message>
-        <source>Font</source>
-        <translation>字体</translation>
-    </message>
-    <message>
         <source>Antialias</source>
         <translation>抗锯齿</translation>
     </message>
     <message>
         <source>Copy...</source>
         <translation>复制...</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>删除</translation>
     </message>
     <message>
         <source>%</source>
@@ -43421,16 +43370,10 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
         <source>Font &amp;&amp; Colors</source>
         <translation type="unfinished">字体和颜色</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1/%2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Highlighter</name>
     <message>
         <source>Highlighter updates: done</source>
         <translation type="unfinished"></translation>
@@ -43443,16 +43386,10 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
         <source>Highlighter updates: starting</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorScheme</name>
     <message>
         <source>Not a color scheme file.</source>
         <translation>不是一个配色方案文件.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
     <message>
         <source>Bold</source>
         <translation>粗体</translation>
@@ -43541,9 +43478,6 @@ A value less than 100% can result in overlapping and misaligned graphics.</sourc
         <source>Dash-Dot-Dot Underline</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CompletionSettingsPage</name>
     <message>
         <source>Full</source>
         <translation type="unfinished">全部</translation>
@@ -43691,10 +43625,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation type="unfinished">行为</translation>
-    </message>
-    <message>
         <source>&amp;Automatically insert matching characters</source>
         <translation type="unfinished"></translation>
     </message>
@@ -43706,9 +43636,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Completion</source>
         <translation type="unfinished">补全</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translation>当前文件</translation>
@@ -43723,9 +43650,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>File &quot;%1&quot;:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>打开文档</translation>
@@ -43740,9 +43664,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation>打开文档
 %1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
     <message>
         <source>Syntax Highlight Definition Files</source>
         <translation>语法高亮定义文件</translation>
@@ -43754,10 +43675,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;https://api.kde.org/frameworks/syntax-highlighting/html/index.html&quot;&gt;KSyntaxHighlighting&lt;/a&gt; engine.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation type="unfinished">下载定义</translation>
     </message>
     <message>
         <source>Download missing and update existing syntax definition files.</source>
@@ -43791,9 +43708,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Generic Highlighter</source>
         <translation type="unfinished">通用高亮器</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1</source>
         <translation>行%1 </translation>
@@ -43818,16 +43732,10 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Column %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>大纲</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>没有可用大纲</translation>
@@ -43844,24 +43752,15 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Sort Alphabetically</source>
         <translation type="unfinished">按字母排序</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Snippets</name>
     <message>
         <source></source>
         <comment>Snippets are text fragments that can be inserted into an editor via the usual completion mechanics using a trigger text. The translated text (trigger variant) is used to disambiguate between snippets with the same trigger.</comment>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>无法创建用户片断目录%1</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
     <message>
         <source>Add</source>
         <translation>添加</translation>
@@ -43891,10 +43790,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <translation type="unfinished">保存片断集时发生错误</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
-    </message>
-    <message>
         <source>No snippet selected.</source>
         <translation type="unfinished">没有选择的片段。</translation>
     </message>
@@ -43902,9 +43797,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Snippets</source>
         <translation type="unfinished">片段</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>错误</translation>
@@ -43925,9 +43817,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Not a valid trigger. A valid trigger can only contain letters, numbers, or underscores, where the first character is limited to letter or underscore.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="unfinished">撤销(&amp;U)</translation>
@@ -44460,9 +44349,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Go to Next Word Camel Case with Selection</source>
         <translation type="unfinished">选中到下一个使用骆驼命名法的单词</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Ctrl+Space</source>
         <translation>Ctrl+Space</translation>
@@ -44532,16 +44418,10 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Word under the current document&apos;s text cursor.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::SearchEngine</name>
     <message>
         <source>Internal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
     <message>
         <source>Tabs And Indentation</source>
         <translation type="unfinished">制表符和缩进</translation>
@@ -44646,9 +44526,6 @@ Influences the indentation of continuation lines.
         <source>The text editor indentation setting is used for non-code files only. See the C++ and Qt Quick coding style settings to configure indentation for code files.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextDocument</name>
     <message>
         <source>Diff Against Current File</source>
         <translation type="unfinished"></translation>
@@ -44657,9 +44534,6 @@ Influences the indentation of continuation lines.
         <source>Opening File</source>
         <translation type="unfinished">打开文件</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>文本</translation>
@@ -45229,10 +45103,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
-    </message>
-    <message>
         <source>Underline color of error diagnostics.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -45348,9 +45218,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Implicit Manual Coverage Validation</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorWidget</name>
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation type="unfinished">行号: %1, 列号: 999</translation>
@@ -45403,9 +45270,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Add UTF-8 BOM on Save</source>
         <translation type="unfinished">保存时添加UTF-8 BOM</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextMark</name>
     <message>
         <source>Show Diagnostic Settings</source>
         <translation type="unfinished"></translation>

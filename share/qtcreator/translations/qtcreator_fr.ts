@@ -13284,20 +13284,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Snippets::Internal::SnippetsPlugin</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Extraits de code</translation>
-    </message>
-</context>
-<context>
-    <name>Snippets::Internal::SnippetsWindow</name>
-    <message>
-        <source>Snippets</source>
-        <translation type="obsolete">Extraits de code</translation>
-    </message>
-</context>
-<context>
     <name>Subversion::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
@@ -13671,7 +13657,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseFileFind</name>
+    <name>::TextEditor</name>
     <message>
         <source>Search</source>
         <translation>Rechercher</translation>
@@ -13681,65 +13667,18 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Annulation du remplacement.</translation>
     </message>
     <message>
-        <source>%1 found</source>
-        <translation type="obsolete">%1 élément(s) trouvé(s)</translation>
-    </message>
-    <message>
         <source>List of comma separated wildcard filters</source>
         <translatorcomment>wildcard -&gt; joker mais est-ce le terme pour les expressions régulières en français ?</translatorcomment>
         <translation>Liste de filtres &apos;joker&apos; séparés par des virgules</translation>
     </message>
-    <message>
-        <source>Use regular e&amp;xpressions</source>
-        <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-    <message>
-        <source>Use Regular E&amp;xpressions</source>
-        <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextDocument</name>
     <message>
         <source>untitled</source>
         <translatorcomment>document ? (en plus c&apos;est plus long...)</translatorcomment>
         <translation>sans titre</translation>
     </message>
     <message>
-        <source>Out of memory</source>
-        <translation type="obsolete">Mémoire insuffisante</translation>
-    </message>
-    <message>
         <source>Opening file</source>
         <translation>Ouverture du fichier</translation>
-    </message>
-    <message>
-        <source>&lt;em&gt;Binary data&lt;/em&gt;</source>
-        <translation type="obsolete">&lt;em&gt;Données binaire&lt;/em&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditor</name>
-    <message>
-        <source>CTRL+D</source>
-        <translation type="obsolete">Ctrl+D</translation>
-    </message>
-    <message>
-        <source>Print Document</source>
-        <translation type="obsolete">Imprimer le document</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; Could not decode &quot;%1&quot; with &quot;%2&quot;-encoding. Editing not possible.</source>
-        <translatorcomment>error -&gt; erreur ;)</translatorcomment>
-        <translation type="obsolete">&lt;b&gt;Erreur :&lt;/b&gt; Impossible de décoder &quot;%1&quot; avec l&apos;encodage &quot;%2&quot;. L&apos;édition est impossible.</translation>
-    </message>
-    <message>
-        <source>Select Encoding</source>
-        <translation type="obsolete">Choisir l&apos;encodage</translation>
-    </message>
-    <message>
-        <source>The text is too large to be displayed (%1 MB).</source>
-        <translation type="obsolete">Le texte est trop lourd pour être affiché (%1 Mo). </translation>
     </message>
     <message>
         <source>Line: %1, Col: %2</source>
@@ -13748,136 +13687,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Line: 9999, Col: 999</source>
         <translation>Ligne 9999, colonne 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BaseTextEditorEditable</name>
-    <message>
-        <source>Line: %1, Col: %2</source>
-        <translation type="obsolete">Ligne : %1, Col : %2</translation>
-    </message>
-    <message>
-        <source>Line: %1, Col: 999</source>
-        <translation type="obsolete">Ligne : %1, Col : 999</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsPage</name>
-    <message>
-        <source>Tabs and Indentation</source>
-        <translation type="obsolete">Tabulation et indentation</translation>
-    </message>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">La touche &amp;retour arrière suit l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Taille de &amp;tabulation :</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Taille de l&apos;in&amp;dentation :</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique :</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In leading white space</source>
-        <translation type="obsolete">En début de ligne uniquement</translation>
-    </message>
-    <message>
-        <source>Storage</source>
-        <translation type="obsolete">Sauvegarde</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace on saving.</source>
-        <translation type="obsolete">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Nettoyer les espaces</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">Dans tout le &amp;document</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Nettoyer l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Forcer un retour de ligne à la fin du fichier</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>Block indentation style:</source>
-        <translation type="obsolete">Style d&apos;indentation de bloc : </translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Exclure les accolades</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Inclure les accolades</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Style GNU</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Dans des espaces en début de ligne</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Souris</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Activer le zoom via la &amp;roulette</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
@@ -13961,80 +13770,10 @@ void foo()
 &lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Align continuation lines:</source>
-        <translatorcomment>continuation line: lors du passage à la ligne automatique (text wrap)</translatorcomment>
-        <translation type="obsolete">Aligner les lignes de continuation :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translatorcomment>continuation line ? </translatorcomment>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influence l&apos;indentation des lignes de continuation. 
-&lt;ul&gt;
-&lt;li&gt;Pas du tout : ne pas aligner. Les lignes ne seront indentées jusqu&apos;à la profondeur d&apos;indentation logique. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec espaces : toujours utiliser des espaces pour l&apos;alignement, sans tenir compte des autres paramètres d&apos;indentation. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec indentation régulière : utiliser des tabulations et/ou des espaces pour l&apos;alignement, en fonction de la configuration.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Pas du tout</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Avec espaces</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Avec indentation régulière</translation>
-    </message>
-    <message>
         <source>Global</source>
         <comment>Settings</comment>
         <translation>Globaux</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
     <message>
         <source>Animate matching parentheses</source>
         <translation type="obsolete">Animer les parenthèses correspondantes</translation>
@@ -14044,17 +13783,10 @@ Influence l&apos;indentation des lignes de continuation.
         <translation type="obsolete">Navigation</translation>
     </message>
     <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
         <source>Mark text changes</source>
         <translatorcomment>Put a red mark next to the text that has been modified since the last save</translatorcomment>
         <translation type="obsolete">Marquer le texte modifié</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPage</name>
     <message>
         <source>Font &amp; Colors</source>
         <translation type="obsolete">Polices &amp; couleurs</translation>
@@ -14108,9 +13840,6 @@ Influence l&apos;indentation des lignes de continuation.
         This is only an example.</source>
         <translation type="obsolete">\n\tCeci est seulement un exemple.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodecSelector</name>
     <message>
         <source>Text Encoding</source>
         <translation>Encodage du texte</translation>
@@ -14133,9 +13862,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Save with Encoding</source>
         <translation>Sauver avec l&apos;encodage</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInCurrentFile</name>
     <message>
         <source>Current File</source>
         <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
@@ -14151,38 +13877,6 @@ Les encodages suivants pourraient convenir :</translation>
         <translation>Chemin de fichier : %1
 %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInFiles</name>
-    <message>
-        <source>Files on Disk</source>
-        <translatorcomment>lower character at the beginning because this is indented after &quot;Rechercher dans...&quot;</translatorcomment>
-        <translation type="obsolete">fichiers sur le disque</translation>
-    </message>
-    <message>
-        <source>Files on File System</source>
-        <translation type="obsolete">Fichiers dans le système de fichiers</translation>
-    </message>
-    <message>
-        <source>&amp;Directory:</source>
-        <translation type="obsolete">&amp;Dossier :</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Parcourir</translation>
-    </message>
-    <message>
-        <source>File &amp;pattern:</source>
-        <translatorcomment>Schéma ou motif ? (motif ça fait penser au style du même nom...)</translatorcomment>
-        <translation type="obsolete">&amp;Motif de fichier :</translation>
-    </message>
-    <message>
-        <source>Directory to search</source>
-        <translation type="obsolete">Dossier dans lequel effectuer la recherche</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FontSettingsPageWidget</name>
     <message>
         <source>Font</source>
         <translation>Police</translation>
@@ -14205,36 +13899,8 @@ Les encodages suivants pourraient convenir :</translation>
         <translation>Jeu de couleurs</translation>
     </message>
     <message>
-        <source>Bold</source>
-        <translation type="obsolete">Gras</translation>
-    </message>
-    <message>
-        <source>Italic</source>
-        <translation type="obsolete">Italique</translation>
-    </message>
-    <message>
-        <source>Background:</source>
-        <translation type="obsolete">Arrière plan :</translation>
-    </message>
-    <message>
-        <source>Foreground:</source>
-        <translation type="obsolete">Premier plan :</translation>
-    </message>
-    <message>
-        <source>Erase background</source>
-        <translation type="obsolete">Effacer l&apos;arrière plan</translation>
-    </message>
-    <message>
-        <source>Preview:</source>
-        <translation type="obsolete">Aperçu :</translation>
-    </message>
-    <message>
         <source>Copy...</source>
         <translation>Copier...</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>%</source>
@@ -14244,9 +13910,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Zoom:</source>
         <translation>Zoom :</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::LineNumberFilter</name>
     <message>
         <source>Line %1, Column %2</source>
         <translation>Ligne %1, colonne %2</translation>
@@ -14267,9 +13930,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Line in Current Document</source>
         <translation>Ligne du document courant</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::TextEditorPlugin</name>
     <message>
         <source>Creates a text file (.txt).</source>
         <translation type="obsolete">Créer un fichier texte (.txt).</translation>
@@ -14338,9 +13998,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source>Current document&apos;s font size in points.</source>
         <translation>Taille de la police du document courant en points. </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorActionHandler</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Annu&amp;ler</translation>
@@ -14911,9 +14568,6 @@ Les encodages suivants pourraient convenir :</translation>
         <source> &lt;line number&gt;</source>
         <translation type="obsolete"> &lt;numéro de ligne&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::TextEditorSettings</name>
     <message>
         <source>Text</source>
         <translation>Texte</translation>
@@ -15353,10 +15007,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     <message>
         <source>Diff Location</source>
         <translation>Emplacement du Diff</translation>
-    </message>
-    <message>
-        <source>Text Editor</source>
-        <translation type="obsolete">Éditeur de texte</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -16679,7 +16329,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorSchemeEdit</name>
+    <name>::TextEditor</name>
     <message>
         <source>Bold</source>
         <translation>Gras</translation>
@@ -18422,15 +18072,12 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::ColorScheme</name>
+    <name>::TextEditor</name>
     <message>
         <source>Not a color scheme file.</source>
         <translatorcomment>Pas sur ?</translatorcomment>
         <translation>Pas un fichier de jeu de couleur.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FontSettings</name>
     <message>
         <source>Customized</source>
         <translation>Personnalisé</translation>
@@ -28637,14 +28284,10 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::HighlighterSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Generic Highlighter</source>
         <translation>Coloration syntaxique générique</translation>
-    </message>
-    <message>
-        <source>Download Definitions</source>
-        <translation type="obsolete">Télécharger des définitions</translation>
     </message>
     <message>
         <source>Download Definitions...</source>
@@ -28670,9 +28313,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Not possible to retrieve data.</source>
         <translation>Impossile d&apos;obtenir les données.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::ManageDefinitionsDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -28723,9 +28363,6 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
         <source>Download Selected Definitions</source>
         <translation>Télécharger les définitions sélectionnées</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::Manager</name>
     <message>
         <source>Registering definitions</source>
         <translation>Enregistrement des définitions</translation>
@@ -28752,9 +28389,6 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
         <source>Download Error</source>
         <translation>Erreur lors du téléchargement</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineWidgetStack</name>
     <message>
         <source>No outline available</source>
         <translation>Aucun contour disponible</translation>
@@ -28767,16 +28401,10 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
         <source>Filter tree</source>
         <translation>Filtrer l&apos;arbre</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::OutlineFactory</name>
     <message>
         <source>Outline</source>
         <translation>Contour</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextEditorFactory</name>
     <message>
         <source>A highlight definition was not found for this file. Would you like to try to find one?</source>
         <translation>Aucune définition de coloration syntaxique trouvée pour ce fichier. Voulez vous essayer d&apos;en chercher une ?</translation>
@@ -29789,7 +29417,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Tabs and Indentation</source>
         <translation type="obsolete">Tabulation et indentation</translation>
@@ -29799,24 +29427,12 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
     </message>
     <message>
-        <source>Ta&amp;b size:</source>
-        <translation type="obsolete">Taille de &amp;tabulation :</translation>
-    </message>
-    <message>
         <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
         <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
     </message>
     <message>
         <source>Based on the surrounding lines</source>
         <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>&amp;Indent size:</source>
-        <translation type="obsolete">Taille de l&apos;in&amp;dentation :</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
     </message>
     <message>
         <source>Backspace will go back one indentation level instead of one space.</source>
@@ -29831,352 +29447,8 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation type="obsolete">Style d&apos;indentation de bloc : </translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Controls the indentation style of curly brace blocks.
-
-&lt;ul&gt;
-&lt;li&gt;Exclude Braces: The braces are not indented.
-&lt;pre&gt;
-void foo()
-{
-    if (a)
-    {
-        bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Include Braces: The braces are indented. The contents of the block are on the same level as the braces.
-&lt;pre&gt;
-void foo()
-    {
-    if (a)
-        {
-        bar();
-        }
-    }
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;GNU Style: Indent the braces for blocks in statements. The contents are indented twice.
-&lt;pre&gt;
-void foo()
-{
-  if (a)
-    {
-      bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Contrôle le style d&apos;indentation des blocs entre accolades.
-&lt;ul&gt;
-&lt;li&gt;Accolades exclusives : elles ne sont pas indentées. 
-&lt;pre&gt;
-void foo()
-{
-    if (a)
-    {
-        bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Accolades inclusives : elles sont indentées. Le contenu du bloc est au même niveau que les accolades. 
-&lt;pre&gt;
-void foo()
-    {
-    if (a)
-        {
-        bar();
-        }
-    }
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;Style GNU : indenter les accolades de blocs dans des déclarations. Le contenu est indenté deux fois. 
-&lt;pre&gt;
-void foo()
-{
-  if (a)
-    {
-      bar();
-    }
-}
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Exclude Braces</source>
-        <translation type="obsolete">Exclure les accolades</translation>
-    </message>
-    <message>
-        <source>Include Braces</source>
-        <translation type="obsolete">Inclure les accolades</translation>
-    </message>
-    <message>
-        <source>GNU Style</source>
-        <translation type="obsolete">Style GNU</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique :</translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">Dans des espaces en début de ligne</translation>
-    </message>
-    <message>
-        <source>Align continuation lines:</source>
-        <translation type="obsolete">Aligner les lignes de continuation :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influences the indentation of continuation lines.
-
-&lt;ul&gt;
-&lt;li&gt;Not At All: Do not align at all. Lines will only be indented to the current logical indentation depth.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Spaces: Always use spaces for alignment, regardless of the other indentation settings.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-
-&lt;li&gt;With Regular Indent: Use tabs and/or spaces for alignment, as configured above.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Influence l&apos;indentation des lignes de continuation. 
-&lt;ul&gt;
-&lt;li&gt;Pas du tout : ne pas aligner. Les lignes ne seront indentées jusqu&apos;à la profondeur d&apos;indentation logique. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec espaces : toujours utiliser des espaces pour l&apos;alignement, sans tenir compte des autres paramètres d&apos;indentation. 
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)            c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;li&gt;Avec indentation régulière : utiliser des tabulations et/ou des espaces pour l&apos;alignement, en fonction de la configuration.
-&lt;pre&gt;
-(tab)int i = foo(a, b
-(tab)(tab)(tab)  c, d);
-&lt;/pre&gt;
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Not At All</source>
-        <translation type="obsolete">Pas du tout</translation>
-    </message>
-    <message>
-        <source>With Spaces</source>
-        <translation type="obsolete">Avec espaces</translation>
-    </message>
-    <message>
-        <source>With Regular Indent</source>
-        <translation type="obsolete">Avec indentation régulière</translation>
-    </message>
-    <message>
-        <source>Cleanup actions which are automatically performed right before the file is saved to disk.</source>
-        <translation type="obsolete">Actions de nettoyage qui sont effectuées automatiquement avant d&apos;enregistrer le fichier sur le disque. </translation>
-    </message>
-    <message>
-        <source>Cleanups Upon Saving</source>
-        <translation type="obsolete">Nettoyage à la sauvegarde</translation>
-    </message>
-    <message>
-        <source>Removes trailing whitespace upon saving.</source>
-        <translation type="obsolete">Supprime les caractères d&apos;espacement à la fin des lignes lors de la sauvegarde.</translation>
-    </message>
-    <message>
-        <source>&amp;Clean whitespace</source>
-        <translation type="obsolete">&amp;Nettoyer les espaces</translation>
-    </message>
-    <message>
-        <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation type="obsolete">Nettoyer les espaces dans tout le document au lieu de limiter le nettoyage aux parties modifiées.</translation>
-    </message>
-    <message>
-        <source>In entire &amp;document</source>
-        <translation type="obsolete">Dans tout le &amp;document</translation>
-    </message>
-    <message>
-        <source>Correct leading whitespace according to tab settings.</source>
-        <translation type="obsolete">Corriger les espaces à l&apos;avant des lignes pour respecter la configuration des tabulations.</translation>
-    </message>
-    <message>
-        <source>Clean indentation</source>
-        <translation type="obsolete">Nettoyer l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>&amp;Ensure newline at end of file</source>
-        <translation type="obsolete">&amp;Forcer un retour de ligne à la fin du fichier</translation>
-    </message>
-    <message>
-        <source>File Encodings</source>
-        <translation type="obsolete">Encodages de fichier</translation>
-    </message>
-    <message>
-        <source>Default encoding: </source>
-        <translation type="obsolete">Encodage par défaut :</translation>
-    </message>
-    <message>
-        <source>UTF-8 BOM:</source>
-        <translation type="obsolete">UTF-8 BOM :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;How text editors should deal with UTF-8 Byte Order Marks. The options are:&lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;Add If Encoding Is UTF-8:&lt;/i&gt; always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is &lt;i&gt;System&lt;/i&gt;, as Qt Creator does not know what it actually is.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Keep If Already Present: &lt;/i&gt;save the file with a BOM if it already had one when it was loaded.&lt;/li&gt;
-&lt;li&gt;&lt;i&gt;Always Delete:&lt;/i&gt; never write an UTF-8 BOM, possibly deleting a pre-existing one.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.&lt;/p&gt;
-&lt;p&gt;This setting does &lt;b&gt;not&lt;/b&gt; influence the use of UTF-16 and UTF-32 BOMs.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-&lt;p&gt;Comment les éditeurs de textes devrait gérer les BOM UTF-8. Les options sont : &lt;/p&gt;
-&lt;ul &gt;&lt;li&gt;&lt;i&gt;ajouter si l&apos;encodage est UTF-8 :&lt;/i&gt; toujours ajouter un BOM à la sauvegarde d&apos;un fichier en UTF-8 ; notez que ceci ne fonctionnera pas si l&apos;encodage est &lt;i&gt;System&lt;/i&gt;, puisque Qt Creator ne sait pas ce qu&apos;il en est réellement ; &lt;/li&gt;
-&lt;li&gt;&lt;i&gt;garder si déjà présent :&lt;/i&gt; sauvegarder le fichier avec un BOM s&apos;il en avait déjà un au chargement ; &lt;/li&gt;
-&lt;li&gt;&lt;i&gt;toujours supprimer :&lt;/i&gt; ne jamais écrire de BOM, parfois en supprimant l&apos;existant.&lt;/li&gt;&lt;/ul&gt;
-&lt;p&gt;Notez que les BOM UTF-8 ne sont pas courants et sont traités de manière incorrecte par certains éditeurs, cela n&apos;a que rarement du sens que d&apos;en ajouter un. &lt;/p&gt;
-&lt;p&gt;Ce paramètre n&apos;influence &lt;b&gt;pas&lt;/b&gt; l&apos;utilisation des BOM UTF-16 et UTF-32.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add If Encoding Is UTF-8</source>
-        <translation type="obsolete">Ajouter si l&apos;encodage est UTF-8</translation>
-    </message>
-    <message>
-        <source>Keep If Already Present</source>
-        <translation type="obsolete">Garder si déjà présent</translation>
-    </message>
-    <message>
-        <source>Always Delete</source>
-        <translation type="obsolete">Toujours supprimer</translation>
-    </message>
-    <message>
-        <source>Mouse</source>
-        <translation type="obsolete">Souris</translation>
-    </message>
-    <message>
-        <source>Enable &amp;mouse navigation</source>
-        <translation type="obsolete">Activer la navigation à la &amp;souris</translation>
-    </message>
-    <message>
-        <source>Enable scroll &amp;wheel zooming</source>
-        <translation type="obsolete">Activer le zoom via la &amp;roulette</translation>
-    </message>
-    <message>
-        <source>Typing</source>
-        <translatorcomment>au sens au clavier</translatorcomment>
-        <translation type="obsolete">Frappe</translation>
-    </message>
-    <message>
-        <source>Backspace indentation:</source>
-        <translation type="obsolete">Indentation pour retour arrière :</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifies how backspace interacts with indentation.
-
-&lt;ul&gt;
-&lt;li&gt;None: No interaction at all. Regular plain backspace behavior.
-&lt;/li&gt;
-
-&lt;li&gt;Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.
-&lt;/li&gt;
-
-&lt;li&gt;Unindents: If the character behind the cursor is a space it behaves as a backtab.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-Specifie comment retour arrière se comporte avec l&apos;indentation.
-
-&lt;ul&gt;
-&lt;li&gt;Aucune: Aucune interaction. Comportement habituel de la touche retour arrière.
-&lt;/li&gt;
-
-&lt;li&gt;Suit l&apos;indentation qui précède : dans des espaces de début de ligne, ramène le curseur au niveau d&apos;indentation le plus proche utilisé dans les lignes précédentes.
-&lt;/li&gt;
-
-&lt;li&gt;Désindente : Si le caractère après le curseur est un espace, se comporte comme une tabulation arrière.
-&lt;/li&gt;
-&lt;/ul&gt;&lt;/body&gt;&lt;/html&gt;
-</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Aucune</translation>
-    </message>
-    <message>
-        <source>Follows Previous Indents</source>
-        <translation type="obsolete">Suit l&apos;indentation qui précède</translation>
-    </message>
-    <message>
-        <source>Unindents</source>
-        <translation type="obsolete">Désindente</translation>
-    </message>
-    <message>
         <source>Enable &amp;tooltips only when Shift key is down</source>
         <translation type="obsolete">Activer les info-&amp;bulles seulement lorsque la touche Shift est appuyée</translation>
-    </message>
-</context>
-<context>
-    <name>SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Group: </source>
-        <translation type="obsolete">Groupe :</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Revert Built-in</source>
-        <translation type="obsolete">Rétablir l&apos;intégration</translation>
-    </message>
-    <message>
-        <source>Restore Removed Built-ins</source>
-        <translation type="obsolete">Rétablir les intégrations distantes</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Réinitialiser tout</translation>
     </message>
 </context>
 <context>
@@ -33315,7 +32587,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>TextEditor::BaseTextEditorWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>CTRL+D</source>
         <translation>Ctrl+D</translation>
@@ -33348,16 +32620,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>The text is too large to be displayed (%1 MB).</source>
         <translation>Le texte est trop lourd pour être affiché (%1 Mo). </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::PlainTextSnippetProvider</name>
-    <message>
-        <source>Text</source>
-        <translation>Texte</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsTableModel</name>
     <message>
         <source>Error</source>
         <translation>Erreur</translation>
@@ -33378,9 +32640,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>Error reverting snippet.</source>
         <translation>Erreur lors de la restauration du snippet. </translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPagePrivate</name>
     <message>
         <source>Snippets</source>
         <translation>Extraits de code</translation>
@@ -33388,10 +32647,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>Error While Saving Snippet Collection</source>
         <translation>Erreur lors de l&apos;enregistrement de la collection de snippets</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Erreur</translation>
     </message>
     <message>
         <source>No snippet selected.</source>
@@ -34399,71 +33654,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     <message>
         <source>The file containing the user&apos;s private key:</source>
         <translation type="obsolete">Le fichier contenant la clé privée de l&apos;utilisateur : </translation>
-    </message>
-</context>
-<context>
-    <name>LinuxDeviceFactorySelectionDialog</name>
-    <message>
-        <source>Device Configuration Wizard Selection</source>
-        <translation type="obsolete">Sélection de l&apos;assistant de configuration du périphérique</translation>
-    </message>
-    <message>
-        <source>Available device types:</source>
-        <translation type="obsolete">Types de périphérique disponibles : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabPreferencesWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Tab settings:</source>
-        <translation type="obsolete">Paramètres d&apos;onglets : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Insert &amp;spaces instead of tabs</source>
-        <translation type="obsolete">Insérer des e&amp;spaces au lieu de tabulations</translation>
-    </message>
-    <message>
-        <source>Automatically determine based on the nearest indented line (previous line preferred over next line)</source>
-        <translation type="obsolete">Déterminer automatiquement en se basant sur la ligne indentée la plus proche (ligne précédente préférée à la ligne suivante)</translation>
-    </message>
-    <message>
-        <source>Based on the surrounding lines</source>
-        <translation type="obsolete">Basé sur les lignes environnantes</translation>
-    </message>
-    <message>
-        <source>Enable automatic &amp;indentation</source>
-        <translation type="obsolete">Activer l&apos;&amp;indentation automatique</translation>
-    </message>
-    <message>
-        <source>Backspace will go back one indentation level instead of one space.</source>
-        <translation type="obsolete">La touche retour reviendra un niveau d&apos;indentation en arrière au lieux d&apos;un caractère espace.</translation>
-    </message>
-    <message>
-        <source>&amp;Backspace follows indentation</source>
-        <translation type="obsolete">La touche &amp;retour arrière suit l&apos;indentation</translation>
-    </message>
-    <message>
-        <source>Tab key performs auto-indent:</source>
-        <translation type="obsolete">La touche tabulation active l&apos;identation automatique : </translation>
-    </message>
-    <message>
-        <source>Never</source>
-        <translation type="obsolete">Jamais</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
-    </message>
-    <message>
-        <source>In Leading White Space</source>
-        <translation type="obsolete">En début de ligne uniquement</translation>
     </message>
 </context>
 <context>
@@ -37439,14 +36629,11 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::FunctionHintProposalWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::FallbackSelectorWidget</name>
     <message>
         <source>Settings:</source>
         <translation type="obsolete">Paramètres :</translation>
@@ -37464,9 +36651,6 @@ Remote error output was: %1</source>
         <source>Restore</source>
         <translation type="obsolete">Restaurer</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsCollection</name>
     <message>
         <source>Cannot create user snippet directory %1</source>
         <translation>Impossible de créer le dossier utilisateur de snippets %1</translation>
@@ -38297,35 +37481,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Current settings:</source>
-        <translation type="obsolete">Paramètres actuels :</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation type="obsolete">Copier...</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation type="obsolete">Modifier...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
+    <name>::TextEditor</name>
     <message>
         <source>Copy Code Style</source>
         <translation>Copier le style de code</translation>
@@ -38345,10 +37501,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     <message>
         <source>Are you sure you want to delete this code style permanently?</source>
         <translation>Êtes vous sur de vouloir supprimer ce style de code ?</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Import Code Style</source>
@@ -39444,21 +38596,14 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>TextEditor::CodeStyleEditor</name>
+    <name>::TextEditor</name>
     <message>
         <source>Edit preview contents to see how the current settings are applied to custom code snippets. Changes in the preview do not affect the current settings.</source>
         <translation>Éditer le prévisualisation du contenu pour voir la manière dont les paramètres actuels sont appliqués dans le snippets de code personnalisé. Les changements dans la zone de prévisualisation n&apos;affectent pas les paramètres actuels.</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleDialog</name>
     <message>
         <source>Edit Code Style</source>
         <translation>Editez le style de code</translation>
-    </message>
-    <message>
-        <source>Code style name:</source>
-        <translation>Nom du style de code :</translation>
     </message>
     <message>
         <source>You cannot save changes to a built-in code style. Copy it first to create your own version.</source>
@@ -39468,13 +38613,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Copy Built-in Code Style</source>
         <translation>Copier le style de code préfabriqué</translation>
     </message>
-    <message>
-        <source>%1 (Copy)</source>
-        <translation>%1 (Copie)</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::FindInFiles</name>
     <message>
         <source>Files on File System</source>
         <translation>Fichiers dans le système de fichiers</translation>
@@ -39499,10 +38637,6 @@ Filtre : %2
     <message>
         <source>&amp;Browse...</source>
         <translation>&amp;Parcourir...</translation>
-    </message>
-    <message>
-        <source>&amp;Browse</source>
-        <translation type="obsolete">&amp;Parcourir</translation>
     </message>
     <message>
         <source>Fi&amp;le pattern:</source>
@@ -40345,14 +39479,11 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::BehaviorSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Typing</source>
         <translation>Frappe</translation>
@@ -40547,20 +39678,9 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Show help tooltips using the mouse:</source>
         <translation>Afficher les info-bulles d&apos;aide en utilisant la souris :</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::CodeStyleSelectorWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Current settings:</source>
         <translation>Paramètres actuels :</translation>
-    </message>
-    <message>
-        <source>Copy...</source>
-        <translation>Copier...</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -40577,13 +39697,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     <message>
         <source>Import...</source>
         <translation>Importer...</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::DisplaySettingsPage</name>
-    <message>
-        <source>Display</source>
-        <translation>Affichage</translation>
     </message>
     <message>
         <source>Display line &amp;numbers</source>
@@ -40651,13 +39764,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <source>Display file encoding</source>
         <translation>Afficher l&apos;encodage du fichier</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::HighlighterSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;Highlight definitions are provided by the &lt;a href=&quot;http://kate-editor.org/&quot;&gt;Kate Text Editor&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -40677,23 +39783,12 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
         <translation>Utiliser un emplacement de repli</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation>Comportement</translation>
-    </message>
-    <message>
         <source>Alert when a highlight definition is not found</source>
         <translation type="obsolete">Prévenir si une définition de coloration syntaxique n&apos;est pas trouvée</translation>
     </message>
     <message>
         <source>Ignored file patterns:</source>
         <translation>Motifs de fichier ignorés : </translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::Internal::SnippetsSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Group: </source>
@@ -40702,10 +39797,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -40718,13 +39809,6 @@ francis : en effet, une erreur de ma part --&gt; validé.</translatorcomment>
     <message>
         <source>Reset All</source>
         <translation>Tout réinitialiser</translation>
-    </message>
-</context>
-<context>
-    <name>TextEditor::TabSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>Tabs And Indentation</source>
@@ -42518,14 +41602,11 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>TextEditor::Internal::CountingLabel</name>
+    <name>::TextEditor</name>
     <message>
         <source>%1 found</source>
         <translation>%1 élément(s) trouvé(s)</translation>
     </message>
-</context>
-<context>
-    <name>TextEditor::Internal::FindInOpenFiles</name>
     <message>
         <source>Open Documents</source>
         <translation>Documents ouverts</translation>
@@ -47242,7 +46323,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::BehaviorSettingsWidget</name>
+    <name>::TextEditor</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
         <translation>Afficher l&apos;aide contextuelle ou l&apos;information du type lors d&apos;un survol de souris.</translation>
@@ -51508,7 +50589,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RefactoringFile::apply</name>
+    <name>::TextEditor</name>
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>La refactorisation ne peut être appliquée.</translation>
@@ -52599,7 +51680,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>TextEditor::QuickFixFactory</name>
+    <name>::TextEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Créer des fonctions membres accesseurs et mutateurs</translation>
