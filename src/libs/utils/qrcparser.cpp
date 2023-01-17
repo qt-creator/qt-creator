@@ -14,8 +14,9 @@
 #include <QFileInfo>
 #include <QLocale>
 #include <QLoggingCategory>
-#include <QMutex>
-#include <QMutexLocker>
+#include <QReadLocker>
+#include <QReadWriteLock>
+#include <QWriteLocker>
 
 static Q_LOGGING_CATEGORY(qrcParserLog, "qtc.qrcParser", QtWarningMsg)
 
@@ -64,7 +65,7 @@ public:
     void clear();
 private:
     QHash<QString, QPair<QrcParser::Ptr,int> > m_cache;
-    QMutex m_mutex;
+    QReadWriteLock m_mutex;
 };
 } // namespace Internal
 
@@ -598,7 +599,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         currentValue.second += 1;
         if (currentValue.second > 1) {
@@ -610,7 +611,7 @@ QrcParser::Ptr QrcCachePrivate::addPath(const QString &path, const QString &cont
     if (!newParser->isValid())
         qCWarning(qrcParserLog) << "adding invalid qrc " << path << " to the cache:" << newParser->errorMessages();
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         if (currentValue.first.isNull())
             currentValue.first = newParser;
@@ -624,7 +625,7 @@ void QrcCachePrivate::removePath(const QString &path)
 {
     QPair<QrcParser::Ptr,int> currentValue;
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         if (currentValue.second == 1) {
             m_cache.remove(path);
@@ -641,7 +642,7 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
 {
     QrcParser::Ptr newParser = QrcParser::parseQrcFile(path, contents);
     {
-        QMutexLocker l(&m_mutex);
+        QWriteLocker l(&m_mutex);
         QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
         currentValue.first = newParser;
         if (currentValue.second == 0)
@@ -653,14 +654,14 @@ QrcParser::Ptr QrcCachePrivate::updatePath(const QString &path, const QString &c
 
 QrcParser::Ptr QrcCachePrivate::parsedPath(const QString &path)
 {
-    QMutexLocker l(&m_mutex);
+    QReadLocker l(&m_mutex);
     QPair<QrcParser::Ptr,int> currentValue = m_cache.value(path, {QrcParser::Ptr(nullptr), 0});
     return currentValue.first;
 }
 
 void QrcCachePrivate::clear()
 {
-    QMutexLocker l(&m_mutex);
+    QWriteLocker l(&m_mutex);
     m_cache.clear();
 }
 
