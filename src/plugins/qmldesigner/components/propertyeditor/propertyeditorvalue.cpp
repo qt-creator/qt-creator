@@ -467,8 +467,12 @@ bool PropertyEditorValue::idListRemove(int idx)
     if (idx < 0 || idx >= stringList.size())
         return false;
 
-    stringList.removeAt(idx);
-    setExpressionWithEmit(generateString(stringList));
+    if (stringList.size() == 1) {
+        resetValue();
+    } else {
+        stringList.removeAt(idx);
+        setExpressionWithEmit(generateString(stringList));
+    }
 
     return true;
 }
