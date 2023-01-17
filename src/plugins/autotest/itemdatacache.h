@@ -47,18 +47,21 @@ public:
     void clear() { m_cache.clear(); }
     bool isEmpty() const { return m_cache.isEmpty(); }
 
-    QVariantMap toSettings() const
+    QVariantMap toSettings(const T &valueToIgnore) const
     {
         QVariantMap result;
-        for (auto it = m_cache.cbegin(), end = m_cache.cend(); it != end; ++it)
+        for (auto it = m_cache.cbegin(), end = m_cache.cend(); it != end; ++it) {
+            if (it.value().value == valueToIgnore)
+                continue;
             result.insert(QString::number(it.value().type) + '@'
                           + it.key(), QVariant::fromValue(it.value().value));
+        }
         return result;
     }
 
     void fromSettings(const QVariantMap &stored)
     {
-        const QRegularExpression regex("^((\\d+)@)?(.*)$");
+        static const QRegularExpression regex("^((\\d+)@)?(.*)$");
         m_cache.clear();
         for (auto it = stored.cbegin(), end = stored.cend(); it != end; ++it) {
             const QRegularExpressionMatch match = regex.match(it.key());
