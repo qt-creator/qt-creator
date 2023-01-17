@@ -3,7 +3,7 @@
 
 #include "progressview.h"
 
-#include "coreplugintr.h"
+#include "../coreplugintr.h"
 
 #include <QApplication>
 #include <QEvent>
