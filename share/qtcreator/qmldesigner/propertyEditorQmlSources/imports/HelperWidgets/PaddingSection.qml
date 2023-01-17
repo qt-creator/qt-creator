@@ -15,6 +15,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Vertical")
+            tooltip: qsTr("Sets the padding on top and bottom of the item.")
             blockedByTemplate: !backendValues.topPadding.isAvailable
                                && !backendValues.bottomPadding.isAvailable
         }
@@ -66,6 +67,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Horizontal")
+            tooltip: qsTr("Sets the paddding on the left and right sides of the item.")
             blockedByTemplate: !backendValues.leftPadding.isAvailable
                                && !backendValues.rightPadding.isAvailable
         }
@@ -118,7 +120,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Global")
-            tooltip: qsTr("Padding between the content and the edges of the items.")
+            tooltip: qsTr("Sets the padding for all sides of the item.")
             blockedByTemplate: !backendValues.padding.isAvailable
         }
 
