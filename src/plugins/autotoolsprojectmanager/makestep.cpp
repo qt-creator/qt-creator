@@ -7,8 +7,6 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-using namespace AutotoolsProjectManager::Constants;
-
 namespace AutotoolsProjectManager::Internal {
 
 // MakeStep
@@ -33,9 +31,9 @@ public:
 
 MakeStepFactory::MakeStepFactory()
 {
-    registerStep<MakeStep>(MAKE_STEP_ID);
+    registerStep<MakeStep>(Constants::MAKE_STEP_ID);
     setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
-    setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
+    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
 }
 
 } // AutotoolsProjectManager::Internal

@@ -20,7 +20,7 @@ using namespace Utils;
 
 namespace AutotoolsProjectManager::Internal {
 
-// AutoreconfStep class
+// AutoreconfStep
 
 /**
  * @brief Implementation of the ProjectExplorer::AbstractProcessStep interface.
@@ -72,9 +72,8 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
 void AutoreconfStep::doRun()
 {
     // Check whether we need to run autoreconf
-    const QString projectDir(project()->projectDirectory().toString());
-
-    if (!QFileInfo::exists(projectDir + "/configure"))
+    const FilePath configure = project()->projectDirectory() / "configure";
+    if (!configure.exists())
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {
@@ -88,7 +87,7 @@ void AutoreconfStep::doRun()
     AbstractProcessStep::doRun();
 }
 
-// AutoreconfStepFactory class
+// AutoreconfStepFactory
 
 /**
  * @brief Implementation of the ProjectExplorer::IBuildStepFactory interface.

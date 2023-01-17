@@ -52,12 +52,12 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
     arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     arguments->setHistoryCompleter("AutotoolsPM.History.AutogenStepArgs");
 
-    connect(arguments, &BaseAspect::changed, this, [this] {
-        m_runAutogen = true;
-    });
+    connect(arguments, &BaseAspect::changed, this, [this] { m_runAutogen = true; });
 
-    setCommandLineProvider([arguments] {
-        return CommandLine(FilePath("./autogen.sh"),
+    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+
+    setCommandLineProvider([this, arguments] {
+        return CommandLine(project()->projectDirectory() / "autogen.sh",
                            arguments->value(),
                            CommandLine::Raw);
     });
@@ -72,14 +72,14 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
 void AutogenStep::doRun()
 {
     // Check whether we need to run autogen.sh
-    const QString projectDir = project()->projectDirectory().toString();
-    const QFileInfo configureInfo(projectDir + "/configure");
-    const QFileInfo configureAcInfo(projectDir + "/configure.ac");
-    const QFileInfo makefileAmInfo(projectDir + "/Makefile.am");
+    const FilePath projectDir = project()->projectDirectory();
+    const FilePath configure = projectDir / "configure";
+    const FilePath configureAc = projectDir / "configure.ac";
+    const FilePath makefileAm = projectDir / "Makefile.am";
 
-    if (!configureInfo.exists()
-        || configureInfo.lastModified() < configureAcInfo.lastModified()
-        || configureInfo.lastModified() < makefileAmInfo.lastModified()) {
+    if (!configure.exists()
+        || configure.lastModified() < configureAc.lastModified()
+        || configure.lastModified() < makefileAm.lastModified()) {
         m_runAutogen = true;
     }
 
