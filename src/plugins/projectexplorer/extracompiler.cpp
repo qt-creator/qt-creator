@@ -160,6 +160,7 @@ void ExtraCompiler::compileImpl(const ContentProvider &provider)
     d->m_taskTree.reset(new TaskTree({taskItemImpl(provider)}));
     connect(d->m_taskTree.get(), &TaskTree::done, this, finalize);
     connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
+    d->m_taskTree->start();
 }
 
 ExtraCompiler::ContentProvider ExtraCompiler::fromFileProvider() const
