@@ -13720,9 +13720,6 @@ Continue?</source>
         <source>Unfiltered</source>
         <translation>フィルタなし</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source> (%1)</source>
         <translation> (%1)</translation>
@@ -45881,16 +45878,8 @@ Output:
 <context>
     <name>::Core</name>
     <message>
-        <source> (%1)</source>
-        <translation> (%1)</translation>
-    </message>
-    <message>
         <source>%1 %2%3</source>
         <translation>%1 %2%3</translation>
-    </message>
-    <message>
-        <source>Based on Qt %1 (%2, %3 bit)</source>
-        <translation>Qt %1 (%2, %3 ビット) を使用</translation>
     </message>
     <message>
         <source>Web Search</source>
