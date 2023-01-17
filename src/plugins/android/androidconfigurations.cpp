@@ -922,6 +922,12 @@ QStringList AndroidConfig::allEssentials() const
     return allPackages;
 }
 
+static QStringList packagesWithoutNdks(const QStringList &packages)
+{
+    return Utils::filtered(packages, [] (const QString &p) {
+        return !p.startsWith(ndkPackageMarker()); });
+}
+
 bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
 {
     QStringList essentialPkgs(allEssentials());
@@ -933,8 +939,7 @@ bool AndroidConfig::allEssentialsInstalled(AndroidSdkManager *sdkManager)
             break;
     }
     if (!m_defaultNdk.isEmpty())
-        essentialPkgs = Utils::filtered(essentialPkgs, [] (const QString &p) {
-            return !p.startsWith(ndkPackageMarker()); });
+        essentialPkgs = packagesWithoutNdks(essentialPkgs);
     return essentialPkgs.isEmpty() ? true : false;
 }
 
