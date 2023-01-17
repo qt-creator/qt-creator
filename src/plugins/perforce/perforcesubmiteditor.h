@@ -10,8 +10,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 class PerforceSubmitEditorWidget;
 class PerforcePluginPrivate;
@@ -50,5 +49,4 @@ private:
     VcsBase::SubmitFileModel *m_fileModel;
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

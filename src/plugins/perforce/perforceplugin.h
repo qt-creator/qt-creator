@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 class PerforcePlugin final : public ExtensionSystem::IPlugin
 {
@@ -30,5 +29,4 @@ private slots:
 #endif
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

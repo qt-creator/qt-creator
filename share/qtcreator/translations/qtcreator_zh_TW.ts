@@ -5874,7 +5874,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>變更數值</translation>
@@ -5883,9 +5883,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change Number:</source>
         <translation>變更數值：</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 未完成的變更</translation>
@@ -5902,9 +5899,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change %1: %2</source>
         <translation>變更 %1：%2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>Perforce(&amp;P)</translation>
@@ -6114,10 +6108,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>主目錄紀錄</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>提交</translation>
-    </message>
-    <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
     </message>
@@ -6245,16 +6235,10 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>無法提交變更，因為您的工作空間已經過時。已幫您建立了一個「未完成的提交」。</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce 提交</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce 提示</translation>
@@ -6263,9 +6247,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>OK</source>
         <translation>確定</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
@@ -6322,9 +6303,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Automatically open files when editing</source>
         <translation>編輯時自動開啟檔案</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>測試中...</translation>
@@ -6336,13 +6314,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Perforce Command</source>
         <translation>Perforce 指令</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>提交</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -11898,7 +11869,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>未指定執行檔</translation>
@@ -12799,7 +12770,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditor</name>
+    <name>::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>註記變更列表 &quot;%1&quot;</translation>
@@ -21610,7 +21581,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -30999,7 +30970,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="unfinished"></translation>

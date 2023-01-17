@@ -9337,34 +9337,7 @@ dans votre fichier .pro.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal</name>
-    <message>
-        <source>No executable specified</source>
-        <translation type="obsolete">Aucun exécutable spécifié</translation>
-    </message>
-    <message>
-        <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="obsolete">Impossible de lancer &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="obsolete">&quot;%1&quot; arrivé à échéance après %2ms.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation type="obsolete">&quot;%1&quot; a crashé.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="obsolete">&quot;%1&quot; terminé avec le code %2 : %3</translation>
-    </message>
-    <message>
-        <source>The client does not seem to contain any mapped files.</source>
-        <translation type="obsolete">Le client ne semble contenir aucun fichier correspondant.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translatorcomment>?</translatorcomment>
@@ -9375,9 +9348,6 @@ dans votre fichier .pro.</translation>
         <translatorcomment>?</translatorcomment>
         <translation>Numéro du changement :</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Modifications pour P4 en attente</translation>
@@ -9394,9 +9364,6 @@ dans votre fichier .pro.</translation>
         <source>Change %1: %2</source>
         <translation>Modification %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -9622,10 +9589,6 @@ dans votre fichier .pro.</translation>
         <translation>Log du dépôt</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Envoyer</translation>
-    </message>
-    <message>
         <source>Diff Selected Files</source>
         <translation type="obsolete">Faire un diff sur tous les fichiers sélectionnés</translation>
     </message>
@@ -9792,16 +9755,10 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation type="obsolete">Erreur d&apos;exécution de &quot;where&quot; sur %1 : le fichier n&apos;est pas mappé</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce Submit</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Prompt Perforce</translation>
@@ -9810,9 +9767,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -9897,9 +9851,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Automatically open files when editing</source>
         <translation>Ouvrir automatiquement les fichiers lors de l&apos;édition</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Commande Perforce</translation>
@@ -9915,13 +9866,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Test succeeded.</source>
         <translation type="obsolete">Test réussi.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Envoyer</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -22963,7 +22907,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Aucun exécutable spécifié</translation>
@@ -22997,9 +22941,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Le dépôt &quot;%1&quot; n&apos;existe pas.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Annoter la liste des changements &quot;%1&quot;</translation>
@@ -35774,7 +35715,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer l&apos;espace blanc</translation>
@@ -46198,7 +46139,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="obsolete">&amp;Éditer (%1)</translation>

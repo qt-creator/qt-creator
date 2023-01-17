@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Input a change number for pending changes.
 class ChangeNumberDialog : public QDialog
@@ -24,5 +23,4 @@ private:
     QLineEdit *m_lineEdit = nullptr;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

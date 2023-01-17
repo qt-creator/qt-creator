@@ -3898,7 +3898,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>リビジョン番号</translation>
@@ -3907,9 +3907,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change Number:</source>
         <translation>リビジョン番号:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 保留中の変更点</translation>
@@ -3926,9 +3923,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Change %1: %2</source>
         <translation>変更 %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce プロンプト</translation>
@@ -3937,9 +3931,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -3997,23 +3988,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Perforce コマンド</translation>
     </message>
     <message>
-        <source>Testing...</source>
-        <translation>自動テスト...</translation>
-    </message>
-    <message>
         <source>Test succeeded (%1).</source>
         <translation>テストが成功しました (%1)。</translation>
     </message>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>サブミット</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -21953,7 +21933,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>実行ファイルが指定されていません</translation>
@@ -21987,9 +21967,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>リポジトリ &quot;%1&quot; は存在しません。</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -22211,10 +22188,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation>ハイジャック(&amp;H)</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>サブミット</translation>
-    </message>
-    <message>
         <source>Diff &amp;Selected Files</source>
         <translation>選択済みファイルの差分表示(&amp;S)</translation>
     </message>
@@ -22346,45 +22319,17 @@ instead of its installation directory when run outside git bash.</source>
         <source>Perforce: Unable to determine the repository: %1</source>
         <translation>Perforce がリポジトリを特定できません: %1</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>空白を無視</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce コミット</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>編集(&amp;E)</translation>
-    </message>
-    <message>
-        <source>&amp;Hijack</source>
-        <translation>ハイジャック(&amp;H)</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
-    <message>
-        <source>Perforce Command</source>
-        <translation>Perforce コマンド</translation>
-    </message>
     <message>
         <source>Testing...</source>
         <translation>テスト中...</translation>
-    </message>
-    <message>
-        <source>Test succeeded (%1).</source>
-        <translation>テストが成功しました (%1)。</translation>
     </message>
 </context>
 <context>
@@ -40254,7 +40199,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>チェンジリスト &quot;%1&quot; のアノテーション</translation>
@@ -47000,11 +46945,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
+    <name>::Perforce</name>
 </context>
 <context>
     <name>::PerfProfiler</name>

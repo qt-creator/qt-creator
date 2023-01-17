@@ -9243,7 +9243,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Perforce::0</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation type="obsolete">Nincs futtatható meghatározva</translation>
@@ -9268,9 +9268,6 @@ p, li { white-space: pre-wrap; }
         <source>The client does not seem to contain any mapped files.</source>
         <translation type="obsolete">Nem tűnik úgy, hogy a Perforce kliens tartalmazna leképezett fájlokat.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal</name>
     <message>
         <source>No executable specified</source>
         <translation>Nincs futtatható meghatározva</translation>
@@ -9295,9 +9292,6 @@ p, li { white-space: pre-wrap; }
         <source>The client does not seem to contain any mapped files.</source>
         <translation>Nem tűnik úgy, hogy a Perforce kliens tartalmazna leképezett fájlokat.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::0</name>
     <message>
         <source>Change Number</source>
         <translation type="obsolete">Változtatási szám</translation>
@@ -9672,9 +9666,6 @@ p, li { white-space: pre-wrap; }
         <source>User:</source>
         <translation type="obsolete">Felhasználó:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
     <message>
         <source>Change Number</source>
         <translation>Változtatási szám</translation>
@@ -9683,9 +9674,6 @@ p, li { white-space: pre-wrap; }
         <source>Change Number:</source>
         <translation>Változtatási szám:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Függőben levő P4 változtatások</translation>
@@ -9702,9 +9690,6 @@ p, li { white-space: pre-wrap; }
         <source>Change %1: %2</source>
         <translation>%1 változtatása: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -9858,10 +9843,6 @@ p, li { white-space: pre-wrap; }
         <translation>Az összes frissítése</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Feltöltés</translation>
-    </message>
-    <message>
         <source>Diff Selected Files</source>
         <translation>Különbség a kiválasztott fájlokban</translation>
     </message>
@@ -9982,16 +9963,10 @@ p, li { white-space: pre-wrap; }
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation>Hiba történt a(z) %1 futtatása közben: a fájl nincsen leképezve</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce feltöltés</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce prompt</translation>
@@ -10000,9 +9975,6 @@ p, li { white-space: pre-wrap; }
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -10039,9 +10011,6 @@ p, li { white-space: pre-wrap; }
         <source>Perforce</source>
         <translation>Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Perforce parancs</translation>
@@ -10053,13 +10022,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Test succeeded.</source>
         <translation>Sikeres teszt.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Feltöltés</translation>
     </message>
     <message>
         <source>Change:</source>

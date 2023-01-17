@@ -9576,7 +9576,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Change-Nummer</translation>
@@ -9585,9 +9585,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Change Number:</source>
         <translation>Change-Nummer:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 Ausstehende Changes</translation>
@@ -9604,9 +9601,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Change %1: %2</source>
         <translation>Change %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -9832,10 +9826,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>&amp;Hijack</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Submit</translation>
-    </message>
-    <message>
         <source>p4 revert</source>
         <translation>Rückgängig machen</translation>
     </message>
@@ -9940,16 +9930,10 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>Der Submit-Vorgang konnte nicht ausgeführt werden, weil Ihr Arbeitsbereich nicht auf dem aktuellsten Stand ist. Es wurde ein ausstehender Submit-Vorgang erzeugt.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce Submit</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Perforce Command</source>
         <translation>Perforce-Kommando</translation>
@@ -10017,13 +10001,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Automatically open files when editing</source>
         <translation>Dateien bei Bearbeitung automatisch anfordern</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Submit</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -13386,7 +13363,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Es wurde keine ausführbare Datei angegeben</translation>
@@ -33927,7 +33904,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Annotation der Change-Liste &quot;%1&quot;</translation>
@@ -39930,7 +39907,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Leerzeichen ignorieren</translation>

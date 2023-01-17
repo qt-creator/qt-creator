@@ -26543,7 +26543,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Change编号</translation>
@@ -26552,9 +26552,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Change Number:</source>
         <translation>Change编号:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4未完成的Change</translation>
@@ -26571,9 +26568,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Change %1: %2</source>
         <translation>Change %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceChecker</name>
     <message>
         <source>No executable specified</source>
         <translation>未指定执行档</translation>
@@ -26607,23 +26601,14 @@ You might find further explanations in the Application Output view.</source>
         <source>&quot;%1&quot; timed out after %2 ms.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished">忽略空白</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation type="unfinished">注释变更列表 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -26805,10 +26790,6 @@ You might find further explanations in the Application Output view.</source>
         <translation>仓库日志</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>提交</translation>
-    </message>
-    <message>
         <source>p4 revert</source>
         <translation>p4 还原(revert)</translation>
     </message>
@@ -26956,16 +26937,10 @@ You might find further explanations in the Application Output view.</source>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce提交</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
@@ -27033,13 +27008,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>Testing...</source>
         <translation type="unfinished">测试中...</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>提交</translation>
     </message>
     <message>
         <source>Change:</source>

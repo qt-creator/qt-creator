@@ -5,25 +5,24 @@
 
 #include "annotationhighlighter.h"
 #include "perforceplugin.h"
+#include "perforcetr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/diffandloghighlighter.h>
 
+#include <QAction>
 #include <QDebug>
 #include <QFileInfo>
-#include <QSet>
-#include <QTextStream>
-
-#include <QAction>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QSet>
+#include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
-#include <QTextBlock>
+#include <QTextStream>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // ------------ PerforceEditor
 PerforceEditorWidget::PerforceEditorWidget() :
@@ -37,7 +36,7 @@ PerforceEditorWidget::PerforceEditorWidget() :
     //    +++ P:/XXX\closingkit\trunk\source\cui\src\cui_core.cpp<tab>2012-02-08 13:54:01.000000000 0100
     setDiffFilePattern("^(?:={4}|\\+{3}) (.+)(?:\\t|#\\d)");
     setLogEntryPattern("^... #\\d change (\\d+) ");
-    setAnnotateRevisionTextFormat(tr("Annotate change list \"%1\""));
+    setAnnotateRevisionTextFormat(Tr::tr("Annotate change list \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }
 
@@ -75,5 +74,4 @@ QStringList PerforceEditorWidget::annotationPreviousVersions(const QString &v) c
     return QStringList(QString::number(changeList - 1));
 }
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

@@ -3,10 +3,12 @@
 
 #include "perforcesubmiteditorwidget.h"
 
+#include "perforcetr.h"
+
 #include <utils/layoutbuilder.h>
 
-#include <QtWidgets/QGroupBox>
-#include <QtWidgets/QLabel>
+#include <QGroupBox>
+#include <QLabel>
 
 using namespace Utils;
 
@@ -22,14 +24,14 @@ public:
     {
         resize(402, 134);
         setFlat(true);
-        setTitle(tr("Submit"));
+        setTitle(Tr::tr("Submit"));
 
         using namespace Layouting;
 
         Form {
-            tr("Change:"), m_changeNumber, br,
-            tr("Client:"), m_clientName, br,
-            tr("User:"), m_userName
+            Tr::tr("Change:"), m_changeNumber, br,
+            Tr::tr("Client:"), m_clientName, br,
+            Tr::tr("User:"), m_userName
         }.attachTo(this);
     }
 

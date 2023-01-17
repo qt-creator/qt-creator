@@ -27162,7 +27162,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Номер правки</translation>
@@ -27171,9 +27171,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Change Number:</source>
         <translation>Номер правки:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Perforce: Рассмотрение изменений</translation>
@@ -27190,9 +27187,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Change %1: %2</source>
         <translation>Изменение %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceChecker</name>
     <message>
         <source>No executable specified</source>
         <translation>Программа не указана</translation>
@@ -27226,23 +27220,14 @@ You might find further explanations in the Application Output view.</source>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Хранилище «%1» отсутствует.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Игнорировать пробелы</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Аннотация списка изменений «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -27464,10 +27449,6 @@ You might find further explanations in the Application Output view.</source>
         <translation>&amp;Исправить</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Фиксировать</translation>
-    </message>
-    <message>
         <source>p4 revert</source>
         <translation>p4 revert</translation>
     </message>
@@ -27577,16 +27558,10 @@ You might find further explanations in the Application Output view.</source>
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>Не удалось зафиксировать изменения, так как рабочая копия устарела. Создана фиксация для рассмотрения.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Фиксация Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce: приглашение</translation>
@@ -27595,9 +27570,6 @@ You might find further explanations in the Application Output view.</source>
         <source>OK</source>
         <translation>Закрыть</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Test</source>
         <translation>Проверить</translation>
@@ -27665,13 +27637,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>Automatically open files when editing</source>
         <translation>Автоматически открывать файлы при изменении</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Фиксировать</translation>
     </message>
     <message>
         <source>Change:</source>

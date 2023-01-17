@@ -6119,7 +6119,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>No se especificó ejecutable</translation>
@@ -6144,9 +6144,6 @@ en su archivo .pro.</translation>
         <source>The client does not seem to contain any mapped files.</source>
         <translation>El cliente no parece contener ningún archivo mapeado.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
     <message>
         <source>Change Number</source>
         <translation>Modificar número</translation>
@@ -6156,9 +6153,6 @@ en su archivo .pro.</translation>
         <source>Change Number:</source>
         <translation>Modificar número:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Modificaciones pendientes de P4</translation>
@@ -6177,9 +6171,6 @@ en su archivo .pro.</translation>
         <source>Change %1: %2</source>
         <translation>Modificar %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceOutputWindow</name>
     <message>
         <source>Perforce Output</source>
         <translation type="obsolete">Salida de Perforce</translation>
@@ -6188,9 +6179,6 @@ en su archivo .pro.</translation>
         <source>Diff</source>
         <translation type="obsolete">Diferencias</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -6473,16 +6461,10 @@ en su archivo .pro.</translation>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation>Error ejecutando &quot;where&quot; en %1: El archivo no esta mapeado</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Envío a Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Interacción con Perforce</translation>
@@ -6492,9 +6474,6 @@ en su archivo .pro.</translation>
         <source>OK</source>
         <translation>Ok</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>P4 Command:</source>
         <translation>Comando P4:</translation>
@@ -6537,9 +6516,6 @@ en su archivo .pro.</translation>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>Probando...</translation>
@@ -6551,13 +6527,6 @@ en su archivo .pro.</translation>
     <message>
         <source>Perforce Command</source>
         <translation>Comando Perforce</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Enviar</translation>
     </message>
     <message>
         <location/>

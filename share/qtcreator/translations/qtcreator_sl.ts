@@ -6337,7 +6337,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Številka spremembe</translation>
@@ -6347,17 +6347,9 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Change Number:</source>
         <translation>Številka spremembe:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Čakajoče spremembe P4</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Submit</source>
-        <translation>Pošlji</translation>
     </message>
     <message>
         <location/>
@@ -6368,9 +6360,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Change %1: %2</source>
         <translation>Sprememba %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -6510,10 +6499,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Update All</source>
         <translation>Posodobi vse</translation>
-    </message>
-    <message>
-        <source>Submit</source>
-        <translation>Pošlji</translation>
     </message>
     <message>
         <source>&amp;Undo</source>
@@ -6705,16 +6690,10 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Cannot open temporary file.</source>
         <translation type="obsolete">Ni moč odpreti začasne datoteke.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Pošiljanje Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Poziv Perforce</translation>
@@ -6724,9 +6703,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>OK</source>
         <translation>V redu</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
@@ -6795,9 +6771,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Automatically open files when editing</source>
         <translation>Med urejanjem samodejno odpiraj datoteke</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>Preizkušanje …</translation>
@@ -6810,9 +6783,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Perforce Command</source>
         <translation>Ukaz Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
     <message>
         <source>Submit</source>
         <translation>Pošiljanje</translation>
@@ -15756,7 +15726,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Določen ni noben program.</translation>
@@ -15791,9 +15761,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Skladišče »%1« ne obstaja.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Dodaj opombo za seznam sprememb »%1«</translation>
@@ -23866,7 +23833,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>

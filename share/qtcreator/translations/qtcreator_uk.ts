@@ -11916,7 +11916,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation type="unfinished"></translation>
@@ -11925,9 +11925,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Change Number:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation type="unfinished"></translation>
@@ -11944,9 +11941,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Change %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceChecker</name>
     <message>
         <source>No executable specified</source>
         <translation>Виконуваний модуль не вказано</translation>
@@ -11984,9 +11978,6 @@ Ids must begin with a lowercase letter.</source>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Сховище &quot;%1&quot; не існує.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -11995,9 +11986,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Ignore Whitespace</source>
         <translation>Ігнорувати пропуски</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation type="unfinished"></translation>
@@ -12211,10 +12199,6 @@ Ids must begin with a lowercase letter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Diff &amp;Selected Files</source>
         <translation>&amp;Зміни у вибраних файлах</translation>
     </message>
@@ -12356,16 +12340,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Perforce: Unable to determine the repository: %1</source>
         <translation>Perforce: Неможливо визначити сховище: %1</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation type="unfinished"></translation>
@@ -12374,9 +12352,6 @@ Ids must begin with a lowercase letter.</source>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -12433,9 +12408,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Automatically open files when editing</source>
         <translation>Автоматично відкривати файли під час редагування</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Команда Perforce</translation>
@@ -12447,13 +12419,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>Test succeeded (%1).</source>
         <translation>Перевірка успішна (%1).</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Change:</source>
@@ -28891,7 +28856,7 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Edit</source>
         <translation type="unfinished"></translation>
@@ -41456,7 +41421,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

@@ -5,8 +5,7 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Annotation highlighter for p4 triggering on 'changenumber:'
 class PerforceAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
@@ -20,5 +19,4 @@ private:
     QString changeNumber(const QString &block) const override;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

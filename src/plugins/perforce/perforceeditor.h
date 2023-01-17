@@ -7,8 +7,7 @@
 
 #include <QRegularExpression>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 class PerforceEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
@@ -27,5 +26,4 @@ private:
     const QRegularExpression m_changeNumberPattern;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

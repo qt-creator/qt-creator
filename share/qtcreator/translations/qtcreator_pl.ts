@@ -630,7 +630,7 @@
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Numer zmiany</translation>
@@ -639,9 +639,6 @@
         <source>Change Number:</source>
         <translation>Numer zmiany:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>Oczekujące zmiany P4</translation>
@@ -658,9 +655,6 @@
         <source>Change %1: %2</source>
         <translation>Zmiana %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Pytanie Perforce&apos;a</translation>
@@ -669,9 +663,6 @@
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Test</source>
         <translation>Przetestuj</translation>
@@ -727,13 +718,6 @@
     <message>
         <source>Automatically open files when editing</source>
         <translation>Automatycznie otwieraj pliki, jeśli zostały zmodyfikowane</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Utwórz poprawkę</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -6643,7 +6627,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforcePlugin</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -6857,10 +6841,6 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <translation>Log repozytorium</translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Utwórz poprawkę</translation>
-    </message>
-    <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
     </message>
@@ -6995,16 +6975,10 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
         <source>Could not submit the change, because your workspace was out of date. Created a pending submit instead.</source>
         <translation>Nie można utworzyć poprawki, ponieważ drzewo robocze nie jest aktualne. Zamiast tego utworzono poprawkę oczekującą na wysłanie.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Utwórz poprawkę w Perforce</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Komenda Perforce</translation>
@@ -11069,7 +11043,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Nie podano programu do uruchomienia</translation>
@@ -22623,7 +22597,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Edycja</translation>
@@ -31152,7 +31126,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Dołącz adnotację do listy zmian &quot;%1&quot;</translation>
@@ -40043,7 +40017,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>

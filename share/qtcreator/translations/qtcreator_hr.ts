@@ -4980,7 +4980,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Promijeni broj</translation>
@@ -4989,9 +4989,6 @@ Greška: %5</translation>
         <source>Change Number:</source>
         <translation>Promijeni broj:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 neobavljene promjene</translation>
@@ -5008,9 +5005,6 @@ Greška: %5</translation>
         <source>Change %1: %2</source>
         <translation>Promijeni %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Perforce prompt</translation>
@@ -5019,9 +5013,6 @@ Greška: %5</translation>
         <source>OK</source>
         <translation>U redu</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -5077,13 +5068,6 @@ Greška: %5</translation>
     <message>
         <source>Perforce</source>
         <translation>Perforce</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Pošalji</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -26193,7 +26177,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Izvršna datoteka nije specificirana</translation>
@@ -26227,16 +26211,10 @@ Rok upotrebe: %3</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Spremište &quot;%1&quot; ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditorWidget</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Pribilježi popis promjena &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -26522,10 +26500,6 @@ Rok upotrebe: %3</translation>
         </translation>
     </message>
     <message>
-        <source>Submit</source>
-        <translation>Pošalji</translation>
-    </message>
-    <message>
         <source>p4 diff %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -26563,23 +26537,14 @@ Rok upotrebe: %3</translation>
         <source>Perforce: Unable to determine the repository: %1</source>
         <translation>Perforce: Nije moguće odrediti spremište: %1</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Zanemari bjeline</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Perforce slanje</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Uredi</translation>
@@ -26588,9 +26553,6 @@ Rok upotrebe: %3</translation>
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Perforce Command</source>
         <translation>Perforce naredba</translation>

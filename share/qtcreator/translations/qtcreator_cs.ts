@@ -8718,34 +8718,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal</name>
-    <message>
-        <source>No executable specified</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor</translation>
-    </message>
-    <message>
-        <source>Unable to launch &quot;%1&quot;: %2</source>
-        <translation type="obsolete">&quot;%1&quot; se nepodařilo spustit: %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; timed out after %2ms.</source>
-        <translation type="obsolete">Překročení času při provedení &quot;%1&quot;(%2ms).</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation type="obsolete">&quot;%1&quot; spadl.</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; terminated with exit code %2: %3</source>
-        <translation type="obsolete">Proces &apos;%1&quot; byl ukončen (vrácená hodnota %2): %3</translation>
-    </message>
-    <message>
-        <source>The client does not seem to contain any mapped files.</source>
-        <translation type="obsolete">&apos;Perforce&apos; klient zřejmě neobsahuje žádná přiřazení souborů.</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::ChangeNumberDialog</name>
+    <name>::Perforce</name>
     <message>
         <source>Change Number</source>
         <translation>Číslo změny</translation>
@@ -8754,9 +8727,6 @@ ve svém .pro souboru.</translation>
         <source>Change Number:</source>
         <translation>Číslo změny:</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PendingChangesDialog</name>
     <message>
         <source>P4 Pending Changes</source>
         <translation>P4 nevyřízené změny</translation>
@@ -8773,9 +8743,6 @@ ve svém .pro souboru.</translation>
         <source>Change %1: %2</source>
         <translation>Změna %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforcePlugin</name>
     <message>
         <source>&amp;Perforce</source>
         <translation>&amp;Perforce</translation>
@@ -8927,10 +8894,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Update All</source>
         <translation>Aktualizovat vše</translation>
-    </message>
-    <message>
-        <source>Submit</source>
-        <translation>Odevzdat (submit)</translation>
     </message>
     <message>
         <source>Diff Selected Files</source>
@@ -9168,16 +9131,10 @@ ve svém .pro souboru.</translation>
         <source>Error running &quot;where&quot; on %1: The file is not mapped</source>
         <translation type="obsolete">Chyba při provedení &quot;where&quot; na %1: Soubor není přiřazen</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceSubmitEditor</name>
     <message>
         <source>Perforce Submit</source>
         <translation>Odevzdání &apos;Perforce&apos; (submit)</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PromptDialog</name>
     <message>
         <source>Perforce Prompt</source>
         <translation>Výzva &apos;Perforce&apos;</translation>
@@ -9186,9 +9143,6 @@ ve svém .pro souboru.</translation>
         <source>OK</source>
         <translation>OK</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPage</name>
     <message>
         <source>P4 Command:</source>
         <translation type="obsolete">Příkaz P4:</translation>
@@ -9273,9 +9227,6 @@ ve svém .pro souboru.</translation>
         <source>Automatically open files when editing</source>
         <translation>Soubory při úpravách otevřít automaticky</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::SettingsPageWidget</name>
     <message>
         <source>Testing...</source>
         <translation>Běží zkouška...</translation>
@@ -9291,13 +9242,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Perforce Command</source>
         <translation>Příkaz Perforce</translation>
-    </message>
-</context>
-<context>
-    <name>Perforce::Internal::SubmitPanel</name>
-    <message>
-        <source>Submit</source>
-        <translation>Odevzdat (submit)</translation>
     </message>
     <message>
         <source>Change:</source>
@@ -23737,7 +23681,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceChecker</name>
+    <name>::Perforce</name>
     <message>
         <source>No executable specified</source>
         <translation>Nebyl zadán žádný spustitelný soubor</translation>
@@ -23771,9 +23715,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>The repository &quot;%1&quot; does not exist.</source>
         <translation>Skladiště &quot;%1&quot; neexistuje.</translation>
     </message>
-</context>
-<context>
-    <name>Perforce::Internal::PerforceEditor</name>
     <message>
         <source>Annotate change list &quot;%1&quot;</source>
         <translation>Opatřit anotacemi seznam se změnami &quot;%1&quot;</translation>
@@ -33372,7 +33313,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceDiffParameterWidget</name>
+    <name>::Perforce</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -48731,7 +48672,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Perforce::Internal::PerforceVersionControl</name>
+    <name>::Perforce</name>
     <message>
         <source>&amp;Edit (%1)</source>
         <translation type="obsolete">&amp;Upravit (%1)</translation>

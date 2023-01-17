@@ -3,8 +3,7 @@
 
 #include "annotationhighlighter.h"
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 PerforceAnnotationHighlighter::PerforceAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                              QTextDocument *document) :
@@ -17,5 +16,4 @@ QString PerforceAnnotationHighlighter::changeNumber(const QString &block) const
     return pos > 1 ? block.left(pos) : QString();
 }
 
-} // Internal
-} // Perforce
+} // Perforce::Internal

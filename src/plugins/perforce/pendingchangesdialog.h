@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QListWidget;
 QT_END_NAMESPACE
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 class PendingChangesDialog : public QDialog
 {
@@ -24,5 +23,4 @@ private:
     QListWidget *m_listWidget = nullptr;
 };
 
-} // namespace Perforce
-} // namespace Internal
+} // Perforce::Internal

@@ -6,8 +6,7 @@
 #include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 
-namespace Perforce {
-namespace Internal {
+namespace Perforce::Internal {
 
 // Perforce checker:  Calls perforce asynchronously to do
 // a check of the configuration and emits signals with the top level or
@@ -53,5 +52,4 @@ private:
     bool m_isOverrideCursor = false;
 };
 
-} // namespace Internal
-} // namespace Perforce
+} // Perforce::Internal

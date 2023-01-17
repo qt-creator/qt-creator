@@ -3,6 +3,8 @@
 
 #include "pendingchangesdialog.h"
 
+#include "perforcetr.h"
+
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
@@ -11,18 +13,18 @@
 #include <QPushButton>
 #include <QRegularExpression>
 
-using namespace Perforce::Internal;
+namespace Perforce::Internal {
 
 PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
     : QDialog(parent)
     , m_listWidget(new QListWidget(this))
 {
-    setWindowTitle(tr("P4 Pending Changes"));
+    setWindowTitle(Tr::tr("P4 Pending Changes"));
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->setOrientation(Qt::Horizontal);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel);
-    QPushButton *submitButton = buttonBox->addButton(tr("Submit"), QDialogButtonBox::AcceptRole);
+    QPushButton *submitButton = buttonBox->addButton(Tr::tr("Submit"), QDialogButtonBox::AcceptRole);
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
@@ -32,8 +34,8 @@ PendingChangesDialog::PendingChangesDialog(const QString &data, QWidget *parent)
         QRegularExpressionMatchIterator it = r.globalMatch(data);
         while (it.hasNext()) {
             const QRegularExpressionMatch match = it.next();
-            item = new QListWidgetItem(tr("Change %1: %2").arg(match.captured(1),
-                                                               match.captured(2).trimmed()),
+            item = new QListWidgetItem(Tr::tr("Change %1: %2").arg(match.captured(1),
+                                                                   match.captured(2).trimmed()),
                                        m_listWidget);
             item->setData(Qt::UserRole, match.captured(1).trimmed());
         }
@@ -65,3 +67,5 @@ int PendingChangesDialog::changeNumber() const
     const int number = item->data(Qt::UserRole).toInt(&ok);
     return ok ? number : -1;
 }
+
+} // Perforce::Internal
