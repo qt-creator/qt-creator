@@ -718,6 +718,9 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     auto allProducts = static_cast<ListModel *>(m_filteredAllItemsModel->sourceModel());
     allProducts->appendItems(items);
 
+    // only show section label(s) if there is more than one section
+    m_sectionLabels.at(0)->setVisible(m_sectionLabels.size() > 1);
+
     return model;
 }
 

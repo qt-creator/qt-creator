@@ -16,7 +16,7 @@
 namespace QtSupport {
 namespace Internal {
 
-class ExamplesListModel;
+class ExamplesViewController;
 
 class ExampleSetModel : public QStandardItemModel
 {
@@ -100,16 +100,20 @@ public:
     QStringList platforms;
 };
 
-class ExamplesListModel : public Core::ListModel
+class ExamplesViewController : public QObject
 {
     Q_OBJECT
 public:
-    explicit ExamplesListModel(ExampleSetModel *exampleSetModel, bool isExamples, QObject *parent);
+    explicit ExamplesViewController(ExampleSetModel *exampleSetModel,
+                                    Core::SectionedGridView *view,
+                                    bool isExamples,
+                                    QObject *parent);
 
     void updateExamples();
 
 private:
     ExampleSetModel *m_exampleSetModel;
+    Core::SectionedGridView *m_view;
     bool m_isExamples;
 };
 

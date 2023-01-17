@@ -3,6 +3,8 @@
 
 #include "exampleslistmodel.h"
 
+#include "qtsupporttr.h"
+
 #include <QBuffer>
 #include <QApplication>
 #include <QDir>
@@ -263,24 +265,26 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
     return pixmap;
 }
 
-ExamplesListModel::ExamplesListModel(ExampleSetModel *exampleSetModel,
-                                     bool isExamples,
-                                     QObject *parent)
-    : Core::ListModel(parent)
+ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
+                                               SectionedGridView *view,
+                                               bool isExamples,
+                                               QObject *parent)
+    : QObject(parent)
     , m_exampleSetModel(exampleSetModel)
+    , m_view(view)
     , m_isExamples(isExamples)
 {
     if (isExamples) {
         connect(m_exampleSetModel,
                 &ExampleSetModel::selectedExampleSetChanged,
                 this,
-                &ExamplesListModel::updateExamples);
+                &ExamplesViewController::updateExamples);
     }
     connect(Core::HelpManager::Signals::instance(),
             &Core::HelpManager::Signals::documentationChanged,
             this,
-            &ExamplesListModel::updateExamples);
-    setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
+            &ExamplesViewController::updateExamples);
+    view->setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
     updateExamples();
 }
 
@@ -493,7 +497,7 @@ static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QStri
     return result;
 }
 
-void ExamplesListModel::updateExamples()
+void ExamplesViewController::updateExamples()
 {
     QString examplesInstallPath;
     QString demosInstallPath;
@@ -501,7 +505,7 @@ void ExamplesListModel::updateExamples()
     const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
                                                                   &demosInstallPath);
 
-    clear();
+    m_view->clear();
 
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
@@ -550,8 +554,21 @@ void ExamplesListModel::updateExamples()
                                     [](ExampleItem *item) { return item->tags.contains("ios"); });
         }
     }
+    Utils::sort(items, [](ExampleItem *first, ExampleItem *second) {
+        return first->name.compare(second->name, Qt::CaseInsensitive) < 0;
+    });
 
-    appendItems(static_container_cast<ListItem *>(items));
+    QList<ExampleItem *> featured;
+    QList<ExampleItem *> other;
+    std::tie(featured, other) = Utils::partition(items,
+                                                 [](ExampleItem *i) { return i->isHighlighted; });
+
+    if (!featured.isEmpty()) {
+        m_view->addSection({Tr::tr("Featured", "Category for highlighted examples"), 0},
+                           static_container_cast<ListItem *>(featured));
+    }
+    m_view->addSection({Tr::tr("Other", "Category for all other examples"), 1},
+                       static_container_cast<ListItem *>(other));
 }
 
 void ExampleSetModel::updateQtVersionList()

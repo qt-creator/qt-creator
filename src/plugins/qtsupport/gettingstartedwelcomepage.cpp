@@ -261,9 +261,6 @@ public:
     {
         m_exampleDelegate.setShowExamples(isExamples);
 
-        auto examplesModel = new ExamplesListModel(s_exampleSetModel, isExamples, this);
-        auto filteredModel = new ListModelFilter(examplesModel, this);
-
         auto searchBox = new SearchBox(this);
         m_searcher = searchBox->m_lineEdit;
 
@@ -306,19 +303,15 @@ public:
         grid->addWidget(searchBar, 0, 1);
         grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
 
-        auto gridView = new GridView(this);
-        gridView->setModel(filteredModel);
+        auto gridView = new SectionedGridView(this);
+        new ExamplesViewController(s_exampleSetModel, gridView, isExamples, this);
+
         gridView->setItemDelegate(&m_exampleDelegate);
-        if (auto sb = gridView->verticalScrollBar())
-            sb->setSingleStep(25);
         grid->addWidget(gridView, 1, 1, 1, 2);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
-        connect(m_searcher,
-                &QLineEdit::textChanged,
-                filteredModel,
-                &ListModelFilter::setSearchString);
+        connect(m_searcher, &QLineEdit::textChanged, gridView, &SectionedGridView::setSearchString);
     }
 
     void onTagClicked(const QString &tag)
