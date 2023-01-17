@@ -10,6 +10,7 @@ const char avdManufacturerError[] = "no longer exists as a device";
 
 AndroidDeviceInfoList parseAvdList(const QString &output, Utils::FilePaths *avdErrorPaths);
 int platformNameToApiLevel(const QString &platformName);
+QString convertNameToExtension(const QString &name);
 
 } // namespace Internal
 } // namespace Android

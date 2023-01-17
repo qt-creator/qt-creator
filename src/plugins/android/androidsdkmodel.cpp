@@ -149,7 +149,9 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
         const SdkPlatform *platform = m_sdkPlatforms.at(index.row() - 1);
         if (role == Qt::DisplayRole) {
             if (index.column() == packageNameColumn) {
-                QString androidName = AndroidManager::androidNameForApiLevel(platform->apiLevel());
+                const QString androidName = AndroidManager::androidNameForApiLevel(
+                                                platform->apiLevel())
+                                            + platform->extension();
                 if (androidName.startsWith("Android"))
                     return androidName;
                 else

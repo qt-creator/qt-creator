@@ -74,6 +74,16 @@ void AndroidSdkPackage::setInstalledLocation(const Utils::FilePath &path)
         updatePackageDetails();
 }
 
+void AndroidSdkPackage::setExtension(const QString &extension)
+{
+    m_extension = extension;
+}
+
+QString AndroidSdkPackage::extension() const
+{
+    return m_extension;
+}
+
 void AndroidSdkPackage::updatePackageDetails()
 {
 

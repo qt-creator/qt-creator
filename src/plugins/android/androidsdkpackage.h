@@ -56,6 +56,7 @@ public:
 
     QString displayText() const;
     QString descriptionText() const;
+    QString extension() const;
     const QVersionNumber &revision() const;
     PackageState state() const;
     const QString &sdkStylePath() const;
@@ -66,6 +67,7 @@ protected:
     void setDescriptionText(const QString &str);
     void setState(PackageState state);
     void setInstalledLocation(const Utils::FilePath &path);
+    void setExtension(const QString &extension);
 
     virtual void updatePackageDetails();
 
@@ -75,6 +77,7 @@ private:
     QVersionNumber m_revision;
     PackageState m_state = PackageState::Unknown;
     QString m_sdkStylePath;
+    QString m_extension;
     Utils::FilePath m_installedLocation;
 
     friend class Internal::SdkManagerOutputParser;
