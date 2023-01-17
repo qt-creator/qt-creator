@@ -11,7 +11,7 @@ class ImageUtils
 public:
     ImageUtils();
 
-    static QString imageInfo(const QString &path);
+    static QString imageInfo(const QString &path, bool sizeInfo = true);
 };
 
 } // namespace QmlDesigner

@@ -8,16 +8,29 @@
 #include "utils/algorithm.h"
 #include "utils/qtcassert.h"
 
+#include <qmldesigner/utils/fileextractor.h>
+#include <qmldesigner/utils/filedownloader.h>
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
+#include <QQmlEngine>
+#include <QStandardPaths>
 
 namespace QmlDesigner {
 
-ContentLibraryTexturesModel::ContentLibraryTexturesModel(QObject *parent)
+ContentLibraryTexturesModel::ContentLibraryTexturesModel(const QString &bundleSubpath, QObject *parent)
     : QAbstractListModel(parent)
 {
+    qmlRegisterType<QmlDesigner::FileDownloader>("WebFetcher", 1, 0, "FileDownloader");
+    qmlRegisterType<QmlDesigner::FileExtractor>("WebFetcher", 1, 0, "FileExtractor");
+
+    static const QString baseDownloadPath =
+        QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation)
+        + "/QtDesignStudio/Downloaded";
+
+    m_downloadPath = baseDownloadPath + "/" + bundleSubpath;
 }
 
 int ContentLibraryTexturesModel::rowCount(const QModelIndex &) const
@@ -83,7 +96,7 @@ QHash<int, QByteArray> ContentLibraryTexturesModel::roleNames() const
     return roles;
 }
 
-void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath)
+void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath, const QString &baseUrl)
 {
     QDir bundleDir = QDir(bundlePath);
     if (!bundleDir.exists()) {
@@ -97,9 +110,12 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &bundlePath)
     const QFileInfoList dirs = bundleDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo &dir : dirs) {
         auto category = new ContentLibraryTexturesCategory(this, dir.fileName());
-        const QFileInfoList texFiles = QDir(dir.filePath()).entryInfoList(QDir::Files);
-        for (const QFileInfo &tex : texFiles)
-            category->addTexture(tex);
+        const QFileInfoList texFiles = QDir(dir.filePath() + "/icon").entryInfoList(QDir::Files);
+        for (const QFileInfo &tex : texFiles) {
+            QString urlPath = baseUrl + "/" + dir.fileName() + "/" + tex.baseName() + ".zip";
+            QString downloadPath = m_downloadPath + "/" + dir.fileName();
+            category->addTexture(tex, downloadPath, urlPath);
+        }
         m_bundleCategories.append(category);
     }
 

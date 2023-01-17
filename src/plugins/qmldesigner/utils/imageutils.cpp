@@ -11,11 +11,14 @@
 
 namespace QmlDesigner {
 
-QString QmlDesigner::ImageUtils::imageInfo(const QString &path)
+QString QmlDesigner::ImageUtils::imageInfo(const QString &path, bool fetchSizeInfo)
 {
     QFileInfo info(path);
     if (!info.exists())
         return {};
+
+    if (!fetchSizeInfo)
+        return QLatin1String("(%1)").arg(info.suffix());
 
     int width = 0;
     int height = 0;

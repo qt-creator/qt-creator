@@ -33,17 +33,40 @@ void FileDownloader::start()
     m_reply = Utils::NetworkAccessManager::instance()->get(request);
 
     QNetworkReply::connect(m_reply, &QNetworkReply::readyRead, this, [this]() {
-        m_tempFile.write(m_reply->readAll());
+        bool isDownloadingFile = false;
+        QString contentType;
+        if (!m_reply->hasRawHeader("Content-Type")) {
+            isDownloadingFile = true;
+        } else {
+            contentType = QString::fromUtf8(m_reply->rawHeader("Content-Type"));
+
+            if (contentType.startsWith("application/")
+                || contentType.startsWith("image/")
+                || contentType.startsWith("binary/")) {
+                isDownloadingFile = true;
+            } else {
+                qWarning() << "FileDownloader: Content type '" << contentType << "' is not supported";
+            }
+        }
+
+        if (isDownloadingFile)
+            m_tempFile.write(m_reply->readAll());
+        else
+            m_reply->close();
     });
 
     QNetworkReply::connect(m_reply,
                            &QNetworkReply::downloadProgress,
                            this,
                            [this](qint64 current, qint64 max) {
-                               if (max == 0)
+                               if (max <= 0) {
+                                   // NOTE: according to doc, we might have the second arg
+                                   // of QNetworkReply::downloadProgress less than 0.
                                    return;
+                               }
 
                                m_progress = current * 100 / max;
+
                                emit progressChanged();
                            });
 
@@ -74,6 +97,20 @@ void FileDownloader::start()
     });
 }
 
+void FileDownloader::setProbeUrl(bool value)
+{
+    if (m_probeUrl == value)
+        return;
+
+    m_probeUrl = value;
+    emit probeUrlChanged();
+}
+
+bool FileDownloader::probeUrl() const
+{
+    return m_probeUrl;
+}
+
 void FileDownloader::cancel()
 {
     if (m_reply)
@@ -82,10 +119,13 @@ void FileDownloader::cancel()
 
 void FileDownloader::setUrl(const QUrl &url)
 {
-    m_url = url;
-    emit nameChanged();
+    if (m_url != url) {
+        m_url = url;
+        emit urlChanged();
+    }
 
-    probeUrl();
+    if (m_probeUrl)
+        doProbeUrl();
 }
 
 QUrl FileDownloader::url() const
@@ -99,9 +139,10 @@ void FileDownloader::setDownloadEnabled(bool value)
         return;
 
     m_downloadEnabled = value;
+    emit downloadEnabledChanged();
 
-    if (!m_url.isEmpty())
-        probeUrl();
+    if (!m_url.isEmpty() && m_probeUrl)
+        doProbeUrl();
 }
 
 bool FileDownloader::downloadEnabled() const
@@ -127,8 +168,7 @@ QString FileDownloader::name() const
 
 QString FileDownloader::completeBaseName() const
 {
-    const QFileInfo fileInfo(m_url.path());
-    return fileInfo.completeBaseName();
+    return QFileInfo(m_url.path()).completeBaseName();
 }
 
 int FileDownloader::progress() const
@@ -151,8 +191,11 @@ bool FileDownloader::available() const
     return m_available;
 }
 
-void FileDownloader::probeUrl()
+void FileDownloader::doProbeUrl()
 {
+    if (!m_probeUrl)
+        return;
+
     if (!m_downloadEnabled) {
         m_available = false;
         emit availableChanged();

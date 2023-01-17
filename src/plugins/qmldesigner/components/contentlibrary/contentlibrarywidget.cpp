@@ -20,10 +20,11 @@
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QQmlContext>
-#include <QQuickWidget>
 #include <QQmlEngine>
 #include <QQuickItem>
+#include <QQuickWidget>
 #include <QShortcut>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
@@ -88,8 +89,8 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 ContentLibraryWidget::ContentLibraryWidget()
     : m_quickWidget(new QQuickWidget(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
-    , m_texturesModel(new ContentLibraryTexturesModel(this))
-    , m_environmentsModel(new ContentLibraryTexturesModel(this))
+    , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
+    , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
 {
     setWindowTitle(tr("Content Library", "Title of content library widget"));
     setMinimumWidth(120);
@@ -100,8 +101,11 @@ ContentLibraryWidget::ContentLibraryWidget()
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
     QString textureBundlePath = findTextureBundlePath();
-    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures");
-    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments");
+    QString baseUrl = QmlDesignerPlugin::settings()
+                          .value(DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL)
+                          .toString();
+    m_texturesModel->loadTextureBundle(textureBundlePath + "/Textures", baseUrl + "/Textures");
+    m_environmentsModel->loadTextureBundle(textureBundlePath + "/Environments", baseUrl + "/Environments");
 
     m_quickWidget->rootContext()->setContextProperties({
         {"rootView",          QVariant::fromValue(this)},
@@ -288,6 +292,20 @@ QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::texturesModel() cons
 QPointer<ContentLibraryTexturesModel> ContentLibraryWidget::environmentsModel() const
 {
     return m_environmentsModel;
+}
+
+bool ContentLibraryWidget::markTextureDownloading()
+{
+    if (m_anyTextureBeingDownloaded)
+        return false;
+
+    m_anyTextureBeingDownloaded = true;
+    return true; // let the caller know it can begin download
+}
+
+void ContentLibraryWidget::markNoTextureDownloading()
+{
+    m_anyTextureBeingDownloaded = false; // allow other textures to be downloaded
 }
 
 } // namespace QmlDesigner

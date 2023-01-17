@@ -26,7 +26,7 @@ class ContentLibraryTexturesCategory : public QObject
 public:
     ContentLibraryTexturesCategory(QObject *parent, const QString &name);
 
-    void addTexture(const QFileInfo &tex);
+    void addTexture(const QFileInfo &tex, const QString &subPath, const QString &webUrl);
     bool filter(const QString &searchText);
 
     QString name() const;
