@@ -147,7 +147,8 @@ public:
     virtual void log(const Utils::FilePath &workingDir,
                      const QStringList &files = {},
                      const QStringList &extraOptions = {},
-                     bool enableAnnotationContextMenu = false);
+                     bool enableAnnotationContextMenu = false,
+                     const std::function<void(Utils::CommandLine &)> &addAuthOptions = {});
     virtual void status(const Utils::FilePath &workingDir,
                         const QString &file = {},
                         const QStringList &extraOptions = {});

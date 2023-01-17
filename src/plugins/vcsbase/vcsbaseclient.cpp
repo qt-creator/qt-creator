@@ -390,7 +390,8 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
 void VcsBaseClient::log(const FilePath &workingDir,
                         const QStringList &files,
                         const QStringList &extraOptions,
-                        bool enableAnnotationContextMenu)
+                        bool enableAnnotationContextMenu,
+                        const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
     const QString vcsCmdString = vcsCommandString(LogCommand);
     const Id kind = vcsEditorKind(LogCommand);
@@ -409,19 +410,28 @@ void VcsBaseClient::log(const FilePath &workingDir,
         if (paramWidget) {
             paramWidget->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
-            connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                [=] { this->log(workingDir, files, extraOptions, enableAnnotationContextMenu); });
+            connect(paramWidget, &VcsBaseEditorConfig::commandExecutionRequested, this, [=] {
+                this->log(workingDir,
+                          files,
+                          extraOptions,
+                          enableAnnotationContextMenu,
+                          addAuthOptions);
+            });
             editor->setEditorConfig(paramWidget);
         }
     }
 
-    QStringList args = {vcsCmdString};
+    CommandLine args{vcsBinary(), {vcsCmdString}};
+    if (addAuthOptions)
+        addAuthOptions(args);
     if (paramWidget)
         args << paramWidget->arguments();
     else
         args << extraOptions;
     args << files;
-    enqueueJob(createCommand(workingDir, editor), args);
+    VcsCommand *cmd = createCommand(workingDir, editor);
+    cmd->addJob(args, vcsTimeoutS());
+    cmd->start();
 }
 
 void VcsBaseClient::revertFile(const FilePath &workingDir,

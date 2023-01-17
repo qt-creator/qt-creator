@@ -36,12 +36,13 @@ public:
     void log(const Utils::FilePath &workingDir,
              const QStringList &files = {},
              const QStringList &extraOptions = {},
-             bool enableAnnotationContextMenu = false) override;
+             bool enableAnnotationContextMenu = false,
+             const std::function<void(Utils::CommandLine &)> &addAuthOptions = {}) override;
 
     void describe(const Utils::FilePath &workingDirectory, int changeNumber, const QString &title);
 
-    // Add authorization options to the command line arguments.
-    static QStringList addAuthenticationOptions(const SubversionSettings &settings);
+    // Add authentication options to the command line arguments.
+    struct AddAuthOptions {};
 
     QString synchronousTopic(const Utils::FilePath &repository) const;
 
@@ -58,6 +59,9 @@ private:
     mutable Utils::FilePath m_svnVersionBinary;
     mutable QString m_svnVersion;
 };
+
+Utils::CommandLine &operator<<(Utils::CommandLine &command,
+                               const SubversionClient::AddAuthOptions &addAuth);
 
 } // namespace Internal
 } // namespace Subversion

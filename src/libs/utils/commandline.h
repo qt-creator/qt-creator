@@ -8,6 +8,8 @@
 #include "filepath.h"
 #include "hostosinfo.h"
 
+#include <QList>
+#include <QPair>
 #include <QStringList>
 
 namespace Utils {
@@ -126,9 +128,13 @@ public:
 
     void addArg(const QString &arg);
     void addArg(const QString &arg, OsType osType);
+    void addMaskedArg(const QString &arg);
+    void addMaskedArg(const QString &arg, OsType osType);
     void addArgs(const QStringList &inArgs);
     void addArgs(const QStringList &inArgs, OsType osType);
     void addArgs(const QString &inArgs, RawType);
+    CommandLine &operator<<(const QString &arg);
+    CommandLine &operator<<(const QStringList &arg);
 
     void prependArgs(const QStringList &inArgs);
     void prependArgs(const QString &inArgs, RawType);
@@ -158,6 +164,7 @@ private:
 
     FilePath m_executable;
     QString m_arguments;
+    QList<QPair<int, int>> m_masked;
 };
 
 } // Utils

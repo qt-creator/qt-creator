@@ -622,6 +622,18 @@ void ProcessArgs::addArgs(QString *args, const QStringList &inArgs)
         addArg(args, arg);
 }
 
+CommandLine &CommandLine::operator<<(const QString &arg)
+{
+    addArg(arg);
+    return *this;
+}
+
+CommandLine &CommandLine::operator<<(const QStringList &args)
+{
+    addArgs(args);
+    return *this;
+}
+
 bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, ProcessArgs *outArgs,
                                  const Environment *env, const FilePath *pwd)
 {
@@ -1432,12 +1444,26 @@ CommandLine CommandLine::fromUserInput(const QString &cmdline, MacroExpander *ex
 
 void CommandLine::addArg(const QString &arg)
 {
-    ProcessArgs::addArg(&m_arguments, arg, m_executable.osType());
+    addArg(arg, m_executable.osType());
 }
 
 void CommandLine::addArg(const QString &arg, OsType osType)
 {
     ProcessArgs::addArg(&m_arguments, arg, osType);
+}
+
+void CommandLine::addMaskedArg(const QString &arg)
+{
+    addMaskedArg(arg, m_executable.osType());
+}
+
+void CommandLine::addMaskedArg(const QString &arg, OsType osType)
+{
+    int start = m_arguments.size();
+    if (start > 0)
+        ++start;
+    addArg(arg, osType);
+    m_masked.push_back({start, m_arguments.size() - start});
 }
 
 void CommandLine::addArgs(const QStringList &inArgs)
@@ -1509,8 +1535,12 @@ void CommandLine::prependArgs(const QString &inArgs, RawType)
 QString CommandLine::toUserOutput() const
 {
     QString res = m_executable.toUserOutput();
-    if (!m_arguments.isEmpty())
-        res += ' ' + m_arguments;
+    if (!m_arguments.isEmpty()) {
+        QString args = m_arguments;
+        for (auto it = m_masked.crbegin(), end = m_masked.crend(); it != end; ++it)
+            args.replace(it->first, it->second, "*******");
+        res += ' ' + args;
+    }
     return res;
 }
 
