@@ -29,6 +29,40 @@ FileExtractor::FileExtractor(QObject *parent)
 
         emit birthTimeChanged();
     });
+
+    QObject::connect(
+        &m_timer, &QTimer::timeout, this, [this]() {
+            static QHash<QString, int> hash;
+            QDirIterator it(m_targetFolder, {"*.*"}, QDir::Files, QDirIterator::Subdirectories);
+
+            int count = 0;
+            while (it.hasNext()) {
+                if (!hash.contains(it.fileName())) {
+                    m_currentFile = it.fileName();
+                    hash.insert(m_currentFile, 0);
+                    emit currentFileChanged();
+                }
+                it.next();
+                count++;
+            }
+
+            qint64 currentSize = m_bytesBefore
+                                 - QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
+
+            // We can not get the uncompressed size of the archive yet, that is why we use an
+            // approximation. We assume a 50% compression rate.
+            int progress = std::min(100ll, currentSize * 100 / m_compressedSize * 2);
+            if (progress >= 0) {
+                m_progress = progress;
+                emit progressChanged();
+            } else {
+                qWarning() << "FileExtractor has got negative progress. Likely due to QStorageInfo.";
+            }
+
+            m_size = QString::number(currentSize);
+            m_count = QString::number(count);
+            emit sizeChanged();
+        });
 }
 
 FileExtractor::~FileExtractor() {}
@@ -74,9 +108,35 @@ void FileExtractor::setArchiveName(QString &filePath)
     emit targetFolderExistsChanged();
 }
 
-const QString FileExtractor::detailedText()
+const QString FileExtractor::detailedText() const
 {
     return m_detailedText;
+}
+
+void FileExtractor::setClearTargetPathContents(bool value)
+{
+    if (m_clearTargetPathContents != value) {
+        m_clearTargetPathContents = value;
+        emit clearTargetPathContentsChanged();
+    }
+}
+
+bool FileExtractor::clearTargetPathContents() const
+{
+    return m_clearTargetPathContents;
+}
+
+void FileExtractor::setAlwaysCreateDir(bool value)
+{
+    if (m_alwaysCreateDir != value) {
+        m_alwaysCreateDir = value;
+        emit alwaysCreateDirChanged();
+    }
+}
+
+bool FileExtractor::alwaysCreateDir() const
+{
+    return m_alwaysCreateDir;
 }
 
 bool FileExtractor::finished() const
@@ -126,51 +186,24 @@ QString FileExtractor::sourceFile() const
 
 void FileExtractor::extract()
 {
-    const QString targetFolder = m_targetPath.toString() + "/" + m_archiveName;
+    m_targetFolder = m_targetPath.toString() + "/" + m_archiveName;
 
     // If the target directory already exists, remove it and its content
-    QDir targetDir(targetFolder);
-    if (targetDir.exists())
+    QDir targetDir(m_targetFolder);
+    if (targetDir.exists() && m_clearTargetPathContents)
         targetDir.removeRecursively();
 
-    // Create a new directory to generate a proper creation date
-    targetDir.mkdir(targetFolder);
+    if (m_alwaysCreateDir) {
+        // Create a new directory to generate a proper creation date
+        targetDir.mkdir(m_targetFolder);
+    }
 
     Utils::Archive *archive = new Utils::Archive(m_sourceFile, m_targetPath);
     QTC_ASSERT(archive->isValid(), delete archive; return);
 
     m_timer.start();
-    qint64 bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
-    qint64 compressedSize = QFileInfo(m_sourceFile.toString()).size();
-
-    QTimer::connect(
-        &m_timer, &QTimer::timeout, this, [this, bytesBefore, targetFolder, compressedSize]() {
-            static QHash<QString, int> hash;
-            QDirIterator it(targetFolder, {"*.*"}, QDir::Files, QDirIterator::Subdirectories);
-
-            int count = 0;
-            while (it.hasNext()) {
-                if (!hash.contains(it.fileName())) {
-                    m_currentFile = it.fileName();
-                    hash.insert(m_currentFile, 0);
-                    emit currentFileChanged();
-                }
-                it.next();
-                count++;
-            }
-
-            qint64 currentSize = bytesBefore
-                                 - QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
-
-            // We can not get the uncompressed size of the archive yet, that is why we use an
-            // approximation. We assume a 50% compression rate.
-            m_progress = std::min(100ll, currentSize * 100 / compressedSize * 2);
-            emit progressChanged();
-
-            m_size = QString::number(currentSize);
-            m_count = QString::number(count);
-            emit sizeChanged();
-        });
+    m_bytesBefore = QStorageInfo(m_targetPath.toFileInfo().dir()).bytesAvailable();
+    m_compressedSize = QFileInfo(m_sourceFile.toString()).size();
 
     QObject::connect(archive, &Utils::Archive::outputReceived, this, [this](const QString &output) {
         m_detailedText += output;

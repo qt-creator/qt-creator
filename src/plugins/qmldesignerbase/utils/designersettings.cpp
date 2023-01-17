@@ -88,6 +88,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::OLD_STATES_EDITOR, false);
     restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);
     restoreValue(settings, DesignerSettingsKey::ACTIONS_MERGE_TEMPLATE_ENABLED, false);
+    restoreValue(settings, DesignerSettingsKey::DOWNLOADABLE_BUNDLES_URL,
+                 "https://cdn.qt.io/designstudio/bundles/textures");
 
     settings->endGroup();
     settings->endGroup();

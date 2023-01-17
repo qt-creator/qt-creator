@@ -12,10 +12,12 @@ namespace QmlDesigner {
 ContentLibraryTexturesCategory::ContentLibraryTexturesCategory(QObject *parent, const QString &name)
     : QObject(parent), m_name(name) {}
 
-void ContentLibraryTexturesCategory::addTexture(const QFileInfo &tex)
+void ContentLibraryTexturesCategory::addTexture(const QFileInfo &tex, const QString &downloadPath,
+                                                const QString &webUrl)
 {
-    QUrl icon = QUrl::fromLocalFile(tex.path() + "/icon/" + tex.baseName() + ".png");
-    m_categoryTextures.append(new ContentLibraryTexture(this, tex.filePath(), icon));
+    QUrl icon = QUrl::fromLocalFile(tex.absoluteFilePath());
+
+    m_categoryTextures.append(new ContentLibraryTexture(this, tex, downloadPath, icon, webUrl));
 }
 
 bool ContentLibraryTexturesCategory::filter(const QString &searchText)

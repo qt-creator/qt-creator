@@ -42,9 +42,11 @@ signals:
     void targetPathMustChange(const QString &newPath);
 
 private:
+    void onAvailableChanged();
     QmlDesigner::FileDownloader m_fileDownloader;
     QDateTime m_birthTime;
     bool m_exists = false;
     bool m_available = false;
     bool m_forceDownload = false;
+    bool m_started = false;
 };

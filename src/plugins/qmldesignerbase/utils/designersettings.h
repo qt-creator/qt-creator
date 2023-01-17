@@ -60,6 +60,7 @@ inline constexpr char SMOOTH_RENDERING[] = "SmoothRendering";
 inline constexpr char OLD_STATES_EDITOR[] = "ForceOldStatesEditor";
 inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
 inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
+inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesUrl";
 }
 
 class QMLDESIGNERBASE_EXPORT DesignerSettings

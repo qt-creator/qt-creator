@@ -25,6 +25,8 @@ class FileExtractor : public QObject
     Q_PROPERTY(bool targetFolderExists READ targetFolderExists NOTIFY targetFolderExistsChanged)
     Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
     Q_PROPERTY(QDateTime birthTime READ birthTime NOTIFY birthTimeChanged)
+    Q_PROPERTY(bool clearTargetPathContents READ clearTargetPathContents WRITE setClearTargetPathContents NOTIFY clearTargetPathContentsChanged)
+    Q_PROPERTY(bool alwaysCreateDir READ alwaysCreateDir WRITE setAlwaysCreateDir NOTIFY alwaysCreateDirChanged)
 
 public:
     explicit FileExtractor(QObject *parent = nullptr);
@@ -36,7 +38,7 @@ public:
     void setTargetPath(const QString &path);
     void setSourceFile(QString &sourceFilePath);
     void setArchiveName(QString &filePath);
-    const QString detailedText();
+    const QString detailedText() const;
     bool finished() const;
     QString currentFile() const;
     QString size() const;
@@ -44,6 +46,10 @@ public:
     bool targetFolderExists() const;
     int progress() const;
     QDateTime birthTime() const;
+    void setClearTargetPathContents(bool value);
+    bool clearTargetPathContents() const;
+    void setAlwaysCreateDir(bool value);
+    bool alwaysCreateDir() const;
 
     QString sourceFile() const;
     QString archiveName() const;
@@ -60,9 +66,12 @@ signals:
     void targetFolderExistsChanged();
     void progressChanged();
     void birthTimeChanged();
+    void clearTargetPathContentsChanged();
+    void alwaysCreateDirChanged();
 
 private:
     Utils::FilePath m_targetPath;
+    QString m_targetFolder; // The same as m_targetPath, but with the archive name also.
     Utils::FilePath m_sourceFile;
     QString m_detailedText;
     bool m_finished = false;
@@ -73,6 +82,11 @@ private:
     QString m_archiveName;
     int m_progress = 0;
     QDateTime m_birthTime;
+    bool m_clearTargetPathContents = false;
+    bool m_alwaysCreateDir = false;
+
+    qint64 m_bytesBefore = 0;
+    qint64 m_compressedSize = 0;
 };
 
 } // QmlDesigner

@@ -108,6 +108,43 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
                          this,
                          &DataModelDownloader::targetPathMustChange);
     }
+
+    connect(&m_fileDownloader, &QmlDesigner::FileDownloader::finishedChanged, this, [this]() {
+        m_started = false;
+
+        if (m_fileDownloader.finished()) {
+            const Utils::FilePath archiveFile = Utils::FilePath::fromString(
+                m_fileDownloader.tempFile());
+            QTC_ASSERT(Utils::Archive::supportsFile(archiveFile), return );
+            auto archive = new Utils::Archive(archiveFile, tempFilePath());
+            QTC_ASSERT(archive->isValid(), delete archive; return );
+            QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
+                QTC_CHECK(ret);
+                archive->deleteLater();
+                emit finished();
+            });
+            archive->unarchive();
+        }
+    });
+}
+
+void DataModelDownloader::onAvailableChanged()
+{
+    m_available = m_fileDownloader.available();
+
+    emit availableChanged();
+
+    if (!m_available) {
+        qWarning() << m_fileDownloader.url() << "failed to download";
+        return;
+    }
+
+    if (!m_forceDownload && (m_fileDownloader.lastModified() <= m_birthTime))
+        return;
+
+    m_started = true;
+
+    m_fileDownloader.start();
 }
 
 bool DataModelDownloader::start()
@@ -122,42 +159,10 @@ bool DataModelDownloader::start()
     m_fileDownloader.setUrl(QUrl::fromUserInput(
         "https://download.qt.io/learning/examples/qtdesignstudio/dataImports.zip"));
 
-    bool started = false;
+    m_started = false;
 
-    connect(&m_fileDownloader, &QmlDesigner::FileDownloader::availableChanged, this, [this, &started]() {
-
-        m_available = m_fileDownloader.available();
-
-        emit availableChanged();
-
-        if (!m_available) {
-            qWarning() << m_fileDownloader.url() << "failed to download";
-            return;
-        }
-
-        if (!m_forceDownload && (m_fileDownloader.lastModified() <= m_birthTime))
-            return;
-
-        started = true;
-
-        m_fileDownloader.start();
-        connect(&m_fileDownloader, &QmlDesigner::FileDownloader::finishedChanged, this, [this]() {
-            if (m_fileDownloader.finished()) {
-                const Utils::FilePath archiveFile = Utils::FilePath::fromString(
-                    m_fileDownloader.tempFile());
-                QTC_ASSERT(Utils::Archive::supportsFile(archiveFile), return );
-                auto archive = new Utils::Archive(archiveFile, tempFilePath());
-                QTC_ASSERT(archive->isValid(), delete archive; return );
-                QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
-                    QTC_CHECK(ret);
-                    archive->deleteLater();
-                    emit finished();
-                });
-                archive->unarchive();
-            }
-        });
-    });
-    return started;
+    connect(&m_fileDownloader, &QmlDesigner::FileDownloader::availableChanged, this, &DataModelDownloader::onAvailableChanged);
+    return m_started;
 }
 
 bool DataModelDownloader::exists() const
