@@ -29,6 +29,8 @@ public:
     bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                          const Utils::FilePath &fileName) override;
     Utils::FilePath projectFileForMainCppFile(const Utils::FilePath &fileName) const;
+    QStringList supportedExtensions() const override { return {"qml"}; };
+
 private:
     bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
                            CPlusPlus::Document::Ptr document, ITestFramework *framework);

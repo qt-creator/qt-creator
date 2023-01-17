@@ -48,6 +48,9 @@ public:
     virtual void init(const Utils::FilePaths &filesToParse, bool fullParse) = 0;
     virtual bool processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
                                  const Utils::FilePath &fileName) = 0;
+
+    virtual QStringList supportedExtensions() const { return {}; }
+
     virtual void release() = 0;
 
     ITestFramework *framework() const { return m_framework; }

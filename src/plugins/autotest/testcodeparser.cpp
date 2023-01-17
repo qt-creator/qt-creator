@@ -25,10 +25,10 @@
 #include <QFutureInterface>
 #include <QLoggingCategory>
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
-
 namespace Autotest {
 namespace Internal {
+
+Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
 
 using namespace ProjectExplorer;
 
