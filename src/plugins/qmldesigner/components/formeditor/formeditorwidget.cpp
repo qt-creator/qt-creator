@@ -270,7 +270,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
-    m_resetAction = new QAction(Utils::Icons::RESET_TOOLBAR.icon(), tr("Reset View"), this);
+    m_resetAction = new QAction(DesignerActionManager::instance().contextIcon(DesignerIcons::ResetViewIcon), tr("Reset View"), this);
     registerActionAsCommand(m_resetAction,
                             Constants::FORMEDITOR_REFRESH,
                             QKeySequence(Qt::Key_R),

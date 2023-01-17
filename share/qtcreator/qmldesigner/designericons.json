@@ -53,6 +53,9 @@
     "PositionsersIcon": {
         "iconName": "s_positioners"
     },
+    "ResetViewIcon": {
+        "iconName": "rotationOutline"
+    },
     "SelecionIcon": {
         "iconName": "s_selection"
     },

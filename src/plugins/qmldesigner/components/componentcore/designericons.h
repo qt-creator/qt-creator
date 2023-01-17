@@ -60,10 +60,11 @@ public:
         MakeComponentIcon,
         MergeWithTemplateIcon,
         PositionsersIcon,
+        ResetViewIcon,
         SelecionIcon,
+        ShowBoundsIcon,
         SnappingIcon,
         TimelineIcon,
-        ShowBoundsIcon,
         VisibilityIcon
     };
     Q_ENUM(IconId)

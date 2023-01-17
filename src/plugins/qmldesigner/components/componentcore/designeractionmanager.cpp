@@ -11,6 +11,7 @@
 #include "formatoperation.h"
 #include "modelnodecontextmenu_helper.h"
 #include "qmldesignerconstants.h"
+#include "qmleditormenu.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
 #include <nodehints.h>
@@ -648,11 +649,11 @@ public:
 
                     const QString propertyName = QString::fromUtf8(signalHandler.name());
 
-                    QMenu *activeSignalHandlerGroup = new QMenu(propertyName, menu());
+                    QMenu *activeSignalHandlerGroup = new QmlEditorMenu(propertyName, menu());
 
-                    QMenu *editSignalGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                         "Change Signal"),
-                                                       menu());
+                    QMenu *editSignalGroup = new QmlEditorMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                                 "Change Signal"),
+                                                               menu());
 
                     for (const auto &signalStr : signalsList) {
                         if (prependSignal(signalStr).toUtf8() == signalHandler.name())
@@ -679,9 +680,9 @@ public:
                     activeSignalHandlerGroup->addMenu(editSignalGroup);
 
                     if (!slotsLists.isEmpty()) {
-                        QMenu *editSlotGroup = new QMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                           "Change Slot"),
-                                                         menu());
+                        QMenu *editSlotGroup = new QmlEditorMenu(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                                   "Change Slot"),
+                                                                 menu());
 
                         if (slotsLists.size() == 1) {
                             for (const auto &slot : slotsLists.at(0).slotEntries) {
@@ -701,7 +702,7 @@ public:
                             }
                         } else {
                             for (const auto &slotCategory : slotsLists) {
-                                QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                                QMenu *slotCategoryMenu = new QmlEditorMenu(slotCategory.categoryName, menu());
                                 for (const auto &slot : slotCategory.slotEntries) {
                                     ActionTemplate *newSlotAction = new ActionTemplate(
                                         (slot.name + "Id").toLatin1(),
@@ -754,12 +755,12 @@ public:
         }
 
         //singular add connection:
-        QMenu *addConnection = new QMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                   "Add Signal Handler")),
-                                         menu());
+        QMenu *addConnection = new QmlEditorMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                           "Add Signal Handler")),
+                                                 menu());
 
         for (const auto &signalStr : signalsList) {
-            QMenu *newSignal = new QMenu(signalStr, addConnection);
+            QMenu *newSignal = new QmlEditorMenu(signalStr, addConnection);
 
             if (!slotsLists.isEmpty()) {
                 if (slotsLists.size() == 1) {
@@ -782,7 +783,7 @@ public:
                     }
                 } else {
                     for (const auto &slotCategory : slotsLists) {
-                        QMenu *slotCategoryMenu = new QMenu(slotCategory.categoryName, menu());
+                        QMenu *slotCategoryMenu = new QmlEditorMenu(slotCategory.categoryName, menu());
                         for (const auto &slot : slotCategory.slotEntries) {
                             ActionTemplate *newSlot = new ActionTemplate(
                                 QString(signalStr + slot.name + "Id").toLatin1(),
@@ -1336,15 +1337,6 @@ void DesignerActionManager::createDefaultDesignerActions()
     using namespace ModelNodeOperations;
     using namespace FormatOperation;
 
-    const Utils::Icon prevIcon({
-        {":/utils/images/prev.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
-    const Utils::Icon nextIcon({
-        {":/utils/images/next.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
-    const Utils::Icon addIcon({
-        {":/utils/images/plus.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
-
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,
                           selectionCategory,
@@ -1379,7 +1371,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           raiseCommandId,
                           raiseDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/raise.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           arrangeCategory,
                           QKeySequence(),
                           11,
@@ -1389,7 +1381,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeContextMenuAction(
                           lowerCommandId,
                           lowerDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/lower.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           arrangeCategory,
                           QKeySequence(),
                           12,
@@ -1429,10 +1421,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(
         new ModelNodeAction(resetPositionCommandId,
                             resetPositionDisplayName,
-                            Utils::Icon({{":/utils/images/pan.png", Utils::Theme::IconsBaseColor},
-                                         {":/utils/images/iconoverlay_reset.png",
-                                          Utils::Theme::IconsStopToolBarColor}})
-                                .icon(),
+                            {},
                             resetPositionTooltip,
                             editCategory,
                             QKeySequence("Ctrl+d"),
@@ -1440,59 +1429,32 @@ void DesignerActionManager::createDefaultDesignerActions()
                             &resetPosition,
                             &selectionNotEmptyAndHasXorYProperty));
 
-    const QString fontName = "qtds_propertyIconFont.ttf";
-    const QColor iconColorDefault(Theme::getColor(Theme::IconsBaseColor));
-    const QColor iconColorDisabled(Theme::getColor(Theme::IconsDisabledColor));
-    const QString copyUnicode = Theme::getIconUnicode(Theme::Icon::copyStyle);
-    const QString pasteUnicode = Theme::getIconUnicode(Theme::Icon::pasteStyle);
+    addDesignerAction(new ModelNodeAction(
+                          copyFormatCommandId,
+                          copyFormatDisplayName,
+                          {},
+                          copyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          41,
+                          &copyFormat,
+                          &propertiesCopyable));
 
-    const auto copyDefault = Utils::StyleHelper::IconFontHelper(copyUnicode,
-                                                                iconColorDefault,
-                                                                QSize(28, 28),
-                                                                QIcon::Normal);
-    const auto copyDisabled = Utils::StyleHelper::IconFontHelper(copyUnicode,
-                                                                 iconColorDisabled,
-                                                                 QSize(28, 28),
-                                                                 QIcon::Disabled);
-    const QIcon copyIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                   {copyDefault, copyDisabled});
-
-    const auto pasteDefault = Utils::StyleHelper::IconFontHelper(pasteUnicode,
-                                                                 iconColorDefault,
-                                                                 QSize(28, 28),
-                                                                 QIcon::Normal);
-    const auto pasteDisabled = Utils::StyleHelper::IconFontHelper(pasteUnicode,
-                                                                  iconColorDisabled,
-                                                                  QSize(28, 28),
-                                                                  QIcon::Disabled);
-    const QIcon pasteIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                    {pasteDefault, pasteDisabled});
-
-    addDesignerAction(new ModelNodeAction(copyFormatCommandId,
-                                          copyFormatDisplayName,
-                                          copyIcon,
-                                          copyFormatTooltip,
-                                          editCategory,
-                                          QKeySequence(),
-                                          41,
-                                          &copyFormat,
-                                          &propertiesCopyable));
-
-    addDesignerAction(new ModelNodeAction(applyFormatCommandId,
-                                          applyFormatDisplayName,
-                                          pasteIcon,
-                                          applyFormatTooltip,
-                                          editCategory,
-                                          QKeySequence(),
-                                          42,
-                                          &applyFormat,
-                                          &propertiesApplyable));
+    addDesignerAction(new ModelNodeAction(
+                          applyFormatCommandId,
+                          applyFormatDisplayName,
+                          {},
+                          applyFormatTooltip,
+                          editCategory,
+                          QKeySequence(),
+                          42,
+                          &applyFormat,
+                          &propertiesApplyable));
 
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,
                           resetSizeDisplayName,
-                          Utils::Icon({{":/utils/images/fittoview.png", Utils::Theme::IconsBaseColor},
-                                      {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           resetSizeToolTip,
                           editCategory,
                           QKeySequence("shift+s"),
@@ -1521,7 +1483,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsFillCommandId,
                           anchorsFillDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           anchorsFillToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("shift+f")),
@@ -1532,8 +1494,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsResetCommandId,
                           anchorsResetDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           anchorsResetToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("Ctrl+Shift+r")),
@@ -1568,8 +1529,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopCommandId,
                           anchorParentTopDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_top.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1579,8 +1539,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentBottomCommandId,
                           anchorParentBottomDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_bottom.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1590,8 +1549,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentLeftCommandId,
                           anchorParentLeftDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_left.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1601,8 +1559,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentRightCommandId,
                           anchorParentRightDisplayName,
-                          Utils::Icon({{":/qmldesigner/images/anchor_right.png", Utils::Theme::IconsBaseColor},
-                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
+                          {},
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1659,16 +1616,16 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(effectMenu);
 
     addDesignerAction(new ModelNodeFormEditorAction(
-        createFlowActionAreaCommandId,
-        createFlowActionAreaDisplayName,
-        addIcon.icon(),
-        addFlowActionToolTip,
-        flowCategory,
-        {},
-        1,
-        &createFlowActionArea,
-        &isFlowItem,
-        &flowOptionVisible));
+                          createFlowActionAreaCommandId,
+                          createFlowActionAreaDisplayName,
+                          {},
+                          addFlowActionToolTip,
+                          flowCategory,
+                          {},
+                          1,
+                          &createFlowActionArea,
+                          &isFlowItem,
+                          &flowOptionVisible));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           setFlowStartCommandId,
@@ -1801,16 +1758,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      &removeGroup,
                                                      &isGroup));
 
-    addDesignerAction(new ModelNodeFormEditorAction(addItemToStackedContainerCommandId,
-                                                    addItemToStackedContainerDisplayName,
-                                                    addIcon.icon(),
-                                                    addItemToStackedContainerToolTip,
-                                                    stackedContainerCategory,
-                                                    QKeySequence("Ctrl+Shift+a"),
-                                                    1,
-                                                    &addItemToStackedContainer,
-                                                    &isStackedContainer,
-                                                    &isStackedContainer));
+    addDesignerAction(new ModelNodeFormEditorAction(
+                          addItemToStackedContainerCommandId,
+                          addItemToStackedContainerDisplayName,
+                          {},
+                          addItemToStackedContainerToolTip,
+                          stackedContainerCategory,
+                          QKeySequence("Ctrl+Shift+a"),
+                          1,
+                          &addItemToStackedContainer,
+                          &isStackedContainer,
+                          &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           addTabBarToStackedContainerCommandId,
@@ -1826,7 +1784,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           decreaseIndexOfStackedContainerCommandId,
                           decreaseIndexToStackedContainerDisplayName,
-                          prevIcon.icon(),
+                          {},
                           decreaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Left"),
@@ -1838,7 +1796,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           increaseIndexOfStackedContainerCommandId,
                           increaseIndexToStackedContainerDisplayName,
-                          nextIcon.icon(),
+                          {},
                           increaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Right"),
@@ -1850,7 +1808,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutRowLayoutCommandId,
                           layoutRowLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           layoutRowLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+u"),
@@ -1861,7 +1819,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutColumnLayoutCommandId,
                           layoutColumnLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           layoutColumnLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+l"),
@@ -1872,7 +1830,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
                           layoutGridLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png", Utils::Theme::IconsBaseColor}}).icon(),
+                          {},
                           layoutGridLayoutToolTip,
                           layoutCategory,
                           QKeySequence("shift+g"),

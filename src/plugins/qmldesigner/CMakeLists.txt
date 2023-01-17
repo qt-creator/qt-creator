@@ -618,6 +618,7 @@ extend_qtc_plugin(QmlDesigner
     formatoperation.cpp formatoperation.h
     navigation2d.cpp navigation2d.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
+    qmleditormenu.cpp qmleditormenu.h
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h

@@ -5,6 +5,7 @@
 #include "modelnodecontextmenu_helper.h"
 #include "designeractionmanager.h"
 #include <qmldesignerplugin.h>
+#include "qmleditormenu.h"
 
 #include <modelnode.h>
 
@@ -68,7 +69,7 @@ void populateMenu(QSet<ActionInterface* > &actionInterfaces,
 
 void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBool)
 {
-    auto mainMenu = new QMenu();
+    auto mainMenu = new QmlEditorMenu();
 
     m_selectionContext.setShowSelectionTools(selectionMenuBool);
     m_selectionContext.setScenePosition(m_scenePos);
