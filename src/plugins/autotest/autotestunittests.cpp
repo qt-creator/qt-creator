@@ -4,7 +4,10 @@
 #include "autotestunittests.h"
 
 #include "testcodeparser.h"
+#include "testframeworkmanager.h"
 #include "testtreemodel.h"
+
+#include "qtest/qttestsettings.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
@@ -72,6 +75,12 @@ void AutoTestUnitTests::initTestCase()
             m_checkBoost = true;
         }
     }
+
+    // Enable quick check for derived tests
+    static const Utils::Id id = Utils::Id("AutoTest.Framework.QtTest");
+    static_cast<Autotest::Internal::QtTestSettings *>(
+        TestFrameworkManager::frameworkForId(id)->testSettings())
+        ->quickCheckForDerivedTests.setValue(true);
 }
 
 void AutoTestUnitTests::cleanupTestCase()

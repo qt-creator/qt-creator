@@ -33,7 +33,8 @@ public:
 
 private:
     bool handleQtQuickTest(QFutureInterface<TestParseResultPtr> &futureInterface,
-                           CPlusPlus::Document::Ptr document, ITestFramework *framework);
+                           CPlusPlus::Document::Ptr document,
+                           ITestFramework *framework);
     void handleDirectoryChanged(const QString &directory);
     void doUpdateWatchPaths(const QStringList &directories);
     QString quickTestName(const CPlusPlus::Document::Ptr &doc) const;
@@ -43,6 +44,7 @@ private:
     QFileSystemWatcher m_directoryWatcher;
     QMap<QString, QMap<QString, QDateTime> > m_watchedFiles;
     QMap<Utils::FilePath, Utils::FilePath> m_mainCppFiles;
+    bool m_checkForDerivedTests = false;
 };
 
 } // namespace Internal

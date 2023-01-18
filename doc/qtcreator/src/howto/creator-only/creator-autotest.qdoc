@@ -463,6 +463,11 @@
     inside the spin box next to it. Set the number to 0 if you want no limit
     at all. The default number is 2000.
 
+    To check for Qt Quick Tests that are derived from TestCase select the
+    \uicontrol {Check for derived Qt Quick tests} check box.
+    Note: this feature is rather expensive and will increase the
+    scan time significantly.
+
     \section2 Specifying Settings for Running Google Tests
 
     To specify settings for running Google tests, select \uicontrol Edit >

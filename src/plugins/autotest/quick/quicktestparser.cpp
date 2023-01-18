@@ -8,6 +8,7 @@
 #include "quicktest_utils.h"
 #include "../testcodeparser.h"
 #include "../testtreemodel.h"
+#include "../qtest/qttestsettings.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
@@ -201,14 +202,15 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Ut
 static bool checkQmlDocumentForQuickTestCode(QFutureInterface<TestParseResultPtr> &futureInterface,
                                              const Document::Ptr &qmlJSDoc,
                                              ITestFramework *framework,
-                                             const Utils::FilePath &proFile = Utils::FilePath())
+                                             const Utils::FilePath &proFile = Utils::FilePath(),
+                                             bool checkForDerivedTest = false)
 {
     if (qmlJSDoc.isNull())
         return false;
     AST::Node *ast = qmlJSDoc->ast();
     QTC_ASSERT(ast, return false);
     Snapshot snapshot = ModelManagerInterface::instance()->snapshot();
-    TestQmlVisitor qmlVisitor(qmlJSDoc, snapshot);
+    TestQmlVisitor qmlVisitor(qmlJSDoc, snapshot, checkForDerivedTest);
     AST::Node::accept(ast, &qmlVisitor);
     if (!qmlVisitor.isValid())
         return false;
@@ -272,7 +274,11 @@ bool QuickTestParser::handleQtQuickTest(QFutureInterface<TestParseResultPtr> &fu
     for (const Document::Ptr &qmlJSDoc : qmlDocs) {
         if (futureInterface.isCanceled())
             break;
-        result |= checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, framework, proFile);
+        result |= checkQmlDocumentForQuickTestCode(futureInterface,
+                                                   qmlJSDoc,
+                                                   framework,
+                                                   proFile,
+                                                   m_checkForDerivedTests);
     }
     return result;
 }
@@ -354,6 +360,10 @@ void QuickTestParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
         // get rid of all cached main cpp files
         m_mainCppFiles.clear();
     }
+
+    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
+    m_checkForDerivedTests = qtSettings->quickCheckForDerivedTests.value();
+
     CppParser::init(filesToParse, fullParse);
 }
 
@@ -372,7 +382,11 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
         if (proFile.isEmpty())
             return false;
         Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
-        return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, framework(), proFile);
+        return checkQmlDocumentForQuickTestCode(futureInterface,
+                                                qmlJSDoc,
+                                                framework(),
+                                                proFile,
+                                                m_checkForDerivedTests);
     }
 
    CPlusPlus::Document::Ptr cppdoc = document(fileName);

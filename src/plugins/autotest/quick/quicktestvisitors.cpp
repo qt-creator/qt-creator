@@ -18,9 +18,12 @@ namespace Internal {
 
 static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
-TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot)
+TestQmlVisitor::TestQmlVisitor(QmlJS::Document::Ptr doc,
+                               const QmlJS::Snapshot &snapshot,
+                               bool checkForDerivedTest)
     : m_currentDoc(doc)
     , m_snapshot(snapshot)
+    , m_checkForDerivedTest(checkForDerivedTest)
 {
 }
 
@@ -68,8 +71,10 @@ bool TestQmlVisitor::visit(QmlJS::AST::UiObjectDefinition *ast)
     const QStringView name = ast->qualifiedTypeNameId->name;
     m_objectIsTestStack.push(false);
     if (name != QLatin1String("TestCase")) {
-        if (!isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot))
+        if (!m_checkForDerivedTest
+            || !isDerivedFromTestCase(ast->qualifiedTypeNameId, m_currentDoc, m_snapshot)) {
             return true;
+        }
     } else if (!documentImportsQtTest(m_currentDoc.data())) {
         return true; // find nested TestCase items as well
     }

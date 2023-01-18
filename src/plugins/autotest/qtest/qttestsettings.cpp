@@ -72,6 +72,14 @@ QtTestSettings::QtTestSettings()
     maxWarnings.setDefaultValue(2000);
     maxWarnings.setSpecialValueText(Tr::tr("Unlimited"));
     maxWarnings.setEnabler(&limitWarnings);
+
+    registerAspect(&quickCheckForDerivedTests);
+    quickCheckForDerivedTests.setSettingsKey("QuickCheckForDerivedTests");
+    quickCheckForDerivedTests.setDefaultValue(false);
+    quickCheckForDerivedTests.setLabelText(Tr::tr("Check for derived Qt Quick tests"));
+    quickCheckForDerivedTests.setToolTip(
+        Tr::tr("Search for Qt Quick tests that are derived from TestCase.\nWarning: Enabling this "
+               "feature significantly increases scan time."));
 }
 
 QString QtTestSettings::metricsTypeToOption(const MetricsType type)
@@ -114,6 +122,8 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
                 title(Tr::tr("Benchmark Metrics")),
                 Column { s.metrics }
             },
+            br,
+            s.quickCheckForDerivedTests,
         };
 
         Column { Row { col, st }, st }.attachTo(widget);

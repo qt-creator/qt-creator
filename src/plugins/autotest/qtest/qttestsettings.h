@@ -33,6 +33,7 @@ public:
     Utils::BoolAspect logSignalsSlots;
     Utils::BoolAspect limitWarnings;
     Utils::IntegerAspect maxWarnings;
+    Utils::BoolAspect quickCheckForDerivedTests;
 };
 
 class QtTestSettingsPage final : public Core::IOptionsPage

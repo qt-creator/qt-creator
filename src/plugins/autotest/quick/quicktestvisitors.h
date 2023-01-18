@@ -26,7 +26,9 @@ public:
 class TestQmlVisitor : public QmlJS::AST::Visitor
 {
 public:
-    explicit TestQmlVisitor(QmlJS::Document::Ptr doc, const QmlJS::Snapshot &snapshot);
+    TestQmlVisitor(QmlJS::Document::Ptr doc,
+                   const QmlJS::Snapshot &snapshot,
+                   bool checkForDerivedTest);
 
     bool visit(QmlJS::AST::UiObjectDefinition *ast) override;
     void endVisit(QmlJS::AST::UiObjectDefinition *ast) override;
@@ -48,6 +50,7 @@ private:
     QVector<QuickTestCaseSpec> m_testCases;
     QStack<bool> m_objectIsTestStack;
     bool m_expectTestCaseName = false;
+    bool m_checkForDerivedTest = false;
 };
 
 class QuickTestAstVisitor : public CPlusPlus::ASTVisitor
