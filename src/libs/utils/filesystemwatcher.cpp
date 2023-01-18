@@ -3,6 +3,7 @@
 
 #include "filesystemwatcher.h"
 #include "globalfilechangeblocker.h"
+#include "filepath.h"
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -437,9 +438,9 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
     }
 
     QStringList toReadd;
-    const QDir dir(path);
-    for (const QFileInfo &entry : dir.entryInfoList(QDir::Files)) {
-        const QString file = entry.filePath();
+    const auto dir = FilePath::fromString(path);
+    for (const FilePath &entry : dir.dirEntries(QDir::Files)) {
+        const QString file = entry.toString();
         if (d->m_files.contains(file))
             toReadd.append(file);
     }
