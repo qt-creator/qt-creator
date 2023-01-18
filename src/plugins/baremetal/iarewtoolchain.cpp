@@ -462,7 +462,7 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
                         if (!compilerPath.isEmpty()) {
                             // Build full compiler path.
                             compilerPath += entry.subExePath;
-                            const FilePath fn = FilePath::fromString(compilerPath);
+                            const FilePath fn = FilePath::fromUserInput(compilerPath);
                             if (compilerExists(fn)) {
                                 // Note: threeLevelKey is a guessed toolchain version.
                                 candidates.push_back({fn, threeLevelKey});

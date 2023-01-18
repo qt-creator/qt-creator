@@ -596,8 +596,8 @@ Toolchains KeilToolChainFactory::autoDetect(const ToolchainDetector &detector) c
         if (!productKey.startsWith("App"))
             continue;
         registry.beginGroup(productKey);
-        const FilePath productPath(FilePath::fromString(registry.value("ProductDir")
-                                                        .toString()));
+        const FilePath productPath(FilePath::fromUserInput(registry.value("ProductDir")
+                                                           .toString()));
         // Fetch the toolchain executable path.
         FilePath compilerPath;
         if (productPath.endsWith("ARM"))
