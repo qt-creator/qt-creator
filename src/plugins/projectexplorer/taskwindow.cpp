@@ -25,6 +25,8 @@
 #include <utils/itemviews.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QDir>
@@ -940,20 +942,16 @@ void TaskDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, 
             }
         }
 
-        QColor mix;
-        mix.setRgb( static_cast<int>(0.7 * textColor.red()   + 0.3 * backgroundColor.red()),
-                static_cast<int>(0.7 * textColor.green() + 0.3 * backgroundColor.green()),
-                static_cast<int>(0.7 * textColor.blue()  + 0.3 * backgroundColor.blue()));
-        painter->setPen(mix);
-
+        const QColor mix = StyleHelper::mergedColors(textColor, backgroundColor, 70);
         const QString directory = QDir::toNativeSeparators(index.data(TaskModel::File).toString());
         int secondBaseLine = positions.top() + fm.ascent() + height + leading;
-        if (index.data(TaskModel::FileNotFound).toBool()
-                && !directory.isEmpty()) {
-            QString fileNotFound = Tr::tr("File not found: %1").arg(directory);
-            painter->setPen(Qt::red);
+        if (index.data(TaskModel::FileNotFound).toBool() && !directory.isEmpty()) {
+            const QString fileNotFound = Tr::tr("File not found: %1").arg(directory);
+            const QColor errorColor = selected ? mix : creatorTheme()->color(Theme::TextColorError);
+            painter->setPen(errorColor);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, fileNotFound);
         } else {
+            painter->setPen(mix);
             painter->drawText(positions.textAreaLeft(), secondBaseLine, directory);
         }
     }
