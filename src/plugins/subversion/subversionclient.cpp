@@ -99,7 +99,7 @@ Id SubversionClient::vcsEditorKind(VcsCommandTag cmd) const
 }
 
 // Add authorization options to the command line arguments.
-CommandLine &operator<<(Utils::CommandLine &command, const SubversionClient::AddAuthOptions &addAuth)
+CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions)
 {
     if (!s_settings->hasAuthentication())
         return command;
