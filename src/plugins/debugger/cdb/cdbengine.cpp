@@ -2608,7 +2608,7 @@ static StackFrames parseFrames(const GdbMi &gdbmi, bool *incomplete = nullptr)
         frame.level = QString::number(i);
         const GdbMi fullName = frameMi["fullname"];
         if (fullName.isValid()) {
-            frame.file = FilePath::fromString(fullName.data()).normalizedPathName();
+            frame.file = FilePath::fromUserInput(fullName.data()).normalizedPathName();
             frame.line = frameMi["line"].data().toInt();
             frame.usable = false; // To be decided after source path mapping.
             const GdbMi languageMi = frameMi["language"];

@@ -281,7 +281,7 @@ void ModulesHandler::updateModule(const Module &module)
     }
 
     try { // MinGW occasionallly throws std::bad_alloc.
-        ElfReader reader(FilePath::fromString(path));
+        ElfReader reader(FilePath::fromUserInput(path));
         item->module.elfData = reader.readHeaders();
         item->update();
     } catch(...) {

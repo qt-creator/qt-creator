@@ -1600,7 +1600,7 @@ QString GdbEngine::cleanupFullName(const QString &fileName)
     }
 
     cleanFilePath.clear();
-    const QString base = FilePath::fromString(fileName).fileName();
+    const QString base = FilePath::fromUserInput(fileName).fileName();
 
     QMultiMap<QString, QString>::const_iterator jt = m_baseNameToFullName.constFind(base);
     while (jt != m_baseNameToFullName.constEnd() && jt.key() == base) {
