@@ -10,10 +10,21 @@
 #include "../itestframework.h"
 #include "../testsettings.h"
 
+#include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
 namespace Autotest {
 namespace Internal {
+
+static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
+{
+    if (debugMode)
+        return testCases;
+
+    return Utils::transform(testCases, [](const QString &testCase){
+        return testCase.contains(' ') ? '"' + testCase + '"' : testCase;
+    });
+}
 
 TestOutputReader *QtTestConfiguration::outputReader(const QFutureInterface<TestResultPtr> &fi,
                                                     Utils::QtcProcess *app) const
@@ -39,7 +50,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     if (qtSettings->useXMLOutput.value())
         arguments << "-xml";
     if (!testCases().isEmpty())
-        arguments << testCases();
+        arguments << quoteIfNeeded(testCases(), isDebugRunMode());
 
     const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
     if (!metricsOption.isEmpty())
