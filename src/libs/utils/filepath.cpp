@@ -1678,7 +1678,7 @@ FilePath FilePath::resolvePath(const FilePath &tail) const
 */
 FilePath FilePath::resolvePath(const QString &tail) const
 {
-   return resolvePath(FilePath::fromString(tail));
+   return resolvePath(FilePath::fromUserInput(tail));
 }
 
 expected_str<FilePath> FilePath::localSource() const
