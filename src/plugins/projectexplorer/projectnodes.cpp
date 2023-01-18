@@ -321,9 +321,9 @@ FileType Node::fileTypeForFileName(const Utils::FilePath &file)
 
 FilePath Node::pathOrDirectory(bool dir) const
 {
-    FilePath location;
     const FolderNode *folder = asFolderNode();
     if (isVirtualFolderType() && folder) {
+        FilePath location;
         // Virtual Folder case
         // If there are files directly below or no subfolders, take the folder path
         if (!folder->fileNodes().isEmpty() || folder->folderNodes().isEmpty()) {
@@ -341,21 +341,31 @@ FilePath Node::pathOrDirectory(bool dir) const
         QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot())
             fi.setFile(fi.absolutePath());
-        location = FilePath::fromString(fi.absoluteFilePath());
-    } else if (!m_filePath.isEmpty()) {
-        QTC_CHECK(!m_filePath.needsDevice());
-        QFileInfo fi = m_filePath.toFileInfo();
-        // remove any /suffixes, which e.g. ResourceNode uses
-        // Note this could be removed again by making path() a true path again
-        // That requires changes in both the VirtualFolderNode and ResourceNode
-        while (!fi.exists() && !fi.isRoot())
-            fi.setFile(fi.absolutePath());
-
-        if (dir)
-            location = FilePath::fromString(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
-        else
-            location = FilePath::fromString(fi.absoluteFilePath());
+        return FilePath::fromString(fi.absoluteFilePath());
     }
+
+    if (m_filePath.isEmpty())
+        return {};
+
+    if (m_filePath.needsDevice()) {
+        if (dir)
+            return m_filePath.isDir() ? m_filePath.absoluteFilePath() : m_filePath.absolutePath();
+        return m_filePath;
+    }
+
+    FilePath location;
+    QFileInfo fi = m_filePath.toFileInfo();
+    // remove any /suffixes, which e.g. ResourceNode uses
+    // Note this could be removed again by making path() a true path again
+    // That requires changes in both the VirtualFolderNode and ResourceNode
+    while (!fi.exists() && !fi.isRoot())
+        fi.setFile(fi.absolutePath());
+
+    if (dir)
+        location = FilePath::fromString(fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath());
+    else
+        location = FilePath::fromString(fi.absoluteFilePath());
+
     return location;
 }
 
