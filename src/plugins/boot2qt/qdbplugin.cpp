@@ -100,20 +100,6 @@ void registerFlashAction(QObject *parentForAction)
     toolsContainer->addAction(flashCommand, flashActionId);
 }
 
-class QdbQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    QdbQtVersionFactory()
-    {
-        setQtVersionCreator([] { return new QdbQtVersion; });
-        setSupportedType("Qdb.EmbeddedLinuxQt");
-        setPriority(99);
-        setRestrictionChecker([](const SetupData &setup) {
-            return setup.platforms.contains("boot2qt");
-        });
-    }
-};
-
 template <class Step>
 class QdbDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {

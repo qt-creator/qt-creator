@@ -6,17 +6,32 @@
 #include "qdbconstants.h"
 #include "qdbtr.h"
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtsupporttr.h>
+
 namespace Qdb::Internal {
 
-QString QdbQtVersion::description() const
+class QdbQtVersion : public QtSupport::QtVersion
 {
-    return Tr::tr("Boot2Qt", "Qt version is used for Boot2Qt development");
-}
+public:
+    QString description() const final
+    {
+        return QtSupport::Tr::tr("Boot2Qt", "Qt version is used for Boot2Qt development");
+    }
+    QSet<Utils::Id> targetDeviceTypes() const final
+    {
+        return {Utils::Id(Constants::QdbLinuxOsType)};
+    }
+};
 
-QSet<Utils::Id> QdbQtVersion::targetDeviceTypes() const
+QdbQtVersionFactory::QdbQtVersionFactory()
 {
-    return {Utils::Id(Constants::QdbLinuxOsType)};
-
+    setQtVersionCreator([] { return new QdbQtVersion; });
+    setSupportedType("Qdb.EmbeddedLinuxQt");
+    setPriority(99);
+    setRestrictionChecker([](const SetupData &setup) {
+        return setup.platforms.contains("boot2qt");
+    });
 }
 
 } // Qdb::Internal

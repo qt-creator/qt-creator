@@ -3,18 +3,14 @@
 
 #pragma once
 
-#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtversionfactory.h>
 
 namespace Qdb::Internal {
 
-class QdbQtVersion : public QtSupport::QtVersion
+class QdbQtVersionFactory : public QtSupport::QtVersionFactory
 {
 public:
-    QdbQtVersion() = default;
-    ~QdbQtVersion() = default;
-
-    QString description() const final;
-    QSet<Utils::Id> targetDeviceTypes() const final;
+    QdbQtVersionFactory();
 };
 
 } // Qdb::Internal
