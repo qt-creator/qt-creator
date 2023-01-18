@@ -9957,9 +9957,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Project from Version Control</source>
         <translation>Projekt iz sistema za nadzor različic</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -9980,9 +9977,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation type="obsolete">Ni moč odpreti »%1«: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stanje</translation>
@@ -9991,9 +9985,6 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
         <source>File</source>
         <translation>Datoteka</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Vprašaj o pošiljanju</translation>
@@ -11101,7 +11092,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
@@ -12649,7 +12640,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Ni moč odpreti projekta</translation>
@@ -12674,9 +12665,6 @@ Razlog: %2</translation>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation>Ni moč odpreti projekta »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Ni moč zagnati »%1«: %2</translation>
@@ -12697,9 +12685,6 @@ Razlog: %2</translation>
         <source>Stopping...</source>
         <translation>Ustavljanje …</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Prevzem</translation>
@@ -12716,9 +12701,6 @@ Razlog: %2</translation>
         <source>Succeeded.</source>
         <translation>Uspeh.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Odpri »%1«</translation>
@@ -12726,10 +12708,6 @@ Razlog: %2</translation>
     <message>
         <source>Clear</source>
         <translation>Počisti</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Nadzor različic</translation>
     </message>
     <message>
         <source>Executing: %1 %2
@@ -13643,7 +13621,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>Počisti skladišče</translation>
@@ -13663,10 +13641,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     <message>
         <source>Delete...</source>
         <translation>Izbriši …</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Ime</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -14970,7 +14944,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Urejevalnik zapisov za CVS</translation>
@@ -16924,11 +16898,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Nadzor različic</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Datoteke »%1« ni bilo moč izbrisati.</translation>
@@ -20382,7 +20352,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation>Nastavi ...</translation>
@@ -28433,21 +28403,15 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Ukaz za povračanje delčkov razlik</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Working...</source>
         <translation>Izvajanje ...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Dodaj opombo za »%1«</translation>
@@ -28484,9 +28448,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Would you like to revert the chunk?</source>
         <translation>Ali želite povrniti delček?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsJobRunner</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Procesa »%1« ni moč zagnati: %2</translation>
@@ -29360,26 +29321,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseEditor</name>
-    <message>
-        <source>Annotate &quot;%1&quot;</source>
-        <translation type="obsolete">Dodaj opombo za »%1«</translation>
-    </message>
-    <message>
-        <source>Copy &quot;%1&quot;</source>
-        <translation type="obsolete">Skopiraj »%1«</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Opis spremembe %1</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation type="obsolete">Nadzor različic</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
 Note: This might remove the local file.</source>

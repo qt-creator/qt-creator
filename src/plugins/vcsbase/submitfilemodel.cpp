@@ -3,6 +3,8 @@
 
 #include "submitfilemodel.h"
 
+#include "vcsbasetr.h"
+
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -92,7 +94,7 @@ static QList<QStandardItem *> createFileRow(const FilePath &repositoryRoot,
 SubmitFileModel::SubmitFileModel(QObject *parent) :
     QStandardItemModel(0, 2, parent)
 {
-    setHorizontalHeaderLabels({tr("State"), tr("File")});
+    setHorizontalHeaderLabels({Tr::tr("State"), Tr::tr("File")});
 }
 
 const FilePath &SubmitFileModel::repositoryRoot() const

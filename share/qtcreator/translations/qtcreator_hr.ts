@@ -8797,18 +8797,11 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>Počisti spremište</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Odaberi sve</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Prelomi poruku pri:</translation>
@@ -8860,16 +8853,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset VCS Cache</source>
         <translation>Resetiraj VCS privremenu memoriju</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Nicknames</source>
         <translation>Nadimci</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Ime</translation>
     </message>
     <message>
         <source>Email</source>
@@ -8883,9 +8869,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Alias email</source>
         <translation>E-pošta aliasa</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Slanje podverzije</translation>
@@ -15237,7 +15220,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>Bazaar Commit Log Editor</source>
         <translation type="unfinished"></translation>
@@ -36541,7 +36524,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
+    <name>::VcsBase</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -36554,9 +36537,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Diff &amp;Selected Files</source>
         <translation>Razlike između &amp;odabranih datoteka</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Nije bilo moguće ukloniti direktorij %1.</translation>
@@ -36605,9 +36585,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Cleaning &quot;%1&quot;</source>
         <translation>Čišćenje &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stanje</translation>
@@ -36616,34 +36593,18 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>File</source>
         <translation>Datoteka</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Working...</source>
         <translation>Obrađuje se …</translation>
     </message>
-</context>
-<context>
-    <name>::VcsBase</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
     <message>
-        <source>Version Control</source>
-        <translation>Kontrola verzija</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
-    <message>
         <source>Processing diff</source>
         <translation>Obrađivanje razlika</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>&amp;Opiši promjenu %1</translation>
@@ -36688,9 +36649,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Would you like to apply the chunk?</source>
         <translation>Želiš li primijeniti komad?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Otvori URL u pregledniku …</translation>
@@ -36699,9 +36657,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Copy URL Location</source>
         <translation>Kopiraj URL lokaciju</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Pošalji e-poštu …</translation>
@@ -36710,9 +36665,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Copy Email Address</source>
         <translation>Kopiraj e-adresu</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -36720,10 +36672,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
     <message>
         <source>Save before %1?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version Control</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36758,9 +36706,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>A version control repository could not be created in %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation type="unfinished"></translation>
@@ -36823,9 +36768,6 @@ What do you want to do?</source>
         <source>The check script returned exit code %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otvori &quot;%1&quot;</translation>
@@ -36846,9 +36788,6 @@ What do you want to do?</source>
         <source>Running in %1: %2 %3</source>
         <translation>Radi u %1: %2 %3</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsPlugin</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Naziv korištenog sustava kontrole verzija u ovom projektu.</translation>
@@ -36861,9 +36800,6 @@ What do you want to do?</source>
         <source>The top level path to the repository the current project is in.</source>
         <translation>Staza najviše razine do spremišta u kojem se nalazi trenutačni projekt.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation type="unfinished"></translation>
@@ -36896,9 +36832,6 @@ What do you want to do?</source>
         <source>Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>&quot;%1&quot; (%2) nije nađena.</translation>
@@ -36919,9 +36852,6 @@ What do you want to do?</source>
         <source>&quot;%1&quot; (%2) does not exist.</source>
         <translation>&quot;%1&quot; (%2) ne postoji.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>

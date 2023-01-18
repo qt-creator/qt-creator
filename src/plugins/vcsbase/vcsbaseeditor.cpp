@@ -8,6 +8,7 @@
 #include "diffandloghighlighter.h"
 #include "vcsbaseeditorconfig.h"
 #include "vcsbaseplugin.h"
+#include "vcsbasetr.h"
 #include "vcscommand.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -307,7 +308,7 @@ void ChangeTextCursorHandler::slotCopyRevision()
 
 void ChangeTextCursorHandler::addDescribeAction(QMenu *menu, const QString &change) const
 {
-    auto a = new QAction(VcsBaseEditorWidget::tr("&Describe Change %1").arg(change), nullptr);
+    auto a = new QAction(Tr::tr("&Describe Change %1").arg(change), nullptr);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotDescribe);
     menu->addAction(a);
     menu->setDefaultAction(a);
@@ -330,7 +331,7 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
 
 QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change) const
 {
-    auto a = new QAction(VcsBaseEditorWidget::tr("Copy \"%1\"").arg(change), nullptr);
+    auto a = new QAction(Tr::tr("Copy \"%1\"").arg(change), nullptr);
     a->setData(change);
     connect(a, &QAction::triggered, this, &ChangeTextCursorHandler::slotCopyRevision);
     return a;
@@ -436,8 +437,8 @@ void UrlTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type) 
 {
     Q_UNUSED(type)
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Open URL in Browser...")));
-    menu->addAction(createCopyUrlAction(tr("Copy URL Location")));
+    menu->addAction(createOpenUrlAction(Tr::tr("Open URL in Browser...")));
+    menu->addAction(createCopyUrlAction(Tr::tr("Copy URL Location")));
 }
 
 QString UrlTextCursorHandler::currentContents() const
@@ -503,8 +504,8 @@ void EmailTextCursorHandler::fillContextMenu(QMenu *menu, EditorContentType type
 {
     Q_UNUSED(type)
     menu->addSeparator();
-    menu->addAction(createOpenUrlAction(tr("Send Email To...")));
-    menu->addAction(createCopyUrlAction(tr("Copy Email Address")));
+    menu->addAction(createOpenUrlAction(Tr::tr("Send Email To...")));
+    menu->addAction(createCopyUrlAction(Tr::tr("Copy Email Address")));
 }
 
 void EmailTextCursorHandler::slotOpenUrl()
@@ -551,7 +552,7 @@ private:
 
 VcsBaseEditorWidgetPrivate::VcsBaseEditorWidgetPrivate(VcsBaseEditorWidget *editorWidget)  :
     q(editorWidget),
-    m_annotateRevisionTextFormat(VcsBaseEditorWidget::tr("Annotate \"%1\""))
+    m_annotateRevisionTextFormat(Tr::tr("Annotate \"%1\""))
 {
     m_textCursorHandlers.append(new ChangeTextCursorHandler(editorWidget));
     m_textCursorHandlers.append(new UrlTextCursorHandler(editorWidget));
@@ -963,7 +964,7 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
             // optional code pasting service
             menu->addSeparator();
-            connect(menu->addAction(tr("Send to CodePaster...")), &QAction::triggered,
+            connect(menu->addAction(Tr::tr("Send to CodePaster...")), &QAction::triggered,
                     this, &VcsBaseEditorWidget::slotPaste);
         }
         menu->addSeparator();
@@ -976,12 +977,12 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         // directory matches that of the patch (see findDiffFile()). In addition,
         // the user has "Open With" and choose the right diff editor so that
         // fileNameFromDiffSpecification() works.
-        QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
+        QAction *applyAction = menu->addAction(Tr::tr("Apply Chunk..."));
         connect(applyAction, &QAction::triggered, this, [this, chunk] {
             slotApplyDiffChunk(chunk, PatchAction::Apply);
         });
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
-        QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
+        QAction *revertAction = menu->addAction(Tr::tr("Revert Chunk..."));
         connect(revertAction, &QAction::triggered, this, [this, chunk] {
             slotApplyDiffChunk(chunk, PatchAction::Revert);
         });

@@ -12,8 +12,6 @@ namespace Internal {
 
 class CommonVcsSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::Internal::CommonVcsSettings)
-
 public:
     CommonVcsSettings();
 

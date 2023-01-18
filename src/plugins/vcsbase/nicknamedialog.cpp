@@ -3,6 +3,8 @@
 
 #include "nicknamedialog.h"
 
+#include "vcsbasetr.h"
+
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>
@@ -219,9 +221,7 @@ QString NickNameDialog::nickName() const
 QStandardItemModel *NickNameDialog::createModel(QObject *parent)
 {
     auto model = new QStandardItemModel(parent);
-    QStringList headers;
-    headers << tr("Name") << tr("Email")
-            << tr("Alias") << tr("Alias email");
+    QStringList headers = {Tr::tr("Name"), Tr::tr("Email"), Tr::tr("Alias"), Tr::tr("Alias email")};
     model->setHorizontalHeaderLabels(headers);
     return model;
 }

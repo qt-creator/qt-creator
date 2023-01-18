@@ -90,7 +90,7 @@ const char CMD_ID_REPOSITORYUPDATE[]   = "CVS.RepositoryUpdate";
 
 const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
-const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
+const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("::VcsBase", "CVS Commit Editor");
 
 const VcsBaseSubmitEditorParameters submitParameters {
     CVS_SUBMIT_MIMETYPE,
@@ -102,28 +102,28 @@ const VcsBaseSubmitEditorParameters submitParameters {
 const VcsBaseEditorParameters commandLogEditorParameters {
     OtherContent,
     "CVS Command Log Editor", // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Command Log Editor"), // display name
+    QT_TRANSLATE_NOOP("::VcsBase", "CVS Command Log Editor"), // display name
     "text/vnd.qtcreator.cvs.commandlog"
 };
 
 const VcsBaseEditorParameters logEditorParameters {
     LogOutput,
     "CVS File Log Editor",   // id
-    QT_TRANSLATE_NOOP("VCS", "CVS File Log Editor"),   // display name
+    QT_TRANSLATE_NOOP("::VcsBase", "CVS File Log Editor"),   // display name
     "text/vnd.qtcreator.cvs.log"
 };
 
 const VcsBaseEditorParameters annotateEditorParameters {
     AnnotateOutput,
     "CVS Annotation Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Annotation Editor"),  // display name
+    QT_TRANSLATE_NOOP("::VcsBase", "CVS Annotation Editor"),  // display name
     "text/vnd.qtcreator.cvs.annotation"
 };
 
 const VcsBaseEditorParameters diffEditorParameters {
     DiffOutput,
     "CVS Diff Editor",  // id
-    QT_TRANSLATE_NOOP("VCS", "CVS Diff Editor"),  // display name
+    QT_TRANSLATE_NOOP("::VcsBase", "CVS Diff Editor"),  // display name
     "text/x-patch"
 };
 

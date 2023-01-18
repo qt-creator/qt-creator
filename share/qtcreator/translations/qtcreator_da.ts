@@ -37509,7 +37509,7 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>Bazaar Commit Log Editor</source>
         <translation>Bazaar commit-log-redigering</translation>
@@ -38564,9 +38564,6 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>General</source>
         <translation>Generelt</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Mappen %1 kunne ikke slettes.</translation>
@@ -38613,20 +38610,10 @@ Med mellemlager-simulation aktiveres begivenhedstællere:
         <source>Cleaning &quot;%1&quot;</source>
         <translation>Renser &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Rens repository</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Markér alt</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Ombryd submit-meddelelse ved:</translation>
@@ -38679,9 +38666,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Reset VCS Cache</source>
         <translation>Nulstil VCS-mellemlager</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Send e-mail til...</translation>
@@ -38690,16 +38674,9 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Copy Email Address</source>
         <translation>Kopiér e-mailadresse</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Nicknames</source>
         <translation>Kaldenavne</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Navn</translation>
     </message>
     <message>
         <source>Email</source>
@@ -38713,9 +38690,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Alias email</source>
         <translation>Alias e-mail</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Åbn URL i browser...</translation>
@@ -38724,9 +38698,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Copy URL Location</source>
         <translation>Kopiér URL-adresse</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation>&quot;data&quot; har intet JSON-objekt på &quot;VcsCommand&quot;-side.</translation>
@@ -38759,9 +38730,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Checkout</source>
         <translation>Checkout</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsPlugin</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Navn på versionsstyringssystemet i brug af det aktuelle projekt.</translation>
@@ -38774,9 +38742,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>The top level path to the repository the current project is in.</source>
         <translation>Top-niveau stien til repository&apos;et det akuelt brugte projekt.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion submit</translation>
@@ -38814,9 +38779,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <extracomment>Uncheck all for submit</extracomment>
         <translation>Fravælg alle</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Tilstand</translation>
@@ -38825,23 +38787,14 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>File</source>
         <translation>Fil</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Working...</source>
         <translation>Arbejder...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
     <message>
         <source>Processing diff</source>
         <translation>Behandler diff</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>&amp;Beskriv ændring %1</translation>
@@ -38886,9 +38839,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Would you like to apply the chunk?</source>
         <translation>Vil du anvende bidden?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePlugin</name>
     <message>
         <source>commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -38897,10 +38847,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Save before %1?</source>
         <translation>Gem inden %1?</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Versionsstyring</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be deleted.</source>
@@ -38934,9 +38880,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>A version control repository could not be created in %1.</source>
         <translation>Et versionsstyringsrepository kunne ikke oprettes i %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation>Tjekmeddelelse</translation>
@@ -38977,9 +38920,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>The check script returned exit code %1.</source>
         <translation>Tjek-scriptet returnerede afslutningskode %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>&quot;%1&quot; (%2) ikke fundet.</translation>
@@ -39000,9 +38940,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>&quot;%1&quot; (%2) does not exist.</source>
         <translation>&quot;%1&quot; (%2) findes ikke.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -39025,9 +38962,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>No known version control selected.</source>
         <translation>Ingen kendt versionsstyring valgt.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Åbn &quot;%1&quot;</translation>
@@ -39035,10 +38969,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Clear</source>
         <translation>Ryd</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Versionsstyring</translation>
     </message>
     <message>
         <source>Running: %1 %2</source>

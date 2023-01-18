@@ -14799,13 +14799,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <source>Project from Version Control</source>
         <translation type="obsolete">Projekt ze systému na správu verzí</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
-    <message>
-        <source>Name</source>
-        <translation>Jméno</translation>
-    </message>
     <message>
         <source>E-mail</source>
         <translation>E-mailová adresa</translation>
@@ -14826,9 +14819,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <source>Nicknames</source>
         <translation>Přezdívky</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stav</translation>
@@ -14837,24 +14827,10 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
-    <message>
-        <source>Annotate &quot;%1&quot;</source>
-        <translation type="obsolete">Opatřit vysvětlivkami &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy &quot;%1&quot;</source>
-        <translation type="obsolete">Kopírovat &quot;%1&quot;</translation>
-    </message>
     <message>
         <source>Describe change %1</source>
         <translation type="obsolete">Ukázat podrobnosti ke změně %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation type="obsolete">Ověřit popis</translation>
@@ -14918,50 +14894,6 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     <message>
         <source>The check script returned exit code %1.</source>
         <translation>Skript pro ověření byl ukončen. Vrácená hodnota %1.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation type="obsolete">Společné</translation>
-    </message>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Zalomit popis předložení na:</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Spustitelný soubor, který je zavolán s popisem předložení v dočasném souboru jako první argument příkazového řádku. Při neúspěchu by měl vrátit zpět hodnotu rozdílnou od nuly (!= 0) a odpovídající zprávu o obvyklé chybě kvůli poukázání na selhání.</translation>
-    </message>
-    <message>
-        <source>Submit message check script:</source>
-        <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Soubor, který obsahuje jména uživatelů a e-mailové adresy ve čtyřsloupcovém formátu (mailmap):
-Jméno &lt;E-mail&gt; Přezdívka &lt;E-mail&gt;</translation>
-    </message>
-    <message>
-        <source>User/alias configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením uživatele/přezdívky:</translation>
-    </message>
-    <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Soubor, který obsahuje řádky s názvy polí (například &quot;Reviewed-By:&quot;), který bude bude přidán pod okno editoru předložení.</translation>
-    </message>
-    <message>
-        <source>User fields configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením polí uživatele:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation type="obsolete">Ověření verzí</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -16389,61 +16321,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Erase background.</source>
         <translation>Smazat pozadí.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Checkout Directory:</source>
-        <translation type="obsolete">Adresář pro přezkoušení (checkout; dostat kopii):</translation>
-    </message>
-    <message>
-        <source>Repository</source>
-        <translation type="obsolete">Skladiště</translation>
-    </message>
-    <message>
-        <source>The remote repository to check out.</source>
-        <translation type="obsolete">Vzdálené skladiště ke stažení.</translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation type="obsolete">Větev:</translation>
-    </message>
-    <message>
-        <source>The development branch in the remote repository to check out.</source>
-        <translation type="obsolete">Vývojářská větev ve vzdáleném skladišti ke stažení.</translation>
-    </message>
-    <message>
-        <source>Retrieve list of branches in repository.</source>
-        <translation type="obsolete">Získat seznam větví ve skladišti.</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Working Copy</source>
-        <translation type="obsolete">Pracovní kopie</translation>
-    </message>
-    <message>
-        <source>The path in which the directory containing the checkout will be created.</source>
-        <translation type="obsolete">Cesta, ve které bude vytvořen adresář obsahující stažené.</translation>
-    </message>
-    <message>
-        <source>Checkout path:</source>
-        <translation type="obsolete">Cesta ke staženému:</translation>
-    </message>
-    <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation type="obsolete">Místní adresář, který bude po stažení obsahovat kód.</translation>
-    </message>
-    <message>
-        <source>Checkout directory:</source>
-        <translation type="obsolete">Adresář se stažením:</translation>
     </message>
 </context>
 <context>
@@ -19040,7 +18917,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Chyba při otevírání projektu</translation>
@@ -19065,9 +18942,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Nelze spustit %1: %2</translation>
@@ -19088,9 +18962,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Stopping...</source>
         <translation>Zastavuje se...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Příkaz checkout</translation>
@@ -19111,9 +18982,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Succeeded.</source>
         <translation>Mělo úspěch.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otevřít &quot;%1&quot;</translation>
@@ -19121,10 +18989,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Clear</source>
         <translation>Smazat</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Správa verzí</translation>
     </message>
     <message>
         <source>Executing: %1 %2</source>
@@ -20925,11 +20789,7 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
-    <message>
-        <source>Clean Repository</source>
-        <translation type="obsolete">Uklidit skladiště</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Adresář %1 se nepodařilo smazat.</translation>
@@ -22658,7 +22518,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Editor odevzdání (commit) pro CVS</translation>
@@ -26206,11 +26066,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Správa verzí</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Soubor &apos;%1&apos;  se nepodařilo smazat.</translation>
@@ -28994,7 +28850,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">Nastavit</translation>
@@ -38258,7 +38114,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>Příkaz používaný pro vrácení jednotlivých změn</translation>
@@ -38267,9 +38123,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Command used for reverting diff chunks.</source>
         <translation>Příkaz používaný pro vrácení jednotlivých změn.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Proces &apos;%1&apos; nelze spustit: %2</translation>
@@ -38282,9 +38135,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Working...</source>
         <translation>Pracuje...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Opatřit anotacemi &quot;%1&quot;</translation>
@@ -38292,10 +38142,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Copy &quot;%1&quot;</source>
         <translation>Kopírovat &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Ukázat podrobnosti ke změně %1</translation>
     </message>
     <message>
         <source>Describe Change %1</source>
@@ -38340,17 +38186,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Would you like to apply the chunk?</source>
         <translation>Chcete použít tuto změnu?</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsJobRunner</name>
-    <message>
-        <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Proces &apos;%1&apos; nelze spustit: %2</translation>
-    </message>
-    <message>
-        <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation type="obsolete">Překročení časového omezení %1s  při čekání na ukončení %2.</translation>
     </message>
 </context>
 <context>
@@ -40063,7 +39898,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -40080,9 +39915,6 @@ Filtr: %2
 &apos;%1&apos; úspěšně proveden (vrácená hodnota %2).
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Chyba: Překročení času u správy verzí po %1s.</translation>
@@ -40090,10 +39922,6 @@ Filtr: %2
     <message>
         <source>Unable to start process, binary is empty</source>
         <translation>Nepodařilo se spustit proces, protože nebyl zadán žádný spustitelný soubor</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation>Chyba: Překročení času po %1s.</translation>
     </message>
 </context>
 <context>
@@ -42633,7 +42461,7 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -42690,9 +42518,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <source>Directory:</source>
         <translation>Adresář:</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Uklidit skladiště</translation>
@@ -42701,9 +42526,6 @@ Určuje chování odsazení se zřetelem k navazujícím řádkům.
         <source>Select All</source>
         <translation>Vybrat vše</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Zalomit popis revize na:</translation>
@@ -42763,13 +42585,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 &apos;name &lt;email&gt; alias &lt;email&gt;&apos;.</source>
         <translation>Soubor, který obsahuje jména uživatelů a e-mailové adresy ve čtyřsloupcovém &quot;mailmap&quot; formátu:
 Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
-    <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Nastavení...</translation>
     </message>
 </context>
 <context>
@@ -46095,7 +45910,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">Otevřít adresu (URL) v prohlížeči...</translation>
@@ -46112,9 +45927,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>Copy URL Location</source>
         <translation>Kopírovat umístění adresy (URL)</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">Poslat e-mail...</translation>
@@ -50165,7 +49977,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Odeslání Subversion</translation>
@@ -57383,7 +57195,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Název verzovacího systému používaného nynějším projektem.</translation>

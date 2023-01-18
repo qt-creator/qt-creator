@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "submiteditorwidget.h"
+
 #include "submitfieldwidget.h"
 #include "submitfilemodel.h"
+#include "vcsbasetr.h"
 #include "vcsbaseconstants.h"
 
 #include <coreplugin/icore.h>
@@ -16,7 +18,6 @@
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDebug>
 #include <QGroupBox>
@@ -128,13 +129,13 @@ SubmitEditorWidget::SubmitEditorWidget() :
 {
     resize(507, 419);
     setMinimumSize(QSize(0, 0));
-    setWindowTitle(tr("Subversion Submit"));
+    setWindowTitle(Tr::tr("Subversion Submit"));
 
     auto scrollAreaWidgetContents = new QWidget();
     scrollAreaWidgetContents->setGeometry(QRect(0, 0, 505, 417));
     scrollAreaWidgetContents->setMinimumSize(QSize(400, 400));
 
-    d->descriptionBox = new QGroupBox(tr("Descriptio&n"));
+    d->descriptionBox = new QGroupBox(Tr::tr("Descriptio&n"));
     d->descriptionBox->setObjectName("descriptionBox");
     d->descriptionBox->setFlat(true);
 
@@ -158,11 +159,11 @@ SubmitEditorWidget::SubmitEditorWidget() :
     connect(&d->delayedVerifyDescriptionTimer, &QTimer::timeout,
             this, &SubmitEditorWidget::verifyDescription);
 
-    auto groupBox = new QGroupBox(tr("F&iles"));
+    auto groupBox = new QGroupBox(Tr::tr("F&iles"));
     groupBox->setObjectName("groupBox");
     groupBox->setFlat(true);
 
-    d->checkAllCheckBox = new QCheckBox(tr("Select a&ll"));
+    d->checkAllCheckBox = new QCheckBox(Tr::tr("Select a&ll"));
     d->checkAllCheckBox->setObjectName("checkAllCheckBox");
     d->checkAllCheckBox->setTristate(false);
 
@@ -187,7 +188,7 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->buttonLayout->setContentsMargins(0, -1, -1, -1);
     QToolButton *openSettingsButton = new QToolButton;
     openSettingsButton->setIcon(Utils::Icons::SETTINGS.icon());
-    openSettingsButton->setToolTip(tr("Open Settings Page..."));
+    openSettingsButton->setToolTip(Tr::tr("Open Settings Page..."));
     connect(openSettingsButton, &QToolButton::clicked,  this, [] {
         Core::ICore::showOptionsDialog(Constants::VCS_COMMON_SETTINGS_ID);
     });
@@ -493,7 +494,7 @@ void SubmitEditorWidget::updateSubmitAction()
         // Update button text.
         const int fileCount = d->fileView->model()->rowCount();
         const QString msg = checkedCount ?
-                            tr("%1 %2/%n File(s)", nullptr, fileCount)
+                            Tr::tr("%1 %2/%n File(s)", nullptr, fileCount)
                             .arg(commitName()).arg(checkedCount) :
                             commitName();
         emit submitActionTextChanged(msg);
@@ -606,28 +607,28 @@ void SubmitEditorWidget::verifyDescription()
     enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
     QStringList hints;
     if (0 < subjectLength && subjectLength < MinSubjectLength)
-        hints.append(warning + tr("Warning: The commit subject is very short."));
+        hints.append(warning + Tr::tr("Warning: The commit subject is very short."));
 
     if (subjectLength > MaxSubjectLength)
-        hints.append(warning + tr("Warning: The commit subject is too long."));
+        hints.append(warning + Tr::tr("Warning: The commit subject is too long."));
     else if (subjectLength > WarningSubjectLength)
-        hints.append(hint + tr("Hint: Aim for a shorter commit subject."));
+        hints.append(hint + Tr::tr("Hint: Aim for a shorter commit subject."));
 
     if (secondLineLength > 0)
-        hints.append(hint + tr("Hint: The second line of a commit message should be empty."));
+        hints.append(hint + Tr::tr("Hint: The second line of a commit message should be empty."));
 
     d->descriptionHint->setText(hints.join("<br>"));
     if (!d->descriptionHint->text().isEmpty()) {
         d->descriptionHint->setToolTip(
-                    tr("<p>Writing good commit messages</p>"
-                       "<ul>"
-                       "<li>Avoid very short commit messages.</li>"
-                       "<li>Consider the first line as subject (like in email) "
-                       "and keep it shorter than %n characters.</li>"
-                       "<li>After an empty second line, a longer description can be added.</li>"
-                       "<li>Describe why the change was done, not how it was done.</li>"
-                       "</ul>", nullptr, MaxSubjectLength));
-        }
+            Tr::tr("<p>Writing good commit messages</p>"
+                   "<ul>"
+                   "<li>Avoid very short commit messages.</li>"
+                   "<li>Consider the first line as subject (like in email) "
+                   "and keep it shorter than %n characters.</li>"
+                   "<li>After an empty second line, a longer description can be added.</li>"
+                   "<li>Describe why the change was done, not how it was done.</li>"
+                   "</ul>", nullptr, MaxSubjectLength));
+    }
 }
 
 void SubmitEditorWidget::descriptionTextChanged()
@@ -646,18 +647,18 @@ bool SubmitEditorWidget::canSubmit(QString *whyNot) const
 {
     if (d->m_updateInProgress) {
         if (whyNot)
-            *whyNot = tr("Update in progress");
+            *whyNot = Tr::tr("Update in progress");
         return false;
     }
     if (isDescriptionMandatory() && d->m_description.trimmed().isEmpty()) {
         if (whyNot)
-            *whyNot = tr("Description is empty");
+            *whyNot = Tr::tr("Description is empty");
         return false;
     }
     const unsigned checkedCount = checkedFilesCount();
     const bool res = d->m_emptyFileListEnabled || checkedCount > 0;
     if (!res && whyNot)
-        *whyNot = tr("No files checked");
+        *whyNot = Tr::tr("No files checked");
     return res;
 }
 
@@ -695,7 +696,7 @@ void SubmitEditorWidget::setSelectedRows(const QList<int> &rows)
 
 QString SubmitEditorWidget::commitName() const
 {
-    return tr("&Commit");
+    return Tr::tr("&Commit");
 }
 
 void SubmitEditorWidget::addSubmitFieldWidget(SubmitFieldWidget *f)
@@ -760,9 +761,9 @@ void SubmitEditorWidget::fileListCustomContextMenuRequested(const QPoint & pos)
     // Execute menu offering to check/uncheck all
     QMenu menu;
     //: Check all for submit
-    QAction *checkAllAction = menu.addAction(tr("Select All"));
+    QAction *checkAllAction = menu.addAction(Tr::tr("Select All"));
     //: Uncheck all for submit
-    QAction *uncheckAllAction = menu.addAction(tr("Unselect All"));
+    QAction *uncheckAllAction = menu.addAction(Tr::tr("Unselect All"));
     QAction *action = menu.exec(d->fileView->mapToGlobal(pos));
     if (action == checkAllAction) {
         fileModel()->setAllChecked(true);;

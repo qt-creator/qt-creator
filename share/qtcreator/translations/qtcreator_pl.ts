@@ -9500,11 +9500,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::NickNameDialog</name>
-    <message>
-        <source>Name</source>
-        <translation>Imię</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>Email</source>
         <translation>E-mail</translation>
@@ -9521,9 +9517,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>Nicknames</source>
         <translation>Przydomki</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stan</translation>
@@ -9532,9 +9525,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>File</source>
         <translation>Plik</translation>
     </message>
-</context>
-<context>
-    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>System kontroli wersji</translation>
@@ -9543,9 +9533,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>General</source>
         <translation>Ogólne</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Pytaj o potwierdzenie przed utworzeniem poprawki</translation>
@@ -10191,7 +10178,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Nie można usunąć katalogu &quot;%1&quot;.</translation>
@@ -10598,7 +10585,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Edytor poprawek CVS</translation>
@@ -11665,11 +11652,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>System kontroli wersji</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>Choose Repository Directory</source>
         <translation>Wybierz katalog repozytorium</translation>
@@ -15470,7 +15453,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Dołącz adnotację do &quot;%1&quot;</translation>
@@ -16048,7 +16031,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracja</translation>
@@ -19771,18 +19754,11 @@ Wpływa na wcięcia przeniesionych linii.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>Wyczyść repozytorium</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Zaznacz wszystko</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Zawijaj opisy poprawek po:</translation>
@@ -21749,7 +21725,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Otwórz URL w przeglądarce...</translation>
@@ -21758,9 +21734,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Copy URL Location</source>
         <translation>Skopiuj położenie URL</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Wyślij e-mail do...</translation>
@@ -23357,7 +23330,7 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Utwórz poprawkę w Subversion</translation>
@@ -27858,7 +27831,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Nazwa systemu kontroli wersji używana w bieżącym projekcie.</translation>
@@ -31744,7 +31717,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsOutputWindow</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Otwórz &quot;%1&quot;</translation>
@@ -31752,10 +31725,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     <message>
         <source>Clear</source>
         <translation>Wyczyść</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>System kontroli wersji</translation>
     </message>
     <message>
         <source>Running: %1 %2</source>
@@ -33459,14 +33428,11 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClientImpl</name>
+    <name>::VcsBase</name>
     <message>
         <source>Working...</source>
         <translation>Przetwarzanie...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation>&quot;data&quot; nie jest obiektem JSON na stronie &quot;VcsCommand&quot;.</translation>
@@ -33499,9 +33465,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Checkout</source>
         <translation>Kopia robocza</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>&quot;%1&quot; brak (%2).</translation>
@@ -40680,7 +40643,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseDiffEditorControllerPrivate</name>
+    <name>::VcsBase</name>
     <message>
         <source>Processing diff</source>
         <translation>Przetwarzanie różnic</translation>

@@ -5,6 +5,7 @@
 
 #include "commonvcssettings.h"
 #include "vcsbasesubmiteditor.h"
+#include "vcsbasetr.h"
 #include "vcsplugin.h"
 
 #include <coreplugin/documentmanager.h>
@@ -590,7 +591,7 @@ bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction)
 
 QString VcsBasePluginPrivate::commitDisplayName() const
 {
-    return tr("Commit", "name of \"commit\" action of the VCS.");
+    return Tr::tr("Commit", "name of \"commit\" action of the VCS.");
 }
 
 void VcsBasePluginPrivate::commitFromEditor()
@@ -601,7 +602,7 @@ void VcsBasePluginPrivate::commitFromEditor()
 
 bool VcsBasePluginPrivate::promptBeforeCommit()
 {
-    return DocumentManager::saveAllModifiedDocuments(tr("Save before %1?")
+    return DocumentManager::saveAllModifiedDocuments(Tr::tr("Save before %1?")
                                                      .arg(commitDisplayName().toLower()));
 }
 
@@ -611,8 +612,8 @@ void VcsBasePluginPrivate::promptToDeleteCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
     const bool rc = VcsManager::promptToDelete(this, state.currentFile());
     if (!rc)
-        QMessageBox::warning(ICore::dialogParent(), tr("Version Control"),
-                             tr("The file \"%1\" could not be deleted.").
+        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Version Control"),
+                             Tr::tr("The file \"%1\" could not be deleted.").
                              arg(QDir::toNativeSeparators(state.currentFile())),
                              QMessageBox::Ok);
 }
@@ -634,29 +635,29 @@ void VcsBasePluginPrivate::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, tr("Choose Repository Directory"), directory);
+        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
         const IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == nullptr)
             break;
-        const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
-                                    " Would you like to specify another directory?")
-                                    .arg(directory.toUserOutput(), managingControl->displayName());
+        const QString question = Tr::tr("The directory \"%1\" is already managed by a version control system (%2)."
+                                        " Would you like to specify another directory?")
+                                     .arg(directory.toUserOutput(), managingControl->displayName());
 
-        if (!ask(mw, tr("Repository already under version control"), question))
+        if (!ask(mw, Tr::tr("Repository already under version control"), question))
             return;
     } while (true);
     // Create
     const bool rc = vcsCreateRepository(directory);
     const QString nativeDir = directory.toUserOutput();
     if (rc) {
-        QMessageBox::information(mw, tr("Repository Created"),
-                                 tr("A version control repository has been created in %1.").
+        QMessageBox::information(mw, Tr::tr("Repository Created"),
+                                 Tr::tr("A version control repository has been created in %1.").
                                  arg(nativeDir));
     } else {
-        QMessageBox::warning(mw, tr("Repository Creation Failed"),
-                                 tr("A version control repository could not be created in %1.").
+        QMessageBox::warning(mw, Tr::tr("Repository Creation Failed"),
+                                 Tr::tr("A version control repository could not be created in %1.").
                                  arg(nativeDir));
     }
 }

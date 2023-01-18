@@ -17399,9 +17399,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Common</source>
         <translation>Közös</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::0</name>
     <message>
         <source>State</source>
         <translation type="obsolete">Státusz</translation>
@@ -17442,9 +17439,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The check script returned exit code %1.</source>
         <translation type="obsolete">Das Skript zur Überprüfung wurde beendet, Rückgabewert %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizard</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Nem lehet megnyitni a Projektet</translation>
@@ -17469,9 +17463,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation>Nem lehet megnyitni a(z) &apos;%1&apos; projektet.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Varázsló lap</translation>
@@ -17484,9 +17475,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Path:</source>
         <translation>Útvonal:</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::0</name>
     <message>
         <source>Name</source>
         <translation type="obsolete">Név</translation>
@@ -17507,9 +17495,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation type="obsolete">Nem sikerült megnyitni &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout started...</source>
         <translation>Megnézés elindítva...</translation>
@@ -17522,9 +17507,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Succeeded.</source>
         <translation>Sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Név</translation>
@@ -17545,9 +17527,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation>Nem sikerült megnyitni &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Nem lehet elindítani a(z) %1-t: %2</translation>
@@ -17568,9 +17547,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Stopping...</source>
         <translation>Leállítás...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Státusz</translation>
@@ -17579,27 +17555,14 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>File</source>
         <translation>Fájl</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Describe change %1</source>
         <translation>%1 változtatás leírása</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Clear</source>
         <translation>Kiürítés</translation>
     </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Verzió követő</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation>Üzenet ellenőrzése</translation>
@@ -17632,13 +17595,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The check script returned exit code %1.</source>
         <translation>Das Skript zur Überprüfung wurde beendet, Rückgabewert %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation>Közös</translation>
-    </message>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Feltöltési üzenet megtördelése:</translation>
@@ -17668,13 +17624,6 @@ név &lt;email&gt; álnév &lt;email&gt;</translation>
     <message>
         <source>User fields configuration file:</source>
         <translation>Felhasználói mező konfigurációs fájl:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Verzió követő</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?

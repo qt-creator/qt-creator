@@ -3,14 +3,10 @@
 
 #pragma once
 
-#include "../vcsbase_global.h"
-
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
 #include <utils/filepath.h>
 #include <utils/wizardpage.h>
-
-#include <QCoreApplication>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -27,8 +23,6 @@ namespace Internal {
 
 class VcsCommandPageFactory : public ProjectExplorer::JsonWizardPageFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::Internal::VcsCommandPage)
-
 public:
     VcsCommandPageFactory();
 

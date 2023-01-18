@@ -15126,9 +15126,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
         <source>Project from Version Control</source>
         <translation type="obsolete">Projet d&apos;un gestionnaire de versions</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -15154,9 +15151,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
         <source>Nicknames</source>
         <translation>Surnoms</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>État</translation>
@@ -15164,32 +15158,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     <message>
         <source>File</source>
         <translation>Fichier</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
-    <message>
-        <source>Annotate &quot;%1&quot;</source>
-        <translation type="obsolete">Annoter &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Copy &quot;%1&quot;</source>
-        <translation type="obsolete">Copier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Decrivez le changement %1</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
-    <message>
-        <source>Check message</source>
-        <translation type="obsolete">Contrôle du message</translation>
-    </message>
-    <message>
-        <source>Insert name...</source>
-        <translation type="obsolete">Inserez le nom...</translation>
     </message>
     <message>
         <source>Prompt to submit</source>
@@ -15246,50 +15214,6 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     <message>
         <source>The check script returned exit code %1.</source>
         <translation>Le script de vérification a retourné le code %1.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
-    <message>
-        <source>Common</source>
-        <translation type="obsolete">Commun</translation>
-    </message>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Limiter la largeur du message à :</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code != 0 et un message sur la sortie d&apos;erreur standard.</translation>
-    </message>
-    <message>
-        <source>Submit message check script:</source>
-        <translation type="obsolete">Script de vérification du message :</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Un fichier listant les noms d&apos;utilisateur et leur adresse email dans le format 4 colonnes de mailmap :
-nom &lt;email&gt; alias &lt;email&gt;</translation>
-    </message>
-    <message>
-        <source>User/alias configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des alias utilisateur :</translation>
-    </message>
-    <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Un fichier texte contenant des lignes telles que &quot;Reviewed-By:&quot;, qui seront ajoutées à la fin dans l&apos;éditeur de message.</translation>
-    </message>
-    <message>
-        <source>User fields configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des champs utilisateurs :</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation type="obsolete">Gestion de versions</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -16357,71 +16281,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Erase foreground</source>
         <translation>Effacer le premier plan</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>Checkout Directory:</source>
-        <translatorcomment>checkout should stay in English? </translatorcomment>
-        <translation type="obsolete">Répertoire d&apos;import :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-    <message>
-        <source>Repository</source>
-        <translation type="obsolete">Dépôt</translation>
-    </message>
-    <message>
-        <source>The remote repository to check out.</source>
-        <translatorcomment>check out ? </translatorcomment>
-        <translation type="obsolete">Le dépôt distant à importer. </translation>
-    </message>
-    <message>
-        <source>Branch:</source>
-        <translation type="obsolete">Branche :</translation>
-    </message>
-    <message>
-        <source>The development branch in the remote repository to check out.</source>
-        <translation type="obsolete">La branche de développement du dépôt distant à importer. </translation>
-    </message>
-    <message>
-        <source>Retrieve list of branches in repository.</source>
-        <translation type="obsolete">Récupérer la liste des branches du dépôt. </translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation type="obsolete">...</translation>
-    </message>
-    <message>
-        <source>Working Copy</source>
-        <translation type="obsolete">Copie de travail</translation>
-    </message>
-    <message>
-        <source>The path in which the directory containing the checkout will be created.</source>
-        <translation type="obsolete">Le chemin dans lequel le répertoire contenant l&apos;import sera effectué. </translation>
-    </message>
-    <message>
-        <source>Checkout Path:</source>
-        <translation type="obsolete">Chemin d&apos;import :</translation>
-    </message>
-    <message>
-        <source>The local directory that will contain the code after the checkout.</source>
-        <translation type="obsolete">Le répertoire local qui contiendra le code après l&apos;importation. </translation>
-    </message>
-    <message>
-        <source>Checkout path:</source>
-        <translation type="obsolete">Chemin d&apos;import :</translation>
-    </message>
-    <message>
-        <source>Checkout directory:</source>
-        <translation type="obsolete">Répertoire d&apos;import :</translation>
     </message>
 </context>
 <context>
@@ -18084,7 +17943,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>Impossible d&apos;ouvrir le projet</translation>
@@ -18109,9 +17968,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le projet &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>Impossible de démarrer &quot;%1&quot; : %2</translation>
@@ -18132,9 +17988,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Stopping...</source>
         <translation>Arrêt...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>Import</translation>
@@ -18155,9 +18008,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Succeeded.</source>
         <translation>Réussi.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Ouvrir &quot;%1&quot;</translation>
@@ -18165,10 +18015,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Clear</source>
         <translation>Effacer</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Gestion de versions</translation>
     </message>
     <message>
         <source>Executing: %1 %2</source>
@@ -20106,11 +19952,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
-    <message>
-        <source>Clean Repository</source>
-        <translation type="obsolete">Nettoyer le dépôt</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Le répertoire %1 ne peut pas être supprimer.</translation>
@@ -20126,10 +19968,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     <message>
         <source>Delete...</source>
         <translation>Supprimer…</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Nom</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -21808,7 +21646,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Éditeur de commit pour CVS</translation>
@@ -25243,11 +25081,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Gestion de versions</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>Le fichier &quot;%1&apos; n&quot;a pas pu être supprimé.</translation>
@@ -32668,7 +32502,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClient</name>
+    <name>::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
@@ -32681,9 +32515,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>Working...</source>
         <translation>Travail en cours...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annoter &quot;%1&quot;</translation>
@@ -32691,10 +32522,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>Copy &quot;%1&quot;</source>
         <translation>Copier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Describe change %1</source>
-        <translation type="obsolete">Décrire le changement %1</translation>
     </message>
     <message>
         <source>Describe Change %1</source>
@@ -32739,17 +32566,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>Would you like to apply the chunk?</source>
         <translation>Souhaitez-vous appliquer le morceau ?</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsJobRunner</name>
-    <message>
-        <source>Unable to start process &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Timed out after %1s waiting for the process %2 to finish.</source>
-        <translation type="obsolete">Après %1 secondes d&apos;attente, le processus %2 a été terminé. </translation>
     </message>
 </context>
 <context>
@@ -33856,7 +33672,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configure</source>
         <translation type="obsolete">Configurer</translation>
@@ -37215,7 +37031,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translatorcomment>??</translatorcomment>
@@ -38671,7 +38487,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -38688,9 +38504,6 @@ Filtre : %2
 &apos;%1&apos; terminé (code de retour %2).
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>Erreur : le délai d&apos;attente du serveur de contrôle de donnée a expiré après %1s.</translation>
@@ -38698,10 +38511,6 @@ Filtre : %2
     <message>
         <source>Unable to start process, binary is empty</source>
         <translation>Impossible de démarrer le processus, le binaire est vide</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation>Erreur : l&apos;exécutable est arrivé à échéance après %1 s.</translation>
     </message>
 </context>
 <context>
@@ -39944,7 +39753,7 @@ Influence l&apos;indentation des lignes de continuation.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -40001,9 +39810,6 @@ Influence l&apos;indentation des lignes de continuation.
         <source>Directory:</source>
         <translation>Répertoire :</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Nettoyer le dépôt</translation>
@@ -40012,9 +39818,6 @@ Influence l&apos;indentation des lignes de continuation.
         <source>Select All</source>
         <translation>Tout sélectionner</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Limiter la largeur du message à :</translation>
@@ -40068,13 +39871,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
         <translation>Spécifie une commande qui est exécutée pour demander graphiquement un mot de passe 
 si un dépôt requiert une authentification SSH (voir la documentation sur SSH et la variable d&apos;environnement SSH_ASKPASS). </translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
-    <message>
-        <source>Configure...</source>
-        <translation type="obsolete">Configurer...</translation>
     </message>
 </context>
 <context>
@@ -41674,7 +41470,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">Ouvrir l&apos;URL dans le navigateur...</translation>
@@ -41691,9 +41487,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Copy URL Location</source>
         <translation>Copier l&apos;URL</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">Envoyer un email à...</translation>
@@ -47671,7 +47464,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Soumission Subversion</translation>

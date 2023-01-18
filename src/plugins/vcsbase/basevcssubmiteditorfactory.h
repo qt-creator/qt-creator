@@ -9,7 +9,6 @@
 #include <functional>
 
 #include <QAction>
-#include <QCoreApplication>
 
 namespace VcsBase {
 
@@ -22,8 +21,6 @@ class VcsBasePluginPrivate;
 
 class VCSBASE_EXPORT VcsSubmitEditorFactory : public Core::IEditorFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::VcsSubmitEditorFactory)
-
 public:
     typedef std::function<VcsBaseSubmitEditor *()> EditorCreator;
 

@@ -12376,9 +12376,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -12395,9 +12392,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Alias</source>
         <translation>Alias</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Status</translation>
@@ -12406,9 +12400,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>File</source>
         <translation>Datei</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation>Beschreibung prüfen</translation>
@@ -13214,7 +13205,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS Commit-Editor</translation>
@@ -14700,7 +14691,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Das Verzeichnis %1 konnte nicht gelöscht werden.</translation>
@@ -14718,16 +14709,8 @@ Locked components cannot be modified or selected.</source>
         <translation type="unfinished">Repository bereinigen</translation>
     </message>
     <message>
-        <source>Select All</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete...</source>
         <translation>Löschen...</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -17369,7 +17352,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annotation für &quot;%1&quot;</translation>
@@ -19135,7 +19118,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -24621,7 +24604,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>URL in Browser öffnen...</translation>
@@ -24630,9 +24613,6 @@ the manifest file by overriding your settings. Allow override?</source>
         <source>Copy URL Location</source>
         <translation>URL kopieren</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Sende E-Mail an...</translation>
@@ -25962,7 +25942,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion Submit</translation>
@@ -30812,7 +30792,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Name des im aktuellen Projekt verwendeten Versionskontrollsystems.</translation>
@@ -34274,7 +34254,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsOutputWindow</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>&quot;%1&quot; öffnen</translation>
@@ -34282,10 +34262,6 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     <message>
         <source>Clear</source>
         <translation>Löschen</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Versionskontrolle</translation>
     </message>
     <message>
         <source>Running: %1</source>
@@ -35957,7 +35933,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClientImpl</name>
+    <name>::VcsBase</name>
     <message>
         <source>Failed to retrieve data.</source>
         <translation>Es konnten keine Daten empfangen werden.</translation>
@@ -35966,9 +35942,6 @@ Error:
         <source>Working...</source>
         <translation>Arbeite...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation>&quot;data&quot; ist kein JSON-Objekt auf der &quot;VcsCommand&quot;-Seite.</translation>
@@ -36017,9 +35990,6 @@ Error:
         <source>Failed.</source>
         <translation type="unfinished">Fehlgeschlagen.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>&quot;%1&quot; (%2) nicht gefunden.</translation>
@@ -40896,7 +40866,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
+    <name>::VcsBase</name>
     <message>
         <source>Processing diff</source>
         <translation>Verarbeite Unterschiede</translation>
@@ -42206,7 +42176,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
+    <name>::VcsBase</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>
@@ -46016,14 +45986,11 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseEditorConfig</name>
+    <name>::VcsBase</name>
     <message>
         <source>Reload</source>
         <translation>Neu laden</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePluginPrivate</name>
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -46032,10 +45999,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>Save before %1?</source>
         <translation>Vor dem %1 speichern?</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Versionskontrolle</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be deleted.</source>
@@ -56090,7 +56053,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonVcsSettings</name>
+    <name>::VcsBase</name>
     <message>
         <source>User/&amp;alias configuration file:</source>
         <translation type="unfinished">Nutzer/&amp;Alias-Konfigurationsdatei:</translation>
@@ -56143,9 +56106,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset information about which version control system handles which directory.</source>
         <translation type="unfinished">Die Zuordnung, welches Versionsverwaltungssystem welches Verzeichnis behandelt, zurücksetzen.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSettings</name>
     <message>
         <source>Log count:</source>
         <translation type="unfinished">Log-Anzeige beschränken auf:</translation>
@@ -56162,16 +56122,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>s</source>
         <translation type="unfinished">s</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation type="unfinished">UNBEKANNT</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputLineParser</name>
     <message>
         <source>&amp;Open &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

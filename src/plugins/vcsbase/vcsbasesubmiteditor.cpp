@@ -10,6 +10,7 @@
 #include "submitfieldwidget.h"
 #include "submitfilemodel.h"
 #include "vcsbaseplugin.h"
+#include "vcsbasetr.h"
 #include "vcsoutputwindow.h"
 #include "vcsplugin.h"
 
@@ -150,7 +151,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     d->m_file.setMimeType(QLatin1String(parameters.mimeType));
 
     setWidget(d->m_widget);
-    document()->setPreferredDisplayName(QCoreApplication::translate("VCS", d->m_parameters.displayName));
+    document()->setPreferredDisplayName(QCoreApplication::translate("::VcsBase", d->m_parameters.displayName));
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();
@@ -184,14 +185,14 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
         d->m_widget->addDescriptionEditContextMenuAction(sep);
         // Run check action
         if (!settings.submitMessageCheckScript.value().isEmpty()) {
-            auto checkAction = new QAction(tr("Check Message"), this);
+            auto checkAction = new QAction(Tr::tr("Check Message"), this);
             connect(checkAction, &QAction::triggered,
                     this, &VcsBaseSubmitEditor::slotCheckSubmitMessage);
             d->m_widget->addDescriptionEditContextMenuAction(checkAction);
         }
         // Insert nick
         if (!settings.nickNameMailMap.value().isEmpty()) {
-            auto insertAction = new QAction(tr("Insert Name..."), this);
+            auto insertAction = new QAction(Tr::tr("Insert Name..."), this);
             connect(insertAction, &QAction::triggered, this, &VcsBaseSubmitEditor::slotInsertNickName);
             d->m_widget->addDescriptionEditContextMenuAction(insertAction);
         }
@@ -453,7 +454,7 @@ void VcsBaseSubmitEditor::accept(VcsBasePluginPrivate *plugin)
     const bool canCommit = checkSubmitMessage(&errorMessage) && submitWidget->canSubmit(&errorMessage);
     if (!canCommit) {
         VcsOutputWindow::appendError(
-                    tr("Cannot %1%2.",
+                    Tr::tr("Cannot %1%2.",
                        "%2 is an optional error message with ': ' prefix. Don't add space in front.")
                     .arg(plugin->commitDisplayName().toLower(),
                          errorMessage.isEmpty() ? errorMessage : ": " + errorMessage));
@@ -481,8 +482,8 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
 
     const QString commitName = plugin->commitDisplayName();
     return QMessageBox::question(Core::ICore::dialogParent(),
-                                 tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName),
-                                 tr("Closing this editor will abort the %1. Are you sure?")
+                                 Tr::tr("Close %1 %2 Editor").arg(plugin->displayName(), commitName),
+                                 Tr::tr("Closing this editor will abort the %1. Are you sure?")
                                  .arg(commitName.toLower())) == QMessageBox::Yes;
 }
 
@@ -515,7 +516,7 @@ void VcsBaseSubmitEditor::slotCheckSubmitMessage()
 {
     QString errorMessage;
     if (!checkSubmitMessage(&errorMessage)) {
-        QMessageBox msgBox(QMessageBox::Warning, tr("Submit Message Check Failed"),
+        QMessageBox msgBox(QMessageBox::Warning, Tr::tr("Submit Message Check Failed"),
                            errorMessage, QMessageBox::Ok, d->m_widget);
         msgBox.setMinimumWidth(checkDialogMinimumWidth);
         msgBox.exec();
@@ -537,8 +538,8 @@ static QString msgCheckScript(const FilePath &workingDir, const QString &cmd)
 {
     const QString nativeCmd = QDir::toNativeSeparators(cmd);
     return workingDir.isEmpty() ?
-           VcsBaseSubmitEditor::tr("Executing %1").arg(nativeCmd) :
-           VcsBaseSubmitEditor::tr("Executing [%1] %2").
+           Tr::tr("Executing %1").arg(nativeCmd) :
+           Tr::tr("Executing [%1] %2").
            arg(workingDir.toUserOutput(), nativeCmd);
 }
 

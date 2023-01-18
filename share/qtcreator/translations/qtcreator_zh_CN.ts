@@ -46748,7 +46748,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS提交编辑器</translation>
@@ -47745,9 +47745,6 @@ With cache simulation, further event counters are enabled:
         <source>General</source>
         <translation>概要</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>目录 %1 无法被删除。</translation>
@@ -47763,10 +47760,6 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Delete...</source>
         <translation>删除...</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名称</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -47786,10 +47779,6 @@ With cache simulation, further event counters are enabled:
         <source>Clean Repository</source>
         <translation type="unfinished">清空代码库</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation type="unfinished">全选</translation>
-    </message>
     <message numerus="yes">
         <source>%n bytes, last modified %1.</source>
         <translation type="unfinished">
@@ -47800,9 +47789,6 @@ With cache simulation, further event counters are enabled:
         <source>Cleaning &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonVcsSettings</name>
     <message>
         <source>User/&amp;alias configuration file:</source>
         <translation type="unfinished">用户/别名配置文件(&amp;A):</translation>
@@ -47853,9 +47839,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset information about which version control system handles which directory.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>发送Email到...</translation>
@@ -47864,9 +47847,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Copy Email Address</source>
         <translation>复制Email地址</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>姓名</translation>
@@ -47883,9 +47863,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Alias email</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>在浏览器中打开URL...</translation>
@@ -47894,9 +47871,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Copy URL Location</source>
         <translation>复制URL位置</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation type="unfinished"></translation>
@@ -47945,9 +47919,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed.</source>
         <translation type="unfinished">失败.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsPlugin</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation type="unfinished"></translation>
@@ -47960,9 +47931,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>The top level path to the repository the current project is in.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="unfinished">Subversion提交</translation>
@@ -48033,9 +48001,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <extracomment>Uncheck all for submit</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>状态</translation>
@@ -48044,9 +48009,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>File</source>
         <translation>文件</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Failed to retrieve data.</source>
         <translation type="unfinished"></translation>
@@ -48055,23 +48017,14 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Working...</source>
         <translation type="unfinished">工作中...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
     <message>
         <source>Processing diff</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorConfig</name>
     <message>
         <source>Reload</source>
         <translation type="unfinished">重新载入</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Annotate &quot;%1&quot;</translation>
@@ -48096,9 +48049,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&amp;Describe Change %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePluginPrivate</name>
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -48107,10 +48057,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Save before %1?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation type="unfinished">版本控制</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be deleted.</source>
@@ -48144,9 +48090,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>A version control repository could not be created in %1.</source>
         <translation type="unfinished">在%1处版本控制仓库无法被创建。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSettings</name>
     <message>
         <source>Log count:</source>
         <translation type="unfinished"></translation>
@@ -48163,9 +48106,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>s</source>
         <translation type="unfinished">秒</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation>检查消息</translation>
@@ -48213,16 +48153,10 @@ What do you want to do?</source>
         <source>&amp;Keep Editing</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation type="unfinished"></translation>
@@ -48243,9 +48177,6 @@ What do you want to do?</source>
         <source>&quot;%1&quot; (%2) does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>配置</translation>
@@ -48268,9 +48199,6 @@ What do you want to do?</source>
         <source>No known version control selected.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputLineParser</name>
     <message>
         <source>&amp;Open &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -48279,9 +48207,6 @@ What do you want to do?</source>
         <source>&amp;Copy to clipboard: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation type="unfinished">打开 &quot;%1&quot;</translation>
@@ -48291,10 +48216,6 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Version Control</source>
-        <translation type="unfinished">版本控制</translation>
-    </message>
-    <message>
         <source>Running: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -48302,9 +48223,6 @@ What do you want to do?</source>
         <source>Running in %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="unfinished">撤销(&amp;U)</translation>

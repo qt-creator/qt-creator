@@ -9601,9 +9601,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Common</source>
         <translation type="obsolete">共同</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -9624,9 +9621,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Nicknames</source>
         <translation>暱稱</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>狀態</translation>
@@ -9635,9 +9629,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>File</source>
         <translation>檔案</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Prompt to submit</source>
         <translation>提交時彈出提示</translation>
@@ -11008,7 +10999,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation>無法開啟專案</translation>
@@ -11029,9 +11020,6 @@ Reason: %2</source>
         <source>&apos;%1&apos; does not exist.</source>
         <translation>&apos;%1&apos; 不存在。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation>無法啟動 %1：%2</translation>
@@ -11052,9 +11040,6 @@ Reason: %2</source>
         <source>Stopping...</source>
         <translation>正在停止...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout</source>
         <translation>取出</translation>
@@ -11075,9 +11060,6 @@ Reason: %2</source>
         <source>Succeeded.</source>
         <translation>成功。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>開啟 &quot;%1&quot;</translation>
@@ -11085,10 +11067,6 @@ Reason: %2</source>
     <message>
         <source>Clear</source>
         <translation>清除</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>版本控制</translation>
     </message>
     <message>
         <source>Executing: %1 %2
@@ -12120,7 +12098,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>目錄 %1 無法被刪除。</translation>
@@ -12136,10 +12114,6 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Delete...</source>
         <translation>刪除...</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名稱</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -12447,7 +12421,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>CVS 提交編輯器</translation>
@@ -13946,11 +13920,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>版本控制</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>The file &apos;%1&apos; could not be deleted.</source>
         <translation>檔案 &apos;%1&apos; 無法被刪除。</translation>
@@ -20465,7 +20435,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClient</name>
+    <name>::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation>無法啟動行程 &apos;%1&apos;：%2</translation>
@@ -20478,9 +20448,6 @@ You can build the application and deploy it on desktop and mobile target platfor
         <source>Working...</source>
         <translation>工作中...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>最後註記 &quot;%1&quot;</translation>
@@ -21180,7 +21147,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsConfigurationPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>Configuration</source>
         <translation>設置</translation>
@@ -21188,10 +21155,6 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Please configure &lt;b&gt;%1&lt;/b&gt; now.</source>
         <translation>請現在設置 &lt;b&gt;%1&lt;/b&gt;。</translation>
-    </message>
-    <message>
-        <source>Configure...</source>
-        <translation type="unfinished">設置...</translation>
     </message>
 </context>
 <context>
@@ -23171,7 +23134,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CommonSettingsWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Command used for reverting diff chunks</source>
         <translation>回復差異區塊的指令</translation>
@@ -25102,7 +25065,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -25119,9 +25082,6 @@ Filter: %2
 &apos;%1&apos; 已完成 (離開代碼 %2)。
 </translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation>錯誤：VCS 在 %1 秒後逾時。</translation>
@@ -26331,7 +26291,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
@@ -26380,16 +26340,10 @@ Influences the indentation of continuation lines.
         <source>Checkout directory:</source>
         <translation>取出目錄：</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>清除主目錄</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>提交訊息折行在：</translation>
@@ -26438,9 +26392,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&amp;SSH prompt command:</source>
         <translation>SSH 提示指令(&amp;S)：</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsConfigurationPage</name>
     <message>
         <source>Configure...</source>
         <translation type="obsolete">設置...</translation>
@@ -27775,7 +27726,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in browser...</source>
         <translation type="obsolete">在瀏覽器中打開網址...</translation>
@@ -27792,9 +27743,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Copy URL Location</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send email to...</source>
         <translation type="obsolete">傳送電子郵件至...</translation>

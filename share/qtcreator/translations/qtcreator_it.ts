@@ -10272,9 +10272,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Common</source>
         <translation>Comune</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nome</translation>
@@ -10295,9 +10292,6 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation>Impossibile aprire &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Stato</translation>
@@ -10306,16 +10300,10 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>File</source>
         <translation>File</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Describe change %1</source>
         <translation>Descrivi la modifica %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation>Controlla il messaggio</translation>
@@ -10348,16 +10336,9 @@ Queste codifiche dovrebbero andare bene:</translation>
         <source>The check script returned exit code %1.</source>
         <translation>Lo script di verifica è uscito con il codice %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Prompt del submit</translation>
-    </message>
-    <message>
-        <source>Common</source>
-        <translation>Comune</translation>
     </message>
     <message>
         <location/>
@@ -10395,13 +10376,6 @@ nome &lt;email&gt; alias &lt;email&gt;</translation>
         <location/>
         <source>User fields configuration file:</source>
         <translation>File di configurazione dei campi utente:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Controllo di Revisione</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -11308,7 +11282,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished"></translation>
@@ -12472,7 +12446,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation type="unfinished"></translation>
@@ -12497,9 +12471,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>The process terminated with exit code %1.</source>
         <translation type="unfinished">Il processo è terminato con il codice di uscita %1.</translation>
@@ -12516,9 +12487,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Stopping...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout started...</source>
         <translation type="unfinished"></translation>
@@ -12531,9 +12499,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Cancella</translation>

@@ -7020,18 +7020,11 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>Clean Repository</source>
         <translation>リポジトリをクリーン</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>すべてを選択</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>コミット時のメッセージを折り返す:</translation>
@@ -7084,9 +7077,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <source>Reset VCS Cache</source>
         <translation>バージョン管理システムキャッシュのリセット</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Nicknames</source>
         <translation>ニックネーム</translation>
@@ -7107,9 +7097,6 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
         <source>Alias</source>
         <translation>エイリアス</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion コミット</translation>
@@ -12193,7 +12180,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>Bazaar File Log Editor</source>
         <translation>Bazaar ファイルログエディタ</translation>
@@ -31208,7 +31195,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>VcsBase::CleanDialog</name>
+    <name>::VcsBase</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>ディレクトリ %1 を削除できませんでした。</translation>
@@ -31224,10 +31211,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Delete...</source>
         <translation>削除...</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -31253,9 +31236,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Cleaning &quot;%1&quot;</source>
         <translation>&quot;%1&quot; をクリーニング中</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>状態</translation>
@@ -31264,9 +31244,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>File</source>
         <translation>ファイル</translation>
     </message>
-</context>
-<context>
-    <name>::VcsBase</name>
     <message>
         <source>Version Control</source>
         <translation>バージョン管理システム</translation>
@@ -31275,9 +31252,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation>変更 %1 の説明(&amp;D)</translation>
@@ -31322,9 +31296,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Would you like to apply the chunk?</source>
         <translation>チャンクを適用しますか？</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>ブラウザで URL を開く...</translation>
@@ -31333,9 +31304,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Copy URL Location</source>
         <translation>URL をコピー</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>メールを送信...</translation>
@@ -31343,13 +31311,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Copy Email Address</source>
         <translation>メールアドレスをコピー</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>バージョン管理</translation>
     </message>
     <message>
         <source>Choose Repository Directory</source>
@@ -31383,9 +31344,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>A version control repository could not be created in %1.</source>
         <translation>%1 にバージョン管理リポジトリを作成できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation>メッセージをチェック</translation>
@@ -31430,9 +31388,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>The check script returned exit code %1.</source>
         <translation>チェックスクリプトの終了コードは %1 です。</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -32745,7 +32700,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>現在のプロジェクトで使用するバージョン管理システムの名前です。</translation>
@@ -42012,14 +41967,11 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClientImpl</name>
+    <name>::VcsBase</name>
     <message>
         <source>Working...</source>
         <translation>作業中...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>&quot;%1&quot; を開く</translation>
@@ -42029,10 +41981,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>クリア</translation>
     </message>
     <message>
-        <source>Version Control</source>
-        <translation>バージョン管理</translation>
-    </message>
-    <message>
         <source>Executing: %1 %2</source>
         <translation>実行中: %1 %2</translation>
     </message>
@@ -42040,9 +41988,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Executing in %1: %2 %3</source>
         <translation>%1 で実行中: %2 %3</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation>&quot;VcsCommand&quot; ページの &quot;data&quot; は JSON オブジェクトである必要があります。</translation>
@@ -42075,9 +42020,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Checkout</source>
         <translation>チェックアウト</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>%1(%2) が見つかりません。</translation>
@@ -49099,7 +49041,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
+    <name>::VcsBase</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -49108,47 +49050,9 @@ Row: %4, Column: %5
         <source>&amp;Redo</source>
         <translation>やり直す(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorConfig</name>
     <message>
         <source>Reload</source>
         <translation>再読込</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePluginPrivate</name>
-    <message>
-        <source>The file &quot;%1&quot; could not be deleted.</source>
-        <translation>ファイル &quot;%1&quot; は削除できませんでした。</translation>
-    </message>
-    <message>
-        <source>Choose Repository Directory</source>
-        <translation>リポジトリディレクトリを選択してください</translation>
-    </message>
-    <message>
-        <source>The directory &quot;%1&quot; is already managed by a version control system (%2). Would you like to specify another directory?</source>
-        <translation>ディレクトリ &quot;%1&quot; は既にバージョン管理システム (%2) によって管理されています。別のディレクトリを指定しますか？</translation>
-    </message>
-    <message>
-        <source>Repository already under version control</source>
-        <translation>リポジトリは既にバージョン管理されています</translation>
-    </message>
-    <message>
-        <source>Repository Created</source>
-        <translation>リポジトリを作成しました</translation>
-    </message>
-    <message>
-        <source>A version control repository has been created in %1.</source>
-        <translation>%1 にバージョン管理リポジトリを作成しました。</translation>
-    </message>
-    <message>
-        <source>Repository Creation Failed</source>
-        <translation>リポジトリの作成に失敗しました</translation>
-    </message>
-    <message>
-        <source>A version control repository could not be created in %1.</source>
-        <translation>%1 にバージョン管理リポジトリを作成できませんでした。</translation>
     </message>
 </context>
 <context>

@@ -47481,7 +47481,7 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation>Редактор фиксаций CVS</translation>
@@ -48546,9 +48546,6 @@ With cache simulation, further event counters are enabled:
         <source>General</source>
         <translation>Общее</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Невозможно удалить каталог %1.</translation>
@@ -48597,20 +48594,10 @@ With cache simulation, further event counters are enabled:
         <source>Cleaning &quot;%1&quot;</source>
         <translation>Очистка «%1»</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Очистить хранилище</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Выбрать все</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Ограничить длину строки до:</translation>
@@ -48663,9 +48650,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset VCS Cache</source>
         <translation>Сбросить кэш VCS</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Отправить письмо...</translation>
@@ -48673,13 +48657,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Copy Email Address</source>
         <translation>Скопировать почтовый адрес</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
     </message>
     <message>
         <source>Email</source>
@@ -48697,9 +48674,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Nicknames</source>
         <translation>Ники</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Открыть ссылку в браузере...</translation>
@@ -48708,9 +48682,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Copy URL Location</source>
         <translation>Скопировать адрес ссылки</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation>«data» должна быть объектом JSON для страницы «VcsCommand».</translation>
@@ -48743,9 +48714,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Checkout</source>
         <translation>Извлечение</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsPlugin</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Система контроля версий, используемая в данном проекте.</translation>
@@ -48758,9 +48726,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>The top level path to the repository the current project is in.</source>
         <translation>Путь верхнего уровня к хранилищу, в котором размещён текущий проект.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Фиксация Subversion</translation>
@@ -48811,9 +48776,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Select a&amp;ll</source>
         <translation>В&amp;ыбрать все</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Состояние</translation>
@@ -48822,30 +48784,18 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>File</source>
         <translation>Файл</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClientImpl</name>
     <message>
         <source>Working...</source>
         <translation>Выполнение...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseDiffEditorController</name>
     <message>
         <source>Processing diff</source>
         <translation>Обработка отличий</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorConfig</name>
     <message>
         <source>Reload</source>
         <translation>Перезагрузить</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>Annotate &quot;%1&quot;</source>
         <translation>Аннотация «%1»</translation>
@@ -48890,9 +48840,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Would you like to apply the chunk?</source>
         <translation>Применить фрагмент?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePluginPrivate</name>
     <message>
         <source>Commit</source>
         <comment>name of &quot;commit&quot; action of the VCS.</comment>
@@ -48901,10 +48848,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Save before %1?</source>
         <translation>Сохранить перед тем, как %1?</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Контроль версий</translation>
     </message>
     <message>
         <source>The file &quot;%1&quot; could not be deleted.</source>
@@ -48938,9 +48881,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>A version control repository could not be created in %1.</source>
         <translation>Не удалось создать хранилище контроля версий в %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation>Проверить сообщение</translation>
@@ -49005,9 +48945,6 @@ What do you want to do?</source>
         <source>The check script returned exit code %1.</source>
         <translation>Скрипт проверки вернул код %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>«%1» (%2) не найден.</translation>
@@ -49028,9 +48965,6 @@ What do you want to do?</source>
         <source>&quot;%1&quot; (%2) does not exist.</source>
         <translation>«%1» (%2) не существует.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -49053,16 +48987,10 @@ What do you want to do?</source>
         <source>No known version control selected.</source>
         <translation>Ни одна известная система контроля версий не выбрана.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputLineParser</name>
     <message>
         <source>&amp;Open &quot;%1&quot;</source>
         <translation>&amp;Открыть «%1»</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Открыть «%1»</translation>
@@ -49072,10 +49000,6 @@ What do you want to do?</source>
         <translation>Очистить</translation>
     </message>
     <message>
-        <source>Version Control</source>
-        <translation>Контроль версий</translation>
-    </message>
-    <message>
         <source>Running: %1 %2</source>
         <translation>Исполнение: %1 %2</translation>
     </message>
@@ -49083,9 +49007,6 @@ What do you want to do?</source>
         <source>Running in %1: %2 %3</source>
         <translation>Исполнение в %1: %2 %3</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsSubmitEditorFactory</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>

@@ -11,8 +11,6 @@ namespace VcsBase {
 
 class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(VcsBase::VcsBaseSettings)
-
 public:
     VcsBaseSettings();
     ~VcsBaseSettings();

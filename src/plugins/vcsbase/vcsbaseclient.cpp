@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "vcsbaseclient.h"
+
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditor.h"
 #include "vcsbaseeditorconfig.h"
 #include "vcsbaseplugin.h"
+#include "vcsbasetr.h"
 #include "vcscommand.h"
 #include "vcsoutputwindow.h"
 
@@ -79,7 +81,7 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
         editor->setCommand(cmd);
         connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
             if (cmd->result() != ProcessResult::FinishedWithSuccess) {
-                editor->textDocument()->setPlainText(tr("Failed to retrieve data."));
+                editor->textDocument()->setPlainText(Tr::tr("Failed to retrieve data."));
                 return;
             }
             editor->setPlainText(cmd->cleanedStdOut());
@@ -208,7 +210,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
 {
     VcsBaseEditorWidget *baseEditor = nullptr;
     IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
-    const QString progressMsg = tr("Working...");
+    const QString progressMsg = Tr::tr("Working...");
     if (outputEditor) {
         // Exists already
         outputEditor->document()->setContents(progressMsg.toUtf8());

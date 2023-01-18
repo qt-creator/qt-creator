@@ -33,7 +33,7 @@ VcsEditorFactory::VcsEditorFactory(const VcsBaseEditorParameters *parameters,
                                    std::function<void (const Utils::FilePath &, const QString &)> describeFunc)
 {
     setId(parameters->id);
-    setDisplayName(QCoreApplication::translate("VCS", parameters->displayName));
+    setDisplayName(QCoreApplication::translate("::VcsBase", parameters->displayName));
     if (QLatin1String(parameters->mimeType) != QLatin1String(DiffEditor::Constants::DIFF_EDITOR_MIMETYPE))
         addMimeType(QLatin1String(parameters->mimeType));
 

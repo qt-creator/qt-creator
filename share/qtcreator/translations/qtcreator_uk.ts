@@ -20994,7 +20994,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>VCS</name>
+    <name>::VcsBase</name>
     <message>
         <source>CVS Commit Editor</source>
         <translation type="unfinished"></translation>
@@ -21710,7 +21710,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>::VcsBase</name>
     <message>
         <source>
 &apos;%1&apos; failed (exit code %2).
@@ -22943,7 +22943,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation type="vanished">Сторінка майстра</translation>
@@ -22976,20 +22976,10 @@ Influences the indentation of continuation lines.
         <source>Directory:</source>
         <translation type="vanished">Тека:</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CleanDialog</name>
     <message>
         <source>Clean Repository</source>
         <translation>Очистити сховище</translation>
     </message>
-    <message>
-        <source>Select All</source>
-        <translation>Виділити все</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation type="unfinished"></translation>
@@ -23040,9 +23030,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Reset VCS Cache</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Nicknames</source>
         <translation>Псевдоніми</translation>
@@ -24304,7 +24291,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation type="vanished">Неможливо відкрити проект</translation>
@@ -24325,9 +24312,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&apos;%1&apos; does not exist.</source>
         <translation type="vanished">&apos;%1&apos; не існує.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>Unable to start %1: %2</source>
         <translation type="vanished">Неможливо запустити %1: %2</translation>
@@ -24348,9 +24332,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Stopping...</source>
         <translation type="vanished">Зупиняється...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Failed.</source>
         <translation type="vanished">Збій.</translation>
@@ -24359,9 +24340,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Succeeded.</source>
         <translation type="vanished">Успішно.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::CleanDialog</name>
     <message>
         <source>The directory %1 could not be deleted.</source>
         <translation>Не вдалось видалити теку %1.</translation>
@@ -24377,10 +24355,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Delete...</source>
         <translation>Видалити...</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation>Назва</translation>
     </message>
     <message>
         <source>Repository: %1</source>
@@ -24422,9 +24396,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Cleaning %1</source>
         <translation type="vanished">Очищення %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Command</name>
     <message>
         <source>Error: VCS timed out after %1s.</source>
         <translation type="vanished">Помилка: Час очікування VCS вичерпано після %1 с.</translation>
@@ -24437,9 +24408,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Error: Executable timed out after %1s.</source>
         <translation type="vanished">Помилка: Час очікування на виконуваний модуль вичерпано після %1 с.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Стан</translation>
@@ -24448,9 +24416,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>File</source>
         <translation>Файл</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseClient</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
         <translation type="vanished">Неможливо запустити процес &apos;%1&apos;: %2</translation>
@@ -24464,13 +24429,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="vanished">Вичерпано час очікування (%1 с) завершення процесу %2.</translation>
     </message>
     <message>
-        <source>Working...</source>
-        <translation type="vanished">Виконання...</translation>
-    </message>
-</context>
-<context>
-    <name>::VcsBase</name>
-    <message>
         <source>Version Control</source>
         <translation>Контроль версій</translation>
     </message>
@@ -24478,9 +24436,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>General</source>
         <translation>Загальне</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditorWidget</name>
     <message>
         <source>&amp;Describe Change %1</source>
         <translation type="unfinished"></translation>
@@ -24533,36 +24488,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Would you like to apply the chunk?</source>
         <translation>Бажаєте накласти частину латки?</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
-    <message>
-        <source>Open &quot;%1&quot;</source>
-        <translation type="vanished">Відкрити &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="vanished">Очистити</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation type="vanished">Контроль версій</translation>
-    </message>
-    <message>
-        <source>Executing: %1 %2</source>
-        <translation type="vanished">Виконання: %1 %2</translation>
-    </message>
-    <message>
-        <source>Executing in %1: %2 %3</source>
-        <translation type="vanished">Виконання в %1: %2 %3</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsBasePlugin</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Контроль версій</translation>
-    </message>
     <message>
         <source>Choose Repository Directory</source>
         <translation>Оберіть теку сховища</translation>
@@ -24599,9 +24524,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&apos;%1&apos; crashed.</source>
         <translation type="vanished">&apos;%1&apos; завершився аварійно.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check Message</source>
         <translation type="unfinished"></translation>
@@ -24642,9 +24564,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>The check script returned exit code %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsConfigurationPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -29215,7 +29134,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::UrlTextCursorHandler</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open URL in Browser...</source>
         <translation>Відкрити URL переглядачі...</translation>
@@ -29224,9 +29143,6 @@ cannot be found in the path.</source>
         <source>Copy URL Location</source>
         <translation>Скопіювати адресу URL</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::EmailTextCursorHandler</name>
     <message>
         <source>Send Email To...</source>
         <translation>Надіслати лист до...</translation>
@@ -29801,7 +29717,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::SubmitEditorWidget</name>
+    <name>::VcsBase</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="unfinished"></translation>
@@ -36657,7 +36573,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>VcsBase::Internal::VcsPlugin</name>
+    <name>::VcsBase</name>
     <message>
         <source>Name of the version control system in use by the current project.</source>
         <translation>Назва системи контролю версії, що використовується в поточному проекті.</translation>
@@ -38004,11 +37920,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardFactory</name>
-    <message>
-        <source>Cannot Open Project</source>
-        <translation type="vanished">Неможливо відкрити проект</translation>
-    </message>
+    <name>::VcsBase</name>
     <message>
         <source>Failed to open project in &quot;%1&quot;.</source>
         <translation type="vanished">Збій відкриття проекту в &quot;%1&quot;.</translation>
@@ -40939,18 +40851,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsCommand</name>
-    <message>
-        <source>Unable to start process, binary is empty</source>
-        <translation type="vanished">Неможливо запустити процес, виконуваний файл порожній</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation type="vanished">Помилка: Час очікування на виконуваний модуль вичерпано після %1 с.</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::VcsOutputWindow</name>
+    <name>::VcsBase</name>
     <message>
         <source>Open &quot;%1&quot;</source>
         <translation>Відкрити &quot;%1&quot;</translation>
@@ -40958,10 +40859,6 @@ The files in the Android package source directory are copied to the build direct
     <message>
         <source>Clear</source>
         <translation>Очистити</translation>
-    </message>
-    <message>
-        <source>Version Control</source>
-        <translation>Контроль версій</translation>
     </message>
     <message>
         <source>Executing: %1 %2</source>
@@ -43211,14 +43108,11 @@ Output:
     </message>
 </context>
 <context>
-    <name>VcsBase::VcsBaseClientImpl</name>
+    <name>::VcsBase</name>
     <message>
         <source>Working...</source>
         <translation>Виконання...</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::VcsCommandPage</name>
     <message>
         <source>&quot;data&quot; is no JSON object in &quot;VcsCommand&quot; page.</source>
         <translation type="unfinished"></translation>
@@ -43251,9 +43145,6 @@ Output:
         <source>Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsCommandPage</name>
     <message>
         <source>&quot;%1&quot; (%2) not found.</source>
         <translation>Не знайдено &quot;%1&quot; (%2).</translation>

@@ -10395,9 +10395,6 @@ The following encodings are likely to fit:</source>
         <source>Common</source>
         <translation>Común</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::NickNameDialog</name>
     <message>
         <source>Name</source>
         <translation>Nombre</translation>
@@ -10418,9 +10415,6 @@ The following encodings are likely to fit:</source>
         <source>Cannot open &apos;%1&apos;: %2</source>
         <translation>No se pudo abrir &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::SubmitFileModel</name>
     <message>
         <source>State</source>
         <translation>Estado</translation>
@@ -10429,16 +10423,10 @@ The following encodings are likely to fit:</source>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseEditor</name>
     <message>
         <source>Describe change %1</source>
         <translation>Describa modificaciones %1</translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseSubmitEditor</name>
     <message>
         <source>Check message</source>
         <translation>Mensaje para la revisión</translation>
@@ -10471,16 +10459,9 @@ The following encodings are likely to fit:</source>
         <source>The check script returned exit code %1.</source>
         <translation>El script de comprobación retornó el valor %1.</translation>
     </message>
-</context>
-<context>
-    <name>VcsBaseSettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Preguntar antes de enviar</translation>
-    </message>
-    <message>
-        <source>Common</source>
-        <translation>Común</translation>
     </message>
     <message>
         <location/>
@@ -10518,13 +10499,6 @@ nombre &lt;email&gt; alias &lt;email&gt;</translation>
         <location/>
         <source>User fields configuration file:</source>
         <translation>Archivo de configuración de campos de usuario:</translation>
-    </message>
-</context>
-<context>
-    <name>VcsManager</name>
-    <message>
-        <source>Version Control</source>
-        <translation>Control de versiones</translation>
     </message>
     <message>
         <source>Would you like to remove this file from the version control system (%1)?
@@ -11478,7 +11452,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizardPage</name>
+    <name>::VcsBase</name>
     <message>
         <source>WizardPage</source>
         <translation type="unfinished"></translation>
@@ -12716,7 +12690,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>VcsBase::BaseCheckoutWizard</name>
+    <name>::VcsBase</name>
     <message>
         <source>Cannot Open Project</source>
         <translation type="unfinished"></translation>
@@ -12741,9 +12715,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Unable to open the project &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
     <message>
         <source>The process terminated with exit code %1.</source>
         <translation type="unfinished"></translation>
@@ -12760,9 +12731,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Stopping...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::Internal::CheckoutProgressWizardPage</name>
     <message>
         <source>Checkout started...</source>
         <translation type="unfinished"></translation>
@@ -12775,9 +12743,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>VcsBase::VcsBaseOutputWindow</name>
     <message>
         <source>Clear</source>
         <translation type="unfinished">Limpiar</translation>
