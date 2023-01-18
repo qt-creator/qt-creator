@@ -75,6 +75,7 @@ private:
     void handleRenameResponse(Core::SearchResult *search,
                               const LanguageServerProtocol::RenameRequest::Response &response);
     void applyRename(const QList<Core::SearchResultItem> &checkedItems, Core::SearchResult *search);
+    QString derivePlaceholder(const QString &oldSymbol, const QString &newSymbol);
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;
