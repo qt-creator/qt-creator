@@ -155,8 +155,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
     }
 
     // add button to tool bar of C++ source files
-    connect(EditorManager::instance(), &EditorManager::editorOpened, this,
-            [this](IEditor *editor) {
+    connect(EditorManager::instance(), &EditorManager::editorOpened, this, [](IEditor *editor) {
         if (editor->document()->filePath().isEmpty()
                 || !Utils::mimeTypeForName(editor->document()->mimeType()).inherits("text/x-c++src"))
             return;
@@ -181,7 +180,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
                                                     Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
             ClangTool * const tool = toolInfo.first;
             Command * const cmd = ActionManager::command(toolInfo.second);
-            QAction * const action = toolsMenu->addAction(tool->name(), [this, editor, tool] {
+            QAction *const action = toolsMenu->addAction(tool->name(), [editor, tool] {
                 tool->startTool(editor->document()->filePath());
             });
             cmd->augmentActionWithShortcutToolTip(action);
