@@ -335,10 +335,31 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers = parsers.isEmpty() ? m_testCodeParsers : parsers;
     qCDebug(LOG) << QDateTime::currentDateTime().toString("hh:mm:ss.zzz") << "StartParsing";
-    for (ITestParser *parser : codeParsers)
-        parser->init(list, isFullParse);
+    QSet<QString> extensions;
+    const auto cppSnapshot = CppEditor::CppModelManager::instance()->snapshot();
 
-    QFuture<TestParseResultPtr> future = Utils::map(list,
+    for (ITestParser *parser : codeParsers) {
+        parser->init(list, isFullParse);
+        for (const QString &ext : parser->supportedExtensions())
+            extensions.insert(ext);
+    }
+    // We are only interested in files that have been either parsed by the c++ parser,
+    // or have an extension that one of the parsers is specifically interested in.
+    const Utils::FilePaths filteredList
+        = Utils::filtered(list, [&extensions, &cppSnapshot](const Utils::FilePath &fn) {
+              const bool isSupportedExtension = Utils::anyOf(extensions, [&fn](const QString &ext) {
+                  return fn.suffix() == ext;
+              });
+              if (isSupportedExtension)
+                  return true;
+              return cppSnapshot.contains(fn);
+          });
+
+    qCDebug(LOG) << "Starting scan of" << filteredList.size() << "(" << list.size() << ")"
+                 << "files with" << codeParsers.size() << "parsers";
+
+    QFuture<TestParseResultPtr> future = Utils::map(
+        filteredList,
         [codeParsers](QFutureInterface<TestParseResultPtr> &fi, const Utils::FilePath &file) {
             parseFileForTests(codeParsers, fi, file);
         },
@@ -346,7 +367,7 @@ void TestCodeParser::scanForTests(const Utils::FilePaths &fileList,
         m_threadPool,
         QThread::LowestPriority);
     m_futureWatcher.setFuture(future);
-    if (list.size() > 5) {
+    if (filteredList.size() > 5) {
         Core::ProgressManager::addTask(future, Tr::tr("Scanning for Tests"),
                                        Autotest::Constants::TASK_PARSE);
     }
