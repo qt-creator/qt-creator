@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbPlugin final : public ExtensionSystem::IPlugin
 {
@@ -25,5 +24,4 @@ private:
     class QdbPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

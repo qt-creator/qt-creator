@@ -4,13 +4,16 @@
 #include "qdbplugin.h"
 
 #include "device-detection/devicedetector.h"
+#include "qdbconstants.h"
 #include "qdbdeployconfigurationfactory.h"
+#include "qdbdevice.h"
 #include "qdbstopapplicationstep.h"
 #include "qdbmakedefaultappstep.h"
 #include "qdbdevicedebugsupport.h"
 #include "qdbqtversion.h"
 #include "qdbrunconfiguration.h"
 #include "qdbutils.h"
+#include "qdbtr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -34,7 +37,6 @@
 #include <utils/qtcprocess.h>
 
 #include <QAction>
-#include <QFileInfo>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -56,8 +58,7 @@ static void startFlashingWizard()
     } else if (QtcProcess::startDetached({filePath, {}})) {
         return;
     }
-    const QString message =
-            QCoreApplication::translate("Qdb", "Flash wizard \"%1\" failed to start.");
+    const QString message = Tr::tr("Flash wizard \"%1\" failed to start.");
     showMessage(message.arg(filePath.toUserOutput()), true);
 }
 
@@ -76,9 +77,8 @@ void registerFlashAction(QObject *parentForAction)
         return;
     const FilePath fileName = flashWizardFilePath();
     if (!fileName.exists()) {
-        const QString message =
-                QCoreApplication::translate("Qdb", "Flash wizard executable \"%1\" not found.");
-        showMessage(message.arg(fileName.toString()));
+        const QString message = Tr::tr("Flash wizard executable \"%1\" not found.");
+        showMessage(message.arg(fileName.toUserOutput()));
         return;
     }
 
@@ -92,8 +92,7 @@ void registerFlashAction(QObject *parentForAction)
 
     Core::Context globalContext(Core::Constants::C_GLOBAL);
 
-    const QString actionText = QCoreApplication::translate("Qdb", "Flash Boot to Qt Device");
-    QAction *flashAction = new QAction(actionText, parentForAction);
+    QAction *flashAction = new QAction(Tr::tr("Flash Boot to Qt Device"), parentForAction);
     Core::Command *flashCommand = Core::ActionManager::registerAction(flashAction,
                                                                       flashActionId,
                                                                       globalContext);

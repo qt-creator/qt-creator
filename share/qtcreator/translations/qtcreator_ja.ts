@@ -45125,7 +45125,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Qdb::Internal::DeviceDetector</name>
+    <name>::Qdb</name>
     <message>
         <source>Device &quot;%1&quot; %2</source>
         <translation>デバイス &quot;%1&quot; %2</translation>
@@ -45138,16 +45138,10 @@ The name of the release build configuration created by default for a qmake proje
         <source>Device detection error: %1</source>
         <translation>デバイス検出エラー: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeviceTracker</name>
     <message>
         <source>Shutting down device discovery due to unexpected response: %1</source>
         <translation>予期しない応答があったため、デバイスの捜索を停止します: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMessageTracker</name>
     <message>
         <source>Shutting down message reception due to unexpected response: %1</source>
         <translation>予期しない応答があったため、メッセージ受信を停止します: %1</translation>
@@ -45156,9 +45150,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>QDB message: %1</source>
         <translation>QDB メッセージ: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbWatcher</name>
     <message>
         <source>Unexpected QLocalSocket error: %1</source>
         <translation>予期していない QLocalSocket エラー: %1</translation>
@@ -45187,16 +45178,10 @@ The name of the release build configuration created by default for a qmake proje
         <source>Starting QDB host server.</source>
         <translation>GDB ホストサーバー起動中。</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeployConfiguration</name>
     <message>
         <source>Deploy to Boot2Qt target</source>
         <translation>Boot2Qt ターゲットにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDevice</name>
     <message>
         <source>Starting command &quot;%1&quot; on device &quot;%2&quot;.</source>
         <translation>デバイス &quot;%2&quot; でコマンド &quot;%1&quot; を開始します。</translation>
@@ -45209,9 +45194,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Device name:</source>
         <translation type="unfinished">デバイス名:</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppService</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>リモートプロセスが失敗しました: %1</translation>
@@ -45224,9 +45206,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Reset the default application.</source>
         <translation>デフォルトのアプリケーションをリセットします。</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppStep</name>
     <message>
         <source>Set this application to start by default</source>
         <translation>このアプリケーションをデフォルトで起動するように設定する</translation>
@@ -45239,9 +45218,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Change default application</source>
         <translation>デフォルトのアプリケーションを変更する</translation>
     </message>
-</context>
-<context>
-    <name>Qdb</name>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
         <translation>Flash ウィザード &quot;%1&quot; の起動に失敗しました。</translation>
@@ -45250,9 +45226,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Flash wizard executable &quot;%1&quot; not found.</source>
         <translation>Flash ウィザードの実行ファイル &quot;%1&quot; が見つかりません。</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbRunConfiguration</name>
     <message>
         <source>Executable on device:</source>
         <translation>デバイス上の実行可能ファイル:</translation>
@@ -45265,9 +45238,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Executable on host:</source>
         <translation>ホスト上の実行可能ファイル:</translation>
     </message>
-</context>
-<context>
-    <name>::Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation>Boot2Qt: %1</translation>

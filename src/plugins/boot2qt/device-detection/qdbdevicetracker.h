@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+
 #include <QObject>
 #include <QMap>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbWatcher;
 
@@ -35,5 +35,4 @@ private:
     QdbWatcher *m_qdbWatcher = nullptr;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

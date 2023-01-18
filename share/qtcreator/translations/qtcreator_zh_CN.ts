@@ -5336,7 +5336,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>::Boot2Qt</name>
+    <name>::Qdb</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation type="unfinished"></translation>
@@ -31744,7 +31744,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Qdb</name>
+    <name>::Qdb</name>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
         <translation type="unfinished"></translation>
@@ -31757,9 +31757,6 @@ The affected files are:
         <source>Flash Boot to Qt Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::DeviceDetector</name>
     <message>
         <source>Device &quot;%1&quot; %2</source>
         <translation type="unfinished"></translation>
@@ -31772,16 +31769,10 @@ The affected files are:
         <source>Device detection error: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeployConfiguration</name>
     <message>
         <source>Deploy to Boot2Qt target</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDevice</name>
     <message>
         <source>Starting command &quot;%1&quot; on device &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
@@ -31846,16 +31837,10 @@ The affected files are:
         <source>Boot2Qt Network Device Setup</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeviceTracker</name>
     <message>
         <source>Shutting down device discovery due to unexpected response: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppService</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation type="unfinished">远端进程失败:%1</translation>
@@ -31868,9 +31853,6 @@ The affected files are:
         <source>Reset the default application.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppStep</name>
     <message>
         <source>Set this application to start by default</source>
         <translation type="unfinished"></translation>
@@ -31883,9 +31865,6 @@ The affected files are:
         <source>Change default application</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMessageTracker</name>
     <message>
         <source>Shutting down message reception due to unexpected response: %1</source>
         <translation type="unfinished"></translation>
@@ -31894,9 +31873,6 @@ The affected files are:
         <source>QDB message: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbRunConfiguration</name>
     <message>
         <source>Full command line:</source>
         <translation type="unfinished"></translation>
@@ -31921,9 +31897,6 @@ The affected files are:
         <source>The remote executable must be set in order to run on a Boot2Qt device.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationService</name>
     <message>
         <source>Could not check and possibly stop running application.</source>
         <translation type="unfinished"></translation>
@@ -31936,16 +31909,10 @@ The affected files are:
         <source>Stopped the running application.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationStep</name>
     <message>
         <source>Stop already running application</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbWatcher</name>
     <message>
         <source>Unexpected QLocalSocket error: %1</source>
         <translation type="unfinished"></translation>
@@ -39262,7 +39229,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>::Qdb</name>
     <message>
         <source>Boot2Qt</source>
         <comment>Qt version is used for Boot2Qt development</comment>

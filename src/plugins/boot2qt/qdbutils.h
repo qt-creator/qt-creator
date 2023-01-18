@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-#include <qglobal.h>
-
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 enum class QdbTool {
     FlashingWizard,
@@ -21,5 +18,4 @@ void showMessage(const QString &message, bool important = false);
 QString settingsGroupKey();
 QString settingsKey(QdbTool tool);
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

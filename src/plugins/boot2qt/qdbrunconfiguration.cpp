@@ -4,6 +4,7 @@
 #include "qdbrunconfiguration.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -22,19 +23,16 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 // FullCommandLineAspect
 
 class FullCommandLineAspect : public StringAspect
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
-
 public:
     explicit FullCommandLineAspect(RunConfiguration *rc)
     {
-        setLabelText(tr("Full command line:"));
+        setLabelText(Tr::tr("Full command line:"));
 
         auto exeAspect = rc->aspect<ExecutableAspect>();
         auto argumentsAspect = rc->aspect<ArgumentsAspect>();
@@ -58,8 +56,6 @@ public:
 
 class QdbRunConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbRunConfiguration);
-
 public:
     QdbRunConfiguration(Target *target, Utils::Id id);
 
@@ -73,14 +69,14 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
 {
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     exeAspect->setSettingsKey("QdbRunConfig.RemoteExecutable");
-    exeAspect->setLabelText(tr("Executable on device:"));
-    exeAspect->setPlaceHolderText(tr("Remote path not set"));
+    exeAspect->setLabelText(Tr::tr("Executable on device:"));
+    exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
     exeAspect->makeOverridable("QdbRunConfig.AlternateRemoteExecutable",
                                "QdbRunCofig.UseAlternateRemoteExecutable");
 
     auto symbolsAspect = addAspect<SymbolFileAspect>();
     symbolsAspect->setSettingsKey("QdbRunConfig.LocalExecutable");
-    symbolsAspect->setLabelText(tr("Executable on host:"));
+    symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     auto envAspect = addAspect<RemoteLinux::RemoteLinuxEnvironmentAspect>(target);
@@ -103,15 +99,15 @@ QdbRunConfiguration::QdbRunConfiguration(Target *target, Id id)
     connect(target, &Target::deploymentDataChanged, this, &RunConfiguration::update);
     connect(target, &Target::kitChanged, this, &RunConfiguration::update);
 
-    setDefaultDisplayName(tr("Run on Boot2Qt Device"));
+    setDefaultDisplayName(Tr::tr("Run on Boot2Qt Device"));
 }
 
 Tasks QdbRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (aspect<ExecutableAspect>()->executable().toString().isEmpty()) {
-        tasks << BuildSystemTask(Task::Warning, tr("The remote executable must be set "
-                                                   "in order to run on a Boot2Qt device."));
+        tasks << BuildSystemTask(Task::Warning, Tr::tr("The remote executable must be set "
+                                                       "in order to run on a Boot2Qt device."));
     }
     return tasks;
 }
@@ -129,5 +125,4 @@ QdbRunConfigurationFactory::QdbRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

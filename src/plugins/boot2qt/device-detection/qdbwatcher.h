@@ -14,12 +14,12 @@ QT_BEGIN_NAMESPACE
 class QJsonDocument;
 QT_END_NAMESPACE
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbWatcher : public QObject
 {
     Q_OBJECT
+
 public:
     QdbWatcher(QObject *parent = nullptr);
     virtual ~QdbWatcher();
@@ -49,6 +49,5 @@ private:
     RequestType m_requestType;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal
 

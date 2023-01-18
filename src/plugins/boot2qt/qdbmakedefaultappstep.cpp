@@ -4,6 +4,7 @@
 #include "qdbmakedefaultappstep.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -20,14 +21,12 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Utils::Tasking;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 // QdbMakeDefaultAppService
 
 class QdbMakeDefaultAppService : public RemoteLinux::AbstractRemoteLinuxDeployService
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbMakeDefaultAppService)
 public:
     void setMakeDefault(bool makeDefault) { m_makeDefault = makeDefault; }
 
@@ -55,12 +54,12 @@ private:
         };
         const auto doneHandler = [this](const QtcProcess &) {
             if (m_makeDefault)
-                emit progressMessage(tr("Application set as the default one."));
+                emit progressMessage(Tr::tr("Application set as the default one."));
             else
-                emit progressMessage(tr("Reset the default application."));
+                emit progressMessage(Tr::tr("Reset the default application."));
         };
         const auto errorHandler = [this](const QtcProcess &process) {
-            emit errorMessage(tr("Remote process failed: %1").arg(process.errorString()));
+            emit errorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
         return Group { Process(setupHandler, doneHandler, errorHandler) };
     }
@@ -72,8 +71,6 @@ private:
 
 class QdbMakeDefaultAppStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbMakeDefaultAppStep)
-
 public:
     QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
@@ -83,8 +80,8 @@ public:
 
         auto selection = addAspect<SelectionAspect>();
         selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
-        selection->addOption(tr("Set this application to start by default"));
-        selection->addOption(tr("Reset default application"));
+        selection->addOption(Tr::tr("Set this application to start by default"));
+        selection->addOption(Tr::tr("Reset default application"));
 
         setInternalInitializer([service, selection] {
             service->setMakeDefault(selection->value() == 0);
@@ -99,10 +96,9 @@ public:
 QdbMakeDefaultAppStepFactory::QdbMakeDefaultAppStepFactory()
 {
     registerStep<QdbMakeDefaultAppStep>(Constants::QdbMakeDefaultAppStepId);
-    setDisplayName(QdbMakeDefaultAppStep::tr("Change default application"));
+    setDisplayName(Tr::tr("Change default application"));
     setSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

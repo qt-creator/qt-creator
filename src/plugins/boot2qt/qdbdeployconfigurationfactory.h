@@ -5,8 +5,7 @@
 
 #include <projectexplorer/deployconfiguration.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbDeployConfigurationFactory final : public ProjectExplorer::DeployConfigurationFactory
 {
@@ -14,5 +13,4 @@ public:
     QdbDeployConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

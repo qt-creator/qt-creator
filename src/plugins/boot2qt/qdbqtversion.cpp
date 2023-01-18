@@ -4,13 +4,13 @@
 #include "qdbqtversion.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 QString QdbQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "Boot2Qt", "Qt version is used for Boot2Qt development");
+    return Tr::tr("Boot2Qt", "Qt version is used for Boot2Qt development");
 }
 
 QSet<Utils::Id> QdbQtVersion::targetDeviceTypes() const
@@ -19,5 +19,4 @@ QSet<Utils::Id> QdbQtVersion::targetDeviceTypes() const
 
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

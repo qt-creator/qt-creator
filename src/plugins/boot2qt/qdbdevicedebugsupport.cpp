@@ -4,9 +4,8 @@
 #include "qdbdevicedebugsupport.h"
 
 #include "qdbconstants.h"
-#include "qdbdevice.h"
-#include "qdbrunconfiguration.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>

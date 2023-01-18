@@ -5195,7 +5195,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>::Boot2Qt</name>
+    <name>::Qdb</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation>Boot2Qt: %1</translation>
@@ -34129,7 +34129,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Qdb</name>
+    <name>::Qdb</name>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
         <translation>Не удалось запустить программатор «%1».</translation>
@@ -34142,9 +34142,6 @@ The affected files are:
         <source>Flash Boot to Qt Device</source>
         <translation>Запрограммировать устройство Boot to Qt</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::DeviceDetector</name>
     <message>
         <source>Device &quot;%1&quot; %2</source>
         <translation>Устройство «%1» %2</translation>
@@ -34157,16 +34154,10 @@ The affected files are:
         <source>Device detection error: %1</source>
         <translation>Ошибка определения устройства: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeployConfiguration</name>
     <message>
         <source>Deploy to Boot2Qt target</source>
         <translation>Развёртывание на Boot2Qt</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDevice</name>
     <message>
         <source>Starting command &quot;%1&quot; on device &quot;%2&quot;.</source>
         <translation>Запуск команды «%1» на устройстве «%2».</translation>
@@ -34231,16 +34222,10 @@ The affected files are:
         <source>Boot2Qt Network Device Setup</source>
         <translation>Настройка сетевого устройства Boot2Qt</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeviceTracker</name>
     <message>
         <source>Shutting down device discovery due to unexpected response: %1</source>
         <translation>Завершение определения устройств из-за неожиданного ответа: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppService</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Ошибка внешнего процесса: %1</translation>
@@ -34253,9 +34238,6 @@ The affected files are:
         <source>Reset the default application.</source>
         <translation>Сбросить приложение по умолчанию.</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppStep</name>
     <message>
         <source>Change default application</source>
         <translation>Сменить приложение по умолчанию</translation>
@@ -34268,9 +34250,6 @@ The affected files are:
         <source>Reset default application</source>
         <translation>Сбросить приложение по умолчанию</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMessageTracker</name>
     <message>
         <source>Shutting down message reception due to unexpected response: %1</source>
         <translation>Завершение приёма сообщения из-за неожиданного ответа: %1</translation>
@@ -34279,9 +34258,6 @@ The affected files are:
         <source>QDB message: %1</source>
         <translation>Сообщение QDB: %1</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbRunConfiguration</name>
     <message>
         <source>Full command line:</source>
         <translation>Полная командная строка:</translation>
@@ -34306,9 +34282,6 @@ The affected files are:
         <source>The remote executable must be set in order to run on a Boot2Qt device.</source>
         <translation>Для запуска на устройстве Boot2Qt внешнего приложения, его необходимо задать.</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationService</name>
     <message>
         <source>Could not check and possibly stop running application.</source>
         <translation>Не удалось проверить и, вероятно, остановить работающее приложение.</translation>
@@ -34321,16 +34294,10 @@ The affected files are:
         <source>Stopped the running application.</source>
         <translation>Работающее приложение остановлено.</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationStep</name>
     <message>
         <source>Stop already running application</source>
         <translation>Остановка работающего приложения</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbWatcher</name>
     <message>
         <source>Unexpected QLocalSocket error: %1</source>
         <translation>Неожиданная ошибка QLocalSocket: %1</translation>

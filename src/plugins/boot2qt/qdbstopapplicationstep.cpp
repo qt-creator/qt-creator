@@ -4,6 +4,7 @@
 #include "qdbstopapplicationstep.h"
 
 #include "qdbconstants.h"
+#include "qdbtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
@@ -19,15 +20,12 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Utils::Tasking;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 // QdbStopApplicationService
 
 class QdbStopApplicationService : public RemoteLinux::AbstractRemoteLinuxDeployService
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationService)
-
 private:
     bool isDeploymentNecessary() const final { return true; }
     Group deployRecipe() final;
@@ -46,17 +44,17 @@ Group QdbStopApplicationService::deployRecipe()
         });
     };
     const auto doneHandler = [this](const QtcProcess &) {
-        emit progressMessage(tr("Stopped the running application."));
+        emit progressMessage(Tr::tr("Stopped the running application."));
     };
     const auto errorHandler = [this](const QtcProcess &process) {
         const QString errorOutput = process.cleanedStdErr();
-        const QString failureMessage = tr("Could not check and possibly stop running application.");
+        const QString failureMessage = Tr::tr("Could not check and possibly stop running application.");
         if (process.exitStatus() == QProcess::CrashExit) {
             emit errorMessage(failureMessage);
         } else if (process.result() != ProcessResult::FinishedWithSuccess) {
             emit stdErrData(process.errorString());
         } else if (errorOutput.contains("Could not connect: Connection refused")) {
-            emit progressMessage(tr("Checked that there is no running application."));
+            emit progressMessage(Tr::tr("Checked that there is no running application."));
         } else if (!errorOutput.isEmpty()) {
             emit stdErrData(errorOutput);
             emit errorMessage(failureMessage);
@@ -65,7 +63,7 @@ Group QdbStopApplicationService::deployRecipe()
     const auto rootSetupHandler = [this] {
         const auto device = DeviceKitAspect::device(target()->kit());
         if (!device) {
-            emit errorMessage(tr("No device to stop the application on."));
+            emit errorMessage(Tr::tr("No device to stop the application on."));
             return GroupConfig{GroupAction::StopWithError};
         }
         return GroupConfig();
@@ -81,8 +79,6 @@ Group QdbStopApplicationService::deployRecipe()
 
 class QdbStopApplicationStep final : public RemoteLinux::AbstractRemoteLinuxDeployStep
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbStopApplicationStep)
-
 public:
     QdbStopApplicationStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
@@ -102,10 +98,9 @@ public:
 QdbStopApplicationStepFactory::QdbStopApplicationStepFactory()
 {
     registerStep<QdbStopApplicationStep>(Constants::QdbStopApplicationStepId);
-    setDisplayName(QdbStopApplicationStep::tr("Stop already running application"));
+    setDisplayName(Tr::tr("Stop already running application"));
     setSupportedDeviceType(Constants::QdbLinuxOsType);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

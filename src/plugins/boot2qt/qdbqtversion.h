@@ -5,8 +5,7 @@
 
 #include <qtsupport/baseqtversion.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbQtVersion : public QtSupport::QtVersion
 {
@@ -18,5 +17,4 @@ public:
     QSet<Utils::Id> targetDeviceTypes() const final;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

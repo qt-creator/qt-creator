@@ -3,12 +3,10 @@
 
 #pragma once
 
-#include "../qdbdevice.h"
 #include "qdbdevicetracker.h"
 #include "qdbmessagetracker.h"
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class DeviceDetector : public QObject
 {
@@ -34,5 +32,4 @@ private:
     QdbMessageTracker m_messageTracker;
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

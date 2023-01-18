@@ -44423,7 +44423,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Qdb::Internal::QdbDevice</name>
+    <name>::Qdb</name>
     <message>
         <source>Starting command &quot;%1&quot; on device &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
@@ -44488,9 +44488,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Boot2Qt Network Device Setup</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppService</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Der entfernte Prozess schlug fehl: %1</translation>
@@ -44503,9 +44500,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Reset the default application.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbRunConfiguration</name>
     <message>
         <source>Full command line:</source>
         <translation type="unfinished"></translation>
@@ -50839,7 +50833,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Qdb::Internal::DeviceDetector</name>
+    <name>::Qdb</name>
     <message>
         <source>Device &quot;%1&quot; %2</source>
         <translation type="unfinished"></translation>
@@ -50852,16 +50846,10 @@ in &quot;%2&quot; aus.
         <source>Device detection error: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeviceTracker</name>
     <message>
         <source>Shutting down device discovery due to unexpected response: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMessageTracker</name>
     <message>
         <source>Shutting down message reception due to unexpected response: %1</source>
         <translation type="unfinished"></translation>
@@ -50870,9 +50858,6 @@ in &quot;%2&quot; aus.
         <source>QDB message: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbWatcher</name>
     <message>
         <source>Unexpected QLocalSocket error: %1</source>
         <translation type="unfinished"></translation>
@@ -50901,16 +50886,10 @@ in &quot;%2&quot; aus.
         <source>Starting QDB host server.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbDeployConfiguration</name>
     <message>
         <source>Deploy to Boot2Qt target</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbMakeDefaultAppStep</name>
     <message>
         <source>Set this application to start by default</source>
         <translation type="unfinished"></translation>
@@ -50923,9 +50902,6 @@ in &quot;%2&quot; aus.
         <source>Change default application</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb</name>
     <message>
         <source>Flash wizard &quot;%1&quot; failed to start.</source>
         <translation type="unfinished"></translation>
@@ -50938,17 +50914,11 @@ in &quot;%2&quot; aus.
         <source>Flash Boot to Qt Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtVersion</name>
     <message>
         <source>Boot2Qt</source>
         <comment>Qt version is used for Boot2Qt development</comment>
         <translation type="unfinished">Boot2Qt</translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationService</name>
     <message>
         <source>Could not check and possibly stop running application.</source>
         <translation type="unfinished"></translation>
@@ -50961,16 +50931,10 @@ in &quot;%2&quot; aus.
         <source>Stopped the running application.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Qdb::Internal::QdbStopApplicationStep</name>
     <message>
         <source>Stop already running application</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Boot2Qt</name>
     <message>
         <source>Boot2Qt: %1</source>
         <translation type="unfinished"></translation>

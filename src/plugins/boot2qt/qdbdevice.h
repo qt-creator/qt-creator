@@ -3,17 +3,13 @@
 
 #pragma once
 
-#include "qdbconstants.h"
 #include <projectexplorer/kit.h>
 #include <remotelinux/linuxdevice.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbDevice final : public RemoteLinux::LinuxDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Qdb::Internal::QdbDevice)
-
 public:
     typedef QSharedPointer<QdbDevice> Ptr;
     typedef QSharedPointer<const QdbDevice> ConstPtr;
@@ -45,5 +41,4 @@ public:
     QdbLinuxDeviceFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

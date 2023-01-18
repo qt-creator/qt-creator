@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbMakeDefaultAppStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     QdbMakeDefaultAppStepFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

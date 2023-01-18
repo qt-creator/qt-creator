@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace Boot2Qt {
+namespace Qdb {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::Boot2Qt)
+    Q_DECLARE_TR_FUNCTIONS(::Qdb)
 };
 
-} // namespace Boot2Qt
+} // namespace Qdb

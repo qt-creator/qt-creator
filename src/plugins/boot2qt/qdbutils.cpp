@@ -3,8 +3,11 @@
 
 #include "qdbutils.h"
 
+#include "qdbtr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -12,8 +15,7 @@
 
 using namespace Utils;
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 static QString executableBaseName(QdbTool tool)
 {
@@ -63,7 +65,7 @@ QString overridingEnvironmentVariable(QdbTool tool)
 
 void showMessage(const QString &message, bool important)
 {
-    const QString fullMessage = QCoreApplication::translate("::Boot2Qt", "Boot2Qt: %1").arg(message);
+    const QString fullMessage = Tr::tr("Boot2Qt: %1").arg(message);
     if (important)
         Core::MessageManager::writeFlashing(fullMessage);
     else
@@ -86,5 +88,4 @@ QString settingsKey(QdbTool tool)
     QTC_ASSERT(false, return QString());
 }
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal

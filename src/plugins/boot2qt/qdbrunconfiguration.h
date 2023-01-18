@@ -5,8 +5,7 @@
 
 #include <projectexplorer/runconfigurationaspects.h>
 
-namespace Qdb {
-namespace Internal {
+namespace Qdb::Internal {
 
 class QdbRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
@@ -14,5 +13,4 @@ public:
     QdbRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Qdb
+} // Qdb::Internal
