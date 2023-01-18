@@ -436,6 +436,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->ensureReachable(other);
     };
 
+    deviceHooks.openTerminal = [](const FilePath &filePath, const Environment &env) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return);
+        device->openTerminal(env, filePath);
+    };
+
     DeviceProcessHooks processHooks;
 
     processHooks.processImplHook = [](const FilePath &filePath) -> ProcessInterface * {

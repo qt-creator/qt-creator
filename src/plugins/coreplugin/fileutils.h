@@ -22,7 +22,6 @@ struct CORE_EXPORT FileUtils
     // Helpers for common directory browser options.
     static void showInGraphicalShell(QWidget *parent, const Utils::FilePath &path);
     static void showInFileSystemView(const Utils::FilePath &path);
-    static void openTerminal(const Utils::FilePath &path);
     static void openTerminal(const Utils::FilePath &path, const Utils::Environment &env);
     static QString msgFindInDirectory();
     static QString msgFileSystemAction();
