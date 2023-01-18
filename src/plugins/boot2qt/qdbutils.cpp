@@ -6,11 +6,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
+using namespace Utils;
 
 namespace Qdb {
 namespace Internal {
@@ -27,7 +27,7 @@ static QString executableBaseName(QdbTool tool)
     return QString();
 }
 
-Utils::FilePath findTool(QdbTool tool)
+FilePath findTool(QdbTool tool)
 {
     QString filePath = Utils::qtcEnvironmentVariable(overridingEnvironmentVariable(tool));
 
@@ -39,17 +39,15 @@ Utils::FilePath findTool(QdbTool tool)
     }
 
     if (filePath.isEmpty()) {
-        filePath = Utils::HostOsInfo::withExecutableSuffix(
-                    QCoreApplication::applicationDirPath()
-#ifdef Q_OS_MACOS
-                    + QLatin1String("/../../../Tools/b2qt/")
-#else
-                    + QLatin1String("/../../b2qt/")
-#endif
-                    + executableBaseName(tool));
+        filePath = QCoreApplication::applicationDirPath();
+        if (HostOsInfo::isMacHost())
+            filePath += "/../../../Tools/b2qt/";
+        else
+            filePath += "/../../b2qt/";
+        filePath = HostOsInfo::withExecutableSuffix(filePath + executableBaseName(tool));
     }
 
-    return Utils::FilePath::fromString(QDir::cleanPath(filePath));
+    return FilePath::fromUserInput(filePath);
 }
 
 QString overridingEnvironmentVariable(QdbTool tool)
