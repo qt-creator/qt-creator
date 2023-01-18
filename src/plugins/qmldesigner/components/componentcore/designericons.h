@@ -24,14 +24,14 @@ public:
                    QIcon::Mode mode = QIcon::Normal,
                    QIcon::State state = QIcon::Off);
 
+    IconFontHelper();
+
     static IconFontHelper fromJson(const QJsonObject &jsonObject);
     QJsonObject toJson() const;
     Theme::Icon themeIcon() const;
     Theme::Color themeColor() const;
 
 private:
-    IconFontHelper();
-
     Theme::Icon mThemeIcon;
     Theme::Color mThemeColor;
 };

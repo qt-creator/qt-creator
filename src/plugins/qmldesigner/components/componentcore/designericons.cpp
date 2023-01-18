@@ -79,21 +79,6 @@ EType DesignerIconEnums<EType>::value(const QString &keyStr, bool *ok)
     return static_cast<EType>(metaEnum.keyToValue(keyStr.toLatin1(), ok));
 }
 
-Q_GLOBAL_STATIC(QStringList, _iconFontMandatoryKeys);
-
-const QStringList & iconFontMandatoryKeys()
-{
-    if (_iconFontMandatoryKeys->isEmpty()) {
-        *_iconFontMandatoryKeys
-        << DesignerIconEnums<Theme::Icon>::keyName
-        << DesignerIconEnums<Theme::Color>::keyName
-        << DesignerIconEnums<QIcon::Mode>::keyName
-        << DesignerIconEnums<QIcon::State>::keyName
-        << "size";
-    }
-    return *_iconFontMandatoryKeys;
-}
-
 QJsonObject mergeJsons(const QJsonObject &prior, const QJsonObject &joiner)
 {
     QJsonObject object = prior;
@@ -237,8 +222,17 @@ struct JsonMap<QMap<Key, Value>>
     static QJsonObject json(const QMap<Key, Value> &map)
     {
         QJsonObject output;
+
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0))
         for (const auto &[key, val] : map.asKeyValueRange())
             output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+#else
+        const auto mapKeys = map.keys();
+        for (const Key &key : mapKeys) {
+            const Value &val = map.value(key);
+            output[DesignerIconEnums<Key>::toString(key)] = JsonMap<Value>::json(val);
+        }
+#endif
 
         return output;
     }
