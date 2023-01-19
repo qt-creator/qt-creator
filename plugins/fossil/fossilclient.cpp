@@ -917,7 +917,8 @@ void FossilLogHighlighter::highlightBlock(const QString &text)
 
 void FossilClient::log(const FilePath &workingDir, const QStringList &files,
                        const QStringList &extraOptions,
-                       bool enableAnnotationContextMenu)
+                       bool enableAnnotationContextMenu,
+                       const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
     // Show timeline for both repository and a file or path (--path <file-or-path>)
     // When used for log repository, the files list is empty
@@ -926,7 +927,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     SupportedFeatures features = supportedFeatures();
     if (!files.isEmpty()
         && !features.testFlag(TimelinePathFeature)) {
-        logCurrentFile(workingDir, files, extraOptions, enableAnnotationContextMenu);
+        logCurrentFile(workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions);
         return;
     }
 
@@ -949,7 +950,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu); } );
+                [=]() { this->log(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu, addAuthOptions); } );
             fossilEditor->setEditorConfig(editorConfig);
         }
     }
@@ -970,7 +971,8 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
 
 void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList &files,
                                   const QStringList &extraOptions,
-                                  bool enableAnnotationContextMenu)
+                                  bool enableAnnotationContextMenu,
+                                  const std::function<void(Utils::CommandLine &)> &addAuthOptions)
 {
     // Show commit history for the given file/file-revision
     // NOTE: 'fossil finfo' shows full history from all branches.
@@ -978,7 +980,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
     // With newer clients, 'fossil timeline' can handle both repository and file
     SupportedFeatures features = supportedFeatures();
     if (features.testFlag(TimelinePathFeature)) {
-        log(workingDir, files, extraOptions, enableAnnotationContextMenu);
+        log(workingDir, files, extraOptions, enableAnnotationContextMenu, addAuthOptions);
         return;
     }
 
@@ -1001,7 +1003,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
             editorConfig->setBaseArguments(extraOptions);
             // editor has been just created, createVcsEditor() didn't set a configuration widget yet
             connect(editorConfig, &VcsBaseEditorConfig::commandExecutionRequested,
-                [=]() { this->logCurrentFile(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu); } );
+                [=]() { this->logCurrentFile(workingDir, files, editorConfig->arguments(), enableAnnotationContextMenu, addAuthOptions); } );
             fossilEditor->setEditorConfig(editorConfig);
         }
     }
