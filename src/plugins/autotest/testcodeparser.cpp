@@ -12,6 +12,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <qmljstools/qmljsmodelmanager.h>
@@ -31,6 +32,12 @@ namespace Internal {
 Q_LOGGING_CATEGORY(LOG, "qtc.autotest.testcodeparser", QtWarningMsg)
 
 using namespace ProjectExplorer;
+
+static bool isProjectParsing()
+{
+    const BuildSystem *bs = SessionManager::startupBuildSystem();
+    return bs && bs->isParsing();
+}
 
 TestCodeParser::TestCodeParser()
     :  m_threadPool(new QThreadPool(this))
@@ -61,7 +68,7 @@ void TestCodeParser::setState(State state)
         return;
     qCDebug(LOG) << "setState(" << state << "), currentState:" << m_parserState;
     // avoid triggering parse before code model parsing has finished, but mark as dirty
-    if (m_codeModelParsing) {
+    if (isProjectParsing() || m_codeModelParsing) {
         m_dirty = true;
         qCDebug(LOG) << "Not setting new state - code model parsing is running, just marking dirty";
         return;
@@ -118,7 +125,7 @@ void TestCodeParser::emitUpdateTestTree(ITestParser *parser)
 void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
 {
     m_singleShotScheduled = false;
-    if (m_codeModelParsing) {
+    if (isProjectParsing() || m_codeModelParsing) {
         m_postponedUpdateType = UpdateType::FullUpdate;
         m_postponedFiles.clear();
         if (parsers.isEmpty()) {
@@ -146,7 +153,7 @@ void TestCodeParser::updateTestTree(const QSet<ITestParser *> &parsers)
 
 void TestCodeParser::onDocumentUpdated(const Utils::FilePath &fileName, bool isQmlFile)
 {
-    if (m_codeModelParsing || m_postponedUpdateType == UpdateType::FullUpdate)
+    if (isProjectParsing() || m_codeModelParsing || m_postponedUpdateType == UpdateType::FullUpdate)
         return;
 
     Project *project = SessionManager::startupProject();
@@ -166,8 +173,9 @@ void TestCodeParser::onCppDocumentUpdated(const CPlusPlus::Document::Ptr &docume
 
 void TestCodeParser::onQmlDocumentUpdated(const QmlJS::Document::Ptr &document)
 {
+    static const QStringList ignoredSuffixes{ "qbs", "ui.qml" };
     const Utils::FilePath fileName = document->fileName();
-    if (!fileName.endsWith(".qbs"))
+    if (!ignoredSuffixes.contains(fileName.suffix()))
         onDocumentUpdated(fileName, true);
 }
 
@@ -186,7 +194,7 @@ void TestCodeParser::onProjectPartsUpdated(Project *project)
 {
     if (project != SessionManager::startupProject())
         return;
-    if (m_codeModelParsing)
+    if (isProjectParsing() || m_codeModelParsing)
         m_postponedUpdateType = UpdateType::FullUpdate;
     else
         emitUpdateTestTree();
