@@ -32208,15 +32208,12 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>パス: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
@@ -34094,7 +34091,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Warnings</source>
         <translation>警告</translation>
@@ -42276,7 +42273,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Inspect available fixits</source>
         <translation>利用可能な修正の確認</translation>
@@ -45186,14 +45183,11 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::ClangAssistProposalItem</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Requires changing &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>&quot;%1&quot;を&quot;%2 &quot;に変更する必要があります</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::BackendCommunicator</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation>Clang コードモデル: エラー: clangbackend の実行ファイル &quot;%1&quot; が存在しません。</translation>
@@ -45206,16 +45200,9 @@ The name of the release build configuration created by default for a qmake proje
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation>Clang コードモデル: エラー: clangbackend プロセスが予期せず終了し、再起動されました。</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
     <message>
         <source>Generating Compilation DB</source>
         <translation>コンパイル DB の生成</translation>
-    </message>
-    <message>
-        <source>Clang Code Model</source>
-        <translation>Clang コードモデル</translation>
     </message>
     <message>
         <source>Generate Compilation Database</source>
@@ -45268,7 +45255,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Clang Code Model Marks</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>コードモデルの警告</translation>
@@ -45298,7 +45285,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy の問題</translation>

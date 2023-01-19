@@ -27356,23 +27356,17 @@ Zbuduj aplikację qmldump na stronie z opcjami wersji Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Położenie: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Warnings</source>
         <translation>Ostrzeżenia</translation>
@@ -36832,7 +36826,7 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Inspect available fixits</source>
         <translation type="unfinished"></translation>
@@ -37869,7 +37863,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::IpcCommunicator</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation>Model kodu Clang: Błąd: Plik wykonywalny &quot;%1&quot; clangbackendu nie istnieje.</translation>
@@ -37882,9 +37876,6 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation>Model kodu Clang: Błąd: Proces clangbackend nieoczekiwanie zakończony i zrestartowany.</translation>
     </message>
-</context>
-<context>
-    <name>Clang Code Model Marks</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Ostrzeżenie modelu kodu</translation>

@@ -3,6 +3,8 @@
 
 #include "clangutils.h"
 
+#include "clangcodemodeltr.h"
+
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <cppeditor/baseeditordocumentparser.h>
@@ -239,9 +241,9 @@ QString DiagnosticTextInfo::category() const
 
     const int index = m_squareBracketStartIndex + 1;
     if (isClazyOption(m_text.mid(index)))
-        return QCoreApplication::translate("ClangDiagnosticWidget", "Clazy Issue");
+        return Tr::tr("Clazy Issue");
     else
-        return QCoreApplication::translate("ClangDiagnosticWidget", "Clang-Tidy Issue");
+        return Tr::tr("Clang-Tidy Issue");
 }
 
 bool DiagnosticTextInfo::isClazyOption(const QString &option)

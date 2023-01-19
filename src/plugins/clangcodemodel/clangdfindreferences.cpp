@@ -3,24 +3,29 @@
 
 #include "clangdfindreferences.h"
 
+#include "clangcodemodeltr.h"
 #include "clangdast.h"
 #include "clangdclient.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
+
 #include <cplusplus/FindUsages.h>
+
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppfindreferences.h>
 #include <cppeditor/cpptoolsreuse.h>
+
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageserverprotocol/lsptypes.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/basefilefind.h>
-#include <utils/filepath.h>
 
 #include <QCheckBox>
 #include <QFile>
@@ -119,7 +124,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     }
 
     d->search = SearchResultWindow::instance()->startNewSearch(
-                tr("C++ Usages:"),
+                Tr::tr("C++ Usages:"),
                 {},
                 searchTerm,
                 replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
@@ -354,10 +359,10 @@ void ClangdFindReferences::Private::finishSearch()
                         search->additionalReplaceWidget());
             QTC_CHECK(renameCheckBox);
             const QSet<Utils::FilePath> files = replacementData->fileRenameCandidates;
-            renameCheckBox->setText(tr("Re&name %n files", nullptr, files.size()));
+            renameCheckBox->setText(Tr::tr("Re&name %n files", nullptr, files.size()));
             const QStringList filesForUser = Utils::transform<QStringList>(files,
                         [](const Utils::FilePath &fp) { return fp.toUserOutput(); });
-            renameCheckBox->setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
+            renameCheckBox->setToolTip(Tr::tr("Files:\n%1").arg(filesForUser.join('\n')));
             renameCheckBox->setVisible(true);
             search->setUserData(QVariant::fromValue(*replacementData));
         }

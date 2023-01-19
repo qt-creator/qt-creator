@@ -35284,7 +35284,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Pre-compiled headers:</source>
         <translation type="vanished">Попередньо скомпільовані заголовки:</translation>
@@ -35721,15 +35721,12 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Розташування: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangIndexer</name>
     <message>
         <source>C++ Indexing</source>
         <translation type="vanished">Індексування C++</translation>
@@ -35738,17 +35735,11 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Parsing C/C++/ObjC Files</source>
         <translation type="vanished">Розбір файлів C/C++/ObjC</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Clang Settings</source>
         <translation type="vanished">Налаштування Clang</translation>
@@ -35773,9 +35764,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Global setting (%1)</source>
         <translation>Глобальні налаштування (%1)</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::CompletionProposalsBuilder</name>
     <message>
         <source>Is deprecated</source>
         <extracomment>deprecated C++ symbol</extracomment>
@@ -35789,9 +35777,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Signal of %1, returns %2</source>
         <translation type="vanished">Сигнал %1, повертає %2</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Diagnostic</name>
     <message>
         <source>ignored</source>
         <translation type="vanished">проігноровано</translation>
@@ -35812,9 +35797,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>fatal</source>
         <translation type="vanished">фатальне</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::PchManager</name>
     <message>
         <source>Successfully generated PCH file &quot;%1&quot;.</source>
         <translation type="vanished">Файл PCH &quot;%1&quot; було успішно створено.</translation>

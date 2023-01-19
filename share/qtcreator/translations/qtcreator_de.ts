@@ -41357,7 +41357,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Generating Compilation DB</source>
         <translation>Erzeuge Kompilierungsdatenbank</translation>
@@ -41382,9 +41382,6 @@ Are you sure?</source>
         <source>Generating Clang compilation database failed: %1</source>
         <translation>Erzeugen der Clang-Kompilierungsdatenbank fehlgeschlagen: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticWidget</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clang-Problem</translation>
@@ -41397,9 +41394,6 @@ Are you sure?</source>
         <source>[Source: %1]</source>
         <translation>[Quelle: %1]</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Component</source>
         <translation>Komponente</translation>
@@ -50904,7 +50898,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangdClient</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>clangd</source>
         <translation>clangd</translation>
@@ -50934,9 +50928,6 @@ in &quot;%2&quot; aus.
         <source>&lt;base declaration&gt;</source>
         <translation>&lt;Basisdeklaration&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangdFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++ Referenzen:</translation>
@@ -50954,9 +50945,6 @@ in &quot;%2&quot; aus.
         <translation>Dateien:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangModelManagerSupport</name>
     <message>
         <source>The use of clangd for the C/C++ code model was disabled, because it is likely that its memory requirements would be higher than what your system can handle.</source>
         <translation>Clangd wurde für das C/C++-Codemodell deaktiviert, da dessen Speicheranforderung wahrscheinlich die Leistungsfähigkeit Ihres Systems übersteigt.</translation>
@@ -50975,9 +50963,6 @@ in &quot;%2&quot; aus.
         <translation>Kann Clangd nicht nutzen: Erstellen der Kompilierungsdatenbank fehlgeschlagen:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangdTextMark</name>
     <message>
         <source>Code Model Error</source>
         <translation>Codemodell-Fehler</translation>

@@ -3,15 +3,14 @@
 
 #pragma once
 
-#include <QCoreApplication>
 #include <QWidget>
 
 namespace ClangCodeModel::Internal {
+
 class ClangdClient;
 
 class ClangdMemoryUsageWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(::ClangCodeModel)
 public:
     explicit ClangdMemoryUsageWidget(ClangdClient *client);
     ~ClangdMemoryUsageWidget();
@@ -20,5 +19,5 @@ public:
     Private * const d;
 };
 
-} // namespace ClangCodeModel::Internal
+} // ClangCodeModel::Internal
 

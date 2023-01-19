@@ -56017,7 +56017,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsPropertiesPage</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Pre-compiled headers:</source>
         <translation>Předpřeložené hlavičky:</translation>
@@ -56427,30 +56427,21 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Umístění: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangIndexer</name>
     <message>
         <source>C++ Indexing</source>
         <translation>Indexování C++</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Clang Settings</source>
         <translation>Nastavení pro Clang</translation>
@@ -56463,9 +56454,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>All Files (*)</source>
         <translation>Všechny soubory (*)</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::CompletionProposalsBuilder</name>
     <message>
         <source>Is deprecated</source>
         <extracomment>deprecated C++ symbol</extracomment>
@@ -56479,9 +56467,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Signal of %1, returns %2</source>
         <translation>Signál: %1, vrací %2</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Diagnostic</name>
     <message>
         <source>ignored</source>
         <translation>Přehlíženo</translation>
@@ -56502,9 +56487,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>fatal</source>
         <translation>Selhání</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::PchManager</name>
     <message>
         <source>Successfully generated PCH file &quot;%1&quot;.</source>
         <translation>Soubor PCH &quot;%1&quot; byl úspěšně vytvořen.</translation>

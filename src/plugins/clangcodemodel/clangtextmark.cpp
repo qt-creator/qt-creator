@@ -3,6 +3,7 @@
 
 #include "clangtextmark.h"
 
+#include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangdclient.h"
 #include "clangdiagnostictooltipwidget.h"
@@ -10,6 +11,7 @@
 #include "clangutils.h"
 
 #include <coreplugin/icore.h>
+
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -283,7 +285,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
 
     const bool isError = diagnostic.severity()
             && *diagnostic.severity() == DiagnosticSeverity::Error;
-    setDefaultToolTip(isError ? tr("Code Model Error") : tr("Code Model Warning"));
+    setDefaultToolTip(isError ? Tr::tr("Code Model Error") : Tr::tr("Code Model Warning"));
     setPriority(isError ? TextEditor::TextMark::HighPriority
                         : TextEditor::TextMark::NormalPriority);
     setIcon(isError ? Icons::CODEMODEL_ERROR.icon() : Icons::CODEMODEL_WARNING.icon());
@@ -299,7 +301,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         QList<QAction *> actions;
         QAction *action = new QAction();
         action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-        action->setToolTip(tr("Copy to Clipboard", "Clang Code Model Marks"));
+        action->setToolTip(Tr::tr("Copy to Clipboard", "Clang Code Model Marks"));
         QObject::connect(action, &QAction::triggered, [diag] {
             const QString text = ClangDiagnosticWidget::createText({diag},
                                                                    ClangDiagnosticWidget::InfoBar);
@@ -312,7 +314,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         if (project && isDiagnosticConfigChangable(project, diag)) {
             action = new QAction();
             action->setIcon(Icons::BROKEN.icon());
-            action->setToolTip(tr("Disable Diagnostic in Current Project"));
+            action->setToolTip(Tr::tr("Disable Diagnostic in Current Project"));
             QObject::connect(action, &QAction::triggered, [diag] {
                 disableDiagnosticInCurrentProjectConfig(diag);
             });

@@ -1718,7 +1718,7 @@ Na primjer, „Revizija: 15” će ostaviti granu na reviziji 15.</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Global</source>
         <translation>Globalno</translation>
@@ -15934,14 +15934,11 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::ClangAssistProposalItem</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Requires changing &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Zahtijeva mijenjanje &quot;%1&quot; u &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::BackendCommunicator</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation type="unfinished"></translation>
@@ -15954,13 +15951,6 @@ Check the test environment.</source>
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
-    <message>
-        <source>Clang Code Model</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Generate Compilation Database</source>
         <translation type="unfinished"></translation>
@@ -15969,17 +15959,11 @@ Check the test environment.</source>
         <source>Generate Compilation Database for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Mjesto: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
     <message>
         <source>Inspect available fixits</source>
         <translation type="unfinished"></translation>
@@ -15993,15 +15977,12 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Bez simbola&gt;</translation>
@@ -16023,7 +16004,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Clang Code Model Marks</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Code Model upozorenje</translation>
@@ -16032,9 +16013,6 @@ Check the test environment.</source>
         <source>Code Model Error</source>
         <translation>Code Model greška</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticWidget</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy problem</translation>

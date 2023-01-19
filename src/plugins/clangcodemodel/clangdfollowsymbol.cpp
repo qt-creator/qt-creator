@@ -3,15 +3,18 @@
 
 #include "clangdfollowsymbol.h"
 
+#include "clangcodemodeltr.h"
 #include "clangdast.h"
 #include "clangdclient.h"
 
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppvirtualfunctionassistprovider.h>
 #include <cppeditor/cppvirtualfunctionproposalitem.h>
+
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <languageserverprotocol/jsonrpcmessages.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
@@ -26,6 +29,7 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
+
 using SymbolData = QPair<QString, Link>;
 using SymbolDataList = QList<SymbolData>;
 
@@ -318,7 +322,7 @@ ClangdFollowSymbol::VirtualFunctionAssistProcessor::createProposal(bool final) c
         items << createEntry({}, m_followSymbol->d->defLink);
     if (!final) {
         const auto infoItem = new VirtualFunctionProposalItem({}, false);
-        infoItem->setText(ClangdClient::tr("collecting overrides ..."));
+        infoItem->setText(Tr::tr("collecting overrides ..."));
         infoItem->setOrder(-1);
         items << infoItem;
     }
@@ -336,7 +340,7 @@ ClangdFollowSymbol::VirtualFunctionAssistProcessor::createEntry(const QString &n
     if (link == m_followSymbol->d->defLink) {
         item->setOrder(1000); // Ensure base declaration is on top.
         if (text.isEmpty()) {
-            text = ClangdClient::tr("<base declaration>");
+            text = Tr::tr("<base declaration>");
         } else if (m_followSymbol->d->defLinkNode.isPureVirtualDeclaration()
                    || m_followSymbol->d->defLinkNode.isPureVirtualDefinition()) {
             text += " = 0";

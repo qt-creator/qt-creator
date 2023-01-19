@@ -3,6 +3,7 @@
 
 #include "clangdclient.h"
 
+#include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangdast.h"
 #include "clangdcompletion.h"
@@ -359,7 +360,7 @@ static void addCompilationDb(QJsonObject &parentObject, const QJsonObject &cdb)
 ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, const Id &id)
     : Client(clientInterface(project, jsonDbDir), id), d(new Private(this, project))
 {
-    setName(tr("clangd"));
+    setName(Tr::tr("clangd"));
     LanguageFilter langFilter;
     langFilter.mimeTypes = QStringList{"text/x-chdr", "text/x-csrc",
             "text/x-c++hdr", "text/x-c++src", "text/x-objc++src", "text/x-objcsrc"};
@@ -415,8 +416,8 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
     progressManager()->setTitleForToken(indexingToken(),
-                             project ? tr("Indexing %1 with clangd").arg(project->displayName())
-                                     : tr("Indexing session with clangd"));
+                             project ? Tr::tr("Indexing %1 with clangd").arg(project->displayName())
+                                     : Tr::tr("Indexing session with clangd"));
     progressManager()->setClickHandlerForToken(indexingToken(), [] {
         // don't directly open modal dialog from click handler, because that would mess
         // up the stack
@@ -602,7 +603,7 @@ QTextCursor ClangdClient::adjustedCursorForHighlighting(const QTextCursor &curso
 
 const LanguageClient::Client::CustomInspectorTabs ClangdClient::createCustomInspectorTabs()
 {
-    return {{new ClangdMemoryUsageWidget(this), tr("Memory Usage")}};
+    return {{new ClangdMemoryUsageWidget(this), Tr::tr("Memory Usage")}};
 }
 
 class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager

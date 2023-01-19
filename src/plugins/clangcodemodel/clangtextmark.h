@@ -22,7 +22,6 @@ class ClangdClient;
 
 class ClangdTextMark : public TextEditor::TextMark
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangdTextMark)
 public:
     ClangdTextMark(const ::Utils::FilePath &filePath,
                    const LanguageServerProtocol::Diagnostic &diagnostic,

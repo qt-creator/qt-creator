@@ -6318,7 +6318,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>Clang Code Model Marks</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Предупреждение модели кода</translation>
@@ -6327,9 +6327,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Code Model Error</source>
         <translation>Ошибка модели кода</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Нет символов&gt;</translation>
@@ -6338,16 +6335,10 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Выберите символ&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::ClangAssistProposalItem</name>
     <message>
         <source>Requires changing &quot;%1&quot; to &quot;%2&quot;</source>
         <translation>Требует изменить «%1» на «%2»</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::BackendCommunicator</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation>Модель кода Clang: Ошибка: Программа clangbackend «%1» отсутствует.</translation>
@@ -6360,9 +6351,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation>Модель кода Clang: Ошибка: Программа clangbackend неожиданно завершилась и была перезапущена.</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
     <message>
         <source>Generating Compilation DB</source>
         <translation>Создание БД компиляции</translation>
@@ -6387,27 +6375,14 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Generating Clang compilation database failed: %1</source>
         <translation>Clang: не удалось создать БД компиляции: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Находится в %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
     <message>
         <source>Inspect available fixits</source>
         <translation>Проверить доступные запросы на исправление</translation>
-    </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
-    <message>
-        <source>Clang Code Model</source>
-        <translation>Модель кода Clang</translation>
     </message>
     <message>
         <source>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
@@ -6431,9 +6406,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>&lt;a href=&quot;target&quot;&gt;Open Global Settings&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;target&quot;&gt;Открыть глобальные настройки&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
@@ -6475,7 +6447,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Проблема Clazy</translation>

@@ -3,6 +3,7 @@
 
 #include "clangdcompletion.h"
 
+#include "clangcodemodeltr.h"
 #include "clangcompletioncontextanalyzer.h"
 #include "clangdclient.h"
 #include "clangpreprocessorassistproposalitem.h"
@@ -18,12 +19,16 @@
 #include <cppeditor/projectpart.h>
 #include <cplusplus/Icons.h>
 #include <cplusplus/MatchingText.h>
+
 #include <languageclient/languageclientfunctionhint.h>
+
 #include <projectexplorer/headerpath.h>
+
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/utilsicons.h>
 
 using namespace CppEditor;
@@ -35,10 +40,12 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace ClangCodeModel::Internal {
+
 static Q_LOGGING_CATEGORY(clangdLogCompletion, "qtc.clangcodemodel.clangd.completion",
                           QtWarningMsg);
 
 enum class CustomAssistMode { Doxygen, Preprocessor, IncludePath };
+
 class CustomAssistProcessor : public IAssistProcessor
 {
 public:
@@ -532,7 +539,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeIncludePath(
     QList<AssistProposalItemInterface *> completions;
     QDirIterator i(realPath, QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     //: Parent folder for proposed #include completion
-    const QString hint = ClangdClient::tr("Location: %1")
+    const QString hint = Tr::tr("Location: %1")
             .arg(QDir::toNativeSeparators(QDir::cleanPath(realPath)));
     while (i.hasNext()) {
         const QString fileName = i.next();

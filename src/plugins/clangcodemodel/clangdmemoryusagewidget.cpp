@@ -3,9 +3,11 @@
 
 #include "clangdmemoryusagewidget.h"
 
+#include "clangcodemodeltr.h"
 #include "clangdclient.h"
 
 #include <languageserverprotocol/jsonobject.h>
+
 #include <utils/itemviews.h>
 #include <utils/treemodel.h>
 
@@ -52,7 +54,6 @@ private:
 
 class MemoryTreeItem : public TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangCodeModel)
 public:
     MemoryTreeItem(const QString &displayName, const MemoryTree &tree)
         : m_displayName(displayName), m_bytesUsed(tree.total())
@@ -102,8 +103,7 @@ class MemoryTreeModel : public BaseTreeModel
 public:
     MemoryTreeModel()
     {
-        setHeader({ClangdMemoryUsageWidget::tr("Component"),
-                   ClangdMemoryUsageWidget::tr("Total Memory")});
+        setHeader({Tr::tr("Component"), Tr::tr("Total Memory")});
     }
 
     void update(const MemoryTree &tree)
@@ -154,7 +154,7 @@ void ClangdMemoryUsageWidget::Private::setupUi()
     layout->addWidget(&view);
     QObject::connect(&view, &QWidget::customContextMenuRequested, q, [this](const QPoint &pos) {
         QMenu menu;
-        menu.addAction(tr("Update"), [this] { getMemoryTree(); });
+        menu.addAction(Tr::tr("Update"), [this] { getMemoryTree(); });
         menu.exec(view.mapToGlobal(pos));
     });
 }

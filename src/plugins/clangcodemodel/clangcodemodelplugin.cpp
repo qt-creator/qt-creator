@@ -3,6 +3,7 @@
 
 #include "clangcodemodelplugin.h"
 
+#include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangmodelmanagersupport.h"
 #include "clangutils.h"
@@ -38,6 +39,8 @@
 #include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
 
+using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ClangCodeModel {
@@ -47,7 +50,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
 {
     using namespace CppEditor;
 
-    ProjectExplorer::Target *target = ProjectExplorer::SessionManager::startupTarget();
+    Target *target = SessionManager::startupTarget();
     if (!target)
         return;
 
@@ -64,7 +67,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
                               warningsConfigForProject(target->project()),
                               globalClangOptions(),
                               FilePath());
-    Core::ProgressManager::addTask(task, tr("Generating Compilation DB"), "generate compilation db");
+    ProgressManager::addTask(task, Tr::tr("Generating Compilation DB"), "generate compilation db");
     m_generatorWatcher.setFuture(task);
 }
 
@@ -78,11 +81,11 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
     Q_UNUSED(arguments)
     Q_UNUSED(errorMessage)
 
-    ProjectExplorer::TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
-                                          tr("Clang Code Model"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
+                                          Tr::tr("Clang Code Model"));
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
-            &ProjectExplorer::ProjectExplorerPlugin::finishedInitialization,
+    connect(ProjectExplorerPlugin::instance(),
+            &ProjectExplorerPlugin::finishedInitialization,
             this,
             &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
 
@@ -98,15 +101,15 @@ void ClangCodeModelPlugin::createCompilationDBAction()
 {
     // generate compile_commands.json
     m_generateCompilationDBAction = new ParameterAction(
-                tr("Generate Compilation Database"),
-                tr("Generate Compilation Database for \"%1\""),
+                Tr::tr("Generate Compilation Database"),
+                Tr::tr("Generate Compilation Database for \"%1\""),
                 ParameterAction::AlwaysEnabled, this);
-    ProjectExplorer::Project *startupProject = ProjectExplorer::SessionManager::startupProject();
+    Project *startupProject = SessionManager::startupProject();
     if (startupProject)
         m_generateCompilationDBAction->setParameter(startupProject->displayName());
-    Core::Command *command = Core::ActionManager::registerAction(m_generateCompilationDBAction,
-                                                                 Constants::GENERATE_COMPILATION_DB);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    Command *command = ActionManager::registerAction(m_generateCompilationDBAction,
+                                                     Constants::GENERATE_COMPILATION_DB);
+    command->setAttribute(Command::CA_UpdateText);
     command->setDescription(m_generateCompilationDBAction->text());
 
     connect(&m_generatorWatcher, &QFutureWatcher<GenerateCompilationDbResult>::finished,
@@ -114,60 +117,54 @@ void ClangCodeModelPlugin::createCompilationDBAction()
         const GenerateCompilationDbResult result = m_generatorWatcher.result();
         QString message;
         if (result.error.isEmpty()) {
-            message = tr("Clang compilation database generated at \"%1\".")
+            message = Tr::tr("Clang compilation database generated at \"%1\".")
                     .arg(QDir::toNativeSeparators(result.filePath));
         } else {
-            message = tr("Generating Clang compilation database failed: %1").arg(result.error);
+            message = Tr::tr("Generating Clang compilation database failed: %1").arg(result.error);
         }
-        Core::MessageManager::writeFlashing(message);
+        MessageManager::writeFlashing(message);
         m_generateCompilationDBAction->setEnabled(true);
     });
     connect(m_generateCompilationDBAction, &QAction::triggered, this, [this] {
         if (!m_generateCompilationDBAction->isEnabled()) {
-            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                                  "Generator is already running.");
+            MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                            "Generator is already running.");
             return;
         }
-        ProjectExplorer::Project * const project
-                = ProjectExplorer::SessionManager::startupProject();
+        Project * const project = SessionManager::startupProject();
         if (!project) {
-            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                                  "No active project.");
+            MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                            "No active project.");
             return;
         }
         const CppEditor::ProjectInfo::ConstPtr projectInfo = CppEditor::CppModelManager::instance()
                 ->projectInfo(project);
         if (!projectInfo || projectInfo->projectParts().isEmpty()) {
-            Core::MessageManager::writeDisrupting("Cannot generate compilation database: "
-                                                  "Project has no C/C++ project parts.");
+            MessageManager::writeDisrupting("Cannot generate compilation database: "
+                                            "Project has no C/C++ project parts.");
             return;
         }
         m_generateCompilationDBAction->setEnabled(false);
         generateCompilationDB();
     });
     connect(CppEditor::CppModelManager::instance(), &CppEditor::CppModelManager::projectPartsUpdated,
-            this, [this](ProjectExplorer::Project *project) {
-        if (project != ProjectExplorer::SessionManager::startupProject())
+            this, [this](Project *project) {
+        if (project != SessionManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::startupProjectChanged,
-            this,
-            [this](ProjectExplorer::Project *project) {
+    connect(SessionManager::instance(), &SessionManager::startupProjectChanged,
+            this, [this](Project *project) {
         m_generateCompilationDBAction->setParameter(project ? project->displayName() : "");
     });
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::projectDisplayNameChanged,
-            this,
-            [this](ProjectExplorer::Project *project) {
-        if (project != ProjectExplorer::SessionManager::startupProject())
+    connect(SessionManager::instance(), &SessionManager::projectDisplayNameChanged,
+            this, [this](Project *project) {
+        if (project != SessionManager::startupProject())
             return;
         m_generateCompilationDBAction->setParameter(project->displayName());
     });
-    connect(ProjectExplorer::SessionManager::instance(),
-            &ProjectExplorer::SessionManager::projectAdded, this,
-            [this](ProjectExplorer::Project *project) {
+    connect(SessionManager::instance(), &SessionManager::projectAdded,
+            this, [this](Project *project) {
         project->registerGenerator(Constants::GENERATE_COMPILATION_DB,
                                    m_generateCompilationDBAction->text(),
                                    [this] { m_generateCompilationDBAction->trigger(); });

@@ -199,7 +199,7 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     : ClangGlobalSymbolFilter(new CppFunctionsFilter, new LspFunctionsFilter)
 {
     setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(QCoreApplication::translate(":CppEditor",
+    setDisplayName(QCoreApplication::translate("::CppEditor",
                                                CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);

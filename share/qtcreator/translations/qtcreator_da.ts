@@ -4589,7 +4589,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>Clang Code Model Marks</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Kodemodel advarsel</translation>
@@ -4598,9 +4598,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Code Model Error</source>
         <translation>Kodemodel fejl</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::BackendCommunicator</name>
     <message>
         <source>Clang Code Model: Error: The clangbackend executable &quot;%1&quot; does not exist.</source>
         <translation>Clang-kodemodel: Fejl: clangbackend-eksekverbaren &quot;%1&quot; findes ikke.</translation>
@@ -4613,24 +4610,15 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Clang Code Model: Error: The clangbackend process has finished unexpectedly and was restarted.</source>
         <translation>Clang-kodemodel: Fejl: clangbackend-processen har afsluttet uventet og blev genstartet.</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCompletionAssistProcessor</name>
     <message>
         <source>Location: %1</source>
         <extracomment>Parent folder for proposed #include completion</extracomment>
         <translation>Placering: %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangDiagnosticManager</name>
     <message>
         <source>Inspect available fixits</source>
         <translation>Inspicer tilgængelige fixits</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Clang Code Model</source>
         <translation>Clang-kodemodel</translation>
@@ -4653,9 +4641,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Enable MSVC-compliant template parsing</source>
         <translation>Aktivér MSVC-kompatibel skabelon-parsing</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ModelManagerSupport</name>
     <message>
         <source>Clang</source>
         <extracomment>Display name</extracomment>
@@ -40296,14 +40281,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
-    <message>
-        <source>Clang Code Model</source>
-        <translation>Clang-kodemodel</translation>
-    </message>
-</context>
-<context>
-    <name>ClangDiagnosticWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy-problemstilling</translation>

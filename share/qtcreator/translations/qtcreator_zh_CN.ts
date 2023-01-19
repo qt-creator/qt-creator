@@ -6829,9 +6829,6 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
         <source>Update</source>
         <translation type="unfinished">更新</translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangCodeModelPlugin</name>
     <message>
         <source>Generating Compilation DB</source>
         <translation type="unfinished"></translation>
@@ -6856,9 +6853,6 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
         <source>Generating Clang compilation database failed: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangModelManagerSupport</name>
     <message>
         <source>The use of clangd for the C/C++ code model was disabled, because it is likely that its memory requirements would be higher than what your system can handle.</source>
         <translation type="unfinished"></translation>
@@ -6876,9 +6870,6 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangProjectSettingsWidget</name>
     <message>
         <source>Parse templates in a MSVC-compliant way. This helps to parse headers for example from Active Template Library (ATL) or Windows Runtime Library (WRL).
 However, using the relaxed and extended rules means also that no highlighting/completion can be provided within template functions.</source>
@@ -6888,9 +6879,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Enable MSVC-compliant template parsing</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangdClient</name>
     <message>
         <source>clangd</source>
         <translation type="unfinished"></translation>
@@ -6920,9 +6908,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>&lt;base declaration&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangCodeModel::Internal::ClangdFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation type="unfinished">C++ 使用:</translation>
@@ -6966,7 +6951,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticWidget</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>[Source: %1]</source>
         <translation type="unfinished"></translation>
@@ -7739,7 +7724,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClangdTextMark</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Error</source>
         <translation type="unfinished"></translation>
