@@ -60,7 +60,7 @@ static inline quint64 getFileLimit()
 
 namespace Utils {
 
-static Q_LOGGING_CATEGORY(fileSystemWatcherLog, "qtc.utils.filesystemwatcher", QtDebugMsg)
+static Q_LOGGING_CATEGORY(fileSystemWatcherLog, "qtc.utils.filesystemwatcher", QtInfoMsg)
 
 // Centralized file watcher static data per integer id.
 class FileSystemWatcherStaticData
