@@ -46069,28 +46069,19 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>IncrediBuild::Internal::BuildConsoleBuildStep</name>
+    <name>::IncrediBuild</name>
     <message>
         <source>Miscellaneous</source>
         <translation>その他</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::CMakeCommandBuilder</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::CommandBuilderAspect</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make の引数:</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::MakeCommandBuilder</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>

@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class BuildConsoleStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     BuildConsoleStepFactory();
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

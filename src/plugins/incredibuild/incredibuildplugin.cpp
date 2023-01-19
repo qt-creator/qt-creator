@@ -6,8 +6,7 @@
 #include "buildconsolebuildstep.h"
 #include "ibconsolebuildstep.h"
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class IncrediBuildPluginPrivate
 {
@@ -31,5 +30,4 @@ bool IncrediBuildPlugin::initialize(const QStringList &arguments, QString *error
     return true;
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

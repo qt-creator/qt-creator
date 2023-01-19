@@ -5,6 +5,7 @@
 
 #include "cmakecommandbuilder.h"
 #include "incredibuildconstants.h"
+#include "incredibuildtr.h"
 #include "makecommandbuilder.h"
 
 #include <projectexplorer/abstractprocessstep.h>
@@ -22,8 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CommandBuilderAspectPrivate
 {
@@ -143,8 +143,8 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
     }
 
     if (!d->label) {
-        d->label = new QLabel(tr("Command Helper:"));
-        d->label->setToolTip(tr("Select a helper to establish the build command."));
+        d->label = new QLabel(Tr::tr("Command Helper:"));
+        d->label->setToolTip(Tr::tr("Select a helper to establish the build command."));
     }
 
     // On first creation of the step, attempt to detect and migrate from preceding steps
@@ -152,8 +152,8 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
         d->tryToMigrate();
 
     builder.addRow({d->label.data(), d->commandBuilder.data()});
-    builder.addRow({tr("Make command:"), d->makePathChooser.data()});
-    builder.addRow({tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
+    builder.addRow({Tr::tr("Make command:"), d->makePathChooser.data()});
+    builder.addRow({Tr::tr("Make arguments:"), d->makeArgumentsLineEdit.data()});
 
     updateGui();
 }
@@ -197,5 +197,4 @@ void CommandBuilderAspect::updateGui()
     d->makeArgumentsLineEdit->setText(d->m_activeCommandBuilder->arguments());
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

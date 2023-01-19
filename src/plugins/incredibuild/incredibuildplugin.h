@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class IncrediBuildPlugin final : public ExtensionSystem::IPlugin
 {
@@ -23,5 +22,4 @@ private:
     class IncrediBuildPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

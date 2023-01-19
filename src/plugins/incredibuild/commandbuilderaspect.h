@@ -10,8 +10,7 @@
 #include <QLabel>
 #include <QPointer>
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CommandBuilderAspect final : public Utils::BaseAspect
 {
@@ -33,5 +32,4 @@ private:
     class CommandBuilderAspectPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

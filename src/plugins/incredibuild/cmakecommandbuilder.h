@@ -5,25 +5,21 @@
 
 #include "commandbuilder.h"
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CMakeCommandBuilder : public CommandBuilder
 {
-    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::CMakeCommandBuilder)
-
 public:
     CMakeCommandBuilder(ProjectExplorer::BuildStep *buildStep) : CommandBuilder(buildStep) {}
 
 private:
     QList<Utils::Id> migratableSteps() const final;
     QString id() const final { return "CMakeCommandBuilder"; }
-    QString displayName() const final { return tr("CMake"); }
+    QString displayName() const final;
     Utils::FilePath defaultCommand() const final;
     QString defaultArguments() const final;
     QString setMultiProcessArg(QString args) final;
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal
 

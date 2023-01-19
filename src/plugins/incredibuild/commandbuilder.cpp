@@ -3,13 +3,19 @@
 
 #include "commandbuilder.h"
 
+#include "incredibuildtr.h"
+
 using namespace Utils;
 
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 const char CUSTOMCOMMANDBUILDER_COMMAND[] = "IncrediBuild.BuildConsole.%1.Command";
 const char CUSTOMCOMMANDBUILDER_ARGS[] = "IncrediBuild.BuildConsole.%1.Arguments";
+
+QString CommandBuilder::displayName() const
+{
+    return Tr::tr("Custom Command");
+}
 
 void CommandBuilder::fromMap(const QVariantMap &map)
 {
@@ -36,5 +42,4 @@ void CommandBuilder::setArguments(const QString &arguments)
         m_args = arguments;
 }
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

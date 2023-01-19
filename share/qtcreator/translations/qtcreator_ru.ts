@@ -22953,7 +22953,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>IncrediBuild::Internal::BuildConsoleBuildStep</name>
+    <name>::IncrediBuild</name>
     <message>
         <source>Miscellaneous</source>
         <translation>Разное</translation>
@@ -23025,10 +23025,6 @@ Would you like to overwrite them?</source>
     <message>
         <source>Maximum CPUs to utilize in the build:</source>
         <translation>Максимальное количество ЦП для сборки:</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation>Параметры Make:</translation>
     </message>
     <message>
         <source>When specified, the execution will stop as soon as an error is encountered.  This is the default behavior in &apos;Visual Studio&apos; builds, but not the default for &apos;Make and Build tools&apos; or &apos;Dev Tools&apos; builds</source>
@@ -23146,16 +23142,10 @@ Would you like to overwrite them?</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Please make sure the build command&apos;s multi-job parameter value is large enough (such as -J200 for the JOM or Make build tools)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#ff0000;&quot;&gt;Убедитесь, что значение параметра multi-job команды сборки достаточно велико (например, -J200 для сборщиков JOM или Make)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::BuildConsoleStepConfigWidget</name>
     <message>
         <source>IncrediBuild for Windows</source>
         <translation>IncrediBuild для Windows</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::IBConsoleBuildStep</name>
     <message>
         <source>Enter the appropriate arguments to your build command</source>
         <translation>Введите параметры соответствующие команде сборки</translation>
@@ -23165,24 +23155,8 @@ Would you like to overwrite them?</source>
         <translation>При включении IncrediBuild не переопределяет параметр командной строки -j. По умолчанию Incredibuild устанавливает большое значение (200) для ключа -j, задающего число параллельных процессов сборки, запускаемых Qt.</translation>
     </message>
     <message>
-        <source>Keep Original Jobs Num</source>
-        <translation>Исходное число задач</translation>
-    </message>
-    <message>
-        <source>Target and configuration</source>
-        <translation>Цель и конфигурация</translation>
-    </message>
-    <message>
-        <source>Make command:</source>
-        <translation>Команда Make:</translation>
-    </message>
-    <message>
         <source>Force remote</source>
         <translation>Принудительно внешняя</translation>
-    </message>
-    <message>
-        <source>IncrediBuild Distribution control</source>
-        <translation>Распределение IncrediBuild</translation>
     </message>
     <message>
         <source>Specify nice value. Nice Value should be numeric and between -20 and 19</source>
@@ -23197,14 +23171,6 @@ Would you like to overwrite them?</source>
         <translation>Параметры make:</translation>
     </message>
     <message>
-        <source>Select an helper to establish the build command.</source>
-        <translation type="unfinished">Помощник для запуска команды сборки.</translation>
-    </message>
-    <message>
-        <source>Command Helper:</source>
-        <translation type="unfinished">Помощник запуска:</translation>
-    </message>
-    <message>
         <source>Alternate tasks preference</source>
         <translation>Изменять настройки задач</translation>
     </message>
@@ -23212,9 +23178,6 @@ Would you like to overwrite them?</source>
         <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -J200 for the JOM or Make build tools).</source>
         <translation>Убедитесь, что значение многозадачности команды сборки достаточно велико (например, -J200 для JOM или Make).</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::IBConsoleStepConfigWidget</name>
     <message>
         <source>IncrediBuild for Linux</source>
         <translation>IncrediBuild для Linux</translation>

@@ -5,15 +5,10 @@
 
 #include <projectexplorer/buildstep.h>
 
-#include <QCoreApplication>
-
-namespace IncrediBuild {
-namespace Internal {
+namespace IncrediBuild::Internal {
 
 class CommandBuilder
 {
-    Q_DECLARE_TR_FUNCTIONS(IncrediBuild::Internal::CommandBuilder)
-
 public:
     CommandBuilder(ProjectExplorer::BuildStep *buildStep) : m_buildStep(buildStep) {}
     virtual ~CommandBuilder() = default;
@@ -23,7 +18,7 @@ public:
     ProjectExplorer::BuildStep *buildStep() const { return m_buildStep; }
 
     virtual QString id() const { return "CustomCommandBuilder"; }
-    virtual QString displayName() const { return tr("Custom Command"); }
+    virtual QString displayName() const;
 
     virtual void fromMap(const QVariantMap &map);
     virtual void toMap(QVariantMap *map) const;
@@ -45,5 +40,4 @@ private:
     QString m_args;
 };
 
-} // namespace Internal
-} // namespace IncrediBuild
+} // IncrediBuild::Internal

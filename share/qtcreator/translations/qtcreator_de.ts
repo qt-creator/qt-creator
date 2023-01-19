@@ -46005,7 +46005,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>IncrediBuild::Internal::BuildConsoleBuildStep</name>
+    <name>::IncrediBuild</name>
     <message>
         <source>IncrediBuild for Windows</source>
         <translation type="unfinished">IncrediBuild für Windows</translation>
@@ -46186,36 +46186,9 @@ Do you want to display them anyway?</source>
         <source>Opens Build Monitor once the build starts.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::IBConsoleBuildStep</name>
     <message>
         <source>IncrediBuild for Linux</source>
         <translation type="unfinished">IncrediBuild für Linux</translation>
-    </message>
-    <message>
-        <source>Target and Configuration</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enter the appropriate arguments to your build command.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keep original jobs number:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Forces IncrediBuild to not override the -j command line switch, that controls the number of parallel spawned tasks. The default IncrediBuild behavior is to set it to 200.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IncrediBuild Distribution Control</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Specify nice value. Nice Value should be numeric and between -20 and 19</source>
@@ -52938,21 +52911,15 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>IncrediBuild::Internal::CMakeCommandBuilder</name>
+    <name>::IncrediBuild</name>
     <message>
         <source>CMake</source>
         <translation type="unfinished">CMake</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::CommandBuilder</name>
     <message>
         <source>Custom Command</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::CommandBuilderAspect</name>
     <message>
         <source>Command Helper:</source>
         <translation type="unfinished"></translation>
@@ -52969,9 +52936,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Make arguments:</source>
         <translation type="unfinished">Kommandozeilenargumente für make:</translation>
     </message>
-</context>
-<context>
-    <name>IncrediBuild::Internal::MakeCommandBuilder</name>
     <message>
         <source>Make</source>
         <translation type="unfinished">Make</translation>
