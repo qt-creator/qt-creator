@@ -4,6 +4,7 @@
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
+#include "diffeditortr.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -292,8 +293,8 @@ Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const
     bool ok = false;
     QList<FileData> fileDataList = DiffUtils::readPatch(patch, &ok);
     if (!ok) {
-        *errorString = tr("Could not parse patch file \"%1\". "
-                          "The content is not of unified diff format.")
+        *errorString = Tr::tr("Could not parse patch file \"%1\". "
+                              "The content is not of unified diff format.")
                 .arg(filePath.toUserOutput());
     } else {
         setTemporary(false);

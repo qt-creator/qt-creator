@@ -13963,9 +13963,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Diff Editor</source>
         <translation>Diff-redigering</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
     <message>
         <source>Saved</source>
         <translation>Gemt</translation>
@@ -13974,9 +13971,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Modified</source>
         <translation>Ændret</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Kontekst linjer:</translation>
@@ -14009,16 +14003,10 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Show Change Description</source>
         <translation>Vis ændringsbeskrivelse</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>Kunne ikke parse patch-filen &quot;%1&quot;. Indholdet er ikke unified diff-format.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Diff</translation>
@@ -14067,9 +14055,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
         <translation>Diff &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Diff filer</translation>
@@ -14078,9 +14063,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Diff Modified Files</source>
         <translation>Diff ændrede filer</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Revert Chunk</source>
         <translation>Tilbagefør bid</translation>
@@ -14109,38 +14091,10 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Revert Chunk...</source>
         <translation>Tilbagefør bid...</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
     <message>
         <source>Calculating diff</source>
         <translation>Udregninger diff</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Gemt</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Ændret</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Gemt</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Ændret</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -14160,9 +14114,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>No difference.</source>
         <translation>Ingen forskel.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Synkroniser vandrette rullebjælker</translation>
@@ -14175,45 +14126,18 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Retrieving data failed.</source>
         <translation>Kunne ikke hente data.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Intet dokument</translation>
     </message>
     <message>
-        <source>No difference.</source>
-        <translation>Ingen forskel.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Venter på data...</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Kunne ikke hente data.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
-    <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Skift til side-om-side diff-redigering</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Skift til unified diff-redigering</translation>

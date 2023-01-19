@@ -19408,9 +19408,6 @@ Rebuilding the project might help.</source>
         <source>Diff Editor</source>
         <translation>差分エディタ</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>差分...</translation>
@@ -32591,7 +32588,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditorController</name>
+    <name>::DiffEditor</name>
     <message numerus="yes">
         <source>and %n more</source>
         <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
@@ -39115,7 +39112,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>コンテキスト行:</translation>
@@ -39148,23 +39145,14 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Show Change Description</source>
         <translation>差分の記述を表示する</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>パッチファイル &quot;%1&quot; を解析できませんでした。コンテンツがユニファイド diff 形式ではありません。</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>ユニファイド形式の差分エディタに切り替える</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>データ待機中...</translation>
@@ -39173,31 +39161,14 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Failed</source>
         <translation>失敗</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>サイドバイサイドの差分エディタに切り替える</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>水平スクロールバーを同期する</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>データ待機中...</translation>
-    </message>
-    <message>
-        <source>Failed</source>
-        <translation>失敗</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -39248,51 +39219,13 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Would you like to apply the chunk?</source>
         <translation>チャンクを適用しますか？</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>ドキュメントなし</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation>CodePaster にチャンクを送る...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation>チャンクの適用...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation>チャンクを元に戻す...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation>チャンクを元に戻す</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation>チャンクの適用</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation>チャンクを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation>チャンクを適用しますか？</translation>
-    </message>
-    <message>
-        <source>No difference.</source>
-        <translation>差分がありません。</translation>
     </message>
 </context>
 <context>
@@ -45981,55 +45914,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Modified</source>
         <translation>変更</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Modified</source>
-        <translation>変更</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Modified</source>
-        <translation>変更</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
-    <message>
-        <source>Revert Chunk</source>
-        <translation>チャンクを元に戻す</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation>チャンクの適用</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation>チャンクを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation>チャンクを適用しますか？</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation>CodePaster にチャンクを送る...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation>チャンクの適用...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation>チャンクを元に戻す...</translation>
     </message>
     <message>
         <source>Select Encoding</source>

@@ -50621,16 +50621,10 @@ nelze najít v cestě.</translation>
         <source>Diff Editor</source>
         <translation>Editor rozdílů</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorEditable</name>
     <message>
         <source>Ignore Whitespaces</source>
         <translation type="obsolete">Nevšímat si prázdných míst</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>Rozdíly...</translation>
@@ -50648,9 +50642,6 @@ nelze najít v cestě.</translation>
         <extracomment>Editor title</extracomment>
         <translation>Rozdíly u &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::DiffViewEditorWidget</name>
     <message>
         <source>No difference</source>
         <translation>Žádný rozdíl</translation>
@@ -52933,7 +52924,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -54853,15 +54844,7 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffShowEditor</name>
-    <message>
-        <source>Hide Change Description</source>
-        <translation>Skrýt popis změny</translation>
-    </message>
-    <message>
-        <source>Show Change Description</source>
-        <translation>Ukázat popis změny</translation>
-    </message>
+    <name>::DiffEditor</name>
 </context>
 <context>
     <name>::Git</name>
@@ -56755,43 +56738,14 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditorController</name>
-    <message>
-        <source>No difference</source>
-        <translation>Žádný rozdíl</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::DiffEditorManager</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Čeká se na data...</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideDiffEditorWidget</name>
-    <message numerus="yes">
-        <source>Skipped %n lines...</source>
-        <translation>
-            <numerusform>Přeskočen %n řádek...</numerusform>
-            <numerusform>Přeskočeny %n řádky...</numerusform>
-            <numerusform>Přeskočeno %n řádků...</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>[%1] %2</source>
-        <translation>[%1] %2</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideDiffEditorWidget</name>
     <message>
         <source>No controller</source>
         <translation>Žádný ovladač</translation>
-    </message>
-    <message>
-        <source>No difference</source>
-        <translation>Žádný rozdíl</translation>
     </message>
 </context>
 <context>

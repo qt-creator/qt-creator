@@ -5,6 +5,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
+#include "diffeditortr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -225,7 +226,7 @@ void DiffEditorWidgetController::addCodePasterAction(QMenu *menu, int fileIndex,
 {
     if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
         // optional code pasting service
-        QAction *sendChunkToCodePasterAction = menu->addAction(tr("Send Chunk to CodePaster..."));
+        QAction *sendChunkToCodePasterAction = menu->addAction(Tr::tr("Send Chunk to CodePaster..."));
         connect(sendChunkToCodePasterAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
             sendChunkToCodePaster(fileIndex, chunkIndex);
         });
@@ -264,8 +265,8 @@ bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 void DiffEditorWidgetController::addPatchAction(QMenu *menu, int fileIndex, int chunkIndex,
                                                 PatchAction patchAction)
 {
-    const QString actionName = patchAction == PatchAction::Apply ? tr("Apply Chunk...")
-                                                                 : tr("Revert Chunk...");
+    const QString actionName = patchAction == PatchAction::Apply ? Tr::tr("Apply Chunk...")
+                                                                 : Tr::tr("Revert Chunk...");
     QAction *action = menu->addAction(actionName);
     connect(action, &QAction::triggered, this, [this, fileIndex, chunkIndex, patchAction] {
         patch(patchAction, fileIndex, chunkIndex);
@@ -293,10 +294,10 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
         if (!infoBar->canInfoBeAdded(selectEncodingId))
             return;
         InfoBarEntry info(selectEncodingId,
-                                 tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
+                                 Tr::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
                                           QString::fromLatin1(m_document->codec()->name())));
-        info.addCustomButton(tr("Select Encoding"), [this] { m_document->selectEncoding(); });
+        info.addCustomButton(Tr::tr("Select Encoding"), [this] { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);

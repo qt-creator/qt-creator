@@ -27719,9 +27719,6 @@ The affected files are:
         <source>Diff Editor</source>
         <translation>Diff-Editor</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Diff</translation>
@@ -34696,7 +34693,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Kontextzeilen:</translation>
@@ -34729,23 +34726,14 @@ provided they were unmodified before the refactoring.</source>
         <source>Show Change Description</source>
         <translation>Beschreibung der Änderung einblenden</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>Die Patch-Datei &quot;%1&quot; konnte nicht ausgewertet werden. Der Inhalt ist nicht im vereinheitlichten Format.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Unterschiede im vereinheitlichten Format anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Warte auf Daten...</translation>
@@ -34754,31 +34742,14 @@ provided they were unmodified before the refactoring.</source>
         <source>Retrieving data failed.</source>
         <translation>Es konnten keine Daten empfangen werden.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Unterschiede nebeneinander anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Horizontale Bildlaufleisten synchronisieren</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Warte auf Daten...</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Es konnten keine Daten empfangen werden.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -34795,50 +34766,20 @@ provided they were unmodified before the refactoring.</source>
         <translation>Unbekannte Anzahl von Zeilen übersprungen...</translation>
     </message>
     <message>
-        <source>Waiting for data...</source>
-        <translation type="unfinished">Warte auf Daten...</translation>
-    </message>
-    <message>
         <source>No difference.</source>
         <translation>Kein Unterschied.</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation type="unfinished">Es konnten keine Daten empfangen werden.</translation>
     </message>
     <message>
         <source>Rendering diff</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Kein Dokument</translation>
-    </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation type="unfinished">Warte auf Daten...</translation>
-    </message>
-    <message>
-        <source>No difference.</source>
-        <translation>Kein Unterschied.</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation type="unfinished">Es konnten keine Daten empfangen werden.</translation>
-    </message>
-    <message>
-        <source>Rendering diff</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -39662,14 +39603,11 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Calculating diff</source>
         <translation>Bestimme Unterschiede</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
     <message>
         <source>Saved</source>
         <translation>Gespeichert</translation>
@@ -39678,31 +39616,6 @@ Zeile: %4, Spalte: %5
         <source>Modified</source>
         <translation>Geändert</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Gespeichert</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Geändert</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Gespeichert</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Geändert</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Unterschiede zwischen Dateien anzeigen</translation>
@@ -39711,9 +39624,6 @@ Zeile: %4, Spalte: %5
         <source>Diff Modified Files</source>
         <translation>Unterschiede zwischen geänderten Dateien anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Send Chunk to CodePaster...</source>
         <translation>Änderung an CodePaster senden...</translation>

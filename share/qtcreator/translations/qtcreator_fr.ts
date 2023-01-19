@@ -48660,7 +48660,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -48685,16 +48685,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>[%1] %2 vs. [%3] %4</source>
         <translation>[%1] %2 contre [%3] %4</translation>
     </message>
-</context>
-<context>
-    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Éditeur de différences</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>Diff...</translation>
@@ -48712,9 +48706,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <extracomment>Editor title</extracomment>
         <translation>Diff &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::DiffViewEditorWidget</name>
     <message>
         <source>No difference</source>
         <translation>Aucune différence</translation>
@@ -51615,7 +51606,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffShowEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Hide Change Description</source>
         <translation>Masquer la description des changements</translation>

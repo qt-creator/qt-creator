@@ -6,6 +6,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
+#include "diffeditortr.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -42,7 +43,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
             this, &UnifiedDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
-    clear(tr("No document"));
+    clear(Tr::tr("No document"));
 
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
@@ -262,7 +263,7 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear(tr("Waiting for data..."));
+    clear(Tr::tr("Waiting for data..."));
     m_controller.m_contextFileData = diffFileList;
     showDiff();
 }
@@ -449,7 +450,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 void UnifiedDiffEditorWidget::showDiff()
 {
     if (m_controller.m_contextFileData.isEmpty()) {
-        setPlainText(tr("No difference."));
+        setPlainText(Tr::tr("No difference."));
         return;
     }
 
@@ -458,7 +459,7 @@ void UnifiedDiffEditorWidget::showDiff()
     m_controller.setBusyShowing(true);
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
         if (m_asyncTask->isCanceled()) {
-            setPlainText(tr("Retrieving data failed."));
+            setPlainText(Tr::tr("Retrieving data failed."));
         } else {
             const ShowResult result = m_asyncTask->result();
             m_data = result.diffData;
@@ -529,7 +530,7 @@ void UnifiedDiffEditorWidget::showDiff()
 
     m_asyncTask->setAsyncCallData(getDocument);
     m_asyncTask->start();
-    ProgressManager::addTask(m_asyncTask->future(), tr("Rendering diff"), "DiffEditor");
+    ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }
 
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)

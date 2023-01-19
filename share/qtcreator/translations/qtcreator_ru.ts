@@ -17646,9 +17646,6 @@ Rebuilding the project might help.</source>
         <source>Diff Editor</source>
         <translation>Редактор изменений</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
     <message>
         <source>Saved</source>
         <translation>Сохранён</translation>
@@ -17657,9 +17654,6 @@ Rebuilding the project might help.</source>
         <source>Modified</source>
         <translation>Изменён</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Игнорировать пробелы</translation>
@@ -17692,16 +17686,10 @@ Rebuilding the project might help.</source>
         <source>Show Change Description</source>
         <translation>Показать описание изменения</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>Не удалось разобрать файл изменений «%1». Содержимое не в формате «унифицированный diff».</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Сравнить</translation>
@@ -17750,9 +17738,6 @@ Rebuilding the project might help.</source>
         <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
         <translation>Сравнение «%1» с «%2»</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Отличия файлов</translation>
@@ -17761,9 +17746,6 @@ Rebuilding the project might help.</source>
         <source>Diff Modified Files</source>
         <translation>Отличия изменённых файлов</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Revert Chunk</source>
         <translation>Откат фрагмента</translation>
@@ -17800,38 +17782,10 @@ Rebuilding the project might help.</source>
         <source>Select Encoding</source>
         <translation>Выбрать кодировку</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
     <message>
         <source>Calculating diff</source>
         <translation>Вычисление отличий</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Сохранён</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Изменён</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Сохранён</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Изменён</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -17852,9 +17806,6 @@ Rebuilding the project might help.</source>
         <source>No difference.</source>
         <translation>Различий нет.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Согласовать горизонтальные полосы прокрутки</translation>
@@ -17867,45 +17818,18 @@ Rebuilding the project might help.</source>
         <source>Retrieving data failed.</source>
         <translation>Не удалось получить данные.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Нет документа</translation>
     </message>
     <message>
-        <source>No difference.</source>
-        <translation>Различий нет.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Ожидание данных...</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Не удалось получить данные.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
-    <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Переключиться в двусторонний редактор отличий</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Переключиться в унифицированный редактор отличий</translation>

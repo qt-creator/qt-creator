@@ -30430,9 +30430,6 @@ cannot be found in the path.</source>
         <source>Diff Editor</source>
         <translation>Редактор різниць</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>Diff...</source>
         <translation>Порівняти...</translation>
@@ -30448,21 +30445,6 @@ cannot be found in the path.</source>
     <message>
         <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
         <translation>Порівняння &quot;%1&quot; з &quot;%2&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::DiffViewEditorWidget</name>
-    <message numerus="yes">
-        <source>Skipped %n lines...</source>
-        <translation type="vanished">
-            <numerusform>Пропущено %n рядок...</numerusform>
-            <numerusform>Пропущено %n рядки...</numerusform>
-            <numerusform>Пропущено %n рядків...</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>[%1] %2</source>
-        <translation type="vanished">[%1] %2</translation>
     </message>
 </context>
 <context>
@@ -32753,11 +32735,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditor</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation type="vanished">Ігнорувати пропуски</translation>
-    </message>
+    <name>::DiffEditor</name>
     <message>
         <source>Context Lines:</source>
         <translation type="vanished">Контекстні рядки:</translation>
@@ -32765,30 +32743,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>Reload Editor</source>
         <translation type="vanished">Перезавантажити редактор</translation>
-    </message>
-    <message>
-        <source>Synchronize Horizontal Scroll Bars</source>
-        <translation type="vanished">Синхронізувати горизонтальні смуги прокрутки</translation>
-    </message>
-    <message>
-        <source>[%1] vs. [%2] %3</source>
-        <translation type="vanished">[%1] vs. [%2] %3</translation>
-    </message>
-    <message>
-        <source>%1 vs. %2</source>
-        <translation type="vanished">%1 vs. %2</translation>
-    </message>
-    <message>
-        <source>[%1] %2 vs. [%3] %4</source>
-        <translation type="vanished">[%1] %2 vs. [%3] %4</translation>
-    </message>
-    <message>
-        <source>Hide Change Description</source>
-        <translation type="vanished">Сховати опис зміни</translation>
-    </message>
-    <message>
-        <source>Show Change Description</source>
-        <translation type="vanished">Показати опис зміни</translation>
     </message>
 </context>
 <context>
@@ -36203,11 +36157,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor::DiffEditorController</name>
-    <message>
-        <source>No difference</source>
-        <translation type="vanished">Немає відмінностей</translation>
-    </message>
+    <name>::DiffEditor</name>
     <message numerus="yes">
         <source>and %n more</source>
         <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot;</extracomment>
@@ -36220,91 +36170,6 @@ Do you want to kill it?</source>
     <message>
         <source>&lt;None&gt;</source>
         <translation>&lt;Немає&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::DiffEditorManager</name>
-    <message>
-        <source>Waiting for data...</source>
-        <translation type="vanished">Очікування на дані...</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideDiffEditorWidget</name>
-    <message numerus="yes">
-        <source>Skipped %n lines...</source>
-        <translation type="vanished">
-            <numerusform>Пропущено %n рядок...</numerusform>
-            <numerusform>Пропущено %n рядки...</numerusform>
-            <numerusform>Пропущено %n рядків...</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>[%1] %2</source>
-        <translation type="vanished">[%1] %2</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideDiffEditorWidget</name>
-    <message numerus="yes">
-        <source>Skipped %n lines...</source>
-        <translation type="vanished">
-            <numerusform>Пропущено %n рядок...</numerusform>
-            <numerusform>Пропущено %n рядки...</numerusform>
-            <numerusform>Пропущено %n рядків...</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Binary files differ</source>
-        <translation type="vanished">Двійкові файли відрізняються</translation>
-    </message>
-    <message>
-        <source>Skipped unknown number of lines...</source>
-        <translation type="vanished">Пропущено невідому кількість рядків...</translation>
-    </message>
-    <message>
-        <source>No controller</source>
-        <translation type="vanished">Відсутній контролер</translation>
-    </message>
-    <message>
-        <source>No difference</source>
-        <translation type="vanished">Немає відмінностей</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation type="vanished">Надіслати шматочок до Codepaster...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation type="vanished">Накласти частину латки...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation type="vanished">Зняти частину латки...</translation>
-    </message>
-    <message>
-        <source>Unable to Paste</source>
-        <translation type="vanished">Неможливо вставити</translation>
-    </message>
-    <message>
-        <source>Code pasting services are not available.</source>
-        <translation type="vanished">Служби вставки коду не доступні.</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation type="vanished">Зняття частини латки</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation type="vanished">Накладання частини латки</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation type="vanished">Бажаєте зняти частину латки?</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation type="vanished">Бажаєте накласти частину латки?</translation>
     </message>
 </context>
 <context>
@@ -37363,51 +37228,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor::UnifiedDiffEditorWidget</name>
-    <message>
-        <source>No controller</source>
-        <translation type="vanished">Відсутній контролер</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation type="vanished">Надіслати шматочок до Codepaster...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation type="vanished">Накласти частину латки...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation type="vanished">Зняти частину латки...</translation>
-    </message>
-    <message>
-        <source>Unable to Paste</source>
-        <translation type="vanished">Неможливо вставити</translation>
-    </message>
-    <message>
-        <source>Code pasting services are not available.</source>
-        <translation type="vanished">Служби вставки коду не доступні.</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation type="vanished">Зняття частини латки</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation type="vanished">Накладання частини латки</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation type="vanished">Бажаєте зняти частину латки?</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation type="vanished">Бажаєте накласти частину латки?</translation>
-    </message>
-    <message>
-        <source>No difference</source>
-        <translation type="vanished">Немає відмінностей</translation>
-    </message>
+    <name>::DiffEditor</name>
 </context>
 <context>
     <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
@@ -41723,7 +41544,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Контекстні рядки:</translation>
@@ -41756,23 +41577,14 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Show Change Description</source>
         <translation>Показати опис зміни</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>Не вдалось розібрати файл латки &quot;%1&quot;. Зміст не в форматі &quot;уніфікований diff&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Очікування на дані...</translation>
@@ -41781,31 +41593,14 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Failed</source>
         <translation>Збій</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Синхронізувати горизонтальні смуги прокрутки</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Очікування на дані...</translation>
-    </message>
-    <message>
-        <source>Failed</source>
-        <translation>Збій</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -41839,14 +41634,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>Зняти частину латки...</translation>
     </message>
     <message>
-        <source>Unable to Paste</source>
-        <translation type="vanished">Неможливо вставити</translation>
-    </message>
-    <message>
-        <source>Code pasting services are not available.</source>
-        <translation type="vanished">Служби вставки коду не доступні.</translation>
-    </message>
-    <message>
         <source>Revert Chunk</source>
         <translation>Зняття частини латки</translation>
     </message>
@@ -41862,55 +41649,13 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Would you like to apply the chunk?</source>
         <translation>Бажаєте накласти частину латки?</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Немає документа</translation>
-    </message>
-    <message>
-        <source>Send Chunk to CodePaster...</source>
-        <translation>Надіслати шматочок до Codepaster...</translation>
-    </message>
-    <message>
-        <source>Apply Chunk...</source>
-        <translation>Накласти частину латки...</translation>
-    </message>
-    <message>
-        <source>Revert Chunk...</source>
-        <translation>Зняти частину латки...</translation>
-    </message>
-    <message>
-        <source>Unable to Paste</source>
-        <translation type="vanished">Неможливо вставити</translation>
-    </message>
-    <message>
-        <source>Code pasting services are not available.</source>
-        <translation type="vanished">Служби вставки коду не доступні.</translation>
-    </message>
-    <message>
-        <source>Revert Chunk</source>
-        <translation>Зняття частини латки</translation>
-    </message>
-    <message>
-        <source>Apply Chunk</source>
-        <translation>Накладання частини латки</translation>
-    </message>
-    <message>
-        <source>Would you like to revert the chunk?</source>
-        <translation>Бажаєте зняти частину латки?</translation>
-    </message>
-    <message>
-        <source>Would you like to apply the chunk?</source>
-        <translation>Бажаєте накласти частину латки?</translation>
     </message>
     <message>
         <source>No difference.</source>

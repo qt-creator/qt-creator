@@ -6,6 +6,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
+#include "diffeditortr.h"
 
 #include <QMenu>
 #include <QPainter>
@@ -550,10 +551,10 @@ void SideDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 static QString skippedText(int skippedNumber)
 {
     if (skippedNumber > 0)
-        return SideBySideDiffEditorWidget::tr("Skipped %n lines...", nullptr, skippedNumber);
+        return Tr::tr("Skipped %n lines...", nullptr, skippedNumber);
     if (skippedNumber == -2)
-        return SideBySideDiffEditorWidget::tr("Binary files differ");
-    return SideBySideDiffEditorWidget::tr("Skipped unknown number of lines...");
+        return Tr::tr("Binary files differ");
+    return Tr::tr("Skipped unknown number of lines...");
 }
 
 void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
@@ -588,7 +589,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
                 if (!fileInfo.fileName.isEmpty()) {
                     const QString fileNameText = fileInfo.typeInfo.isEmpty()
                             ? fileInfo.fileName
-                            : tr("[%1] %2").arg(fileInfo.typeInfo, fileInfo.fileName);
+                            : Tr::tr("[%1] %2").arg(fileInfo.typeInfo, fileInfo.fileName);
                     paintSeparator(painter, m_fileLineForeground,
                                    fileNameText, currentBlock, top);
                 }
@@ -817,11 +818,11 @@ void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
     for (SideDiffEditorWidget *editor : m_editor)
-        editor->clearAll(tr("Waiting for data..."));
+        editor->clearAll(Tr::tr("Waiting for data..."));
 
     m_controller.m_contextFileData = diffFileList;
     if (m_controller.m_contextFileData.isEmpty()) {
-        const QString msg = tr("No difference.");
+        const QString msg = Tr::tr("No difference.");
         for (SideDiffEditorWidget *editor : m_editor)
             editor->setPlainText(msg);
     } else {
@@ -875,7 +876,7 @@ void SideBySideDiffEditorWidget::showDiff()
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
         if (m_asyncTask->isCanceled()) {
             for (SideDiffEditorWidget *editor : m_editor)
-                editor->clearAll(tr("Retrieving data failed."));
+                editor->clearAll(Tr::tr("Retrieving data failed."));
         } else {
             const ShowResults results = m_asyncTask->result();
             m_editor[LeftSide]->setDiffData(results[LeftSide].diffData);
@@ -978,7 +979,7 @@ void SideBySideDiffEditorWidget::showDiff()
 
     m_asyncTask->setAsyncCallData(getDocument);
     m_asyncTask->start();
-    ProgressManager::addTask(m_asyncTask->future(), tr("Rendering diff"), "DiffEditor");
+    ProgressManager::addTask(m_asyncTask->future(), Tr::tr("Rendering diff"), "DiffEditor");
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)

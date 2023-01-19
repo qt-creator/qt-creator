@@ -22428,7 +22428,7 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Retci konteksta:</translation>
@@ -22461,30 +22461,18 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Show Change Description</source>
         <translation>Prikaži opis promjena</translation>
     </message>
-</context>
-<context>
-    <name>::DiffEditor</name>
     <message>
         <source>Diff Editor</source>
         <translation>Uređivač za razlike</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
     <message>
         <source>Calculating diff</source>
         <translation>Izračunavanje razlika</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
     <message>
         <source>Saved</source>
         <translation>Spremljeno</translation>
@@ -22493,31 +22481,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Modified</source>
         <translation>Promijenjeno</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Spremljeno</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Promijenjeno</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Spremljeno</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Promijenjeno</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Datoteke razlika</translation>
@@ -22526,9 +22489,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Diff Modified Files</source>
         <translation>Datoteke razlika promjena</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>&amp;Razlike</translation>
@@ -22577,9 +22537,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Diff &quot;%1&quot;, &quot;%2&quot;</source>
         <translation>Razlike &quot;%1&quot;, &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Revert Chunk</source>
         <translation>Vrati komad</translation>
@@ -22608,16 +22565,10 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Revert Chunk...</source>
         <translation>Vrati komad …</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Prebaci na uređivač za ujedinjene razlike</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Čekanje na podatke …</translation>
@@ -22626,31 +22577,14 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Retrieving data failed.</source>
         <translation>Neuspjelo dohvaćanje podataka.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Prebaci uređivača na usporedni prikaz razlika</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Sinkroniziraj vodoravne klizne trake</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Čekanje na podatke …</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Neuspjelo dohvaćanje podataka.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -22671,23 +22605,13 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>No difference.</source>
         <translation>Nema razlike.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Nema dokumenta</translation>
-    </message>
-    <message>
-        <source>No difference.</source>
-        <translation>Nema razlike.</translation>
     </message>
 </context>
 <context>

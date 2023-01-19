@@ -6,6 +6,7 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditoricons.h"
+#include "diffeditortr.h"
 #include "unifieddiffeditorwidget.h"
 #include "sidebysidediffeditorwidget.h"
 
@@ -73,7 +74,7 @@ UnifiedView::UnifiedView()
 {
     setId(Constants::UNIFIED_VIEW_ID);
     setIcon(Icons::UNIFIED_DIFF.icon());
-    setToolTip(QCoreApplication::translate("DiffEditor::UnifiedView", "Switch to Unified Diff Editor"));
+    setToolTip(Tr::tr("Switch to Unified Diff Editor"));
 }
 
 QWidget *UnifiedView::widget()
@@ -100,10 +101,10 @@ void UnifiedView::setDocument(DiffEditorDocument *document)
 
     switch (document->state()) {
     case DiffEditorDocument::Reloading:
-        m_widget->clear(tr("Waiting for data..."));
+        m_widget->clear(Tr::tr("Waiting for data..."));
         break;
     case DiffEditorDocument::LoadFailed:
-        m_widget->clear(tr("Retrieving data failed."));
+        m_widget->clear(Tr::tr("Retrieving data failed."));
         break;
     default:
         break;
@@ -116,7 +117,7 @@ void UnifiedView::beginOperation()
     DiffEditorDocument *document = m_widget->diffDocument();
     if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
-    m_widget->clear(tr("Waiting for data..."));
+    m_widget->clear(Tr::tr("Waiting for data..."));
 }
 
 void UnifiedView::setDiff(const QList<FileData> &diffFileList)
@@ -131,7 +132,7 @@ void UnifiedView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Retrieving data failed."));
+        m_widget->clear(Tr::tr("Retrieving data failed."));
 }
 
 void UnifiedView::setCurrentDiffFileIndex(int index)
@@ -150,10 +151,9 @@ SideBySideView::SideBySideView()
 {
     setId(Constants::SIDE_BY_SIDE_VIEW_ID);
     setIcon(Icons::SIDEBYSIDE_DIFF.icon());
-    setToolTip(QCoreApplication::translate("DiffEditor::SideBySideView",
-                                           "Switch to Side By Side Diff Editor"));
+    setToolTip(Tr::tr("Switch to Side By Side Diff Editor"));
     setSupportsSync(true);
-    setSyncToolTip(tr("Synchronize Horizontal Scroll Bars"));
+    setSyncToolTip(Tr::tr("Synchronize Horizontal Scroll Bars"));
 }
 
 QWidget *SideBySideView::widget()
@@ -181,10 +181,10 @@ void SideBySideView::setDocument(DiffEditorDocument *document)
 
     switch (document->state()) {
     case DiffEditorDocument::Reloading:
-        m_widget->clear(tr("Waiting for data..."));
+        m_widget->clear(Tr::tr("Waiting for data..."));
         break;
     case DiffEditorDocument::LoadFailed:
-        m_widget->clear(tr("Retrieving data failed."));
+        m_widget->clear(Tr::tr("Retrieving data failed."));
         break;
     default:
         break;
@@ -197,7 +197,7 @@ void SideBySideView::beginOperation()
     DiffEditorDocument *document = m_widget->diffDocument();
     if (document && document->state() == DiffEditorDocument::LoadOK)
         m_widget->saveState();
-    m_widget->clear(tr("Waiting for data..."));
+    m_widget->clear(Tr::tr("Waiting for data..."));
 }
 
 void SideBySideView::setCurrentDiffFileIndex(int index)
@@ -218,7 +218,7 @@ void SideBySideView::endOperation(bool success)
     if (success)
         m_widget->restoreState();
     else
-        m_widget->clear(tr("Retrieving data failed."));
+        m_widget->clear(Tr::tr("Retrieving data failed."));
 }
 
 void SideBySideView::setSync(bool sync)

@@ -24257,9 +24257,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Diff Editor</source>
         <translation>Edytor różnic</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorPlugin</name>
     <message>
         <source>&amp;Diff</source>
         <translation>Po&amp;równaj</translation>
@@ -32637,7 +32634,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffEditor</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Context lines:</source>
         <translation>Linie z kontekstem:</translation>
@@ -32670,23 +32667,14 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Show Change Description</source>
         <translation>Pokaż opis zmiany</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorDocument</name>
     <message>
         <source>Could not parse patch file &quot;%1&quot;. The content is not of unified diff format.</source>
         <translation>Nie można sparsować pliku z łatami &quot;%1&quot;. Zawartość nie jest w formacie ujednoliconym (unified diff).</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::UnifiedView</name>
     <message>
         <source>Switch to Unified Diff Editor</source>
         <translation>Przełącz do edytora różnic wyświetlającego zawartość w formacie ujednoliconym (unified diff)</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedView</name>
     <message>
         <source>Waiting for data...</source>
         <translation>Oczekiwanie na dane...</translation>
@@ -32695,31 +32683,14 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Retrieving data failed.</source>
         <translation>Błąd pobierania danych.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::SideBySideView</name>
     <message>
         <source>Switch to Side By Side Diff Editor</source>
         <translation>Przełącz do edytora różnic wyświetlającego zawartość sąsiadująco</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideView</name>
     <message>
         <source>Synchronize Horizontal Scroll Bars</source>
         <translation>Synchronizuj poziome paski przesuwania</translation>
     </message>
-    <message>
-        <source>Waiting for data...</source>
-        <translation>Oczekiwanie na dane...</translation>
-    </message>
-    <message>
-        <source>Retrieving data failed.</source>
-        <translation>Błąd pobierania danych.</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideBySideDiffEditorWidget</name>
     <message numerus="yes">
         <source>Skipped %n lines...</source>
         <translation>
@@ -32740,23 +32711,13 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>No difference.</source>
         <translation>Brak różnic.</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::SideDiffEditorWidget</name>
     <message>
         <source>[%1] %2</source>
         <translation>[%1] %2</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::UnifiedDiffEditorWidget</name>
     <message>
         <source>No document</source>
         <translation>Brak dokumentu</translation>
-    </message>
-    <message>
-        <source>No difference.</source>
-        <translation>Brak różnic.</translation>
     </message>
 </context>
 <context>
@@ -38016,7 +37977,7 @@ Wskakiwanie do wnętrza modułu lub ustawianie pułapek w plikach powinno dział
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffCurrentFileController</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Saved</source>
         <translation>Zachowany</translation>
@@ -38025,31 +37986,6 @@ Wskakiwanie do wnętrza modułu lub ustawianie pułapek w plikach powinno dział
         <source>Modified</source>
         <translation>Zmodyfikowany</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffOpenFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Zachowany</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Zmodyfikowany</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffModifiedFilesController</name>
-    <message>
-        <source>Saved</source>
-        <translation>Zachowany</translation>
-    </message>
-    <message>
-        <source>Modified</source>
-        <translation>Zmodyfikowany</translation>
-    </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorServiceImpl</name>
     <message>
         <source>Diff Files</source>
         <translation>Pokaż różnice w plikach</translation>
@@ -38058,9 +37994,6 @@ Wskakiwanie do wnętrza modułu lub ustawianie pułapek w plikach powinno dział
         <source>Diff Modified Files</source>
         <translation>Pokaż różnice w zmodyfikowanych plikach</translation>
     </message>
-</context>
-<context>
-    <name>DiffEditor::Internal::DiffEditorWidgetController</name>
     <message>
         <source>Revert Chunk</source>
         <translation>Odwróć zmiany we fragmencie</translation>
@@ -39748,7 +39681,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>DiffEditor::Internal::DiffFilesController</name>
+    <name>::DiffEditor</name>
     <message>
         <source>Calculating diff</source>
         <translation>Sporządzanie różnic</translation>
