@@ -829,6 +829,19 @@ QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 
 FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 {
+    if (filePath.path() == "/") // TODO: Add FilePath::isRoot()
+    {
+        const FilePathInfo r{4096,
+                             FilePathInfo::FileFlags(
+                                 FilePathInfo::ReadOwnerPerm | FilePathInfo::WriteOwnerPerm
+                                 | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadGroupPerm
+                                 | FilePathInfo::ExeGroupPerm | FilePathInfo::ReadOtherPerm
+                                 | FilePathInfo::ExeOtherPerm | FilePathInfo::DirectoryType
+                                 | FilePathInfo::LocalDiskFlag | FilePathInfo::ExistsFlag),
+                             QDateTime::currentDateTime()};
+
+        return r;
+    }
     const RunResult stat = runInShell({"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));
 }

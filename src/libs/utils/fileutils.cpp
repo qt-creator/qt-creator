@@ -415,26 +415,30 @@ FilePath qUrlToFilePath(const QUrl &url)
 
 QUrl filePathToQUrl(const FilePath &filePath)
 {
-   return QUrl::fromLocalFile(filePath.toFSPathString());
+    return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
 void prepareNonNativeDialog(QFileDialog &dialog)
 {
+    const auto isValidSideBarPath = [](const FilePath &fp) {
+        return !fp.needsDevice() || fp.hasFileAccess();
+    };
+
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
     // whether the dialog is native or not.
     if (dialog.itemDelegate()) {
         FilePaths sideBarPaths;
 
-        // Check existing urls, remove paths that need a device and no longer exist.
+        // Check existing urls, remove paths that need a device and are no longer valid.
         for (const QUrl &url : dialog.sidebarUrls()) {
             FilePath path = qUrlToFilePath(url);
-            if (!path.needsDevice() || path.exists())
+            if (isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 
-        // Add all device roots that are not already in the sidebar and exist.
+        // Add all device roots that are not already in the sidebar and valid.
         for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
-            if (!sideBarPaths.contains(path) && path.exists())
+            if (!sideBarPaths.contains(path) && isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 

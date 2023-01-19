@@ -23,6 +23,7 @@ WebAssemblyDevice::WebAssemblyDevice()
     setDeviceState(IDevice::DeviceStateUnknown);
     setMachineType(IDevice::Hardware);
     setOsType(OsTypeOther);
+    setFileAccess(nullptr);
 }
 
 IDevice::Ptr WebAssemblyDevice::create()

@@ -44,6 +44,9 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
                                                                           createCacheData);
     bool exists = (data.filePathInfo.fileFlags & QAbstractFileEngine::ExistsFlag);
 
+    if (data.filePathInfo.fileFlags & QAbstractFileEngine::DirectoryType)
+        return false;
+
     g_filePathInfoCache.invalidate(m_filePath);
 
     ensureStorage();
