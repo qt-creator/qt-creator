@@ -178,7 +178,8 @@ bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) con
 QString AssetsLibraryModel::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
 {
     auto genEffectPath = [=](const QString &name) {
-        return QString(parentFolder + "/" + name + ".qep");
+        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
+        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
     };
 
     QString uniqueName = effectName;
