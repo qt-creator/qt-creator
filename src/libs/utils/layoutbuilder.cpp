@@ -140,6 +140,13 @@ static QWidget *widgetForItem(QLayoutItem *item)
     return nullptr;
 }
 
+static QLabel *createLabel(const QString &text)
+{
+    auto label = new QLabel(text);
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    return label;
+}
+
 static void addItemToBoxLayout(QBoxLayout *layout, const LayoutBuilder::LayoutItem &item)
 {
     if (QWidget *w = item.widget) {
@@ -153,7 +160,7 @@ static void addItemToBoxLayout(QBoxLayout *layout, const LayoutBuilder::LayoutIt
     } else if (item.specialType == LayoutBuilder::SpecialType::HorizontalRule) {
         layout->addWidget(Layouting::createHr());
     } else if (!item.text.isEmpty()) {
-        layout->addWidget(new QLabel(item.text));
+        layout->addWidget(createLabel(item.text));
     } else {
         QTC_CHECK(false);
     }
@@ -250,7 +257,7 @@ static void doLayoutHelper(QLayout *layout,
             else if (item.layout)
                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
             else if (!item.text.isEmpty())
-                gridLayout->addWidget(new QLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
+                gridLayout->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
             currentGridColumn += item.span;
         } else if (boxLayout) {
             addItemToBoxLayout(boxLayout, item);
