@@ -19466,21 +19466,15 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation type="unfinished">文件</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfiguration</name>
     <message>
         <source>Generic Manager</source>
         <translation type="unfinished">标准管理器</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProject</name>
     <message>
         <source>Project files list update failed.</source>
         <translation type="unfinished"></translation>
@@ -19489,9 +19483,6 @@ Use drag and drop to change the order of the parameters.</source>
         <source>Build %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>编辑文件...</translation>
@@ -19500,9 +19491,6 @@ Use drag and drop to change the order of the parameters.</source>
         <source>Remove Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>导入现有项目</translation>
@@ -19510,13 +19498,6 @@ Use drag and drop to change the order of the parameters.</source>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>导入现有项目</translation>
     </message>
     <message>
         <source>Project Name and Location</source>

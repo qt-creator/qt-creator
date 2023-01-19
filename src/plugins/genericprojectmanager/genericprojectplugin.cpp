@@ -4,11 +4,12 @@
 #include "genericprojectplugin.h"
 
 #include "genericbuildconfiguration.h"
-#include "genericprojectwizard.h"
-#include "genericprojectconstants.h"
-#include "genericprojectfileseditor.h"
 #include "genericmakestep.h"
 #include "genericproject.h"
+#include "genericprojectconstants.h"
+#include "genericprojectfileseditor.h"
+#include "genericprojectmanagertr.h"
+#include "genericprojectwizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -45,7 +46,7 @@ public:
     GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
 
-    QAction editFilesAction{GenericProjectPlugin::tr("Edit Files..."), nullptr};
+    QAction editFilesAction{Tr::tr("Edit Files..."), nullptr};
 };
 
 GenericProjectPlugin::~GenericProjectPlugin()
@@ -77,7 +78,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
             genericProject->editFilesTriggered();
     });
 
-    const auto removeDirAction = new QAction(GenericProjectPlugin::tr("Remove Directory"), this);
+    const auto removeDirAction = new QAction(Tr::tr("Remove Directory"), this);
     Command * const cmd = ActionManager::registerAction(removeDirAction, "GenericProject.RemoveDir",
                                                         Context(PEC::C_PROJECT_TREE));
     ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);

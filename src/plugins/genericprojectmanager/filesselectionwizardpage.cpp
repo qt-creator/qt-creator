@@ -3,8 +3,9 @@
 
 #include "filesselectionwizardpage.h"
 
-#include "genericprojectwizard.h"
 #include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
+#include "genericprojectwizard.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -32,7 +33,7 @@ FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *g
     connect(m_filesWidget, &ProjectExplorer::SelectableFilesWidget::selectedFilesChanged,
             this, &FilesSelectionWizardPage::completeChanged);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Files"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Files"));
 }
 
 void FilesSelectionWizardPage::initializePage()

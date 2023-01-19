@@ -6,6 +6,7 @@
 #include "genericbuildconfiguration.h"
 #include "genericmakestep.h"
 #include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icontext.h>
@@ -613,7 +614,7 @@ void GenericBuildSystem::removeFiles(const FilePaths &filesToRemove)
 {
     if (removeFiles(nullptr, filesToRemove, nullptr) == RemovedFilesFromProject::Error) {
         TaskHub::addTask(BuildSystemTask(Task::Error,
-                                         GenericProject::tr("Project files list update failed."),
+                                         Tr::tr("Project files list update failed."),
                                          filesFilePath()));
     }
 }
@@ -660,7 +661,7 @@ void GenericProject::configureAsExampleProject(ProjectExplorer::Kit *kit)
         if (auto factory = BuildConfigurationFactory::find(k, projectFilePath())) {
             for (int i = 0; i < 5; ++i) {
                 BuildInfo buildInfo;
-                buildInfo.displayName = tr("Build %1").arg(i + 1);
+                buildInfo.displayName = Tr::tr("Build %1").arg(i + 1);
                 buildInfo.factory = factory;
                 buildInfo.kitId = kit->id();
                 buildInfo.buildDirectory = projectFilePath();

@@ -22965,14 +22965,11 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Datoteke</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -22982,9 +22979,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Build</source>
         <translation>Gradnja</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Direktorij gradnje:</translation>
@@ -22993,16 +22987,10 @@ Možda će ponovna gradnja projekta pomoći.</translation>
         <source>Generic Manager</source>
         <translation>Osnovni upravljač</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Uredi datoteke …</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Uvezi postojeći projekt</translation>
@@ -23022,13 +23010,6 @@ Možda će ponovna gradnja projekta pomoći.</translation>
     <message>
         <source>File Selection</source>
         <translation>Odabir datoteka</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Uvezi postojeći projekt</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use %1 as a code editor.</source>

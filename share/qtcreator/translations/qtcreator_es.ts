@@ -5012,14 +5012,11 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nuevo&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="unfinished"></translation>
@@ -5032,9 +5029,6 @@ Razón: %3</translation>
         <source>New Configuration Name:</source>
         <translation type="unfinished">Nombre para nueva configuración:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Directorio de construcción:</translation>
@@ -5047,9 +5041,6 @@ Razón: %3</translation>
         <source>Generic Manager</source>
         <translation>Gestor genérico</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Redefinir %1:</translation>
@@ -5058,9 +5049,6 @@ Razón: %3</translation>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Importado de un proyecto basado en Makefile</translation>
@@ -5077,9 +5065,6 @@ Razón: %3</translation>
         <source>The project %1 could not be opened.</source>
         <translation>El proyecto %1 no pudo ser abierto.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Importado de proyecto basado en Makefile</translation>

@@ -2752,7 +2752,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 の代わりに使用するコマンド:</translation>
@@ -19477,14 +19477,11 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>ファイル</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -19494,9 +19491,6 @@ Rebuilding the project might help.</source>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -19505,28 +19499,15 @@ Rebuilding the project might help.</source>
         <source>Generic Manager</source>
         <translation>一般マネージャ</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
         <translation>Make</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>%1 の代わりに使用するコマンド:</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
-    <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>ファイルを編集...</translation>
@@ -19535,9 +19516,6 @@ Rebuilding the project might help.</source>
         <source>Remove Directory</source>
         <translation>ディレクトリを削除する</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>既存プロジェクトのインポート</translation>
@@ -19557,13 +19535,6 @@ Rebuilding the project might help.</source>
     <message>
         <source>File Selection</source>
         <translation>ファイル選択</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>既存プロジェクトのインポート</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
@@ -24955,7 +24926,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -45902,11 +45873,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfiguration</name>
-    <message>
-        <source>Generic Manager</source>
-        <translation>一般マネージャ</translation>
-    </message>
+    <name>::GenericProjectManager</name>
 </context>
 <context>
     <name>::Git</name>

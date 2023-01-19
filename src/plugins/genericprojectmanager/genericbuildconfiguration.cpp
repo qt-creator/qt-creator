@@ -6,11 +6,13 @@
 #include "genericmakestep.h"
 #include "genericproject.h"
 #include "genericprojectconstants.h"
+#include "genericprojectmanagertr.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -29,7 +31,7 @@ namespace Internal {
 GenericBuildConfiguration::GenericBuildConfiguration(Target *parent, Utils::Id id)
     : BuildConfiguration(parent, id)
 {
-    setConfigWidgetDisplayName(tr("Generic Manager"));
+    setConfigWidgetDisplayName(GenericProjectManager::Tr::tr("Generic Manager"));
     setBuildDirectoryHistoryCompleter("Generic.BuildDir.History");
 
     setInitializer([this](const BuildInfo &) {
@@ -54,12 +56,12 @@ GenericBuildConfigurationFactory::GenericBuildConfigurationFactory()
 
     setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
         BuildInfo info;
-        info.typeName = BuildConfiguration::tr("Build");
+        info.typeName = ProjectExplorer::Tr::tr("Build");
         info.buildDirectory = forSetup ? Project::projectDirectory(projectPath) : projectPath;
 
         if (forSetup)  {
             //: The name of the build configuration created by default for a generic project.
-            info.displayName = BuildConfiguration::tr("Default");
+            info.displayName = ProjectExplorer::Tr::tr("Default");
         }
 
         return QList<BuildInfo>{info};

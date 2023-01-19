@@ -15417,22 +15417,16 @@ Se også Google-test-indstillinger.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation>Filer</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -15442,9 +15436,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Build</source>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
@@ -15453,9 +15444,6 @@ Se også Google-test-indstillinger.</translation>
         <source>Generic Manager</source>
         <translation>Generisk håndtering</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
     <message>
         <source>Override %1:</source>
         <translation>Tilsidesæt %1:</translation>
@@ -15472,21 +15460,11 @@ Se også Google-test-indstillinger.</translation>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
         <translation>Make</translation>
     </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>Tilsidesæt %1:</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Importér eksisterende projekt</translation>
@@ -15494,13 +15472,6 @@ Se også Google-test-indstillinger.</translation>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use %1 as a code editor.</source>
         <translation>Importerer eksisterende projekter som ikke bruger qmake, CMake eller Autotools. Dette giver dig mulighed for at bruge %1 som en koderedigering.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Importér eksisterende projekt</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -40618,7 +40589,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericProjectPluginPrivate</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Edit Files...</source>
         <translation>Rediger filer...</translation>

@@ -6045,14 +6045,11 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation type="obsolete">&lt;nový&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Název nastavení:</translation>
@@ -6077,9 +6074,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>Generic Manager</source>
         <translation>Obecný správce</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -6093,9 +6087,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="obsolete">&lt;b&gt;Příkaz Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation type="obsolete">Zavedení projektu založeného na &apos;Makefile&apos;</translation>
@@ -6124,20 +6115,9 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
         <translation type="obsolete">Zavede stávající projekty, které nepoužívají qmake nebo CMake. Toto vám umožní používat Qt Creator jako editor kódu.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation type="obsolete">Zavedení projektu založeného na &apos;Makefile&apos;</translation>
-    </message>
     <message>
         <source>Generic Project</source>
         <translation type="obsolete">Obecný projekt</translation>
-    </message>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Importovat stávající projekt</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -17483,7 +17463,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Vytvořit</translation>
@@ -22844,7 +22824,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -22858,10 +22838,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Přepsat %1:</translation>
-    </message>
-    <message>
         <source>Make arguments:</source>
         <translation>Argumenty příkazového řádku pro &apos;make&apos;:</translation>
     </message>
@@ -22869,9 +22845,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Targets:</source>
         <translation>Cíle:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
@@ -24098,7 +24071,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -32180,7 +32153,7 @@ Má se to zkusit ještě jednou?</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
@@ -32201,39 +32174,13 @@ Má se to zkusit ještě jednou?</translation>
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Upravit soubory...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>Upravit soubory</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>Skrýt soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation>Ukázat soubory, které odpovídají následujícímu vzoru pro hledání:</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>Použít filtr</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>Vytváří se seznam souborů...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.

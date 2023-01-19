@@ -6615,14 +6615,11 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation type="obsolete">&lt;nouveau&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Créer</translation>
@@ -6652,9 +6649,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>New Configuration Name:</source>
         <translation type="obsolete">Nom de la nouvelle configuration :</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Nom de la configuration :</translation>
@@ -6679,9 +6673,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Generic Manager</source>
         <translation>Gestionnaire générique</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -6695,9 +6686,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="obsolete">&lt;b&gt;Make : &lt;/b&gt;%1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation type="obsolete">Importer un projet basé sur un Makefile</translation>
@@ -6726,20 +6714,9 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
         <translation type="obsolete">Importer un projet existant n&apos;utilisant pas qmake ni CMake. Ceci vous permet d&apos;utiliser Qt Creator comme éditeur de code.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation type="obsolete">Importer un projet basé sur un Makefile</translation>
-    </message>
     <message>
         <source>Generic Project</source>
         <translation type="obsolete">Projet générique</translation>
-    </message>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Importation d&apos;un projet existant</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -21947,7 +21924,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -21961,10 +21938,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <translation>La configuration est défectueuse, veuillez vérifier la vue des problèmes pour les détails.</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Écraser %1 :</translation>
-    </message>
-    <message>
         <source>Make arguments:</source>
         <translation>Arguments de Make :</translation>
     </message>
@@ -21972,9 +21945,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Targets:</source>
         <translation>Cibles :</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&quot; : projet déjà ouvert</translation>
@@ -23170,7 +23140,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -34460,7 +34430,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Cacher les fichiers correspondant à : </translation>
@@ -34474,38 +34444,12 @@ Would you like to overwrite them?</source>
         <translation>Appliquer le filtre</translation>
     </message>
     <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>Génération de la liste de fichiers... 
-
-%1</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
-    <message>
         <source>Edit Files...</source>
         <translation>Éditer les fichiers... </translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>Éditer les fichiers</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>Cacher les fichiers correspondant à : </translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation>Afficher les fichiers correspondants :</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>Appliquer un filtre</translation>
     </message>
     <message>
         <source>Generating file list...

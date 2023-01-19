@@ -8180,7 +8180,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -8190,9 +8190,6 @@ will also disable the following plugins:
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation>Файли</translation>
@@ -8217,9 +8214,6 @@ will also disable the following plugins:
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -8237,9 +8231,6 @@ will also disable the following plugins:
         <source>New configuration name:</source>
         <translation type="vanished">Назва нової конфігурації:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Тека збірки:</translation>
@@ -8248,9 +8239,6 @@ will also disable the following plugins:
         <source>Generic Manager</source>
         <translation>Загальний менеджер</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -8275,32 +8263,15 @@ will also disable the following plugins:
         <source>Targets:</source>
         <translation>Цілі:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
         <translation>Make</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Перевизначити %1:</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
-    <message>
         <source>Edit Files...</source>
         <translation>Редагувати файли...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Імпортувати існуючий проект</translation>
@@ -8308,13 +8279,6 @@ will also disable the following plugins:
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use Qt Creator as a code editor.</source>
         <translation>Імпортує існуючі проекти, що не використовують qmake, CMake або Autotools. Це дозволяє використовувати Qt Creator як редактор коду.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Імпортувати існуючий проект</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -8333,16 +8297,9 @@ will also disable the following plugins:
         <translation type="vanished">Розташування</translation>
     </message>
     <message>
-        <source>Files</source>
-        <translation type="vanished">Файли</translation>
-    </message>
-    <message>
         <source>File Selection</source>
         <translation>Вибір файлу</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
@@ -8351,32 +8308,9 @@ will also disable the following plugins:
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation type="vanished">Редагувати файли</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation type="vanished">Приховати файли, що відповідають:</translation>
-    </message>
-    <message>
-        <source>Show files matching:</source>
-        <translation type="vanished">Показати файли, що відповідають:</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation type="vanished">Застосувати фільтр</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation type="vanished">Генерування списку файлів...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.

@@ -5340,7 +5340,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -5350,9 +5350,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <source>Override %1:</source>
         <translation>Nadpisz %1:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
@@ -5362,9 +5359,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <source>Build</source>
         <translation>Wersja</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog budowania wersji:</translation>
@@ -5373,9 +5367,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
         <source>Generic Manager</source>
         <translation>Ogólne zarządzanie</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Import istniejącego projektu</translation>
@@ -5395,13 +5386,6 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     <message>
         <source>File Selection</source>
         <translation>Wybór pliku</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Import istniejącego projektu</translation>
     </message>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use Qt Creator as a code editor.</source>
@@ -10715,14 +10699,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>Nadpisz %1:</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -11357,7 +11337,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -17369,14 +17349,11 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Pliki</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Zmodyfikuj pliki...</translation>

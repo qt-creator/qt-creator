@@ -19300,28 +19300,19 @@ See also Google Test settings.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Файлы</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfiguration</name>
     <message>
         <source>Generic Manager</source>
         <translation>Управление универсальным проектом</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProject</name>
     <message>
         <source>Project files list update failed.</source>
         <translation>Не удалось обновить список файлов проекта.</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Изменить файлы...</translation>
@@ -19330,9 +19321,6 @@ See also Google Test settings.</source>
         <source>Remove Directory</source>
         <translation>Внешний каталог</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Импорт существующего проекта</translation>
@@ -19340,13 +19328,6 @@ See also Google Test settings.</source>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use %1 as a code editor.</source>
         <translation>Импорт существующего проекта, не использующего qmake, CMake или Autotools. Это позволяет использовать %1 в качестве редактора кода.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Импорт существующего проекта</translation>
     </message>
     <message>
         <source>Project Name and Location</source>

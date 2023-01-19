@@ -6864,7 +6864,7 @@ Grund: %3</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Import eines existierenden Projekts</translation>
@@ -6872,13 +6872,6 @@ Grund: %3</translation>
     <message>
         <source>Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. This allows you to use %1 as a code editor.</source>
         <translation>Importiert bereits existierende Projekte, die weder qmake, CMake, Qbs, Meson oder Autotools verwenden. Dadurch kann %1 als Code-Editor benutzt werden.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Import eines existierenden Projekts</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -20650,7 +20643,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Dateien</translation>
@@ -42200,7 +42193,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Edit Files...</source>
         <translation>Dateien bearbeiten...</translation>
@@ -44980,7 +44973,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfiguration</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Generic Manager</source>
         <translation>Generische Verwaltung</translation>
@@ -52603,7 +52596,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Project files list update failed.</source>
         <translation type="unfinished"></translation>

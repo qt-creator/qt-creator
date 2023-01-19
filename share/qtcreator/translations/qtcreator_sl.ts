@@ -4855,7 +4855,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
@@ -4876,9 +4876,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>New Configuration Name:</source>
         <translation type="obsolete">Ime nove nastavitve:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Mapa za gradnjo:</translation>
@@ -4903,9 +4900,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Tool Chain:</source>
         <translation type="obsolete">Zaporedje orodij:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -4919,9 +4913,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="obsolete">&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Uvozi obstoječ projekt</translation>
@@ -4929,13 +4920,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     <message>
         <source>Imports existing projects that do not use qmake or CMake. This allows you to use Qt Creator as a code editor.</source>
         <translation>Uvozi obstoječe projekte, ki ne uporabljajo qmake ali CMake. To vam omogoča, da Qt Creator uporabljate kot urejevalnik izvorne kode.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>Uvozi obstoječ projekt</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -15219,14 +15203,11 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>Odpiranje projekta »%1« ni uspelo: projekt je že odprt</translation>
@@ -15929,7 +15910,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -23248,7 +23229,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>Skrij datoteke, ki se ujemajo z:</translation>
@@ -23265,35 +23246,13 @@ Ali želite poskusiti znova?</translation>
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>Urejanje datotek ...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>Urejanje datotek</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>Skrij datoteke, ki se ujemajo z:</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>Uporabi filter</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>Ustvarjanje seznama datotek ...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.

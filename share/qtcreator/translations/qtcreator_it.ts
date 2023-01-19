@@ -4913,14 +4913,11 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;nuovo&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="unfinished"></translation>
@@ -4933,9 +4930,6 @@ Causa: %3</translation>
         <source>New Configuration Name:</source>
         <translation type="unfinished">Nome della Nuova Configurazione:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Cartella di compilazione:</translation>
@@ -4952,9 +4946,6 @@ Causa: %3</translation>
         <source>Generic Manager</source>
         <translation>Manager Generico</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Ridefinisci %1:</translation>
@@ -4963,9 +4954,6 @@ Causa: %3</translation>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Importazione di un Progetto basato su Makefile</translation>
@@ -4981,13 +4969,6 @@ Causa: %3</translation>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>Non è possibile aprire il progetto %1.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation>Importazione di un Progetto basato su Makefile</translation>
     </message>
     <message>
         <source>Generic Project</source>

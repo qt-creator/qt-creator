@@ -6788,14 +6788,11 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GenericProject</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>&lt;new&gt;</source>
         <translation>&lt;új&gt;</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::0</name>
     <message>
         <source>Build directory:</source>
         <translation type="obsolete">Építése könyvtár:</translation>
@@ -6844,9 +6841,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Second Page Title</source>
         <translation type="obsolete">Második oldal címe</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation>Létrehoz</translation>
@@ -6859,9 +6853,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Építési könyvtár:</translation>
@@ -6874,9 +6865,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>Generic Manager</source>
         <translation>Általános Menedzser</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 megsemmisítése:</translation>
@@ -6885,9 +6873,6 @@ on slow machines. In this case, the value should be increased.</source>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import of Makefile-based Project</source>
         <translation>Makefile alapú Projekt importálása</translation>
@@ -6903,13 +6888,6 @@ on slow machines. In this case, the value should be increased.</source>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation>%1 Projektet nem sikerült megnyitni.</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import of Makefile-based Project</source>
-        <translation>Makefile alapú Projekt importálása</translation>
     </message>
     <message>
         <source>Generic Project</source>

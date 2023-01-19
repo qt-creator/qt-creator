@@ -4646,7 +4646,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -4659,9 +4659,6 @@ Reason: %3</source>
         <source>New configuration name:</source>
         <translation>新設置名稱：</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>建置目錄：</translation>
@@ -4678,9 +4675,6 @@ Reason: %3</source>
         <source>Generic Manager</source>
         <translation>一般管理器</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericMakeStepConfigWidget</name>
     <message>
         <source>Make</source>
         <comment>GenericMakestep display name.</comment>
@@ -4690,9 +4684,6 @@ Reason: %3</source>
         <source>Override %1:</source>
         <translation>覆蓋 %1：</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizard</name>
     <message>
         <source>Import Existing Project</source>
         <translation>匯入現有專案</translation>
@@ -4700,13 +4691,6 @@ Reason: %3</source>
     <message>
         <source>Imports existing projects that do not use qmake, CMake or Autotools. This allows you to use Qt Creator as a code editor.</source>
         <translation>匯入現有不使用 qmake、CMake 或 Autotools 的專案。這能讓您使用 Qt Creator 做為源碼編輯器。</translation>
-    </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectWizardDialog</name>
-    <message>
-        <source>Import Existing Project</source>
-        <translation>匯入現有專案</translation>
     </message>
     <message>
         <source>Project Name and Location</source>
@@ -12632,7 +12616,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::GenericMakeStep</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -12644,10 +12628,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>覆蓋 %1：</translation>
     </message>
     <message>
         <source>Make arguments:</source>
@@ -13078,7 +13058,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::GenericTarget</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Generic desktop target display name</comment>
@@ -14277,7 +14257,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::Manager</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已經被開啟</translation>
@@ -21370,7 +21350,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>GenericProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>::GenericProjectManager</name>
     <message>
         <source>Hide files matching:</source>
         <translation>隱藏符合條件的檔案：</translation>
@@ -21387,35 +21367,13 @@ Would you like to overwrite them?</source>
 
 %1</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::GenericProjectPlugin</name>
     <message>
         <source>Edit Files...</source>
         <translation>編輯檔案...</translation>
     </message>
-</context>
-<context>
-    <name>GenericProjectManager::Internal::SelectableFilesDialog</name>
     <message>
         <source>Edit Files</source>
         <translation>編輯檔案</translation>
-    </message>
-    <message>
-        <source>Hide files matching:</source>
-        <translation>隱藏符合條件的檔案：</translation>
-    </message>
-    <message>
-        <source>Apply Filter</source>
-        <translation>套用過濾器</translation>
-    </message>
-    <message>
-        <source>Generating file list...
-
-%1</source>
-        <translation>產生檔案列表中...
-
-%1</translation>
     </message>
     <message numerus="yes">
         <source>Not showing %n files that are outside of the base directory.
