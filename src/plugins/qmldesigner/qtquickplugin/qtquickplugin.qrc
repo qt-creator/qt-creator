@@ -101,5 +101,8 @@
         <file>images/timer-16px.png</file>
         <file>images/timer-24px.png</file>
         <file>images/timer-24px@2x.png</file>
+        <file>images/default3d.png</file>
+        <file>images/default3d@2x.png</file>
+        <file>images/default3d16.png</file>
     </qresource>
 </RCC>

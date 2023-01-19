@@ -1,0 +1,16 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
+
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import HelperWidgets 2.0
+
+Column {
+    width: parent.width
+
+    // AudioListener doesn't have any properties itself, just ones inherited from Node
+
+    NodeSection {
+        width: parent.width
+    }
+}
