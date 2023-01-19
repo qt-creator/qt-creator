@@ -491,7 +491,7 @@ void SourcePathMapAspect::toMap(QVariantMap &) const
     QTC_CHECK(false);
 }
 
-void SourcePathMapAspect::addToLayout(LayoutBuilder &builder)
+void SourcePathMapAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();

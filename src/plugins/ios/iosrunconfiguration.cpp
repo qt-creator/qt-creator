@@ -324,7 +324,7 @@ IosDeviceTypeAspect::IosDeviceTypeAspect(IosRunConfiguration *runConfiguration)
             this, &IosDeviceTypeAspect::deviceChanges);
 }
 
-void IosDeviceTypeAspect::addToLayout(LayoutBuilder &builder)
+void IosDeviceTypeAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     m_deviceTypeComboBox = new QComboBox;
     m_deviceTypeComboBox->setModel(&m_deviceTypeModel);

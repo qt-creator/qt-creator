@@ -73,7 +73,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
     addDataExtractor(this, &WebBrowserSelectionAspect::currentBrowser, &Data::currentBrowser);
 }
 
-void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)
+void WebBrowserSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!m_webBrowserComboBox);
     m_webBrowserComboBox = new QComboBox;

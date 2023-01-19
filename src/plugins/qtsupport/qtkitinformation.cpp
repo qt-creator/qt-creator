@@ -60,7 +60,7 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayout(LayoutBuilder &builder)
+    void addToLayout(Layouting::LayoutBuilder &builder)
     {
         addMutableAction(m_combo);
         builder.addItem(m_combo);

@@ -42,7 +42,7 @@ public:
         QString currentFile;
     };
 
-    void addToLayout(Utils::LayoutBuilder &builder) final;
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) final;
     void toMap(QVariantMap &map) const final;
     void fromMap(const QVariantMap &map) final;
 

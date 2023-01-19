@@ -110,7 +110,7 @@ void CommandBuilderAspectPrivate::tryToMigrate()
     }
 }
 
-void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
+void CommandBuilderAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (!d->commandBuilder) {
         d->commandBuilder = new QComboBox;

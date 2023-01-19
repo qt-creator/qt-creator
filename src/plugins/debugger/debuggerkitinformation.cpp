@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    void addToLayout(Utils::LayoutBuilder &builder) override
+    void addToLayout(Utils::Layouting::LayoutBuilder &builder) override
     {
         addMutableAction(m_comboBox);
         builder.addItem(m_comboBox);

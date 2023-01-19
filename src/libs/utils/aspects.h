@@ -23,7 +23,7 @@ namespace Utils {
 
 class AspectContainer;
 class BoolAspect;
-class LayoutBuilder;
+namespace Layouting { class LayoutBuilder; }
 
 namespace Internal {
 class AspectContainerPrivate;
@@ -96,7 +96,7 @@ public:
     virtual void toMap(QVariantMap &map) const;
     virtual void toActiveMap(QVariantMap &map) const { toMap(map); }
 
-    virtual void addToLayout(LayoutBuilder &builder);
+    virtual void addToLayout(Layouting::LayoutBuilder &builder);
 
     virtual QVariant volatileValue() const;
     virtual void setVolatileValue(const QVariant &val);
@@ -167,7 +167,7 @@ signals:
 protected:
     QLabel *label() const;
     void setupLabel();
-    void addLabeledItem(LayoutBuilder &builder, QWidget *widget);
+    void addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widget);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
     void setDataClonerHelper(const DataCloner &cloner) const;
@@ -216,7 +216,7 @@ public:
         bool value;
     };
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QAction *action() override;
 
@@ -251,7 +251,7 @@ public:
     SelectionAspect();
     ~SelectionAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
     void finish() override;
@@ -305,7 +305,7 @@ public:
     MultiSelectionAspect();
     ~MultiSelectionAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     enum class DisplayStyle { ListView };
     void setDisplayStyle(DisplayStyle style);
@@ -334,7 +334,7 @@ public:
         FilePath filePath;
     };
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -412,7 +412,7 @@ public:
     IntegerAspect();
     ~IntegerAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -449,7 +449,7 @@ public:
     DoubleAspect();
     ~DoubleAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QVariant volatileValue() const override;
     void setVolatileValue(const QVariant &val) override;
@@ -517,7 +517,7 @@ public:
     StringListAspect();
     ~StringListAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     QStringList value() const;
     void setValue(const QStringList &val);
@@ -539,7 +539,7 @@ public:
     IntegersAspect();
     ~IntegersAspect() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
     void emitChangedValue() override;
 
     QList<int> value() const;
@@ -561,7 +561,7 @@ public:
                 InfoLabel::InfoType type = InfoLabel::None);
     ~TextDisplay() override;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     void setIconType(InfoLabel::InfoType t);
     void setText(const QString &message);

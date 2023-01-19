@@ -21,7 +21,7 @@ public:
 
     void makeReadOnly() override {}
     void refresh() override {}
-    void addToLayout(Utils::LayoutBuilder &) override {}
+    void addToLayout(Utils::Layouting::LayoutBuilder &) override {}
 };
 
 } // anonymous namespace

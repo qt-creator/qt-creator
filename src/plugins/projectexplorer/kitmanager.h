@@ -24,7 +24,6 @@ QT_END_NAMESPACE
 namespace Utils {
 class Environment;
 class FilePath;
-class LayoutBuilder;
 class MacroExpander;
 class OutputLineParser;
 } // namespace Utils

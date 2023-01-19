@@ -108,7 +108,7 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(LayoutBuilder &builder)
+void BuildDirectoryAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     StringAspect::addToLayout(builder);
     d->problemLabel = new InfoLabel({}, InfoLabel::Warning);

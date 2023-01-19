@@ -28,6 +28,8 @@
 #include <QSpinBox>
 #include <QTextEdit>
 
+using namespace Utils::Layouting;
+
 namespace Utils {
 namespace Internal {
 
@@ -206,17 +208,17 @@ void BaseAspect::setupLabel()
     registerSubWidget(d->m_label);
 }
 
-void BaseAspect::addLabeledItem(LayoutBuilder &builder, QWidget *widget)
+void BaseAspect::addLabeledItem(Layouting::LayoutBuilder &builder, QWidget *widget)
 {
     setupLabel();
     if (QLabel *l = label()) {
         l->setBuddy(widget);
         builder.addItem(l);
-        LayoutBuilder::LayoutItem item(widget);
+        LayoutItem item(widget);
         item.span = std::max(d->m_spanX - 1, 1);
         builder.addItem(item);
     } else {
-        builder.addItem(LayoutBuilder::LayoutItem(widget));
+        builder.addItem(LayoutItem(widget));
     }
 }
 
@@ -417,7 +419,7 @@ QAction *BaseAspect::action()
     Adds the visual representation of this aspect to a layout using
     a layout builder.
 */
-void BaseAspect::addToLayout(LayoutBuilder &)
+void BaseAspect::addToLayout(Layouting::LayoutBuilder &)
 {
 }
 
@@ -1042,7 +1044,7 @@ void StringAspect::setUncheckedSemantics(StringAspect::UncheckedSemantics semant
     d->m_uncheckedSemantics = semantics;
 }
 
-void StringAspect::addToLayout(LayoutBuilder &builder)
+void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     if (d->m_checker && d->m_checkBoxPlacement == CheckBoxPlacement::Top) {
         d->m_checker->addToLayout(builder);
@@ -1312,7 +1314,7 @@ BoolAspect::~BoolAspect() = default;
 /*!
     \reimp
 */
-void BoolAspect::addToLayout(LayoutBuilder &builder)
+void BoolAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_checkBox);
     d->m_checkBox = createSubWidget<QCheckBox>();
@@ -1323,7 +1325,7 @@ void BoolAspect::addToLayout(LayoutBuilder &builder)
         break;
     case LabelPlacement::AtCheckBox: {
         d->m_checkBox->setText(labelText());
-        LayoutBuilder::LayoutType type = builder.layoutType();
+        Layouting::LayoutBuilder::LayoutType type = builder.layoutType();
         if (type == LayoutBuilder::FormLayout)
             builder.addItem(createSubWidget<QLabel>());
         builder.addItem(d->m_checkBox.data());
@@ -1465,7 +1467,7 @@ SelectionAspect::~SelectionAspect() = default;
 /*!
     \reimp
 */
-void SelectionAspect::addToLayout(LayoutBuilder &builder)
+void SelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
@@ -1669,7 +1671,7 @@ MultiSelectionAspect::~MultiSelectionAspect() = default;
 /*!
     \reimp
 */
-void MultiSelectionAspect::addToLayout(LayoutBuilder &builder)
+void MultiSelectionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(d->m_listView == nullptr);
     if (d->m_allValues.isEmpty())
@@ -1778,7 +1780,7 @@ IntegerAspect::~IntegerAspect() = default;
 /*!
     \reimp
 */
-void IntegerAspect::addToLayout(LayoutBuilder &builder)
+void IntegerAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QSpinBox>();
@@ -1912,7 +1914,7 @@ DoubleAspect::~DoubleAspect() = default;
 /*!
     \reimp
 */
-void DoubleAspect::addToLayout(LayoutBuilder &builder)
+void DoubleAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->m_spinBox);
     d->m_spinBox = createSubWidget<QDoubleSpinBox>();
@@ -2066,7 +2068,7 @@ StringListAspect::~StringListAspect() = default;
 /*!
     \reimp
 */
-void StringListAspect::addToLayout(LayoutBuilder &builder)
+void StringListAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.
@@ -2136,7 +2138,7 @@ IntegersAspect::~IntegersAspect() = default;
 /*!
     \reimp
 */
-void IntegersAspect::addToLayout(LayoutBuilder &builder)
+void IntegersAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     Q_UNUSED(builder)
     // TODO - when needed.

@@ -128,7 +128,7 @@ void SuppressionAspect::setValue(const FilePaths &val)
     BaseAspect::setValue(Utils::transform<QStringList>(val, &FilePath::toString));
 }
 
-void SuppressionAspect::addToLayout(LayoutBuilder &builder)
+void SuppressionAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);

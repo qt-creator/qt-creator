@@ -573,7 +573,7 @@ public:
 
         delete layout();
 
-        LayoutBuilder builder(LayoutBuilder::GridLayout);
+        Layouting::LayoutBuilder builder(Layouting::LayoutBuilder::GridLayout);
         for (KitAspect *aspect : KitManager::kitAspects()) {
             if (k && k->isMutable(aspect->id())) {
                 KitAspectWidget *widget = aspect->createConfigWidget(k);

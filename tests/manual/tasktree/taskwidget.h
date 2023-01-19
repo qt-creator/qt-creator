@@ -79,5 +79,5 @@ private:
 class TaskGroup : public Utils::Layouting::Row
 {
 public:
-    TaskGroup(QWidget *group, std::initializer_list<Utils::LayoutBuilder::LayoutItem> items);
+    TaskGroup(QWidget *group, std::initializer_list<Utils::Layouting::LayoutItem> items);
 };

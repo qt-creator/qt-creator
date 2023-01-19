@@ -30,7 +30,7 @@ QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging.value());
 }
 
-void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
+void QmlDebuggingAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);
@@ -67,7 +67,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler.value());
 }
 
-void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
+void QtQuickCompilerAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     SelectionAspect::addToLayout(builder);
     const auto warningLabel = createSubWidget<InfoLabel>(QString(), InfoLabel::Warning);

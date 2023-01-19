@@ -46,7 +46,7 @@ class DebuggerLanguageAspect : public BaseAspect
 public:
     DebuggerLanguageAspect() = default;
 
-    void addToLayout(LayoutBuilder &builder) override;
+    void addToLayout(Layouting::LayoutBuilder &builder) override;
 
     bool value() const;
     void setValue(bool val);
@@ -75,7 +75,7 @@ public:
     std::function<void(bool)> m_clickCallBack;
 };
 
-void DebuggerLanguageAspect::addToLayout(LayoutBuilder &builder)
+void DebuggerLanguageAspect::addToLayout(Layouting::LayoutBuilder &builder)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = new QCheckBox(m_label);
