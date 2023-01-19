@@ -448,7 +448,7 @@ extend_qtc_plugin(QmlDesigner
     qmldesignerplugin.cpp qmldesignerplugin.h
     qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
     qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
-    settingspage.cpp settingspage.h settingspage.ui
+    settingspage.cpp settingspage.h
     shortcutmanager.cpp shortcutmanager.h
     designermcumanager.cpp designermcumanager.h
     richtexteditordialog.cpp richtexteditordialog.h
