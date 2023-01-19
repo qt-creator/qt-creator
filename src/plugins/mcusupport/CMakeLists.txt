@@ -22,6 +22,7 @@ add_qtc_plugin(McuSupport
     mcutargetdescription.h
     mcuhelpers.cpp mcuhelpers.h
     settingshandler.cpp settingshandler.h
+    mcuqmlprojectnode.cpp mcuqmlprojectnode.h
 )
 
 add_subdirectory(test)

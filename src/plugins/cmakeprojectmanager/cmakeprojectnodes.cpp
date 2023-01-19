@@ -108,6 +108,9 @@ QVariant CMakeTargetNode::data(Id role) const
         return {};
     };
 
+    if (role == Constants::BUILD_FOLDER_ROLE)
+        return m_buildDirectory.toVariant();
+
     if (role == Android::Constants::AndroidAbi)
         return value(Android::Constants::ANDROID_ABI);
 

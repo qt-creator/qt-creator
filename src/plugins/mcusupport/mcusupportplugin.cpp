@@ -5,6 +5,7 @@
 
 #include "mcukitinformation.h"
 #include "mcukitmanager.h"
+#include "mcuqmlprojectnode.h"
 #include "mcusupportconstants.h"
 #include "mcusupportdevice.h"
 #include "mcusupportoptions.h"
@@ -24,8 +25,15 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
+#include <cmakeprojectmanager/cmakeprojectconstants.h>
+
+#include <utils/filepath.h>
 #include <utils/infobar.h>
 
 #include <QTimer>
@@ -48,6 +56,42 @@ void printMessage(const QString &message, bool important)
     else
         Core::MessageManager::writeSilently(displayMessage);
 }
+
+void updateMCUProjectTree(ProjectExplorer::Project *p)
+{
+    if (!p || !p->rootProjectNode())
+        return;
+    ProjectExplorer::Target *target = p->activeTarget();
+    if (!target || !target->kit()
+        || !target->kit()->hasValue(Constants::KIT_MCUTARGET_KITVERSION_KEY))
+        return;
+
+    p->rootProjectNode()->forEachProjectNode([](const ProjectNode *node) {
+        if (!node)
+            return;
+
+        const FilePath projectBuildFolder = FilePath::fromVariant(
+            node->data(CMakeProjectManager::Constants::BUILD_FOLDER_ROLE));
+        const QString targetName = node->displayName();
+        if (targetName.isEmpty())
+            return;
+
+        const FilePath inputsJsonFile = projectBuildFolder / "CMakeFiles" / (targetName + ".dir")
+                                        / "config/input.json";
+
+        printMessage("found Input json file " + inputsJsonFile.absoluteFilePath().toString(), true);
+
+        if (!inputsJsonFile.exists())
+            return;
+
+        auto qmlProjectNode = std::make_unique<McuQmlProjectNode>(FilePath(node->filePath()),
+                                                                  inputsJsonFile);
+
+        auto qmlProjectNodePtr = qmlProjectNode.get();
+        const_cast<ProjectNode *>(node)->addNode(std::move(qmlProjectNode));
+        ProjectExplorer::ProjectTree::emitSubtreeChanged(qmlProjectNodePtr);
+    });
+};
 
 class McuSupportPluginPrivate
 {
@@ -73,6 +117,10 @@ void McuSupportPlugin::initialize()
 {
     setObjectName("McuSupportPlugin");
     dd = new McuSupportPluginPrivate;
+
+    connect(SessionManager::instance(),
+            &SessionManager::projectFinishedParsing,
+            updateMCUProjectTree);
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();

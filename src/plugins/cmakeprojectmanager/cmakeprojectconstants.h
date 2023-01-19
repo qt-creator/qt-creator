@@ -62,6 +62,8 @@ const char CMAKE_FEATURE_ID[] = "CMakeProjectManager.Wizard.FeatureCMake";
 // Tool
 const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
+// Data
+const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
 
 } // namespace Constants
 } // namespace CMakeProjectManager
