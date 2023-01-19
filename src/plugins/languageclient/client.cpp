@@ -14,6 +14,7 @@
 #include "languageclientquickfix.h"
 #include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
+#include "languageclienttr.h"
 #include "progressmanager.h"
 #include "semantichighlightsupport.h"
 
@@ -350,7 +351,7 @@ void Client::setName(const QString &name)
 QString Client::name() const
 {
     if (d->m_project && !d->m_project->displayName().isEmpty())
-        return tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
+        return Tr::tr("%1 for %2").arg(d->m_displayName, d->m_project->displayName());
     return d->m_displayName;
 }
 
@@ -547,12 +548,12 @@ Client::State Client::state() const
 QString Client::stateString() const
 {
     switch (d->m_state){
-    case Uninitialized: return tr("uninitialized");
-    case InitializeRequested: return tr("initialize requested");
-    case Initialized: return tr("initialized");
-    case ShutdownRequested: return tr("shutdown requested");
-    case Shutdown: return tr("shutdown");
-    case Error: return tr("error");
+    case Uninitialized: return Tr::tr("uninitialized");
+    case InitializeRequested: return Tr::tr("initialize requested");
+    case Initialized: return Tr::tr("initialized");
+    case ShutdownRequested: return Tr::tr("shutdown requested");
+    case Shutdown: return Tr::tr("shutdown");
+    case Error: return Tr::tr("error");
     }
     return {};
 }
@@ -1754,7 +1755,7 @@ static ResponseError<T> createInvalidParamsError(const QString &message)
 void ClientPrivate::handleMethod(const QString &method, const MessageId &id, const JsonRpcMessage &message)
 {
     auto invalidParamsErrorMessage = [&](const JsonObject &params) {
-        return tr("Invalid parameter in \"%1\":\n%2")
+        return Tr::tr("Invalid parameter in \"%1\":\n%2")
             .arg(method, QString::fromUtf8(QJsonDocument(params).toJson(QJsonDocument::Indented)));
     };
 
@@ -1946,7 +1947,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {
-                const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
+                const QString title(Tr::tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
                 auto result = QMessageBox::warning(Core::ICore::dialogParent(),
                                                    title,
                                                    error->message(),
@@ -1959,20 +1960,20 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
                 }
             }
         }
-        q->setError(tr("Initialize error: ") + error->message());
+        q->setError(Tr::tr("Initialize error: ") + error->message());
         emit q->finished();
         return;
     }
     if (const std::optional<InitializeResult> &result = initResponse.result()) {
         if (!result->isValid()) { // continue on ill formed result
             q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                + tr("Initialize result is invalid."));
+                + Tr::tr("Initialize result is invalid."));
         }
         const std::optional<ServerInfo> serverInfo = result->serverInfo();
         if (serverInfo) {
             if (!serverInfo->isValid()) {
                 q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
-                    + tr("Server Info is invalid."));
+                    + Tr::tr("Server Info is invalid."));
             } else {
                 m_serverName = serverInfo->name();
                 if (const std::optional<QString> version = serverInfo->version())
@@ -1982,7 +1983,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
 
         m_serverCapabilities = result->capabilities();
     } else {
-        q->log(tr("No initialize result."));
+        q->log(Tr::tr("No initialize result."));
     }
 
     if (auto completionProvider = qobject_cast<LanguageClientCompletionAssistProvider *>(

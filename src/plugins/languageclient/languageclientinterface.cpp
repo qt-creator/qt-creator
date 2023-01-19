@@ -3,6 +3,8 @@
 
 #include "languageclientinterface.h"
 
+#include "languageclienttr.h"
+
 #include <QLoggingCategory>
 
 using namespace LanguageServerProtocol;
@@ -69,7 +71,7 @@ void BaseClientInterface::parseCurrentMessage()
     if (m_currentMessage.mimeType == JsonRpcMessage::jsonRpcMimeType()) {
         emit messageReceived(JsonRpcMessage(m_currentMessage));
     } else {
-        emit error(tr("Cannot handle MIME type of message %1")
+        emit error(Tr::tr("Cannot handle MIME type of message %1")
                        .arg(QString::fromUtf8(m_currentMessage.mimeType)));
     }
     m_currentMessage = BaseMessage();
@@ -93,7 +95,7 @@ void StdIOClientInterface::startImpl()
         QTC_CHECK(!m_process->isRunning());
         delete m_process;
     }
-    m_process = new Utils::QtcProcess;
+    m_process = new QtcProcess;
     m_process->setProcessMode(ProcessMode::Writer);
     connect(m_process, &QtcProcess::readyReadStandardError,
             this, &StdIOClientInterface::readError);
@@ -126,12 +128,12 @@ void StdIOClientInterface::setWorkingDirectory(const FilePath &workingDirectory)
     m_workingDirectory = workingDirectory;
 }
 
-void StdIOClientInterface::setEnvironment(const Utils::Environment &environment)
+void StdIOClientInterface::setEnvironment(const Environment &environment)
 {
     m_env = environment;
 }
 
-Utils::FilePath StdIOClientInterface::serverDeviceTemplate() const
+FilePath StdIOClientInterface::serverDeviceTemplate() const
 {
     return m_cmd.executable();
 }
@@ -139,7 +141,7 @@ Utils::FilePath StdIOClientInterface::serverDeviceTemplate() const
 void StdIOClientInterface::sendData(const QByteArray &data)
 {
     if (!m_process || m_process->state() != QProcess::Running) {
-        emit error(tr("Cannot send data to unstarted server %1")
+        emit error(Tr::tr("Cannot send data to unstarted server %1")
             .arg(m_cmd.toUserOutput()));
         return;
     }

@@ -22519,7 +22519,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>HoverHandler</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Got unsupported markup hover content: </source>
         <translation>Получен неподдерживаемый форматированный текст под курсором: </translation>
@@ -23822,9 +23822,6 @@ Error: %5</translation>
         <source>Functions and Methods in Workspace</source>
         <translation>Функции и методы сессии</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettings</name>
     <message>
         <source>Always On</source>
         <translation>Всегда включено</translation>
@@ -23837,9 +23834,6 @@ Error: %5</translation>
         <source>Start Server per Project</source>
         <translation>Запускать сервер на каждый проект</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name</source>
         <translation>Имя</translation>
@@ -23892,9 +23886,6 @@ Error: %5</translation>
         <source>Language server-specific JSON to pass via &quot;initializationOptions&quot; field of &quot;initialize&quot; request.</source>
         <translation>Специфичный для языкового сервера JSON, передаваемый в поле «initializationOptions» запроса «initialize».</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::Client</name>
     <message>
         <source>Cannot handle content of type: %1</source>
         <translation>Нельзя обработать содержимое типа %1</translation>
@@ -23919,9 +23910,6 @@ Error: %5</translation>
         <source>Initialize result is not valid: </source>
         <translation>Результат инициализации неверен: </translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientManager</name>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation>Неожиданное завершение. Перезапуск через %1 секунд.</translation>
@@ -23930,16 +23918,10 @@ Error: %5</translation>
         <source>Unexpectedly finished.</source>
         <translation>Неожиданное завершение.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::ResponseError</name>
     <message>
         <source>Error %1</source>
         <translation>Ошибка %1</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOClientInterface</name>
     <message>
         <source>Cannot send data to unstarted server %1</source>
         <translation>Нельзя отправить данные на незапущенный сервер %1</translation>
@@ -23948,9 +23930,6 @@ Error: %5</translation>
         <source>Crashed with exit code %1: %2</source>
         <translation>Аварийно завершился с кодом %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Программа:</translation>
@@ -23959,9 +23938,6 @@ Error: %5</translation>
         <source>Arguments:</source>
         <translation>Параметры:</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClientSettingsPage</name>
     <message>
         <source>&amp;Add</source>
         <translation>&amp;Добавить</translation>
@@ -25461,7 +25437,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>MimeTypeDialog</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Select MIME Types</source>
         <translation>Выбрать MIME-типы</translation>
@@ -43066,7 +43042,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SymbolSupport</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Find References with %1 for:</source>
         <translation>Найти ссылки с %1 для:</translation>

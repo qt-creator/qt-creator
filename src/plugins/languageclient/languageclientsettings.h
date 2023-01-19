@@ -131,7 +131,6 @@ struct ClientType {
 
 class LANGUAGECLIENT_EXPORT LanguageClientSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClientSettings)
 public:
     static void init();
     static QList<BaseSettings *> fromSettings(QSettings *settings);

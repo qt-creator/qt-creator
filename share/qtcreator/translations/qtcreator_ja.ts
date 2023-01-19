@@ -43737,7 +43737,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageClient::ResponseError</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Error %1</source>
         <translation>エラー: %1</translation>
@@ -46089,21 +46089,15 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <name>::Ios</name>
 </context>
 <context>
-    <name>LanguageClient::DiagnosticManager</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation type="unfinished">クリップボードにコピーする</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientPlugin</name>
     <message>
         <source>Generic StdIO Language Server</source>
         <translation>汎用 StdIO 言語サーバー</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClientSettingsPage</name>
     <message>
         <source>&amp;Add</source>
         <translation>追加(&amp;A)</translation>
@@ -46116,9 +46110,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>General</source>
         <translation>一般</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name</source>
         <translation type="vanished">名前</translation>
@@ -46135,16 +46126,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Language:</source>
         <translation>言語:</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeDialog</name>
     <message>
         <source>Filter</source>
         <translation>フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation>実行ファイル:</translation>
@@ -46153,9 +46138,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Arguments:</source>
         <translation>引数:</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LspInspector</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -46176,9 +46158,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Log File</source>
         <translation type="unfinished">ログファイル</translation>
     </message>
-</context>
-<context>
-    <name>LspCapabilitiesWidget</name>
     <message>
         <source>Capabilities:</source>
         <translation>ケイパビリティ:</translation>
@@ -46199,9 +46178,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Server Capabilities</source>
         <translation>サーバー ケイパビリティ</translation>
     </message>
-</context>
-<context>
-    <name>LspInspectorWidget</name>
     <message>
         <source>Language Client Inspector</source>
         <translation>言語クライアントインスペクター</translation>

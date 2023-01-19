@@ -25,7 +25,6 @@ class Client;
 
 class LANGUAGECLIENT_EXPORT SymbolSupport : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(SymbolSupport)
 public:
     explicit SymbolSupport(Client *client);
 

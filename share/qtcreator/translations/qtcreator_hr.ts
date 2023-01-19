@@ -10851,7 +10851,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageClient::ResponseError</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Error %1</source>
         <translation>Greška %1</translation>
@@ -25161,7 +25161,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient::Client</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Cannot handle content of type: %1</source>
         <translation>Nije moguće rukovati sadržajem vrste: %1</translation>
@@ -25186,16 +25186,10 @@ Rok upotrebe: %3</translation>
         <source>Initialize result is not valid: </source>
         <translation>Rezultat za inicijaliziranje nije ispravan: </translation>
     </message>
-</context>
-<context>
-    <name>::LanguageClient</name>
     <message>
         <source>Language Client</source>
         <translation>Klijent za jezike</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOClientInterface</name>
     <message>
         <source>Cannot send data to unstarted server %1</source>
         <translation type="unfinished"></translation>
@@ -25204,9 +25198,6 @@ Rok upotrebe: %3</translation>
         <source>Crashed with exit code %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientManager</name>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation type="unfinished"></translation>
@@ -25219,9 +25210,6 @@ Rok upotrebe: %3</translation>
         <source>Find References with %1 for:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClientSettingsPage</name>
     <message>
         <source>&amp;Add</source>
         <translation>Dod&amp;aj</translation>
@@ -25234,9 +25222,6 @@ Rok upotrebe: %3</translation>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name</source>
         <translation>Naziv</translation>
@@ -25273,9 +25258,6 @@ Rok upotrebe: %3</translation>
         <source>Capabilities:</source>
         <translation>Sposobnosti:</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeDialog</name>
     <message>
         <source>Select MIME Types</source>
         <translation>Odaberi MIME vrste</translation>
@@ -25284,9 +25266,6 @@ Rok upotrebe: %3</translation>
         <source>Filter</source>
         <translation>Filtar</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršna datoteka:</translation>

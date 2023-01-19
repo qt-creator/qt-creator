@@ -150,7 +150,7 @@ void updateCodeActionRefactoringMarker(Client *client,
         const QTextCursor cursor = endOfLineCursor(range.start().toTextCursor(doc->document()));
         const auto it = markersAtBlock.find(cursor.blockNumber());
         if (it != markersAtBlock.end()) {
-            it->tooltip = LanguageClientManager::tr("Show available quick fixes");
+            it->tooltip = Tr::tr("Show available quick fixes");
             it->callback = [cursor](TextEditorWidget *editor) {
                 editor->setTextCursor(cursor);
                 editor->invokeAssist(TextEditor::QuickFix);

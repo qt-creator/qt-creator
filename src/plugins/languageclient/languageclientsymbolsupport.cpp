@@ -6,6 +6,7 @@
 #include "client.h"
 #include "dynamiccapabilities.h"
 #include "languageclientutils.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -33,7 +34,7 @@ class ReplaceWidget : public QWidget
 public:
     ReplaceWidget()
     {
-        m_infoLabel.setText(tr("Search Again to update results and re-enable Replace"));
+        m_infoLabel.setText(Tr::tr("Search Again to update results and re-enable Replace"));
         m_infoLabel.setVisible(false);
         m_renameFilesCheckBox.setVisible(false);
         const auto layout = new QHBoxLayout(this);
@@ -54,12 +55,12 @@ public:
             m_renameFilesCheckBox.hide();
             return;
         }
-        m_renameFilesCheckBox.setText(tr("Re&name %n files", nullptr, filesToRename.size()));
+        m_renameFilesCheckBox.setText(Tr::tr("Re&name %n files", nullptr, filesToRename.size()));
         const auto filesForUser = Utils::transform<QStringList>(filesToRename,
                                                                 [](const Utils::FilePath &fp) {
                                                                     return fp.toUserOutput();
                                                                 });
-        m_renameFilesCheckBox.setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
+        m_renameFilesCheckBox.setToolTip(Tr::tr("Files:\n%1").arg(filesForUser.join('\n')));
         m_renameFilesCheckBox.setVisible(true);
     }
 
@@ -287,7 +288,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     }
     if (result) {
         Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
-            tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
+            Tr::tr("Find References with %1 for:").arg(m_client->name()), "", wordUnderCursor);
         search->addResults(generateSearchResultItems(*result, m_client->hostPathMapper()),
                            Core::SearchResult::AddOrdered);
         connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
@@ -373,7 +374,7 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
 
     bool prepareSupported;
     if (!LanguageClient::supportsRename(m_client, document, prepareSupported)) {
-        const QString error = tr("Renaming is not supported with %1").arg(m_client->name());
+        const QString error = Tr::tr("Renaming is not supported with %1").arg(m_client->name());
         createSearch(params, derivePlaceholder(oldSymbolName, newSymbolName),
                      {}, {})->finishSearch(true, error);
     } else if (prepareSupported) {
@@ -482,7 +483,7 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
                                                 bool preferLowerCaseFileNames)
 {
     Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
-        tr("Find References with %1 for:").arg(m_client->name()),
+        Tr::tr("Find References with %1 for:").arg(m_client->name()),
         "",
         placeholder,
         Core::SearchResultWindow::SearchAndReplace);
@@ -504,7 +505,7 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
     auto resetConnection
         = connect(this, &QObject::destroyed, search, [search, clientName = m_client->name()]() {
               search->restart(); // clears potential current results
-              search->finishSearch(true, tr("%1 is not reachable anymore.").arg(clientName));
+              search->finishSearch(true, Tr::tr("%1 is not reachable anymore.").arg(clientName));
           });
 
     connect(search, &Core::SearchResult::replaceButtonClicked, this,

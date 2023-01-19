@@ -271,7 +271,7 @@ void CallHierarchy::handlePrepareResponse(Client *client,
 
 CallHierarchyFactory::CallHierarchyFactory()
 {
-    setDisplayName(tr("Call Hierarchy"));
+    setDisplayName(Tr::tr("Call Hierarchy"));
     setPriority(650);
     setId(CALL_HIERARCHY_FACTORY_ID);
 }

@@ -41865,7 +41865,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient::ResponseError</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Error %1</source>
         <translation>Fehler %1</translation>
@@ -41919,9 +41919,6 @@ Was soll %1 tun?</translation>
         <source>Functions and Methods in Workspace</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientManager</name>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation>Unerwartet beendet. Neustart in %1 Sekunden.</translation>
@@ -41934,9 +41931,6 @@ Was soll %1 tun?</translation>
         <source>Show available quick fixes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -41969,9 +41963,6 @@ Was soll %1 tun?</translation>
         <source>Language server-specific JSON to pass via &quot;initializationOptions&quot; field of &quot;initialize&quot; request.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Ausführbare Datei:</translation>
@@ -42175,7 +42166,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClientSettingsPage</name>
+    <name>::LanguageClient</name>
     <message>
         <source>&amp;Add</source>
         <translation>Hinzu&amp;fügen</translation>
@@ -42188,9 +42179,6 @@ Was soll %1 tun?</translation>
         <source>General</source>
         <translation>Allgemein</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeDialog</name>
     <message>
         <source>Select MIME Types</source>
         <translation>MIME-Typen auswählen</translation>
@@ -43066,7 +43054,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>LanguageClient::Client</name>
+    <name>::LanguageClient</name>
     <message>
         <source>%1 for %2</source>
         <translation type="unfinished"></translation>
@@ -43095,9 +43083,6 @@ You might find further explanations in the Application Output view.</source>
         <source>error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOClientInterface</name>
     <message>
         <source>Cannot send data to unstarted server %1</source>
         <translation>Kann keine Daten an den nicht gestarteten Server %1 schicken</translation>
@@ -46675,7 +46660,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>SymbolSupport</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Find References with %1 for:</source>
         <translation>Referenzen mit %1 finden für:</translation>
@@ -52921,7 +52906,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>LanguageClient::ClientPrivate</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Invalid parameter in &quot;%1&quot;:
 %2</source>
@@ -52947,23 +52932,14 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>No initialize result.</source>
         <translation type="unfinished">Initialisierung ohne Ergebnis.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::DiagnosticManager</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation type="unfinished">In die Zwischenablage kopieren</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseClientInterface</name>
     <message>
         <source>Cannot handle MIME type of message %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientPlugin</name>
     <message>
         <source>Generic StdIO Language Server</source>
         <translation type="unfinished"></translation>
@@ -52972,9 +52948,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Inspect Language Clients...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettings</name>
     <message>
         <source>Always On</source>
         <translation type="unfinished"></translation>
@@ -52987,9 +52960,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Start Server per Project</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::ReplaceWidget</name>
     <message>
         <source>Search Again to update results and re-enable Replace</source>
         <translation type="unfinished"></translation>
@@ -53007,16 +52977,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <translation type="unfinished">Dateien:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::DocumentLocatorFilter</name>
     <message>
         <source>Matches all symbols from the current document, based on a language server.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LspInspector</name>
     <message>
         <source>Expand All</source>
         <translation type="unfinished"></translation>
@@ -53037,9 +53001,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Log File</source>
         <translation type="unfinished">Logdatei</translation>
     </message>
-</context>
-<context>
-    <name>LspCapabilitiesWidget</name>
     <message>
         <source>Capabilities:</source>
         <translation type="unfinished">Fähigkeiten:</translation>
@@ -53060,9 +53021,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Server Capabilities</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LspInspectorWidget</name>
     <message>
         <source>Language Client Inspector</source>
         <translation type="unfinished"></translation>

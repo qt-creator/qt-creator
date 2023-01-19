@@ -346,7 +346,6 @@ TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Cor
 
 class OutlineComboBox : public Utils::TreeViewComboBox
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageClient::OutlineComboBox)
 public:
     OutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
 
@@ -390,8 +389,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
     const QString sortActionText
-        = QCoreApplication::translate("TextEditor::Internal::OutlineWidgetStack",
-                                      "Sort Alphabetically");
+        = QCoreApplication::translate("::TextEditor", "Sort Alphabetically");
     auto sortAction = new QAction(sortActionText, this);
     sortAction->setCheckable(true);
     sortAction->setChecked(sorted);

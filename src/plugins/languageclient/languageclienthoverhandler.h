@@ -19,7 +19,6 @@ using HelpItemProvider = std::function<void(const LanguageServerProtocol::HoverR
 
 class LANGUAGECLIENT_EXPORT HoverHandler final : public TextEditor::BaseHoverHandler
 {
-    Q_DECLARE_TR_FUNCTIONS(HoverHandler)
 public:
     explicit HoverHandler(Client *client);
     ~HoverHandler() override;

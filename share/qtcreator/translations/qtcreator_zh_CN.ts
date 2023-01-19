@@ -23654,16 +23654,10 @@ Error: %5</source>
         <source>Functions and Methods in Workspace</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseClientInterface</name>
     <message>
         <source>Cannot handle MIME type of message %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettings</name>
     <message>
         <source>Always On</source>
         <translation type="unfinished"></translation>
@@ -23676,9 +23670,6 @@ Error: %5</source>
         <source>Start Server per Project</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::BaseSettingsWidget</name>
     <message>
         <source>Name:</source>
         <translation type="unfinished">名称:</translation>
@@ -23711,9 +23702,6 @@ Error: %5</source>
         <source>Language server-specific JSON to pass via &quot;initializationOptions&quot; field of &quot;initialize&quot; request.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::Client</name>
     <message>
         <source>%1 for %2</source>
         <translation type="unfinished"></translation>
@@ -23742,9 +23730,6 @@ Error: %5</source>
         <source>error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::ClientPrivate</name>
     <message>
         <source>Invalid parameter in &quot;%1&quot;:
 %2</source>
@@ -23770,23 +23755,14 @@ Error: %5</source>
         <source>No initialize result.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::DiagnosticManager</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::DocumentLocatorFilter</name>
     <message>
         <source>Matches all symbols from the current document, based on a language server.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientManager</name>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
         <translation type="unfinished"></translation>
@@ -23799,9 +23775,6 @@ Error: %5</source>
         <source>Show available quick fixes</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LanguageClientPlugin</name>
     <message>
         <source>Generic StdIO Language Server</source>
         <translation type="unfinished"></translation>
@@ -23810,9 +23783,6 @@ Error: %5</source>
         <source>Inspect Language Clients...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::LspInspector</name>
     <message>
         <source>Expand All</source>
         <translation type="unfinished">展开全部</translation>
@@ -23833,9 +23803,6 @@ Error: %5</source>
         <source>Log File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::ReplaceWidget</name>
     <message>
         <source>Search Again to update results and re-enable Replace</source>
         <translation type="unfinished"></translation>
@@ -23851,23 +23818,14 @@ Error: %5</source>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::ResponseError</name>
     <message>
         <source>Error %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOClientInterface</name>
     <message>
         <source>Cannot send data to unstarted server %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageClient::StdIOSettingsWidget</name>
     <message>
         <source>Executable:</source>
         <translation type="unfinished">执行档:</translation>
@@ -23876,9 +23834,6 @@ Error: %5</source>
         <source>Arguments:</source>
         <translation type="unfinished">参数:</translation>
     </message>
-</context>
-<context>
-    <name>LanguageClientSettingsPage</name>
     <message>
         <source>&amp;Add</source>
         <translation type="unfinished">添加(&amp;A)</translation>
@@ -24024,7 +23979,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LspCapabilitiesWidget</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Capabilities:</source>
         <translation type="unfinished">能力:</translation>
@@ -24045,9 +24000,6 @@ Error: %5</source>
         <source>Server Capabilities</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LspInspectorWidget</name>
     <message>
         <source>Language Client Inspector</source>
         <translation type="unfinished"></translation>
@@ -25094,7 +25046,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>MimeTypeDialog</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Select MIME Types</source>
         <translation type="unfinished"></translation>
@@ -42096,7 +42048,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>SymbolSupport</name>
+    <name>::LanguageClient</name>
     <message>
         <source>Find References with %1 for:</source>
         <translation type="unfinished"></translation>

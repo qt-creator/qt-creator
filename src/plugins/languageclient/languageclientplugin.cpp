@@ -5,6 +5,7 @@
 
 #include "client.h"
 #include "languageclientmanager.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -38,14 +39,14 @@ bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString
 
     LanguageClientManager::init();
     LanguageClientSettings::registerClientType({Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID,
-                                                tr("Generic StdIO Language Server"),
+                                                Tr::tr("Generic StdIO Language Server"),
                                                 []() { return new StdIOSettings; }});
 
     //register actions
     ActionContainer *toolsDebugContainer = ActionManager::actionContainer(
         Core::Constants::M_TOOLS_DEBUG);
 
-    auto inspectAction = new QAction(tr("Inspect Language Clients..."), this);
+    auto inspectAction = new QAction(Tr::tr("Inspect Language Clients..."), this);
     connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
     toolsDebugContainer->addAction(
         ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));

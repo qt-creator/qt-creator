@@ -32,7 +32,7 @@ DocumentLocatorFilter::DocumentLocatorFilter()
     setId(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_ID);
     setDisplayName(Tr::tr(Constants::LANGUAGECLIENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDescription(
-        tr("Matches all symbols from the current document, based on a language server."));
+        Tr::tr("Matches all symbols from the current document, based on a language server."));
     setDefaultShortcutString(".");
     setDefaultIncludedByDefault(false);
     setPriority(ILocatorFilter::Low);

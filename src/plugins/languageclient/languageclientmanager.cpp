@@ -5,19 +5,24 @@
 
 #include "languageclientplugin.h"
 #include "languageclientsymbolsupport.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <coreplugin/icore.h>
+
 #include <languageserverprotocol/messages.h>
 #include <languageserverprotocol/progresssupport.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
+
 #include <utils/algorithm.h>
 #include <utils/executeondestruction.h>
 #include <utils/theme/theme.h>
@@ -155,7 +160,7 @@ void LanguageClientManager::clientFinished(Client *client)
             if (client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
-                    tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
+                    Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
                 for (TextEditor::TextDocument *document : clientDocs) {
                     client->deactivateDocument(document);
@@ -165,7 +170,7 @@ void LanguageClientManager::clientFinished(Client *client)
                 return;
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
-            client->log(tr("Unexpectedly finished."));
+            client->log(Tr::tr("Unexpectedly finished."));
             for (TextEditor::TextDocument *document : clientDocs)
                 managerInstance->m_clientForDocument.remove(document);
         }

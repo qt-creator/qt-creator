@@ -4,6 +4,7 @@
 #include "diagnosticmanager.h"
 
 #include "client.h"
+#include "languageclienttr.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 
@@ -122,7 +123,7 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath
                                                         bool /*isProjectFile*/) const
 {
     static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
-    static const QString tooltip = tr("Copy to Clipboard");
+    static const QString tooltip = Tr::tr("Copy to Clipboard");
     auto mark = new TextMark(filePath, diagnostic, m_client);
     mark->setActionsProvider([text = diagnostic.message()] {
         QAction *action = new QAction();
