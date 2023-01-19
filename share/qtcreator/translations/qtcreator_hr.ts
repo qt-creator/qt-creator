@@ -32365,14 +32365,11 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation type="unfinished"></translation>
@@ -32401,9 +32398,6 @@ Saving failed.</source>
         <source>Non-desktop Qt is used with a desktop device.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished"></translation>
@@ -32421,7 +32415,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Main QML file:</source>
         <translation type="unfinished"></translation>

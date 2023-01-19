@@ -7,6 +7,7 @@
 #include "fileformat/qmlprojectitem.h"
 #include "qmlprojectconstants.h"
 #include "qmlprojectmanagerconstants.h"
+#include "qmlprojectmanagertr.h"
 #include "qmlprojectnodes.h"
 
 #include <coreplugin/documentmanager.h>
@@ -210,7 +211,7 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
 
             } else {
                 MessageManager::writeFlashing(
-                    tr("Error while loading project file %1.").arg(projectFilePath().toUserOutput()));
+                    Tr::tr("Error while loading project file %1.").arg(projectFilePath().toUserOutput()));
                 MessageManager::writeSilently(errorMessage);
             }
         }
@@ -235,7 +236,7 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(Utils::FilePath::fromString(mainFilePath), &errorMessage)) {
-                    MessageManager::writeFlashing(tr("Warning while loading project file %1.")
+                    MessageManager::writeFlashing(Tr::tr("Warning while loading project file %1.")
                                                       .arg(projectFilePath().toUserOutput()));
                     MessageManager::writeSilently(errorMessage);
                 }
@@ -533,14 +534,14 @@ Tasks QmlProject::projectIssues(const Kit *k) const
 
     const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
     if (!version)
-        result.append(createProjectTask(Task::TaskType::Warning, tr("No Qt version set in kit.")));
+        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
     if (dev.isNull())
-        result.append(createProjectTask(Task::TaskType::Error, tr("Kit has no device.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 
     if (version && version->qtVersion() < QVersionNumber(5, 0, 0))
-        result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is too old.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is too old.")));
 
     if (dev.isNull() || !version)
         return result; // No need to check deeper than this
@@ -549,12 +550,12 @@ Tasks QmlProject::projectIssues(const Kit *k) const
         if (version->type() == QtSupport::Constants::DESKTOPQT) {
             if (version->qmlRuntimeFilePath().isEmpty()) {
                 result.append(createProjectTask(Task::TaskType::Error,
-                                                tr("Qt version has no QML utility.")));
+                                                Tr::tr("Qt version has no QML utility.")));
             }
         } else {
             // Non-desktop Qt on a desktop device? We don't support that.
             result.append(createProjectTask(Task::TaskType::Error,
-                                            tr("Non-desktop Qt is used with a desktop device.")));
+                                            Tr::tr("Non-desktop Qt is used with a desktop device.")));
         }
     } else {
         // If not a desktop device, don't check the Qt version for qml runtime binary.

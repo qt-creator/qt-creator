@@ -4,6 +4,7 @@
 #include "generatecmakelists.h"
 #include "generatecmakelistsconstants.h"
 #include "cmakegeneratordialog.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -56,8 +57,7 @@ enum ProjectDirectoryError {
     MissingEnvHeader = 1<<12
 };
 
-const QString MENU_ITEM_GENERATE = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                               "Generate CMake Build Files...");
+const QString MENU_ITEM_GENERATE = Tr::tr("Generate CMake Build Files...");
 
 void generateMenuEntry(QObject *parent)
 {
@@ -66,8 +66,7 @@ void generateMenuEntry(QObject *parent)
     Core::ActionContainer *exportMenu = Core::ActionManager::createMenu(
         QmlProjectManager::Constants::EXPORT_MENU);
 
-    exportMenu->menu()->setTitle(
-        QCoreApplication::translate("QmlDesigner::GenerateCmake", "Export Project"));
+    exportMenu->menu()->setTitle(Tr::tr("Export Project"));
     menu->addMenu(exportMenu, Core::Constants::G_FILE_EXPORT);
 
     exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_GENERATE);
@@ -159,14 +158,10 @@ int isProjectCorrectlyFormed(const FilePath &rootDir)
     return errors;
 }
 
-const QString WARNING_MISSING_STRUCTURE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                                    "The project is not properly structured for automatically generating CMake files.\n\nAborting process.\n\nThe following files or directories are missing:\n\n%1");
-//const QString WARNING_MISSING_STRUCTURE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-//                                                    "The project is not properly structured for automatically generating CMake files.\n\nThe following files or directories are missing and may be created:\n\n%1");
-const QString WARNING_TITLE_FATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-                                        "Cannot Generate CMake Files");
-//const QString WARNING_TITLE_NONFATAL = QCoreApplication::translate("QmlDesigner::GenerateCmake",
-//                                            "Problems with Generating CMake Files");
+const QString WARNING_MISSING_STRUCTURE_FATAL = Tr::tr("The project is not properly structured for automatically generating CMake files.\n\nAborting process.\n\nThe following files or directories are missing:\n\n%1");
+//const QString WARNING_MISSING_STRUCTURE_NONFATAL = Tr::tr("The project is not properly structured for automatically generating CMake files.\n\nThe following files or directories are missing and may be created:\n\n%1");
+const QString WARNING_TITLE_FATAL = Tr::tr("Cannot Generate CMake Files");
+//const QString WARNING_TITLE_NONFATAL = Tr::tr("Problems with Generating CMake Files");
 
 void showProjectDirErrorDialog(int error)
 {

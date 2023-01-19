@@ -19,8 +19,8 @@ Rectangle {
 
     property bool qdsInstalled: qdsVersionText.text.length > 0
     property bool projectFileExists: false
-    property string qtVersion: qsTr("Unknown")
-    property string qdsVersion: qsTr("Unknown")
+    property string qtVersion: qsTranslate("::QmlProjectManager", "Unknown")
+    property string qdsVersion: qsTranslate("::QmlProjectManager", "Unknown")
     property alias generateProjectFileButton: generateProjectFileButton
 
     color: Theme.Colors.backgroundSecondary
@@ -41,7 +41,7 @@ Rectangle {
         PageText {
             id: projectFileInfoTitle
             width: parent.width
-            text: qsTr("QML PROJECT FILE INFO")
+            text: qsTranslate("::QmlProjectManager", "QML PROJECT FILE INFO")
         }
 
         Column {
@@ -53,14 +53,14 @@ Rectangle {
                 id: qtVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTr("Qt Version - ") + root.qtVersion
+                text: qsTranslate("::QmlProjectManager", "Qt Version - ") + root.qtVersion
             }
 
             PageText {
                 id: qdsVersionText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTr("Qt Design Studio Version - ") + root.qdsVersion
+                text: qsTranslate("::QmlProjectManager", "Qt Design Studio Version - ") + root.qdsVersion
             }
         }
 
@@ -73,12 +73,12 @@ Rectangle {
                 id: projectFileInfoMissingText
                 width: parent.width
                 padding: Theme.Values.spacing
-                text: qsTr("No QML project file found - Would you like to create one?")
+                text: qsTranslate("::QmlProjectManager", "No QML project file found - Would you like to create one?")
             }
 
             PushButton {
                 id: generateProjectFileButton
-                text: qsTr("Generate")
+                text: qsTranslate("::QmlProjectManager", "Generate")
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }

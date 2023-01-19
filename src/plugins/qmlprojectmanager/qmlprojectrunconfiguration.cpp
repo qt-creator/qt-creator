@@ -2,10 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectrunconfiguration.h"
-#include "qmlproject.h"
-#include "qmlprojectmanagerconstants.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
+#include "qmlproject.h"
+#include "qmlprojectmanagerconstants.h"
+#include "qmlprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -46,8 +47,6 @@ namespace QmlProjectManager::Internal {
 
 class QmlProjectRunConfiguration final : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectRunConfiguration)
-
 public:
     QmlProjectRunConfiguration(Target *target, Id id);
 
@@ -69,7 +68,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
 {
     m_qmlViewerAspect = addAspect<StringAspect>();
-    m_qmlViewerAspect->setLabelText(tr("Override device QML viewer:"));
+    m_qmlViewerAspect->setLabelText(Tr::tr("Override device QML viewer:"));
     m_qmlViewerAspect->setPlaceHolderText(qmlRuntimeFilePath().toUserOutput());
     m_qmlViewerAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_qmlViewerAspect->setHistoryCompleter("QmlProjectManager.viewer.history");
@@ -152,12 +151,12 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
     const Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (deviceTypeId == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        envAspect->addPreferredBaseEnvironment(tr("System Environment"), [envModifier] {
+        envAspect->addPreferredBaseEnvironment(Tr::tr("System Environment"), [envModifier] {
             return envModifier(Environment::systemEnvironment());
         });
     }
 
-    envAspect->addSupportedBaseEnvironment(tr("Clean Environment"), [envModifier] {
+    envAspect->addSupportedBaseEnvironment(Tr::tr("Clean Environment"), [envModifier] {
         Environment environment;
         return envModifier(environment);
     });
@@ -172,23 +171,23 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
             r.extraData.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
     });
 
-    setDisplayName(tr("QML Utility", "QMLRunConfiguration display name."));
+    setDisplayName(Tr::tr("QML Utility", "QMLRunConfiguration display name."));
     update();
 }
 
 QString QmlProjectRunConfiguration::disabledReason() const
 {
     if (mainScript().isEmpty())
-        return tr("No script file to execute.");
+        return Tr::tr("No script file to execute.");
 
     const FilePath viewer = qmlRuntimeFilePath();
     if (DeviceTypeKitAspect::deviceTypeId(kit())
             == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !viewer.exists()) {
-        return tr("No QML utility found.");
+        return Tr::tr("No QML utility found.");
     }
     if (viewer.isEmpty())
-        return tr("No QML utility specified for target device.");
+        return Tr::tr("No QML utility specified for target device.");
     return RunConfiguration::disabledReason();
 }
 
@@ -230,7 +229,7 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
 
     m_qtversionAspect = addAspect<SelectionAspect>();
     m_qtversionAspect->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_qtversionAspect->setLabelText(tr("Qt Version:"));
+    m_qtversionAspect->setLabelText(Tr::tr("Qt Version:"));
     m_qtversionAspect->setSettingsKey("QmlProjectManager.kit");
 
     Kit *kit = target()->kit();
@@ -241,11 +240,11 @@ void QmlProjectRunConfiguration::createQtVersionAspect()
         const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
         if (isQt6Project) {
-            m_qtversionAspect->addOption(tr("Qt 6"));
+            m_qtversionAspect->addOption(Tr::tr("Qt 6"));
             m_qtversionAspect->setReadOnly(true);
         } else { /* Only if this is not a Qt 6 project changing kits makes sense */
-            m_qtversionAspect->addOption(tr("Qt 5"));
-            m_qtversionAspect->addOption(tr("Qt 6"));
+            m_qtversionAspect->addOption(Tr::tr("Qt 5"));
+            m_qtversionAspect->addOption(Tr::tr("Qt 6"));
 
             const int valueForVersion = version->qtVersion().majorVersion() == 6 ? 1 : 0;
 
@@ -301,7 +300,7 @@ QString QmlProjectRunConfiguration::mainScript() const
 // QmlProjectRunConfigurationFactory
 
 QmlProjectRunConfigurationFactory::QmlProjectRunConfigurationFactory()
-    : FixedRunConfigurationFactory(QmlProjectRunConfiguration::tr("QML Runtime"), false)
+    : FixedRunConfigurationFactory(Tr::tr("QML Runtime"), false)
 {
     registerRunConfiguration<QmlProjectRunConfiguration>
             ("QmlProjectManager.QmlRunConfiguration.Qml");

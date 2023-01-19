@@ -14,8 +14,6 @@ class QmlProjectItem;
 
 class QmlProjectFileFormat
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProjectManager::QmlProjectFileFormat)
-
 public:
     static std::unique_ptr<QmlProjectItem> parseProjectFile(const Utils::FilePath &fileName,
                                                             QString *errorMessage = nullptr);

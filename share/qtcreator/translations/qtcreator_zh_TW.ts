@@ -13114,7 +13114,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -13501,7 +13501,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>載入專案檔案 %1 時發生錯誤。</translation>
@@ -13526,9 +13526,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>No Qt version set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>新增 Qt Quick 使用者介面專案</translation>
@@ -13537,9 +13534,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>This wizard generates a Qt Quick UI project.</source>
         <translation>此精靈將產生一個 Qt Quick 使用者介面的專案。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt Quick UI</source>
         <translation>Qt Quick UI</translation>
@@ -13556,9 +13550,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
 
 需要 &lt;b&gt;Qt 4.7.4&lt;/b&gt; 或以後的版本。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已開啟</translation>
@@ -13567,9 +13558,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <source>Failed opening project &apos;%1&apos;: Project file is not a file</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案檔本身不是個檔案</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">找不到 qmlviewer 或 qmlobserver。</translation>
@@ -13597,7 +13585,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">執行 QML 腳本</translation>
@@ -19768,7 +19756,7 @@ Error: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions...</source>
         <translation type="obsolete">管理 Qt 版本...</translation>
@@ -21913,7 +21901,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -21926,9 +21914,6 @@ Do you want to retry?</source>
         <translation>%1 已離開，離開代碼 %2
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation>執行</translation>
@@ -23198,7 +23183,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Open Qt Versions</source>
         <translation>開啟 Qt 版本</translation>

@@ -5,6 +5,7 @@
 
 #include "qmlproject.h"
 #include "qmlprojectmanagerconstants.h"
+#include "qmlprojectmanagertr.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -29,7 +30,7 @@ using namespace Utils;
 namespace QmlProjectManager {
 
 const char M_CURRENT_FILE[] = "CurrentFile";
-const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("QmlManager", "<Current File>");
+const char CURRENT_FILE[]  = QT_TRANSLATE_NOOP("::QmlProjectManager", "<Current File>");
 
 static bool caseInsensitiveLessThan(const QString &s1, const QString &s2)
 {
@@ -66,7 +67,7 @@ void QmlMainFileAspect::addToLayout(LayoutBuilder &builder)
             this, &QmlMainFileAspect::updateFileComboBox);
     connect(m_fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
 
-    builder.addItems({tr("Main QML file:"), m_fileListCombo.data()});
+    builder.addItems({Tr::tr("Main QML file:"), m_fileListCombo.data()});
 }
 
 void QmlMainFileAspect::toMap(QVariantMap &map) const

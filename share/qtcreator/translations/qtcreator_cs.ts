@@ -11075,7 +11075,7 @@ přidat do správy verzí (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">Program QML</translation>
@@ -11092,9 +11092,6 @@ přidat do správy verzí (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation type="obsolete">Nový projekt QML</translation>
@@ -11103,9 +11100,6 @@ přidat do správy verzí (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation type="obsolete">Tento průvodce vytvoří jeden projekt programu QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation type="obsolete">Zavést stávající adresář QML</translation>
@@ -11114,17 +11108,6 @@ přidat do správy verzí (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation type="obsolete">Vytvoří projekt QML ze stávajícího adresáře se soubory QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projekty</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Projekt %1 se nepodařilo otevřít.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation type="obsolete">Zavedení projektu QML</translation>
@@ -11140,13 +11123,6 @@ přidat do správy verzí (%2)?</translation>
     <message>
         <source>Location:</source>
         <translation type="obsolete">Umístění:</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Prohlížeč QML</translation>
     </message>
     <message>
         <source>&lt;Current File&gt;</source>
@@ -18323,7 +18299,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;QML Make&lt;/b&gt;</translation>
@@ -24180,7 +24156,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -25304,7 +25280,7 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file!</source>
         <translation type="obsolete">Chyba při nahrávání projektového souboru!</translation>
@@ -25337,28 +25313,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <source>No Qt version set in kit.</source>
         <translation>V sadě není nastavena verze Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
-    <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Nový projekt QML</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Tento průvodce vytvoří jeden projekt programu QML.</translation>
-    </message>
-    <message>
-        <source>New Qt Quick UI Project</source>
-        <translation type="obsolete">Nový projekt Qt Quick UI</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt Quick UI project.</source>
-        <translation type="obsolete">Tento průvodce vytvoří projekt Qt Quick UI.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt QML Application</source>
         <translation type="obsolete">Program Qt QML</translation>
@@ -25374,10 +25328,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Seznam adresářů s přídavnými moduly podaný pro dobu běhu QML</translation>
-    </message>
-    <message>
-        <source>Qt Quick UI</source>
-        <translation type="obsolete">Qt Quick UI</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
@@ -25407,16 +25357,10 @@ You can review Qt Quick UI projects in the QML Viewer and you need not build the
 
 Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation type="obsolete">Projekt Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
     <message>
         <source>Import Existing Qt QML Directory</source>
         <translation type="obsolete">Zavést stávající adresář Qt QML</translation>
@@ -25426,27 +25370,8 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <translation type="obsolete">Název a adresář projektu</translation>
     </message>
     <message>
-        <source>Project name:</source>
-        <translation type="obsolete">Název projektu:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation type="obsolete">Umístění:</translation>
-    </message>
-    <message>
         <source>Location</source>
         <translation type="obsolete">Umístění</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing Qt QML Directory</source>
-        <translation type="obsolete">Zavést stávající adresář Qt QML</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="obsolete">Vytvoří projekt QML ze stávajícího adresáře se soubory QML.</translation>
     </message>
     <message>
         <source>File generated by QtCreator</source>
@@ -25454,21 +25379,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Soubor vytvořený programem Qt Creator</translation>
     </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Zahrnout soubory .qml, .js a soubory s obrázky z nynějšího adresáře a podadresářů</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Seznam adresářů s přídavnými moduly podaný pro dobu běhu QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Projekt &apos;%1&apos; se nepodařil otevřít, neboť projekt je již otevřen</translation>
@@ -25481,9 +25391,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">Žádný qmlviewer nebo qmlobserver se nepodařilo najít.</translation>
@@ -25503,18 +25410,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <translation>Prohlížeč QML</translation>
     </message>
     <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Prohlížeč QML</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <translation type="obsolete">Argumenty pro prohlížeč QML:</translation>
-    </message>
-    <message>
-        <source>Main QML File:</source>
-        <translation type="obsolete">Hlavní soubor QML:</translation>
-    </message>
-    <message>
         <source>Debugging Address:</source>
         <translation type="obsolete">Adresa pro ladění:</translation>
     </message>
@@ -25531,7 +25426,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Spustit skript QML</translation>
@@ -25544,9 +25439,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>QML Scene</source>
         <translation>Scéna QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControl</name>
     <message>
         <source>Starting %1 %2</source>
         <translation type="obsolete">Spouští se %1 %2</translation>
@@ -25555,16 +25447,10 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 ukončen. Vrácená hodnota %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Spustit</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlTaskManager</name>
     <message>
         <source>QML</source>
         <translation type="obsolete">QML</translation>
@@ -34000,7 +33886,7 @@ Chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Open Qt4 Options</source>
         <translation type="obsolete">Otevřít nastavení pro knihovnu Qt4</translation>
@@ -34033,9 +33919,6 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
         <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
         <translation type="obsolete">Pozorovatel QML se používá pro nabídnutí dodatečných funkcí pro programy QML, jako je například interaktivní náhled na změny kódu a další nástroje ke zkoumání. Musí být pro každou použitou verzi Qt sestaven odděleně. To se děje na stránce &apos;Nastavení Qt&apos; pomocí výběru nynější instalace Qt a klepnutí na &apos;Sestavit znovu&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Manage Qt versions</source>
         <translation type="obsolete">Spravovat verze Qt</translation>
@@ -34065,16 +33948,9 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
         <translation type="obsolete">Prováděcí prostředí</translation>
     </message>
     <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
         <source>Invalid Qt version</source>
         <translation type="obsolete">Neplatná verze Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -34086,13 +33962,6 @@ Sestavení pozorovatele QML se děje na stránce pro nastavení Qt pomocí výb�
 </source>
         <translation>%1 ukončen. Vrácená hodnota %2
 </translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Spustit</translation>
     </message>
     <message>
         <source>Not enough free ports for QML debugging. </source>
@@ -51331,7 +51200,7 @@ Vzdálený: %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>Nový projekt Qt Quick UI</translation>
@@ -51344,9 +51213,6 @@ Vzdálený: %4</translation>
         <source>Component Set</source>
         <translation>Sada součástek</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Program Qt Quick</translation>
@@ -53297,7 +53163,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>System Environment</source>
         <translation>Prostředí systému</translation>
@@ -53577,7 +53443,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Vytvoří projekt Qt Quick 1 UI s jediným souborem QML, který obsahuje hlavní pohled.&amp;lt;br/&amp;gt;Projekty Qt Quick 1 UI není potřeba je sestavovat a lze je spouštět přímo v prohlížeči QML. K vytvoření a ke spuštění tohoto typu projektů není potřeba, aby bylo ve vašem počítači nainstalováno vývojářské prostředí.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Vyžaduje &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; nebo novější.</translation>
@@ -55326,14 +55192,11 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Neplatný kořenový prvek: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Vybrat sadu součástek Qt Quick</translation>
@@ -55751,7 +55614,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
         <translation>Vytvoří projekt Qt Quick 1 UI s jediným souborem QML, který obsahuje hlavní pohled.

@@ -39560,7 +39560,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlBuildSystem</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Ошибка при загрузке файла проекта %1.</translation>
@@ -39569,16 +39569,10 @@ Saving failed.</source>
         <source>Warning while loading project file %1.</source>
         <translation>Предупреждение при загрузке файла проекта %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlMainFileAspect</name>
     <message>
         <source>Main QML file:</source>
         <translation>Основной файл QML:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlMultiLanguageAspect</name>
     <message>
         <source>Use MultiLanguage translation database.</source>
         <translation>Использовать БД переводов.</translation>
@@ -39587,9 +39581,6 @@ Saving failed.</source>
         <source>Enable loading application with special desktop SQLite translation database.</source>
         <translation>Включение загрузки приложения со специальной базой даных переводов на множество языков (SQLite).</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Kit has no device.</source>
         <translation>У комплекта не задано устройство.</translation>
@@ -39610,16 +39601,10 @@ Saving failed.</source>
         <source>No Qt version set in kit.</source>
         <translation>Для комплекта не задан профиль Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Неверный корневой элемент: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>System Environment</source>
         <translation>Системная среда</translation>

@@ -3,6 +3,8 @@
 
 #include "qmlmultilanguageaspect.h"
 
+#include "qmlprojectmanagertr.h"
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -54,8 +56,8 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 {
     setVisible(isMultilanguagePresent());
     setSettingsKey(Constants::USE_MULTILANGUAGE_KEY);
-    setLabel(tr("Use MultiLanguage in 2D view"), BoolAspect::LabelPlacement::AtCheckBox);
-    setToolTip(tr("Reads translations from MultiLanguage plugin."));
+    setLabel(Tr::tr("Use MultiLanguage in 2D view"), BoolAspect::LabelPlacement::AtCheckBox);
+    setToolTip(Tr::tr("Reads translations from MultiLanguage plugin."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
     QVariantMap getDefaultValues;

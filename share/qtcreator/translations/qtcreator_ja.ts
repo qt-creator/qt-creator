@@ -24989,7 +24989,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -28003,14 +28003,11 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>無効なルート要素: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>プロジェクトファイル %1 の読み込み中にエラーが発生しました。</translation>
@@ -28051,9 +28048,6 @@ Do you want to save the data first?</source>
         <source>Non-desktop Qt is used with a desktop device.</source>
         <translation>デスクトップ用ではない Qt が、デスクトップ端末で使われています。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation>システム環境変数</translation>
@@ -28062,9 +28056,6 @@ Do you want to save the data first?</source>
         <source>Kit Environment</source>
         <translation>キット環境変数</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlscene found.</source>
         <translation>qmlviewer や qmlscene が見つかりません。</translation>
@@ -28072,10 +28063,6 @@ Do you want to save the data first?</source>
     <message>
         <source>QML Viewer:</source>
         <translation>QML ビューア:</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>システム環境変数</translation>
     </message>
     <message>
         <source>Clean Environment</source>
@@ -28107,20 +28094,10 @@ Do you want to save the data first?</source>
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML ビューア</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML ビューア</translation>
     </message>
-    <message>
-        <source>QML Scene</source>
-        <translation>QML Scene</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
@@ -48040,22 +48017,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlMainFileAspect</name>
-    <message>
-        <source>Main QML file:</source>
-        <translation>メイン QML ファイル:</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlBuildSystem</name>
-    <message>
-        <source>Error while loading project file %1.</source>
-        <translation>プロジェクトファイル %1 の読み込み中にエラーが発生しました。</translation>
-    </message>
-    <message>
-        <source>Warning while loading project file %1.</source>
-        <translation>プロジェクトファイル %1 を読み込み中に警告がありました。</translation>
-    </message>
+    <name>::QmlProjectManager</name>
 </context>
 <context>
     <name>::Qnx</name>

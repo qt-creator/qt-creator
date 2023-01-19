@@ -30440,7 +30440,7 @@ Vil du gemme dataene først?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
@@ -30449,9 +30449,6 @@ Vil du gemme dataene først?</translation>
         <source>Main QML file:</source>
         <translation>Hoved-QML-fil:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Fejl ved indlæsning af projektfilen %1.</translation>
@@ -30480,9 +30477,6 @@ Vil du gemme dataene først?</translation>
         <source>Non-desktop Qt is used with a desktop device.</source>
         <translation>Ikke-skrivebords Qt brugt med en skrivebordsenhed.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation>Systemmiljø</translation>
@@ -30491,16 +30485,10 @@ Vil du gemme dataene først?</translation>
         <source>Clean Environment</source>
         <translation>Rensmiljø</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Ugyldigt rodelement: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>QML Scene</source>
         <comment>QMLRunConfiguration display name.</comment>
@@ -30522,9 +30510,6 @@ Vil du gemme dataene først?</translation>
         <source>No script file to execute.</source>
         <translation>Ingen script-fil at eksekvere.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlTarget</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>

@@ -33121,7 +33121,7 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::CmakeProjectConverter</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Export as Latest Project Format</source>
         <translation type="unfinished"></translation>
@@ -33144,9 +33144,6 @@ Exporting assets: %2</source>
 %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDesigner::CmakeProjectConverterDialog</name>
     <message>
         <source>This process creates a copy of the existing project. The new project&apos;s folder structure is adjusted for CMake build process and necessary related new files are generated.
 
@@ -33653,7 +33650,7 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
     </message>
 </context>
 <context>
-    <name>QmlDesigner::GenerateCmake</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Select Files to Generate</source>
         <translation type="unfinished"></translation>
@@ -38107,7 +38104,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectPlugin</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Qt Design Studio</source>
         <translation type="unfinished"></translation>
@@ -38125,9 +38122,6 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
         <source>Set as Main .ui.qml File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlBuildSystem</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation type="unfinished">载入项目文件%1时发生错误。</translation>
@@ -38136,16 +38130,10 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
         <source>Warning while loading project file %1.</source>
         <translation type="unfinished">载入项目文件 %1时收到警告信息。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlMainFileAspect</name>
     <message>
         <source>Main QML file:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlMultiLanguageAspect</name>
     <message>
         <source>Use MultiLanguage in Form Editor.</source>
         <translation type="unfinished"></translation>
@@ -38154,9 +38142,6 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
         <source>Reads translations from MultiLanguage plugin.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>No Qt version set in kit.</source>
         <translation>构建套件中未设置Qt版本。</translation>
@@ -38177,16 +38162,10 @@ Qt Design Studio requires a .qmlproject based project to open the .ui.qml file.<
         <source>Non-desktop Qt is used with a desktop device.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>QML Runtime</source>
         <translation type="unfinished">QML运行环境</translation>

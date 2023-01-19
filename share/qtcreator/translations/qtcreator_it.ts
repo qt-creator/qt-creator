@@ -7677,7 +7677,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation>Applicazione QML</translation>
@@ -7694,9 +7694,6 @@ al VCS (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation>Non è possibile aprire il progetto %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation>Nuovo Progetto QML</translation>
@@ -7705,9 +7702,6 @@ al VCS (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation>Questa procedura guidata genera un&apos;applicazione QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation>Importa una cartella QML esistente</translation>
@@ -7716,17 +7710,6 @@ al VCS (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation>Crea un progetto QML da una cartella che contiene file QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Progetti</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>Non è possibile aprire il progetto %1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation>Importazione di un Progetto QML</translation>
@@ -7743,9 +7726,6 @@ al VCS (%2)?</translation>
         <source>Location:</source>
         <translation>Posizione:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
         <translation>Visualizzatore QML</translation>
@@ -12151,7 +12131,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="unfinished"></translation>

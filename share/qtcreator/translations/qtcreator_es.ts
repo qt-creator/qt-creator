@@ -7784,7 +7784,7 @@ al control de versiones (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation>Aplicación QML</translation>
@@ -7801,9 +7801,6 @@ al control de versiones (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation>El proyecto %1 no pudo ser abierto.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation>Nuevo proyecto QML</translation>
@@ -7812,9 +7809,6 @@ al control de versiones (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation>Este asistente genera un proyecto de aplicación QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation>Importación de directorio existente con QML</translation>
@@ -7823,17 +7817,6 @@ al control de versiones (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation>Crea un proyecto a partir de un directorio existente conteniendo archivos QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Proyectos</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>El proyecto %1 no pudo ser abierto.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation>Importación de proyecto QML</translation>
@@ -7850,9 +7833,6 @@ al control de versiones (%2)?</translation>
         <source>Location:</source>
         <translation>Localización:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
         <translation>Visualizador QML</translation>
@@ -12403,7 +12383,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="unfinished"></translation>

@@ -11487,7 +11487,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Błąd ładowania pliku projektu %1.</translation>
@@ -11508,9 +11508,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>No Qt version set in kit.</source>
         <translation>Brak wersji Qt w zestawie narzędzi.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlscene found.</source>
         <translation>Nie odnaleziono qmlviewer ani qmlscene.</translation>
@@ -11534,7 +11531,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML Viewer</translation>
@@ -12194,7 +12191,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -15379,7 +15376,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -25155,7 +25152,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>System Environment</source>
         <translation>Środowisko systemowe</translation>
@@ -26824,7 +26821,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Niepoprawny główny element: %1</translation>

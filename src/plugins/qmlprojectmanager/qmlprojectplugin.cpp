@@ -5,6 +5,7 @@
 #include "qmlprojectplugin.h"
 #include "qmlproject.h"
 #include "qmlprojectconstants.h"
+#include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
 #include "cmakegen/cmakeprojectconverter.h"
@@ -123,7 +124,7 @@ void QmlProjectPlugin::openQDS(const Utils::FilePath &fileName)
     if (!qdsStarted) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              fileName.fileName(),
-                             QObject::tr("Failed to start Qt Design Studio."));
+                             Tr::tr("Failed to start Qt Design Studio."));
         if (alwaysOpenWithMode() == Core::Constants::MODE_DESIGN)
             clearAlwaysOpenWithMode();
     }
@@ -212,8 +213,8 @@ void QmlProjectPlugin::openInQDSWithProject(const Utils::FilePath &filePath)
         QTimer::singleShot(4000, [filePath] { openQDS(filePath); });
     } else {
         Core::AsynchronousMessageBox::warning(
-            tr("Qt Design Studio"),
-            tr("No project file (*.qmlproject) found for Qt Design "
+            Tr::tr("Qt Design Studio"),
+            Tr::tr("No project file (*.qmlproject) found for Qt Design "
                "Studio.\nQt Design Studio requires a .qmlproject "
                "based project to open the .ui.qml file."));
     }
@@ -269,7 +270,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     if (QmlProject::isQtDesignStudio()) {
         Core::ActionContainer *menu = Core::ActionManager::actionContainer(
             ProjectExplorer::Constants::M_FILECONTEXT);
-        QAction *mainfileAction = new QAction(tr("Set as Main .qml File"), this);
+        QAction *mainfileAction = new QAction(Tr::tr("Set as Main .qml File"), this);
         mainfileAction->setEnabled(false);
 
         connect(mainfileAction, &QAction::triggered, this, []() {
@@ -312,7 +313,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
                                                    != fileNode->filePath());
                 });
 
-        QAction *mainUifileAction = new QAction(tr("Set as Main .ui.qml File"), this);
+        QAction *mainUifileAction = new QAction(Tr::tr("Set as Main .ui.qml File"), this);
         mainUifileAction->setEnabled(false);
 
         connect(mainUifileAction, &QAction::triggered, this, []() {

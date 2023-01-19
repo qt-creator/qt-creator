@@ -3,8 +3,9 @@
 
 #include "qmlprojectfileformat.h"
 
-#include "qmlprojectitem.h"
 #include "filefilteritems.h"
+#include "qmlprojectitem.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <qmljs/qmljssimplereader.h>
 
@@ -189,7 +190,7 @@ std::unique_ptr<QmlProjectItem> QmlProjectFileFormat::parseProjectFile(const Uti
     }
 
     if (errorMessage)
-        *errorMessage = tr("Invalid root element: %1").arg(rootNode->name());
+        *errorMessage = Tr::tr("Invalid root element: %1").arg(rootNode->name());
 
     return nullptr;
 }

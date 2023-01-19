@@ -35,19 +35,19 @@ Rectangle {
             width: parent.width
             topPadding: 0
             padding: Theme.Values.spacing
-            text: qsTr("No Qt Design Studio installation found")
+            text: qsTranslate("::QmlProjectManager", "No Qt Design Studio installation found")
         }
 
         PageText {
             id: suggestionText
             width: parent.width
             padding: Theme.Values.spacing
-            text: qsTr("Would you like to install it now?")
+            text: qsTranslate("::QmlProjectManager", "Would you like to install it now?")
         }
 
         PushButton {
             id: installButton
-            text: qsTr("Install")
+            text: qsTranslate("::QmlProjectManager", "Install")
             anchors.horizontalCenter: parent.horizontalCenter
         }
     }

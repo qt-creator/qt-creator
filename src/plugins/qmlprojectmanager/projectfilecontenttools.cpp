@@ -3,6 +3,8 @@
 
 #include "projectfilecontenttools.h"
 
+#include "qmlprojectmanagertr.h"
+
 #include <projectexplorer/project.h>
 
 #include <QRegularExpression>
@@ -40,7 +42,7 @@ const QString qdsVersion(const Utils::FilePath &projectFilePath)
             return version;
     }
 
-    return QObject::tr("Unknown");
+    return Tr::tr("Unknown");
 }
 
 QRegularExpression quickRegexp("(quickVersion:)\\s*\"(\\d+.\\d+)\"",
@@ -50,7 +52,7 @@ QRegularExpression qt6Regexp("(qt6Project:)\\s*\"*(true|false)\"*",
 
 const QString qtVersion(const Utils::FilePath &projectFilePath)
 {
-    const QString defaultReturn = QObject::tr("Unknown");
+    const QString defaultReturn = Tr::tr("Unknown");
     const QString data = readFileContents(projectFilePath);
 
     // First check if quickVersion is contained in the project file
@@ -61,8 +63,8 @@ const QString qtVersion(const Utils::FilePath &projectFilePath)
     // If quickVersion wasn't found check for qt6Project
     match = qt6Regexp.match(data);
     if (match.hasMatch())
-        return match.captured(2).contains("true", Qt::CaseInsensitive) ? QObject::tr("Qt 6")
-                                                                       : QObject::tr("Qt 5");
+        return match.captured(2).contains("true", Qt::CaseInsensitive) ? Tr::tr("Qt 6")
+                                                                       : Tr::tr("Qt 5");
 
     return defaultReturn;
 }

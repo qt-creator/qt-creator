@@ -11428,7 +11428,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">Application QML</translation>
@@ -11445,9 +11445,6 @@ au système de gestion de version (%2) ?</translation>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 n&apos;a pas pu être ouvert.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation type="obsolete">Nouveau projet QML</translation>
@@ -11456,9 +11453,6 @@ au système de gestion de version (%2) ?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation type="obsolete">Cet assistant génère un projet pour une application QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation type="obsolete">Importer un répertoire QML existant</translation>
@@ -11467,17 +11461,6 @@ au système de gestion de version (%2) ?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation type="obsolete">Crée un projet QML à partir d&apos;un répertoire existant de fichiers QML.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation type="obsolete">Projets</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation type="obsolete">Le projet %1 n&apos;a pas pu être ouvert.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation type="obsolete">Importation de projet QML</translation>
@@ -11493,13 +11476,6 @@ au système de gestion de version (%2) ?</translation>
     <message>
         <source>Location:</source>
         <translation type="obsolete">Emplacement :</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Visualisateur QML</translation>
     </message>
     <message>
         <source>&lt;Current File&gt;</source>
@@ -17454,7 +17430,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Make de QML&lt;/b&gt;</translation>
@@ -23247,7 +23223,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -24372,7 +24348,7 @@ Erreurs :
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file!</source>
         <translation type="obsolete">Erreur lors du chargement du fichier de projet !</translation>
@@ -24406,30 +24382,6 @@ Erreurs :
         <source>No Qt version set in kit.</source>
         <translation>Pas de version de Qt définie dans le kit.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
-    <message>
-        <source>New QML Project</source>
-        <translation type="obsolete">Nouveau projet QML</translation>
-    </message>
-    <message>
-        <source>This wizard generates a QML application project.</source>
-        <translation type="obsolete">Cet assistant génère un projet pour une application QML.</translation>
-    </message>
-    <message>
-        <source>New Qt Quick UI Project</source>
-        <translatorcomment>myzu : garder UI ou traduire ? John : Je pense qu&apos;on peut traduire !</translatorcomment>
-        <translation type="obsolete">Nouveau projet d&apos;IHM Qt Quick</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt Quick UI project.</source>
-        <translatorcomment>myzu : traduire UI ?</translatorcomment>
-        <translation type="obsolete">Cet assistant génère un projet UI Qt Quick.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt QML Application</source>
         <translation type="obsolete">Application QML</translation>
@@ -24439,10 +24391,6 @@ Erreurs :
 
 QML application projects are executed through the QML runtime and do not need to be built.</source>
         <translation type="obsolete">Créer un projet pour une application QML avec un seul fichier QML contenant la vue principale.\n\nLes applications QML sont exécutées sur le runtine QML et n&apos;ont pas besoin d&apos;être compilées.</translation>
-    </message>
-    <message>
-        <source>Qt Quick UI</source>
-        <translation type="obsolete">IHM Qt Quick</translation>
     </message>
     <message>
         <source>Creates a Qt Quick UI project with a single QML file that contains the main view.
@@ -24469,18 +24417,6 @@ Vous pouvez voir le projet d&apos;interface Qt Quick dans le visualiseur QML san
         <comment>qmlproject Template</comment>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Fichier généré par Qt Creator</translation>
-    </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Inclure les fichiers .qml, .ls et les images depuis le répertoire courrant et ses sous-répertoires</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Liste des répertoires passés au runtime QML</translation>
     </message>
     <message>
         <source>Qt Quick 2 UI</source>
@@ -24514,16 +24450,10 @@ Vous pouvez vérifier les projets d&apos;&apos;interface utilisateur Qt Quick 1 
 
 Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation type="obsolete">Projet Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
     <message>
         <source>Import Existing Qt QML Directory</source>
         <translation type="obsolete">Importer un répertoire Qt QML existant</translation>
@@ -24533,33 +24463,8 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Nom du projet et emplacement</translation>
     </message>
     <message>
-        <source>Project name:</source>
-        <translation type="obsolete">Nom du projet :</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation type="obsolete">Emplacement :</translation>
-    </message>
-    <message>
         <source>Location</source>
         <translation type="obsolete">Emplacement</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing Qt QML Directory</source>
-        <translation type="obsolete">Importer un répertoire Qt QML existant</translation>
-    </message>
-    <message>
-        <source>Creates a QML project from an existing directory of QML files.</source>
-        <translation type="obsolete">Crée un projet QML à partir d&apos;un répertoire existant de fichiers QML.</translation>
-    </message>
-    <message>
-        <source>File generated by QtCreator</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file</extracomment>
-        <translation type="obsolete">Fichier généré par Q tCreator</translation>
     </message>
     <message>
         <source>Include .qml, .js, and image files from current directory and subdirectories</source>
@@ -24573,9 +24478,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <extracomment>Comment added to generated .qmlproject file</extracomment>
         <translation type="obsolete">Liste des répertoires des plug-ins passée au runtime QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&quot; : projet déjà ouvert</translation>
@@ -24588,9 +24490,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation type="obsolete">Pas de qmlviewer ou qmlobserver trouvé. </translation>
@@ -24618,32 +24517,12 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
         <source>Debugger:</source>
         <translation type="obsolete">Débogueur :</translation>
     </message>
     <message>
-        <source>Main QML file:</source>
-        <translation type="obsolete">Fichier QML principal : </translation>
-    </message>
-    <message>
         <source>Invalid Qt version</source>
         <translation type="obsolete">Version de Qt invalide</translation>
-    </message>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Visualisateur QML</translation>
-    </message>
-    <message>
-        <source>QML Viewer arguments:</source>
-        <translation type="obsolete">Arguments du visualisateur QML :</translation>
-    </message>
-    <message>
-        <source>Main QML File:</source>
-        <translation type="obsolete">Fichier QML principal :</translation>
     </message>
     <message>
         <source>Debugging Address:</source>
@@ -24662,7 +24541,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Executer le script QML</translation>
@@ -24675,9 +24554,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>QML Scene</source>
         <translation>QML Scene</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControl</name>
     <message>
         <source>Starting %1 %2</source>
         <translation type="obsolete">Démarrer %1 %2</translation>
@@ -24686,9 +24562,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 a quitté avec le code %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation type="obsolete">Exécuter</translation>
@@ -24702,10 +24575,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translation type="obsolete">Annuler</translation>
     </message>
     <message>
-        <source>QML Observer Missing</source>
-        <translation type="obsolete">L&apos;observateur QML est manquant</translation>
-    </message>
-    <message>
         <source>QML Observer could not be found.</source>
         <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
     </message>
@@ -24714,9 +24583,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <translatorcomment>pour &quot;telles&quot;: s&apos;accorde avec fonctionnalités (cf http://home.ican.net/~galandor/grammair/fich_002.htm )</translatorcomment>
         <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlTaskManager</name>
     <message>
         <source>QML</source>
         <translation type="obsolete">QML</translation>
@@ -31938,18 +31804,10 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
-    <message>
-        <source>Manage Qt versions</source>
-        <translation type="obsolete">Gérer les versions de Qt</translation>
-    </message>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions...</source>
         <translation type="obsolete">Gestionnaire des versions de Qt...</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -35236,7 +35094,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -35247,33 +35105,6 @@ Souhaitez-vous réessayer ?</translation>
         <source>%1 exited with code %2
 </source>
         <translation>%1 a quitté avec le code %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Exécuter</translation>
-    </message>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
-    </message>
-    <message>
-        <source>QML Observer Missing</source>
-        <translation type="obsolete">L&apos;observateur QML est manquant</translation>
-    </message>
-    <message>
-        <source>QML Observer could not be found.</source>
-        <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
-    </message>
-    <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
     </message>
     <message>
         <source>Not enough free ports for QML debugging. </source>
@@ -37074,11 +36905,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
-    <message>
-        <source>Open Qt4 Options</source>
-        <translation type="obsolete">Ouvrir les options de Qt4</translation>
-    </message>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Open Qt Versions</source>
         <translation>Ouvrir les versions de Qt</translation>
@@ -37098,14 +36925,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>L&apos;observateur QML est utiliser pour offrir des fonctionnalités de débogage aux projets d&apos;interface Qt Quick dans la série Qt 4.7.
 
 Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, sélectionnez la versions actuelle de Qt et cliquez sur Construire dans la section Assistants.</translation>
-    </message>
-    <message>
-        <source>QML Observer could not be found.</source>
-        <translation type="obsolete">L&apos;observateur QML n&apos;a pas pu être trouvé. </translation>
-    </message>
-    <message>
-        <source>QML Observer is used to offer debugging features for QML applications, such as interactive debugging and inspection tools. It must be compiled for each used Qt version separately. On the Qt4 options page, select the current Qt installation and click Rebuild.</source>
-        <translation type="obsolete">L&apos;observateur QML est utilisé pour offrir des fonctionnalités de débogage pour les applications QML, telles que des outils de débogage interactif et d&apos;inspection. Il doit être compilé séparément pour chaque version de Qt utilisée. Sur la page d&apos;options Qt4, séléctionner l&apos;installation courante de Qt et cliquer sur recompiler.</translation>
     </message>
 </context>
 <context>
@@ -49678,7 +49497,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>Nouveau projet d&apos;IHM Qt Quick</translation>
@@ -49691,9 +49510,6 @@ Distant : %4</translation>
         <source>Component Set</source>
         <translation>Ensemble de composants</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Application Qt Quick</translation>
@@ -49710,9 +49526,6 @@ Distant : %4</translation>
         <source>Creates a Qt Quick UI project.</source>
         <translation>Créé un projet d&apos;interface graphique Qt Quick.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
     <message>
         <source>System Environment</source>
         <translation>Environnement du système</translation>
@@ -50380,7 +50193,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view.&amp;lt;br/&amp;gt;You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Requires &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; or newer.</source>
         <translation>Crée un projet d&apos;interface utilisateur Qt Quick 1 contenant un seul fichier QML contenant la vue principale.&amp;lt;br/&amp;gt;Vous pouvez revoir les projets d&apos;interface utilisateur Qt Quick 1 dans QML Viewer sans avoir besoin de les compiler. Vous n&apos;avez pas besoin d&apos;un environnement de développement installé sur votre ordinateur pour créer et exécuter ce type de projet.&amp;lt;br/&amp;gt;&amp;lt;br/&amp;gt;Nécessite &amp;lt;b&amp;gt;Qt 4.8&amp;lt;/b&amp;gt; ou supérieur.</translation>
@@ -52062,14 +51875,11 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>L&apos;élément racine est invalide : %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Sélectionner l&apos;ensemble des composant Qt Quick</translation>
@@ -52443,7 +52253,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
         <translation>Crée un projet d&apos;interface utilisateur Qt Quick 1 avec un seul fichier QML qui contient la vue principale. Vous pouvez vérifier les projets d&apos;&apos;interface utilisateur Qt Quick 1 dans le QML Viewer, sans devoir les compiler. Il n&apos;est pas nécessaire d&apos;avoir un environnement de développement installé sur votre ordinateur pour créer et exécuter ce type de projets. Nécessite Qt 4.8 ou plus récent.</translation>

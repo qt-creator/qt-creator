@@ -15970,7 +15970,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlTarget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
@@ -16463,7 +16463,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Napaka pri nalaganju projektne datoteke %1.</translation>
@@ -16476,9 +16476,6 @@ ID-ji se morajo začeti z malo črko.</translation>
         <source>Error while loading project file!</source>
         <translation type="obsolete">Napaka pri nalaganju projektne datoteke.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizardDialog</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation>Nov projekt uporabniškega vmesnika Qt Quick</translation>
@@ -16495,9 +16492,6 @@ ID-ji se morajo začeti z malo črko.</translation>
         <source>This wizard generates a QML application project.</source>
         <translation type="obsolete">Ta čarovnik ustvari projekt programa QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectApplicationWizard</name>
     <message>
         <source>Qt Quick UI</source>
         <translation>Uporabniški vmesnik Qt Quick</translation>
@@ -16543,23 +16537,14 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
 </extracomment>
         <translation type="obsolete">Seznam map z vstavki, ki bo podan izvajalnemu okolju QML</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Qt Quick Project</source>
         <translation>Projekt Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>Odpiranje projekta »%1« ni uspelo: projekt je že odprt</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlobserver found.</source>
         <translation>Ni bilo moč najti »qmlviewer« ali »qmlobserver«.</translation>
@@ -16598,7 +16583,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation>Zaženi skript QML</translation>
@@ -24578,7 +24563,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Manage Qt versions</source>
         <translation>Upravljanje različic Qt ...</translation>
@@ -24611,9 +24596,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <source>Invalid Qt version</source>
         <translation>Neveljavna različica Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -24626,9 +24608,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <translation>%1 je končal s kodo %2
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
     <message>
         <source>Run</source>
         <translation>Zaženi</translation>
@@ -29062,11 +29041,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="obsolete">Pregledovalnik QML</translation>
-    </message>
+    <name>::QmlProjectManager</name>
 </context>
 <context>
     <name>::QmakeProjectManager</name>
@@ -31348,7 +31323,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Import Existing QML Directory</source>
         <translation type="obsolete">Uvoz obstoječe mape s QML</translation>
@@ -31369,41 +31344,10 @@ Preverite nastavitve projekta.</translation>
         <source>Location</source>
         <translation type="obsolete">Lokacija</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectImportWizard</name>
-    <message>
-        <source>Import Existing QML Directory</source>
-        <translation type="obsolete">Uvoz obstoječe mape s QML</translation>
-    </message>
     <message>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation type="obsolete">Ustvari projekt QML iz obstoječe mape z datotekami QML.</translation>
     </message>
-    <message>
-        <source>File generated by QtCreator</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file
-</extracomment>
-        <translation type="obsolete">Datoteko je ustvaril Qt Creator</translation>
-    </message>
-    <message>
-        <source>Include .qml, .js, and image files from current directory and subdirectories</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file
-</extracomment>
-        <translation type="obsolete">Iz trenutne mape in podmap vključi datoteke *.qml, *.js in slike</translation>
-    </message>
-    <message>
-        <source>List of plugin directories passed to QML runtime</source>
-        <comment>qmlproject Template</comment>
-        <extracomment>Comment added to generated .qmlproject file
-</extracomment>
-        <translation type="obsolete">Seznam map z vstavki, ki bo podan izvajalnemu okolju QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControl</name>
     <message>
         <source>Starting %1 %2</source>
         <translation type="obsolete">Zaganjanje %1 %2</translation>
@@ -31412,16 +31356,6 @@ Preverite nastavitve projekta.</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 je končal s kodo %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunControlFactory</name>
-    <message>
-        <source>Run</source>
-        <translation type="obsolete">Zaženi</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlTaskManager</name>
     <message>
         <source>QML</source>
         <translation type="obsolete">QML</translation>

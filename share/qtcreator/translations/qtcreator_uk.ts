@@ -16002,7 +16002,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::Manager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
@@ -16011,9 +16011,6 @@ Do you want to save the data first?</source>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
@@ -16022,9 +16019,6 @@ Do you want to save the data first?</source>
         <source>Main QML file:</source>
         <translation>Головний файл QML:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
     <message>
         <source>Starting %1 %2
 </source>
@@ -16037,16 +16031,10 @@ Do you want to save the data first?</source>
         <translation type="vanished">%1 завершився з кодом %2
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
     <message>
         <source>Not enough free ports for QML debugging. </source>
         <translation type="vanished">Недостатньо вільних портів для зневадження QML. </translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProject</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Помилка під час завантаження файлу проекту %1.</translation>
@@ -16067,9 +16055,6 @@ Do you want to save the data first?</source>
         <source>No Qt version set in kit.</source>
         <translation>В комплекті не задано версію Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>No qmlviewer or qmlscene found.</source>
         <translation>Не знайдено qmlviewer або qmlscene.</translation>
@@ -16086,23 +16071,8 @@ Do you want to save the data first?</source>
     </message>
     <message>
         <source>QML Viewer</source>
-        <translation type="vanished">Переглядач QML</translation>
-    </message>
-    <message>
-        <source>QML Scene</source>
-        <translation type="vanished">QML Scene</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlTarget</name>
-    <message>
-        <source>QML Viewer</source>
         <comment>QML Viewer target display name</comment>
         <translation>Переглядач QML</translation>
-    </message>
-    <message>
-        <source>QML Viewer</source>
-        <translation type="vanished">Переглядач QML</translation>
     </message>
 </context>
 <context>
@@ -28598,7 +28568,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunConfigurationFactory</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <translation>Переглядач QML</translation>
@@ -31304,7 +31274,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizardDialog</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>New Qt Quick UI Project</source>
         <translation type="vanished">Новий проект Qt Quick UI</translation>
@@ -32446,7 +32416,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectEnvironmentAspect</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>System Environment</source>
         <translation>Системне середовище</translation>
@@ -32842,7 +32812,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlApplicationWizard</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
         <translation type="vanished">Створює проект Qt Quick 1 UI з одним файлом QML, що містить головний перегляд. Ви можете оглядати проекти Qt Quick 1 UI в Переглядачі QML не будуючи їх. Вам не потрібне встановлене середовище розробки на вашому комп&apos;ютері, щоб створювати та запускати цей тип проекту. Необхідна Qt 4.8 або новіша.</translation>
@@ -34725,14 +34695,11 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Неправильний кореневий елемент: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
         <source>Qt Quick UI</source>
         <translation type="vanished">Qt Quick UI</translation>
@@ -34741,9 +34708,6 @@ Please close all running instances of your application before starting a build.<
         <source>Creates a Qt Quick UI project.</source>
         <translation type="vanished">Створює проект Qt Quick UI.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation type="vanished">Вибір набору компонентів Qt Quick</translation>
@@ -34751,10 +34715,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Qt Quick component set:</source>
         <translation type="vanished">Набір компонентів Qt Quick:</translation>
-    </message>
-    <message>
-        <source>Component Set</source>
-        <translation type="vanished">Набір компонентів</translation>
     </message>
 </context>
 <context>

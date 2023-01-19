@@ -14613,7 +14613,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProject</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Kit has no device.</source>
         <translation>Das Kit hat kein Gerät.</translation>
@@ -14634,9 +14634,6 @@ Locked components cannot be modified or selected.</source>
         <source>No Qt version set in kit.</source>
         <translation>Im Kit ist keine Qt-Version gesetzt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlProjectRunConfiguration</name>
     <message>
         <source>System Environment</source>
         <translation>Systemumgebung</translation>
@@ -28409,7 +28406,7 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectFileFormat</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Invalid root element: %1</source>
         <translation>Ungültiges Wurzelelement: %1</translation>
@@ -45789,14 +45786,11 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlMainFileAspect</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Main QML file:</source>
         <translation>QML-Hauptdatei:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlBuildSystem</name>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Fehler beim Laden der Projektdatei %1.</translation>
@@ -47326,7 +47320,7 @@ Exporting assets: %2</source>
     </message>
 </context>
 <context>
-    <name>InstallQdsStatusBlock.ui</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>No Qt Design Studio installation found</source>
         <translation type="unfinished"></translation>
@@ -47339,9 +47333,6 @@ Exporting assets: %2</source>
         <source>Install</source>
         <translation type="unfinished">Installieren</translation>
     </message>
-</context>
-<context>
-    <name>ProjectInfoStatusBlock.ui</name>
     <message>
         <source>Unknown</source>
         <translation type="unfinished">Unbekannt</translation>
@@ -47366,9 +47357,6 @@ Exporting assets: %2</source>
         <source>Generate</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Screen01.ui</name>
     <message>
         <source>Qt Design Studio</source>
         <translation type="unfinished">Qt Design Studio</translation>
@@ -54872,7 +54860,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::GenerateCmake</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>Select Files to Generate</source>
         <translation type="unfinished"></translation>
@@ -54921,9 +54909,6 @@ The following files or directories are missing:
         <source>Cannot Generate CMake Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDesigner::CmakeProjectConverter</name>
     <message>
         <source>Export as Latest Project Format</source>
         <translation type="unfinished"></translation>
@@ -54946,9 +54931,6 @@ The following files or directories are missing:
 %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDesigner::CmakeProjectConverterDialog</name>
     <message>
         <source>This process creates a copy of the existing project. The new project&apos;s folder structure is adjusted for CMake build process and necessary related new files are generated.
 
@@ -54991,9 +54973,6 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
         <source>Project directory already exists.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::QmlMultiLanguageAspect</name>
     <message>
         <source>Use MultiLanguage in 2D view</source>
         <translation type="unfinished"></translation>
@@ -55001,13 +54980,6 @@ The new project can be opened in Qt Creator using the main CMakeLists.txt file.<
     <message>
         <source>Reads translations from MultiLanguage plugin.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectPlugin</name>
-    <message>
-        <source>Qt Design Studio</source>
-        <translation type="unfinished">Qt Design Studio</translation>
     </message>
     <message>
         <source>No project file (*.qmlproject) found for Qt Design Studio.

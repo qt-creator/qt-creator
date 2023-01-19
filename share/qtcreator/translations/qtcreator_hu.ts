@@ -12160,7 +12160,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::0</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>QML Application</source>
         <translation type="obsolete">QML Alkalmazás</translation>
@@ -12225,16 +12225,10 @@ a verziókövetőhöz (%2)?</translation>
         <source>Main QML File:</source>
         <translation type="obsolete">Fő QML fájl:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QML Make&lt;/b&gt;</source>
         <translation>&lt;b&gt;QML Make&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizard</name>
     <message>
         <source>QML Application</source>
         <translation>QML Alkalmazás</translation>
@@ -12251,9 +12245,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>The project %1 could not be opened.</source>
         <translation>Nem sikerült megnyitni %1 projektet.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlNewProjectWizardDialog</name>
     <message>
         <source>New QML Project</source>
         <translation>Új QML projekt</translation>
@@ -12262,9 +12253,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>This wizard generates a QML application project.</source>
         <translation>Ez a varázsló egy QML alkalmazási projektet generál.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizard</name>
     <message>
         <source>Import of existing QML directory</source>
         <translation>Létező QML könyvtár importálása</translation>
@@ -12273,17 +12261,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Creates a QML project from an existing directory of QML files.</source>
         <translation>QML projekt létrehozása QML fájlok létező könyvtárából.</translation>
     </message>
-    <message>
-        <source>Projects</source>
-        <translation>Projektek</translation>
-    </message>
-    <message>
-        <source>The project %1 could not be opened.</source>
-        <translation>Nem sikerült megnyitni %1 projektet.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectWizardDialog</name>
     <message>
         <source>Import of QML Project</source>
         <translation>QML projekt importálása</translation>
@@ -12300,9 +12277,6 @@ a verziókövetőhöz (%2)?</translation>
         <source>Location:</source>
         <translation>Hely:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlRunConfiguration</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML nézegető</translation>
