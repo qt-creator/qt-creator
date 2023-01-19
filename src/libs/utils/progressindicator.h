@@ -14,8 +14,6 @@
 
 namespace Utils {
 
-namespace Internal { class ProgressIndicatorPrivate; }
-
 enum class ProgressIndicatorSize
 {
     Small,
