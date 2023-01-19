@@ -4,6 +4,7 @@
 #include "settingswidget.h"
 
 #include "clangtoolsconstants.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "runsettingswidget.h"
 
@@ -46,8 +47,8 @@ SettingsWidget::SettingsWidget()
         }
         PathChooser *pathChooser = new PathChooser;
         pathChooser->setExpectedKind(PathChooser::ExistingCommand);
-        pathChooser->setPromptDialogTitle(tool == ClangToolType::Tidy ? tr("Clang-Tidy Executable")
-                                                                      : tr("Clazy Executable"));
+        pathChooser->setPromptDialogTitle(tool == ClangToolType::Tidy ? Tr::tr("Clang-Tidy Executable")
+                                                                      : Tr::tr("Clazy Executable"));
         pathChooser->setDefaultValue(placeHolderText);
         pathChooser->setFilePath(path);
         pathChooser->setHistoryCompleter(tool == ClangToolType::Tidy
@@ -65,10 +66,10 @@ SettingsWidget::SettingsWidget()
 
     Column {
         Group {
-            title(tr("Executables")),
+            title(Tr::tr("Executables")),
             Form {
-                tr("Clang-Tidy:"), m_clangTidyPathChooser, br,
-                tr("Clazy-Standalone:"), m_clazyStandalonePathChooser
+                Tr::tr("Clang-Tidy:"), m_clangTidyPathChooser, br,
+                Tr::tr("Clazy-Standalone:"), m_clazyStandalonePathChooser
             }
         },
         m_runSettingsWidget,
@@ -113,9 +114,7 @@ FilePath SettingsWidget::clazyStandalonePath() const
 ClangToolsOptionsPage::ClangToolsOptionsPage()
 {
     setId(Constants::SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate(
-                       "ClangTools::Internal::ClangToolsOptionsPage",
-                       "Clang Tools"));
+    setDisplayName(Tr::tr("Clang Tools"));
     setCategory("T.Analyzer");
     setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);

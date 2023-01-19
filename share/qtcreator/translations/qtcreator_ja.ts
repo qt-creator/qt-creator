@@ -42953,7 +42953,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ProjectSettingsWidget</name>
+    <name>::ClangTools</name>
     <message>
         <source>Use Global Settings</source>
         <translation>グローバル設定を使用する</translation>
@@ -42970,16 +42970,10 @@ Output:
         <source>Remove All</source>
         <translation>すべて削除</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecks</name>
     <message>
         <source>Filters</source>
         <translation type="unfinished">フィルタ</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterDialog</name>
     <message>
         <source>Select All</source>
         <translation>すべてを選択</translation>
@@ -42988,9 +42982,6 @@ Output:
         <source>Clear Selection</source>
         <translation>選択状態を解除</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::RunSettingsWidget</name>
     <message>
         <source>Parallel jobs:</source>
         <translation>並列ジョブ数:</translation>
@@ -45188,7 +45179,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangTool</name>
+    <name>::ClangTools</name>
     <message>
         <source>Clear</source>
         <translation>クリア</translation>
@@ -45205,9 +45196,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Run %1 in %2 Mode?</source>
         <translation>%1 を%2モードで実行しますか？</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunWorker</name>
     <message>
         <source>Analyzing</source>
         <translation>解析中</translation>
@@ -45216,9 +45204,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Failed to analyze &quot;%1&quot;: %2</source>
         <translation>&quot;%1&quot; の解析に失敗しました: %2</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>%1 crashed.</source>
         <translation>%1 がクラッシュしました。</translation>
@@ -45233,9 +45218,6 @@ Output:
 出力:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>メッセージ:</translation>
@@ -45244,9 +45226,6 @@ Output:
         <source>Location:</source>
         <translation>パス:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
     <message>
         <source>Filter...</source>
         <translation>フィルタ...</translation>
@@ -45255,16 +45234,10 @@ Output:
         <source>Suppress This Diagnostic</source>
         <translation>この診断を抑制する</translation>
     </message>
-</context>
-<context>
-    <name>LogFileReader</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>ファイル &quot;%1&quot; が存在しないか読み込み可能ではありません。</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
     <message>
         <source>File</source>
         <translation>ファイル</translation>
@@ -45273,9 +45246,6 @@ Output:
         <source>Diagnostic</source>
         <translation>診断</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Diagnostic</name>
     <message>
         <source>Category:</source>
         <translation>カテゴリ:</translation>
@@ -45285,26 +45255,13 @@ Output:
         <translation>説明:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>パス:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyOptionsDialog</name>
-    <message>
         <source>Value</source>
         <translation>値</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecksTreeModel</name>
     <message>
         <source>Options</source>
         <translation>オプション</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticMark</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation>クリップボードにコピーする</translation>

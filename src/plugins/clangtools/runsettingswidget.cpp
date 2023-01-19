@@ -4,6 +4,7 @@
 #include "runsettingswidget.h"
 
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "diagnosticconfigswidget.h"
 #include "executableinfo.h"
@@ -31,9 +32,9 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
 
     m_diagnosticWidget = new ClangDiagnosticConfigsSelectionWidget;
 
-    m_buildBeforeAnalysis = new QCheckBox(tr("Build the project before analysis"));
+    m_buildBeforeAnalysis = new QCheckBox(Tr::tr("Build the project before analysis"));
 
-    m_analyzeOpenFiles = new QCheckBox(tr("Analyze open files"));
+    m_analyzeOpenFiles = new QCheckBox(Tr::tr("Analyze open files"));
 
     m_parallelJobsSpinBox = new QSpinBox;
     m_parallelJobsSpinBox->setRange(1, 32);
@@ -43,12 +44,12 @@ RunSettingsWidget::RunSettingsWidget(QWidget *parent)
     // FIXME: Let RunSettingsWidget inherit from QGroupBox?
     Column {
         Group {
-            title(tr("Run Options")),
+            title(Tr::tr("Run Options")),
             Column {
                 m_diagnosticWidget,
                 m_buildBeforeAnalysis,
                 m_analyzeOpenFiles,
-                Row { tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
+                Row { Tr::tr("Parallel jobs:"), m_parallelJobsSpinBox, st },
             }
         }
     }.attachTo(this, WithoutMargins);

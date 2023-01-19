@@ -7,6 +7,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolsprojectsettingswidget.h"
+#include "clangtoolstr.h"
 #include "documentclangtoolrunner.h"
 #include "documentquickfixfactory.h"
 #include "settingswidget.h"
@@ -92,7 +93,7 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
-    TaskHub::addCategory(taskCategory(), tr("Clang Tools"));
+    TaskHub::addCategory(taskCategory(), Tr::tr("Clang Tools"));
 
     // Import tidy/clazy diagnostic configs from CppEditor now
     // instead of at opening time of the settings page
@@ -105,7 +106,7 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
     auto panelFactory = m_projectPanelFactoryInstance = new ProjectPanelFactory;
     panelFactory->setPriority(100);
     panelFactory->setId(Constants::PROJECT_PANEL_ID);
-    panelFactory->setDisplayName(tr("Clang Tools"));
+    panelFactory->setDisplayName(Tr::tr("Clang Tools"));
     panelFactory->setCreateWidgetFunction(
         [](Project *project) { return new ClangToolsProjectSettingsWidget(project); });
     ProjectPanelFactory::registerFactory(panelFactory);
@@ -170,7 +171,7 @@ void ClangToolsPlugin::registerAnalyzeActions()
         const auto button = new QToolButton;
         button->setPopupMode(QToolButton::InstantPopup);
         button->setIcon(icon);
-        button->setToolTip(tr("Analyze File..."));
+        button->setToolTip(Tr::tr("Analyze File..."));
         widget->toolBar()->addWidget(button);
         const auto toolsMenu = new QMenu(widget);
         button->setMenu(toolsMenu);

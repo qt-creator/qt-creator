@@ -7,6 +7,7 @@
 #include "clangtoolsconstants.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "runsettingswidget.h"
 
 #include <coreplugin/icore.h>
@@ -52,20 +53,20 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     m_projectSettings(ClangToolsProjectSettings::getSettings(project))
 {
     setGlobalSettingsId(ClangTools::Constants::SETTINGS_PAGE_ID);
-    m_restoreGlobal = new QPushButton(tr("Restore Global Settings"));
+    m_restoreGlobal = new QPushButton(Tr::tr("Restore Global Settings"));
 
     const auto gotoClangTidyModeLabel
-            = new QLabel("<a href=\"target\">" + tr("Go to Clang-Tidy") + "</a>");
+            = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clang-Tidy") + "</a>");
     const auto gotoClazyModeLabel
-            = new QLabel("<a href=\"target\">" + tr("Go to Clazy") + "</a>");
+            = new QLabel("<a href=\"target\">" + Tr::tr("Go to Clazy") + "</a>");
 
     m_runSettingsWidget = new ClangTools::Internal::RunSettingsWidget(this);
 
     m_diagnosticsView = new QTreeView;
     m_diagnosticsView->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    m_removeSelectedButton = new QPushButton(tr("Remove Selected"), this);
-    m_removeAllButton = new QPushButton(tr("Remove All"));
+    m_removeSelectedButton = new QPushButton(Tr::tr("Remove Selected"), this);
+    m_removeAllButton = new QPushButton(Tr::tr("Remove All"));
 
     using namespace Utils::Layouting;
     Column {
@@ -74,7 +75,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
         m_runSettingsWidget,
 
         Group {
-            title(tr("Suppressed diagnostics")),
+            title(Tr::tr("Suppressed diagnostics")),
             Row {
                 m_diagnosticsView,
                 Column {
@@ -197,9 +198,9 @@ QVariant SuppressedDiagnosticsModel::headerData(int section, Qt::Orientation ori
 {
     if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
         if (section == ColumnFile)
-            return tr("File");
+            return Tr::tr("File");
         if (section == ColumnDescription)
-            return tr("Diagnostic");
+            return Tr::tr("Diagnostic");
     }
     return QVariant();
 }

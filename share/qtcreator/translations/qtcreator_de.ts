@@ -41242,7 +41242,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
+    <name>::ClangTools</name>
     <message>
         <source>Files to Analyze</source>
         <translation>Zu analysierende Dateien</translation>
@@ -41308,7 +41308,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
+    <name>::ClangTools</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation>Im %1-Prozess trat ein Fehler auf.</translation>
@@ -41331,9 +41331,6 @@ Prozessfehler: %2
 Ausgabe:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Diagnostic</name>
     <message>
         <source>Category:</source>
         <translation>Kategorie:</translation>
@@ -41362,20 +41359,10 @@ Ausgabe:
         <source>Documentation:</source>
         <translation>Dokumentation:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>Meldung:</translation>
     </message>
-    <message>
-        <source>Location:</source>
-        <translation>Ort:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
     <message>
         <source>Filter...</source>
         <translation>Filter...</translation>
@@ -41412,9 +41399,6 @@ Ausgabe:
         <source>Disable This Check</source>
         <translation>Diesen Check deaktivieren</translation>
     </message>
-</context>
-<context>
-    <name>LogFileReader</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>Die Datei &quot;%1&quot; fehlt oder ist nicht lesbar.</translation>
@@ -41423,16 +41407,6 @@ Ausgabe:
         <source>Error: Failed to parse YAML file &quot;%1&quot;: %2.</source>
         <translation>Fehler: Die YAML-Datei &quot;%1&quot; konnte nicht ausgewertet werden: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation>Clang-Werkzeuge</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
     <message>
         <source>Clang Tools</source>
         <translation>Clang-Werkzeuge</translation>
@@ -41441,9 +41415,6 @@ Ausgabe:
         <source>Analyze File</source>
         <translation>Datei analysieren</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
     <message>
         <source>File</source>
         <translation>Datei</translation>
@@ -43463,7 +43434,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClazyChecks</name>
+    <name>::ClangTools</name>
     <message>
         <source>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy&apos;s homepage&lt;/a&gt; for more information.</source>
         <translation>Weitere Informationen finden Sie auf der &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Homepage von Clazy&lt;/a&gt;.</translation>
@@ -43494,9 +43465,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <source>Enable lower levels automatically</source>
         <translation>Niedrigere Stufen automatisch aktivieren</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterDialog</name>
     <message>
         <source>Filter Diagnostics</source>
         <translation>Meldungen filtern</translation>
@@ -43517,9 +43485,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <source>Select the diagnostics to display.</source>
         <translation>Wählen Sie die anzuzeigenden Meldungen.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::RunSettingsWidget</name>
     <message>
         <source>Build the project before analysis</source>
         <translation>Projekt vor der Analyse erstellen</translation>
@@ -43536,9 +43501,6 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
         <source>Parallel jobs:</source>
         <translation>Parallele Jobs:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecks</name>
     <message>
         <source>Select Checks</source>
         <translation>Prüfungen auswählen</translation>
@@ -44390,21 +44352,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangTidyRunner</name>
+    <name>::ClangTools</name>
     <message>
         <source>Clang-Tidy</source>
         <translation>Clang-Tidy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyStandaloneRunner</name>
     <message>
         <source>Clazy</source>
         <translation>Clazy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTool</name>
     <message>
         <source>Analyze Project...</source>
         <translation>Projekt analysieren...</translation>
@@ -44436,10 +44392,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Collapse All</source>
         <translation>Alle einklappen</translation>
-    </message>
-    <message>
-        <source>Filter Diagnostics</source>
-        <translation>Meldungen filtern</translation>
     </message>
     <message>
         <source>Apply Fixits</source>
@@ -44582,13 +44534,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Info About Build the Project Before Analysis</source>
         <translation>Information über das Erstellen des Projekts vor der Analyse</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunWorker</name>
-    <message>
-        <source>Failed to build the project.</source>
-        <translation>Das Projekt konnte nicht erstellt werden.</translation>
-    </message>
     <message>
         <source>No code model data available for project.</source>
         <translation>Für das Projekt sind keine Codemodell-Daten vorhanden.</translation>
@@ -44636,16 +44581,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>%1 finished: Processed %2 files successfully, %3 failed.</source>
         <translation>%1 beendet: %2 Dateien erfolgreich verarbeitet, %3 fehlgeschlagen.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::BaseChecksTreeModel</name>
-    <message>
-        <source>Web Page</source>
-        <translation>Webseite</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecksTreeModel</name>
     <message>
         <source>Manual Level: Very few false positives</source>
         <translation>Manuelle Stufe: Sehr wenige Fehlalarme</translation>
@@ -44670,13 +44605,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <source>Level %1</source>
         <translation>Stufe %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticConfigsWidget</name>
-    <message>
-        <source>Checks</source>
-        <translation>Prüfungen</translation>
-    </message>
     <message>
         <source>Clang-Tidy Checks</source>
         <translation>Clang-Tidy Checks</translation>
@@ -44684,10 +44612,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Clazy Checks</source>
         <translation>Clazy Checks</translation>
-    </message>
-    <message>
-        <source>Edit Checks as String...</source>
-        <translation>Prüfungen als Zeichenkette bearbeiten...</translation>
     </message>
     <message>
         <source>View Checks as String...</source>
@@ -50907,7 +50831,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangToolsProjectSettingsWidget</name>
+    <name>::ClangTools</name>
     <message>
         <source>Restore Global Settings</source>
         <translation>Globale Einstellungen wiederherstellen</translation>
@@ -50928,9 +50852,6 @@ in &quot;%2&quot; aus.
         <source>Suppressed diagnostics</source>
         <translation>Unterdrückte Meldungen</translation>
     </message>
-</context>
-<context>
-    <name>ClangToolsDiagnosticModel</name>
     <message>
         <source>No Fixits</source>
         <translation>Keine Korrekturen</translation>
@@ -50955,9 +50876,6 @@ in &quot;%2&quot; aus.
         <source>Applied</source>
         <translation>Angewendet</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyOptionsDialog</name>
     <message>
         <source>Options for %1</source>
         <translation>Einstellungen für %1</translation>
@@ -50982,23 +50900,14 @@ in &quot;%2&quot; aus.
         <source>&lt;new option&gt;</source>
         <translation>&lt;Neue Einstellung&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecksTreeModel</name>
     <message>
         <source>Options</source>
         <translation>Einstellungen</translation>
     </message>
-</context>
-<context>
-    <name>Clang Tools</name>
     <message>
         <source>Custom Configuration</source>
         <translation>Benutzerdefinierte Konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticMark</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation>In die Zwischenablage kopieren</translation>
@@ -51007,16 +50916,10 @@ in &quot;%2&quot; aus.
         <source>Disable Diagnostic</source>
         <translation>Meldung deaktivieren</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterChecksModel</name>
     <message>
         <source>Check</source>
         <translation>Check</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SettingsWidget</name>
     <message>
         <source>Clang-Tidy Executable</source>
         <translation>Ausführbare Datei für Clang-Tidy</translation>

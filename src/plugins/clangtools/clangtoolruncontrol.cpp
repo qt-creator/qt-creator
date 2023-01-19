@@ -5,6 +5,7 @@
 
 #include "clangtool.h"
 #include "clangtoolrunner.h"
+#include "clangtoolstr.h"
 #include "executableinfo.h"
 
 #include <coreplugin/progressmanager/taskprogress.h>
@@ -126,7 +127,7 @@ void ClangToolRunWorker::start()
 
     if (m_projectBuilder && !m_projectBuilder->success()) {
         emit buildFailed();
-        reportFailure(tr("Failed to build the project."));
+        reportFailure(Tr::tr("Failed to build the project."));
         return;
     }
 
@@ -134,7 +135,7 @@ void ClangToolRunWorker::start()
     Project *project = runControl()->project();
     m_projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
     if (!m_projectInfo) {
-        reportFailure(tr("No code model data available for project."));
+        reportFailure(Tr::tr("No code model data available for project."));
         return;
     }
     m_projectFiles = Utils::toSet(project->files(Project::AllFiles));
@@ -144,8 +145,8 @@ void ClangToolRunWorker::start()
         // If it's more than a release/debug build configuration change, e.g.
         // a version control checkout, files might be not valid C++ anymore
         // or even gone, so better stop here.
-        reportFailure(tr("The project configuration changed since the start of "
-                         "the %1. Please re-run with current configuration.")
+        reportFailure(Tr::tr("The project configuration changed since the start of "
+                             "the %1. Please re-run with current configuration.")
                           .arg(toolName));
         emit startFailed();
         return;
@@ -154,13 +155,13 @@ void ClangToolRunWorker::start()
     // Create log dir
     if (!m_temporaryDir.isValid()) {
         reportFailure(
-            tr("Failed to create temporary directory: %1.").arg(m_temporaryDir.errorString()));
+            Tr::tr("Failed to create temporary directory: %1.").arg(m_temporaryDir.errorString()));
         emit startFailed();
         return;
     }
 
     const Utils::FilePath projectFile = m_projectInfo->projectFilePath();
-    appendMessage(tr("Running %1 on %2 with configuration \"%3\".")
+    appendMessage(Tr::tr("Running %1 on %2 with configuration \"%3\".")
                      .arg(toolName, projectFile.toUserOutput(), m_diagnosticConfig.displayName()),
                   Utils::NormalMessageFormat);
 
@@ -189,7 +190,7 @@ void ClangToolRunWorker::start()
                                      m_environment, unit};
         const auto setupHandler = [this, unit, tool] {
             const QString filePath = FilePath::fromString(unit.file).toUserOutput();
-            appendMessage(tr("Analyzing \"%1\" [%2].").arg(filePath, clangToolName(tool)),
+            appendMessage(Tr::tr("Analyzing \"%1\" [%2].").arg(filePath, clangToolName(tool)),
                           Utils::StdOutFormat);
             return true;
         };
@@ -201,7 +202,7 @@ void ClangToolRunWorker::start()
     connect(m_taskTree.get(), &TaskTree::done, this, &ClangToolRunWorker::finalize);
     connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &ClangToolRunWorker::finalize);
     auto progress = new Core::TaskProgress(m_taskTree.get());
-    progress->setDisplayName(tr("Analyzing"));
+    progress->setDisplayName(Tr::tr("Analyzing"));
     reportStarted();
     m_elapsed.start();
     m_taskTree->start();
@@ -229,7 +230,7 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
         m_filesAnalyzed.remove(output.fileToAnalyze);
         m_filesNotAnalyzed.insert(output.fileToAnalyze);
 
-        const QString message = tr("Failed to analyze \"%1\": %2")
+        const QString message = Tr::tr("Failed to analyze \"%1\": %2")
                                     .arg(output.fileToAnalyze, output.errorMessage);
         appendMessage(message, Utils::StdErrFormat);
         appendMessage(output.errorDetails, Utils::StdErrFormat);
@@ -246,7 +247,7 @@ void ClangToolRunWorker::onDone(const AnalyzeOutputData &output)
         m_filesAnalyzed.remove(output.fileToAnalyze);
         m_filesNotAnalyzed.insert(output.fileToAnalyze);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        appendMessage(tr("Failed to analyze \"%1\": %2").arg(output.fileToAnalyze, errorMessage),
+        appendMessage(Tr::tr("Failed to analyze \"%1\": %2").arg(output.fileToAnalyze, errorMessage),
                       Utils::StdErrFormat);
     } else {
         if (!m_filesNotAnalyzed.contains(output.fileToAnalyze))
@@ -266,20 +267,20 @@ void ClangToolRunWorker::finalize()
         m_taskTree.release()->deleteLater();
     const QString toolName = m_tool->name();
     if (m_filesNotAnalyzed.size() != 0) {
-        appendMessage(tr("Error: Failed to analyze %n files.", nullptr, m_filesNotAnalyzed.size()),
+        appendMessage(Tr::tr("Error: Failed to analyze %n files.", nullptr, m_filesNotAnalyzed.size()),
                       ErrorMessageFormat);
         Target *target = runControl()->target();
         if (target && target->activeBuildConfiguration() && !target->activeBuildConfiguration()->buildDirectory().exists()
             && !m_runSettings.buildBeforeAnalysis()) {
             appendMessage(
-                tr("Note: You might need to build the project to generate or update source "
+                Tr::tr("Note: You might need to build the project to generate or update source "
                    "files. To build automatically, enable \"Build the project before analysis\"."),
                 NormalMessageFormat);
         }
     }
 
-    appendMessage(tr("%1 finished: "
-                     "Processed %2 files successfully, %3 failed.")
+    appendMessage(Tr::tr("%1 finished: "
+                         "Processed %2 files successfully, %3 failed.")
                       .arg(toolName)
                       .arg(m_filesAnalyzed.size())
                       .arg(m_filesNotAnalyzed.size()),

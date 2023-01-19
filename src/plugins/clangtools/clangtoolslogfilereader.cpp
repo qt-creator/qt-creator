@@ -22,7 +22,7 @@ static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage
     if (!fi.exists() || !fi.isReadable()) {
         if (errorMessage) {
             *errorMessage
-                    = QString(QT_TRANSLATE_NOOP("LogFileReader",
+                    = QString(QT_TRANSLATE_NOOP("::ClangTools",
                                                 "File \"%1\" does not exist or is not readable."))
                     .arg(filePath.toUserOutput());
         }
@@ -255,7 +255,7 @@ Diagnostics readExportedDiagnostics(const Utils::FilePath &logFilePath,
     } catch (std::exception &e) {
         if (errorMessage) {
             *errorMessage = QString(
-                                QT_TRANSLATE_NOOP("LogFileReader",
+                                QT_TRANSLATE_NOOP("::ClangTools",
                                                   "Error: Failed to parse YAML file \"%1\": %2."))
                                 .arg(logFilePath.toUserOutput(), QString::fromUtf8(e.what()));
         }

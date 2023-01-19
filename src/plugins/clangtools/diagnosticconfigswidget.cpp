@@ -6,6 +6,7 @@
 #include "clangtoolsdiagnostic.h"
 #include "clangtoolsprojectsettings.h"
 #include "clangtoolssettings.h"
+#include "clangtoolstr.h"
 #include "clangtoolsutils.h"
 #include "executableinfo.h"
 
@@ -54,8 +55,6 @@ QString removeClazyCheck(const QString &checks, const QString &check);
 
 class TidyChecksWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::TidyChecks)
-
 public:
     QComboBox *tidyMode;
     QPushButton *plainTextEditButton;
@@ -67,10 +66,10 @@ public:
     TidyChecksWidget()
     {
         tidyMode = new QComboBox;
-        tidyMode->addItem(tr("Select Checks"));
-        tidyMode->addItem(tr("Use .clang-tidy config file"));
+        tidyMode->addItem(Tr::tr("Select Checks"));
+        tidyMode->addItem(Tr::tr("Use .clang-tidy config file"));
 
-        plainTextEditButton = new QPushButton(tr("Edit Checks as String..."));
+        plainTextEditButton = new QPushButton(Tr::tr("Edit Checks as String..."));
 
         filterLineEdit = new FancyLineEdit;
 
@@ -83,7 +82,7 @@ public:
         invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
         invalidExecutableLabel->setType(InfoLabel::Warning);
         invalidExecutableLabel->setElideMode(Qt::ElideNone);
-        invalidExecutableLabel->setText(tr("Could not query the supported checks from the "
+        invalidExecutableLabel->setText(Tr::tr("Could not query the supported checks from the "
             "clang-tidy executable.\nSet a valid executable first."));
 
         auto invalidExecutablePage = new QWidget;
@@ -113,8 +112,6 @@ public:
 
 class ClazyChecksWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangTools::Internal::ClazyChecks)
-
 public:
     QStackedWidget *stackedWidget;
     FancyLineEdit *filterLineEdit;
@@ -130,26 +127,26 @@ public:
 
         auto label = new QLabel;
         label->setOpenExternalLinks(true);
-        label->setText(tr("See <a href=\"https://github.com/KDE/clazy\">"
-                          "Clazy's homepage</a> for more information."));
+        label->setText(Tr::tr("See <a href=\"https://github.com/KDE/clazy\">"
+                              "Clazy's homepage</a> for more information."));
 
-        auto groupBox = new QGroupBox(tr("Filters"));
+        auto groupBox = new QGroupBox(Tr::tr("Filters"));
         QSizePolicy sp(QSizePolicy::Maximum, QSizePolicy::Preferred);
         sp.setHorizontalStretch(1);
         groupBox->setSizePolicy(sp);
 
         filterLineEdit = new FancyLineEdit;
 
-        topicsResetButton = new QPushButton(tr("Reset Topic Filter"));
+        topicsResetButton = new QPushButton(Tr::tr("Reset Topic Filter"));
         topicsView = new QListView;
 
-        checksGroupBox = new QGroupBox(tr("Checks"));
+        checksGroupBox = new QGroupBox(Tr::tr("Checks"));
         sp.setHorizontalPolicy(QSizePolicy::MinimumExpanding);
         sp.setHorizontalStretch(100);
         checksGroupBox->setSizePolicy(sp);
 
-        enableLowerLevelsCheckBox = new QCheckBox(tr("Enable lower levels automatically"));
-        enableLowerLevelsCheckBox->setToolTip(tr("When enabling a level explicitly, "
+        enableLowerLevelsCheckBox = new QCheckBox(Tr::tr("Enable lower levels automatically"));
+        enableLowerLevelsCheckBox->setToolTip(Tr::tr("When enabling a level explicitly, "
             "also enable lower levels (Clazy semantic)."));
 
         checksView = new QTreeView;
@@ -160,7 +157,7 @@ public:
         invalidExecutableLabel->setType(InfoLabel::Warning);
         invalidExecutableLabel->setElideMode(Qt::ElideNone);
         invalidExecutableLabel->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-        invalidExecutableLabel->setText(tr("Could not query the supported checks from the "
+        invalidExecutableLabel->setText(Tr::tr("Could not query the supported checks from the "
             "clazy-standalone executable.\nSet a valid executable first."));
 
         stackedWidget = new QStackedWidget;
@@ -203,11 +200,11 @@ public:
     TidyOptionsDialog(const QString &check, const ClangDiagnosticConfig::TidyCheckOptions &options,
                       QWidget *parent = nullptr) : QDialog(parent)
     {
-        setWindowTitle(tr("Options for %1").arg(check));
+        setWindowTitle(Tr::tr("Options for %1").arg(check));
         resize(600, 300);
 
         m_optionsWidget.setColumnCount(2);
-        m_optionsWidget.setHeaderLabels({tr("Option"), tr("Value")});
+        m_optionsWidget.setHeaderLabels({Tr::tr("Option"), Tr::tr("Value")});
         const auto addItem = [this](const QString &option, const QString &value) {
             const auto item = new QTreeWidgetItem(&m_optionsWidget, QStringList{option, value});
             item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -217,8 +214,8 @@ public:
             addItem(it.key(), it.value());
         m_optionsWidget.resizeColumnToContents(0);
 
-        const auto addButton = new QPushButton(tr("Add Option"));
-        const auto removeButton = new QPushButton(tr("Remove Option"));
+        const auto addButton = new QPushButton(Tr::tr("Add Option"));
+        const auto removeButton = new QPushButton(Tr::tr("Remove Option"));
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                                     | QDialogButtonBox::Cancel);
 
@@ -236,7 +233,7 @@ public:
         }.attachTo(this);
 
         connect(addButton, &QPushButton::clicked, this, [this, addItem] {
-            const auto item = addItem(tr("<new option>"), {});
+            const auto item = addItem(Tr::tr("<new option>"), {});
             m_optionsWidget.editItem(item);
         });
         connect(removeButton, &QPushButton::clicked, this, [this] {
@@ -440,7 +437,7 @@ public:
         if (fullIndex.column() == LinkColumn) {
             switch (role) {
             case Qt::DisplayRole:
-                return tr("Web Page");
+                return Tr::tr("Web Page");
             case Qt::FontRole: {
                 QFont font = QApplication::font();
                 font.setUnderline(true);
@@ -601,7 +598,7 @@ public:
             if (hasChildren(fullIndex))
                 return {};
             if (role == Qt::DisplayRole)
-                return tr("Options");
+                return Tr::tr("Options");
             if (role == Qt::FontRole || role == Qt::ForegroundRole) {
                 return BaseChecksTreeModel::data(fullIndex.sibling(fullIndex.row(), LinkColumn),
                                                  role);
@@ -789,18 +786,18 @@ private:
     {
         switch (level) {
         case -1:
-            return tr("Manual Level: Very few false positives");
+            return Tr::tr("Manual Level: Very few false positives");
         case 0:
-            return tr("Level 0: No false positives");
+            return Tr::tr("Level 0: No false positives");
         case 1:
-            return tr("Level 1: Very few false positives");
+            return Tr::tr("Level 1: Very few false positives");
         case 2:
-            return tr("Level 2: More false positives");
+            return Tr::tr("Level 2: More false positives");
         case 3:
-            return tr("Level 3: Experimental checks");
+            return Tr::tr("Level 3: Experimental checks");
         default:
             QTC_CHECK(false && "No clazy level description");
-            return tr("Level %1").arg(QString::number(level));
+            return Tr::tr("Level %1").arg(QString::number(level));
         }
     }
 
@@ -1048,7 +1045,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
         const bool readOnly = currentConfig().isReadOnly();
 
         QDialog dialog;
-        dialog.setWindowTitle(tr("Checks"));
+        dialog.setWindowTitle(Tr::tr("Checks"));
 
         const QString initialChecks = m_tidyTreeModel->selectedChecks();
 
@@ -1090,8 +1087,8 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     connectClangTidyItemChanged();
     connectClazyItemChanged();
 
-    tabWidget()->addTab(m_tidyChecks, tr("Clang-Tidy Checks"));
-    tabWidget()->addTab(m_clazyChecks, tr("Clazy Checks"));
+    tabWidget()->addTab(m_tidyChecks, Tr::tr("Clang-Tidy Checks"));
+    tabWidget()->addTab(m_clazyChecks, Tr::tr("Clazy Checks"));
 }
 
 DiagnosticConfigsWidget::~DiagnosticConfigsWidget()
@@ -1136,8 +1133,8 @@ void DiagnosticConfigsWidget::syncClangTidyWidgets(const ClangDiagnosticConfig &
 
     const bool enabled = !config.isReadOnly();
     m_tidyChecks->tidyMode->setEnabled(enabled);
-    m_tidyChecks->plainTextEditButton->setText(enabled ? tr("Edit Checks as String...")
-                                                       : tr("View Checks as String..."));
+    m_tidyChecks->plainTextEditButton->setText(enabled ? Tr::tr("Edit Checks as String...")
+                                                       : Tr::tr("View Checks as String..."));
     m_tidyTreeModel->setEnabled(enabled);
     connectClangTidyItemChanged();
 }
@@ -1257,9 +1254,9 @@ void DiagnosticConfigsWidget::syncClazyChecksGroupBox()
     };
     const bool hasEnabledButHidden = m_clazyTreeModel->hasEnabledButNotVisibleChecks(isHidden);
     const int checksCount = m_clazyTreeModel->enabledChecks().count();
-    const QString title = hasEnabledButHidden ? tr("Checks (%n enabled, some are filtered out)",
+    const QString title = hasEnabledButHidden ? Tr::tr("Checks (%n enabled, some are filtered out)",
                                                    nullptr, checksCount)
-                                              : tr("Checks (%n enabled)", nullptr, checksCount);
+                                              : Tr::tr("Checks (%n enabled)", nullptr, checksCount);
     m_clazyChecks->checksGroupBox->setTitle(title);
 }
 
@@ -1311,7 +1308,7 @@ void disableChecks(const QList<Diagnostic> &diagnostics)
         config = builtinConfig();
         config.setIsReadOnly(false);
         config.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
-        config.setDisplayName(QCoreApplication::translate("Clang Tools", "Custom Configuration"));
+        config.setDisplayName(Tr::tr("Custom Configuration"));
         configs << config;
         RunSettings runSettings = settings->runSettings();
         runSettings.setDiagnosticConfigId(config.id());

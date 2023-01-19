@@ -39803,7 +39803,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
+    <name>::ClangTools</name>
     <message>
         <source>Analyzer Configuration</source>
         <translation>Analysator-konfiguration</translation>
@@ -39832,9 +39832,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Analyze</source>
         <translation>Analysér</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ClangToolsBasicSettings</name>
     <message>
         <source>Form</source>
         <translation>Formular</translation>
@@ -39843,20 +39840,10 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Build the project before analysis</source>
         <translation>Byg projektet inden analyse</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsConfigWidget</name>
-    <message>
-        <source>General</source>
-        <translation>Generelt</translation>
-    </message>
     <message>
         <source>Simultaneous processes:</source>
         <translation>Samtidige processer:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ProjectSettingsWidget</name>
     <message>
         <source>Suppressed diagnostics:</source>
         <translation>Undertrykt diagnostik:</translation>
@@ -40190,14 +40177,11 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangTidyClazyRunner</name>
+    <name>::ClangTools</name>
     <message>
         <source>Clang-Tidy and Clazy</source>
         <translation>Clang-Tidy og Clazy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTidyClazyTool</name>
     <message>
         <source>Clang-Tidy and Clazy Issues</source>
         <translation>Clang-Tidy- og Clazy-problemstillinger</translation>
@@ -40217,10 +40201,6 @@ Spordataene er tabt.</translation>
     <message>
         <source>Clang-Tidy and Clazy use a customized Clang executable from the Clang project to search for errors and warnings.</source>
         <translation>Clang-Tidy og Clazy brug en brugerdefineret Clang-eksekverbar fra Clang-projektet til at søge efter fejl og advarsler.</translation>
-    </message>
-    <message>
-        <source>Clang-Tidy and Clazy</source>
-        <translation>Clang-Tidy og Clazy</translation>
     </message>
     <message>
         <source>Clang-Tidy and Clazy...</source>
@@ -40261,9 +40241,6 @@ Spordataene er tabt.</translation>
             <numerusform>%n problemstillinger fundet.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunControl</name>
     <message>
         <source>Release</source>
         <translation>Udgiv</translation>
@@ -40312,9 +40289,6 @@ Spordataene er tabt.</translation>
         <source>: Not all files could be analyzed.</source>
         <translation>: Kunne ikke analysere alle filer.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation>Der opstod en fejl med %1-processen.</translation>
@@ -40337,9 +40311,6 @@ Procesfejl: %2
 Output:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsDiagnosticModel</name>
     <message>
         <source>Issue</source>
         <translation>Problemstilling</translation>
@@ -40376,9 +40347,6 @@ Output:
         <source>Applied</source>
         <translation>Anvendt</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Diagnostic</name>
     <message>
         <source>Category:</source>
         <translation>Kategori:</translation>
@@ -40399,9 +40367,6 @@ Output:
         <source>Location:</source>
         <translation>Placering:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>Meddelelse:</translation>
@@ -40411,40 +40376,17 @@ Output:
         <translation>Udvidet meddelelse:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>Placering:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
-    <message>
         <source>Suppress This Diagnostic</source>
         <translation>Undertryk denne diagnostik</translation>
     </message>
-</context>
-<context>
-    <name>LogFileReader</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>Filen &quot;%1&quot; findes ikke eller er ikke læsbar.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
     <message>
         <source>Clang Tools</source>
         <translation>Clang-værktøjer</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation>Clang-værktøjer</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
     <message>
         <source>File</source>
         <translation>Fil</translation>

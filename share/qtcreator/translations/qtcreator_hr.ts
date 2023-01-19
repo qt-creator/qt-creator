@@ -1774,7 +1774,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
+    <name>::ClangTools</name>
     <message>
         <source>Analyzer Configuration</source>
         <translation>Konfiguracija analizatora</translation>
@@ -1803,27 +1803,14 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
         <source>Analyze</source>
         <translation>Analiziraj</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsBasicSettings</name>
     <message>
         <source>Build the project before analysis</source>
         <translation>Izgradi projekt prije analize</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsConfigWidget</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Simultaneous processes:</source>
         <translation>Istovremeni procesi:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ProjectSettingsWidget</name>
     <message>
         <source>Suppressed diagnostics:</source>
         <translation>Izostavljene dijagnoze:</translation>
@@ -16067,14 +16054,11 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangTidyClazyRunner</name>
+    <name>::ClangTools</name>
     <message>
         <source>Clang-Tidy and Clazy</source>
         <translation>Clang-Tidy i Clazy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTidyClazyTool</name>
     <message>
         <source>Clang-Tidy and Clazy Diagnostics</source>
         <translation>Dijagnoze za Clang-Tidy i Clazy</translation>
@@ -16116,10 +16100,6 @@ Check the test environment.</source>
         <translation>Clang-Tidy i Clazy …</translation>
     </message>
     <message>
-        <source>Clang-Tidy and Clazy</source>
-        <translation>Clang-Tidy i Clazy</translation>
-    </message>
-    <message>
         <source>Clang-Tidy and Clazy tool stopped by user.</source>
         <translation>Clang-Tidy i Clazy alat je zaustavljen od korisnika.</translation>
     </message>
@@ -16159,9 +16139,6 @@ Check the test environment.</source>
         <source>Finished - No diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunControl</name>
     <message>
         <source>Release</source>
         <translation>Objavi</translation>
@@ -16214,9 +16191,6 @@ Check the test environment.</source>
         <source>%1: Not all files could be analyzed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation>Dogodila se greška s procesom %1.</translation>
@@ -16239,9 +16213,6 @@ Greška procesa: %2
 Izlaz:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsDiagnosticModel</name>
     <message>
         <source>Diagnostic</source>
         <translation>Dijagnoza</translation>
@@ -16270,9 +16241,6 @@ Izlaz:
         <source>Applied</source>
         <translation>Primijenjeno</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Diagnostic</name>
     <message>
         <source>Category:</source>
         <translation>Kategorija:</translation>
@@ -16297,9 +16265,6 @@ Izlaz:
         <source>Fixit status:</source>
         <translation>Stanje ispravljanja:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>Poruka:</translation>
@@ -16309,26 +16274,13 @@ Izlaz:
         <translation>Proširena poruka:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>Mjesto:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
-    <message>
         <source>Suppress This Diagnostic</source>
         <translation>Izostavi ovu dijagnozu</translation>
     </message>
-</context>
-<context>
-    <name>LogFileReader</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>Datoteka &quot;%1&quot; ne postoji ili nije čitljiva.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
     <message>
         <source>Clang Tools</source>
         <translation>Clang alati</translation>
@@ -16342,14 +16294,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation>Clang alati</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
+    <name>::ClangTools</name>
     <message>
         <source>File</source>
         <translation>Datoteka</translation>
@@ -16357,10 +16302,6 @@ Izlaz:
     <message>
         <source>Context</source>
         <translation>Sadržaj</translation>
-    </message>
-    <message>
-        <source>Diagnostic</source>
-        <translation>Dijagnoza</translation>
     </message>
     <message>
         <source>Function &quot;%1&quot;</source>

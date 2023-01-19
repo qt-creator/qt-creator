@@ -3,6 +3,8 @@
 
 #include "clangselectablefilesdialog.h"
 
+#include "clangtoolstr.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <cppeditor/projectinfo.h>
@@ -100,8 +102,7 @@ public:
             linkDirNode(m_root, projectDirTree);
 
             // Add files outside of the base directory to a separate node
-            Tree *externalFilesNode = createDirNode(SelectableFilesDialog::tr(
-                                                        "Files outside of the base directory"),
+            Tree *externalFilesNode = createDirNode(Tr::tr("Files outside of the base directory"),
                                                     "/");
             linkDirNode(m_root, externalFilesNode);
             for (const FileInfo &fileInfo : outOfBaseDirFiles)
@@ -250,7 +251,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     , m_fileInfoProviders(fileInfoProviders)
     , m_project(project)
 {
-    setWindowTitle(tr("Files to Analyze"));
+    setWindowTitle(Tr::tr("Files to Analyze"));
     resize(700, 600);
 
     m_fileFilterComboBox = new QComboBox(this);
@@ -286,7 +287,7 @@ SelectableFilesDialog::SelectableFilesDialog(Project *project,
     connect(m_fileFilterComboBox, &QComboBox::currentIndexChanged,
             this, &SelectableFilesDialog::onFileFilterChanged);
 
-    auto analyzeButton = new QPushButton(tr("Analyze"), this);
+    auto analyzeButton = new QPushButton(Tr::tr("Analyze"), this);
     analyzeButton->setEnabled(m_filesModel->hasCheckedFiles());
 
     // Buttons

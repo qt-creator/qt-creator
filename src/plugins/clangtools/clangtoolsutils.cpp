@@ -38,17 +38,17 @@ static QString fixitStatus(FixitStatus status)
 {
     switch (status) {
     case FixitStatus::NotAvailable:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "No Fixits");
+        return Tr::tr("No Fixits");
     case FixitStatus::NotScheduled:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Not Scheduled");
+        return Tr::tr("Not Scheduled");
     case FixitStatus::Invalidated:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Invalidated");
+        return Tr::tr("Invalidated");
     case FixitStatus::Scheduled:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Scheduled");
+        return Tr::tr("Scheduled");
     case FixitStatus::FailedToApply:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Failed to Apply");
+        return Tr::tr("Failed to Apply");
     case FixitStatus::Applied:
-        return QCoreApplication::translate("ClangToolsDiagnosticModel", "Applied");
+        return Tr::tr("Applied");
     }
     return QString();
 }
@@ -62,31 +62,31 @@ QString createDiagnosticToolTipString(
     QList<StringPair> lines;
 
     if (!diagnostic.category.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Category:"),
+        lines.push_back({Tr::tr("Category:"),
                          diagnostic.category.toHtmlEscaped()});
     }
 
     if (!diagnostic.type.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Type:"),
+        lines.push_back({Tr::tr("Type:"),
                          diagnostic.type.toHtmlEscaped()});
     }
 
     if (!diagnostic.description.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Description:"),
+        lines.push_back({Tr::tr("Description:"),
                          diagnostic.description.toHtmlEscaped()});
     }
 
-    lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Location:"),
+    lines.push_back({Tr::tr("Location:"),
                      createFullLocationString(diagnostic.location)});
 
     if (status) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Fixit status:"),
+        lines.push_back({Tr::tr("Fixit status:"),
                          fixitStatus(*status)});
     }
 
     if (showSteps && !diagnostic.explainingSteps.isEmpty()) {
         StringPair steps;
-        steps.first = QCoreApplication::translate("ClangTools::Diagnostic", "Steps:");
+        steps.first = Tr::tr("Steps:");
         for (const ExplainingStep &step : diagnostic.explainingSteps) {
             if (!steps.second.isEmpty())
                 steps.second += "<br>";
@@ -100,7 +100,7 @@ QString createDiagnosticToolTipString(
 
     const QString url = documentationUrl(diagnostic.name);
     if (!url.isEmpty()) {
-        lines.push_back({QCoreApplication::translate("ClangTools::Diagnostic", "Documentation:"),
+        lines.push_back({Tr::tr("Documentation:"),
                          QString("<a href=\"%1\">%1</a>").arg(url)});
     }
 
@@ -129,7 +129,7 @@ QString createFullLocationString(const Debugger::DiagnosticLocation &location)
 
 QString hintAboutBuildBeforeAnalysis()
 {
-    return ClangTool::tr(
+    return Tr::tr(
         "In general, the project should be built before starting the analysis to ensure that the "
         "code to analyze is valid.<br/><br/>"
         "Building the project might also run code generators that update the source files as "
@@ -140,7 +140,7 @@ void showHintAboutBuildBeforeAnalysis()
 {
     Utils::CheckableMessageBox::doNotShowAgainInformation(
         Core::ICore::dialogParent(),
-        ClangTool::tr("Info About Build the Project Before Analysis"),
+        Tr::tr("Info About Build the Project Before Analysis"),
         hintAboutBuildBeforeAnalysis(),
         Core::ICore::settings(),
         "ClangToolsDisablingBuildBeforeAnalysisHint");
@@ -228,8 +228,7 @@ ClangDiagnosticConfig builtinConfig()
 {
     ClangDiagnosticConfig config;
     config.setId(Constants::DIAG_CONFIG_TIDY_AND_CLAZY);
-    config.setDisplayName(QCoreApplication::translate("ClangDiagnosticConfigsModel",
-                                                      "Default Clang-Tidy and Clazy checks"));
+    config.setDisplayName(Tr::tr("Default Clang-Tidy and Clazy checks"));
     config.setIsReadOnly(true);
     config.setClangOptions({"-w"}); // Do not emit any clang-only warnings
     config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseDefaultChecks);

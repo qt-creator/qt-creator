@@ -6594,7 +6594,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangTools::Diagnostic</name>
+    <name>::ClangTools</name>
     <message>
         <source>Category:</source>
         <translation>Категория:</translation>
@@ -6619,34 +6619,18 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Steps:</source>
         <translation>Этапы:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation>Сообщение:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation>Размещение:</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::BaseChecksTreeModel</name>
-    <message>
         <source>Web Page</source>
         <translation>Веб-страница</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTidyRunner</name>
     <message>
         <source>Clang-Tidy</source>
         <translation>Clang-Tidy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTool</name>
     <message>
         <source>In general, the project should be built before starting the analysis to ensure that the code to analyze is valid.&lt;br/&gt;&lt;br/&gt;Building the project might also run code generators that update the source files as necessary.</source>
         <translation>Проект должен быть собран перед анализом, чтобы убедиться, что анализируемый код верен.&lt;br/&gt;&lt;br/&gt;Сборка проекта так же может запускать кодогенераторы, которые обновляют при необходимости исходники.</translation>
@@ -6807,9 +6791,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>No diagnostics.</source>
         <translation>Нет диагностик.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunWorker</name>
     <message>
         <source>The project configuration changed since the start of the %1. Please re-run with current configuration.</source>
         <translation>Настройки проекта изменились с момента запуска %1. Перезапустите с текущей конфигурацией.</translation>
@@ -6821,10 +6802,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
     <message>
         <source>Analyzing</source>
         <translation>Анализ</translation>
-    </message>
-    <message>
-        <source>Failed to build the project.</source>
-        <translation>Не удалось собрать проект.</translation>
     </message>
     <message>
         <source>Failed to create temporary directory: %1.</source>
@@ -6854,9 +6831,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>%1 finished: Processed %2 files successfully, %3 failed.</source>
         <translation>%1 завершено: успешно обработано %2 файл(ов) и %3 обработать не удалось.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation>У процесса %1 возникла ошибка.</translation>
@@ -6879,9 +6853,6 @@ Output:
 Вывод:
 %3</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsDiagnosticModel</name>
     <message>
         <source>No Fixits</source>
         <translation>Нет исправлений</translation>
@@ -6906,16 +6877,6 @@ Output:
         <source>Applied</source>
         <translation>Применено</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation>Инструменты Clang</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
     <message>
         <source>Clang Tools</source>
         <translation>Инструменты Clang</translation>
@@ -6924,9 +6885,6 @@ Output:
         <source>Analyze File</source>
         <translation>Проанализировать файл</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecks</name>
     <message>
         <source>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy&apos;s homepage&lt;/a&gt; for more information.</source>
         <translation>Подробнее на &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;домашней странице Clazy&lt;/a&gt;.</translation>
@@ -6957,9 +6915,6 @@ Set a valid executable first.</source>
         <translation>Не удалось получить поддерживаемые проверки от программы clazy-standalone.
 Сначала необходимо задать её в настройках.</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecksTreeModel</name>
     <message>
         <source>Manual Level: Very few false positives</source>
         <translation>Ручной уровень: немного ложных срабатываний</translation>
@@ -6984,19 +6939,9 @@ Set a valid executable first.</source>
         <source>Level %1</source>
         <translation>Уровень %1</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyStandaloneRunner</name>
     <message>
         <source>Clazy</source>
         <translation>Clazy</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticConfigsWidget</name>
-    <message>
-        <source>Checks</source>
-        <translation>Проверки</translation>
     </message>
     <message>
         <source>Clang-Tidy Checks</source>
@@ -7030,9 +6975,6 @@ Set a valid executable first.</source>
             <numerusform>Проверки (%n включённых)</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
     <message>
         <source>Filter...</source>
         <translation>Фильтр...</translation>
@@ -7050,26 +6992,12 @@ Set a valid executable first.</source>
         <translation>Скрыть этот тип проблем</translation>
     </message>
     <message>
-        <source>Web Page</source>
-        <translation>Веб-страница</translation>
-    </message>
-    <message>
         <source>Suppress This Diagnostic</source>
         <translation>Игнорировать эту проблему</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterChecksModel</name>
     <message>
         <source>Check</source>
         <translation>Проверка</translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterDialog</name>
-    <message>
-        <source>Filter Diagnostics</source>
-        <translation>Фильтр проблем</translation>
     </message>
     <message>
         <source>Select the diagnostics to display.</source>
@@ -7087,9 +7015,6 @@ Set a valid executable first.</source>
         <source>Clear Selection</source>
         <translation>Снять выделение</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ProjectSettingsWidget</name>
     <message>
         <source>Remove Selected</source>
         <translation>Удалить выбранное</translation>
@@ -7122,9 +7047,6 @@ Set a valid executable first.</source>
         <source>&lt;a href=&quot;target&quot;&gt;Open Global Settings&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;target&quot;&gt;Открыть глобальные настройки&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::RunSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation></translation>
@@ -7141,9 +7063,6 @@ Set a valid executable first.</source>
         <source>Parallel jobs:</source>
         <translation>Распараллелить на:</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
     <message>
         <source>Files to Analyze</source>
         <translation>Анализируемые файлы</translation>
@@ -7156,9 +7075,6 @@ Set a valid executable first.</source>
         <source>Analyze</source>
         <translation>Анализировать</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SettingsWidget</name>
     <message>
         <source>Executables</source>
         <translation>Программы</translation>
@@ -7179,9 +7095,6 @@ Set a valid executable first.</source>
         <source>Clazy Executable</source>
         <translation>Программа Clazy</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
     <message>
         <source>File</source>
         <translation>Файл</translation>
@@ -7190,9 +7103,6 @@ Set a valid executable first.</source>
         <source>Diagnostic</source>
         <translation>Проблема</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecks</name>
     <message>
         <source>Select Checks</source>
         <translation>Выберите проверки</translation>
@@ -7200,10 +7110,6 @@ Set a valid executable first.</source>
     <message>
         <source>Use .clang-tidy config file</source>
         <translation>Использовать файл .clang-tidy</translation>
-    </message>
-    <message>
-        <source>Edit Checks as String...</source>
-        <translation>Изменить проверки...</translation>
     </message>
     <message>
         <source>Could not query the supported checks from the clang-tidy executable.
@@ -24399,7 +24305,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>LogFileReader</name>
+    <name>::ClangTools</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation>Файл «%1» не существует или не читается.</translation>

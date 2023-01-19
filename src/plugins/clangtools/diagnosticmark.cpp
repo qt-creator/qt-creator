@@ -38,7 +38,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         QList<QAction *> actions;
         QAction *action = new QAction();
         action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-        action->setToolTip(tr("Copy to Clipboard"));
+        action->setToolTip(Tr::tr("Copy to Clipboard"));
         QObject::connect(action, &QAction::triggered, [diagnostic] {
             const QString text = createFullLocationString(diagnostic.location)
                                  + ": "
@@ -50,7 +50,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
         // Disable diagnostic action
         action = new QAction();
         action->setIcon(Utils::Icons::BROKEN.icon());
-        action->setToolTip(tr("Disable Diagnostic"));
+        action->setToolTip(Tr::tr("Disable Diagnostic"));
         QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
         actions << action;
         return actions;

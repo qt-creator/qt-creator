@@ -6809,7 +6809,7 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
     </message>
 </context>
 <context>
-    <name>Clang Tools</name>
+    <name>::ClangTools</name>
     <message>
         <source>Custom Configuration</source>
         <translation type="unfinished"></translation>
@@ -7034,7 +7034,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangTools::Diagnostic</name>
+    <name>::ClangTools</name>
     <message>
         <source>Category:</source>
         <translation type="unfinished"></translation>
@@ -7063,34 +7063,18 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Documentation:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::ExplainingStep</name>
     <message>
         <source>Message:</source>
         <translation type="unfinished">消息:</translation>
     </message>
     <message>
-        <source>Location:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::BaseChecksTreeModel</name>
-    <message>
         <source>Web Page</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTidyRunner</name>
     <message>
         <source>Clang-Tidy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangTool</name>
     <message>
         <source>Analyze Project...</source>
         <translation type="unfinished"></translation>
@@ -7265,13 +7249,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Info About Build the Project Before Analysis</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunWorker</name>
-    <message>
-        <source>Failed to build the project.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>No code model data available for project.</source>
         <translation type="unfinished"></translation>
@@ -7318,9 +7295,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>%1 finished: Processed %2 files successfully, %3 failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolRunner</name>
     <message>
         <source>An error occurred with the %1 process.</source>
         <translation type="unfinished"></translation>
@@ -7340,16 +7314,6 @@ Output:
 %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsOptionsPage</name>
-    <message>
-        <source>Clang Tools</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsPlugin</name>
     <message>
         <source>Clang Tools</source>
         <translation type="unfinished"></translation>
@@ -7358,9 +7322,6 @@ Output:
         <source>Analyze File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClangToolsProjectSettingsWidget</name>
     <message>
         <source>Restore Global Settings</source>
         <translation type="unfinished"></translation>
@@ -7381,9 +7342,6 @@ Output:
         <source>Suppressed diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecks</name>
     <message>
         <source>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy&apos;s homepage&lt;/a&gt; for more information.</source>
         <translation type="unfinished"></translation>
@@ -7413,9 +7371,6 @@ Output:
 Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyChecksTreeModel</name>
     <message>
         <source>Manual Level: Very few false positives</source>
         <translation type="unfinished"></translation>
@@ -7440,18 +7395,8 @@ Set a valid executable first.</source>
         <source>Level %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::ClazyStandaloneRunner</name>
     <message>
         <source>Clazy</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticConfigsWidget</name>
-    <message>
-        <source>Checks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7482,9 +7427,6 @@ Set a valid executable first.</source>
             <numerusform></numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticMark</name>
     <message>
         <source>Copy to Clipboard</source>
         <translation type="unfinished"></translation>
@@ -7493,9 +7435,6 @@ Set a valid executable first.</source>
         <source>Disable Diagnostic</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::DiagnosticView</name>
     <message>
         <source>Filter...</source>
         <translation type="unfinished">过滤器...</translation>
@@ -7510,10 +7449,6 @@ Set a valid executable first.</source>
     </message>
     <message>
         <source>Filter out This Diagnostic Kind</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Web Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7532,18 +7467,8 @@ Set a valid executable first.</source>
         <source>Disable This Check</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterChecksModel</name>
     <message>
         <source>Check</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ClangTools::Internal::FilterDialog</name>
-    <message>
-        <source>Filter Diagnostics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7562,9 +7487,6 @@ Set a valid executable first.</source>
         <source>Select the diagnostics to display.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::RunSettingsWidget</name>
     <message>
         <source>Build the project before analysis</source>
         <translation type="unfinished"></translation>
@@ -7581,9 +7503,6 @@ Set a valid executable first.</source>
         <source>Parallel jobs:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SelectableFilesDialog</name>
     <message>
         <source>Files outside of the base directory</source>
         <translation type="unfinished"></translation>
@@ -7596,9 +7515,6 @@ Set a valid executable first.</source>
         <source>Analyze</source>
         <translation type="unfinished">分析</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SettingsWidget</name>
     <message>
         <source>Clang-Tidy Executable</source>
         <translation type="unfinished"></translation>
@@ -7619,9 +7535,6 @@ Set a valid executable first.</source>
         <source>Clazy-Standalone:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::SuppressedDiagnosticsModel</name>
     <message>
         <source>File</source>
         <translation type="unfinished">文件</translation>
@@ -7630,9 +7543,6 @@ Set a valid executable first.</source>
         <source>Diagnostic</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecks</name>
     <message>
         <source>Select Checks</source>
         <translation type="unfinished"></translation>
@@ -7642,24 +7552,14 @@ Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit Checks as String...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Could not query the supported checks from the clang-tidy executable.
 Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyChecksTreeModel</name>
     <message>
         <source>Options</source>
         <translation type="unfinished">选项</translation>
     </message>
-</context>
-<context>
-    <name>ClangTools::Internal::TidyOptionsDialog</name>
     <message>
         <source>Options for %1</source>
         <translation type="unfinished"></translation>
@@ -7684,9 +7584,6 @@ Set a valid executable first.</source>
         <source>&lt;new option&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangToolsDiagnosticModel</name>
     <message>
         <source>No Fixits</source>
         <translation type="unfinished"></translation>
@@ -24017,7 +23914,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LogFileReader</name>
+    <name>::ClangTools</name>
     <message>
         <source>File &quot;%1&quot; does not exist or is not readable.</source>
         <translation type="unfinished"></translation>
