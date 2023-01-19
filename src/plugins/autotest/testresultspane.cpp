@@ -15,15 +15,13 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include <aggregation/aggregate.h>
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/basetextfind.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/outputwindow.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -115,16 +113,22 @@ TestResultsPane::TestResultsPane(QObject *parent) :
 
     outputLayout->addWidget(ItemViewFind::createSearchableWrapper(m_treeView));
 
-    m_textOutput = new QPlainTextEdit;
-    m_textOutput->setPalette(pal);
-    m_textOutput->setFont(TextEditor::TextEditorSettings::fontSettings().font());
+    m_textOutput = new Core::OutputWindow(Core::Context("AutoTest.TextOutput"),
+                                          "AutoTest.TextOutput.Filter");
+
+    m_textOutput->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
     m_textOutput->setWordWrapMode(QTextOption::WordWrap);
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_textOutput);
-    agg->add(new BaseTextFind(m_textOutput));
+    setupFilterUi("AutoTest.TextOutput.Filter");
+    setupContext("AutoTest.TextOutput", m_textOutput);
+    setFilteringEnabled(false);
+    setZoomButtonsEnabled(false);
+    connect(this, &IOutputPane::zoomInRequested, m_textOutput, &Core::OutputWindow::zoomIn);
+    connect(this, &IOutputPane::zoomOutRequested, m_textOutput, &Core::OutputWindow::zoomOut);
+    connect(this, &IOutputPane::resetZoomRequested, m_textOutput, &Core::OutputWindow::resetZoom);
+    connect(this, &IOutputPane::fontChanged, m_textOutput, &OutputWindow::setBaseFont);
 
     createToolButtons();
 
@@ -235,33 +239,6 @@ void TestResultsPane::addTestResult(const TestResult &result)
     navigateStateChanged();
 }
 
-static void checkAndFineTuneColors(QTextCharFormat *format)
-{
-    QTC_ASSERT(format, return);
-    const QColor bgColor = format->background().color();
-    QColor fgColor = format->foreground().color();
-
-    if (StyleHelper::isReadableOn(bgColor, fgColor))
-        return;
-
-    int h, s, v;
-    fgColor.getHsv(&h, &s, &v);
-    // adjust the color value to ensure better readability
-    if (StyleHelper::luminance(bgColor) < .5)
-        v = v + 64;
-    else
-        v = v - 64;
-
-    fgColor.setHsv(h, s, v);
-    if (!StyleHelper::isReadableOn(bgColor, fgColor)) {
-        s = (s + 128) % 255;    // adjust the saturation to ensure better readability
-        fgColor.setHsv(h, s, v);
-        if (!StyleHelper::isReadableOn(bgColor, fgColor))
-            return;
-    }
-
-    format->setForeground(fgColor);
-}
 
 void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel channel)
 {
@@ -271,20 +248,9 @@ void TestResultsPane::addOutputLine(const QByteArray &outputLine, OutputChannel 
         return;
     }
 
-    const FormattedText formattedText
-            = FormattedText{QString::fromUtf8(outputLine), m_defaultFormat};
-    const QList<FormattedText> formatted = channel == OutputChannel::StdOut
-            ? m_stdOutHandler.parseText(formattedText)
-            : m_stdErrHandler.parseText(formattedText);
-
-    QTextCursor cursor = m_textOutput->textCursor();
-    cursor.beginEditBlock();
-    for (auto formattedText : formatted) {
-        checkAndFineTuneColors(&formattedText.format);
-        cursor.insertText(formattedText.text, formattedText.format);
-    }
-    cursor.insertText("\n");
-    cursor.endEditBlock();
+    m_textOutput->appendMessage(QString::fromUtf8(outputLine) + '\n',
+                                channel == OutputChannel::StdOut ? OutputFormat::StdOutFormat
+                                                                 : OutputFormat::StdErrFormat);
 }
 
 QWidget *TestResultsPane::outputWidget(QWidget *parent)
@@ -299,8 +265,11 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
-    return {m_expandCollapse, m_runAll, m_runSelected, m_runFailed, m_runFile, m_stopTestRun,
-            m_outputToggleButton, m_filterButton};
+    QList<QWidget *> result = {m_expandCollapse, m_runAll, m_runSelected, m_runFailed,
+                               m_runFile, m_stopTestRun, m_outputToggleButton, m_filterButton};
+    for (QWidget *widget : IOutputPane::toolBarWidgets())
+        result.append(widget);
+    return result;
 }
 
 QString TestResultsPane::displayName() const
@@ -325,14 +294,6 @@ void TestResultsPane::clearContents()
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
-    m_defaultFormat.setBackground(creatorTheme()->palette().color(
-                                      m_textOutput->backgroundRole()));
-    m_defaultFormat.setForeground(creatorTheme()->palette().color(
-                                      m_textOutput->foregroundRole()));
-
-    // in case they had been forgotten to reset
-    m_stdErrHandler.endFormatScope();
-    m_stdOutHandler.endFormatScope();
     clearMarks();
 }
 
@@ -443,6 +404,12 @@ void TestResultsPane::goToPrev()
 
     m_treeView->setCurrentIndex(nextCurrentIndex);
     onItemActivated(nextCurrentIndex);
+}
+
+void TestResultsPane::updateFilter()
+{
+    m_textOutput->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp(),
+                                         filterIsInverted());
 }
 
 void TestResultsPane::onItemActivated(const QModelIndex &index)
@@ -711,6 +678,8 @@ void TestResultsPane::toggleOutputStyle()
     m_outputWidget->setCurrentIndex(displayText ? 1 : 0);
     m_outputToggleButton->setIcon(displayText ? Icons::VISUAL_DISPLAY.icon()
                                               : Icons::TEXT_DISPLAY.icon());
+    setFilteringEnabled(displayText);
+    setZoomButtonsEnabled(displayText);
 }
 
 // helper for onCopyWholeTriggered() and onSaveWholeTriggered()

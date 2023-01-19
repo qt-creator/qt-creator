@@ -7,7 +7,6 @@
 
 #include <coreplugin/ioutputpane.h>
 
-#include <utils/ansiescapecodehandler.h>
 #include <utils/itemviews.h>
 
 QT_BEGIN_NAMESPACE
@@ -24,6 +23,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 class IContext;
+class OutputWindow;
 }
 
 namespace Autotest {
@@ -71,6 +71,7 @@ public:
     bool canPrevious() const override;
     void goToNext() override;
     void goToPrev() override;
+    void updateFilter() override;
 
     void addTestResult(const TestResult &result);
     void addOutputLine(const QByteArray &outputLine, OutputChannel channel);
@@ -118,15 +119,12 @@ private:
     QToolButton *m_stopTestRun;
     QToolButton *m_filterButton;
     QToolButton *m_outputToggleButton;
-    QPlainTextEdit *m_textOutput;
+    Core::OutputWindow *m_textOutput;
     QMenu *m_filterMenu;
     bool m_autoScroll = false;
     bool m_atEnd = false;
     bool m_testRunning = false;
     QVector<TestEditorMark *> m_marks;
-    QTextCharFormat m_defaultFormat;
-    Utils::AnsiEscapeCodeHandler m_stdErrHandler;
-    Utils::AnsiEscapeCodeHandler m_stdOutHandler;
 };
 
 } // namespace Internal
