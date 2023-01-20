@@ -6,6 +6,8 @@
 #include "guard.h"
 #include "qtcassert.h"
 
+#include <QSet>
+
 namespace Utils {
 namespace Tasking {
 
@@ -151,7 +153,6 @@ public:
     ~TaskContainer();
     TaskAction start();
     TaskAction startChildren();
-    int selectChildren(); // returns the skipped child count
     void stop();
     bool isRunning() const;
     int taskCount() const;
@@ -170,14 +171,12 @@ public:
     TaskTreePrivate *m_taskTreePrivate = nullptr;
     TaskContainer *m_parentContainer = nullptr;
     const int m_parallelLimit = 1;
-    WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
+    const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
     QList<TreeStorageBase> m_storageList;
     QList<int> m_storageIdList;
     int m_taskCount = 0;
-    GroupConfig m_groupConfig;
     QList<TaskNode *> m_children;
-    QList<TaskNode *> m_selectedChildren;
     int m_doneCount = -1;
     bool m_successBit = true;
     Guard m_startGuard;
@@ -351,32 +350,27 @@ TaskContainer::~TaskContainer()
 TaskAction TaskContainer::start()
 {
     m_doneCount = 0;
-    m_groupConfig = {};
-    m_selectedChildren.clear();
 
     createStorages();
+    TaskAction groupAction = TaskAction::Continue;
     if (m_groupHandler.m_setupHandler || m_groupHandler.m_dynamicSetupHandler) {
         StorageActivator activator(*this);
         GuardLocker locker(m_taskTreePrivate->m_guard);
         if (m_groupHandler.m_setupHandler)
             m_groupHandler.m_setupHandler();
         if (m_groupHandler.m_dynamicSetupHandler)
-            m_groupConfig = m_groupHandler.m_dynamicSetupHandler();
+            groupAction = m_groupHandler.m_dynamicSetupHandler();
     }
 
-    if (m_groupConfig.action == GroupAction::StopWithDone
-        || m_groupConfig.action == GroupAction::StopWithError) {
-        const bool success = m_groupConfig.action == GroupAction::StopWithDone;
+    if (groupAction == TaskAction::StopWithDone || groupAction == TaskAction::StopWithError) {
+        const bool success = groupAction == TaskAction::StopWithDone;
         const int skippedTaskCount = taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
         invokeEndHandler(success);
         return toTaskAction(success);
     }
 
-    const int skippedTaskCount = selectChildren();
-    m_taskTreePrivate->advanceProgress(skippedTaskCount);
-
-    if (m_selectedChildren.isEmpty()) {
+    if (m_children.isEmpty()) {
         invokeEndHandler(true);
         return TaskAction::StopWithDone; // TODO: take workflow policy into account?
     }
@@ -389,13 +383,13 @@ TaskAction TaskContainer::start()
 
 TaskAction TaskContainer::startChildren()
 {
-    const int childCount = m_selectedChildren.size();
+    const int childCount = m_children.size();
     for (int i = m_doneCount; i < childCount; ++i) {
         const int limit = currentLimit();
         if (i >= limit)
             break;
 
-        const TaskAction action = m_selectedChildren.at(i)->start();
+        const TaskAction action = m_children.at(i)->start();
         if (action == TaskAction::Continue)
             continue;
 
@@ -406,7 +400,7 @@ TaskAction TaskContainer::startChildren()
         int skippedTaskCount = 0;
         // Skip scheduled but not run yet. The current (i) was already notified.
         for (int j = i + 1; j < limit; ++j)
-            skippedTaskCount += m_selectedChildren.at(j)->taskCount();
+            skippedTaskCount += m_children.at(j)->taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
 
         return finalizeAction;
@@ -414,37 +408,20 @@ TaskAction TaskContainer::startChildren()
     return TaskAction::Continue;
 }
 
-int TaskContainer::selectChildren()
-{
-    if (m_groupConfig.action != GroupAction::ContinueSelected) {
-        m_selectedChildren = m_children;
-        return 0;
-    }
-    m_selectedChildren.clear();
-    int skippedTaskCount = 0;
-    for (int i = 0; i < m_children.size(); ++i) {
-        if (m_groupConfig.childrenToRun.contains(i))
-            m_selectedChildren.append(m_children.at(i));
-        else
-            skippedTaskCount += m_children.at(i)->taskCount();
-    }
-    return skippedTaskCount;
-}
-
 void TaskContainer::stop()
 {
     if (!isRunning())
         return;
 
-    const int childCount = m_selectedChildren.size();
+    const int childCount = m_children.size();
     const int limit = currentLimit();
 
     for (int i = m_doneCount; i < limit; ++i)
-        m_selectedChildren.at(i)->stop();
+        m_children.at(i)->stop();
 
     int skippedTaskCount = 0;
     for (int i = limit; i < childCount; ++i)
-        skippedTaskCount += m_selectedChildren.at(i)->taskCount();
+        skippedTaskCount += m_children.at(i)->taskCount();
 
     m_taskTreePrivate->advanceProgress(skippedTaskCount);
     m_doneCount = -1;
@@ -462,7 +439,7 @@ int TaskContainer::taskCount() const
 
 int TaskContainer::currentLimit() const
 {
-    const int childCount = m_selectedChildren.size();
+    const int childCount = m_children.size();
     return  m_parallelLimit ? qMin(m_doneCount + m_parallelLimit, childCount) : childCount;
 }
 
@@ -479,7 +456,7 @@ TaskAction TaskContainer::childDone(bool success)
     ++m_doneCount;
     updateSuccessBit(success);
 
-    if (m_doneCount == m_selectedChildren.size()) {
+    if (m_doneCount == m_children.size()) {
         invokeEndHandler(m_successBit);
         groupDone(m_successBit);
         return toTaskAction(m_successBit);
@@ -528,7 +505,7 @@ void TaskContainer::invokeEndHandler(bool success)
 
 void TaskContainer::resetSuccessBit()
 {
-    if (m_selectedChildren.isEmpty())
+    if (m_children.isEmpty())
         m_successBit = true;
 
     if (m_workflowPolicy == WorkflowPolicy::StopOnDone

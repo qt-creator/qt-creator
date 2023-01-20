@@ -5,8 +5,8 @@
 
 #include "utils_global.h"
 
+#include <QHash>
 #include <QObject>
-#include <QSet>
 #include <QSharedPointer>
 
 namespace Utils {
@@ -101,26 +101,11 @@ enum class WorkflowPolicy {
     Optional         // Returns always done after all children finished
 };
 
-enum class GroupAction
-{
-    ContinueAll,
-    ContinueSelected,
-    StopWithDone,
-    StopWithError
-};
-
 enum class TaskAction
 {
     Continue,
     StopWithDone,
     StopWithError
-};
-
-class GroupConfig
-{
-public:
-    GroupAction action = GroupAction::ContinueAll;
-    QSet<int> childrenToRun = {};
 };
 
 class QTCREATOR_UTILS_EXPORT TaskItem
@@ -135,7 +120,7 @@ public:
     // Called when group entered / after group ended with success or failure
     using GroupSimpleHandler = std::function<void()>;
     // Called when group entered
-    using GroupSetupHandler = std::function<GroupConfig()>;
+    using GroupSetupHandler = std::function<TaskAction()>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;

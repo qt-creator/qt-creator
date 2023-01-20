@@ -344,8 +344,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto desciptionDetailsSetup = [storage] {
         if (!storage->m_postProcessDescription)
-            return GroupConfig{GroupAction::StopWithDone};
-        return GroupConfig();
+            return TaskAction::StopWithDone;
+        return TaskAction::Continue;
     };
 
     const auto setupBranches = [this, storage](QtcProcess &process) {
