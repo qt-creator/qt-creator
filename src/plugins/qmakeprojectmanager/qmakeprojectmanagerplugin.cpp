@@ -59,8 +59,6 @@ namespace Internal {
 class QmakeProjectManagerPluginPrivate : public QObject
 {
 public:
-    ~QmakeProjectManagerPluginPrivate() override;
-
     void projectChanged();
     void activeTargetChanged();
     void updateActions();
@@ -85,8 +83,8 @@ public:
 
     QmakeSettingsPage settingsPage;
 
-    ExternalQtEditor *m_designerEditor{ExternalQtEditor::createDesignerEditor()};
-    ExternalQtEditor *m_linguistEditor{ExternalQtEditor::createLinguistEditor()};
+    DesignerEditorFactory designerEditorFactory;
+    LinguistEditorFactory linguistEditorFactory;
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
@@ -289,12 +287,6 @@ void QmakeProjectManagerPlugin::initialize()
             d, &QmakeProjectManagerPluginPrivate::updateBuildFileAction);
 
     d->updateActions();
-}
-
-QmakeProjectManagerPluginPrivate::~QmakeProjectManagerPluginPrivate()
-{
-    delete m_designerEditor;
-    delete m_linguistEditor;
 }
 
 void QmakeProjectManagerPluginPrivate::projectChanged()
