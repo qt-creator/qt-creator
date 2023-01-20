@@ -59,6 +59,17 @@
 */
 
 /*!
+    \fn void ExtensionSystem::IPlugin::initialize()
+    This function is called as the default implementation of
+    \c initialize(const QStringList &arguments, QString *errorString) and can be
+    overwritten instead of the full-args version in cases the parameters
+    are not used by the implementation and there is no error to report.
+
+    \sa extensionsInitialized()
+    \sa delayedInitialize()
+*/
+
+/*!
     \fn void ExtensionSystem::IPlugin::extensionsInitialized()
     Called after the initialize() function has been called,
     and after both the initialize() and \c extensionsInitialized()
@@ -165,6 +176,14 @@ IPlugin::~IPlugin()
 {
     delete d;
     d = nullptr;
+}
+
+bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+{
+    Q_UNUSED(arguments)
+    Q_UNUSED(errorString)
+    initialize();
+    return true;
 }
 
 /*!

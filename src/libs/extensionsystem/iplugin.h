@@ -30,7 +30,8 @@ public:
     IPlugin();
     ~IPlugin() override;
 
-    virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
+    virtual bool initialize(const QStringList &arguments, QString *errorString);
+    virtual void initialize() {}
     virtual void extensionsInitialized() {}
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }

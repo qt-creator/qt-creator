@@ -73,11 +73,8 @@ NimPlugin::~NimPlugin()
     delete d;
 }
 
-bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void NimPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new NimPluginPrivate;
 
     ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
@@ -88,8 +85,6 @@ bool NimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
     ProjectManager::registerProjectType<NimbleProject>(Constants::C_NIMBLE_MIMETYPE);
-
-    return true;
 }
 
 void NimPlugin::extensionsInitialized()
