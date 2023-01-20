@@ -232,35 +232,31 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
     const auto setupStaged = [this, stagedFiles](QtcProcess &process) {
+        if (stagedFiles.isEmpty())
+            return TaskAction::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--cached", "--"}) + stagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        return TaskAction::Continue;
     };
     const auto onStagedDone = [storage](const QtcProcess &process) {
         storage->m_stagedOutput = process.cleanedStdOut();
     };
 
     const auto setupUnstaged = [this, unstagedFiles](QtcProcess &process) {
+        if (unstagedFiles.isEmpty())
+            return TaskAction::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
         setupCommand(process, addConfigurationArguments(
                               QStringList({"diff", "--"}) + unstagedFiles));
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
+        return TaskAction::Continue;
     };
     const auto onUnstagedDone = [storage](const QtcProcess &process) {
         storage->m_unstagedOutput = process.cleanedStdOut();
     };
 
-    const auto onStagingDynamicSetup = [stagedFiles, unstagedFiles] {
-        QSet<int> config;
-        if (!stagedFiles.isEmpty())
-            config.insert(0);
-        if (!unstagedFiles.isEmpty())
-            config.insert(1);
-        if (config.isEmpty())
-            return GroupConfig{GroupAction::StopWithError};
-        return GroupConfig{GroupAction::ContinueSelected, config};
-    };
     const auto onStagingDone = [storage, diffInputStorage] {
         *diffInputStorage.activeStorage() = storage->m_stagedOutput + storage->m_unstagedOutput;
     };
@@ -271,7 +267,6 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         Group {
             parallel,
             continueOnDone,
-            DynamicSetup(onStagingDynamicSetup),
             Process(setupStaged, onStagedDone),
             Process(setupUnstaged, onUnstagedDone),
             OnGroupDone(onStagingDone)
