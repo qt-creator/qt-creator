@@ -170,18 +170,15 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     const TreeStorage<QString> diffInputStorage = inputStorage();
 
-    const auto optionalDesciptionSetup = [this] {
-        if (m_changeNumber == 0)
-            return GroupConfig{GroupAction::StopWithDone};
-        return GroupConfig();
-    };
-
     const auto setupDescription = [this](QtcProcess &process) {
+        if (m_changeNumber == 0)
+            return TaskAction::StopWithDone;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
         CommandLine command = process.commandLine();
         command << SubversionClient::AddAuthOptions();
         process.setCommand(command);
         setDescription(tr("Waiting for data..."));
+        return TaskAction::Continue;
     };
     const auto onDescriptionDone = [this](const QtcProcess &process) {
         setDescription(process.cleanedStdOut());
@@ -213,7 +210,6 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         parallel,
         Group {
             optional,
-            DynamicSetup(optionalDesciptionSetup),
             Process(setupDescription, onDescriptionDone, onDescriptionError)
         },
         Group {
