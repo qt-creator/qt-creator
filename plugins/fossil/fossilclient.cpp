@@ -729,7 +729,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
     const Id kind = vcsEditorKind(AnnotateCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file), revision);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
@@ -853,10 +853,9 @@ FossilClient::SupportedFeatures FossilClient::supportedFeatures() const
     return features;
 }
 
-void FossilClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
+void FossilClient::view(const FilePath &source, const QString &id, const QStringList &extraOptions)
 {
-    const FilePath fPath = FilePath::fromString(source);
-    const FilePath workingDirectory = fPath.isFile() ? fPath.absolutePath() : fPath;
+    const FilePath workingDirectory = source.isFile() ? source.absolutePath() : source;
 
     const RevisionInfo revisionInfo = synchronousRevisionQuery(workingDirectory, id);
     const QStringList args{"diff", "--from", revisionInfo.parentId, "--to", revisionInfo.id, "-v"};
@@ -935,7 +934,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
     const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
@@ -988,7 +987,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
     const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);

@@ -83,7 +83,7 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
     static const int shortChangesetIdSize(10);
     static const int maxTextSize(120);
 
-    const Utils::FilePath workingDirectory = Utils::FilePath::fromString(source()).parentDir();
+    const Utils::FilePath workingDirectory = source().parentDir();
     const FossilClient *client = FossilPlugin::client();
     const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision,
                                                                        true);
@@ -102,7 +102,7 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
 
 QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
-    const Utils::FilePath workingDirectory = Utils::FilePath::fromString(source()).parentDir();
+    const Utils::FilePath workingDirectory = source().parentDir();
     const FossilClient *client = FossilPlugin::client();
     const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision);
     if (revisionInfo.parentId.isEmpty())

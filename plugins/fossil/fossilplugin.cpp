@@ -963,7 +963,7 @@ void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
 {
-    m_client.view(source.toString(), id);
+    m_client.view(source, id);
 }
 
 VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,

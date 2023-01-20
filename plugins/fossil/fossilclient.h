@@ -112,7 +112,7 @@ public:
     unsigned int binaryVersion() const;
     QString binaryVersionString() const;
     SupportedFeatures supportedFeatures() const;
-    void view(const QString &source, const QString &id, const QStringList &extraOptions = {}) final;
+    void view(const Utils::FilePath &source, const QString &id, const QStringList &extraOptions = {}) final;
 
 private:
     static QList<BranchInfo> branchListFromOutput(const QString &output,
