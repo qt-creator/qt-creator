@@ -16,38 +16,27 @@
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
-#include "runcontrol.h"
-#include "session.h"
 #include "target.h"
 #include "windebuginterface.h"
 
-#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/detailswidget.h>
 #include <utils/fileinprojectfinder.h>
-#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
-#include <utils/processinterface.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
-#include <utils/variablechooser.h>
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include <QDir>
-#include <QHash>
 #include <QLoggingCategory>
 #include <QPushButton>
-#include <QSettings>
 #include <QTextCodec>
 #include <QTimer>
-
 
 #if defined (WITH_JOURNALD)
 #include "journaldwatcher.h"
@@ -56,18 +45,16 @@
 using namespace ProjectExplorer::Internal;
 using namespace Utils;
 
-namespace {
-static Q_LOGGING_CATEGORY(statesLog, "qtc.projectmanager.states", QtWarningMsg)
-}
-
 namespace ProjectExplorer {
 
-// RunWorkerFactory
+static Q_LOGGING_CATEGORY(statesLog, "qtc.projectmanager.states", QtWarningMsg)
 
 static QList<RunWorkerFactory *> g_runWorkerFactories;
 
-static QSet<Utils::Id> g_runModes;
-static QSet<Utils::Id> g_runConfigs;
+static QSet<Id> g_runModes;
+static QSet<Id> g_runConfigs;
+
+// RunWorkerFactory
 
 RunWorkerFactory::RunWorkerFactory()
 {
@@ -84,33 +71,31 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
     m_producer = producer;
 }
 
-void RunWorkerFactory::setSupportedRunConfigs(const QList<Utils::Id> &runConfigs)
+void RunWorkerFactory::setSupportedRunConfigs(const QList<Id> &runConfigs)
 {
     for (Id runConfig : runConfigs)
         g_runConfigs.insert(runConfig); // Debugging only.
     m_supportedRunConfigurations = runConfigs;
 }
 
-void RunWorkerFactory::addSupportedRunMode(Utils::Id runMode)
+void RunWorkerFactory::addSupportedRunMode(Id runMode)
 {
     g_runModes.insert(runMode); // Debugging only.
     m_supportedRunModes.append(runMode);
 }
 
-void RunWorkerFactory::addSupportedRunConfig(Utils::Id runConfig)
+void RunWorkerFactory::addSupportedRunConfig(Id runConfig)
 {
     g_runConfigs.insert(runConfig); // Debugging only.
     m_supportedRunConfigurations.append(runConfig);
 }
 
-void RunWorkerFactory::addSupportedDeviceType(Utils::Id deviceType)
+void RunWorkerFactory::addSupportedDeviceType(Id deviceType)
 {
     m_supportedDeviceTypes.append(deviceType);
 }
 
-bool RunWorkerFactory::canRun(Utils::Id runMode,
-                              Utils::Id deviceType,
-                              const QString &runConfigId) const
+bool RunWorkerFactory::canCreate(Id runMode, Id deviceType, const QString &runConfigId) const
 {
     if (!m_supportedRunModes.contains(runMode))
         return false;
@@ -120,7 +105,7 @@ bool RunWorkerFactory::canRun(Utils::Id runMode,
         //if (!m_supportedRunConfigurations.contains(runConfigId)
         // return false;
         bool ok = false;
-        for (const Utils::Id &id : m_supportedRunConfigurations) {
+        for (const Id &id : m_supportedRunConfigurations) {
             if (runConfigId.startsWith(id.toString())) {
                 ok = true;
                 break;
@@ -137,21 +122,27 @@ bool RunWorkerFactory::canRun(Utils::Id runMode,
     return true;
 }
 
+RunWorker *RunWorkerFactory::create(RunControl *runControl) const
+{
+    QTC_ASSERT(m_producer, return nullptr);
+    return m_producer(runControl);
+}
+
 void RunWorkerFactory::dumpAll()
 {
-    const QList<Utils::Id> devices =
-            Utils::transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
+    const QList<Id> devices =
+            transform(IDeviceFactory::allDeviceFactories(), &IDeviceFactory::deviceType);
 
-    for (Utils::Id runMode : std::as_const(g_runModes)) {
+    for (Id runMode : std::as_const(g_runModes)) {
         qDebug() << "";
-        for (Utils::Id device : devices) {
-            for (Utils::Id runConfig : std::as_const(g_runConfigs)) {
-                const auto check = std::bind(&RunWorkerFactory::canRun,
+        for (Id device : devices) {
+            for (Id runConfig : std::as_const(g_runConfigs)) {
+                const auto check = std::bind(&RunWorkerFactory::canCreate,
                                              std::placeholders::_1,
                                              runMode,
                                              device,
                                              runConfig.toString());
-                const auto factory = Utils::findOrDefault(g_runWorkerFactories, check);
+                const auto factory = findOrDefault(g_runWorkerFactories, check);
                 qDebug() << "MODE:" << runMode << device << runConfig << factory;
             }
         }
@@ -287,12 +278,12 @@ public:
     QString displayName;
     Runnable runnable;
     IDevice::ConstPtr device;
-    Utils::Icon icon;
+    Icon icon;
     const MacroExpander *macroExpander = nullptr;
     AspectContainerData aspectData;
     QString buildKey;
-    QMap<Utils::Id, QVariantMap> settingsData;
-    Utils::Id runConfigId;
+    QMap<Id, QVariantMap> settingsData;
+    Id runConfigId;
     BuildTargetInfo buildTargetInfo;
     FilePath buildDirectory;
     Environment buildEnvironment;
@@ -303,7 +294,7 @@ public:
     std::vector<RunWorkerFactory> m_factories;
 
     // A handle to the actual application process.
-    Utils::ProcessHandle applicationProcessHandle;
+    ProcessHandle applicationProcessHandle;
 
     RunControlState state = RunControlState::Initialized;
 
@@ -315,7 +306,7 @@ class RunControlPrivate : public QObject, public RunControlPrivateData
     Q_OBJECT
 
 public:
-    RunControlPrivate(RunControl *parent, Utils::Id mode)
+    RunControlPrivate(RunControl *parent, Id mode)
         : q(parent), runMode(mode)
     {
         icon = Icons::RUN_SMALL_TOOLBAR;
@@ -357,14 +348,14 @@ public:
     bool supportsReRunning() const;
 
     RunControl *q;
-    Utils::Id runMode;
+    Id runMode;
 };
 
 } // Internal
 
 using namespace Internal;
 
-RunControl::RunControl(Utils::Id mode) :
+RunControl::RunControl(Id mode) :
     d(std::make_unique<RunControlPrivate>(this,  mode))
 {
 }
@@ -442,7 +433,7 @@ void RunControl::setDevice(const IDevice::ConstPtr &device)
                 return;
 
             const QString message = QString::fromUtf8(entry.value("MESSAGE")) + "\n";
-            appendMessage(message, Utils::OutputFormat::LogMessageFormat);
+            appendMessage(message, OutputFormat::LogMessageFormat);
         });
     }
 #endif
@@ -482,22 +473,23 @@ void RunControl::initiateFinish()
     QTimer::singleShot(0, d.get(), &RunControlPrivate::initiateFinish);
 }
 
-RunWorker *RunControl::createWorker(Utils::Id workerId)
+RunWorker *RunControl::createWorker(Id workerId)
 {
-    RunWorkerFactory *factory
-        = Utils::findOrDefault(g_runWorkerFactories, [this, workerId](RunWorkerFactory *factory) {
-              return factory->canRun(workerId, DeviceTypeKitAspect::deviceTypeId(d->kit), QString{});
-          });
-    return factory ? factory->producer()(this) : nullptr;
+    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
+    for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
+        if (factory->canCreate(workerId, deviceType, QString()))
+            return factory->create(this);
+    }
+    return nullptr;
 }
 
 bool RunControl::createMainWorker()
 {
     const QList<RunWorkerFactory *> candidates
-        = Utils::filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
-              return factory->canRun(d->runMode,
-                                     DeviceTypeKitAspect::deviceTypeId(d->kit),
-                                     d->runConfigId.toString());
+        = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
+              return factory->canCreate(d->runMode,
+                                        DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                        d->runConfigId.toString());
           });
 
     // There might be combinations that cannot run. But that should have been checked
@@ -507,13 +499,13 @@ bool RunControl::createMainWorker()
     // There should be at most one top-level producer feeling responsible per combination.
     // Breaking a tie should be done by tightening the restrictions on one of them.
     QTC_CHECK(candidates.size() == 1);
-    return candidates.front()->producer()(this) != nullptr;
+    return candidates.front()->create(this) != nullptr;
 }
 
-bool RunControl::canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId)
+bool RunControl::canRun(Id runMode, Id deviceType, Utils::Id runConfigId)
 {
     for (const RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canRun(runMode, deviceType, runConfigId.toString()))
+        if (factory->canCreate(runMode, deviceType, runConfigId.toString()))
             return true;
     }
     return false;
@@ -1201,8 +1193,6 @@ namespace Internal {
 
 class SimpleTargetRunnerPrivate : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit SimpleTargetRunnerPrivate(SimpleTargetRunner *parent);
     ~SimpleTargetRunnerPrivate() override;

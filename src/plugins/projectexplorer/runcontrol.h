@@ -116,11 +116,7 @@ public:
     RunWorkerFactory();
     ~RunWorkerFactory();
 
-    bool canRun(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
-    WorkerCreator producer() const { return m_producer; }
-
-    // For debugging only.
-    static void dumpAll();
+    static void dumpAll(); // For debugging only.
 
 protected:
     template <typename Worker>
@@ -132,6 +128,10 @@ protected:
     void addSupportedDeviceType(Utils::Id deviceType);
 
 private:
+    friend class RunControl;
+    bool canCreate(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
+    RunWorker *create(RunControl *runControl) const;
+
     WorkerCreator m_producer;
     QList<Utils::Id> m_supportedRunModes;
     QList<Utils::Id> m_supportedRunConfigurations;
