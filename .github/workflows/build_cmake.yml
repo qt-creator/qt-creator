@@ -458,31 +458,33 @@ jobs:
 
           string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
           math(EXPR artifacts_length "${artifacts_length} - 1")
-          foreach(idx RANGE 0 ${artifacts_length})
-            string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
-            string(JSON name GET "${artifact_js}" "name")
-            if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
-              string(JSON download_url GET "${artifact_js}" "archive_download_url")
+          if(${artifacts_length} GREATER_EQUAL 0)
+            foreach(idx RANGE 0 ${artifacts_length})
+              string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+              string(JSON name GET "${artifact_js}" "name")
+              if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
+                string(JSON download_url GET "${artifact_js}" "archive_download_url")
 
-              foreach(retry RANGE 10)
-                file(DOWNLOAD "${download_url}"
-                  "${{ steps.ccache.outputs.archive_name }}.zip"
-                  NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-                  NETRC REQUIRED
-                  SHOW_PROGRESS)
-                file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
-                if (fileSize GREATER 0)
-                  break()
-                endif()
-              endforeach()
+                foreach(retry RANGE 10)
+                  file(DOWNLOAD "${download_url}"
+                    "${{ steps.ccache.outputs.archive_name }}.zip"
+                    NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+                    NETRC REQUIRED
+                    SHOW_PROGRESS)
+                  file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
+                  if (fileSize GREATER 0)
+                    break()
+                  endif()
+                endforeach()
 
-              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
-              file(MAKE_DIRECTORY .ccache)
-              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
+                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
+                file(MAKE_DIRECTORY .ccache)
+                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
 
-              return()
-            endif()
-          endforeach()
+                return()
+              endif()
+            endforeach()
+          endif()
         endforeach()
 
     - name: Build
