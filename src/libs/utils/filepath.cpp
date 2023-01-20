@@ -828,6 +828,10 @@ DeviceFileAccess *FilePath::fileAccess() const
 
 bool FilePath::hasFileAccess() const
 {
+    // Happens during startup and in tst_fsengine
+    if (!s_deviceHooks.fileAccess)
+        return false;
+
     DeviceFileAccess *access = s_deviceHooks.fileAccess(*this);
     return access;
 }
