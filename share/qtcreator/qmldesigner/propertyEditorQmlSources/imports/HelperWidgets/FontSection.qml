@@ -34,7 +34,10 @@ Section {
     onPixelSizeChanged: sizeWidget.setPointPixelSize()
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Font") }
+        PropertyLabel {
+            text: qsTr("Font")
+            tooltip: qsTr("Sets the font of the text.")
+        }
 
         SecondColumnLayout {
             FontComboBox {
@@ -49,7 +52,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Size") }
+        PropertyLabel {
+            text: qsTr("Size")
+            tooltip: qsTr("Sets the font size in pixels or points.")
+        }
 
         SecondColumnLayout {
             id: sizeWidget
@@ -129,6 +135,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Emphasis")
+            tooltip: qsTr("Sets the text to bold, italic, underlined, or strikethrough.")
             blockedByTemplate: !fontSection.boldStyle.isAvailable
                                && !fontSection.italicStyle.isAvailable
                                && !fontSection.underlineStyle.isAvailable
@@ -165,7 +172,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Weight")
-            tooltip: qsTr("Font's weight.")
+            tooltip: qsTr("Sets the overall thickness of the font.")
             blockedByTemplate: styleNameComboBox.styleSet
         }
 
@@ -185,7 +192,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Style name")
-            tooltip: qsTr("Font's style.")
+            tooltip: qsTr("Sets the style of the selected font. This is prioritized over <b>Weight</b> and <b>Emphasis</b>.")
             blockedByTemplate: !styleNameComboBox.enabled
         }
 
@@ -263,7 +270,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Letter spacing")
-            tooltip: qsTr("Letter spacing for the font.")
+            tooltip: qsTr("Sets the letter spacing for the text.")
             blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
         }
 
@@ -284,7 +291,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Word spacing")
-            tooltip: qsTr("Word spacing for the font.")
+            tooltip: qsTr("Sets the word spacing for the text.")
             blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
         }
 
