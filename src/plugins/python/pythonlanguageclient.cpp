@@ -312,6 +312,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
 void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                                     TextEditor::TextDocument *document)
 {
+    instance()->resetEditorInfoBar(document);
     if (!PythonSettings::pylsEnabled())
         return;
 
@@ -350,7 +351,6 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     if (state.state == PythonLanguageServerState::CanNotBeInstalled)
         return;
 
-    resetEditorInfoBar(document);
     Utils::InfoBar *infoBar = document->infoBar();
     if (state.state == PythonLanguageServerState::CanBeInstalled
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
