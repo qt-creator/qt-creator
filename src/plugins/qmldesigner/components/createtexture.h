@@ -15,7 +15,7 @@ class CreateTexture
 {
 public:
     CreateTexture(AbstractView *view, bool importFiles = false);
-    void execute(const QString &filePath, AddTextureMode mode, int sceneId);
+    ModelNode execute(const QString &filePath, AddTextureMode mode, int sceneId = -1);
     ModelNode resolveSceneEnv(int sceneId);
     void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 

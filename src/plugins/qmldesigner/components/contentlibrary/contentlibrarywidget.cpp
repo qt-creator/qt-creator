@@ -66,8 +66,9 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
                 QMimeData *mimeData = new QMimeData;
-                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {});
-                mimeData->removeFormat("text/plain");
+                mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE, {m_textureToDrag->path().toUtf8()});
+
+                // Allows standard file drag-n-drop. As of now needed to drop on Assets view
                 mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->path())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);

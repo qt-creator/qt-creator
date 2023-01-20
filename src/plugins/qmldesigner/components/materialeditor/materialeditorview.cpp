@@ -1150,7 +1150,8 @@ void MaterialEditorView::dragStarted(QMimeData *mimeData)
             return;
 
         highlightSupportedProperties();
-    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)) {
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)
+            || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         highlightSupportedProperties();
     }
 }

@@ -22,14 +22,14 @@ CreateTexture::CreateTexture(AbstractView *view, bool importFile)
     , m_importFile{importFile}
 {}
 
-void CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
+ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
 {
     if (m_importFile && !addFileToProject(filePath))
-        return;
+        return {};
 
     ModelNode texture = createTextureFromImage(filePath, mode);
     if (!texture.isValid())
-        return;
+        return {};
 
     if (mode == AddTextureMode::LightProbe && sceneId != -1)
         assignTextureAsLightProbe(texture, sceneId);
@@ -38,6 +38,8 @@ void CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sc
         if (m_view->model())
             m_view->emitCustomNotification("selected_texture_changed", {texture});
     });
+
+    return texture;
 }
 
 bool CreateTexture::addFileToProject(const QString &filePath)

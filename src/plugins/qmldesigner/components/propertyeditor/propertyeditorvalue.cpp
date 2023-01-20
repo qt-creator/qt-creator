@@ -5,8 +5,10 @@
 
 #include "abstractview.h"
 #include "bindingproperty.h"
+#include "createtexture.h"
 #include "designermcumanager.h"
 #include "documentmanager.h"
+#include "modelnodeoperations.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
@@ -505,27 +507,10 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
             QmlDesigner::ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
                 Utils::FilePath imagePath = Utils::FilePath::fromString(dropData);
-                Utils::FilePath currFilePath = QmlDesigner::DocumentManager::currentFilePath();
-                QString sourceVal = imagePath.relativePathFrom(currFilePath).toString();
-                texture = m_modelNode.view()->getTextureDefaultInstance(sourceVal);
 
-                if (!texture.isValid()) {
-                    // create a texture node
-                    QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
-                    texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture", metaInfo.majorVersion(),
-                                                                                       metaInfo.minorVersion());
-                    texture.validId();
-                    m_modelNode.view()->materialLibraryNode().defaultNodeListProperty().reparentHere(texture);
-                }
-
-                // set texture source
-                QmlDesigner::VariantProperty srcProp = texture.variantProperty("source");
-                srcProp.setValue(sourceVal);
-
-                QTimer::singleShot(0, this, [this, texture]() {
-                    if (m_modelNode.isValid() && texture.isValid() && m_modelNode.view())
-                        m_modelNode.view()->emitCustomNotification("selected_texture_changed", {texture});
-                });
+                bool needsImport = !imagePath.isChildOf(QmlDesigner::DocumentManager::currentResourcePath());
+                auto texCreator = new QmlDesigner::CreateTexture(m_modelNode.view(), needsImport);
+                texture = texCreator->execute(imagePath.toString(), QmlDesigner::AddTextureMode::Texture);
             }
 
             // assign the texture to the property
