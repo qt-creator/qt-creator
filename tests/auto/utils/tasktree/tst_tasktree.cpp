@@ -250,7 +250,7 @@ void tst_TaskTree::processTree_data()
         Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
         Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
         Group {
-            DynamicSetup([storage] { storage->m_log.append({0, Handler::GroupSetup});
+            OnGroupSetup([storage] { storage->m_log.append({0, Handler::GroupSetup});
                                      return TaskAction::StopWithError; }),
             Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::Continue), readResult, readError)
         },
@@ -523,7 +523,7 @@ void tst_TaskTree::processTree_data()
     const auto stopWithDoneSetup = [] { return TaskAction::StopWithDone; };
     const auto stopWithErrorSetup = [] { return TaskAction::StopWithError; };
     const auto continueSetup = [] { return TaskAction::Continue; };
-    const auto constructDynamicSetup = [=](const DynamicSetup &dynamicSetup) {
+    const auto constructDynamicSetup = [=](const OnGroupSetup &dynamicSetup) {
         return Group {
             Storage(storage),
             Group {

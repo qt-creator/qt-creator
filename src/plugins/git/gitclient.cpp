@@ -469,7 +469,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             Group {
                 parallel,
                 optional,
-                DynamicSetup(desciptionDetailsSetup),
+                OnGroupSetup(desciptionDetailsSetup),
                 Process(setupBranches, onBranchesDone, onBranchesError),
                 Process(setupPrecedes, onPrecedesDone, onPrecedesError),
                 Tree(setupFollows)

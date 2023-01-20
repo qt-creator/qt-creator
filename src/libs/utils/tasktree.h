@@ -117,10 +117,10 @@ public:
     using TaskSetupHandler = std::function<TaskAction(TaskInterface &)>;
     // Called on task done / error
     using TaskEndHandler = std::function<void(const TaskInterface &)>;
-    // Called when group entered / after group ended with success or failure
-    using GroupSimpleHandler = std::function<void()>;
     // Called when group entered
     using GroupSetupHandler = std::function<TaskAction()>;
+    // Called when group done / error
+    using GroupEndHandler = std::function<void()>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
@@ -130,10 +130,9 @@ public:
     };
 
     struct GroupHandler {
-        GroupSimpleHandler m_setupHandler;
-        GroupSimpleHandler m_doneHandler = {};
-        GroupSimpleHandler m_errorHandler = {};
-        GroupSetupHandler m_dynamicSetupHandler = {};
+        GroupSetupHandler m_setupHandler;
+        GroupEndHandler m_doneHandler = {};
+        GroupEndHandler m_errorHandler = {};
     };
 
     int parallelLimit() const { return m_parallelLimit; }
@@ -209,25 +208,39 @@ public:
 class QTCREATOR_UTILS_EXPORT OnGroupSetup : public TaskItem
 {
 public:
-    OnGroupSetup(const GroupSimpleHandler &handler) : TaskItem({handler}) {}
+    template <typename SetupFunction>
+    OnGroupSetup(SetupFunction &&function)
+        : TaskItem({wrapSetup(std::forward<SetupFunction>(function))}) {}
+
+private:
+    template<typename SetupFunction>
+    static TaskItem::GroupSetupHandler wrapSetup(SetupFunction &&function) {
+        constexpr bool isDynamic = std::is_same_v<TaskAction,
+                std::invoke_result_t<std::decay_t<SetupFunction>>>;
+        constexpr bool isVoid = std::is_same_v<void,
+                std::invoke_result_t<std::decay_t<SetupFunction>>>;
+        static_assert(isDynamic || isVoid,
+                "Group setup handler needs to take no arguments and has to return "
+                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
+        return [=] {
+            if constexpr (isDynamic)
+                return std::invoke(function);
+            std::invoke(function);
+            return TaskAction::Continue;
+        };
+    };
 };
 
 class QTCREATOR_UTILS_EXPORT OnGroupDone : public TaskItem
 {
 public:
-    OnGroupDone(const GroupSimpleHandler &handler) : TaskItem({{}, handler}) {}
+    OnGroupDone(const GroupEndHandler &handler) : TaskItem({{}, handler}) {}
 };
 
 class QTCREATOR_UTILS_EXPORT OnGroupError : public TaskItem
 {
 public:
-    OnGroupError(const GroupSimpleHandler &handler) : TaskItem({{}, {}, handler}) {}
-};
-
-class QTCREATOR_UTILS_EXPORT DynamicSetup : public TaskItem
-{
-public:
-    DynamicSetup(const GroupSetupHandler &handler) : TaskItem({{}, {}, {}, handler}) {}
+    OnGroupError(const GroupEndHandler &handler) : TaskItem({{}, {}, handler}) {}
 };
 
 QTCREATOR_UTILS_EXPORT extern ParallelLimit sequential;

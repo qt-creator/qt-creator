@@ -119,17 +119,12 @@ void TaskItem::addChildren(const QList<TaskItem> &children)
             QTC_ASSERT(!child.m_groupHandler.m_errorHandler
                        || !m_groupHandler.m_errorHandler,
                        qWarning("Group Error Handler redefinition, overriding..."));
-            QTC_ASSERT(!child.m_groupHandler.m_dynamicSetupHandler
-                       || !m_groupHandler.m_dynamicSetupHandler,
-                       qWarning("Dynamic Setup Handler redefinition, overriding..."));
             if (child.m_groupHandler.m_setupHandler)
                 m_groupHandler.m_setupHandler = child.m_groupHandler.m_setupHandler;
             if (child.m_groupHandler.m_doneHandler)
                 m_groupHandler.m_doneHandler = child.m_groupHandler.m_doneHandler;
             if (child.m_groupHandler.m_errorHandler)
                 m_groupHandler.m_errorHandler = child.m_groupHandler.m_errorHandler;
-            if (child.m_groupHandler.m_dynamicSetupHandler)
-                m_groupHandler.m_dynamicSetupHandler = child.m_groupHandler.m_dynamicSetupHandler;
             break;
         case Type::Storage:
             m_storageList.append(child.m_storageList);
@@ -353,13 +348,10 @@ TaskAction TaskContainer::start()
 
     createStorages();
     TaskAction groupAction = TaskAction::Continue;
-    if (m_groupHandler.m_setupHandler || m_groupHandler.m_dynamicSetupHandler) {
+    if (m_groupHandler.m_setupHandler) {
         StorageActivator activator(*this);
         GuardLocker locker(m_taskTreePrivate->m_guard);
-        if (m_groupHandler.m_setupHandler)
-            m_groupHandler.m_setupHandler();
-        if (m_groupHandler.m_dynamicSetupHandler)
-            groupAction = m_groupHandler.m_dynamicSetupHandler();
+        groupAction = m_groupHandler.m_setupHandler();
     }
 
     if (groupAction == TaskAction::StopWithDone || groupAction == TaskAction::StopWithError) {
