@@ -61,14 +61,12 @@ public:
     };
 #endif // QT_GUI_LIB
 
-    static bool copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error = nullptr);
-    template<typename T>
-    static bool copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error,
-                                T &&copyHelper);
+    static bool copyRecursively(
+        const FilePath &srcFilePath,
+        const FilePath &tgtFilePath,
+        QString *error,
+        std::function<bool(const FilePath &, const FilePath &, QString *)> helper);
+
     static bool copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
     static QString fileSystemFriendlyName(const QString &name);
@@ -125,39 +123,6 @@ public:
 #endif
 
 };
-
-template<typename T>
-bool FileUtils::copyRecursively(const FilePath &srcFilePath,
-                                const FilePath &tgtFilePath,
-                                QString *error,
-                                T &&copyHelper)
-{
-    if (srcFilePath.isDir()) {
-        if (!tgtFilePath.exists()) {
-            if (!tgtFilePath.ensureWritableDir()) {
-                if (error) {
-                    *error = QCoreApplication::translate("Utils::FileUtils",
-                                                         "Failed to create directory \"%1\".")
-                                 .arg(tgtFilePath.toUserOutput());
-                }
-                return false;
-            }
-        }
-        const QDir sourceDir(srcFilePath.toString());
-        const QStringList fileNames = sourceDir.entryList(
-            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
-        for (const QString &fileName : fileNames) {
-            const FilePath newSrcFilePath = srcFilePath / fileName;
-            const FilePath newTgtFilePath = tgtFilePath / fileName;
-            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
-                return false;
-        }
-    } else {
-        if (!copyHelper(srcFilePath, tgtFilePath, error))
-            return false;
-    }
-    return true;
-}
 
 // for actually finding out if e.g. directories are writable on Windows
 #ifdef Q_OS_WIN

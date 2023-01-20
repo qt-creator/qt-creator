@@ -37,6 +37,8 @@ protected:
     virtual bool removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
     virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual expected_str<void> copyRecursively(const FilePath &filePath,
+                                               const FilePath &target) const;
     virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual OsType osType(const FilePath &filePath) const;

@@ -629,9 +629,10 @@ WelcomeMode::WelcomeMode()
 
     m_dataModelDownloader = new DataModelDownloader(this);
     if (!m_dataModelDownloader->exists()) { //Fallback if data cannot be downloaded
-        Utils::FileUtils::copyRecursively(Utils::FilePath::fromUserInput(welcomePagePath
-                                                                         + "/dataImports"),
-                                          m_dataModelDownloader->targetFolder());
+        // TODO: Check result?
+        Utils::FilePath::fromUserInput(welcomePagePath + "/dataImports")
+            .copyRecursively(m_dataModelDownloader->targetFolder());
+
         m_dataModelDownloader->setForceDownload(true);
     }
     Utils::FilePath readme = Utils::FilePath::fromUserInput(m_dataModelDownloader->targetFolder().toString()

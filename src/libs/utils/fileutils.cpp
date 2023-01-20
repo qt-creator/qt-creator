@@ -637,38 +637,35 @@ FilePathInfo FileUtils::filePathInfoFromTriple(const QString &infos)
     return {size, flags, dt};
 }
 
-/*!
-  Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
-  the target directory, which will be created. Example usage:
-
-  \code
-    QString error;
-    bool ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
-    if (!ok)
-      qDebug() << error;
-  \endcode
-
-  This will copy the contents of /foo/bar into to the baz directory under /foo, which will be created in the process.
-
-  \note The \a error parameter is optional.
-
-  Returns whether the operation succeeded.
-*/
-
-bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error)
+bool FileUtils::copyRecursively(
+    const FilePath &srcFilePath,
+    const FilePath &tgtFilePath,
+    QString *error,
+    std::function<bool(const FilePath &, const FilePath &, QString *)> copyHelper)
 {
-    return copyRecursively(
-        srcFilePath, tgtFilePath, error, [](const FilePath &src, const FilePath &dest, QString *error) {
-            if (!src.copyFile(dest)) {
-                if (error) {
-                    *error = QCoreApplication::translate("Utils::FileUtils",
-                                                         "Could not copy file \"%1\" to \"%2\".")
-                                 .arg(src.toUserOutput(), dest.toUserOutput());
-                }
-                return false;
+    if (srcFilePath.isDir()) {
+        if (!tgtFilePath.ensureWritableDir()) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                                                     "Failed to create directory \"%1\".")
+                             .arg(tgtFilePath.toUserOutput());
             }
-            return true;
-        });
+            return false;
+        }
+        const QDir sourceDir(srcFilePath.toString());
+        const QStringList fileNames = sourceDir.entryList(
+            QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot | QDir::Hidden | QDir::System);
+        for (const QString &fileName : fileNames) {
+            const FilePath newSrcFilePath = srcFilePath / fileName;
+            const FilePath newTgtFilePath = tgtFilePath / fileName;
+            if (!copyRecursively(newSrcFilePath, newTgtFilePath, error, copyHelper))
+                return false;
+        }
+    } else {
+        if (!copyHelper(srcFilePath, tgtFilePath, error))
+            return false;
+    }
+    return true;
 }
 
 /*!

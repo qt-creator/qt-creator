@@ -124,10 +124,12 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                                  QMessageBox::NoButton);
             return QString();
         } else {
-            QString error;
             QString targetDir = destBaseDir + QLatin1Char('/') + exampleDirName;
-            if (FileUtils::copyRecursively(FilePath::fromString(projectDir),
-                    FilePath::fromString(targetDir), &error)) {
+
+            expected_str<void> result
+                = FilePath::fromString(projectDir).copyRecursively(FilePath::fromString(targetDir));
+
+            if (result) {
                 // set vars to new location
                 const QStringList::Iterator end = filesToOpen.end();
                 for (QStringList::Iterator it = filesToOpen.begin(); it != end; ++it)
@@ -136,21 +138,21 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                 for (const QString &dependency : dependencies) {
                     const FilePath targetFile = FilePath::fromString(targetDir)
                             .pathAppended(QDir(dependency).dirName());
-                    if (!FileUtils::copyRecursively(FilePath::fromString(dependency), targetFile,
-                            &error)) {
+                    result = FilePath::fromString(dependency).copyRecursively(targetFile);
+                    if (!result) {
                         QMessageBox::warning(ICore::dialogParent(),
                                              Tr::tr("Cannot Copy Project"),
-                                             error);
+                                             result.error());
                         // do not fail, just warn;
                     }
                 }
 
-
                 return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
-                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Copy Project"), error);
+                QMessageBox::warning(ICore::dialogParent(),
+                                     Tr::tr("Cannot Copy Project"),
+                                     result.error());
             }
-
         }
     }
     if (code == Keep)

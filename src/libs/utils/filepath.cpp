@@ -1398,6 +1398,11 @@ bool FilePath::removeRecursively(QString *error) const
     return fileAccess()->removeRecursively(*this, error);
 }
 
+expected_str<void> FilePath::copyRecursively(const FilePath &target) const
+{
+    return fileAccess()->copyRecursively(*this, target);
+}
+
 expected_str<void> FilePath::copyFile(const FilePath &target) const
 {
     if (host() != target.host()) {

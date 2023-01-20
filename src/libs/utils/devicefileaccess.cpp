@@ -11,6 +11,10 @@
 #include "qtcassert.h"
 #include "utilstr.h"
 
+#ifndef UTILS_STATIC_LIBRARY
+#include "qtcprocess.h"
+#endif
+
 #include <QCoreApplication>
 #include <QOperatingSystemVersion>
 #include <QRegularExpression>
@@ -145,6 +149,101 @@ expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const Fi
     QTC_CHECK(false);
     return make_unexpected(
         Tr::tr("copyFile is not implemented for \"%1\"").arg(filePath.toUserOutput()));
+}
+
+expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath &target)
+{
+    QString error;
+    src.iterateDirectory(
+        [&target, &src, &error](const FilePath &path) {
+            const FilePath relative = path.relativePathFrom(src);
+            const FilePath targetPath = target.pathAppended(relative.path());
+
+            if (!targetPath.parentDir().ensureWritableDir()) {
+                error = QString("Could not create directory %1")
+                            .arg(targetPath.parentDir().toUserOutput());
+                return false;
+            }
+
+            const expected_str<void> result = path.copyFile(targetPath);
+            if (!result) {
+                error = result.error();
+                return false;
+            }
+            return true;
+        },
+        {{"*"}, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories});
+
+    if (error.isEmpty())
+        return {};
+
+    return make_unexpected(error);
+}
+
+expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
+                                                     const FilePath &target) const
+{
+#ifdef UTILS_STATIC_LIBRARY
+    return copyRecursively_fallback(src, target);
+#else
+    if (!target.isWritableDir()) {
+        return make_unexpected(Tr::tr("Cannot copy %1 to %2, it is not a writable directory.")
+                                   .arg(src.toUserOutput())
+                                   .arg(target.toUserOutput()));
+    }
+
+    const FilePath tar = FilePath::fromString("tar").onDevice(target);
+    const FilePath targetTar = tar.searchInPath();
+
+    const FilePath sTar = FilePath::fromString("tar").onDevice(src);
+    const FilePath sourceTar = sTar.searchInPath();
+
+    if (!targetTar.isExecutableFile() || !sourceTar.isExecutableFile())
+        return copyRecursively_fallback(src, target);
+
+    QtcProcess srcProcess;
+    QtcProcess targetProcess;
+
+    targetProcess.setProcessMode(ProcessMode::Writer);
+
+    QObject::connect(&srcProcess,
+                     &QtcProcess::readyReadStandardOutput,
+                     &targetProcess,
+                     [&srcProcess, &targetProcess]() {
+                         targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
+                     });
+
+    srcProcess.setCommand({sourceTar, {"-C", src.path(), "-cf", "-", "."}});
+    targetProcess.setCommand({targetTar, {"xf", "-", "-C", target.path()}});
+
+    targetProcess.start();
+    targetProcess.waitForStarted();
+
+    srcProcess.start();
+    srcProcess.waitForFinished();
+
+    targetProcess.closeWriteChannel();
+
+    if (srcProcess.result() != ProcessResult::FinishedWithSuccess) {
+        targetProcess.kill();
+        return make_unexpected(
+            Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
+                   "trying to create tar archive from source: %3")
+                .arg(src.toUserOutput(), target.toUserOutput(), srcProcess.readAllStandardError()));
+    }
+
+    targetProcess.waitForFinished();
+
+    if (targetProcess.result() != ProcessResult::FinishedWithSuccess) {
+        return make_unexpected(Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
+                                      "trying to extract tar archive to target: %3")
+                                   .arg(src.toUserOutput(),
+                                        target.toUserOutput(),
+                                        targetProcess.readAllStandardError()));
+    }
+
+    return {};
+#endif
 }
 
 bool DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const

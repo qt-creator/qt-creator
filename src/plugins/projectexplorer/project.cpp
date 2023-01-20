@@ -1421,11 +1421,10 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     // Copy project from qrc file and set it up.
     QTemporaryDir * const tempDir = TemporaryDirectory::masterTemporaryDirectory();
     QVERIFY(tempDir->isValid());
-    QString error;
     const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
-    FileUtils::copyRecursively(":/projectexplorer/testdata/generic-project",
-                               projectDir, &error);
-    QVERIFY2(error.isEmpty(), qPrintable(error));
+    const auto copyResult = FilePath(":/projectexplorer/testdata/generic-project").copyRecursively(projectDir);
+
+    QVERIFY2(copyResult, qPrintable(copyResult.error()));
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
