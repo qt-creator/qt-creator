@@ -718,6 +718,7 @@ void TaskTree::setupRoot(const Tasking::Group &root)
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setupRoot() is called from one of the"
                                                 "TaskTree handlers, ingoring..."); return);
+    d->m_storages.clear();
     d->m_root.reset(new TaskNode(d, nullptr, root));
 }
 
