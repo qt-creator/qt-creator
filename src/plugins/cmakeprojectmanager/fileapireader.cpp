@@ -108,7 +108,7 @@ void FileApiReader::parse(bool forceCMakeRun,
     //  * A query file is newer than the reply file
     const bool hasArguments = !args.isEmpty();
     const bool replyFileMissing = !replyFile.exists();
-    const auto settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    const auto settings = CMakeSpecificSettings::instance();
     const bool cmakeFilesChanged = m_parameters.cmakeTool() && settings->autorunCMake.value()
                                    && anyOf(m_cmakeFiles, [&replyFile](const CMakeFileInfo &info) {
                                           return !info.isGenerated

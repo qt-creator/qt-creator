@@ -6,7 +6,6 @@
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -680,9 +679,7 @@ QVariant CMakeGeneratorKitAspect::defaultValue(const Kit *k) const
     });
     if (it != known.constEnd()) {
         const bool hasNinja = [k, tool] {
-            Internal::CMakeSpecificSettings *settings
-                = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
-
+            auto settings = Internal::CMakeSpecificSettings::instance();
             if (settings->ninjaPath.filePath().isEmpty()) {
                 auto findNinja = [](const Environment &env) -> bool {
                     return !env.searchInPath("ninja").isEmpty();

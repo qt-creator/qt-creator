@@ -11,7 +11,6 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "projecttreehelper.h"
 
@@ -80,7 +79,7 @@ static void noAutoAdditionNotify(const FilePaths &filePaths, const ProjectNode *
     });
 
     if (!srcPaths.empty()) {
-        CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+        auto settings = CMakeSpecificSettings::instance();
         switch (settings->afterAddFileSetting.value()) {
         case AskUser: {
             bool checkValue{false};
@@ -825,7 +824,7 @@ void CMakeBuildSystem::wireUpConnections()
 
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         if (buildConfiguration()->isActive() && !isParsing()) {
-            auto settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+            auto settings = CMakeSpecificSettings::instance();
             if (settings->autorunCMake.value()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);

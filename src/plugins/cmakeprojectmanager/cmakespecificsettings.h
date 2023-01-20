@@ -20,6 +20,8 @@ class CMakeSpecificSettings final : public Utils::AspectContainer
 public:
     CMakeSpecificSettings();
 
+    static CMakeSpecificSettings *instance();
+
     Utils::BoolAspect autorunCMake;
     Utils::SelectionAspect afterAddFileSetting;
     Utils::StringAspect ninjaPath;
@@ -32,7 +34,7 @@ public:
 class CMakeSpecificSettingsPage final : public Core::IOptionsPage
 {
 public:
-    explicit CMakeSpecificSettingsPage(CMakeSpecificSettings *settings);
+    CMakeSpecificSettingsPage();
 };
 
 } // CMakeProjectManager::Internal

@@ -4,7 +4,6 @@
 #include "cmaketoolmanager.h"
 
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketoolsettingsaccessor.h"
 
@@ -142,7 +141,7 @@ void CMakeToolManager::restoreCMakeTools()
     emit m_instance->cmakeToolsLoaded();
 
     // Store the default CMake tool "Autorun CMake" value globally
-    auto settings = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
+    auto settings = Internal::CMakeSpecificSettings::instance();
     if (settings->autorunCMake.value() == settings->autorunCMake.defaultValue()) {
         CMakeTool *cmake = defaultCMakeTool();
         settings->autorunCMake.setValue(cmake ? cmake->isAutoRun() : true);

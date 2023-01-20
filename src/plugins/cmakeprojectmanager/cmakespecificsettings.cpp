@@ -73,10 +73,17 @@ CMakeSpecificSettings::CMakeSpecificSettings()
                 ::CMakeProjectManager::Tr::tr("Show advanced options by default"));
 }
 
+CMakeSpecificSettings *CMakeSpecificSettings::instance()
+{
+    static CMakeSpecificSettings theSettings;
+    return &theSettings;
+}
+
 // CMakeSpecificSettingsPage
 
-CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *settings)
+CMakeSpecificSettingsPage::CMakeSpecificSettingsPage()
 {
+    CMakeSpecificSettings *settings = CMakeSpecificSettings::instance();
     setId(Constants::Settings::GENERAL_ID);
     setDisplayName(::CMakeProjectManager::Tr::tr("General"));
     setDisplayCategory("CMake");

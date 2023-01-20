@@ -9,15 +9,12 @@ namespace ProjectExplorer { class Node; }
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeSpecificSettings;
-
 class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "CMakeProjectManager.json")
 
 public:
-    static CMakeSpecificSettings *projectTypeSpecificSettings();
     ~CMakeProjectPlugin();
 
 #ifdef WITH_TESTS

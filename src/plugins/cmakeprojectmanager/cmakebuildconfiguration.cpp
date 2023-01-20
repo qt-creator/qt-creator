@@ -3,7 +3,6 @@
 
 #include "cmakebuildconfiguration.h"
 
-#include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeconfigitem.h"
@@ -11,7 +10,6 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
-#include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "configmodel.h"
 #include "configmodelitemdelegate.h"
@@ -300,7 +298,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     m_showAdvancedCheckBox = new QCheckBox(Tr::tr("Advanced"));
 
-    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    auto settings = CMakeSpecificSettings::instance();
     m_showAdvancedCheckBox->setChecked(settings->showAdvancedOptionsByDefault.value());
 
     connect(m_configView->selectionModel(), &QItemSelectionModel::selectionChanged,
@@ -608,10 +606,10 @@ void CMakeBuildSettingsWidget::batchEditConfiguration()
 
 void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
 {
-    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    auto settings = CMakeSpecificSettings::instance();
     bool doNotAsk = !settings->askBeforeReConfigureInitialParams.value();
     if (!doNotAsk) {
-        QDialogButtonBox::StandardButton reply = Utils::CheckableMessageBox::question(
+        QDialogButtonBox::StandardButton reply = CheckableMessageBox::question(
             Core::ICore::dialogParent(),
             Tr::tr("Re-configure with Initial Parameters"),
             Tr::tr("Clear CMake configuration and configure with initial parameters?"),
@@ -1152,8 +1150,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildT
     if (!buildType.isEmpty() && !CMakeGeneratorKitAspect::isMultiConfigGenerator(k))
         cmd.addArg("-DCMAKE_BUILD_TYPE:STRING=" + buildType);
 
-    Internal::CMakeSpecificSettings *settings
-        = Internal::CMakeProjectPlugin::projectTypeSpecificSettings();
+    auto settings = Internal::CMakeSpecificSettings::instance();
 
     // Package manager auto setup. The file auto-setup.cmake resides on the host,
     // so it's not accessible for remotely running cmakes. We need to exclude that case.
@@ -2122,7 +2119,7 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
     if (tool && tool->cmakeExecutable().needsDevice())
         return;
 
-    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
+    auto settings = CMakeSpecificSettings::instance();
     if (!settings->ninjaPath.filePath().isEmpty()) {
         const Utils::FilePath ninja = settings->ninjaPath.filePath();
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);

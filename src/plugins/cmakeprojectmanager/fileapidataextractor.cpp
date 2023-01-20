@@ -525,9 +525,7 @@ void addCompileGroups(ProjectNode *targetRoot,
                       const Utils::FilePath &buildDirectory,
                       const TargetDetails &td)
 {
-    CMakeSpecificSettings *settings = CMakeProjectPlugin::projectTypeSpecificSettings();
-    const bool showSourceFolders = settings->showSourceSubFolders.value();
-
+    const bool showSourceFolders = CMakeSpecificSettings::instance()->showSourceSubFolders.value();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
     std::vector<std::unique_ptr<FileNode>> toList;
