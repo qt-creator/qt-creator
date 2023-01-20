@@ -39691,7 +39691,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>Nepodařilo se najít umístění nástroje na správu. Prověřte, prosím, svoji instalaci, pokud jste tento přídavný modul nezapnuli ručně.</translation>
@@ -53948,7 +53948,7 @@ monitor reset</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Nastavit filtry</translation>
@@ -55406,11 +55406,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Update</name>
-    <message>
-        <source>Update</source>
-        <translation>Aktualizovat</translation>
-    </message>
+    <name>::UpdateInfo</name>
 </context>
 <context>
     <name>::Valgrind</name>

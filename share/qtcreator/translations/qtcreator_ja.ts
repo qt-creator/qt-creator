@@ -6776,7 +6776,7 @@ Influences the indentation of continuation lines.
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>フィルタの設定</translation>
@@ -30565,7 +30565,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Updater</source>
         <translation>更新プログラム</translation>
@@ -30591,9 +30591,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Check for Updates</source>
         <translation>更新の確認</translation>
     </message>
-</context>
-<context>
-    <name>Update</name>
     <message>
         <source>Update</source>
         <translation>更新</translation>
@@ -41643,7 +41640,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Daily</source>
         <translation>毎日</translation>
@@ -41667,10 +41664,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Checking for updates...</source>
         <translation>更新の確認中...</translation>
-    </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>未確認</translation>
     </message>
 </context>
 <context>
@@ -48674,35 +48667,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoSettingsPage</name>
-    <message>
-        <source>Daily</source>
-        <translation>毎日</translation>
-    </message>
-    <message>
-        <source>Weekly</source>
-        <translation>毎週</translation>
-    </message>
-    <message>
-        <source>Monthly</source>
-        <translation>毎月</translation>
-    </message>
-    <message>
-        <source>New updates are available.</source>
-        <translation>新しい更新を利用できます。</translation>
-    </message>
-    <message>
-        <source>No new updates are available.</source>
-        <translation>新しい更新はありません。</translation>
-    </message>
-    <message>
-        <source>Checking for updates...</source>
-        <translation>更新の確認中...</translation>
-    </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>未確認</translation>
-    </message>
+    <name>::UpdateInfo</name>
     <message>
         <source>Update</source>
         <comment>Update</comment>

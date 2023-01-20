@@ -18231,7 +18231,7 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Updater</source>
         <translation>Aktualizator</translation>
@@ -25566,7 +25566,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguracja filtrów</translation>
@@ -26846,7 +26846,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>Update</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Uaktualnij</translation>
@@ -33326,7 +33326,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Daily</source>
         <translation>Codziennie</translation>
@@ -33350,10 +33350,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     <message>
         <source>Checking for updates...</source>
         <translation>Sprawdzanie dostępności aktualizacji...</translation>
-    </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>Jeszcze nie sprawdzano</translation>
     </message>
 </context>
 <context>

@@ -46127,7 +46127,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Настройка фильтров</translation>
@@ -46160,9 +46160,6 @@ The trace data is lost.</source>
         <source>Automatically runs a scheduled check for updates on a time interval basis. The automatic check for updates will be performed at the scheduled date, or the next startup following it.</source>
         <translation>Проверка на наличие обновлений будет запускаться периодически. Она осуществляется в запланированное время или при следующем запуске среды разработки.</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
     <message>
         <source>Checking for Updates</source>
         <translation>Проверка обновлений</translation>
@@ -46195,9 +46192,6 @@ The trace data is lost.</source>
         <source>Check for Updates</source>
         <translation>Проверить обновления</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoSettingsPage</name>
     <message>
         <source>Daily</source>
         <translation>Ежедневно</translation>
@@ -46221,10 +46215,6 @@ The trace data is lost.</source>
     <message>
         <source>Checking for updates...</source>
         <translation>Проверка обновлений...</translation>
-    </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>не выполнялась</translation>
     </message>
     <message>
         <source>Update</source>

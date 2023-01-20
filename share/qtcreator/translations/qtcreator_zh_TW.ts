@@ -24982,7 +24982,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>無法決定維護工具所在位置。請檢查您的安裝，確定您是否沒有手動開啟此外掛程式的支援。</translation>

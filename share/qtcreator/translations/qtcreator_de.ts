@@ -21063,7 +21063,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Checking for Updates</source>
         <translation>Aktualisierungen werden gesucht</translation>
@@ -45718,7 +45718,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoSettingsPage</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Daily</source>
         <translation>Täglich</translation>

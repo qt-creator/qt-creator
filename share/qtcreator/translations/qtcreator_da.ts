@@ -36367,14 +36367,11 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>Update</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Opdater</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
     <message>
         <source>Daily</source>
         <translation>Dagligt</translation>
@@ -36403,9 +36400,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Not checked yet</source>
         <translation>Endnu ikke tjekket</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfigurer filtre</translation>
@@ -36427,10 +36421,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <translation>Sidste tjekdato:</translation>
     </message>
     <message>
-        <source>Not checked yet</source>
-        <translation>Endnu ikke tjekket</translation>
-    </message>
-    <message>
         <source>Check Now</source>
         <translation>Tjek nu</translation>
     </message>
@@ -36438,9 +36428,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Automatically runs a scheduled check for updates on a time interval basis. The automatic check for updates will be performed at the scheduled date, or the next startup following it.</source>
         <translation>Kører automatisk en planlagt søgning efter opdateringer på et tidsinterval basis. Den automatiske søgning efter opdateringer udføres på den planlagte dato eller den næste opstart som kommer efter.</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
     <message>
         <source>Qt Updater</source>
         <translation>Qt opdatering</translation>

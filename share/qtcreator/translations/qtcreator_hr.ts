@@ -8586,7 +8586,7 @@ Utječe na uvlačenje neprekinutih redaka.
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Konfiguriraj filtre</translation>
@@ -35324,14 +35324,11 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
     </message>
 </context>
 <context>
-    <name>Update</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Aktualiziraj</translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
     <message>
         <source>Daily</source>
         <translation>Dnevno</translation>
@@ -35356,13 +35353,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Checking for updates...</source>
         <translation>Provjeravanje nadogradnji …</translation>
     </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>Još nije provjereno</translation>
-    </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
     <message>
         <source>Qt Updater</source>
         <translation>Qt Updater</translation>

@@ -20078,7 +20078,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Updater</source>
         <translation>Оновлючач</translation>
@@ -20118,10 +20118,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Updates available</source>
         <translation type="vanished">Доступні оновлення</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="vanished">Оновити</translation>
     </message>
 </context>
 <context>
@@ -33349,7 +33345,7 @@ monitor reset</translation>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Налаштування фільтрів</translation>
@@ -34755,7 +34751,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>Update</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Update</source>
         <translation>Оновити</translation>
@@ -42698,7 +42694,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsPage</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Daily</source>
         <translation>Щоденно</translation>
@@ -42722,10 +42718,6 @@ Output:
     <message>
         <source>Checking for updates...</source>
         <translation>Перевірка оновлень...</translation>
-    </message>
-    <message>
-        <source>Not checked yet</source>
-        <translation>Ще не перевірялось</translation>
     </message>
 </context>
 <context>

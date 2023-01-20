@@ -38227,7 +38227,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>Impossible de déterminer l&apos;emplacement de l&apos;outil de maintenant. Veuillez vérifier votre installation si vous n&apos;avez pas activé ce module manuellement.</translation>
@@ -50651,7 +50651,7 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <name>::UpdateInfo</name>
     <message>
         <source>Configure Filters</source>
         <translation>Configurer les filtres</translation>
@@ -52056,11 +52056,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Update</name>
-    <message>
-        <source>Update</source>
-        <translation>Mettre à jour</translation>
-    </message>
+    <name>::UpdateInfo</name>
 </context>
 <context>
     <name>::Valgrind</name>

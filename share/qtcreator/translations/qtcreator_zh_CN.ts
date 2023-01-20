@@ -45228,9 +45228,6 @@ The trace data is lost.</source>
         <source>Start Maintenance Tool</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
         <translation>无法确定维护工具所在位置，请检查安装(有可能没有手动开启插件支持)。</translation>
@@ -45280,9 +45277,6 @@ The trace data is lost.</source>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>UpdateInfo::Internal::UpdateInfoSettingsPage</name>
     <message>
         <source>Configure Filters</source>
         <translation type="unfinished">配置过滤器</translation>
