@@ -35,6 +35,10 @@ Group QdbStopApplicationService::deployRecipe()
 {
     const auto setupHandler = [this](QtcProcess &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
+        if (!device) {
+            emit errorMessage(Tr::tr("No device to stop the application on."));
+            return TaskAction::StopWithError;
+        }
         QTC_CHECK(device);
         process.setCommand({device->filePath(Constants::AppcontrollerFilepath), {"--stop"}});
         process.setWorkingDirectory("/usr/bin");
@@ -42,6 +46,7 @@ Group QdbStopApplicationService::deployRecipe()
         connect(proc, &QtcProcess::readyReadStandardOutput, this, [this, proc] {
             emit stdOutData(proc->readAllStandardOutput());
         });
+        return TaskAction::Continue;
     };
     const auto doneHandler = [this](const QtcProcess &) {
         emit progressMessage(Tr::tr("Stopped the running application."));
@@ -60,19 +65,7 @@ Group QdbStopApplicationService::deployRecipe()
             emit errorMessage(failureMessage);
         }
     };
-    const auto rootSetupHandler = [this] {
-        const auto device = DeviceKitAspect::device(target()->kit());
-        if (!device) {
-            emit errorMessage(Tr::tr("No device to stop the application on."));
-            return GroupConfig{GroupAction::StopWithError};
-        }
-        return GroupConfig();
-    };
-    const Group root {
-        DynamicSetup(rootSetupHandler),
-        Process(setupHandler, doneHandler, errorHandler)
-    };
-    return root;
+    return Group { Process(setupHandler, doneHandler, errorHandler) };
 }
 
 // QdbStopApplicationStep
