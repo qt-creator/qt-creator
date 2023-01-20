@@ -112,6 +112,8 @@ public:
 
     static double luminance(const QColor &color);
     static bool isReadableOn(const QColor &background, const QColor &foreground);
+    // returns a foreground color readable on background (desiredForeground if already readable or adaption fails)
+    static QColor ensureReadableOn(const QColor &background, const QColor &desiredForeground);
 
 private:
     static QColor m_baseColor;

@@ -9,6 +9,7 @@
 #include "link.h"
 #include "qtcassert.h"
 #include "stringutils.h"
+#include "stylehelper.h"
 #include "theme/theme.h"
 
 #include <QDir>
@@ -273,6 +274,14 @@ void OutputFormatter::overridePostPrintAction(const PostPrintAction &postPrintAc
     d->postPrintAction = postPrintAction;
 }
 
+static void checkAndFineTuneColors(QTextCharFormat *format)
+{
+    QTC_ASSERT(format, return);
+    const QColor fgColor = StyleHelper::ensureReadableOn(format->background().color(),
+                                                         format->foreground().color());
+    format->setForeground(fgColor);
+}
+
 void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 {
     QTextCharFormat charFmt = charFormat(format);
@@ -292,6 +301,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
                 ? *res.formatOverride : outputTypeForParser(involvedParsers.last(), format);
         if (formatForParser != format && cleanLine == text && formattedText.length() == 1) {
             charFmt = charFormat(formatForParser);
+            checkAndFineTuneColors(&charFmt);
             formattedText.first().format = charFmt;
         }
     }
@@ -302,8 +312,10 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     }
 
     const QList<FormattedText> linkified = linkifiedText(formattedText, res.linkSpecs);
-    for (const FormattedText &output : linkified)
+    for (FormattedText output : linkified) {
+        checkAndFineTuneColors(&output.format);
         append(output.text, output.format);
+    }
     if (linkified.isEmpty())
         append({}, charFmt); // This might cause insertion of a newline character.
 
