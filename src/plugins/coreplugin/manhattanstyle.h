@@ -30,7 +30,6 @@ public:
     QPixmap standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt, const QWidget *widget = nullptr) const override;
     QIcon standardIcon(StandardPixmap standardIcon, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override;
     int styleHint(StyleHint hint, const QStyleOption *option = nullptr, const QWidget *widget = nullptr, QStyleHintReturn *returnData = nullptr) const override;
-    QRect itemRect(QPainter *p, const QRect &r, int flags, bool enabled, const QPixmap *pixmap, const QString &text, int len = -1) const;
     QPixmap generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixmap, const QStyleOption *opt) const override;
 
     int pixelMetric(PixelMetric metric, const QStyleOption *option = nullptr, const QWidget *widget = nullptr) const override;
@@ -45,6 +44,27 @@ public:
     void unpolish(QApplication *app) override;
 
 private:
+    void drawPrimitiveForPanelWidget(PrimitiveElement element,
+                                     const QStyleOption *option,
+                                     QPainter *painter,
+                                     const QWidget *widget) const;
+
+    void drawPrimitiveForQmlEditor(PrimitiveElement element,
+                                     const QStyleOption *option,
+                                     QPainter *painter,
+                                     const QWidget *widget) const;
+
+    void drawControlForQmlEditor(ControlElement element,
+                                 const QStyleOption *option,
+                                 QPainter *painter,
+                                 const QWidget *widget = nullptr) const;
+
+    void drawQmlEditorIcon(PrimitiveElement element,
+                           const QStyleOption *option,
+                           const char *propertyName,
+                           QPainter *painter,
+                           const QWidget *widget = nullptr) const;
+
     static void drawButtonSeparator(QPainter *painter, const QRect &rect, bool reverse);
 
     ManhattanStylePrivate *d;

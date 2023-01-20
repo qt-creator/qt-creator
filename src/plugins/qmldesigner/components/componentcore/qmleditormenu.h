@@ -6,7 +6,11 @@
 #include <QMenu>
 
 class QStyleOptionMenuItem;
+
+namespace QmlDesigner {
+
 class QmlEditorMenuPrivate;
+class DesignerIcons;
 
 class QmlEditorMenu : public QMenu
 {
@@ -33,3 +37,26 @@ private:
 
     QmlEditorMenuPrivate *d = nullptr;
 };
+
+class QmlEditorStyleObject : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QIcon cascadeIconLeft READ cascadeIconLeft CONSTANT)
+    Q_PROPERTY(QIcon cascadeIconRight READ cascadeIconRight CONSTANT)
+    Q_PROPERTY(QIcon backspaceIcon READ backspaceIcon CONSTANT)
+    Q_PROPERTY(QIcon tickIcon READ tickIcon CONSTANT)
+
+public:
+    static QmlEditorStyleObject *instance();
+
+    QIcon cascadeIconLeft() const;
+    QIcon cascadeIconRight() const;
+    QIcon tickIcon() const;
+    QIcon backspaceIcon() const;
+
+private:
+    QmlEditorStyleObject();
+};
+
+} // namespace QmlDesigner

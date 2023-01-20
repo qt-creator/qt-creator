@@ -2,16 +2,16 @@
     "ContextMenuArea": {
         "size": "28x28",
         "Off": {
-            "Disabled": { "color": "DSiconColorDisabled" },
-            "Hovered": { "color": "DSnavigatorIconHover"  },
-            "Normal": { "color": "DSnavigatorIcon" },
-            "Selected": { "color": "DSnavigatorIconSelected" }
+            "Disabled": { "color": "DStextColorDisabled" },
+            "Hovered": { "color": "DSpanelBackground"  },
+            "Normal": { "color": "DStextColor" },
+            "Selected": { "color": "DStextSelectedTextColor" }
         },
         "On": {
-            "Disabled": { "color": "DSiconColorDisabled" },
-            "Hovered": { "color": "DSnavigatorIconHover"  },
-            "Normal": { "color": "DSnavigatorIcon" },
-            "Selected": { "color": "DSnavigatorIconSelected" }
+            "Disabled": { "color": "DStextColorDisabled" },
+            "Hovered": { "color": "DSsubPanelBackground"  },
+            "Normal": { "color": "DStextColor" },
+            "Selected": { "color": "DStextSelectedTextColor" }
         }
     },
     "AddMouseAreaIcon": {
@@ -50,6 +50,9 @@
     "MergeWithTemplateIcon": {
         "iconName": "s_merging"
     },
+    "MinimalDownArrowIcon" : {
+        "iconName": "upDownSquare2"
+    },
     "PositionsersIcon": {
         "iconName": "s_positioners"
     },
@@ -69,6 +72,14 @@
     },
     "SnappingIcon": {
         "iconName": "s_snapping"
+    },
+    "SimpleCheckIcon": {
+        "Off": {
+            "iconName": "transparent"
+        },
+        "On": {
+            "iconName": "tickIcon"
+        }
     },
     "TimelineIcon": {
         "iconName": "s_timeline"

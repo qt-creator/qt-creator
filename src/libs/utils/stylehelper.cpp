@@ -336,6 +336,101 @@ void StyleHelper::drawArrow(QStyle::PrimitiveElement element, QPainter *painter,
     painter->drawPixmap(xOffset, yOffset, pixmap);
 }
 
+void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option)
+{
+    if (option->rect.width() <= 1 || option->rect.height() <= 1)
+        return;
+
+    const qreal devicePixelRatio = painter->device()->devicePixelRatio();
+    const bool enabled = option->state & QStyle::State_Enabled;
+    QRect r = option->rect;
+    int size = qMin(r.height(), r.width());
+    QPixmap pixmap;
+    const QString pixmapName = QString::asprintf("StyleHelper::drawMinimalArrow-%d-%d-%d-%f",
+                                                 element, size, enabled, devicePixelRatio);
+    if (!QPixmapCache::find(pixmapName, &pixmap)) {
+        QImage image(size * devicePixelRatio, size * devicePixelRatio, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        QStyleOption tweakedOption(*option);
+
+        double rotation = 0;
+        switch (element) {
+        case QStyle::PE_IndicatorArrowLeft:
+            rotation = 45;
+            break;
+        case QStyle::PE_IndicatorArrowUp:
+            rotation = 135;
+            break;
+        case QStyle::PE_IndicatorArrowRight:
+            rotation = 225;
+            break;
+        case QStyle::PE_IndicatorArrowDown:
+            rotation = 315;
+            break;
+        default:
+            break;
+        }
+
+        auto drawArrow = [&tweakedOption, rotation, &painter](const QRect &rect, const QColor &color) -> void
+        {
+            static const QCommonStyle* const style = qobject_cast<QCommonStyle*>(QApplication::style());
+            if (!style)
+                return;
+
+            // Workaround for QTCREATORBUG-28470
+            QPalette pal = tweakedOption.palette;
+            pal.setBrush(QPalette::Base, pal.text()); // Base and Text differ, causing a detachment.
+            // Inspired by tst_QPalette::cacheKey()
+            pal.setColor(QPalette::ButtonText, color.rgb());
+
+            tweakedOption.palette = pal;
+            tweakedOption.rect = rect;
+
+            painter.save();
+            painter.setOpacity(color.alphaF());
+
+            double minDim = std::min(rect.width(), rect.height());
+            double innerWidth = minDim/M_SQRT2;
+            int penWidth = std::max(innerWidth/4, 1.0);
+            innerWidth -= penWidth;
+
+            QPen pPen(pal.color(QPalette::ButtonText), penWidth);
+            pPen.setJoinStyle(Qt::MiterJoin);
+            painter.setBrush(pal.text());
+            painter.setPen(pPen);
+
+            painter.translate(rect.center());
+            painter.rotate(rotation);
+            painter.translate(-innerWidth/2, -innerWidth/2);
+
+            const QPointF points[3] = {
+                {0, 0},
+                {0, innerWidth},
+                {innerWidth, innerWidth}
+            };
+
+            painter.drawPolyline(points, 3);
+            painter.restore();
+        };
+
+        if (enabled) {
+            if (creatorTheme()->flag(Theme::ToolBarIconShadow))
+                drawArrow(image.rect().translated(0, devicePixelRatio), toolBarDropShadowColor());
+            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsBaseColor));
+        } else {
+            drawArrow(image.rect(), creatorTheme()->color(Theme::IconsDisabledColor));
+        }
+        painter.end();
+        pixmap = QPixmap::fromImage(image);
+        pixmap.setDevicePixelRatio(devicePixelRatio);
+        QPixmapCache::insert(pixmapName, pixmap);
+    }
+    int xOffset = r.x() + (r.width() - size)/2;
+    int yOffset = r.y() + (r.height() - size)/2;
+    painter->drawPixmap(xOffset, yOffset, pixmap);
+}
+
 void StyleHelper::menuGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect)
 {
     if (StyleHelper::usePixmapCache()) {

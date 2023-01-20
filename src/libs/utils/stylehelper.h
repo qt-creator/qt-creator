@@ -54,6 +54,7 @@ public:
 
     // Draws a shaded anti-aliased arrow
     static void drawArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
+    static void drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *painter, const QStyleOption *option);
 
     // Gradients used for panels
     static void horizontalGradient(QPainter *painter, const QRect &spanRect, const QRect &clipRect, bool lightColored = false);

@@ -59,10 +59,12 @@ public:
         LayoutsIcon,
         MakeComponentIcon,
         MergeWithTemplateIcon,
+        MinimalDownArrowIcon,
         PositionsersIcon,
         ResetViewIcon,
         SelecionIcon,
         ShowBoundsIcon,
+        SimpleCheckIcon,
         SnappingIcon,
         TimelineIcon,
         VisibilityIcon
@@ -81,7 +83,6 @@ public:
         Hovered = QIcon::Active,
         Selected = QIcon::Selected
     };
-
     Q_ENUM(Mode)
 
     enum State {
@@ -123,6 +124,8 @@ public:
                  Theme::Icon themeIcon,
                  Theme::Color color,
                  const QSize &size);
+
+    static QIcon rotateIcon(const QIcon &icon, const double &degrees);
 
 private:
     QList<Utils::StyleHelper::IconFontHelper> helperList(const IconId &iconId,
