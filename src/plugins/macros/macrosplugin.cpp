@@ -38,11 +38,8 @@ MacrosPlugin::~MacrosPlugin()
     delete d;
 }
 
-bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void MacrosPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new MacrosPluginPrivate;
 
     Core::Context textContext(TextEditor::Constants::C_TEXTEDITOR);
@@ -79,10 +76,7 @@ bool MacrosPlugin::initialize(const QStringList &arguments, QString *errorMessag
     command = Core::ActionManager::registerAction(saveLastMacro, Constants::SAVE_LAST_MACRO, textContext);
     mmacrotools->addAction(command);
     connect(saveLastMacro, &QAction::triggered, &d->macroManager, &MacroManager::saveLastMacro);
-
-    return true;
 }
-
 
 } // Internal
 } // Macros

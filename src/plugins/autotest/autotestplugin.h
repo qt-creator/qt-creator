@@ -39,7 +39,7 @@ public:
     AutotestPlugin();
     ~AutotestPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 

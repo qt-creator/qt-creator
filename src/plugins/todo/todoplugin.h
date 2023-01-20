@@ -18,7 +18,7 @@ public:
     TodoPlugin();
     ~TodoPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
 private:
     class TodoPluginPrivate *d = nullptr;

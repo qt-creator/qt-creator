@@ -34,14 +34,9 @@ ClassViewPlugin::~ClassViewPlugin()
     dd = nullptr;
 }
 
-bool ClassViewPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ClassViewPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new ClassViewPluginPrivate;
-
-    return true;
 }
 
 } // namespace Internal

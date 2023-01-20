@@ -343,11 +343,9 @@ bool SubversionPluginPrivate::isCommitEditorOpen() const
     return !m_commitMessageFileName.isEmpty();
 }
 
-bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
+void SubversionPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
     dd = new SubversionPluginPrivate;
-    return true;
 }
 
 void SubversionPlugin::extensionsInitialized()

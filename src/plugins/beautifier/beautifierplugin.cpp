@@ -91,16 +91,12 @@ public:
 
 static BeautifierPluginPrivate *dd = nullptr;
 
-bool BeautifierPlugin::initialize(const QStringList &arguments, QString *errorString)
+void BeautifierPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
     menu->menu()->setTitle(Tr::tr("Bea&utifier"));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-    return true;
 }
 
 void BeautifierPlugin::extensionsInitialized()

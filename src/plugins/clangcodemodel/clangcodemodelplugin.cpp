@@ -76,11 +76,8 @@ ClangCodeModelPlugin::~ClangCodeModelPlugin()
     m_generatorWatcher.waitForFinished();
 }
 
-bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ClangCodeModelPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
                                           Tr::tr("Clang Code Model"));
 
@@ -93,8 +90,6 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
                 std::make_unique<ClangModelManagerSupport>());
 
     createCompilationDBAction();
-
-    return true;
 }
 
 void ClangCodeModelPlugin::createCompilationDBAction()

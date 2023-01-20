@@ -17,7 +17,7 @@ public:
     ~IosPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class IosPluginPrivate *d = nullptr;
 };

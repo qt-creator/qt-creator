@@ -22,7 +22,7 @@ public:
 
     static SquishSettings *squishSettings();
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
 };

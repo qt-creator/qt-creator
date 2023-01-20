@@ -20,7 +20,7 @@ class SubversionPlugin final : public ExtensionSystem::IPlugin
 
     ~SubversionPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

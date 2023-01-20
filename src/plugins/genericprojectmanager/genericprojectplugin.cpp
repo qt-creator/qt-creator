@@ -54,10 +54,9 @@ GenericProjectPlugin::~GenericProjectPlugin()
     delete d;
 }
 
-bool GenericProjectPlugin::initialize(const QStringList &, QString *)
+void GenericProjectPlugin::initialize()
 {
     d = new GenericProjectPluginPrivate;
-    return true;
 }
 
 GenericProjectPluginPrivate::GenericProjectPluginPrivate()

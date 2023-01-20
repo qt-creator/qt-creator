@@ -19,7 +19,7 @@ public:
     static PythonPlugin *instance();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
     class PythonPluginPrivate *d = nullptr;

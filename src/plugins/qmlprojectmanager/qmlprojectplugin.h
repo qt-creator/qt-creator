@@ -36,7 +36,7 @@ public slots:
     void openQds(bool permanent = false);
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void displayQmlLandingPage();
     void hideQmlLandingPage();
     void updateQmlLandingPageProjectInfo(const Utils::FilePath &projectFile);

@@ -133,11 +133,8 @@ CppcheckPlugin::CppcheckPlugin() = default;
 
 CppcheckPlugin::~CppcheckPlugin() = default;
 
-bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorString)
+void CppcheckPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d.reset(new CppcheckPluginPrivate);
 
     using namespace Core;
@@ -156,8 +153,6 @@ bool CppcheckPlugin::initialize(const QStringList &arguments, QString *errorStri
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::runActionsUpdated,
             d.get(), &CppcheckPluginPrivate::updateManualRunAction);
     d->updateManualRunAction();
-
-    return true;
 }
 
 } // Cppcheck::Internal

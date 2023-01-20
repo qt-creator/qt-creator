@@ -114,14 +114,9 @@ ImageViewerPlugin::~ImageViewerPlugin()
     delete  d;
 }
 
-bool ImageViewerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ImageViewerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new ImageViewerPluginPrivate;
-
-    return true;
 }
 
 } // ImageViewer::Internal

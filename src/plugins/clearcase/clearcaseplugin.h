@@ -67,7 +67,7 @@ public:
     static QSharedPointer<StatusMap> statusMap();
 
 private:
-    bool initialize(const QStringList &arguments, QString *error_message) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

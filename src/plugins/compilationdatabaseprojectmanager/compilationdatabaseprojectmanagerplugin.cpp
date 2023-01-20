@@ -42,11 +42,8 @@ CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugi
     delete d;
 }
 
-bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void CompilationDatabaseProjectManagerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new CompilationDatabaseProjectManagerPluginPrivate;
 
     Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
@@ -80,8 +77,6 @@ bool CompilationDatabaseProjectManagerPlugin::initialize(const QStringList &argu
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, onProjectChanged);
-
-    return true;
 }
 
 QVector<QObject *> CompilationDatabaseProjectManagerPlugin::createTestObjects() const

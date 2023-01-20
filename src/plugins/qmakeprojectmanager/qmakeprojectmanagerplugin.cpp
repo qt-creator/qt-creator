@@ -128,10 +128,8 @@ QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
     delete d;
 }
 
-bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QmakeProjectManagerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     const Context projectContext(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     Context projectTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
@@ -291,8 +289,6 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
             d, &QmakeProjectManagerPluginPrivate::updateBuildFileAction);
 
     d->updateActions();
-
-    return true;
 }
 
 QmakeProjectManagerPluginPrivate::~QmakeProjectManagerPluginPrivate()

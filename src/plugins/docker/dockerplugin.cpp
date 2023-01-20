@@ -53,14 +53,9 @@ DockerPlugin::~DockerPlugin()
     delete d;
 }
 
-bool DockerPlugin::initialize(const QStringList &arguments, QString *errorString)
+void DockerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new DockerPluginPrivate;
-
-    return true;
 }
 
 } // Docker::Interanl

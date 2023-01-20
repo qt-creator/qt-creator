@@ -17,7 +17,7 @@ public:
     ~QmlJSToolsPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
     class QmlJSToolsPluginPrivate *d = nullptr;

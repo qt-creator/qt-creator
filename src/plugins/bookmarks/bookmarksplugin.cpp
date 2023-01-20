@@ -67,10 +67,9 @@ BookmarksPlugin::~BookmarksPlugin()
     delete d;
 }
 
-bool BookmarksPlugin::initialize(const QStringList &, QString *)
+void BookmarksPlugin::initialize()
 {
     d = new BookmarksPluginPrivate;
-    return true;
 }
 
 BookmarksPluginPrivate::BookmarksPluginPrivate()

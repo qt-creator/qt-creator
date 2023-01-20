@@ -51,14 +51,9 @@ WebAssemblyPlugin::~WebAssemblyPlugin()
     dd = nullptr;
 }
 
-bool WebAssemblyPlugin::initialize(const QStringList& arguments, QString* errorString)
+void WebAssemblyPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     dd = new WebAssemblyPluginPrivate;
-
-    return true;
 }
 
 void WebAssemblyPlugin::extensionsInitialized()

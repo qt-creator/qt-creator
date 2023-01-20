@@ -60,13 +60,11 @@ ValgrindPlugin::~ValgrindPlugin()
     delete d;
 }
 
-bool ValgrindPlugin::initialize(const QStringList &, QString *)
+void ValgrindPlugin::initialize()
 {
     d = new ValgrindPluginPrivate;
 
     RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
-
-    return true;
 }
 
 QVector<QObject *> ValgrindPlugin::createTestObjects() const

@@ -14,7 +14,7 @@ class SilverSearcherPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "SilverSearcher.json")
 
 public:
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
 
 #ifdef WITH_TESTS
 private:

@@ -19,7 +19,7 @@ class McuSupportPlugin final : public ExtensionSystem::IPlugin
 public:
     ~McuSupportPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
     void askUserAboutMcuSupportKitsSetup();

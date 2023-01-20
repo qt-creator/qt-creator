@@ -17,7 +17,7 @@ public:
     ValgrindPlugin() = default;
     ~ValgrindPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
 private:
     QVector<QObject *> createTestObjects() const override;

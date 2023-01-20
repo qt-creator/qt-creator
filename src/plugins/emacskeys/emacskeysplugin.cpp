@@ -69,11 +69,8 @@ EmacsKeysPlugin::EmacsKeysPlugin() = default;
 
 EmacsKeysPlugin::~EmacsKeysPlugin() = default;
 
-bool EmacsKeysPlugin::initialize(const QStringList &arguments, QString *errorString)
+void EmacsKeysPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     // We have to use this hack here at the moment, because it's the only way to
     // disable Qt Creator menu accelerators aka mnemonics. Many of them get into
     // the way of typical emacs keys, such as: Alt+F (File), Alt+B (Build),
@@ -130,7 +127,6 @@ bool EmacsKeysPlugin::initialize(const QStringList &arguments, QString *errorStr
         &EmacsKeysPlugin::scrollHalfDown, tr("Scroll Half Screen Down"));
     registerAction(Constants::SCROLL_HALF_UP,
         &EmacsKeysPlugin::scrollHalfUp, tr("Scroll Half Screen Up"));
-    return true;
 }
 
 void EmacsKeysPlugin::extensionsInitialized()

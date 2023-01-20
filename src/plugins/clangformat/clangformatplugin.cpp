@@ -87,10 +87,8 @@ static void replaceCppCodeStyle()
     TextEditorSettings::registerCodeStyleFactory(new ClangFormatStyleFactory);
 }
 
-bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ClangFormatPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
     replaceCppCodeStyle();
 
     ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
@@ -127,7 +125,6 @@ bool ClangFormatPlugin::initialize(const QStringList &arguments, QString *errorS
                         openClangFormatConfigAction->setData(doc->filePath().toVariant());
                 });
     }
-    return true;
 }
 
 QVector<QObject *> ClangFormatPlugin::createTestObjects() const

@@ -88,11 +88,8 @@ TextEditorPlugin *TextEditorPlugin::instance()
     return m_instance;
 }
 
-bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void TextEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new TextEditorPluginPrivate;
 
     Context context(TextEditor::Constants::C_TEXTEDITOR);
@@ -143,8 +140,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
                                     Tr::tr("Text", "SnippetProvider"));
 
     d->createStandardContextMenu();
-
-    return true;
 }
 
 void TextEditorPluginPrivate::extensionsInitialized()

@@ -1690,11 +1690,9 @@ PerforcePlugin::~PerforcePlugin()
     dd = nullptr;
 }
 
-bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *errorMessage)
+void PerforcePlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
     dd = new PerforcePluginPrivate;
-    return true;
 }
 
 #ifdef WITH_TESTS

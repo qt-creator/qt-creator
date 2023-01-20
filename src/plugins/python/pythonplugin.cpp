@@ -52,16 +52,11 @@ PythonPlugin *PythonPlugin::instance()
     return m_instance;
 }
 
-bool PythonPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void PythonPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new PythonPluginPrivate;
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
-
-    return true;
 }
 
 void PythonPlugin::extensionsInitialized()

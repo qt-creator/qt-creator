@@ -21,7 +21,7 @@ public:
 
 private:
     // implementation of ExtensionSystem::IPlugin
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
     ShutdownFlag aboutToShutdown() override;
     void extensionsInitialized() override;
 

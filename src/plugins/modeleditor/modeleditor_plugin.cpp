@@ -58,10 +58,8 @@ ModelEditorPlugin::~ModelEditorPlugin()
     delete d;
 }
 
-bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ModelEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
     d = new ModelEditorPluginPrivate;
 
     Core::JsExpander::registerGlobalObject<JsExtension>("Modeling");
@@ -70,8 +68,6 @@ bool ModelEditorPlugin::initialize(const QStringList &arguments, QString *errorS
             &d->uiController, &UiController::saveSettings);
     connect(&d->settingsController, &SettingsController::loadSettings,
             &d->uiController, &UiController::loadSettings);
-
-    return true;
 }
 
 void ModelEditorPlugin::extensionsInitialized()

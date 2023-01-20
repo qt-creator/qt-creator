@@ -67,18 +67,13 @@ IosPlugin::~IosPlugin()
     delete d;
 }
 
-bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void IosPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
 
     IosConfigurations::initialize();
 
     d = new IosPluginPrivate;
-
-    return true;
 }
 
 } // Internal::Ios

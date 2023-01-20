@@ -23,7 +23,7 @@ public:
     ~ClangToolsPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void registerAnalyzeActions();
     void onCurrentEditorChanged();
 

@@ -25,7 +25,7 @@ private slots:
 #endif
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class QmakeProjectManagerPluginPrivate *d = nullptr;
 };

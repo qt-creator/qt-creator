@@ -24,7 +24,7 @@ public:
     GitLabPlugin();
     ~GitLabPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
 
     static QList<GitLabServer> allGitLabServers();
     static GitLabServer gitLabServerForId(const Utils::Id &id);

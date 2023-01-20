@@ -116,14 +116,9 @@ CodePasterPlugin::~CodePasterPlugin()
     delete d;
 }
 
-bool CodePasterPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void CodePasterPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new CodePasterPluginPrivate;
-
-    return true;
 }
 
 CodePasterPluginPrivate::CodePasterPluginPrivate()

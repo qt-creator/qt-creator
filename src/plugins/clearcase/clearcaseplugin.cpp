@@ -560,11 +560,9 @@ QString ClearCasePluginPrivate::findTopLevel(const FilePath &directory) const
     return ccManagesDirectory(directory);
 }
 
-bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *errorMessage)
+void ClearCasePlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
     dd = new ClearCasePluginPrivate;
-    return true;
 }
 
 void ClearCasePlugin::extensionsInitialized()

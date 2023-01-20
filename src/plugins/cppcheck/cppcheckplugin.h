@@ -21,7 +21,7 @@ public:
     ~CppcheckPlugin() override;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     std::unique_ptr<CppcheckPluginPrivate> d;
 };

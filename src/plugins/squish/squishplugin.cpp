@@ -126,11 +126,10 @@ bool SquishPluginPrivate::initializeGlobalScripts()
     return true;
 }
 
-bool SquishPlugin::initialize(const QStringList &, QString *)
+void SquishPlugin::initialize()
 {
     dd = new SquishPluginPrivate;
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
-    return true;
 }
 
 bool SquishPlugin::delayedInitialize()

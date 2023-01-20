@@ -18,7 +18,7 @@ public:
     ~ImageViewerPlugin();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class ImageViewerPluginPrivate *d = nullptr;
 };

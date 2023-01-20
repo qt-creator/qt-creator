@@ -164,16 +164,11 @@ QdbPlugin::~QdbPlugin()
     delete d;
 }
 
-bool QdbPlugin::initialize(const QStringList &arguments, QString *errorString)
+void QdbPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new QdbPluginPrivate;
 
     registerFlashAction(this);
-
-    return true;
 }
 
 void QdbPlugin::extensionsInitialized()

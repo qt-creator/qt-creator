@@ -68,19 +68,14 @@ McuSupportPlugin::~McuSupportPlugin()
     dd = nullptr;
 }
 
-bool McuSupportPlugin::initialize(const QStringList &arguments, QString *errorString)
+void McuSupportPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     setObjectName("McuSupportPlugin");
     dd = new McuSupportPluginPrivate;
 
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/mcusupport/wizards/");
-
-    return true;
 }
 
 void McuSupportPlugin::extensionsInitialized()

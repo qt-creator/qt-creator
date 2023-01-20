@@ -470,17 +470,12 @@ StudioWelcomePlugin::~StudioWelcomePlugin()
     delete m_welcomeMode;
 }
 
-bool StudioWelcomePlugin::initialize(const QStringList &arguments, QString *errorString)
+void StudioWelcomePlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
 
     m_welcomeMode = new WelcomeMode;
-
-    return true;
 }
 
 static bool forceDownLoad()

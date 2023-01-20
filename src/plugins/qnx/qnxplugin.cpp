@@ -114,14 +114,9 @@ QnxPlugin::~QnxPlugin()
     delete dd;
 }
 
-bool QnxPlugin::initialize(const QStringList &arguments, QString *errorString)
+void QnxPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     dd = new QnxPluginPrivate;
-
-    return true;
 }
 
 void QnxPlugin::extensionsInitialized()

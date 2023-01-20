@@ -32,7 +32,7 @@ public:
     DiffEditorPlugin();
     ~DiffEditorPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     static Utils::FutureSynchronizer *futureSynchronizer();
 

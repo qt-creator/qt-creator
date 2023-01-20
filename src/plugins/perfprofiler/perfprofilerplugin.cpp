@@ -55,13 +55,9 @@ PerfProfilerPlugin::~PerfProfilerPlugin()
     delete d;
 }
 
-bool PerfProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
+void PerfProfilerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new PerfProfilerPluginPrivate;
-    return true;
 }
 
 PerfSettings *PerfProfilerPlugin::globalSettings()

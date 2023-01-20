@@ -16,7 +16,7 @@ public:
     IncrediBuildPlugin() = default;
     ~IncrediBuildPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
 private:
     class IncrediBuildPluginPrivate *d = nullptr;

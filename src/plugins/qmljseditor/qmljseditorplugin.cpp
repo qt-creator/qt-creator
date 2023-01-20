@@ -101,14 +101,9 @@ QmlJSEditorPlugin::~QmlJSEditorPlugin()
     m_instance = nullptr;
 }
 
-bool QmlJSEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QmlJSEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new QmlJSEditorPluginPrivate;
-
-    return true;
 }
 
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()

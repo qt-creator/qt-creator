@@ -10,11 +10,8 @@
 namespace SerialTerminal {
 namespace Internal {
 
-bool SerialTerminalPlugin::initialize(const QStringList &arguments, QString *errorString)
+void SerialTerminalPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     m_settings.load(Core::ICore::settings());
 
     // Create serial output pane
@@ -24,8 +21,6 @@ bool SerialTerminalPlugin::initialize(const QStringList &arguments, QString *err
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, [this] { m_settings.save(Core::ICore::settings()); });
-
-    return true;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag SerialTerminalPlugin::aboutToShutdown()

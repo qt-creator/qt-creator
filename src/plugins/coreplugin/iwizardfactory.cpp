@@ -44,7 +44,7 @@
     To make your wizard known to the system, add your IWizardFactory instance to the
     plugin manager's object pool in your plugin's initialize function:
     \code
-        bool MyPlugin::initialize(const QStringList &arguments, QString *errorString)
+        void MyPlugin::initialize()
         {
             // ... do setup
             addAutoReleasedObject(new MyWizardFactory);

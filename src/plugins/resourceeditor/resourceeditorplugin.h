@@ -20,7 +20,7 @@ public:
     void onUndoStackChanged(ResourceEditorW const *editor, bool canUndo, bool canRedo);
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) final;
+    void initialize() final;
     void extensionsInitialized() override;
 
     class ResourceEditorPluginPrivate *d = nullptr;

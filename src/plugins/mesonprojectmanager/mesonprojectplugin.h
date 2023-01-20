@@ -17,7 +17,7 @@ public:
     ~MesonProjectPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class MesonProjectPluginPrivate *d = nullptr;
 };

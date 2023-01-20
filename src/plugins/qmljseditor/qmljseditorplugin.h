@@ -27,7 +27,7 @@ public:
     static QuickToolBar *quickToolBar();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
 

@@ -89,14 +89,9 @@ QVector<QObject *> RemoteLinuxPlugin::createTestObjects() const
     };
 }
 
-bool RemoteLinuxPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void RemoteLinuxPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new RemoteLinuxPluginPrivate;
-
-    return true;
 }
 
 } // namespace Internal

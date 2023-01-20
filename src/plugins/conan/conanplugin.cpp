@@ -34,21 +34,13 @@ ConanPlugin::~ConanPlugin()
     delete d;
 }
 
-void ConanPlugin::extensionsInitialized()
-{ }
-
-bool ConanPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ConanPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new ConanPluginPrivate;
     conanSettings()->readSettings(ICore::settings());
 
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, &ConanPlugin::projectAdded);
-
-    return true;
 }
 
 static void connectTarget(Project *project, Target *target)

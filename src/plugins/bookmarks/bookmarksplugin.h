@@ -14,7 +14,7 @@ class BookmarksPlugin final : public ExtensionSystem::IPlugin
 
     ~BookmarksPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     class BookmarksPluginPrivate *d = nullptr;
 };

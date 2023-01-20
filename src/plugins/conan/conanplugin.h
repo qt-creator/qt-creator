@@ -26,8 +26,7 @@ private:
     ~ConanPlugin() final;
     void projectAdded(ProjectExplorer::Project *project);
 
-    void extensionsInitialized() final;
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     class ConanPluginPrivate *d = nullptr;
 };

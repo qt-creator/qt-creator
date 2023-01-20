@@ -524,14 +524,9 @@ DiffEditorPlugin::~DiffEditorPlugin()
     s_instance = nullptr;
 }
 
-bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void DiffEditorPlugin::initialize()
 {
     d = new DiffEditorPluginPrivate;
-
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
-    return true;
 }
 
 FutureSynchronizer *DiffEditorPlugin::futureSynchronizer()

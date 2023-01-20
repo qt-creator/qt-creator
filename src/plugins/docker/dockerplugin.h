@@ -24,7 +24,7 @@ public:
 private:
     ~DockerPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     class DockerPluginPrivate *d = nullptr;
 };

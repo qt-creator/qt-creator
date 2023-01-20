@@ -92,7 +92,7 @@ GlslEditorPlugin::~GlslEditorPlugin()
     dd = nullptr;
 }
 
-bool GlslEditorPlugin::initialize(const QStringList &, QString *)
+void GlslEditorPlugin::initialize()
 {
     dd = new GlslEditorPluginPrivate;
 
@@ -111,8 +111,6 @@ bool GlslEditorPlugin::initialize(const QStringList &, QString *)
 
     Command *cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
-
-    return true;
 }
 
 void GlslEditorPlugin::extensionsInitialized()

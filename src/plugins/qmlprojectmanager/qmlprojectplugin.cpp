@@ -237,10 +237,8 @@ static QmlBuildSystem *qmlBuildSystemforFileNode(const FileNode *fileNode)
     return nullptr;
 }
 
-bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
+void QmlProjectPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new QmlProjectPluginPrivate;
 
     if (!qmlDesignerEnabled()) {
@@ -358,8 +356,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     GenerateCmake::generateMenuEntry(this);
     if (QmlProject::isQtDesignStudio())
         GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
-
-    return true;
 }
 
 void QmlProjectPlugin::displayQmlLandingPage()

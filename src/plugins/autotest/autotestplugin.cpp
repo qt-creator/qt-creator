@@ -276,17 +276,13 @@ void AutotestPluginPrivate::initializeMenuEntries()
             this, &AutotestPlugin::updateMenuItemsEnabledState);
 }
 
-bool AutotestPlugin::initialize(const QStringList &arguments, QString *errorString)
+void AutotestPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     dd = new AutotestPluginPrivate;
 #ifdef WITH_TESTS
     ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
                    [] { return dd->m_loadProjectScenario(); });
 #endif
-    return true;
 }
 
 void AutotestPlugin::extensionsInitialized()

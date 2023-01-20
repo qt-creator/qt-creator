@@ -198,14 +198,9 @@ QmlPreviewPlugin::~QmlPreviewPlugin()
     delete d;
 }
 
-bool QmlPreviewPlugin::initialize(const QStringList &arguments, QString *errorString)
+void QmlPreviewPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new QmlPreviewPluginPrivate(this);
-
-    return true;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlPreviewPlugin::aboutToShutdown()

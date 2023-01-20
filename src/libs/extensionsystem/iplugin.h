@@ -31,7 +31,6 @@ public:
     ~IPlugin() override;
 
     virtual bool initialize(const QStringList &arguments, QString *errorString);
-    virtual void initialize() {}
     virtual void extensionsInitialized() {}
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
@@ -41,6 +40,9 @@ public:
     virtual QVector<QObject *> createTestObjects() const;
 
     PluginSpec *pluginSpec() const;
+
+protected:
+    virtual void initialize() {}
 
 signals:
     void asynchronousShutdownFinished();

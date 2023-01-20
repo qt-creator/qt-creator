@@ -86,7 +86,7 @@ CocoPlugin::~CocoPlugin()
     delete d;
 }
 
-bool CocoPlugin::initialize(const QStringList &, QString *)
+void CocoPlugin::initialize()
 {
     using namespace Core;
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
@@ -97,7 +97,6 @@ bool CocoPlugin::initialize(const QStringList &, QString *)
 
         connect(startCoco, &QAction::triggered, this, [this]() { d->startCoco(); });
     }
-    return true;
 }
 
 } // namespace Coco

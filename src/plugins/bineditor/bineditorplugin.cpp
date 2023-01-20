@@ -502,14 +502,9 @@ BinEditorPlugin::~BinEditorPlugin()
     dd = nullptr;
 }
 
-bool BinEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void BinEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new BinEditorPluginPrivate;
-
-    return true;
 }
 
 } // BinEditor::Internal

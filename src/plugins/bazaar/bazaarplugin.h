@@ -14,7 +14,7 @@ class BazaarPlugin final : public ExtensionSystem::IPlugin
 
     ~BazaarPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

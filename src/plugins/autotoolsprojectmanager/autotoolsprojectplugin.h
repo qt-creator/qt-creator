@@ -43,7 +43,7 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
     ~AutotoolsProjectPlugin() final;
 
     void extensionsInitialized() final;
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     class AutotoolsProjectPluginPrivate *d;
 };

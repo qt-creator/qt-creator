@@ -69,17 +69,14 @@ MesonProjectPlugin::~MesonProjectPlugin()
     delete d;
 }
 
-bool MesonProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+void MesonProjectPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new MesonProjectPluginPrivate;
 
     ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
     FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");
     Settings::instance()->readSettings(ICore::settings());
-    return true;
 }
 
 } // MesonProjectManager::Internal

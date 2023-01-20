@@ -29,7 +29,7 @@ public:
 private:
     ~QbsProjectManagerPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     void targetWasAdded(ProjectExplorer::Target *target);
     void projectChanged(QbsProject *project);

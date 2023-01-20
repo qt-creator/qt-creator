@@ -88,11 +88,8 @@ ClangToolsPlugin::~ClangToolsPlugin()
     delete d;
 }
 
-bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ClangToolsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     TaskHub::addCategory(taskCategory(), Tr::tr("Clang Tools"));
 
     // Import tidy/clazy diagnostic configs from CppEditor now
@@ -115,8 +112,6 @@ bool ClangToolsPlugin::initialize(const QStringList &arguments, QString *errorSt
             &Core::EditorManager::currentEditorChanged,
             this,
             &ClangToolsPlugin::onCurrentEditorChanged);
-
-    return true;
 }
 
 void ClangToolsPlugin::onCurrentEditorChanged()

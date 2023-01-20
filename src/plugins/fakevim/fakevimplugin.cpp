@@ -499,7 +499,7 @@ class FakeVimPluginPrivate : public QObject
 public:
     FakeVimPluginPrivate();
 
-    bool initialize();
+    void initialize();
 
     void editorOpened(Core::IEditor *);
     void editorAboutToClose(Core::IEditor *);
@@ -1155,7 +1155,7 @@ FakeVimPluginPrivate::FakeVimPluginPrivate()
     }
 }
 
-bool FakeVimPluginPrivate::initialize()
+void FakeVimPluginPrivate::initialize()
 {
     runData = new FakeVimPluginRunData;
 /*
@@ -1230,8 +1230,6 @@ bool FakeVimPluginPrivate::initialize()
             this, &FakeVimPluginPrivate::handleDelayedQuitAll, Qt::QueuedConnection);
 
     setCursorBlinking(s.blinkingCursor.value());
-
-    return true;
 }
 
 void FakeVimPluginPrivate::userActionTriggered(int key)
@@ -2138,11 +2136,9 @@ FakeVimPlugin::~FakeVimPlugin()
     dd = nullptr;
 }
 
-bool FakeVimPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void FakeVimPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-    return dd->initialize();
+    dd->initialize();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()

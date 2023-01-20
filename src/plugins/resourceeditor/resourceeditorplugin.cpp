@@ -425,14 +425,9 @@ ResourceEditorPlugin::~ResourceEditorPlugin()
     delete d;
 }
 
-bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void ResourceEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new ResourceEditorPluginPrivate(this);
-
-    return true;
 }
 
 void ResourceEditorPlugin::onUndoStackChanged(ResourceEditorW const *editor,

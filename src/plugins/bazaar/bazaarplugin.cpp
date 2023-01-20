@@ -334,12 +334,9 @@ BazaarPlugin::~BazaarPlugin()
     d = nullptr;
 }
 
-bool BazaarPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void BazaarPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     d = new BazaarPluginPrivate;
-    return true;
 }
 
 void BazaarPlugin::extensionsInitialized()

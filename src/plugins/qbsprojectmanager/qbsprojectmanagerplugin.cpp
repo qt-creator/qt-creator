@@ -81,11 +81,8 @@ QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
     delete d;
 }
 
-bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QbsProjectManagerPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new QbsProjectManagerPluginPrivate;
 
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
@@ -248,8 +245,6 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     updateContextActions(ProjectTree::currentNode());
     updateReparseQbsAction();
     updateBuildActions();
-
-    return true;
 }
 
 void QbsProjectManagerPlugin::targetWasAdded(Target *target)

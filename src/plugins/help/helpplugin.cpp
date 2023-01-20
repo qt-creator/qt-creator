@@ -158,12 +158,9 @@ void HelpPlugin::showHelpUrl(const QUrl &url, Core::HelpManager::HelpViewerLocat
     dd->showHelpUrl(url, location);
 }
 
-bool HelpPlugin::initialize(const QStringList &arguments, QString *error)
+void HelpPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error)
     dd = new HelpPluginPrivate;
-    return true;
 }
 
 HelpPluginPrivate::HelpPluginPrivate()

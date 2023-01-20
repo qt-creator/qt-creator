@@ -121,11 +121,8 @@ AndroidPlugin::~AndroidPlugin()
     delete d;
 }
 
-bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void AndroidPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new AndroidPluginPrivate;
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -135,7 +132,6 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
         {Android::Constants::JLS_SETTINGS_ID,
          Tr::tr("Java Language Server"),
          [] { return new JLSSettings; }});
-    return true;
 }
 
 void AndroidPlugin::kitsRestored()

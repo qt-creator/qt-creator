@@ -48,7 +48,7 @@ class QMLPREVIEW_EXPORT QmlPreviewPlugin : public ExtensionSystem::IPlugin
 public:
     ~QmlPreviewPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     ShutdownFlag aboutToShutdown() override;
     QVector<QObject *> createTestObjects() const override;
 

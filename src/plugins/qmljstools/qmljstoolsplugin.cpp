@@ -48,14 +48,9 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
     delete d;
 }
 
-bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
+void QmlJSToolsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(error)
-
     d = new QmlJSToolsPluginPrivate;
-
-    return true;
 }
 
 QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()

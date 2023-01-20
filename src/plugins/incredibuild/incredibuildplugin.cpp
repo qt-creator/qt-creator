@@ -20,14 +20,9 @@ IncrediBuildPlugin::~IncrediBuildPlugin()
     delete d;
 }
 
-bool IncrediBuildPlugin::initialize(const QStringList &arguments, QString *errorString)
+void IncrediBuildPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new IncrediBuildPluginPrivate;
-
-    return true;
 }
 
 } // IncrediBuild::Internal

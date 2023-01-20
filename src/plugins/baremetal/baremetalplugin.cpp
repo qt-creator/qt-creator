@@ -66,13 +66,9 @@ BareMetalPlugin::~BareMetalPlugin()
     delete d;
 }
 
-bool BareMetalPlugin::initialize(const QStringList &arguments, QString *errorString)
+void BareMetalPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new BareMetalPluginPrivate;
-    return true;
 }
 
 void BareMetalPlugin::extensionsInitialized()

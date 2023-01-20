@@ -15,7 +15,7 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
 
    ~BareMetalPlugin() final;
 
-   bool initialize(const QStringList &arguments, QString *errorString) final;
+   void initialize() final;
    void extensionsInitialized() final;
 
    class BareMetalPluginPrivate *d = nullptr;

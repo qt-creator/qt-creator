@@ -57,10 +57,8 @@ FormEditorPlugin::~FormEditorPlugin()
     delete d;
 }
 
-bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
+void FormEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-
     d = new FormEditorPluginPrivate;
 
 #ifdef CPP_ENABLED
@@ -91,8 +89,6 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
     }
-    error->clear();
-    return true;
 }
 
 void FormEditorPlugin::extensionsInitialized()

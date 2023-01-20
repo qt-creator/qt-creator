@@ -16,7 +16,7 @@ class CtfVisualizerPlugin : public ExtensionSystem::IPlugin
 public:
     ~CtfVisualizerPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
 
     class CtfVisualizerPluginPrivate *d = nullptr;
 };

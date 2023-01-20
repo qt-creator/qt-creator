@@ -18,7 +18,7 @@ public:
     CocoPlugin();
     ~CocoPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
 private:
     CocoPluginPrivate *d;
 };

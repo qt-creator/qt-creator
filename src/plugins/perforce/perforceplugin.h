@@ -14,7 +14,7 @@ class PerforcePlugin final : public ExtensionSystem::IPlugin
 
     ~PerforcePlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 public:

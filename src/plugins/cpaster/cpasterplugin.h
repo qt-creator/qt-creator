@@ -43,7 +43,7 @@ public:
     ~CodePasterPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     ShutdownFlag aboutToShutdown() final;
 
     CodePasterPluginPrivate *d = nullptr;

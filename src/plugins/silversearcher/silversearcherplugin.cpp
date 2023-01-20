@@ -8,14 +8,9 @@
 namespace SilverSearcher {
 namespace Internal {
 
-bool SilverSearcherPlugin::initialize(const QStringList &arguments, QString *errorString)
+void SilverSearcherPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     new FindInFilesSilverSearcher(this);
-
-    return true;
 }
 
 #ifdef WITH_TESTS

@@ -226,10 +226,9 @@ MercurialPlugin::~MercurialPlugin()
     dd = nullptr;
 }
 
-bool MercurialPlugin::initialize(const QStringList & /* arguments */, QString * /*errorMessage */)
+void MercurialPlugin::initialize()
 {
     dd = new MercurialPluginPrivate;
-    return true;
 }
 
 void MercurialPlugin::extensionsInitialized()

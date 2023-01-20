@@ -67,7 +67,7 @@ GitLabPlugin::~GitLabPlugin()
     dd = nullptr;
 }
 
-bool GitLabPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
+void GitLabPlugin::initialize()
 {
     dd = new GitLabPluginPrivate;
     dd->parameters.fromSettings(Core::ICore::settings());
@@ -91,7 +91,6 @@ bool GitLabPlugin::initialize(const QStringList & /*arguments*/, QString * /*err
     connect(ProjectExplorer::SessionManager::instance(),
             &ProjectExplorer::SessionManager::startupProjectChanged,
             this, &GitLabPlugin::onStartupProjectChanged);
-    return true;
 }
 
 void GitLabPlugin::openView()

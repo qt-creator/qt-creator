@@ -480,12 +480,9 @@ CvsPlugin::~CvsPlugin()
     dd = nullptr;
 }
 
-bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void CvsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     dd = new CvsPluginPrivate;
-    return true;
 }
 
 void CvsPlugin::extensionsInitialized()

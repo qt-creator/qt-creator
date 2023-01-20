@@ -18,7 +18,7 @@ public:
     ~ClassViewPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage = nullptr) final;
+    void initialize() final;
     void extensionsInitialized() final {}
 };
 

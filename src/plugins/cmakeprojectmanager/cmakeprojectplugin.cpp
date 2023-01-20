@@ -149,10 +149,8 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
     delete d;
 }
 
-bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+void CMakeProjectPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new CMakeProjectPluginPrivate;
     projectTypeSpecificSettings()->readSettings(ICore::settings());
 
@@ -195,8 +193,6 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
     d->cmakeFormatter.initialize();
     d->updateActions();
-
-    return true;
 }
 
 void CMakeProjectPlugin::extensionsInitialized()

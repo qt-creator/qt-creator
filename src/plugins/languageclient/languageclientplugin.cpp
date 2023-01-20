@@ -33,7 +33,7 @@ LanguageClientPlugin *LanguageClientPlugin::instance()
     return m_instance;
 }
 
-bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorString*/)
+void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
@@ -50,8 +50,6 @@ bool LanguageClientPlugin::initialize(const QStringList & /*arguments*/, QString
     connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
     toolsDebugContainer->addAction(
         ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));
-
-    return true;
 }
 
 void LanguageClientPlugin::extensionsInitialized()

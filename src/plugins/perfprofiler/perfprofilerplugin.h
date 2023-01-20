@@ -17,7 +17,7 @@ class PerfProfilerPlugin : public ExtensionSystem::IPlugin
 public:
     ~PerfProfilerPlugin();
 
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     QVector<QObject *> createTestObjects() const final;
 
     static PerfSettings *globalSettings();

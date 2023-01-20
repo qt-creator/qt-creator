@@ -40,7 +40,7 @@ public:
     static const InitFile *shaderInit(int variant);
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 };
 

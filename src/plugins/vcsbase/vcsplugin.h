@@ -30,7 +30,7 @@ public:
     VcsPlugin();
     ~VcsPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
 
     static VcsPlugin *instance();
 

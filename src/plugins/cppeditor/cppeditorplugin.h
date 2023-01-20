@@ -53,7 +53,7 @@ signals:
     void includeHierarchyRequested();
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
     void extensionsInitialized() override;
     QVector<QObject *> createTestObjects() const override;
 

@@ -23,14 +23,9 @@ ScxmlEditorPlugin::~ScxmlEditorPlugin()
     delete d;
 }
 
-bool ScxmlEditorPlugin::initialize(const QStringList &arguments, QString *errorString)
+void ScxmlEditorPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     d = new ScxmlEditorPluginPrivate;
-
-    return true;
 }
 
 void ScxmlEditorPlugin::extensionsInitialized()

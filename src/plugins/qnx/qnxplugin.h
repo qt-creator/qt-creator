@@ -16,7 +16,7 @@ public:
     ~QnxPlugin() final;
 
 private:
-    bool initialize(const QStringList &arguments, QString *errorString) final;
+    void initialize() final;
     void extensionsInitialized() final;
 };
 

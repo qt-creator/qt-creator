@@ -86,12 +86,10 @@ static void processRunnerCallback(ProcessData *data)
     data->stdOut = proc.readAllRawStandardOutput();
 }
 
-bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void QtSupportPlugin::initialize()
 {
     theProcessRunner() = processRunnerCallback;
 
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
     QMakeParser::initialize();
     ProFileEvaluator::initialize();
     new ProFileCacheManager(this);
@@ -103,8 +101,6 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     d = new QtSupportPluginPrivate;
 
     QtVersionManager::initialized();
-
-    return true;
 }
 
 const char kLinkWithQtInstallationSetting[] = "LinkWithQtInstallation";

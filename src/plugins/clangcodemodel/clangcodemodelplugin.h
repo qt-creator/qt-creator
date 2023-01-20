@@ -21,12 +21,11 @@ class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
 
 public:
     ~ClangCodeModelPlugin() override;
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
+    void initialize() override;
 
 private:
     void maybeHandleBatchFileAndExit() const;
 
-private:
     void generateCompilationDB();
     void createCompilationDBAction();
 

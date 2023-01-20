@@ -14,7 +14,7 @@ class CvsPlugin final : public ExtensionSystem::IPlugin
 
     ~CvsPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
     void extensionsInitialized() final;
 
 #ifdef WITH_TESTS

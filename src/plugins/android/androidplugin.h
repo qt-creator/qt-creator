@@ -15,7 +15,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
     ~AndroidPlugin() final;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) final;
+    void initialize() final;
 
     void kitsRestored();
     void askUserAboutAndroidSetup();

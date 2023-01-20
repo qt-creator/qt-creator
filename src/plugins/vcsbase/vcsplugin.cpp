@@ -59,11 +59,8 @@ VcsPlugin::~VcsPlugin()
     delete d;
 }
 
-bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void VcsPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     d = new VcsPluginPrivate;
 
     EditorManager::addCloseEditorListener([this](IEditor *editor) -> bool {
@@ -114,8 +111,6 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     // Just touch VCS Output Pane before initialization
     VcsOutputWindow::instance();
-
-    return true;
 }
 
 VcsPlugin *VcsPlugin::instance()

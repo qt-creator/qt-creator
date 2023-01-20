@@ -224,10 +224,8 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
     return &d->m_quickFixProvider;
 }
 
-bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
+void CppEditorPlugin::initialize()
 {
-    Q_UNUSED(errorMessage)
-
     d = new CppEditorPluginPrivate;
     d->initialize();
 
@@ -465,8 +463,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
             d, &CppEditorPluginPrivate::onTaskStarted);
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             d, &CppEditorPluginPrivate::onAllTasksFinished);
-
-    return true;
 }
 
 void CppEditorPlugin::extensionsInitialized()
