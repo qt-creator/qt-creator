@@ -74,24 +74,6 @@ RunWorkerFactory::RunWorkerFactory()
     g_runWorkerFactories.append(this);
 }
 
-RunWorkerFactory::RunWorkerFactory(const WorkerCreator &producer,
-                                   const QList<Utils::Id> &runModes,
-                                   const QList<Utils::Id> &runConfigs,
-                                   const QList<Utils::Id> &deviceTypes)
-        : m_producer(producer),
-          m_supportedRunModes(runModes),
-          m_supportedRunConfigurations(runConfigs),
-          m_supportedDeviceTypes(deviceTypes)
-{
-    g_runWorkerFactories.append(this);
-
-    // Debugging only.
-    for (Utils::Id runMode : runModes)
-        g_runModes.insert(runMode);
-    for (Utils::Id runConfig : runConfigs)
-        g_runConfigs.insert(runConfig);
-}
-
 RunWorkerFactory::~RunWorkerFactory()
 {
     g_runWorkerFactories.removeOne(this);
@@ -104,16 +86,20 @@ void RunWorkerFactory::setProducer(const WorkerCreator &producer)
 
 void RunWorkerFactory::setSupportedRunConfigs(const QList<Utils::Id> &runConfigs)
 {
+    for (Id runConfig : runConfigs)
+        g_runConfigs.insert(runConfig); // Debugging only.
     m_supportedRunConfigurations = runConfigs;
 }
 
 void RunWorkerFactory::addSupportedRunMode(Utils::Id runMode)
 {
+    g_runModes.insert(runMode); // Debugging only.
     m_supportedRunModes.append(runMode);
 }
 
 void RunWorkerFactory::addSupportedRunConfig(Utils::Id runConfig)
 {
+    g_runConfigs.insert(runConfig); // Debugging only.
     m_supportedRunConfigurations.append(runConfig);
 }
 

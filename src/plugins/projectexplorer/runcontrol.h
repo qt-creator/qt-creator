@@ -114,21 +114,10 @@ public:
     using WorkerCreator = std::function<RunWorker *(RunControl *)>;
 
     RunWorkerFactory();
-    RunWorkerFactory(const WorkerCreator &producer,
-                     const QList<Utils::Id> &runModes,
-                     const QList<Utils::Id> &runConfigs = {},
-                     const QList<Utils::Id> &deviceTypes = {});
-
     ~RunWorkerFactory();
 
     bool canRun(Utils::Id runMode, Utils::Id deviceType, const QString &runConfigId) const;
     WorkerCreator producer() const { return m_producer; }
-
-    template <typename Worker>
-    static WorkerCreator make()
-    {
-        return [](RunControl *runControl) { return new Worker(runControl); };
-    }
 
     // For debugging only.
     static void dumpAll();
