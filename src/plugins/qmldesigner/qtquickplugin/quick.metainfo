@@ -545,7 +545,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Component"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "1.0"
 
@@ -565,7 +565,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Component 3D"
-            category: "Qt Quick 3D Component"
+            category: "Instancers"
             libraryIcon: ":/qtquickplugin/images/component-icon.png"
             version: "1.0"
             requiredImport: "QtQuick3D"
@@ -580,7 +580,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Loader"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/loader-icon.png"
             version: "2.0"
             Property { name: "width"; type: "int"; value: 200; }
@@ -600,7 +600,7 @@ MetaInfo {
 
         ItemLibraryEntry {
             name: "Repeater"
-            category: "e.Qt Quick - Component"
+            category: "e.Qt Quick - Instancers"
             libraryIcon: ":/qtquickplugin/images/repeater-icon.png"
             version: "2.0"
             toolTip: qsTr("Creates a number of copies of the same item.")
