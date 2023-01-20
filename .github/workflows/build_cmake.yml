@@ -580,6 +580,7 @@ jobs:
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
             --zip-infix=-${{ matrix.config.artifact }}-${{ github.run_id }}
             --no-qbs
+            --with-cpack
           RESULT_VARIABLE result
           COMMAND_ECHO STDOUT
           OUTPUT_VARIABLE output
@@ -666,6 +667,13 @@ jobs:
       with:
         path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+
+    - name: Upload Debian package
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
 
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
@@ -763,6 +771,13 @@ jobs:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
+    - name: Download Debian package artifact
+      if: matrix.config.artifact == 'Linux'
+      uses: actions/download-artifact@v3
+      with:
+        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        path: ./
+
     - name: Download disk image artifact
       if: matrix.config.artifact == 'macOS'
       uses: actions/download-artifact@v3
@@ -820,6 +835,17 @@ jobs:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
         asset_path: ./qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         asset_name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        asset_content_type: application/x-gtar
+
+    - name: Upload Debian package to Release
+      if: matrix.config.artifact == 'Linux'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+        asset_path: ./qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        asset_name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
         asset_content_type: application/x-gtar
 
     - name: Upload disk image to Release
