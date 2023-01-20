@@ -18,11 +18,6 @@ Dialog {
     required property string dirPath
     readonly property int __maxPath: 32
 
-    HelperWidgets.RegExpValidator {
-        id: effectNameValidator
-        regExp: /^[A-Z]\w[A-Za-z0-9_]*$/
-    }
-
     ErrorDialog {
         id: creationFailedDialog
         title: qsTr("Could not create effect")
@@ -44,10 +39,14 @@ Dialog {
 
                 actionIndicator.visible: false
                 translationIndicator.visible: false
-                validator: effectNameValidator
 
                 Keys.onEnterPressed: btnCreate.onClicked()
                 Keys.onReturnPressed: btnCreate.onClicked()
+                onTextChanged: {
+                    let validator = /^[A-Z]\w{2,}[A-Za-z0-9_]*$/
+                    txtNameValidatorMsg.visible = text.length > 0 && !validator.test(text)
+                    btnCreate.enabled = !txtNameValidatorMsg.visible
+                }
             }
         }
 
@@ -63,6 +62,17 @@ Dialog {
             color: "#ff0000"
             anchors.right: parent.right
             visible: effectName.text.length > root.__maxPath
+        }
+
+        Text {
+            id: txtNameValidatorMsg
+            text: qsTr('The name must start with a capital letter, ' +
+                       'contain at least three characters, ' +
+                       'and cannot have any special characters.')
+            color: "#ff0000"
+            anchors.right: parent.right
+            anchors.left: parent.left
+            wrapMode: "WordWrap"
         }
 
         Item { // spacer
