@@ -172,7 +172,7 @@ public:
     bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
     bool vcsCreateRepository(const Utils::FilePath &directory) final;
     void vcsAnnotate(const Utils::FilePath &file, int line) final;
-    void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
+    void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
                                              const Utils::FilePath &baseDirectory,

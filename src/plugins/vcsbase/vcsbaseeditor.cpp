@@ -297,8 +297,7 @@ QString ChangeTextCursorHandler::currentContents() const
 
 void ChangeTextCursorHandler::slotDescribe()
 {
-    emit editorWidget()->describeRequested(FilePath::fromString(editorWidget()->source()),
-                                           m_currentChange);
+    emit editorWidget()->describeRequested(editorWidget()->source(), m_currentChange);
 }
 
 void ChangeTextCursorHandler::slotCopyRevision()
@@ -665,7 +664,7 @@ bool VcsBaseEditorWidget::supportChangeLinks() const
     }
 }
 
-QString VcsBaseEditorWidget::fileNameForLine(int line) const
+FilePath VcsBaseEditorWidget::fileNameForLine(int line) const
 {
     Q_UNUSED(line)
     return source();
@@ -761,12 +760,12 @@ void VcsBaseEditorWidget::setForceReadOnly(bool b)
     textDocument()->setTemporary(b);
 }
 
-QString VcsBaseEditorWidget::source() const
+FilePath VcsBaseEditorWidget::source() const
 {
     return VcsBase::source(textDocument());
 }
 
-void VcsBaseEditorWidget::setSource(const  QString &source)
+void VcsBaseEditorWidget::setSource(const FilePath &source)
 {
     VcsBase::setSource(textDocument(), source);
 }
@@ -1222,19 +1221,17 @@ const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParame
 }
 
 // Find the codec used for a file querying the editor.
-static QTextCodec *findFileCodec(const QString &source)
+static QTextCodec *findFileCodec(const FilePath &source)
 {
-    Core::IDocument *document = Core::DocumentModel::documentForFilePath(
-                FilePath::fromString(source));
+    Core::IDocument *document = Core::DocumentModel::documentForFilePath(source);
     if (auto textDocument = qobject_cast<Core::BaseTextDocument *>(document))
         return const_cast<QTextCodec *>(textDocument->codec());
     return nullptr;
 }
 
 // Find the codec by checking the projects (root dir of project file)
-static QTextCodec *findProjectCodec(const QString &dir)
+static QTextCodec *findProjectCodec(const FilePath &dirPath)
 {
-    const FilePath dirPath = FilePath::fromString(dir);
     typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
     const ProjectList projects = ProjectExplorer::SessionManager::projects();
@@ -1243,16 +1240,15 @@ static QTextCodec *findProjectCodec(const QString &dir)
     return p ? p->editorConfiguration()->textCodec() : nullptr;
 }
 
-QTextCodec *VcsBaseEditor::getCodec(const QString &source)
+QTextCodec *VcsBaseEditor::getCodec(const FilePath &source)
 {
     if (!source.isEmpty()) {
         // Check file
-        const QFileInfo sourceFi(source);
-        if (sourceFi.isFile())
+        if (source.isFile())
             if (QTextCodec *fc = findFileCodec(source))
                 return fc;
         // Find by project via directory
-        if (QTextCodec *pc = findProjectCodec(sourceFi.isFile() ? sourceFi.absolutePath() : source))
+        if (QTextCodec *pc = findProjectCodec(source.isFile() ? source.absolutePath() : source))
             return pc;
     }
     QTextCodec *sys = QTextCodec::codecForLocale();
@@ -1261,14 +1257,9 @@ QTextCodec *VcsBaseEditor::getCodec(const QString &source)
 
 QTextCodec *VcsBaseEditor::getCodec(const FilePath &workingDirectory, const QStringList &files)
 {
-    return getCodec(workingDirectory.toString(), files);
-}
-
-QTextCodec *VcsBaseEditor::getCodec(const QString &workingDirectory, const QStringList &files)
-{
     if (files.empty())
         return getCodec(workingDirectory);
-    return getCodec(workingDirectory + QLatin1Char('/') + files.front());
+    return getCodec(workingDirectory / files.front());
 }
 
 VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor)
@@ -1279,14 +1270,14 @@ VcsBaseEditorWidget *VcsBaseEditor::getVcsBaseEditor(const Core::IEditor *editor
 }
 
 // Return line number of current editor if it matches.
-int VcsBaseEditor::lineNumberOfCurrentEditor(const QString &currentFile)
+int VcsBaseEditor::lineNumberOfCurrentEditor(const FilePath &currentFile)
 {
     Core::IEditor *ed = Core::EditorManager::currentEditor();
     if (!ed)
         return -1;
     if (!currentFile.isEmpty()) {
         const Core::IDocument *idocument  = ed->document();
-        if (!idocument || idocument->filePath().toString() != currentFile)
+        if (!idocument || idocument->filePath() != currentFile)
             return -1;
     }
     auto eda = qobject_cast<const BaseTextEditor *>(ed);
@@ -1316,16 +1307,16 @@ bool VcsBaseEditor::gotoLineOfEditor(Core::IEditor *e, int lineNumber)
 
 // Return source file or directory string depending on parameters
 // ('git diff XX' -> 'XX' , 'git diff XX file' -> 'XX/file').
-QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
+FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QString &fileName)
 {
-    return workingDirectory.pathAppended(fileName).toString();
+    return workingDirectory.pathAppended(fileName);
 }
 
-QString VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
+FilePath VcsBaseEditor::getSource(const FilePath &workingDirectory, const QStringList &fileNames)
 {
     return fileNames.size() == 1
             ? getSource(workingDirectory, fileNames.front())
-            : workingDirectory.toString();
+            : workingDirectory;
 }
 
 QString VcsBaseEditor::getTitleId(const FilePath &workingDirectory,
@@ -1413,7 +1404,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
             return baseFileInfo.absoluteFilePath().toString();
     }
     // 2) Try in source (which can be file or directory)
-    const FilePath sourcePath = FilePath::fromString(source());
+    const FilePath sourcePath = source();
     if (!sourcePath.isEmpty()) {
         const FilePath sourceDir = sourcePath.isDir() ? sourcePath.absoluteFilePath()
                                                       : sourcePath.absolutePath();
@@ -1451,7 +1442,7 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 {
     const int currentLine = textCursor().blockNumber() + 1;
-    const FilePath fileName = FilePath::fromString(fileNameForLine(currentLine)).canonicalPath();
+    const FilePath fileName = fileNameForLine(currentLine).canonicalPath();
     const FilePath workingDirectory = d->m_workingDirectory.isEmpty()
             ? VcsManager::findTopLevelForDirectory(fileName.parentDir())
             : d->m_workingDirectory;
@@ -1647,7 +1638,7 @@ void VcsBaseEditorWidget::testDiffFileResolving(const VcsEditorFactory &factory)
     QTextDocument doc(QString::fromLatin1(header));
     QTextBlock block = doc.lastBlock();
     // set source root for shadow builds
-    widget->setSource(QString::fromLatin1(SRC_DIR));
+    widget->setSource(FilePath::fromString(QString::fromLatin1(SRC_DIR)));
     QVERIFY(widget->fileNameFromDiffSpecification(block).endsWith(QString::fromLatin1(fileName)));
 
     delete editor;

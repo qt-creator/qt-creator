@@ -269,8 +269,8 @@ void MercurialClient::incoming(const FilePath &repositoryRoot, const QString &re
 
     const QString title = Tr::tr("Hg incoming %1").arg(id);
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
-                                                  VcsBaseEditor::getCodec(repositoryRoot.toString()),
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
                                                   "incoming", id);
     enqueueJob(createCommand(FilePath::fromString(repository), editor), args);
 }
@@ -282,8 +282,8 @@ void MercurialClient::outgoing(const FilePath &repositoryRoot)
 
     const QString title = Tr::tr("Hg outgoing %1").arg(repositoryRoot.toUserOutput());
 
-    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot.toString(),
-                                                  VcsBaseEditor::getCodec(repositoryRoot.toString()),
+    VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG_ID, title, repositoryRoot,
+                                                  VcsBaseEditor::getCodec(repositoryRoot),
                                                   "outgoing", repositoryRoot.toString());
     enqueueJob(createCommand(repositoryRoot, editor), args);
 }
@@ -315,20 +315,20 @@ void MercurialClient::diff(const FilePath &workingDir, const QStringList &files,
 
     if (files.empty()) {
         const QString title = Tr::tr("Mercurial Diff");
-        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffRepo." + sourceFile;
+                + ".DiffRepo." + sourceFile.toString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff"});
     } else if (files.size() == 1) {
         fileName = files.at(0);
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(fileName);
-        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
-                + ".DiffFile." + sourceFile;
+                + ".DiffFile." + sourceFile.toString();
         requestReload(documentId, sourceFile, title, workingDir, {"diff", fileName});
     } else {
         const QString title = Tr::tr("Mercurial Diff \"%1\"").arg(workingDir.toString());
-        const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+        const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
         const QString documentId = QString(Constants::MERCURIAL_PLUGIN)
                 + ".DiffFile." + workingDir.toString();
         requestReload(documentId, sourceFile, title, workingDir, QStringList{"diff"} + files);
@@ -355,7 +355,7 @@ bool MercurialClient::isVcsDirectory(const FilePath &filePath) const
             && !filePath.fileName().compare(Constants::MERCURIALREPO, HostOsInfo::fileNameCaseSensitivity());
 }
 
-void MercurialClient::view(const QString &source, const QString &id,
+void MercurialClient::view(const FilePath &source, const QString &id,
                            const QStringList &extraOptions)
 {
     QStringList args;
@@ -417,11 +417,12 @@ MercurialClient::StatusItem MercurialClient::parseStatusLine(const QString &line
     return item;
 }
 
-void MercurialClient::requestReload(const QString &documentId, const QString &source, const QString &title,
+void MercurialClient::requestReload(const QString &documentId, const FilePath &source,
+                                    const QString &title,
                                     const FilePath &workingDirectory, const QStringList &args)
 {
     // Creating document might change the referenced source. Store a copy and use it.
-    const QString sourceCopy = source;
+    const FilePath sourceCopy = source;
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);

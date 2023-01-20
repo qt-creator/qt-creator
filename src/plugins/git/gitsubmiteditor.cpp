@@ -188,7 +188,7 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitClient::instance()->show(m_workingDirectory.toString(), commit);
+        GitClient::instance()->show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()

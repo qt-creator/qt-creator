@@ -28,7 +28,7 @@ public:
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
-    void view(const QString &source, const QString &id,
+    void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = {}) override;
 
     Utils::Id vcsEditorKind(VcsCommandTag cmd) const override;

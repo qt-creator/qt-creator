@@ -54,7 +54,7 @@ public:
     static Utils::FilePaths promptToDelete(const Utils::FilePaths &filePaths);
     static Utils::FilePaths promptToDelete(IVersionControl *versionControl,
                                            const Utils::FilePaths &filePaths);
-    static bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
+    static bool promptToDelete(IVersionControl *versionControl, const Utils::FilePath &filePath);
 
     // Shows a confirmation dialog, whether the files in the list should be
     // added to revision control. Calls vcsAdd for each file.

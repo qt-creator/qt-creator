@@ -49,7 +49,7 @@ private:
     void addChangeActions(QMenu *menu, const QString &change) override;
     QString revisionSubject(const QTextBlock &inBlock) const override;
     bool supportChangeLinks() const override;
-    QString fileNameForLine(int line) const override;
+    Utils::FilePath fileNameForLine(int line) const override;
     Utils::FilePath sourceWorkingDirectory() const;
 
     const QRegularExpression m_changeNumberPattern;

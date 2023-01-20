@@ -243,7 +243,7 @@ void StateListener::slotStateChanged()
     if (currentDocument) {
         state.currentFile = currentDocument->filePath();
         if (state.currentFile.isEmpty() || currentDocument->isTemporary())
-            state.currentFile = FilePath::fromString(VcsBase::source(currentDocument));
+            state.currentFile = VcsBase::source(currentDocument);
     }
 
     // Get the file and its control. Do not use the file unless we find one
@@ -350,9 +350,9 @@ VcsBasePluginState &VcsBasePluginState::operator=(const VcsBasePluginState &rhs)
     return *this;
 }
 
-QString VcsBasePluginState::currentFile() const
+FilePath VcsBasePluginState::currentFile() const
 {
-    return data->m_state.currentFile.toString();
+    return data->m_state.currentFile;
 }
 
 QString VcsBasePluginState::currentFileName() const
@@ -614,7 +614,7 @@ void VcsBasePluginPrivate::promptToDeleteCurrentFile()
     if (!rc)
         QMessageBox::warning(ICore::dialogParent(), Tr::tr("Version Control"),
                              Tr::tr("The file \"%1\" could not be deleted.").
-                             arg(QDir::toNativeSeparators(state.currentFile())),
+                             arg(state.currentFile().toUserOutput()),
                              QMessageBox::Ok);
 }
 
@@ -717,15 +717,15 @@ FilePath findRepositoryForFile(const FilePath &fileOrDir, const QString &checkFi
 
 static const char SOURCE_PROPERTY[] = "qtcreator_source";
 
-void setSource(IDocument *document, const QString &source)
+void setSource(IDocument *document, const FilePath &source)
 {
-    document->setProperty(SOURCE_PROPERTY, source);
+    document->setProperty(SOURCE_PROPERTY, source.toVariant());
     m_listener->slotStateChanged();
 }
 
-QString source(IDocument *document)
+FilePath source(IDocument *document)
 {
-    return document->property(SOURCE_PROPERTY).toString();
+    return FilePath::fromVariant(document->property(SOURCE_PROPERTY));
 }
 
 void setProcessEnvironment(Environment *e)

@@ -49,7 +49,7 @@ public:
                                         const Utils::Environment &environment);
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
-                                         const QString &source, QTextCodec *codec,
+                                         const Utils::FilePath &source, QTextCodec *codec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
@@ -174,7 +174,7 @@ public:
 
     virtual Utils::FilePath findTopLevelForFile(const Utils::FilePath &/*file*/) const { return {}; }
 
-    virtual void view(const QString &source, const QString &id,
+    virtual void view(const Utils::FilePath &source, const QString &id,
                       const QStringList &extraOptions = QStringList());
 
 signals:

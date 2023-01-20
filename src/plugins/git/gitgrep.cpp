@@ -285,7 +285,7 @@ IEditor *GitGrep::openEditor(const SearchResultItem &item,
     const QStringList &itemPath = item.path();
     if (params.ref.isEmpty() || itemPath.isEmpty())
         return nullptr;
-    const QString path = QDir::fromNativeSeparators(itemPath.first());
+    const FilePath path = FilePath::fromUserInput(itemPath.first());
     const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
     IEditor *editor = m_client->openShowEditor(topLevel, params.ref, path,
                                                GitClient::ShowEditor::OnlyIfDifferent);

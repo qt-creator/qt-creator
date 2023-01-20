@@ -462,7 +462,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         Storage(storage),
         Storage(diffInputStorage),
         parallel,
-        OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document())); }),
+        OnGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
             optional,
             Process(setupDescription, onDescriptionDone),
@@ -823,10 +823,8 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
 
 QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const FilePath &source) const
 {
-    if (codecType == CodecSource) {
-        return source.isFile() ? VcsBaseEditor::getCodec(source.toString())
-                               : encoding(source, "gui.encoding");
-    }
+    if (codecType == CodecSource)
+        return source.isFile() ? VcsBaseEditor::getCodec(source) : encoding(source, "gui.encoding");
     if (codecType == CodecLogOutput)
         return encoding(source, "i18n.logOutputEncoding");
     return nullptr;
@@ -921,12 +919,12 @@ void GitClient::stage(DiffEditor::DiffEditorController *diffController,
     }
 }
 
-void GitClient::requestReload(const QString &documentId, const QString &source,
+void GitClient::requestReload(const QString &documentId, const FilePath &source,
                               const QString &title, const FilePath &workingDirectory,
                               std::function<GitBaseDiffEditorController *(IDocument *)> factory) const
 {
     // Creating document might change the referenced source. Store a copy and use it.
-    const QString sourceCopy = source;
+    const FilePath sourceCopy = source;
 
     IDocument *document = DiffEditorController::findOrCreateDocument(documentId, title);
     QTC_ASSERT(document, return);
@@ -954,7 +952,7 @@ void GitClient::diffFiles(const FilePath &workingDirectory,
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffFiles.") + workingDirectory.toString();
     requestReload(documentId,
-                  workingDirectory.toString(), Tr::tr("Git Diff Files"), workingDirectory,
+                  workingDirectory, Tr::tr("Git Diff Files"), workingDirectory,
                   [stagedFileNames, unstagedFileNames](IDocument *doc) {
                       return new FileListDiffController(doc, stagedFileNames, unstagedFileNames);
                   });
@@ -965,7 +963,7 @@ void GitClient::diffProject(const FilePath &workingDirectory, const QString &pro
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffProject.") + workingDirectory.toString();
     requestReload(documentId,
-                  workingDirectory.toString(), Tr::tr("Git Diff Project"), workingDirectory,
+                  workingDirectory, Tr::tr("Git Diff Project"), workingDirectory,
                   [projectDirectory](IDocument *doc){
                       return new GitDiffEditorController(doc, {}, {}, {"--", projectDirectory});
                   });
@@ -977,7 +975,7 @@ void GitClient::diffRepository(const FilePath &workingDirectory,
 {
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffRepository.") + workingDirectory.toString();
-    requestReload(documentId, workingDirectory.toString(), Tr::tr("Git Diff Repository"), workingDirectory,
+    requestReload(documentId, workingDirectory, Tr::tr("Git Diff Repository"), workingDirectory,
                   [&leftCommit, &rightCommit](IDocument *doc) {
         return new GitDiffEditorController(doc, leftCommit, rightCommit, {});
     });
@@ -986,9 +984,9 @@ void GitClient::diffRepository(const FilePath &workingDirectory,
 void GitClient::diffFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const QString title = Tr::tr("Git Diff \"%1\"").arg(fileName);
-    const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
+    const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, fileName);
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
-            + QLatin1String(".DifFile.") + sourceFile;
+            + QLatin1String(".DifFile.") + sourceFile.toString();
     requestReload(documentId, sourceFile, title, workingDirectory,
                   [&fileName](IDocument *doc) {
         return new GitDiffEditorController(doc, {}, {}, {"--", fileName});
@@ -1000,7 +998,7 @@ void GitClient::diffBranch(const FilePath &workingDirectory, const QString &bran
     const QString title = Tr::tr("Git Diff Branch \"%1\"").arg(branchName);
     const QString documentId = QLatin1String(Constants::GIT_PLUGIN)
             + QLatin1String(".DiffBranch.") + branchName;
-    requestReload(documentId, workingDirectory.toString(), title, workingDirectory,
+    requestReload(documentId, workingDirectory, title, workingDirectory,
                   [branchName](IDocument *doc) {
         return new GitDiffEditorController(doc, branchName, {}, {});
     });
@@ -1056,7 +1054,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     const FilePath workingDir = workingDirectory;
     const QString title = Tr::tr("Git Log \"%1\"").arg(msgArg);
     const Id editorId = Git::Constants::GIT_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
+    const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
     GitEditorWidget *editor = static_cast<GitEditorWidget *>(
                 createVcsEditor(editorId, title, sourceFile,
                                 codecFor(CodecLogOutput), "logTitle", msgArg));
@@ -1114,7 +1112,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
     // Creating document might change the referenced workingDirectory. Store a copy and use it.
     const FilePath workingDir = workingDirectory;
     GitEditorWidget *editor = static_cast<GitEditorWidget *>(
-                createVcsEditor(editorId, title, workingDir.toString(), codecFor(CodecLogOutput),
+                createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),
                                 "reflogRepository", workingDir.toString()));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
@@ -1147,7 +1145,7 @@ static inline QString msgCannotShow(const QString &sha)
     return Tr::tr("Cannot describe \"%1\".").arg(sha);
 }
 
-void GitClient::show(const QString &source, const QString &id, const QString &name)
+void GitClient::show(const FilePath &source, const QString &id, const QString &name)
 {
     if (!canShow(id)) {
         VcsOutputWindow::appendError(msgCannotShow(id));
@@ -1155,9 +1153,8 @@ void GitClient::show(const QString &source, const QString &id, const QString &na
     }
 
     const QString title = Tr::tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
-    const QFileInfo sourceFi(source);
-    FilePath workingDirectory = FilePath::fromString(
-        sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath());
+    FilePath workingDirectory =
+        source.isDir() ? source.absoluteFilePath() : source.absolutePath();
     const FilePath repoDirectory = VcsManager::findTopLevelForDirectory(workingDirectory);
     if (!repoDirectory.isEmpty())
         workingDirectory = repoDirectory;
@@ -1225,10 +1222,10 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     const Id editorId = Git::Constants::GIT_BLAME_EDITOR_ID;
     const QString id = VcsBaseEditor::getTitleId(workingDir, {file}, revision);
     const QString title = Tr::tr("Git Blame \"%1\"").arg(id);
-    const QString sourceFile = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
-            codecFor(CodecSource, FilePath::fromString(sourceFile)), "blameFileName", id);
+            codecFor(CodecSource, sourceFile), "blameFileName", id);
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
@@ -3131,9 +3128,9 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
     // Create a command editor, no highlighting or interaction.
     const QString title = Tr::tr("Git SVN Log");
     const Id editorId = Git::Constants::GIT_SVN_LOG_EDITOR_ID;
-    const QString sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
+    const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
-                                                  "svnLog", sourceFile);
+                                                  "svnLog", sourceFile.toString());
     editor->setWorkingDirectory(workingDirectory);
     vcsExecWithEditor(workingDirectory, arguments, editor);
 }
@@ -3638,7 +3635,7 @@ QString GitClient::suggestedLocalBranchName(
     return suggestedName;
 }
 
-void GitClient::addChangeActions(QMenu *menu, const QString &source, const QString &change)
+void GitClient::addChangeActions(QMenu *menu, const FilePath &source, const QString &change)
 {
     QTC_ASSERT(!change.isEmpty(), return);
     const FilePath &workingDir = fileWorkingDirectory(source);
@@ -3664,7 +3661,7 @@ void GitClient::addChangeActions(QMenu *menu, const QString &source, const QStri
     if (isRange) {
         menu->setDefaultAction(logAction);
     } else {
-        const FilePath filePath = FilePath::fromString(source);
+        const FilePath filePath = source;
         if (!filePath.isDir()) {
             menu->addAction(Tr::tr("Sh&ow file \"%1\" on revision %2").arg(filePath.fileName(), change),
                             [workingDir, change, source] {
@@ -3717,9 +3714,9 @@ void GitClient::addChangeActions(QMenu *menu, const QString &source, const QStri
     }
 }
 
-FilePath GitClient::fileWorkingDirectory(const QString &file)
+FilePath GitClient::fileWorkingDirectory(const Utils::FilePath &file)
 {
-    Utils::FilePath path = Utils::FilePath::fromString(file);
+    Utils::FilePath path = file;
     if (!path.isEmpty() && !path.isDir())
         path = path.parentDir();
     while (!path.isEmpty() && !path.exists())
@@ -3728,17 +3725,17 @@ FilePath GitClient::fileWorkingDirectory(const QString &file)
 }
 
 IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QString &ref,
-                                   const QString &path, ShowEditor showSetting)
+                                   const FilePath &path, ShowEditor showSetting)
 {
     const FilePath topLevel = VcsManager::findTopLevelForDirectory(workingDirectory);
     const QString topLevelString = topLevel.toString();
-    const QString relativePath = QDir(topLevelString).relativeFilePath(path);
+    const QString relativePath = QDir(topLevelString).relativeFilePath(path.toString());
     const QByteArray content = synchronousShow(topLevel, ref + ":" + relativePath);
     if (showSetting == ShowEditor::OnlyIfDifferent) {
         if (content.isEmpty())
             return nullptr;
         QByteArray fileContent;
-        if (TextFileFormat::readFileUTF8(Utils::FilePath::fromString(path),
+        if (TextFileFormat::readFileUTF8(path,
                                          nullptr,
                                          &fileContent,
                                          nullptr)
@@ -3755,6 +3752,7 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     IEditor *editor = EditorManager::openEditorWithContents(Id(), &title, content, documentId,
                                                             EditorManager::DoNotSwitchToDesignMode);
     editor->document()->setTemporary(true);
+    // FIXME: Check should that be relative
     VcsBase::setSource(editor->document(), path);
     return editor;
 }

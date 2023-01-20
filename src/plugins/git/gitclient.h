@@ -331,18 +331,18 @@ public:
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
-    void show(const QString &source, const QString &id, const QString &name = {});
+    void show(const Utils::FilePath &source, const QString &id, const QString &name = {});
     void archive(const Utils::FilePath &workingDirectory, QString commit);
 
     enum class BranchTargetType { Remote, Commit };
     static QString suggestedLocalBranchName(
             const Utils::FilePath &workingDirectory, const QStringList &existingLocalNames,
             const QString &target, BranchTargetType targetType);
-    static void addChangeActions(QMenu *menu, const QString &source, const QString &change);
-    static Utils::FilePath fileWorkingDirectory(const QString &file);
+    static void addChangeActions(QMenu *menu, const Utils::FilePath &source, const QString &change);
+    static Utils::FilePath fileWorkingDirectory(const Utils::FilePath &file);
     enum class ShowEditor { OnlyIfDifferent, Always };
     Core::IEditor *openShowEditor(const Utils::FilePath &workingDirectory, const QString &ref,
-                                  const QString &path, ShowEditor showSetting = ShowEditor::Always);
+                                  const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always);
 
     Author getAuthor(const Utils::FilePath &workingDirectory);
 private:
@@ -357,8 +357,8 @@ private:
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     QTextCodec *codecFor(CodecType codecType, const Utils::FilePath &source = {}) const;
 
-    void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       const Utils::FilePath &workingDirectory,
+    void requestReload(const QString &documentId, const Utils::FilePath &source,
+                       const QString &title, const Utils::FilePath &workingDirectory,
                        std::function<GitBaseDiffEditorController *(Core::IDocument *)> factory) const;
 
     QString readOneLine(const Utils::FilePath &workingDirectory, const QStringList &arguments) const;

@@ -52,7 +52,7 @@ public:
     bool hasTopLevel() const;
 
     // Current file.
-    QString currentFile() const;
+    Utils::FilePath currentFile() const;
     QString currentFileName() const;
     Utils::FilePath currentFileDirectory() const;
     Utils::FilePath currentFileTopLevel() const;
@@ -107,9 +107,9 @@ VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(const Utils::FilePath &file
 // (suppress LOCALE warnings/parse commands output) if desired.
 VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e);
 // Sets the source of editor contents, can be directory or file.
-VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
+VCSBASE_EXPORT void setSource(Core::IDocument *document, const Utils::FilePath &source);
 // Returns the source of editor contents.
-VCSBASE_EXPORT QString source(Core::IDocument *document);
+VCSBASE_EXPORT Utils::FilePath source(Core::IDocument *document);
 
 class VCSBASE_EXPORT VcsBasePluginPrivate : public Core::IVersionControl
 {

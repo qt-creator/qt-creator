@@ -267,7 +267,7 @@ private:
 
     bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString& title, const QString &output,
-                                      Utils::Id id, const QString &source, QTextCodec *codec);
+                                      Id id, const FilePath &source, QTextCodec *codec);
 
     CommandResult runCvs(const FilePath &workingDirectory, const QStringList &arguments,
                          RunFlags flags = RunFlags::None, QTextCodec *outputCodec = nullptr,
@@ -844,13 +844,13 @@ void CvsPluginPrivate::revertCurrentFile()
                             Tr::tr("The file has been changed. Do you want to revert it?")))
         return;
 
-    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     const auto revertRes = runCvs(state.currentFileTopLevel(),
                            {"update", "-C", state.relativeCurrentFile()}, RunFlags::ShowStdOut);
     if (revertRes.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile().toString()));
 }
 
 void CvsPluginPrivate::diffProject()
@@ -985,7 +985,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, QStringList(file));
     // no need for temp file
     const QString id = VcsBaseEditor::getTitleId(workingDir, QStringList(file));
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     const auto response = runCvs(workingDir, {"log", file}, RunFlags::None, codec);
     if (response.result() != ProcessResult::FinishedWithSuccess)
         return;
@@ -1117,7 +1117,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     const QStringList files(file);
     QTextCodec *codec = VcsBaseEditor::getCodec(workingDir, files);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files, revision);
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QStringList args{"annotate"};
     if (!revision.isEmpty())
         args << "-r" << revision;
@@ -1129,7 +1129,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     if (lineNumber < 1)
-        lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(file);
+        lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(FilePath::fromString(file));
 
     const QString tag = VcsBaseEditor::editorTag(AnnotateOutput, workingDir, {file}, revision);
     if (IEditor *editor = VcsBaseEditor::locateEditorByTag(tag)) {
@@ -1154,7 +1154,7 @@ bool CvsPluginPrivate::status(const FilePath &topLevel, const QString &file, con
     const bool ok = response.result() == ProcessResult::FinishedWithSuccess;
     if (ok) {
         showOutputInEditor(title, response.cleanedStdOut(), commandLogEditorParameters.id,
-                           topLevel.toString(), nullptr);
+                           topLevel, nullptr);
     }
     return ok;
 }
@@ -1319,7 +1319,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
     } else {
         const QString title = QString::fromLatin1("cvs describe %1").arg(commitId);
         IEditor *newEditor = showOutputInEditor(title, output, diffEditorParameters.id,
-                                                entries.front().file, codec);
+                                                FilePath::fromString(entries.front().file), codec);
         VcsBaseEditor::tagEditor(newEditor, commitId);
         setDiffBaseDirectory(newEditor, repositoryPath);
     }
@@ -1343,7 +1343,7 @@ CommandResult CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
 }
 
 IEditor *CvsPluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                              Utils::Id id, const QString &source,
+                                              Utils::Id id, const FilePath &source,
                                               QTextCodec *codec)
 {
     QString s = title;

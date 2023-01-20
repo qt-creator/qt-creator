@@ -136,7 +136,7 @@ void FetchContext::show()
 {
     const QString title = QString::number(m_change->number) + '/'
             + QString::number(m_change->currentPatchSet.patchSetNumber);
-    GitClient::instance()->show(m_repository.toString(), "FETCH_HEAD", title);
+    GitClient::instance()->show(m_repository, "FETCH_HEAD", title);
 }
 
 void FetchContext::cherryPick()

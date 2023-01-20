@@ -215,7 +215,7 @@ void StashDialog::showCurrent()
 {
     const int index = currentRow();
     QTC_ASSERT(index >= 0, return);
-    GitClient::instance()->show(m_repository.toString(), QString(m_model->at(index).name));
+    GitClient::instance()->show(m_repository, QString(m_model->at(index).name));
 }
 
 // Suggest Branch name to restore 'stash@{0}' -> 'stash0-date'

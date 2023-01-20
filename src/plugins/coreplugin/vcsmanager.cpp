@@ -296,9 +296,9 @@ FilePaths VcsManager::repositories(const IVersionControl *versionControl)
     return result;
 }
 
-bool VcsManager::promptToDelete(IVersionControl *versionControl, const QString &fileName)
+bool VcsManager::promptToDelete(IVersionControl *versionControl, const FilePath &filePath)
 {
-    return promptToDelete(versionControl, {Utils::FilePath::fromString(fileName)}).isEmpty();
+    return promptToDelete(versionControl, FilePaths({filePath})).isEmpty();
 }
 
 FilePaths VcsManager::promptToDelete(const FilePaths &filePaths)

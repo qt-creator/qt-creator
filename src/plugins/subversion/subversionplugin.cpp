@@ -249,7 +249,7 @@ private:
 
     inline bool isCommitEditorOpen() const;
     Core::IEditor *showOutputInEditor(const QString &title, const QString &output,
-                                      Utils::Id id, const QString &source,
+                                      Id id, const FilePath &source,
                                       QTextCodec *codec);
 
     void filelog(const FilePath &workingDir,
@@ -675,7 +675,7 @@ void SubversionPluginPrivate::revertCurrentFile()
         return;
     }
 
-    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     CommandLine args{m_settings.binaryPath.filePath(), {"revert"}};
@@ -684,7 +684,7 @@ void SubversionPluginPrivate::revertCurrentFile()
 
     const auto revertResponse = runSvn(state.currentFileTopLevel(), args, RunFlags::ShowStdOut);
     if (revertResponse.result() == ProcessResult::FinishedWithSuccess)
-        emit filesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile().toString()));
 }
 
 void SubversionPluginPrivate::diffProject()
@@ -865,7 +865,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
                                                 const QString &revision /* = QString() */,
                                                 int lineNumber /* = -1 */)
 {
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
     QTextCodec *codec = VcsBaseEditor::getCodec(source);
 
     CommandLine args{m_settings.binaryPath.filePath(), {"annotate"}};
@@ -960,7 +960,7 @@ CommandResult SubversionPluginPrivate::runSvn(const FilePath &workingDir,
 }
 
 IEditor *SubversionPluginPrivate::showOutputInEditor(const QString &title, const QString &output,
-                                                     Id id, const QString &source,
+                                                     Id id, const FilePath &source,
                                                      QTextCodec *codec)
 {
     if (Subversion::Constants::debug)

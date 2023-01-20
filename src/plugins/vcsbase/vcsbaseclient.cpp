@@ -24,7 +24,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFileInfo>
 #include <QFutureInterface>
 #include <QStringList>
 #include <QTextCodec>
@@ -204,7 +203,7 @@ VcsCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDi
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
-                                                        const QString &source, QTextCodec *codec,
+                                                        const FilePath &source, QTextCodec *codec,
                                                         const char *registerDynamicProperty,
                                                         const QString &dynamicPropertyValue) const
 {
@@ -335,9 +334,9 @@ void VcsBaseClient::annotate(const Utils::FilePath &workingDir, const QString &f
     QStringList args;
     args << vcsCmdString << revisionSpec(revision) << extraOptions << file;
     const Id kind = vcsEditorKind(AnnotateCommand);
-    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file));
+    const QString id = VcsBaseEditor::getSource(workingDir, QStringList(file)).toString();
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, file);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
@@ -355,7 +354,7 @@ void VcsBaseClient::diff(const FilePath &workingDir, const QStringList &files,
     const Id kind = vcsEditorKind(DiffCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
@@ -399,7 +398,7 @@ void VcsBaseClient::log(const FilePath &workingDir,
     const Id kind = vcsEditorKind(LogCommand);
     const QString id = VcsBaseEditor::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
@@ -538,7 +537,7 @@ void VcsBaseClient::import(const FilePath &repositoryRoot,
     enqueueJob(createCommand(repositoryRoot), args);
 }
 
-void VcsBaseClient::view(const QString &source,
+void VcsBaseClient::view(const FilePath &source,
                          const QString &id,
                          const QStringList &extraOptions)
 {
@@ -550,8 +549,7 @@ void VcsBaseClient::view(const QString &source,
     VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source,
                                                   VcsBaseEditor::getCodec(source), "view", id);
 
-    const QFileInfo fi(source);
-    const FilePath workingDirPath = FilePath::fromString(fi.isFile() ? fi.absolutePath() : source);
+    const FilePath workingDirPath = source.isFile() ? source.absolutePath() : source;
     enqueueJob(createCommand(workingDirPath, editor), args);
 }
 

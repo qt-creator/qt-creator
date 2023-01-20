@@ -188,7 +188,7 @@ public:
     QString authorMail;
     QDateTime authorTime;
     QString summary;
-    QString fileName;
+    FilePath filePath;
 };
 
 class BlameMark : public TextEditor::TextMark
@@ -216,7 +216,7 @@ public:
             showAction->setIcon(Utils::Icons::ZOOM.icon());
             showAction->setToolTip(TextEditor::Tr::tr("Show Commit %1").arg(info.sha1.left(8)));
             QObject::connect(showAction, &QAction::triggered, [info] {
-                GitClient::instance()->show(info.fileName, info.sha1);
+                GitClient::instance()->show(info.filePath, info.sha1);
             });
             return QList<QAction *>{copyToClipboardAction, showAction};
         });
@@ -267,7 +267,7 @@ public:
     bool vcsCreateRepository(const FilePath &directory) final;
 
     void vcsAnnotate(const FilePath &filePath, int line) final;
-    void vcsDescribe(const FilePath &source, const QString &id) final { m_gitClient.show(source.toString(), id); };
+    void vcsDescribe(const FilePath &source, const QString &id) final { m_gitClient.show(source, id); };
     QString vcsTopic(const FilePath &directory) final;
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
@@ -284,7 +284,7 @@ public:
         QAction *action = menu->addAction(Tr::tr("&Describe Change %1").arg(reference),
                                           [=] { vcsDescribe(workingDirectory, reference); });
         menu->setDefaultAction(action);
-        GitClient::addChangeActions(menu, workingDirectory.toString(), reference);
+        GitClient::addChangeActions(menu, workingDirectory, reference);
     }
 
     bool handleLink(const FilePath &workingDirectory, const QString &reference) final
@@ -292,7 +292,7 @@ public:
         if (reference.contains(".."))
             GitClient::instance()->log(workingDirectory, {}, false, {reference});
         else
-            GitClient::instance()->show(workingDirectory.toString(), reference);
+            GitClient::instance()->show(workingDirectory, reference);
         return true;
     }
 
@@ -1132,7 +1132,7 @@ void GitPluginPrivate::blameFile()
             }
         }
     }
-    const FilePath fileName = FilePath::fromString(state.currentFile()).canonicalPath();
+    const FilePath fileName = state.currentFile().canonicalPath();
     FilePath topLevel;
     VcsManager::findVersionControlForDirectory(fileName.parentDir(), &topLevel);
     m_gitClient.annotate(topLevel, fileName.relativeChildPath(topLevel).toString(),
@@ -1168,8 +1168,8 @@ void GitPluginPrivate::undoFileChanges(bool revertStaging)
     }
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
-    m_gitClient.revertFiles({state.currentFile()}, revertStaging);
+    FileChangeBlocker fcb(state.currentFile());
+    m_gitClient.revertFiles({state.currentFile().toString()}, revertStaging);
 }
 
 class ResetItemDelegate : public LogItemDelegate
@@ -1273,10 +1273,10 @@ void GitPluginPrivate::startChangeRelatedAction(const Id &id)
     if (dialog.command() == Show) {
         const int colon = change.indexOf(':');
         if (colon > 0) {
-            const QString path = QDir(workingDirectory.toString()).absoluteFilePath(change.mid(colon + 1));
+            const FilePath path = workingDirectory.resolvePath(change.mid(colon + 1));
             m_gitClient.openShowEditor(workingDirectory, change.left(colon), path);
         } else {
-            m_gitClient.show(workingDirectory.toString(), change);
+            m_gitClient.show(workingDirectory, change);
         }
         return;
     }
@@ -1514,7 +1514,7 @@ CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &fil
     const uint timeStamp = blame.at(3).mid(12).toUInt();
     result.authorTime = QDateTime::fromSecsSinceEpoch(timeStamp);
     result.summary = blame.at(9).mid(8);
-    result.fileName = filePath.toString();
+    result.filePath = filePath;
     return result;
 }
 
@@ -1615,7 +1615,7 @@ IEditor *GitPluginPrivate::openSubmitEditor(const QString &fileName, const Commi
     }
     IDocument *document = submitEditor->document();
     document->setPreferredDisplayName(title);
-    VcsBase::setSource(document, m_submitRepository.toString());
+    VcsBase::setSource(document, m_submitRepository);
     return editor;
 }
 
@@ -1985,7 +1985,7 @@ QObject *GitPlugin::remoteCommand(const QStringList &options, const QString &wor
         return nullptr;
 
     if (options.first() == "-git-show")
-        dd->m_gitClient.show(workingDirectory, options.at(1));
+        dd->m_gitClient.show(FilePath::fromUserInput(workingDirectory), options.at(1));
     return nullptr;
 }
 

@@ -54,7 +54,7 @@ public:
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
     Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
 
-    void view(const QString &source, const QString &id,
+    void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = QStringList()) override;
 
 protected:
@@ -67,8 +67,8 @@ signals:
     void needMerge();
 
 private:
-    void requestReload(const QString &documentId, const QString &source, const QString &title,
-                       const Utils::FilePath &workingDirectory,
+    void requestReload(const QString &documentId, const Utils::FilePath &source,
+                       const QString &title, const Utils::FilePath &workingDirectory,
                        const QStringList &args);
     void parsePullOutput(const QString &output);
 };

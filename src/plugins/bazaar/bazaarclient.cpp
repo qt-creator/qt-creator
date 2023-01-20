@@ -170,7 +170,7 @@ bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &
     return result.rawStdOut().startsWith("unknown");
 }
 
-void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
+void BazaarClient::view(const FilePath &source, const QString &id, const QStringList &extraOptions)
 {
     QStringList args(QLatin1String("log"));
     args << QLatin1String("-p") << QLatin1String("-v") << extraOptions;

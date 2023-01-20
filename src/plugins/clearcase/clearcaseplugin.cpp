@@ -253,7 +253,7 @@ private:
     QString ccViewRoot(const FilePath &directory) const;
     QString findTopLevel(const FilePath &directory) const;
     IEditor *showOutputInEditor(const QString& title, const QString &output, Id id,
-                                const QString &source, QTextCodec *codec) const;
+                                const FilePath &source, QTextCodec *codec) const;
     CommandResult runCleartoolProc(const FilePath &workingDir,
                                    const QStringList &arguments) const;
     CommandResult runCleartool(const FilePath &workingDir, const QStringList &arguments,
@@ -892,7 +892,7 @@ void ClearCasePluginPrivate::updateStatusActions()
     FileStatus fileStatus = FileStatus::Unknown;
     bool hasFile = currentState().hasFile();
     if (hasFile) {
-        const QString absoluteFileName = currentState().currentFile();
+        const QString absoluteFileName = currentState().currentFile().toString();
         checkAndReIndexUnknownFile(absoluteFileName);
         fileStatus = vcsStatus(absoluteFileName);
 
@@ -974,7 +974,7 @@ void ClearCasePluginPrivate::setStatus(const QString &file, FileStatus::Status s
     QTC_CHECK(!file.isEmpty());
     m_statusMap->insert(file, FileStatus(status, QFileInfo(file).permissions()));
 
-    if (update && currentState().currentFile() == file)
+    if (update && currentState().currentFile().toString() == file)
         QMetaObject::invokeMethod(this, &ClearCasePluginPrivate::updateStatusActions);
 }
 
@@ -1128,11 +1128,11 @@ void ClearCasePluginPrivate::undoHijackCurrent()
         keep = unhijackDlg.chkKeep->isChecked();
     }
 
-    FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     if (vcsUndoHijack(state.currentFileTopLevel(), fileName, keep))
-        emit filesChanged(QStringList(state.currentFile()));
+        emit filesChanged(QStringList(state.currentFile().toString()));
 }
 
 QString ClearCasePluginPrivate::ccGetFileVersion(const FilePath &workingDir, const QString &file) const
@@ -1144,7 +1144,7 @@ void ClearCasePluginPrivate::ccDiffWithPred(const FilePath &workingDir, const QS
 {
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(nullptr)
                                          : VcsBaseEditor::getCodec(source);
 
@@ -1267,7 +1267,8 @@ void ClearCasePluginPrivate::diffActivity()
     }
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
-    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id, activity, nullptr);
+    IEditor *editor = showOutputInEditor(title, result, diffEditorParameters.id,
+                                         FilePath::fromString(activity), nullptr);
     setWorkingDirectory(editor, topLevel);
 }
 
@@ -1426,7 +1427,7 @@ void ClearCasePluginPrivate::history(const FilePath &workingDir,
         return;
     }
     const QString title = QString::fromLatin1("cc history %1").arg(id);
-    const QString source = VcsBaseEditor::getSource(workingDir, files);
+    const FilePath source = VcsBaseEditor::getSource(workingDir, files);
     IEditor *newEditor = showOutputInEditor(title, result.cleanedStdOut(),
                                             logEditorParameters.id, source, codec);
     VcsBaseEditor::tagEditor(newEditor, tag);
@@ -1490,7 +1491,8 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
     if (Constants::debug)
         qDebug() << Q_FUNC_INFO << file;
 
-    QTextCodec *codec = VcsBaseEditor::getCodec(file);
+    // FIXME: Should this be something like workingDir.resolvePath(file) ?
+    QTextCodec *codec = VcsBaseEditor::getCodec(FilePath::fromString(file));
 
     // Determine id
     QString id = file;
@@ -1509,7 +1511,7 @@ void ClearCasePluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, const
 
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
-    const QString source = workingDir.pathAppended(file).toString();
+    const FilePath source = workingDir.pathAppended(file);
     if (lineNumber <= 0)
         lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(source);
 
@@ -1550,7 +1552,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
                                                          .relativeFilePath(source.toString()));
     const QString id = QString::fromLatin1("%1@@%2").arg(relPath, changeNr);
 
-    QTextCodec *codec = VcsBaseEditor::getCodec(source.toString());
+    QTextCodec *codec = VcsBaseEditor::getCodec(source);
     const CommandResult result = runCleartool(topLevel, {"describe", id}, RunFlags::None, codec);
     description = result.cleanedStdOut();
     if (m_settings.extDiffAvailable)
@@ -1564,7 +1566,7 @@ void ClearCasePluginPrivate::vcsDescribe(const FilePath &source, const QString &
         EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
-        IEditor *newEditor = showOutputInEditor(title, description, diffEditorParameters.id, source.toString(), codec);
+        IEditor *newEditor = showOutputInEditor(title, description, diffEditorParameters.id, source, codec);
         VcsBaseEditor::tagEditor(newEditor, tag);
     }
 }
@@ -1601,7 +1603,7 @@ CommandResult ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
 }
 
 IEditor *ClearCasePluginPrivate::showOutputInEditor(const QString& title, const QString &output,
-                                                    Id id, const QString &source,
+                                                    Id id, const FilePath &source,
                                                     QTextCodec *codec) const
 {
     if (Constants::debug)
@@ -2172,7 +2174,7 @@ QString ClearCasePluginPrivate::getFile(const QString &nativeFile, const QString
 // runs external (GNU) diff, and returns the stdout result
 QString ClearCasePluginPrivate::diffExternal(QString file1, QString file2, bool keep)
 {
-    QTextCodec *codec = VcsBaseEditor::getCodec(file1);
+    QTextCodec *codec = VcsBaseEditor::getCodec(FilePath::fromString(file1));
 
     // if file2 is empty, we should compare to predecessor
     if (file2.isEmpty()) {
