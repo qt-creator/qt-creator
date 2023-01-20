@@ -284,6 +284,7 @@ void DragTool::dropEvent(const QList<QGraphicsItem *> &itemList, QGraphicsSceneD
         }
 
         view()->changeToSelectionTool();
+        view()->model()->endDrag();
     }
 }
 

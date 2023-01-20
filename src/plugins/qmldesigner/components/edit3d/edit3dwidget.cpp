@@ -449,6 +449,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 
 void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
+    dropEvent->accept();
     const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
 
     // handle dropping materials and textures
@@ -464,12 +465,14 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             else
                 m_view->dropTexture(dropNode, pos);
         }
+        m_view->model()->endDrag();
         return;
     }
 
     // handle dropping bundle materials
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         m_view->dropBundleMaterial(pos);
+        m_view->model()->endDrag();
         return;
     }
 
@@ -477,6 +480,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_ITEM_LIBRARY_INFO)) {
         if (!m_draggedEntry.name().isEmpty())
             m_view->dropComponent(m_draggedEntry, pos);
+        m_view->model()->endDrag();
         return;
     }
 
@@ -501,6 +505,8 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             }
         }
     });
+
+    m_view->model()->endDrag();
 }
 
 } // namespace QmlDesigner
