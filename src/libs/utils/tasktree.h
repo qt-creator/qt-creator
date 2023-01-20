@@ -259,41 +259,26 @@ public:
     static Adapter *createAdapter() { return new Adapter; }
     template <typename SetupFunction>
     CustomTask(SetupFunction &&function, const EndHandler &done = {}, const EndHandler &error = {})
-        : TaskItem({&createAdapter, wrapSetup(function), wrapEnd(done), wrapEnd(error)}) {}
+        : TaskItem({&createAdapter, wrapSetup(std::forward<SetupFunction>(function)),
+                    wrapEnd(done), wrapEnd(error)}) {}
 
 private:
     template<typename SetupFunction>
-    using IsDynamic = typename std::is_same<TaskAction,
-                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
-
-    template<typename SetupFunction>
-    using IsVoid = typename std::is_same<void,
-                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
-
-    template<typename SetupFunction, std::enable_if_t<IsDynamic<SetupFunction>::value, bool> = true>
     static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
+        constexpr bool isDynamic = std::is_same_v<TaskAction,
+                std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+        constexpr bool isVoid = std::is_same_v<void,
+                std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
+        static_assert(isDynamic || isVoid,
+                "Task setup handler needs to take (Task &) as an argument and has to return "
+                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
-            return std::invoke(function, *adapter.task());
-        };
-    };
-
-    template<typename SetupFunction, std::enable_if_t<IsVoid<SetupFunction>::value, bool> = true>
-    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
-        return [=](TaskInterface &taskInterface) {
-            Adapter &adapter = static_cast<Adapter &>(taskInterface);
+            if constexpr (isDynamic)
+                return std::invoke(function, *adapter.task());
             std::invoke(function, *adapter.task());
             return TaskAction::Continue;
         };
-    };
-
-    template<typename SetupFunction, std::enable_if_t<!IsDynamic<SetupFunction>::value
-                                                   && !IsVoid<SetupFunction>::value, bool> = true>
-    static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&) {
-        static_assert(IsDynamic<SetupFunction>::value || IsVoid<SetupFunction>::value,
-                "Task setup handler needs to take (Task &) as an argument and has to return "
-                "void or TaskAction. The passed handler doesn't fulfill these requirements.");
-        return {};
     };
 
     static TaskEndHandler wrapEnd(const EndHandler &handler) {
@@ -331,13 +316,15 @@ public:
 
     template <typename StorageStruct, typename StorageHandler>
     void onStorageSetup(const Tasking::TreeStorage<StorageStruct> &storage,
-                        const StorageHandler &handler) {
-        setupStorageHandler(storage, wrapHandler<StorageStruct>(handler), {});
+                        StorageHandler &&handler) {
+        setupStorageHandler(storage,
+                            wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
     }
     template <typename StorageStruct, typename StorageHandler>
     void onStorageDone(const Tasking::TreeStorage<StorageStruct> &storage,
-                       const StorageHandler &handler) {
-        setupStorageHandler(storage, {}, wrapHandler<StorageStruct>(handler));
+                       StorageHandler &&handler) {
+        setupStorageHandler(storage,
+                            {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
     }
 
 signals:
@@ -351,13 +338,11 @@ private:
     void setupStorageHandler(const Tasking::TreeStorageBase &storage,
                              StorageVoidHandler setupHandler,
                              StorageVoidHandler doneHandler);
-    template <typename StorageStruct>
-    StorageVoidHandler wrapHandler(const std::function<void(StorageStruct *)> &handler) {
-        if (!handler)
-            return {};
-        return [handler](void *voidStruct) {
+    template <typename StorageStruct, typename StorageHandler>
+    StorageVoidHandler wrapHandler(StorageHandler &&handler) {
+        return [=](void *voidStruct) {
             StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
-            handler(storageStruct);
+            std::invoke(handler, storageStruct);
         };
     }
 
