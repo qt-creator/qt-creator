@@ -85,5 +85,6 @@ Project {
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs"
+        "copilot/copilot.qbs"
     ].concat(project.additionalPlugins)
 }
