@@ -163,9 +163,9 @@ void tst_TaskTree::processTree_data()
     const auto rootError = [storage] {
         storage->m_log.append({-1, Handler::GroupError});
     };
-    const auto setupDynamicProcess = [storage](QtcProcess &process, TaskAction action) {
-        Q_UNUSED(process)
-        storage->m_log.append({-1, Handler::Setup});
+    const auto setupDynamicProcess = [storage, setupProcess](QtcProcess &process, int processId,
+                                                             TaskAction action) {
+        setupProcess(process, processId);
         return action;
     };
 
@@ -178,22 +178,91 @@ void tst_TaskTree::processTree_data()
 
     const Group dynamicTaskDoneRoot {
         Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithDone)),
-        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithDone))
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::StopWithDone), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::StopWithDone), readResult, readError)
     };
-    const Log dynamicTaskDoneLog{{-1, Handler::Setup},
-                                 {-1, Handler::Setup}};
+    const Log dynamicTaskDoneLog{{1, Handler::Setup},
+                                 {2, Handler::Setup}};
     QTest::newRow("DynamicTaskDone") << dynamicTaskDoneRoot << storage << dynamicTaskDoneLog
                                      << false << true << 2;
 
     const Group dynamicTaskErrorRoot {
         Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithError)),
-        Process(std::bind(setupDynamicProcess, _1, TaskAction::StopWithError))
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::StopWithError), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::StopWithError), readResult, readError)
     };
-    const Log dynamicTaskErrorLog{{-1, Handler::Setup}};
+    const Log dynamicTaskErrorLog{{1, Handler::Setup}};
     QTest::newRow("DynamicTaskError") << dynamicTaskErrorRoot << storage << dynamicTaskErrorLog
                                       << false << false << 2;
+
+    const Group dynamicMixedRoot {
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
+    };
+    const Log dynamicMixedLog{{1, Handler::Setup},
+                              {1, Handler::Done},
+                              {2, Handler::Setup},
+                              {2, Handler::Done},
+                              {3, Handler::Setup}};
+    QTest::newRow("DynamicMixed") << dynamicMixedRoot << storage << dynamicMixedLog
+                                  << true << false << 4;
+
+    const Group dynamicParallelRoot {
+        parallel,
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
+    };
+    const Log dynamicParallelLog{{1, Handler::Setup},
+                                 {2, Handler::Setup},
+                                 {3, Handler::Setup},
+                                 {1, Handler::Error},
+                                 {2, Handler::Error}};
+    QTest::newRow("DynamicParallel") << dynamicParallelRoot << storage << dynamicParallelLog
+                                     << false << false << 4;
+
+    const Group dynamicParallelGroupRoot {
+        parallel,
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
+        Group {
+            Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError)
+        },
+        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
+    };
+    const Log dynamicParallelGroupLog{{1, Handler::Setup},
+                                      {2, Handler::Setup},
+                                      {3, Handler::Setup},
+                                      {1, Handler::Error},
+                                      {2, Handler::Error}};
+    QTest::newRow("DynamicParallelGroup") << dynamicParallelGroupRoot << storage
+                                          << dynamicParallelGroupLog << false << false << 4;
+
+    const Group dynamicParallelGroupSetupRoot {
+        parallel,
+        Storage(storage),
+        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
+        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
+        Group {
+            DynamicSetup([storage] { storage->m_log.append({0, Handler::GroupSetup});
+                                     return GroupConfig{GroupAction::StopWithError}; }),
+            Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::Continue), readResult, readError)
+        },
+        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
+    };
+    const Log dynamicParallelGroupSetupLog{{1, Handler::Setup},
+                                           {2, Handler::Setup},
+                                           {0, Handler::GroupSetup},
+                                           {1, Handler::Error},
+                                           {2, Handler::Error}};
+    QTest::newRow("DynamicParallelGroupSetup") << dynamicParallelGroupSetupRoot << storage
+                                               << dynamicParallelGroupSetupLog << false << false << 4;
 
     const Group nestedRoot {
         Storage(storage),
