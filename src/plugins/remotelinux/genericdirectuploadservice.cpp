@@ -29,7 +29,6 @@ const int MaxConcurrentStatCalls = 10;
 struct UploadStorage
 {
     QList<DeployableFile> filesToUpload;
-    FilesToTransfer filesToTransfer;
 };
 
 class GenericDirectUploadServicePrivate
@@ -46,7 +45,7 @@ public:
                       StatEndHandler statEndHandler);
     TaskItem statTree(const TreeStorage<UploadStorage> &storage, FilesToStat filesToStat,
                       StatEndHandler statEndHandler);
-    TaskItem uploadGroup(const TreeStorage<UploadStorage> &storage);
+    TaskItem uploadTask(const TreeStorage<UploadStorage> &storage);
     TaskItem chmodTask(const DeployableFile &file);
     TaskItem chmodTree(const TreeStorage<UploadStorage> &storage);
 
@@ -186,12 +185,12 @@ TaskItem GenericDirectUploadServicePrivate::statTree(const TreeStorage<UploadSto
     return Tree(setupHandler);
 }
 
-TaskItem GenericDirectUploadServicePrivate::uploadGroup(const TreeStorage<UploadStorage> &storage)
+TaskItem GenericDirectUploadServicePrivate::uploadTask(const TreeStorage<UploadStorage> &storage)
 {
-    const auto groupSetupHandler = [=] {
+    const auto setupHandler = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
             emit q->progressMessage(Tr::tr("No files need to be uploaded."));
-            return GroupConfig{GroupAction::StopWithDone};
+            return TaskAction::StopWithDone;
         }
         emit q->progressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                        storage->filesToUpload.size()));
@@ -205,33 +204,25 @@ TaskItem GenericDirectUploadServicePrivate::uploadGroup(const TreeStorage<Upload
                     continue;
                 }
                 emit q->errorMessage(message);
-                return GroupConfig{GroupAction::StopWithError};
+                return TaskAction::StopWithError;
             }
             files.append({file.localFilePath(),
                           q->deviceConfiguration()->filePath(file.remoteFilePath())});
         }
-        storage->filesToTransfer = files;
-        if (storage->filesToTransfer.isEmpty()) {
+        if (files.isEmpty()) {
             emit q->progressMessage(Tr::tr("No files need to be uploaded."));
-            return GroupConfig{GroupAction::StopWithDone};
+            return TaskAction::StopWithDone;
         }
-        return GroupConfig();
-    };
-
-    const auto setupHandler = [this, storage](FileTransfer &transfer) {
-        transfer.setFilesToTransfer(storage->filesToTransfer);
+        transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
                          q, &GenericDirectUploadService::progressMessage);
+        return TaskAction::Continue;
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         emit q->errorMessage(transfer.resultData().m_errorString);
     };
 
-    const Group group {
-        DynamicSetup(groupSetupHandler),
-        Transfer(setupHandler, {}, errorHandler)
-    };
-    return group;
+    return Transfer(setupHandler, {}, errorHandler);
 }
 
 TaskItem GenericDirectUploadServicePrivate::chmodTask(const DeployableFile &file)
@@ -310,7 +301,7 @@ Group GenericDirectUploadService::deployRecipe()
     const Group root {
         Storage(storage),
         d->statTree(storage, preFilesToStat, preStatEndHandler),
-        d->uploadGroup(storage),
+        d->uploadTask(storage),
         Group {
             d->chmodTree(storage),
             d->statTree(storage, postFilesToStat, postStatEndHandler)
