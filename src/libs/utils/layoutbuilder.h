@@ -302,6 +302,8 @@ public:
     using I = Building::BuilderItem<Splitter>;
 
     Splitter(std::initializer_list<I> items);
+    void setOrientation(Qt::Orientation);
+    void setStretchFactor(int index, int stretch);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget
@@ -411,10 +413,12 @@ QTC_DEFINE_BUILDER_SETTER(title, setTitle)
 QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
 QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
+QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
 QTC_DEFINE_BUILDER_SETTER2(columnStretch, setColumnStretch)
 QTC_DEFINE_BUILDER_SETTER2(onClicked, onClicked)
 QTC_DEFINE_BUILDER_SETTER2(onLinkHovered, onLinkHovered)
 QTC_DEFINE_BUILDER_SETTER2(onTextChanged, onTextChanged)
+QTC_DEFINE_BUILDER_SETTER2(stretchFactor, setStretchFactor)
 QTC_DEFINE_BUILDER_SETTER4(customMargins, setContentsMargins)
 
 // Nesting dispatchers

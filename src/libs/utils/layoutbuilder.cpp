@@ -889,6 +889,16 @@ Splitter::Splitter(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+void Splitter::setOrientation(Qt::Orientation orientation)
+{
+    access(this)->setOrientation(orientation);
+}
+
+void Splitter::setStretchFactor(int index, int stretch)
+{
+    access(this)->setStretchFactor(index, stretch);
+}
+
 void addToSplitter(Splitter *splitter, QWidget *inner)
 {
     access(splitter)->addWidget(inner);
