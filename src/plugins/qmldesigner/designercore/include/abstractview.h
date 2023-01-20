@@ -60,6 +60,7 @@ public:
 
     QString uniqueId;
     QString tabName;
+    QString feedbackDisplayName;
     QWidget *widget = nullptr;
     int placementPriority;
     PlacementHint placementHint;
@@ -286,11 +287,14 @@ public:
 protected:
     void setModel(Model *model);
     void removeModel();
-    static WidgetInfo createWidgetInfo(QWidget *widget = nullptr,
-                                       const QString &uniqueId = QString(),
-                                       WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
-                                       int placementPriority = 0,
-                                       const QString &tabName = QString(), DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
+    static WidgetInfo createWidgetInfo(
+        QWidget *widget = nullptr,
+        const QString &uniqueId = QString(),
+        WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
+        int placementPriority = 0,
+        const QString &tabName = QString(),
+        const QString &feedbackDisplayName = QString(),
+        DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
 
 private: //functions
     QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList) const;

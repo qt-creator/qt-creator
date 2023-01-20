@@ -670,7 +670,8 @@ WidgetInfo TextureEditorView::widgetInfo()
                             "TextureEditor",
                             WidgetInfo::RightPane,
                             0,
-                            tr("Texture Editor"));
+                            tr("Texture Editor"),
+                            tr("Texture Editor view"));
 }
 
 void TextureEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

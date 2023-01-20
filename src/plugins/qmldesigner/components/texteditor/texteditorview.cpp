@@ -124,7 +124,13 @@ void TextEditorView::nodeReparented(const ModelNode &/*node*/, const NodeAbstrac
 
 WidgetInfo TextEditorView::widgetInfo()
 {
-    return createWidgetInfo(m_widget, "TextEditor", WidgetInfo::CentralPane, 0, tr("Code"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_widget,
+                            "TextEditor",
+                            WidgetInfo::CentralPane,
+                            0,
+                            tr("Code"),
+                            tr("Code view"),
+                            DesignerWidgetFlags::IgnoreErrors);
 }
 
 void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const

@@ -117,6 +117,7 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           WidgetInfo::PlacementHint placementHint,
                                           int placementPriority,
                                           const QString &tabName,
+                                          const QString &feedbackDisplayName,
                                           DesignerWidgetFlags widgetFlags)
 {
     WidgetInfo widgetInfo;
@@ -126,6 +127,7 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     widgetInfo.placementHint = placementHint;
     widgetInfo.placementPriority = placementPriority;
     widgetInfo.tabName = tabName;
+    widgetInfo.feedbackDisplayName = feedbackDisplayName;
     widgetInfo.widgetFlags = widgetFlags;
 
     return widgetInfo;

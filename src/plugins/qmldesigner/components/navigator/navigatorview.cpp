@@ -117,7 +117,8 @@ WidgetInfo NavigatorView::widgetInfo()
                             QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Navigator"));
+                            tr("Navigator"),
+                            tr("Navigator view"));
 }
 
 void NavigatorView::modelAttached(Model *model)

@@ -587,6 +587,15 @@ void QmlDesignerPlugin::resetModelSelection()
     rewriterView()->setSelectedModelNodes(QList<ModelNode>());
 }
 
+QString QmlDesignerPlugin::identiferToDisplayString(const QString &identifier)
+{
+    for (AbstractView *view : viewManager().views())
+        if (view->widgetInfo().uniqueId.toLower() == identifier.toLower())
+            return view->widgetInfo().feedbackDisplayName;
+
+    return identifier;
+}
+
 RewriterView *QmlDesignerPlugin::rewriterView() const
 {
     return currentDesignDocument()->rewriterView();
@@ -732,7 +741,7 @@ void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = QmlDesignerPlugin::tr("Enjoying %1?").arg(identifier);
+    QString name = QmlDesignerPlugin::tr("Enjoying %1?").arg(identiferToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 

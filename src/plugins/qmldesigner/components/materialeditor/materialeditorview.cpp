@@ -908,7 +908,8 @@ WidgetInfo MaterialEditorView::widgetInfo()
                             "MaterialEditor",
                             WidgetInfo::RightPane,
                             0,
-                            tr("Material Editor"));
+                            tr("Material Editor"),
+                            tr("Material Editor view"));
 }
 
 void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,

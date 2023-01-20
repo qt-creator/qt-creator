@@ -104,6 +104,8 @@ private: // functions
     void activateAutoSynchronization();
     void deactivateAutoSynchronization();
     void resetModelSelection();
+    QString identiferToDisplayString(const QString &identifier);
+
     RewriterView *rewriterView() const;
     Model *currentModel() const;
     QQuickWidget *m_feedbackWidget = nullptr;

@@ -212,7 +212,8 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                             "MaterialBrowser",
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Material Browser"));
+                            tr("Material Browser"),
+                            tr("Material Browser view"));
 }
 
 void MaterialBrowserView::modelAttached(Model *model)

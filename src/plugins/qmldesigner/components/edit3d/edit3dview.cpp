@@ -57,7 +57,13 @@ WidgetInfo Edit3DView::widgetInfo()
     if (!m_edit3DWidget)
         createEdit3DWidget();
 
-    return createWidgetInfo(m_edit3DWidget.data(), "Editor3D", WidgetInfo::CentralPane, 0, tr("3D"), DesignerWidgetFlags::IgnoreErrors);
+    return createWidgetInfo(m_edit3DWidget.data(),
+                            "Editor3D",
+                            WidgetInfo::CentralPane,
+                            0,
+                            tr("3D"),
+                            tr("3D view"),
+                            DesignerWidgetFlags::IgnoreErrors);
 }
 
 Edit3DWidget *Edit3DView::edit3DWidget() const
