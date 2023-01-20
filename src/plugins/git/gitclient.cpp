@@ -774,17 +774,17 @@ FilePath GitClient::findRepositoryForDirectory(const FilePath &directory) const
     return {};
 }
 
-QString GitClient::findGitDirForRepository(const FilePath &repositoryDir) const
+FilePath GitClient::findGitDirForRepository(const FilePath &repositoryDir) const
 {
-    static QHash<FilePath, QString> repoDirCache;
-    QString &res = repoDirCache[repositoryDir];
+    static QHash<FilePath, FilePath> repoDirCache;
+    FilePath &res = repoDirCache[repositoryDir];
     if (!res.isEmpty())
         return res;
 
-    synchronousRevParseCmd(repositoryDir, "--git-dir", &res);
+    QString output;
+    synchronousRevParseCmd(repositoryDir, "--git-dir", &output);
 
-    if (!QDir(res).isAbsolute())
-        res.prepend(repositoryDir.toString() + '/');
+    res = repositoryDir.resolvePath(output);
     return res;
 }
 
@@ -1625,9 +1625,9 @@ QString GitClient::synchronousCurrentLocalBranch(const FilePath &workingDirector
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         branch = result.cleanedStdOut().trimmed();
     } else {
-        const QString gitDir = findGitDirForRepository(workingDirectory);
-        const QString rebaseHead = gitDir + "/rebase-merge/head-name";
-        QFile head(rebaseHead);
+        const FilePath gitDir = findGitDirForRepository(workingDirectory);
+        const FilePath rebaseHead = gitDir / "rebase-merge/head-name";
+        QFile head(rebaseHead.toFSPathString());
         if (head.open(QFile::ReadOnly))
             branch = QString::fromUtf8(head.readLine()).trimmed();
     }
@@ -2265,19 +2265,18 @@ QString GitClient::commandInProgressDescription(const FilePath &workingDirectory
 
 GitClient::CommandInProgress GitClient::checkCommandInProgress(const FilePath &workingDirectory) const
 {
-    const QString gitDir = findGitDirForRepository(workingDirectory);
-    if (QFile::exists(gitDir + "/MERGE_HEAD"))
+    const FilePath gitDir = findGitDirForRepository(workingDirectory);
+    if (gitDir.pathAppended("MERGE_HEAD").exists())
         return Merge;
-    else if (QFile::exists(gitDir + "/rebase-apply"))
+    if (gitDir.pathAppended("rebase-apply").exists())
         return Rebase;
-    else if (QFile::exists(gitDir + "/rebase-merge"))
+    if (gitDir.pathAppended("rebase-merge").exists())
         return RebaseMerge;
-    else if (QFile::exists(gitDir + "/REVERT_HEAD"))
+    if (gitDir.pathAppended("REVERT_HEAD").exists())
         return Revert;
-    else if (QFile::exists(gitDir + "/CHERRY_PICK_HEAD"))
+    if (gitDir.pathAppended("CHERRY_PICK_HEAD").exists())
         return CherryPick;
-    else
-        return NoCommand;
+    return NoCommand;
 }
 
 void GitClient::continueCommandIfNeeded(const FilePath &workingDirectory, bool allowContinue)
@@ -2646,9 +2645,10 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
 
     commitData.panelInfo.repository = repoDirectory;
 
-    const QString gitDir = findGitDirForRepository(repoDirectory);
+    const FilePath gitDir = findGitDirForRepository(repoDirectory);
     if (gitDir.isEmpty()) {
-        *errorMessage = Tr::tr("The repository \"%1\" is not initialized.").arg(repoDirectory.toString());
+        *errorMessage = Tr::tr("The repository \"%1\" is not initialized.")
+            .arg(repoDirectory.toUserOutput());
         return false;
     }
 
@@ -2720,9 +2720,8 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
     }
     case SimpleCommit: {
         bool authorFromCherryPick = false;
-        QDir gitDirectory(gitDir);
         // For cherry-picked commit, read author data from the commit (but template from MERGE_MSG)
-        if (gitDirectory.exists(CHERRY_PICK_HEAD)) {
+        if (gitDir.pathAppended(CHERRY_PICK_HEAD).exists()) {
             authorFromCherryPick = readDataFromCommit(repoDirectory, CHERRY_PICK_HEAD, commitData);
             commitData.amendSHA1.clear();
         }
@@ -2732,21 +2731,17 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
             commitData.panelData.email = author.email;
         }
         // Commit: Get the commit template
-        QString templateFilename = gitDirectory.absoluteFilePath("MERGE_MSG");
-        if (!QFile::exists(templateFilename))
-            templateFilename = gitDirectory.absoluteFilePath("SQUASH_MSG");
-        if (!QFile::exists(templateFilename)) {
-            FilePath templateName = FilePath::fromUserInput(
-                        readConfigValue(workingDirectory, "commit.template"));
-            templateFilename = templateName.toString();
+        FilePath templateFile = gitDir / "MERGE_MSG";
+        if (!templateFile.exists())
+            templateFile = gitDir / "SQUASH_MSG";
+        if (!templateFile.exists()) {
+            templateFile = FilePath::fromUserInput(
+                readConfigValue(workingDirectory, "commit.template"));
         }
-        if (!templateFilename.isEmpty()) {
-            // Make relative to repository
-            const QFileInfo templateFileInfo(templateFilename);
-            if (templateFileInfo.isRelative())
-                templateFilename = repoDirectory.toString() + '/' + templateFilename;
+        if (!templateFile.isEmpty()) {
+            templateFile = repoDirectory.resolvePath(templateFile);
             FileReader reader;
-            if (!reader.fetch(Utils::FilePath::fromString(templateFilename), QIODevice::Text, errorMessage))
+            if (!reader.fetch(templateFile, QIODevice::Text, errorMessage))
                 return false;
             *commitTemplate = QString::fromLocal8Bit(reader.data());
         }
@@ -3237,9 +3232,9 @@ bool GitClient::synchronousMerge(const FilePath &workingDirectory, const QString
 
 bool GitClient::canRebase(const FilePath &workingDirectory) const
 {
-    const QString gitDir = findGitDirForRepository(workingDirectory);
-    if (QFileInfo::exists(gitDir + "/rebase-apply")
-            || QFileInfo::exists(gitDir + "/rebase-merge")) {
+    const FilePath gitDir = findGitDirForRepository(workingDirectory);
+    if (gitDir.pathAppended("rebase-apply").exists()
+            || gitDir.pathAppended("rebase-merge").exists()) {
         VcsOutputWindow::appendError(
                     Tr::tr("Rebase, merge or am is in progress. Finish "
                        "or abort it and then try again."));

@@ -127,7 +127,7 @@ public:
                           const VcsBase::CommandHandler &handler = {});
 
     Utils::FilePath findRepositoryForDirectory(const Utils::FilePath &directory) const;
-    QString findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
+    Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
 

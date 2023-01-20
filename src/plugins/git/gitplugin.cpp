@@ -493,8 +493,8 @@ public:
 protected:
     FilePath trackFile(const FilePath &repository) override
     {
-        const QString gitDir = m_client->findGitDirForRepository(repository);
-        return gitDir.isEmpty() ? FilePath() : FilePath::fromString(gitDir + "/HEAD");
+        const FilePath gitDir = m_client->findGitDirForRepository(repository);
+        return gitDir.isEmpty() ? FilePath() : gitDir / "HEAD";
     }
 
     QString refreshTopic(const FilePath &repository) override
