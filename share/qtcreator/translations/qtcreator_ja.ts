@@ -2048,7 +2048,7 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -2104,17 +2104,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
     <message>
         <source>Clang Code Model</source>
         <translation>Clang コードモデル</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>一般</translation>
     </message>
     <message>
         <source>Content</source>
@@ -2339,9 +2328,6 @@ if they would align to the next line</source>
         <source>Prefer getter names without &quot;get&quot;</source>
         <translation>ゲッターの名前に &quot;get&quot; を付けない</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>ヘッダ</translation>
@@ -14422,9 +14408,6 @@ to version control (%2)
         <source>Collapse All</source>
         <translation>すべて折りたたむ</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>%1 を使って書き換える</translation>
@@ -14565,9 +14548,6 @@ to version control (%2)
         <source>Remove &quot;using namespace %1&quot; and Adjust Type Names Accordingly</source>
         <translation>&quot;using namespace %1&quot;を削除し、それに応じてタイプ名を調整します</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>%1 の宣言を追加</translation>
@@ -14738,9 +14718,6 @@ to version control (%2)
         <source>...searching overrides</source>
         <translation>...オーバーライドの検索中</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation>C/C++ ファイルの解析中</translation>
@@ -14776,21 +14753,15 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppTools::CppClassesFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++ Classes</source>
         <translation>C++ クラス</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>C++ Symbols in Current Document</source>
         <translation>現在のドキュメントの C++ シンボル</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -14831,9 +14802,6 @@ to version control (%2)
         <source>Choose Location for New License Template File</source>
         <translation>新しいライセンステンプレートファイルの保存先を指定してください</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Reads</source>
         <translation>読み出し</translation>
@@ -14874,16 +14842,10 @@ to version control (%2)
         <source>C++ Macro Usages:</source>
         <translation>C++ マクロ出現箇所:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>C++ Functions</source>
         <translation>C++ 関数</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>C++ Classes, Enums and Functions</source>
         <translation>C++ クラス、列挙型、関数</translation>
@@ -14901,7 +14863,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
@@ -14915,18 +14877,6 @@ to version control (%2)
         <translation>診断設定</translation>
     </message>
     <message>
-        <source>C++ Symbols in Current Document</source>
-        <translation>現在のドキュメントの C++ シンボル</translation>
-    </message>
-    <message>
-        <source>C++ Classes</source>
-        <translation>C++ クラス</translation>
-    </message>
-    <message>
-        <source>C++ Functions</source>
-        <translation>C++ 関数</translation>
-    </message>
-    <message>
         <source>All Included C/C++ Files</source>
         <translation>インクルードされるすべての C/C++ ファイル</translation>
     </message>
@@ -14935,20 +14885,12 @@ to version control (%2)
         <translation>C++ クラス、列挙型、関数、および型のエイリアス</translation>
     </message>
     <message>
-        <source>C++ Classes, Enums and Functions</source>
-        <translation type="vanished">C++ クラス、列挙型、関数</translation>
-    </message>
-    <message>
         <source>C++ Symbols</source>
         <translation>C++ シンボル</translation>
     </message>
     <message>
         <source>Code Model</source>
         <translation>コードモデル</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>C11</source>
@@ -14978,9 +14920,6 @@ to version control (%2)
         <source>The project contains C++ source files, but the currently active kit has no C++ compiler. The code model will not be fully functional.</source>
         <translation>プロジェクトには C++ 言語のソースファイルが含まれていますが、現在アクティブなキットには C++ 言語のコンパイラがありません。この場合、コードモデルは完全には機能しません。</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -15013,9 +14952,6 @@ to version control (%2)
         <source>Insert &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards into header file</source>
         <translation>「#ifndef」の代わりに「#pragma once」をインクルードガードとしてヘッダーファイルに挿入する</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -15032,13 +14968,6 @@ to version control (%2)
     <message>
         <source>Old Creator</source>
         <translation>古い Creator</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
-    <message>
-        <source>C++ Symbols</source>
-        <translation>C++ シンボル</translation>
     </message>
     <message>
         <source>Searching for Symbol</source>
@@ -15061,10 +14990,6 @@ to version control (%2)
         <translation>列挙型</translation>
     </message>
     <message>
-        <source>Declarations</source>
-        <translation>宣言</translation>
-    </message>
-    <message>
         <source>Scope: %1
 Types: %2
 Flags: %3</source>
@@ -15084,28 +15009,9 @@ Flags: %3</source>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>型:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>クラス</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>関数</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Enum</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>宣言</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -34204,11 +34110,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
+    <name>::CppEditor</name>
     <message>
         <source>Configuration to use:</source>
         <translation>警告オプション設定:</translation>
@@ -34244,10 +34146,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Rename...</source>
         <translation>名前を変更...</translation>
-    </message>
-    <message>
-        <source>Diagnostic Configurations</source>
-        <translation type="unfinished">診断設定</translation>
     </message>
 </context>
 <context>
@@ -37266,9 +37164,6 @@ Do you want to check them out now?</source>
         <source>&amp;Refactor</source>
         <translation>リファクタリング(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation>ファイル名です。</translation>
@@ -37277,9 +37172,6 @@ Do you want to check them out now?</source>
         <source>The class name.</source>
         <translation>クラス名です。</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Warnings for questionable constructs</source>
         <translation>問題の原因と思われる記述への警告</translation>
@@ -37296,19 +37188,9 @@ Do you want to check them out now?</source>
         <source>%1 [built-in]</source>
         <translation>%1 [ビルトイン]</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>アルファベット順にソート</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppIncludesFilter</name>
-    <message>
-        <source>All Included C/C++ Files</source>
-        <translation>インクルードされるすべての C/C++ ファイル</translation>
     </message>
 </context>
 <context>
@@ -43013,27 +42895,12 @@ Output:
 <context>
     <name>::CppEditor</name>
     <message>
-        <source>Form</source>
-        <translation type="vanished">フォーム</translation>
-    </message>
-    <message>
         <source>Default</source>
         <translation>既定</translation>
     </message>
     <message>
         <source>lines</source>
         <translation>行</translation>
-    </message>
-    <message>
-        <source>Types:</source>
-        <translation>型:</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::ClangBaseChecks</name>
-    <message>
-        <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
-        <translation>オプションの詳細は GCC や Clang のマニュアル、または &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC のオンラインドキュメント&lt;/a&gt; を参照してください。</translation>
     </message>
 </context>
 <context>
@@ -45528,7 +45395,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CppTools::ConfigsModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>Built-in</source>
         <translation>ビルトイン</translation>
@@ -45537,16 +45404,6 @@ Output:
         <source>Custom</source>
         <translation>カスタム</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsWidget</name>
-    <message>
-        <source>Code Model</source>
-        <translation>コードモデル</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;シンボルの選択&gt;</translation>

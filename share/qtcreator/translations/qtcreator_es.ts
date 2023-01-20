@@ -2133,7 +2133,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
+    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translation type="unfinished"></translation>
@@ -2142,9 +2142,6 @@ Would you like to overwrite them?</source>
         <source>Indexing</source>
         <translation>Indizando</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>File naming conventions</source>
         <translation type="obsolete">Convenciones de nomenclatura de archivos</translation>
@@ -2157,9 +2154,6 @@ Would you like to overwrite them?</source>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Completado</translation>
@@ -2168,37 +2162,22 @@ Would you like to overwrite them?</source>
         <source>Text Editor</source>
         <translation>Editor de texto</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Clases</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="unfinished">Métodos en el documento actual</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods</source>
         <translation>Métodos</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Clases y métodos</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation></translation>
@@ -2207,9 +2186,6 @@ Would you like to overwrite them?</source>
         <source>Switch Header/Source</source>
         <translation>Alternar entre declaración/definición</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindClassDeclarations</name>
     <message>
         <source>Search class</source>
         <translation type="unfinished">Buscar clase</translation>
@@ -2218,9 +2194,6 @@ Would you like to overwrite them?</source>
         <source>Class Declarations</source>
         <translation type="unfinished">Declaración de clase</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindFunctionCalls</name>
     <message>
         <source>Search functions</source>
         <translation type="unfinished">Buscar funciones</translation>
@@ -2229,9 +2202,6 @@ Would you like to overwrite them?</source>
         <source>Function calls</source>
         <translation type="unfinished">Llamadas a función</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 de %2</translation>
@@ -11588,7 +11558,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
+    <name>::CppEditor</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -11615,9 +11585,6 @@ p, li { white-space: pre-wrap; }
         <source>Cannot write to %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation type="unfinished"></translation>

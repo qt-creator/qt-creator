@@ -1979,7 +1979,7 @@ Chcete je nechat přepsat?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>File Naming Conventions</source>
         <translation type="obsolete">Úmluva pro pojmenování souborů</translation>
@@ -2000,9 +2000,6 @@ Chcete je nechat přepsat?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Doplnění</translation>
@@ -2131,20 +2128,6 @@ Chcete je nechat přepsat?</translation>
         <source>Adds leading asterisks when continuing Qt &apos;/*!&apos; and Java &apos;/**&apos; style comments on new lines.</source>
         <translation>Přidá hvězdičky na začátku při pokračování poznámek stylu &apos;/*!&apos; a Java &apos;/**&apos; na nových řádcích.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Třídy</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
-    <message>
-        <source>Methods</source>
-        <translation type="obsolete">Metody</translation>
-    </message>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Metody a funkce</translation>
@@ -2161,16 +2144,9 @@ Chcete je nechat přepsat?</translation>
         <source>C++ Functions</source>
         <translation>Funkce C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translation type="obsolete">Prohledávání</translation>
-    </message>
-    <message>
-        <source>Parsing</source>
-        <translation type="obsolete">Syntaktický rozbor</translation>
     </message>
     <message>
         <source>unnamed</source>
@@ -2180,9 +2156,6 @@ Chcete je nechat přepsat?</translation>
         <source>Indexing</source>
         <translation type="obsolete">Rejstříkování</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -2203,9 +2176,6 @@ Chcete je nechat přepsat?</translation>
         <source>Ctrl+E, F4</source>
         <translation>Ctrl+E, F4</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 z %2</translation>
@@ -16881,7 +16851,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="obsolete">Postupy v nynějším dokumentu</translation>
@@ -16898,9 +16868,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>C++ Symbols in Current Document</source>
         <translation>Symboly C++ v nynějším dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -16941,9 +16908,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Cannot write to %1: %2</source>
         <translation type="obsolete">Soubor %1 nelze zapsat: %2</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation type="obsolete">Hledá se...</translation>
@@ -16953,16 +16917,9 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Použití C++:</translation>
     </message>
     <message>
-        <source>Searching</source>
-        <translation>Hledá se</translation>
-    </message>
-    <message>
         <source>C++ Macro Usages:</source>
         <translation>Použití makra C++:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation type="obsolete">Třídy a metody</translation>
@@ -22338,13 +22295,6 @@ heslem, jež můžete zadat níže.</translation>
 <context>
     <name>::CppEditor</name>
     <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
-    <message>
         <source>Rewrite Using %1</source>
         <translation>Přepsat za použití %1</translation>
     </message>
@@ -26758,7 +26708,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -30814,16 +30764,10 @@ správy verzí (%2)</translation>
         <source>Type Hierarchy</source>
         <translation>Hierarchie tříd</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
     <message>
         <source>Code style settings:</source>
         <translation type="obsolete">Nastavení stylu kódování:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
@@ -30846,9 +30790,6 @@ správy verzí (%2)</translation>
         <source>Old Creator</source>
         <translation>Stará konvence Creatoru</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Symboly C++</translation>
@@ -30901,32 +30842,9 @@ Příznaky: %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Typy:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Třídy</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>Metody</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funkce</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Výčty</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklarace</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -41164,7 +41082,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>Přípona hlavičkových souborů:</translation>
@@ -44094,13 +44012,6 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     <message>
         <source>Invalid function name</source>
         <translation>Neplatný název funkce</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Třídy</translation>
     </message>
     <message>
         <source>C++ Classes</source>
@@ -50238,7 +50149,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
+    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>Syntaktický rozbor</translation>
@@ -53576,13 +53487,6 @@ monitor reset</source>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Dodatečné příkazy pro preprocesor C++ pro %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Code Completion and Semantic Highlighting</source>
         <translation>Doplnění kódu a sémantické zvýrazňování</translation>
@@ -53590,10 +53494,6 @@ monitor reset</source>
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>Objective C</source>
@@ -53614,10 +53514,6 @@ monitor reset</source>
     <message>
         <source>Ignore pre-compiled headers</source>
         <translation>Přehlížet předpřeložené hlavičky</translation>
-    </message>
-    <message>
-        <source>Headers</source>
-        <translation>Hlavičky</translation>
     </message>
 </context>
 <context>

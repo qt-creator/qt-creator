@@ -11258,9 +11258,6 @@ to version control (%2)
         <source>%1: Could not get file contents</source>
         <translation>%1: не удалось получить содержимое файла</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
         <translation>Стиль кода</translation>
@@ -11309,9 +11306,6 @@ to version control (%2)
         <source>The project contains C++ source files, but the currently active kit has no C++ compiler. The code model will not be fully functional.</source>
         <translation>Проект содержит исходные файлы C++, но выбранный комплект не имеет компилятора C++. Модель кода не будет полностью функциональной.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation>Имя файла.</translation>
@@ -11320,9 +11314,6 @@ to version control (%2)
         <source>The class name.</source>
         <translation>Имя класса.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>Описание параметров можно найти страницах man GCC или Clang или в &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;Документации GCC&lt;/a&gt;.</translation>
@@ -11331,16 +11322,10 @@ to version control (%2)
         <source>Use diagnostic flags from build system</source>
         <translation>Использовать флаги диагностирования из системы сборки</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic Configuration:</source>
         <translation>Конфигурация диагностирования:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Copy...</source>
         <translation>Копировать...</translation>
@@ -11394,16 +11379,9 @@ to version control (%2)
         <translation></translation>
     </message>
     <message>
-        <source>Diagnostic Configurations</source>
-        <translation>Конфигурации диагностирования</translation>
-    </message>
-    <message>
         <source>Rename...</source>
         <translation>Переименовать...</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ConfigsModel</name>
     <message>
         <source>Built-in</source>
         <translation>Встроенный</translation>
@@ -11412,16 +11390,10 @@ to version control (%2)
         <source>Custom</source>
         <translation>Особый</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -11439,16 +11411,10 @@ to version control (%2)
         <source>Old Creator</source>
         <translation>Старый Creator</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation>Разбор С/С++ файлов</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
     <message>
         <source>&lt;i&gt;The Clang Code Model is enabled because the corresponding plugin is loaded.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Модель кода Clang включена, так как соответствующий модуль загружен.&lt;/i&gt;</translation>
@@ -11485,19 +11451,9 @@ to version control (%2)
         <source>Clang Code Model</source>
         <translation>Модель кода Clang</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsWidget</name>
     <message>
         <source>Code Model</source>
         <translation>Модель кода</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Основное</translation>
     </message>
     <message>
         <source>Content</source>
@@ -11727,9 +11683,6 @@ if (a &amp;&amp;
         <source>Prefer getter names without &quot;get&quot;</source>
         <translation>Предпочитать имена геттеров без «get»</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>Заголовочные</translation>
@@ -11822,9 +11775,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Use &quot;#pragma once&quot; instead of &quot;#ifndef&quot; guards</source>
         <translation>Использовать «#pragma once» вместо «#ifndef»</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -11849,9 +11799,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Choose Location for New License Template File</source>
         <translation>Выбор размещения нового файла шаблона лицензии</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>Использование C++:</translation>
@@ -11878,9 +11825,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>C++ Macro Usages:</source>
         <translation>Использование макросов C++:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -11913,9 +11857,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Insert &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards into header file</source>
         <translation>Вставлять в заголовочный файл «#pragma once» вместо «#ifndef»</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Поиск символа</translation>
@@ -11956,28 +11897,9 @@ Flags: %3</source>
         <source>Projects</source>
         <translation>Проекты</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Типы:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Классы</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Функции</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Перечисления</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Объявления</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -11987,9 +11909,6 @@ Flags: %3</source>
         <source>All files</source>
         <translation>Все файлы</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Выберите символ&gt;</translation>
@@ -11998,9 +11917,6 @@ Flags: %3</source>
         <source>&lt;No Symbols&gt;</source>
         <translation>&lt;Нет символов&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Переписать с использованием %1</translation>

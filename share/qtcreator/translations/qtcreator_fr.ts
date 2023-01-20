@@ -2559,16 +2559,11 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
+    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translatorcomment>Balayage ? (Numérisation ça fait franchement scanner)</translatorcomment>
         <translation type="obsolete">Analyse</translation>
-    </message>
-    <message>
-        <source>Parsing</source>
-        <translatorcomment>laisser Parsing? ou analyse syntaxique</translatorcomment>
-        <translation type="obsolete">Analyse syntaxique</translation>
     </message>
     <message>
         <source>unnamed</source>
@@ -2578,9 +2573,6 @@ Voulez vous les écraser ?</translation>
         <source>Indexing</source>
         <translation type="obsolete">Indexation</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>File Naming Conventions</source>
         <translation type="obsolete">Conventions de nommage des fichiers</translation>
@@ -2601,9 +2593,6 @@ Voulez vous les écraser ?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Complétion</translation>
@@ -2709,16 +2698,6 @@ Voulez vous les écraser ?</translation>
         <source>Add leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines</source>
         <translation>Ajouter des astérisques en début de ligne pour continuer les commentaires de style Qt (/*!) et Java (/ **) sur les nouvelles lignes</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Classes</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="obsolete">Méthodes du document courant</translation>
@@ -2735,9 +2714,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Symbols in Current Document</source>
         <translation>Symboles C++ du document courant</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -2781,13 +2757,6 @@ Voulez vous les écraser ?</translation>
         <source>Cannot write to %1: %2</source>
         <translation type="obsolete">Impossible d&apos;écrire %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
-    <message>
-        <source>Methods</source>
-        <translation type="obsolete">Méthodes</translation>
-    </message>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Méthodes et fonctions</translation>
@@ -2804,9 +2773,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Functions</source>
         <translation>Fonctions C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation type="obsolete">Classes et méthodes</translation>
@@ -2819,9 +2785,6 @@ Voulez vous les écraser ?</translation>
         <source>C++ Classes, Enums and Functions</source>
         <translation>Classes, énumérations et fonctions C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -2842,9 +2805,6 @@ Voulez vous les écraser ?</translation>
         <source>Ctrl+E, F4</source>
         <translation>Ctrl+E, F4</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindClassDeclarations</name>
     <message>
         <source>Search class</source>
         <translation type="obsolete">Rechercher la classe</translation>
@@ -2853,9 +2813,6 @@ Voulez vous les écraser ?</translation>
         <source>Class Declarations</source>
         <translation type="obsolete">Déclarations de classe</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindFunctionCalls</name>
     <message>
         <source>Search functions</source>
         <translation type="obsolete">Rechercher les fonctions</translation>
@@ -2864,9 +2821,6 @@ Voulez vous les écraser ?</translation>
         <source>Function calls</source>
         <translation type="obsolete">Appels de fonction</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 de %2</translation>
@@ -16473,7 +16427,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFindReferences</name>
+    <name>::CppEditor</name>
     <message>
         <source>Searching...</source>
         <translation type="obsolete">Recherche...</translation>
@@ -21454,13 +21408,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
 <context>
     <name>::CppEditor</name>
     <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
-    <message>
         <source>Rewrite Using %1</source>
         <translation>Réécrire en utilisant %1</translation>
     </message>
@@ -25815,16 +25762,9 @@ La liste du serveur était %2.</translation>
         <source>Type Hierarchy</source>
         <translation>Hiérarchie de type</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Symboles C++</translation>
-    </message>
-    <message>
-        <source>Searching</source>
-        <translation>Recherche</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
@@ -25870,32 +25810,9 @@ Indicateurs : %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Types :</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Classes</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>Méthodes</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Fonctions</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Énumérations</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Déclarations</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -32661,7 +32578,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -34335,14 +34252,11 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
+    <name>::CppEditor</name>
     <message>
         <source>Code style settings:</source>
         <translation type="obsolete">Paramètres de style de code : </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
@@ -38518,7 +38432,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>Suffixe des fichier d&apos;en-tête :</translation>
@@ -40583,13 +40497,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>Invalid function name</source>
         <translation>Nom de fonction invalide</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation type="obsolete">Classes</translation>
     </message>
     <message>
         <source>C++ Classes</source>
@@ -48186,9 +48093,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>&amp;Add keyword &apos;virtual&apos; to function declaration</source>
         <translation>&amp;Ajouter le mot clés &quot;virtual&quot; à la déclaration de la fonction</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing</source>
         <translation>Analyse syntaxique</translation>
@@ -50312,13 +50216,6 @@ réinitialisation du moniteur</translation>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Directives supplémentaires pour le préprocesseur C++ pour %1 :</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Code Completion and Semantic Highlighting</source>
         <translation>Complétion du code et surlignage sémantique</translation>
@@ -50326,10 +50223,6 @@ réinitialisation du moniteur</translation>
     <message>
         <source>C</source>
         <translation>C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>Objective C</source>

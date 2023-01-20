@@ -3043,10 +3043,6 @@ to version control (%2)
         <translation>Додати визначення поза класом</translation>
     </message>
     <message>
-        <source>Sort Alphabetically</source>
-        <translation type="vanished">Сортувати за абеткою</translation>
-    </message>
-    <message>
         <source>Unused variable</source>
         <translation type="vanished">Невикористана змінна</translation>
     </message>
@@ -3111,7 +3107,7 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>Code Style</source>
         <translation>Стиль коду</translation>
@@ -3123,10 +3119,6 @@ to version control (%2)
     <message>
         <source>Code Model</source>
         <translation>Модель коду</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
     </message>
     <message>
         <source>C11</source>
@@ -3144,9 +3136,6 @@ to version control (%2)
         <source>Obj-C++11</source>
         <translation>Obj-C++11</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -3168,9 +3157,6 @@ to version control (%2)
         <source>Global</source>
         <translation type="vanished">Глобальні</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Доповнення</translation>
@@ -3311,9 +3297,6 @@ In addition, Shift+Enter inserts an escape character at the cursor position and 
         <source>Timeout in ms:</source>
         <translation>Час очікування в мс:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -3552,9 +3535,6 @@ if (a &amp;&amp;
         <source>Function declarations</source>
         <translation>Оголошення функцій</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>C++ Methods in Current Document</source>
         <translation type="vanished">Методи C++ в поточному документі</translation>
@@ -3563,9 +3543,6 @@ if (a &amp;&amp;
         <source>C++ Symbols in Current Document</source>
         <translation>Символи C++ в поточному документі</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -3590,9 +3567,6 @@ if (a &amp;&amp;
         <source>Choose Location for New License Template File</source>
         <translation>Оберіть розташування для нового файлу шаблону ліцензії</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>Вживання C++:</translation>
@@ -3609,9 +3583,6 @@ if (a &amp;&amp;
         <source>C++ Macro Usages:</source>
         <translation>Вживання макросів C++:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>C++ Methods and Functions</source>
         <translation type="vanished">Методи та функції C++</translation>
@@ -3620,9 +3591,6 @@ if (a &amp;&amp;
         <source>C++ Functions</source>
         <translation>Функцій C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>C++ Classes and Methods</source>
         <translation type="vanished">Класи та методи C++</translation>
@@ -3631,9 +3599,6 @@ if (a &amp;&amp;
         <source>C++ Classes, Enums and Functions</source>
         <translation>Класи, переліки та функції C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -3662,16 +3627,9 @@ if (a &amp;&amp;
         <source>The configured path to the license template</source>
         <translation>Налаштований шлях до шаблону ліцензії</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Символи C++</translation>
-    </message>
-    <message>
-        <source>Searching</source>
-        <translation type="vanished">Пошук</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
@@ -3721,32 +3679,9 @@ Flags: %3</source>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Типи:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Класи</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation type="vanished">Методи</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Функції</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Переліки</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Оголошення</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -3756,9 +3691,6 @@ Flags: %3</source>
         <source>All files</source>
         <translation>Усі файл</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Переписати використовуючи %1</translation>
@@ -21849,7 +21781,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation type="vanished">Суфікс для заголовку:</translation>
@@ -23459,9 +23391,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Invalid function name</source>
         <translation type="vanished">Неправильна назва функції</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
     <message>
         <source>C++ Classes</source>
         <translation>Класи C++</translation>
@@ -30139,7 +30068,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
+    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation type="vanished">Розбір</translation>
@@ -33018,13 +32947,6 @@ monitor reset</translation>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Додаткові директиви препроцесора C++ для %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>Code Completion and Semantic Highlighting</source>
         <translation type="vanished">Доповнення коду та семантичне підсвічування</translation>
@@ -33032,10 +32954,6 @@ monitor reset</translation>
     <message>
         <source>C</source>
         <translation type="vanished">C</translation>
-    </message>
-    <message>
-        <source>C++</source>
-        <translation type="vanished">C++</translation>
     </message>
     <message>
         <source>Objective C</source>
@@ -33056,10 +32974,6 @@ monitor reset</translation>
     <message>
         <source>Ignore pre-compiled headers</source>
         <translation>Ігнорувати попередньо скомпільовані заголовки</translation>
-    </message>
-    <message>
-        <source>Headers</source>
-        <translation type="vanished">Заголовки</translation>
     </message>
     <message>
         <source>&lt;i&gt;Activate the Clang Code Model plugin to enable the options here.&lt;/i&gt;</source>
@@ -41117,14 +41031,11 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортувати за абеткою</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppIncludesFilter</name>
     <message>
         <source>All Included C/C++ Files</source>
         <translation>Усі включені файли C/C++</translation>
@@ -43553,7 +43464,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::AbstractEditorSupport</name>
+    <name>::CppEditor</name>
     <message>
         <source>The file name.</source>
         <translation>Назва файлу.</translation>
@@ -44224,11 +44135,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>::CppEditor</name>
     <message>
         <source>Configuration to use:</source>
         <translation>Використовувати конфігурацію:</translation>

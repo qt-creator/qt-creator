@@ -2140,7 +2140,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
+    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translation type="unfinished"></translation>
@@ -2149,20 +2149,10 @@ Vuoi sovrascriverli?</translation>
         <source>Indexing</source>
         <translation>Indicizzazione</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>File Naming Conventions</source>
         <translation>Convenzioni sui Nomi dei File</translation>
     </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Completamento</translation>
@@ -2171,30 +2161,18 @@ Vuoi sovrascriverli?</translation>
         <source>Text Editor</source>
         <translation>Editor di Testo</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Classi</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods</source>
         <translation>Metodi</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Classi e Metodi</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindClassDeclarations</name>
     <message>
         <source>Search class</source>
         <translation type="unfinished"></translation>
@@ -2203,9 +2181,6 @@ Vuoi sovrascriverli?</translation>
         <source>Class Declarations</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FindFunctionCalls</name>
     <message>
         <source>Search functions</source>
         <translation type="unfinished"></translation>
@@ -2214,9 +2189,6 @@ Vuoi sovrascriverli?</translation>
         <source>Function calls</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -2225,9 +2197,6 @@ Vuoi sovrascriverli?</translation>
         <source>Switch Header/Source</source>
         <translation>Passa tra Header/Sorgente</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 di %2</translation>
@@ -11416,14 +11385,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>Methods in current Document</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -11450,9 +11416,6 @@ p, li { white-space: pre-wrap; }
         <source>Cannot write to %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation type="unfinished"></translation>

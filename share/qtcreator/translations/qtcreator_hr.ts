@@ -2859,9 +2859,6 @@ p, li { white-space: pre-wrap; }
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Dodatne C++ predprocesorske direktive za %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangBaseChecks</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>Odgovarajuće opcije potraži na stranicama GCC ili Clang priručnika ili na &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentaciji&lt;/a&gt;.</translation>
@@ -2870,9 +2867,6 @@ p, li { white-space: pre-wrap; }
         <source>Use diagnostic flags from build system</source>
         <translation>Koristi oznake dijagnoze sustava izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Copy...</source>
         <translation>Kopiraj …</translation>
@@ -2961,9 +2955,6 @@ p, li { white-space: pre-wrap; }
         <source>Clazy</source>
         <translation>Clazy</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClazyChecks</name>
     <message>
         <source>See &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;Clazy&apos;s homepage&lt;/a&gt; for more information.</source>
         <translation>Više informacijea potraži na &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;početnoj stranici Clazyja&lt;/a&gt;.</translation>
@@ -2977,10 +2968,6 @@ p, li { white-space: pre-wrap; }
         <translation>Resetiraj na sve</translation>
     </message>
     <message>
-        <source>Checks</source>
-        <translation>Provjere</translation>
-    </message>
-    <message>
         <source>When enabling a level explicitly, also enable lower levels (Clazy semantic).</source>
         <translation>Kad eksplicitno aktiviraš razinu, također aktiviraj i niže razine (Clazy semantika).</translation>
     </message>
@@ -2988,9 +2975,6 @@ p, li { white-space: pre-wrap; }
         <source>Enable lower levels automatically</source>
         <translation>Aktiviraj niže razine automatski</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -3030,13 +3014,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>The selected configuration has potentially expensive Clang-Tidy or Clazy checks enabled.&lt;br/&gt;Consider to run these in a separate &lt;a href=&quot;target&quot;&gt;Clang-Tidy and Clazy analyzer&lt;/a&gt; run.</source>
         <translation>Odabrana konfiguracija ima potencionalno skupe Clang-Tidy ili Clazy provjere. &lt;br/&gt;Razmotri mogućnost njihovog pokretanja u zasebnom &lt;a href=&quot;target&quot;&gt;Clang-Tidy i Clazy analizatoru&lt;/a&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Opće</translation>
     </message>
     <message>
         <source>Content</source>
@@ -3266,9 +3243,6 @@ bi se poravnali sa sljedećim retkom</translation>
         <source>Prefer getter names without &quot;get&quot;</source>
         <translation>Daj prednost getter-imenima bez &quot;get&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>Zaglavlja</translation>
@@ -3361,9 +3335,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
         <source>License &amp;template:</source>
         <translation>Predložak &amp;licence:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::TidyChecks</name>
     <message>
         <source>Disable</source>
         <translation>Deaktiviraj</translation>
@@ -3375,10 +3346,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     <message>
         <source>Use .clang-tidy config file</source>
         <translation>Koristi .clang-tidy kofiguracijsku datoteku</translation>
-    </message>
-    <message>
-        <source>Edit Checks as String...</source>
-        <translation>Uredi provjere kao znakovne nizove …</translation>
     </message>
 </context>
 <context>
@@ -19691,9 +19658,6 @@ u kontrolu verzija (%2)
         <source>Clear Preferred Parse Context</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation type="unfinished"></translation>
@@ -19818,9 +19782,6 @@ u kontrolu verzija (%2)
         <source>Convert connect() to Qt 5 Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation type="unfinished"></translation>
@@ -19897,9 +19858,6 @@ u kontrolu verzija (%2)
         <source>Type Hierarchy</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation type="unfinished"></translation>
@@ -19908,16 +19866,10 @@ u kontrolu verzija (%2)
         <source>The class name.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Clang-only checks for questionable constructs</source>
         <translation type="unfinished"></translation>
@@ -19954,9 +19906,6 @@ u kontrolu verzija (%2)
         <source>%1 [built-in]</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic Configuration:</source>
         <translation type="unfinished"></translation>
@@ -19965,16 +19914,10 @@ u kontrolu verzija (%2)
         <source>Manage...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::BaseChecksTreeModel</name>
     <message>
         <source>Web Page</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClazyChecksTreeModel</name>
     <message>
         <source>Manual Level: Very few false positives</source>
         <translation type="unfinished"></translation>
@@ -20037,7 +19980,7 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <translation type="unfinished"></translation>
@@ -20052,10 +19995,6 @@ u kontrolu verzija (%2)
     </message>
     <message>
         <source>Code Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Diagnostic Configurations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -20082,16 +20021,10 @@ u kontrolu verzija (%2)
         <source>C++ Symbols</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -20110,9 +20043,6 @@ u kontrolu verzija (%2)
         <source>Choose Location for New License Template File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++ upotrebe:</translation>
@@ -20139,9 +20069,6 @@ u kontrolu verzija (%2)
         <source>C++ Macro Usages:</source>
         <translation>C++ makro upotrebe:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="unfinished"></translation>
@@ -20150,9 +20077,6 @@ u kontrolu verzija (%2)
         <source>&lt;No Symbols&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished"></translation>
@@ -20161,9 +20085,6 @@ u kontrolu verzija (%2)
         <source>%1: Could not get file contents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation type="unfinished"></translation>
@@ -20196,16 +20117,10 @@ u kontrolu verzija (%2)
         <source>Insert &quot;#pragma once&quot; instead of &quot;#ifndef&quot; include guards into header file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -20223,16 +20138,10 @@ u kontrolu verzija (%2)
         <source>Old Creator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>...searching overrides</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Traženje simbola</translation>
@@ -20273,28 +20182,9 @@ Oznake: %3</translation>
         <source>Projects</source>
         <translation>Projekti</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Vrste:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Klase</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funkcije</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Enumeracije</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklaracije</translation>
     </message>
     <message>
         <source>Projects only</source>

@@ -2678,14 +2678,11 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++ Symbols in Current Document</source>
         <translation>Symbole C++ w bieżącym dokumencie</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -2710,9 +2707,6 @@ Kontynuować?</translation>
         <source>Choose Location for New License Template File</source>
         <translation>Wybierz położenie nowego pliku z szablonem licencji</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>Użycia C++:</translation>
@@ -2735,16 +2729,10 @@ Kontynuować?</translation>
         <source>C++ Macro Usages:</source>
         <translation>Użycia makr C++:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>C++ Functions</source>
         <translation>Funkcje C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
         <translation>Styl kodu</translation>
@@ -2761,9 +2749,6 @@ Kontynuować?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -9615,7 +9600,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>C++ Classes, Enums and Functions</source>
         <translation>Klasy, typy wyliczeniowe i funkcje C++</translation>
@@ -12044,7 +12029,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::QuickFix</name>
+    <name>::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Przepisz używając %1</translation>
@@ -12625,9 +12610,6 @@ Lista serwera: %2.</translation>
         <source>Type Hierarchy</source>
         <translation>Hierarchia typów</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Symbole C++</translation>
@@ -12676,28 +12658,9 @@ Flagi: %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Typy:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Klasy</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funkcje</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Typy wyliczeniowe</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Deklaracje</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -15484,7 +15447,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -16645,7 +16608,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CppTools::CppToolsSettings</name>
+    <name>::CppEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -18733,7 +18696,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Headers</source>
         <translation>Nagłówki</translation>
@@ -20503,9 +20466,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Access</source>
         <translation>Dostęp</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
     <message>
         <source>C++ Classes</source>
         <translation>Klasy C++</translation>
@@ -24083,9 +24043,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Clear Added &quot;override&quot; Equivalents</source>
         <translation>Usuń dodany odpowiednik &quot;override&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation>Parsowanie plików C / C++</translation>
@@ -25388,13 +25345,6 @@ Zdalny: %4</translation>
         <source>Additional C++ Preprocessor Directives for %1:</source>
         <translation>Dodatkowe dyrektywy preprocesora C++ dla %1:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When pre-compiled headers are not ignored, the parsing for code completion and semantic highlighting will process the pre-compiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Gdy nagłówki prekompilowane nie są ignorowane, parsowanie ich nastąpi przed wszystkimi innymi plikami podczas uzupełniania kodu i podświetlania semantyki.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -25422,10 +25372,6 @@ Zdalny: %4</translation>
     <message>
         <source>MB</source>
         <translation>MB</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Ogólne</translation>
     </message>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
@@ -32339,14 +32285,11 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Posortuj alfabetycznie</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppIncludesFilter</name>
     <message>
         <source>All Included C/C++ Files</source>
         <translation>Wszystkie dołączone pliki C/C++</translation>
@@ -34193,7 +34136,7 @@ itself takes time.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::AbstractEditorSupport</name>
+    <name>::CppEditor</name>
     <message>
         <source>The file name.</source>
         <translation>Nazwa pliku.</translation>
@@ -34870,11 +34813,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>::CppEditor</name>
     <message>
         <source>Configuration to use:</source>
         <translation>Użyta konfiguracja:</translation>

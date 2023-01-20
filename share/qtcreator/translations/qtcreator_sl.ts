@@ -1647,7 +1647,7 @@ Ali jih želite nadomestiti?</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
+    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>Razčlenjevanje</translation>
@@ -1660,9 +1660,6 @@ Ali jih želite nadomestiti?</translation>
         <source>Scanning</source>
         <translation type="obsolete">Pregledovanje</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
         <translation>Slog kode</translation>
@@ -1675,34 +1672,18 @@ Ali jih želite nadomestiti?</translation>
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Dokončevanje</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Razredi</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods and functions</source>
         <translation>Metode in funkcije</translation>
     </message>
-    <message>
-        <source>Methods</source>
-        <translation type="obsolete">Metode</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -11578,7 +11559,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>Methods in Current Document</source>
         <translation>Metode v trenutnem dokumentu</translation>
@@ -11587,9 +11568,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Methods in current Document</source>
         <translation type="obsolete">Metode v trenutnem dokumentu</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -11625,16 +11603,10 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Cannot write to %1: %2</source>
         <translation type="obsolete">Ni moč pisati v %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching</source>
         <translation>Iskanje</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Razredi in metode</translation>
@@ -14844,13 +14816,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
 <context>
     <name>::CppEditor</name>
     <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
-    <message>
         <source>Rewrite Using %1</source>
         <translation>Preoblikuj z uporabo »%1«</translation>
     </message>
@@ -17945,7 +17910,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -21988,42 +21953,22 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Type Hierarchy</source>
         <translation>Hierarhija tipov</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStylePreferencesWidget</name>
     <message>
         <source>Code style settings:</source>
         <translation>Nastavitve sloga kode:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global C++</source>
         <comment>Settings</comment>
         <translation>Globalne za C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>Simboli C++</translation>
     </message>
     <message>
-        <source>Searching</source>
-        <translation>Iskanje</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
-    <message>
         <source>Types:</source>
         <translation>Tipi:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Razredi</translation>
     </message>
     <message>
         <source>Methods</source>
@@ -28510,9 +28455,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Yes, I know what I am doing.</source>
         <translation type="obsolete">Da, vem kaj počnem.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 od %2</translation>

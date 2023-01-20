@@ -8378,9 +8378,6 @@ til versionsstyring (%2)
         <source>%1: Could not get file contents</source>
         <translation>%1: kunne ikke få filindhold</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
         <translation>Kodestil</translation>
@@ -8425,9 +8422,6 @@ til versionsstyring (%2)
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::AbstractEditorSupport</name>
     <message>
         <source>The file name.</source>
         <translation>Filnavnet.</translation>
@@ -8436,9 +8430,6 @@ til versionsstyring (%2)
         <source>The class name.</source>
         <translation>Klassenavnet.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsWidget</name>
     <message>
         <source>Copy...</source>
         <translation>Kopiér...</translation>
@@ -8507,16 +8498,10 @@ til versionsstyring (%2)
         <source>InfoText</source>
         <translation>InfoTekst</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Sortér alfabetisk</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::CppToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -8534,16 +8519,10 @@ til versionsstyring (%2)
         <source>Old Creator</source>
         <translation>Gamle Creator</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::BuiltinIndexingSupport</name>
     <message>
         <source>Parsing C/C++ Files</source>
         <translation>Parser C/C++-filer</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -8579,13 +8558,6 @@ til versionsstyring (%2)
     <message>
         <source>Clang Code Model</source>
         <translation>Clang-kodemodel</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
-    <message>
-        <source>General</source>
-        <translation>Generelt</translation>
     </message>
     <message>
         <source>Content</source>
@@ -8815,9 +8787,6 @@ hvis de ville være justeret med den næste linje</translation>
         <source>Prefer getter names without &quot;get&quot;</source>
         <translation>Foretræk henternavne uden &quot;get&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
         <source>Headers</source>
         <translation>Headere</translation>
@@ -8898,9 +8867,6 @@ Disse præfikser bruges sammen med det aktuelle filnavn på Skift header/kilde.<
         <source>License &amp;template:</source>
         <translation>Licens&amp;skabelon:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** %1 license header template
@@ -8925,9 +8891,6 @@ Disse præfikser bruges sammen med det aktuelle filnavn på Skift header/kilde.<
         <source>Choose Location for New License Template File</source>
         <translation>Vælg placering til ny licensskabelon-fil</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++-anvendelser:</translation>
@@ -8953,9 +8916,6 @@ Disse præfikser bruges sammen med det aktuelle filnavn på Skift header/kilde.<
         <source>C++ Macro Usages:</source>
         <translation>C++-makro anvendelser:</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -8984,9 +8944,6 @@ Disse præfikser bruges sammen med det aktuelle filnavn på Skift header/kilde.<
         <source>The configured path to the license template</source>
         <translation>Den konfigureret sti til licensskabelonen</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Søger efter symbol</translation>
@@ -9031,28 +8988,9 @@ Flag: %3</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>Typer:</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>Klasser</translation>
-    </message>
-    <message>
-        <source>Functions</source>
-        <translation>Funktioner</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>Enums</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>Erklæringer</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -9062,9 +9000,6 @@ Flag: %3</translation>
         <source>All files</source>
         <translation>Alle filer</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::QuickFix</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>Genskriv med %1</translation>
@@ -39923,14 +39858,11 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>CppTools::ClangBaseChecks</name>
+    <name>::CppEditor</name>
     <message>
         <source>For appropriate options, consult the GCC or Clang manual pages or the &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online documentation&lt;/a&gt;.</source>
         <translation>For passende valgmuligheder, konsulter GCC- eller Clang-manualsiderne eller &lt;a href=&quot;https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html&quot;&gt;GCC online dokumentationen&lt;/a&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClazyChecks</name>
     <message>
         <source>Each level adds checks to the previous level. For more information, see &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;clazy&apos;s homepage&lt;/a&gt;.</source>
         <translation>Hvert niveau tilføjer tjek til forrige niveau. Se &lt;a href=&quot;https://github.com/KDE/clazy&quot;&gt;clazy&apos;s hjemmeside&lt;/a&gt; for mere information.</translation>
@@ -39959,9 +39891,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Level 3: Experimental checks</source>
         <translation>Niveau 3: Eksperimentelle tjek</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::TidyChecks</name>
     <message>
         <source>Disable</source>
         <translation>Deaktivér</translation>
@@ -39973,10 +39902,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Use .clang-tidy config file</source>
         <translation>Brug .clang-tidy-konfigurationsfil</translation>
-    </message>
-    <message>
-        <source>Edit Checks as String...</source>
-        <translation>Rediger tjek som streng...</translation>
     </message>
 </context>
 <context>
@@ -40483,9 +40408,6 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
         <source>Generate Missing Q_PROPERTY Members</source>
         <translation>Generer manglende Q_PROPERTY-medlemmer</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::ClangDiagnosticConfigsSelectionWidget</name>
     <message>
         <source>Diagnostic Configuration:</source>
         <translation>Diagnostik-konfiguration:</translation>
@@ -40495,19 +40417,9 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
         <translation>Håndter...</translation>
     </message>
     <message>
-        <source>Diagnostic Configurations</source>
-        <translation>Diagnostik-konfigurationer</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::TidyChecksTreeModel</name>
-    <message>
         <source>Web Page</source>
         <translation>Webside</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;vælg symbol&gt;</translation>

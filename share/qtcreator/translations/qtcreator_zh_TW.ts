@@ -1712,14 +1712,11 @@
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppModelManager</name>
+    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>剖析中</translation>
     </message>
-</context>
-<context>
-    <name>CppTools</name>
     <message>
         <source>Code Style</source>
         <translation>源碼樣式</translation>
@@ -1732,9 +1729,6 @@
         <source>C++</source>
         <translation>C++</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>補完</translation>
@@ -1831,23 +1825,14 @@
         <source>Add leading asterisks</source>
         <translation>新增開頭的星號</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods and Functions</source>
         <translation>方法與函式</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>類別與方法</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>C++(&amp;C)</translation>
@@ -10206,14 +10191,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
+    <name>::CppEditor</name>
     <message>
         <source>Methods in Current Document</source>
         <translation>目前文件中的方法</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -10238,9 +10220,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Choose Location for New License Template File</source>
         <translation>為新的版權許可樣本檔案選擇一個位置</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>C++ Usages:</source>
         <translation>C++ 用法：</translation>
@@ -12399,10 +12378,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
 </context>
 <context>
     <name>::CppEditor</name>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
 </context>
 <context>
     <name>::VcsBase</name>
@@ -14158,7 +14133,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CppTools::QuickFix</name>
+    <name>::CppEditor</name>
     <message>
         <source>Rewrite Using %1</source>
         <translation>使用 %1 重寫</translation>
@@ -15369,16 +15344,9 @@ Server list was %2.</source>
         <source>Type Hierarchy</source>
         <translation>型態階層</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilter</name>
     <message>
         <source>C++ Symbols</source>
         <translation>C++ 符號</translation>
-    </message>
-    <message>
-        <source>Searching</source>
-        <translation>搜尋中</translation>
     </message>
     <message>
         <source>C++ Symbols:</source>
@@ -15420,28 +15388,9 @@ Flags: %3</source>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::SymbolsFindFilterConfigWidget</name>
     <message>
         <source>Types:</source>
         <translation>型態：</translation>
-    </message>
-    <message>
-        <source>Classes</source>
-        <translation>類別</translation>
-    </message>
-    <message>
-        <source>Methods</source>
-        <translation>方法</translation>
-    </message>
-    <message>
-        <source>Enums</source>
-        <translation>列舉</translation>
-    </message>
-    <message>
-        <source>Declarations</source>
-        <translation>宣告</translation>
     </message>
     <message>
         <source>Projects only</source>
@@ -20617,7 +20566,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -21275,7 +21224,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CppTools::CppToolsSettings</name>
+    <name>::CppEditor</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -25265,7 +25214,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppTools::Internal::CppFileSettingsPage</name>
+    <name>::CppEditor</name>
     <message>
         <source>Header suffix:</source>
         <translation>標頭檔後置字串：</translation>
@@ -27121,13 +27070,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Invalid function name</source>
         <translation>無效的函式名稱</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::CppClassesFilter</name>
-    <message>
-        <source>Classes</source>
-        <translation>類別</translation>
     </message>
 </context>
 <context>

@@ -3225,18 +3225,11 @@ p {
     </message>
 </context>
 <context>
-    <name>CppTools</name>
+    <name>::CppEditor</name>
     <message>
         <source>File Naming Conventions</source>
         <translation>Fájl elnevezési hagyományok</translation>
     </message>
-    <message>
-        <source>C++</source>
-        <translation>C++</translation>
-    </message>
-</context>
-<context>
-    <name>CppTools::Internal::0</name>
     <message>
         <source>Completion</source>
         <translation type="obsolete">Kiegészítés</translation>
@@ -3273,9 +3266,6 @@ p {
         <source>%1 of %2</source>
         <translation type="obsolete">%1 %2-től</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CompletionSettingsPage</name>
     <message>
         <source>Completion</source>
         <translation>Kiegészítés</translation>
@@ -3284,23 +3274,14 @@ p {
         <source>Text Editor</source>
         <translation>Szöveg szerkesztő</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppClassesFilter</name>
     <message>
         <source>Classes</source>
         <translation>Osztályok</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
         <source>Methods in current Document</source>
         <translation>Eljárások az aktuális dokumentumban</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFileSettingsWidget</name>
     <message>
         <source>/**************************************************************************
 ** Qt Creator license header template
@@ -3333,30 +3314,18 @@ p {
         <source>Cannot write to %1: %2</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFindReferences</name>
     <message>
         <source>Searching...</source>
         <translation>Keresés...</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
         <source>Methods</source>
         <translation>Eljárások</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
         <source>Classes and Methods</source>
         <translation>Osztályok és eljárások</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppModelManager</name>
     <message>
         <source>Scanning</source>
         <translation>Szkennelés</translation>
@@ -3365,9 +3334,6 @@ p {
         <source>Indexing</source>
         <translation>Indexelés</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::CppToolsPlugin</name>
     <message>
         <source>&amp;C++</source>
         <translation>&amp;C++</translation>
@@ -3376,9 +3342,6 @@ p {
         <source>Switch Header/Source</source>
         <translation>Fejállomány/Forrás közti váltás</translation>
     </message>
-</context>
-<context>
-    <name>CppTools::Internal::FunctionArgumentWidget</name>
     <message>
         <source>%1 of %2</source>
         <translation>%1 %2-től</translation>
