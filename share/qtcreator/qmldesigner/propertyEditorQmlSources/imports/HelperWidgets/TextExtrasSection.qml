@@ -32,6 +32,7 @@ Section {
         PropertyLabel {
             visible: root.showWrapMode
             text: qsTr("Wrap mode")
+            tooltip: qsTr("Sets how overflowing text is handled.")
             blockedByTemplate: !root.isBackendValueAvailable("wrapMode")
         }
 
@@ -54,6 +55,7 @@ Section {
         PropertyLabel {
             visible: root.showElide
             text: qsTr("Elide")
+            tooltip: qsTr("Sets how to indicate that more text is available.")
             blockedByTemplate: !root.isBackendValueAvailable("elide")
         }
 
@@ -76,6 +78,7 @@ Section {
         PropertyLabel {
             visible: root.showFormatProperty
             text: qsTr("Format")
+            tooltip: qsTr("Sets the formatting method of the text.")
             blockedByTemplate: !root.isBackendValueAvailable("textFormat")
         }
 
@@ -97,7 +100,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Render type")
-            tooltip: qsTr("Overrides the default rendering type for this component.")
+            tooltip: qsTr("Sets the rendering type for this component.")
             blockedByTemplate: !root.isBackendValueAvailable("renderType")
         }
 
@@ -117,7 +120,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Render type quality")
-            tooltip: qsTr("Overrides the default rendering type quality for this component.")
+            tooltip: qsTr("Sets the quality of the render. This only has an effect when <b>Render type</b> is set to QtRendering.")
             blockedByTemplate: !root.isBackendValueAvailable("renderTypeQuality")
             enabled: root.isBackendValueAvailable("renderTypeQuality")
                      && (backendValues.renderType.value === "QtRendering"
@@ -144,7 +147,7 @@ Section {
         PropertyLabel {
             visible: root.showLineHeight
             text: qsTr("Line height mode")
-            tooltip: qsTr("Determines how the line height is specified.")
+            tooltip: qsTr("Sets how to calculate the line height based on the <b>Line height</b> value.")
             blockedByTemplate: !root.isBackendValueAvailable("lineHeightMode")
         }
 
@@ -167,7 +170,7 @@ Section {
         PropertyLabel {
             visible: root.showFontSizeMode
             text: qsTr("Size mode")
-            tooltip: qsTr("Specifies how the font size of the displayed text is determined.")
+            tooltip: qsTr("Sets how the font size is determined.")
             blockedByTemplate: !root.isBackendValueAvailable("fontSizeMode")
         }
 
@@ -191,6 +194,7 @@ Section {
         PropertyLabel {
             visible: root.showFontSizeMode
             text: qsTr("Min size")
+            tooltip: qsTr("Sets the minimum font size to use. This has no effect when <b>Size</b> mode is set to Fixed.")
             blockedByTemplate: !root.isBackendValueAvailable("minimumPixelSize")
                                && !root.isBackendValueAvailable("minimumPointSize")
         }
@@ -244,7 +248,7 @@ Section {
         PropertyLabel {
             visible: root.showElide
             text: qsTr("Max line count")
-            tooltip: qsTr("Limits the number of lines that the text component will show.")
+            tooltip: qsTr("Sets the max number of lines that the text component shows.")
             blockedByTemplate: !root.isBackendValueAvailable("maximumLineCount")
         }
 
