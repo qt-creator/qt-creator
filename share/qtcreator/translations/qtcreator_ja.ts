@@ -48466,7 +48466,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SerialTerminal::Internal::SerialControl</name>
+    <name>::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
         <translation>ポート %1 を開けませんでした: %2。</translation>
@@ -48475,9 +48475,6 @@ Row: %4, Column: %5
         <source>Session resumed.</source>
         <translation>セッションが再開されました。</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialOutputPane</name>
     <message>
         <source>Close Tab</source>
         <translation>タブを閉じる</translation>

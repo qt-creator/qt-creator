@@ -41571,7 +41571,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>SerialTerminal::Internal::SerialControl</name>
+    <name>::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
         <translation>Port %1 konnte nicht geöffnet werden: %2.</translation>
@@ -41600,9 +41600,6 @@ Was soll %1 tun?</translation>
         <source>Serial port error: %1 (%2)</source>
         <translation>Fehler des seriellen Ports: %1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialOutputPane</name>
     <message>
         <source>Close Tab</source>
         <translation>Reiter schließen</translation>
@@ -41639,9 +41636,6 @@ Was soll %1 tun?</translation>
         <source>Add New Terminal</source>
         <translation>Neues Terminal hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialTerminalOutputPane</name>
     <message>
         <source>Serial Terminal</source>
         <translation>Serielles Terminal</translation>

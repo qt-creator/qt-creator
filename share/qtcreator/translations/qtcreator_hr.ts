@@ -33263,7 +33263,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SerialTerminal::Internal::SerialControl</name>
+    <name>::SerialTerminal</name>
     <message>
         <source>Unable to open port %1: %2.</source>
         <translation>Neuspjelo otvaranje priključka %1: %2.</translation>
@@ -33292,9 +33292,6 @@ Row: %4, Column: %5
         <source>Serial port error: %1 (%2)</source>
         <translation>Greška u serijskom priključku: %1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialOutputPane</name>
     <message>
         <source>Close Tab</source>
         <translation>Zatvori karticu</translation>
@@ -33331,9 +33328,6 @@ Row: %4, Column: %5
         <source>Add New Terminal</source>
         <translation>Dodaj novi terminal</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialTerminalOutputPane</name>
     <message>
         <source>Serial Terminal</source>
         <translation>Serijski terminal</translation>

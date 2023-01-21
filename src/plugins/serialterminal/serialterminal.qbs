@@ -23,5 +23,6 @@ QtcPlugin {
         "serialterminalplugin.h",
         "serialterminalsettings.cpp",
         "serialterminalsettings.h",
+        "serialterminaltr.h",
     ]
 }

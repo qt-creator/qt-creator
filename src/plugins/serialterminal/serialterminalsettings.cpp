@@ -3,6 +3,7 @@
 
 #include "serialterminalsettings.h"
 #include "serialterminalconstants.h"
+#include "serialterminaltr.h"
 
 #include <QLoggingCategory>
 #include <QSettings>
@@ -22,10 +23,10 @@ void readSetting(const QSettings &settings, T &value, const QString &key) {
 Settings::Settings()
 {
     lineEndings = {
-        {QObject::tr("None"), ""},
-        {QObject::tr("LF"), "\n"},
-        {QObject::tr("CR"), "\r"},
-        {QObject::tr("CRLF"), "\r\n"}
+        {Tr::tr("None"), ""},
+        {Tr::tr("LF"), "\n"},
+        {Tr::tr("CR"), "\r"},
+        {Tr::tr("CRLF"), "\r\n"}
     };
     defaultLineEndingIndex = 1;
 }

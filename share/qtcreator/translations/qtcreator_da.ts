@@ -40762,7 +40762,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>SerialTerminal::Internal::SerialControl</name>
+    <name>::SerialTerminal</name>
     <message>
         <source>Unable to open port %1.</source>
         <translation>Kan ikke åbne porten %1.</translation>
@@ -40791,9 +40791,6 @@ Gemning mislykkedes.</translation>
         <source>Serial port error: %1 (%2)</source>
         <translation>Fejl ved seriel port: %1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialOutputPane</name>
     <message>
         <source>Close Tab</source>
         <translation>Luk faneblad</translation>
@@ -40830,9 +40827,6 @@ Gemning mislykkedes.</translation>
         <source>Add New Terminal</source>
         <translation>Tilføj ny terminal</translation>
     </message>
-</context>
-<context>
-    <name>SerialTerminal::Internal::SerialTerminalOutputPane</name>
     <message>
         <source>Serial Terminal</source>
         <translation>Seriel terminal</translation>
