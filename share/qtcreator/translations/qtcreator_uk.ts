@@ -1291,7 +1291,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -1300,9 +1300,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Show Subprojects</source>
         <translation>Показувати підпроекти</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>Перегляд класів</translation>

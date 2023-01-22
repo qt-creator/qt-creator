@@ -4,6 +4,7 @@
 #include "classviewnavigationwidgetfactory.h"
 
 #include "classviewnavigationwidget.h"
+#include "classviewtr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
@@ -26,7 +27,7 @@ namespace Internal {
 
 NavigationWidgetFactory::NavigationWidgetFactory()
 {
-    setDisplayName(tr("Class View"));
+    setDisplayName(Tr::tr("Class View"));
     setPriority(500);
     setId("Class View");
 }

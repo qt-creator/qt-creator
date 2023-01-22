@@ -25025,7 +25025,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -25487,7 +25487,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translatorcomment>Ou est-ce un rapport avec la Vue ? (graphics/view)</translatorcomment>

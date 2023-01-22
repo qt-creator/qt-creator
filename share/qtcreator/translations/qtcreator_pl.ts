@@ -12329,7 +12329,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Pokaż podprojekty</translation>
@@ -12552,7 +12552,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>Widok klas</translation>

@@ -14930,7 +14930,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -15225,7 +15225,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>類別檢視</translation>

@@ -17607,7 +17607,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -21638,7 +21638,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>Prikaz razredov</translation>

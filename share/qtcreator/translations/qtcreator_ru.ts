@@ -7130,14 +7130,11 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Показать подпроекты</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>Обзор классов</translation>

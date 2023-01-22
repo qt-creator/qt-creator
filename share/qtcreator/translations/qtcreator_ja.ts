@@ -1057,7 +1057,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>サブプロジェクトを表示します</translation>
@@ -12479,7 +12479,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>クラスビュー</translation>

@@ -5,6 +5,7 @@
 
 #include "classviewconstants.h"
 #include "classviewmanager.h"
+#include "classviewtr.h"
 #include "classviewutils.h"
 
 #include <coreplugin/find/itemviewfind.h>
@@ -121,7 +122,7 @@ QList<QToolButton *> NavigationWidget::createToolButtons()
         fullProjectsModeButton->setIcon(
                     ::Utils::CodeModelIcon::iconForType(::Utils::CodeModelIcon::Class));
         fullProjectsModeButton->setCheckable(true);
-        fullProjectsModeButton->setToolTip(tr("Show Subprojects"));
+        fullProjectsModeButton->setToolTip(Tr::tr("Show Subprojects"));
 
         // by default - not a flat mode
         setFlatMode(false);

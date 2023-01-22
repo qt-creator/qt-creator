@@ -16269,14 +16269,11 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Prikaži podprojekte</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>Prikaz klasa</translation>

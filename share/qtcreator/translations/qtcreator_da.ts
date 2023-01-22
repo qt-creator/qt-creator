@@ -4694,14 +4694,11 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>Vis underprojekter</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>Klassevisning</translation>

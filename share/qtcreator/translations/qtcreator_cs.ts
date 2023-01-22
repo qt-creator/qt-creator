@@ -26431,7 +26431,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -30207,7 +30207,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
+    <name>::ClassView</name>
     <message>
         <source>Class View</source>
         <translation>Pohled na třídu</translation>

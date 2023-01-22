@@ -7641,14 +7641,11 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClassView::Internal::NavigationWidget</name>
+    <name>::ClassView</name>
     <message>
         <source>Show Subprojects</source>
         <translation>显示子项目</translation>
     </message>
-</context>
-<context>
-    <name>ClassView::Internal::NavigationWidgetFactory</name>
     <message>
         <source>Class View</source>
         <translation>类视图</translation>
