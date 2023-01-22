@@ -18518,9 +18518,6 @@ will also disable the following plugins:
             <numerusform>не сохранено %n файлов</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Использовать FakeVim</translation>

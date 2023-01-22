@@ -5665,7 +5665,7 @@ Raison : %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Activer/désactiver l&apos;édition en mode vim</translation>
@@ -5686,9 +5686,6 @@ Raison : %3</translation>
         <source>Path to .vimrc</source>
         <translation>Chemin vers .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation type="obsolete">Pas implémenté dans FakeVim</translation>
@@ -5894,9 +5891,6 @@ Raison : %3</translation>
         <source>Argument must be positive: %1=%2</source>
         <translation>L&apos;argument doit être positif : %1 = %2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
@@ -5912,10 +5906,6 @@ Raison : %3</translation>
     <message>
         <source>Use FakeVim</source>
         <translation>Utiliser FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">prendre en compte .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -6037,9 +6027,6 @@ Raison : %3</translation>
         <source>Browse...</source>
         <translation>Parcourir...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Switch to next file</source>
         <translation type="obsolete">Passer au fichier suivant</translation>
@@ -6088,19 +6075,8 @@ Raison : %3</translation>
         </translation>
     </message>
     <message>
-        <source>Not an editor command: %1</source>
-        <translation type="obsolete">Pas une commande de l&apos;éditeur : %1</translation>
-    </message>
-    <message>
         <source>FakeVim Information</source>
         <translation>Information sur FakeVim</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
-    <message>
-        <source>Use FakeVim</source>
-        <translation type="obsolete">Utiliser FakeVim</translation>
     </message>
     <message>
         <source>Vim style settings</source>
@@ -6119,10 +6095,6 @@ Raison : %3</translation>
         <translation type="obsolete">Surligner les résultats de recherche :</translation>
     </message>
     <message>
-        <source>Shift width:</source>
-        <translation type="obsolete">Largeur d&apos;indentation :</translation>
-    </message>
-    <message>
         <source>Smart tabulators:</source>
         <translation type="obsolete">Tabulation intelligente :</translation>
     </message>
@@ -6133,14 +6105,6 @@ Raison : %3</translation>
     <message>
         <source>vim&apos;s &quot;tabstop&quot; option</source>
         <translation type="obsolete">option &quot;tabstop&quot; de vim</translation>
-    </message>
-    <message>
-        <source>Tabulator size:</source>
-        <translation type="obsolete">Taille des tabulations :</translation>
-    </message>
-    <message>
-        <source>Backspace:</source>
-        <translation type="obsolete">Touche retour :</translation>
     </message>
     <message>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
@@ -6167,83 +6131,8 @@ Raison : %3</translation>
         <translation type="obsolete">Définir le style plein</translation>
     </message>
     <message>
-        <source>Read .vimrc</source>
-        <translatorcomment>J&apos;aurais proposer &quot;lire les .vimrc&quot; non ?
-pierre: ouaip, je trouvais ça plus clair avec &quot;prendre en compte&quot; puisque pour le coup c&apos;est des préférences
-Francis : en effet, je n&apos;avais pas pris en compte le contexte.</translatorcomment>
-        <translation type="obsolete">prendre en compte .vimrc</translation>
-    </message>
-    <message>
-        <source>Vim Behavior</source>
-        <translation type="obsolete">Comportement Vim</translation>
-    </message>
-    <message>
-        <source>Automatic indentation</source>
-        <translation type="obsolete">Indentation automatique</translation>
-    </message>
-    <message>
-        <source>Start of line</source>
-        <translation type="obsolete">Début de ligne</translation>
-    </message>
-    <message>
-        <source>Smart indentation</source>
-        <translation type="obsolete">Indentation intelligente</translation>
-    </message>
-    <message>
-        <source>Use search dialog</source>
-        <translation type="obsolete">Utiliser la fenêtre de recherche</translation>
-    </message>
-    <message>
-        <source>Expand tabulators</source>
-        <translation type="obsolete">Étendre les tabulations</translation>
-    </message>
-    <message>
-        <source>Show position of text marks</source>
-        <translation type="obsolete">Afficher la position des marques textuelles</translation>
-    </message>
-    <message>
-        <source>Smart tabulators</source>
-        <translation type="obsolete">Tabulation intelligente</translation>
-    </message>
-    <message>
-        <source>Highlight search results</source>
-        <translation type="obsolete">Surligner les résultats de recherche</translation>
-    </message>
-    <message>
-        <source>Incremental search</source>
-        <translation type="obsolete">Recherche incrémentale</translation>
-    </message>
-    <message>
-        <source>Keyword characters:</source>
-        <translation type="obsolete">Caractères mot-clés :</translation>
-    </message>
-    <message>
-        <source>Copy Text Editor Settings</source>
-        <translation type="obsolete">Copier les paramètres de l&apos;éditeur de texte</translation>
-    </message>
-    <message>
-        <source>Set Qt Style</source>
-        <translation type="obsolete">Utiliser le style Qt</translation>
-    </message>
-    <message>
-        <source>Set Plain Style</source>
-        <translation type="obsolete">Utiliser le style simple</translation>
-    </message>
-    <message>
         <source>Checking this box passes key sequences like Ctrl-S to the Creator core instead of interpreting them in FakeVim. This gives easier access to Creator core functionality at the price of losing some features of FakeVim.</source>
         <translation type="obsolete">Cocher cette case passe des séquences comme Ctrl+S au coeur de Creator au lieu de les interpréter dans FakeVim. Ceci donne un accès plus facile aux fonctionnalités du coeur de Creator, au prix de la perte de quelques fonctionnalités de FakeVim. </translation>
-    </message>
-    <message>
-        <source>Pass control key</source>
-        <translation type="obsolete">Passer la clé de contrôle</translation>
-    </message>
-    <message>
-        <source>Vim tabstop option</source>
-        <translation type="obsolete">Option tabstop de Vim</translation>
-    </message>
-    <message>
-        <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
-        <translation type="obsolete">Passer les séquences de touches comme Ctrl-S à Qt Creator au lieu de les interpréter dans FakeVim. Ceci donne un accès plus facile aux fonctionnalités de base de Qt Creator au prix de la perte de certaines fonctionnalités de FakeVim. </translation>
     </message>
 </context>
 <context>
@@ -21786,7 +21675,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>::FakeVim</name>
     <message>
         <source>Recursive mapping</source>
         <translation>Construction de correspondance récursif</translation>
@@ -21803,16 +21692,9 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Not an editor command: %1</source>
         <translation>Pas une commande de l&apos;éditeur : %1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Mappage des commandes Ex</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -34278,7 +34160,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Action</translation>
@@ -34291,16 +34173,9 @@ Would you like to overwrite them?</source>
         <source>User command #%1</source>
         <translation>Commande utilisateur #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>Correspondance des commandes utilisateur</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
 </context>
 <context>

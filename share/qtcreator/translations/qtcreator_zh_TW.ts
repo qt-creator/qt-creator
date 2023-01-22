@@ -4206,7 +4206,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>使用 Vim 風格編輯</translation>
@@ -4215,9 +4215,6 @@ Reason: %3</source>
         <source>Read .vimrc</source>
         <translation>讀取 .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation>在 FakeVim 中尚未實作</translation>
@@ -4306,9 +4303,6 @@ Reason: %3</source>
         <source>Argument must be positive: %1=%2</source>
         <translation>參數必須為正值：%1=%2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -4320,10 +4314,6 @@ Reason: %3</source>
     <message>
         <source>Use FakeVim</source>
         <translation>使用 FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation>讀取 .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -4409,9 +4399,6 @@ Reason: %3</source>
         <source>Use smartcase</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Meta+V,Meta+V</source>
         <translation type="unfinished"></translation>
@@ -12533,14 +12520,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
+    <name>::FakeVim</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Ex 指令映射</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -14780,7 +14763,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>::FakeVim</name>
     <message>
         <source> [New] </source>
         <translation> [新增] </translation>
@@ -21240,7 +21223,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>動作</translation>
@@ -21253,16 +21236,9 @@ Would you like to overwrite them?</source>
         <source>User command #%1</source>
         <translation>使用者指令 #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>使用者指令映射</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
 </context>
 <context>

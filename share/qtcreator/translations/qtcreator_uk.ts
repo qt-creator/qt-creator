@@ -7643,162 +7643,10 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
-    <message>
-        <source>Use Vim-style Editing</source>
-        <translation type="vanished">Використовувати редагування в стилі Vim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="vanished">Читати .vimrc</translation>
-    </message>
-    <message>
-        <source>Path to .vimrc</source>
-        <translation type="vanished">Шлях до .vimrc</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
-    <message>
-        <source>Ex Command Mapping</source>
-        <translation type="vanished">Розширене відображення команд</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation type="vanished">FakeVim</translation>
-    </message>
-    <message>
-        <source>Regular expression:</source>
-        <translation type="vanished">Регулярний вираз:</translation>
-    </message>
-    <message>
-        <source>Ex Command</source>
-        <translation type="vanished">Розширена команда</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
-    <message>
-        <source>%1%2%</source>
-        <translation type="vanished">%1%2%</translation>
-    </message>
-    <message>
-        <source>%1All</source>
-        <translation type="vanished">%1Все</translation>
-    </message>
-    <message>
-        <source>Not implemented in FakeVim.</source>
-        <translation type="vanished">Не реалізовано в FakeVim.</translation>
-    </message>
+    <name>::FakeVim</name>
     <message>
         <source>Unknown option: </source>
         <translation type="vanished">Невідома опція:</translation>
-    </message>
-    <message>
-        <source>Unknown option:</source>
-        <translation type="vanished">Невідома опція:</translation>
-    </message>
-    <message>
-        <source>Invalid argument:</source>
-        <translation type="vanished">Неправильний аргумент:</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n lines moved.</source>
-        <translation type="vanished">
-            <numerusform>%n рядок пересунуто.</numerusform>
-            <numerusform>%n рядки пересунуто.</numerusform>
-            <numerusform>%n рядків пересунуто.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>File &quot;%1&quot; exists (add ! to override)</source>
-        <translation type="vanished">Файл &quot;%1&quot; існує (додайте ! для перезапису)</translation>
-    </message>
-    <message>
-        <source>Cannot open file &quot;%1&quot; for writing</source>
-        <translation type="vanished">Неможливо відкрити файл %1 для запису</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; %2 %3L, %4C written.</source>
-        <translation type="vanished">&quot;%1&quot; %2 %3L, %4C записано.</translation>
-    </message>
-    <message>
-        <source>Search hit BOTTOM, continuing at TOP.</source>
-        <translation type="vanished">Пошук дійшов до НИЗУ, продовжуємо ЗГОРИ.</translation>
-    </message>
-    <message>
-        <source>Search hit TOP, continuing at BOTTOM.</source>
-        <translation type="vanished">Пошук дійшов до ГОРИ, продовжуємо ЗНИЗУ.</translation>
-    </message>
-    <message>
-        <source>Search hit BOTTOM without match for: %1</source>
-        <translation type="vanished">Пошук дійшов до НИЗУ, не знайдено збігів для: %1</translation>
-    </message>
-    <message>
-        <source>Search hit TOP without match for: %1</source>
-        <translation type="vanished">Пошук дійшов до ГОРИ, не знайдено збігів для: %1</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; %2 %3L, %4C written</source>
-        <translation type="vanished">&quot;%1&quot; %2 %3L, %4C записано</translation>
-    </message>
-    <message>
-        <source>Cannot open file &quot;%1&quot; for reading</source>
-        <translation type="vanished">Неможливо відкрити файл %1 для читання</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; %2L, %3C</source>
-        <translation type="vanished">&quot;%1&quot; %2L, %3C</translation>
-    </message>
-    <message>
-        <source>Cannot open file %1</source>
-        <translation type="vanished">Неможливо відкрити %1! {1?}</translation>
-    </message>
-    <message>
-        <source>Pattern not found: %1</source>
-        <translation type="vanished">Зразок не знайдено: %1</translation>
-    </message>
-    <message>
-        <source>Invalid regular expression: %1</source>
-        <translation type="vanished">Неправильний регулярний вираз: %1</translation>
-    </message>
-    <message>
-        <source>Unknown option: %1</source>
-        <translation type="vanished">Невідома опція %1</translation>
-    </message>
-    <message>
-        <source>Argument must be positive: %1=%2</source>
-        <translation type="vanished">Аргумент повинен бути додатнім: %1=%2</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
-    <message>
-        <source>Type Alt-V, Alt-V to quit FakeVim mode.</source>
-        <translation type="vanished">Натисніть Alt-V, Alt-V, щоб вийти з режиму FakeVim.</translation>
-    </message>
-    <message>
-        <source> [New] </source>
-        <translation type="vanished"> [Новий] </translation>
-    </message>
-    <message>
-        <source>Not an editor command: %1</source>
-        <translation type="vanished">Не команда редактора: %1</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
-    <message>
-        <source>General</source>
-        <translation type="vanished">Загальне</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation type="vanished">FakeVim</translation>
-    </message>
-    <message>
-        <source>Default: %1</source>
-        <translation type="vanished">Типово: %1</translation>
     </message>
     <message>
         <source>Use FakeVim</source>
@@ -7905,10 +7753,6 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Keep empty to use the default path, i.e. %USERPROFILE%\_vimrc on Windows, ~/.vimrc otherwise.</source>
-        <translation type="vanished">Залишіть порожнім, щоб використати типовий шлях (напр.,  %USERPROFILE%\_vimrc під Windows та ~/.vimrc на інших системах).</translation>
-    </message>
-    <message>
         <source>Browse...</source>
         <translation type="vanished">Огляд...</translation>
     </message>
@@ -7936,70 +7780,17 @@ will also disable the following plugins:
         <source>Vim tabstop option.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Meta+V,Meta+V</source>
         <translation type="vanished">Meta+V,Meta+V</translation>
-    </message>
-    <message>
-        <source>Alt+V,Alt+V</source>
-        <translation type="vanished">Alt+V,Alt+V</translation>
     </message>
     <message>
         <source>Meta+V,%1</source>
         <translation type="vanished">Meta+V,%1</translation>
     </message>
     <message>
-        <source>Alt+V,%1</source>
-        <translation type="vanished">Alt+V,%1</translation>
-    </message>
-    <message>
-        <source>File not saved</source>
-        <translation type="vanished">Файл не збережено</translation>
-    </message>
-    <message>
-        <source>Saving succeeded</source>
-        <translation type="vanished">Успішне збереження</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n files not saved</source>
-        <translation type="vanished">
-            <numerusform>%n файл не збережено</numerusform>
-            <numerusform>%n файли не збережено</numerusform>
-            <numerusform>%n файлів не збережено</numerusform>
-        </translation>
-    </message>
-    <message>
         <source>FakeVim Information</source>
         <translation type="vanished">Інформація про FakeVim</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
-    <message>
-        <source>Action</source>
-        <translation type="vanished">Дія</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="vanished">Команда</translation>
-    </message>
-    <message>
-        <source>User command #%1</source>
-        <translation type="vanished">Команда користувача #%1</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
-    <message>
-        <source>User Command Mapping</source>
-        <translation type="vanished">Відображення команд користувача</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation type="vanished">FakeVim</translation>
     </message>
 </context>
 <context>
@@ -39643,10 +39434,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Команда користувача #%1</translation>
     </message>
     <message>
-        <source>Meta+V,Meta+V</source>
-        <translation type="vanished">Meta+V,Meta+V</translation>
-    </message>
-    <message>
         <source>Alt+V,Alt+V</source>
         <translation>Alt+V,Alt+V</translation>
     </message>
@@ -39657,10 +39444,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Execute User Action #%1</source>
         <translation>Виконати дію користувача #%1</translation>
-    </message>
-    <message>
-        <source>Meta+V,%1</source>
-        <translation type="vanished">Meta+V,%1</translation>
     </message>
     <message>
         <source>Alt+V,%1</source>

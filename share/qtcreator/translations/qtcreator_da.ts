@@ -14871,9 +14871,6 @@ vil også deaktiverer følgende plugins:
             <numerusform>%n filer ikke gemt</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Brug FakeVim</translation>

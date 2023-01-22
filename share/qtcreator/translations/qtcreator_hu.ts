@@ -5980,7 +5980,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::0</name>
+    <name>::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Vim stílusú szerkesztés kapcsolgatása</translation>
@@ -5989,9 +5989,6 @@ Ok: %3</translation>
         <source>FakeVim properties...</source>
         <translation type="obsolete">Vim utánzat beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation>Vim stílusú szerkesztés kapcsolgatása</translation>
@@ -6000,9 +5997,6 @@ Ok: %3</translation>
         <source>FakeVim properties...</source>
         <translation>Vim utánzat beállítások...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::0</name>
     <message>
         <source>%1,%2</source>
         <translation type="obsolete">%1,%2</translation>
@@ -6091,9 +6085,6 @@ Ok: %3</translation>
         <source>FakeVim Information</source>
         <translation type="obsolete">Vim utánzat információ</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>E20: Mark &apos;%1&apos; not set</source>
         <translation>E20: %1&apos;-es megjelölés nincsen beállítva</translation>
@@ -6164,9 +6155,6 @@ Ok: %3</translation>
         <source>Already at newest change</source>
         <translation>Ez már a legújabb változat</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Általános</translation>
@@ -6175,9 +6163,6 @@ Ok: %3</translation>
         <source>FakeVim</source>
         <translation>Vim utánzat</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Quit FakeVim</source>
         <translation>Kilépés a Vim utánzatból</translation>
@@ -6199,9 +6184,6 @@ Ok: %3</translation>
         <source>FakeVim Information</source>
         <translation>Vim utánzat információ</translation>
     </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Vim utánzat használata</translation>

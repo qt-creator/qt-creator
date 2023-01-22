@@ -3463,7 +3463,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Koristi FakeVim</translation>

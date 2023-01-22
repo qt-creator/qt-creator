@@ -5198,7 +5198,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Używaj FakeVim</translation>

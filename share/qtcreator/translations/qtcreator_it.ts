@@ -4375,7 +4375,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation>Commuta l&apos;editor vim-style</translation>
@@ -4384,9 +4384,6 @@ Causa: %3</translation>
         <source>FakeVim properties...</source>
         <translation>Proprietà di FakeVim...</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>%1,%2</source>
         <translation type="obsolete">%1,%2</translation>
@@ -4477,9 +4474,6 @@ Causa: %3</translation>
         <source>Already at newest change</source>
         <translation>Già alla modifica più recente</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Generale</translation>
@@ -4488,9 +4482,6 @@ Causa: %3</translation>
         <source>FakeVim</source>
         <translation>FakeVim</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Quit FakeVim</source>
         <translation>Esci da FakeVim</translation>
@@ -4514,9 +4505,6 @@ Causa: %3</translation>
         <source>FakeVim Information</source>
         <translation>Informazioni su FakeVim</translation>
     </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Usa FakeVim</translation>

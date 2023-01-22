@@ -4894,7 +4894,7 @@ Důvod: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>::FakeVim</name>
     <message>
         <source>Toggle vim-style editing</source>
         <translation type="obsolete">Přepnout úpravy do režimu vim</translation>
@@ -4915,9 +4915,6 @@ Důvod: %3</translation>
         <source>Path to .vimrc</source>
         <translation>Cesta k .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation type="obsolete">Neprovedeno v FakeVim</translation>
@@ -5140,9 +5137,6 @@ Důvod: %3</translation>
         <source>Argument must be positive: %1=%2</source>
         <translation>Argument musí být kladný: %1=%2</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Obecné</translation>
@@ -5158,10 +5152,6 @@ Důvod: %3</translation>
     <message>
         <source>Use FakeVim</source>
         <translation>Používat FakeVim</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">Číst .vimrc</translation>
     </message>
     <message>
         <source>Vim Behavior</source>
@@ -5218,10 +5208,6 @@ Důvod: %3</translation>
     <message>
         <source>Vim tabstop option</source>
         <translation>Nastavení tabulátorů Vim</translation>
-    </message>
-    <message>
-        <source>Tabulator size:</source>
-        <translation>Šířka tabulátoru:</translation>
     </message>
     <message>
         <source>Backspace:</source>
@@ -5304,9 +5290,6 @@ Důvod: %3</translation>
         <source>Vim tabstop option.</source>
         <translation>Nastavení tabulátorů Vim.</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>Switch to next file</source>
         <translation type="obsolete">Přejít k dalšímu souboru</translation>
@@ -5356,19 +5339,8 @@ Důvod: %3</translation>
         </translation>
     </message>
     <message>
-        <source>Not an editor command: %1</source>
-        <translation type="obsolete">Není příkazem editoru: %1</translation>
-    </message>
-    <message>
         <source>FakeVim Information</source>
         <translation>Informace k FakeVim</translation>
-    </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
-    <message>
-        <source>Use FakeVim</source>
-        <translation type="obsolete">Používat FakeVim</translation>
     </message>
     <message>
         <source>Vim style settings</source>
@@ -5387,10 +5359,6 @@ Důvod: %3</translation>
         <translation type="obsolete">Zvýraznit výsledky hledání:</translation>
     </message>
     <message>
-        <source>Shift width:</source>
-        <translation type="obsolete">Odsazení:</translation>
-    </message>
-    <message>
         <source>Smart tabulators:</source>
         <translation type="obsolete">Režim chytrých zarážek:</translation>
     </message>
@@ -5404,11 +5372,7 @@ Důvod: %3</translation>
     </message>
     <message>
         <source>Tabulator size:</source>
-        <translation type="obsolete">Šířka zarážky:</translation>
-    </message>
-    <message>
-        <source>Backspace:</source>
-        <translation type="obsolete">Zpětná klávesa:</translation>
+        <translation>Šířka zarážky:</translation>
     </message>
     <message>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
@@ -5433,78 +5397,6 @@ Důvod: %3</translation>
     <message>
         <source>Incremental search:</source>
         <translation type="obsolete">Přírůstkové hledání:</translation>
-    </message>
-    <message>
-        <source>Read .vimrc</source>
-        <translation type="obsolete">Číst .vimrc</translation>
-    </message>
-    <message>
-        <source>Vim Behavior</source>
-        <translation type="obsolete">Chování Vim</translation>
-    </message>
-    <message>
-        <source>Automatic indentation</source>
-        <translation type="obsolete">Automatické odsazení</translation>
-    </message>
-    <message>
-        <source>Start of line</source>
-        <translation type="obsolete">Začátek řádku</translation>
-    </message>
-    <message>
-        <source>Smart indentation</source>
-        <translation type="obsolete">Chytré odsazování</translation>
-    </message>
-    <message>
-        <source>Use search dialog</source>
-        <translation type="obsolete">Použít dialog pro hledání</translation>
-    </message>
-    <message>
-        <source>Expand tabulators</source>
-        <translation type="obsolete">Rozbalit zarážky</translation>
-    </message>
-    <message>
-        <source>Show position of text marks</source>
-        <translation type="obsolete">Ukázat polohu textových značek</translation>
-    </message>
-    <message>
-        <source>Smart tabulators</source>
-        <translation type="obsolete">Režim chytrých zarážek</translation>
-    </message>
-    <message>
-        <source>Highlight search results</source>
-        <translation type="obsolete">Zvýraznit výsledky hledání</translation>
-    </message>
-    <message>
-        <source>Incremental search</source>
-        <translation type="obsolete">Přírůstkové hledání</translation>
-    </message>
-    <message>
-        <source>Keyword characters:</source>
-        <translation type="obsolete">Znaky klíčového slova:</translation>
-    </message>
-    <message>
-        <source>Copy Text Editor Settings</source>
-        <translation type="obsolete">Kopírovat nastavení textového editoru</translation>
-    </message>
-    <message>
-        <source>Set Qt Style</source>
-        <translation type="obsolete">Nastavit styl Qt</translation>
-    </message>
-    <message>
-        <source>Set Plain Style</source>
-        <translation type="obsolete">Nastavit prostý styl</translation>
-    </message>
-    <message>
-        <source>Pass key sequences like Ctrl-S to Qt Creator core instead of interpreting them in FakeVim. This gives easier access to Qt Creator core functionality at the price of losing some features of FakeVim.</source>
-        <translation type="obsolete">Způsobí, že s určitými klávesovými zkratkami jako je Ctrl-S se nezachází v FakeVim, nýbrž jsou postoupeny Qt Creatoru. Toto usnadňuje přístup k základním funkcím Qt Creatoru za cenu ztráty některých funkcí FakeVimu.</translation>
-    </message>
-    <message>
-        <source>Pass control key</source>
-        <translation type="obsolete">Postoupit klávesu Ctrl</translation>
-    </message>
-    <message>
-        <source>Vim tabstop option</source>
-        <translation type="obsolete">Nastavení zarážek Vim</translation>
     </message>
 </context>
 <context>
@@ -22697,7 +22589,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>::FakeVim</name>
     <message>
         <source>Recursive mapping</source>
         <translation>Rekurzivní přiřazení</translation>
@@ -22714,16 +22606,9 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Not an editor command: %1</source>
         <translation>Není příkazem editoru: %1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Přiřazení příkazů pro Ex</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -32026,7 +31911,7 @@ Má se to zkusit ještě jednou?</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Úkon</translation>
@@ -32039,16 +31924,9 @@ Má se to zkusit ještě jednou?</translation>
         <source>User command #%1</source>
         <translation>Uživatelský příkaz #%1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>Přiřazení příkazů</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
 </context>
 <context>

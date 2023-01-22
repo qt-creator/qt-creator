@@ -4123,7 +4123,7 @@ Razlog: %3</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use Vim-style Editing</source>
         <translation>Uporabi urejanje v slogu Vim-a</translation>
@@ -4132,9 +4132,6 @@ Razlog: %3</translation>
         <source>Read .vimrc</source>
         <translation>Preberi .vimrc</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimHandler</name>
     <message>
         <source>Not implemented in FakeVim</source>
         <translation>Ni implementirano v FakeVim</translation>
@@ -4225,9 +4222,6 @@ Razlog: %3</translation>
         <source>Can&apos;t open file %1</source>
         <translation type="obsolete">Datoteke %1 ni moč odpreti</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
     <message>
         <source>General</source>
         <translation>Splošno</translation>
@@ -4236,9 +4230,6 @@ Razlog: %3</translation>
         <source>FakeVim</source>
         <translation>FakeVim</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimPluginPrivate</name>
     <message>
         <source>File not saved</source>
         <translation>Datoteka ni shranjena</translation>
@@ -4272,9 +4263,6 @@ Razlog: %3</translation>
         <source>Quit FakeVim</source>
         <translation type="obsolete">Končaj FakeVim</translation>
     </message>
-</context>
-<context>
-    <name>FakeVimOptionPage</name>
     <message>
         <source>Use FakeVim</source>
         <translation>Uporabi FakeVim</translation>
@@ -4293,11 +4281,6 @@ Razlog: %3</translation>
         <location/>
         <source>Backspace:</source>
         <translation>Vračalka:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Read .vimrc</source>
-        <translation>Preberi .vimrc</translation>
     </message>
     <message>
         <location/>
@@ -15099,7 +15082,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimHandler::Private</name>
+    <name>::FakeVim</name>
     <message>
         <source> [New] </source>
         <translation> [novo] </translation>
@@ -15108,16 +15091,9 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Not an editor command: %1</source>
         <translation>Ni ukaz urejevalnika: %1</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimExCommandsPage</name>
     <message>
         <source>Ex Command Mapping</source>
         <translation>Preslikava ukazov</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
     <message>
         <source>Ex Trigger Expression</source>
@@ -23128,7 +23104,7 @@ Ali želite poskusiti znova?</translation>
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimUserCommandsModel</name>
+    <name>::FakeVim</name>
     <message>
         <source>Action</source>
         <translation>Dejanje</translation>
@@ -23141,16 +23117,9 @@ Ali želite poskusiti znova?</translation>
         <source>User command #%1</source>
         <translation>%1. uporabniški ukaz</translation>
     </message>
-</context>
-<context>
-    <name>FakeVim::Internal::FakeVimUserCommandsPage</name>
     <message>
         <source>User Command Mapping</source>
         <translation>Preslikava uporabniških ukazov</translation>
-    </message>
-    <message>
-        <source>FakeVim</source>
-        <translation>FakeVim</translation>
     </message>
 </context>
 <context>

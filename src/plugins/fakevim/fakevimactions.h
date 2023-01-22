@@ -75,8 +75,6 @@ using FvStringAspect = Utils::StringAspect;
 
 class FakeVimSettings final : public FvAspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(FakeVim)
-
 public:
     FakeVimSettings();
     ~FakeVimSettings();

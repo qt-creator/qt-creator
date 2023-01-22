@@ -2575,7 +2575,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>FakeVim::Internal::FakeVimOptionPage</name>
+    <name>::FakeVim</name>
     <message>
         <source>Use FakeVim</source>
         <translation>FakeVim を使用する</translation>
