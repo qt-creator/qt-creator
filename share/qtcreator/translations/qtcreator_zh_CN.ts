@@ -24023,9 +24023,6 @@ Error: %5</source>
         <source>Macros</source>
         <translation>宏</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
     <message>
         <source>Text Editing Macros</source>
         <translation type="unfinished"></translation>
@@ -24034,9 +24031,6 @@ Error: %5</source>
         <source>Runs a text editing macro that was recorded with Tools &gt; Text Editing Macros &gt; Record Macro.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation type="unfinished">播放宏</translation>
@@ -24049,13 +24043,6 @@ Error: %5</source>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation type="unfinished">停止录制宏</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Preferences</source>
         <translation>首选项</translation>
@@ -24081,16 +24068,9 @@ Error: %5</source>
         <translation>说明:</translation>
     </message>
     <message>
-        <source>Macros</source>
-        <translation type="unfinished">宏</translation>
-    </message>
-    <message>
         <source>Description)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Record Macro</source>
         <translation>录制宏</translation>
@@ -24135,9 +24115,6 @@ Error: %5</source>
         <source>Alt+]</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>保存宏</translation>
@@ -24145,10 +24122,6 @@ Error: %5</source>
     <message>
         <source>Name:</source>
         <translation>名称:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>说明:</translation>
     </message>
 </context>
 <context>

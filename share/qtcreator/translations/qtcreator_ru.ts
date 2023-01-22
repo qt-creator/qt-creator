@@ -24236,16 +24236,10 @@ Error: %5</translation>
         <source>Macros</source>
         <translation>Сценарии</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Сценарии редактирования текста</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Воспроизведение сценария</translation>
@@ -24262,9 +24256,6 @@ Error: %5</translation>
         <source>Stop Recording Macro</source>
         <translation>Остановить запись сценария</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Preferences</source>
         <translation>Настройки</translation>
@@ -24294,13 +24285,6 @@ Error: %5</translation>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>Macros</source>
-        <translation>Сценарии</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
-    <message>
         <source>Record Macro</source>
         <translation>Записать сценарий</translation>
     </message>
@@ -24311,10 +24295,6 @@ Error: %5</translation>
     <message>
         <source>Alt+[</source>
         <translation>Alt+[</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Остановить запись сценария</translation>
     </message>
     <message>
         <source>Ctrl+]</source>
@@ -24344,16 +24324,9 @@ Error: %5</translation>
         <source>Alt+R</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Name:</source>
         <translation>Название:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Описание:</translation>
     </message>
     <message>
         <source>Save Macro</source>

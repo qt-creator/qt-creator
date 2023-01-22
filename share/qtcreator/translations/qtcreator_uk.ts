@@ -10656,20 +10656,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Macros</source>
         <translation>Макроси</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
-    <message>
-        <source>Macros</source>
-        <translation type="vanished">Макроси</translation>
-    </message>
     <message>
         <source>Text Editing Macros</source>
         <translation>Макроси редагування тексту</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -10702,9 +10692,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Description:</source>
         <translation>Опис:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation type="vanished">&amp;Макроси</translation>
@@ -10753,9 +10740,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Save Last Macro</source>
         <translation>Зберегти останній макрос</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Зберегти макрос</translation>
@@ -10765,27 +10749,8 @@ Ids must begin with a lowercase letter.</source>
         <translation>Назва:</translation>
     </message>
     <message>
-        <source>Description:</source>
-        <translation>Опис:</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation type="vanished">Відтворення макросу</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation type="vanished">Під час програвання макросу сталась помилка, виконання зупинено.</translation>
-    </message>
-    <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play it</source>
         <translation type="vanished">Режим макросу. Натисніть &quot;%1&quot;, щоб зупинити запис та щоб &quot;%2&quot; програти його</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation type="vanished">Зупинити запис макросу</translation>
     </message>
 </context>
 <context>
@@ -34174,7 +34139,7 @@ Do you want to uninstall the existing package next time?</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
+    <name>::Macros</name>
     <message>
         <source>Playing Macro</source>
         <translation>Відтворення макросу</translation>
@@ -34186,10 +34151,6 @@ Do you want to uninstall the existing package next time?</source>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Режим макросу. Натисніть &quot;%1&quot;, щоб зупинити запис та щоб &quot;%2&quot; програти його.</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Зупинити запис макросу</translation>
     </message>
 </context>
 <context>

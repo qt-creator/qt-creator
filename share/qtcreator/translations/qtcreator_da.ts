@@ -19067,16 +19067,10 @@ Fejl: %5</translation>
         <source>Macros</source>
         <translation>Makroer</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Tekstredigeringsmakroer</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Afspiller makro</translation>
@@ -19093,9 +19087,6 @@ Fejl: %5</translation>
         <source>Stop Recording Macro</source>
         <translation>Stop optagelse af makro</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Preferences</source>
         <translation>Præferencer</translation>
@@ -19124,9 +19115,6 @@ Fejl: %5</translation>
         <source>Description:</source>
         <translation>Beskrivelse:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>Tekstredigerings&amp;makroer</translation>
@@ -19142,10 +19130,6 @@ Fejl: %5</translation>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Stop optagelse af makro</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -19171,9 +19155,6 @@ Fejl: %5</translation>
         <source>Save Last Macro</source>
         <translation>Gem sidste makro</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Gem makro</translation>
@@ -19181,10 +19162,6 @@ Fejl: %5</translation>
     <message>
         <source>Name:</source>
         <translation>Navn:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Beskrivelse:</translation>
     </message>
 </context>
 <context>

@@ -3691,7 +3691,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -3728,9 +3728,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Macros</source>
         <translation>マクロ</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>マクロ保存</translation>
@@ -3738,10 +3735,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>説明:</translation>
     </message>
 </context>
 <context>
@@ -21392,7 +21385,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
+    <name>::Macros</name>
     <message>
         <source>Playing Macro</source>
         <translation>マクロ実行中</translation>
@@ -21409,16 +21402,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Stop Recording Macro</source>
         <translation>マクロの記録を停止</translation>
     </message>
-</context>
-<context>
-    <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>マクロ</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>テキストエディタマクロ(&amp;M)</translation>
@@ -21434,10 +21417,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>マクロの記録を停止</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -39452,7 +39431,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>テキストエディタマクロ</translation>

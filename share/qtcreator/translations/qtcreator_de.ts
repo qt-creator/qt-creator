@@ -16016,7 +16016,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Preferences</source>
         <translation>Einstellungen</translation>
@@ -16049,16 +16049,9 @@ Möchten Sie sie überschreiben?</translation>
         <source>Macros</source>
         <translation>Makros</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Beschreibung:</translation>
     </message>
     <message>
         <source>Save Macro</source>
@@ -16396,7 +16389,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Textbearbeitungs-Makros</translation>
@@ -16405,9 +16398,6 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
         <source>Runs a text editing macro that was recorded with Tools &gt; Text Editing Macros &gt; Record Macro.</source>
         <translation>Führt ein Textbearbeitungs-Makro aus, das mit Extras &gt; Textbearbeitungs-Makros &gt; Makroaufnahme aufgenommen wurde.</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>Textbearbeitungs-&amp;Makros</translation>
@@ -19505,10 +19495,6 @@ Speichern fehlgeschlagen.</translation>
 </context>
 <context>
     <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Makros</translation>
-    </message>
 </context>
 <context>
     <name>::ProjectExplorer</name>
@@ -28329,7 +28315,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
+    <name>::Macros</name>
     <message>
         <source>Playing Macro</source>
         <translation>Abspielen eines Makros</translation>
@@ -28341,10 +28327,6 @@ The affected files are:
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Makro-Modus. Geben Sie &quot;%1&quot; ein, um die Aufnahme zu stoppen und &quot;%2&quot;, um sie abzuspielen.</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Makroaufnahme anhalten</translation>
     </message>
 </context>
 <context>

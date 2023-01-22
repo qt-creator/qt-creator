@@ -27295,7 +27295,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -27328,9 +27328,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
         <source>Description:</source>
         <translation>Popis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Uložit makro</translation>
@@ -27338,10 +27335,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Popis:</translation>
     </message>
 </context>
 <context>
@@ -32342,14 +32335,11 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makra</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Přehrání makra</translation>
@@ -32366,16 +32356,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Stop Recording Macro</source>
         <translation>Zastavit nahrávání makra</translation>
     </message>
-</context>
-<context>
-    <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Makra</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>&amp;Makra</translation>
@@ -32391,10 +32371,6 @@ když bude zavolán mimo git bash.</translation>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zastavit nahrávání makra</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -54740,22 +54716,10 @@ Soubory ve zdrojovém adresáři balíčku pro Android jsou zkopírovány do adr
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation>Přehrání makra</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Při přehrávání makra se vyskytla chyba, provádění bylo zastaveno.</translation>
-    </message>
+    <name>::Macros</name>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Režim makra. Napište &quot;%1&quot; pro zastavení nahrávání a &quot;%2&quot; pro přehrání makra.</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zastavit nahrávání makra</translation>
     </message>
 </context>
 <context>

@@ -4722,7 +4722,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Preferences</source>
         <translation>Postavke</translation>
@@ -4751,9 +4751,6 @@ Greška: %5</translation>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Spremi makro</translation>
@@ -4761,10 +4758,6 @@ Greška: %5</translation>
     <message>
         <source>Name:</source>
         <translation>Naziv:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Opis:</translation>
     </message>
 </context>
 <context>
@@ -25166,14 +25159,11 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Uređivač teksta makro naredbi</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Pokretanje makro naredbe</translation>
@@ -25187,19 +25177,9 @@ Rok upotrebe: %3</translation>
         <translation>Rad pomoću makro naredbi. Utipkaj &quot;%1&quot; za zaustavljanje snimanja i &quot;%2&quot; za pokretanje makro naredbe.</translation>
     </message>
     <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zaustavi snimanje makro naredbe</translation>
-    </message>
-</context>
-<context>
-    <name>::Macros</name>
-    <message>
         <source>Macros</source>
         <translation>Makro naredbe</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>Uređivač teksta &amp;makro naredbi</translation>

@@ -17514,7 +17514,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -17547,9 +17547,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Description:</source>
         <translation>描述：</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>儲存巨集</translation>
@@ -17557,10 +17554,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>描述：</translation>
     </message>
 </context>
 <context>
@@ -19317,14 +19310,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>巨集</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>播放巨集</translation>
@@ -19341,9 +19331,6 @@ Do you want to retry?</source>
         <source>Stop Recording Macro</source>
         <translation>停止錄製巨集</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>巨集(&amp;M)</translation>
@@ -19359,10 +19346,6 @@ Do you want to retry?</source>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>停止錄製巨集</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -20463,10 +20446,6 @@ You can build the application and deploy it on desktop and mobile target platfor
 </context>
 <context>
     <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>巨集</translation>
-    </message>
 </context>
 <context>
     <name>AnchorButtons</name>

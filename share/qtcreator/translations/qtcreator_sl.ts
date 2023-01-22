@@ -18446,7 +18446,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -18486,9 +18486,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Shrani makro</translation>
@@ -18497,11 +18494,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <location/>
         <source>Name:</source>
         <translation>Ime:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Description:</source>
-        <translation>Opis:</translation>
     </message>
 </context>
 <context>
@@ -23405,14 +23397,11 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Makroji</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Predvajanje makra</translation>
@@ -23429,16 +23418,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Stop Recording Macro</source>
         <translation>Ustavi snemanje makra</translation>
     </message>
-</context>
-<context>
-    <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Makroji</translation>
-    </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>&amp;Makroji</translation>
@@ -23454,10 +23433,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Ustavi snemanje makra</translation>
     </message>
     <message>
         <source>Ctrl+)</source>

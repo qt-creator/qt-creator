@@ -3,6 +3,8 @@
 
 #include "savedialog.h"
 
+#include "macrostr.h"
+
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -18,7 +20,7 @@ SaveDialog::SaveDialog(QWidget *parent) :
     QDialog(parent)
 {
     resize(219, 91);
-    setWindowTitle(tr("Save Macro"));
+    setWindowTitle(Tr::tr("Save Macro"));
 
     m_name = new QLineEdit;
     m_name->setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("\\w*")), this));
@@ -31,8 +33,8 @@ SaveDialog::SaveDialog(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        tr("Name:"), m_name, br,
-        tr("Description:"), m_description, br,
+        Tr::tr("Name:"), m_name, br,
+        Tr::tr("Description:"), m_description, br,
         buttonBox
     }.attachTo(this);
 

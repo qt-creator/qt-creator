@@ -5,6 +5,7 @@
 
 #include "macro.h"
 #include "macromanager.h"
+#include "macrostr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -19,9 +20,9 @@ MacroLocatorFilter::MacroLocatorFilter()
     : m_icon(QPixmap(":/macros/images/macro.png"))
 {
     setId("Macros");
-    setDisplayName(tr("Text Editing Macros"));
-    setDescription(tr("Runs a text editing macro that was recorded with Tools > Text Editing "
-                      "Macros > Record Macro."));
+    setDisplayName(Tr::tr("Text Editing Macros"));
+    setDescription(Tr::tr("Runs a text editing macro that was recorded with Tools > Text Editing "
+                          "Macros > Record Macro."));
     setDefaultShortcutString("rm");
 }
 

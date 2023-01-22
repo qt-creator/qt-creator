@@ -13711,7 +13711,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -13744,9 +13744,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Description:</source>
         <translation>Opis:</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Zachowaj makro</translation>
@@ -13754,10 +13751,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Name:</source>
         <translation>Nazwa:</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Opis:</translation>
     </message>
 </context>
 <context>
@@ -15107,14 +15100,11 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Text Editing Macros</source>
         <translation>Makra do edycji tekstu</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>Text Editing &amp;Macros</source>
         <translation>&amp;Makra do edycji tekstu</translation>
@@ -26406,7 +26396,7 @@ Czy odinstalować istniejący pakiet?</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
+    <name>::Macros</name>
     <message>
         <source>Playing Macro</source>
         <translation>Odtwarzanie makra</translation>
@@ -26418,10 +26408,6 @@ Czy odinstalować istniejący pakiet?</translation>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Tryb makro. Wpisz &quot;%1&quot; aby zatrzymać nagrywanie albo &quot;%2&quot; aby je odtworzyć.</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Zatrzymaj nagrywanie makra</translation>
     </message>
 </context>
 <context>

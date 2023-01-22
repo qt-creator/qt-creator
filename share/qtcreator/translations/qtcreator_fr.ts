@@ -28401,7 +28401,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroOptionsWidget</name>
+    <name>::Macros</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -28434,9 +28434,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
         <source>Description:</source>
         <translation>Description :</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::SaveDialog</name>
     <message>
         <source>Save Macro</source>
         <translation>Sauver la macro</translation>
@@ -28444,10 +28441,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>Description:</source>
-        <translation>Description :</translation>
     </message>
 </context>
 <context>
@@ -31124,14 +31117,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroLocatorFilter</name>
+    <name>::Macros</name>
     <message>
         <source>Macros</source>
         <translation>Macros</translation>
     </message>
-</context>
-<context>
-    <name>Macros::MacroManager</name>
     <message>
         <source>Playing Macro</source>
         <translation>Lancer une macro</translation>
@@ -31152,9 +31142,6 @@ Do you want to retry?</source>
         <source>Stop Recording Macro</source>
         <translation>Arrêter d&apos;enregistrer la macro</translation>
     </message>
-</context>
-<context>
-    <name>Macros::Internal::MacrosPlugin</name>
     <message>
         <source>&amp;Macros</source>
         <translation>&amp;Macros</translation>
@@ -31170,10 +31157,6 @@ Do you want to retry?</source>
     <message>
         <source>Alt+(</source>
         <translation>Alt+(</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Arrêter d&apos;enregistrer la macro</translation>
     </message>
     <message>
         <source>Ctrl+)</source>
@@ -32362,10 +32345,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
 </context>
 <context>
     <name>::Macros</name>
-    <message>
-        <source>Macros</source>
-        <translation>Macros</translation>
-    </message>
 </context>
 <context>
     <name>::QmakeProjectManager</name>
@@ -51400,22 +51379,10 @@ réinitialisation du moniteur</translation>
     </message>
 </context>
 <context>
-    <name>Macros::Internal::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation>Lancer une macro</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Une erreur est apparue lors de l&apos;exécution de la macro, l&apos;exécution s&apos;est arrêtée.</translation>
-    </message>
+    <name>::Macros</name>
     <message>
         <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
         <translation>Mode macro. Tapez &quot;%1&quot; pour arrêter l&apos;enregistrement et &quot;%2&quot; pour le lancer.</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Arrêter d&apos;enregistrer la macro</translation>
     </message>
 </context>
 <context>
