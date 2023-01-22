@@ -231,17 +231,6 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="vanished">&amp;Повернути</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="vanished">П&amp;овторити</translation>
-    </message>
-</context>
-<context>
     <name>::Core</name>
     <message>
         <source>Unable to create the directory %1.</source>
@@ -23038,21 +23027,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
-    <message>
-        <source>The Binary Editor cannot open empty files.</source>
-        <translation type="vanished">Двійковий редактор не може відкривати порожні файли.</translation>
-    </message>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation type="vanished">Неможливо відкрити %1: %2</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="vanished">Помилка файлу</translation>
-    </message>
-</context>
-<context>
     <name>::CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
@@ -32128,109 +32102,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>Refactoring cannot be applied.</source>
         <translation>Неможливо застосувати рефакторинг.</translation>
-    </message>
-</context>
-<context>
-    <name>BINEditor::BinEditorWidget</name>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation type="vanished">Пам&apos;ять в  0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="vanished">Десяткове&amp;nbsp;беззнакове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="vanished">Десяткове&amp;nbsp;знакове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє&amp;nbsp;десяткове&amp;nbsp;беззнакове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє&amp;nbsp;десяткове&amp;nbsp;знакове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation type="vanished">%1-бітний&amp;nbsp;цілий&amp;nbsp;тип</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="vanished">Little Endian</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="vanished">Big Endian</translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation type="vanished">Двійкове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation type="vanished">Вісімкове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє&amp;nbsp;двійкове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє&amp;nbsp;вісімкове&amp;nbsp;значення:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="vanished">Значення&amp;nbsp;типу&amp;nbsp;&lt;i&gt;double&lt;/i&gt;:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє значення&amp;nbsp;типу&amp;nbsp;&lt;i&gt;double&lt;/i&gt;:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="vanished">Значення&amp;nbsp;типу&amp;nbsp;&lt;i&gt;float&lt;/i&gt;:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="vanished">Попереднє значення&amp;nbsp;типу&amp;nbsp;&lt;i&gt;float&lt;/i&gt;:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="vanished">Збій копіювання</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="vanished">Ви не можете скопіювати більше ніж 4 МБ двійкових даних.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation type="vanished">Копіювати виділене як символи ASCII</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation type="vanished">Копіювати виділене як шістнадцяткові значення</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="vanished">Встановити точку перепину за даними на обраному</translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation type="vanished">Перейти до адреси в цьому вікні</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation type="vanished">Перейти до адреси в новому вікні</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="vanished">Перейти до адреси 0x%1 в цьому вікні</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="vanished">Перейти до адреси 0x%1 в новому вікні</translation>
     </message>
 </context>
 <context>

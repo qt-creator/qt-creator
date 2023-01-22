@@ -37,7 +37,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>Annu&amp;ler</translation>
@@ -20890,7 +20890,7 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Decimal unsigned value (little endian): %1
 Decimal unsigned value (big endian): %2
@@ -20913,109 +20913,6 @@ Valeur précédente au format décimal non signé (gros-boutiste) : %2
 Valeur précédente au format décimal signé (petit-boutiste) : %3
 Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     </message>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation type="obsolete">Mémoire à 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal unsigned value:</source>
-        <translation type="obsolete">Valeur décimale non signée :</translation>
-    </message>
-    <message>
-        <source>Decimal signed value:</source>
-        <translation type="obsolete">Valeur décimale signée :</translation>
-    </message>
-    <message>
-        <source>Previous decimal unsigned value:</source>
-        <translation type="obsolete">Valeur précédente décimale non signée :</translation>
-    </message>
-    <message>
-        <source>Previous decimal signed value:</source>
-        <translation type="obsolete">Valeur précédente décimale signée :</translation>
-    </message>
-    <message>
-        <source>%1-bit Integer Type</source>
-        <translation type="obsolete">Type d&apos;entier sur %1 bits</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="obsolete">Petit boutiste</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="obsolete">Grand boutiste</translation>
-    </message>
-    <message>
-        <source>Binary value:</source>
-        <translation type="obsolete">Valeur binaire :</translation>
-    </message>
-    <message>
-        <source>Octal value:</source>
-        <translation type="obsolete">Valeur octale :</translation>
-    </message>
-    <message>
-        <source>Previous binary value:</source>
-        <translation type="obsolete">Valeur binaire précédente :</translation>
-    </message>
-    <message>
-        <source>Previous octal value:</source>
-        <translation type="obsolete">Valeur octale précédente :</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;double&lt;/i&gt; :</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;double&lt;/i&gt; précédente :</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;float&lt;/i&gt; :</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt; value:</source>
-        <translation type="obsolete">Valeur &lt;i&gt;float&lt;/i&gt; précédente :</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Échec de la copie</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="obsolete">Vous ne pouvez pas copier plus de 4 Mo de données binaires.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation type="obsolete">Copier la séléction comme des caractères ASCII</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation type="obsolete">Copier la sélection comme des valeurs hexadécimales</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="obsolete">Ajouter un point d&apos;arrêt sur la sélection</translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse dans cette fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse dans une nouvelle fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse 0x%1 dans cette fenêtre</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="obsolete">Aller à l&apos;adresse 0x%1 dans une nouvelle fenêtre</translation>
-    </message>
-</context>
-<context>
-    <name>BINEditor::Internal::ImageViewerFactory</name>
     <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Visualisateur d&apos;image</translation>
@@ -34033,17 +33930,6 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>BinEditorFile</name>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation type="obsolete">Imposible d&apos;ouvrir %1 : %2</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-</context>
-<context>
     <name>::CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
@@ -40245,7 +40131,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>L&apos;éditeur binaire ne peut ouvrir des fichiers vides.</translation>
@@ -47568,7 +47454,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditorWidget</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Mémoire à 0x%1</translation>

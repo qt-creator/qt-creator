@@ -33,7 +33,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Zpět</translation>
@@ -21752,7 +21752,7 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Decimal unsigned value (little endian): %1
 Decimal unsigned value (big endian): %2
@@ -21763,109 +21763,6 @@ Desetinná hodnota jsoucí bez znaménka (velký endian): %2
 Desetinná hodnota se znaménkem (malý endian): %3
 Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation type="obsolete">Paměť při 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="obsolete">&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota jsoucí bez znaménka:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;desetinná&amp;nbsp;hodnota se znaménkem:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation type="obsolete">%1-bit&amp;nbsp;typ celého čísla</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="obsolete">Malý endian</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="obsolete">Velký endian</translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation type="obsolete">Dvojková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation type="obsolete">Osmičková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;dvojková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí&amp;nbsp;osmičková&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">&lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí &lt;i&gt;double&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">&lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation type="obsolete">Předchozí &lt;i&gt;float&lt;/i&gt;&amp;nbsp;hodnota:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Kopírování se nezdařilo</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation type="obsolete">Nemůžete kopírovat více jak 4 MB binárních dat.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation type="obsolete">Kopírovat výběr jako znaky ASCII</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation type="obsolete">Kopírovat výběr jako šestnáctkové hodnoty</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation type="obsolete">Nastavit bod přerušení dat na výběru</translation>
-    </message>
-    <message>
-        <source>Jump to Address in This Window</source>
-        <translation type="obsolete">Jít na adresu v tomto okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation type="obsolete">Jít na adresu v novém okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation type="obsolete">Jít na adresu 0x%1 v tomto okně</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation type="obsolete">Jít na adresu 0x%1 v novém okně</translation>
-    </message>
-</context>
-<context>
-    <name>BINEditor::Internal::ImageViewerFactory</name>
     <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Prohlížeč obrázků</translation>
@@ -30193,17 +30090,6 @@ Server: %2.</translation>
     <message>
         <source>Bazaar Command</source>
         <translation>Příkaz Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>BinEditorFile</name>
-    <message>
-        <source>Cannot open %1: %2</source>
-        <translation type="obsolete">Nelze otevřít soubor &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Chyba souboru</translation>
     </message>
 </context>
 <context>
@@ -43772,7 +43658,7 @@ Pro přidání verzí Qt vyberte Volby -&gt; Sestavení a spuštění -&gt; Verz
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binární editor nemůže otevřít prázdné soubory.</translation>
@@ -52057,7 +51943,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditorWidget</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Paměť při 0x%1</translation>

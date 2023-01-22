@@ -416,7 +416,7 @@ BinEditorPluginPrivate::BinEditorPluginPrivate()
     ExtensionSystem::PluginManager::addObject(&m_factoryService);
     ExtensionSystem::PluginManager::addObject(&m_editorFactory);
 
-    m_undoAction = new QAction(BinEditorPlugin::tr("&Undo"), this);
+    m_undoAction = new QAction(Tr::tr("&Undo"), this);
     m_redoAction = new QAction(Tr::tr("&Redo"), this);
     m_copyAction = new QAction(this);
     m_selectAllAction = new QAction(this);

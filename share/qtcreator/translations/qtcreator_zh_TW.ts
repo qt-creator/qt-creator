@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>復原(&amp;U)</translation>
@@ -12194,7 +12194,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體於 0x%1</translation>
@@ -26924,7 +26924,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>BinEditorDocument</name>
+    <name>::BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation type="unfinished"></translation>

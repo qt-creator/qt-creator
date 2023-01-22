@@ -98,7 +98,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Razveljavi</translation>
@@ -14531,7 +14531,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::BinEditor</name>
+    <name>::BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pomnilnik na 0x%1</translation>
@@ -21627,7 +21627,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorFile</name>
+    <name>::BinEditor</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Ni moč odpreti %1: %2</translation>
@@ -30492,7 +30492,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::ImageViewerFactory</name>
+    <name>::BinEditor</name>
     <message>
         <source>Image Viewer</source>
         <translation type="obsolete">Pregledovalnik slik</translation>

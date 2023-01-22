@@ -5133,7 +5133,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="unfinished">撤销(&amp;U)</translation>

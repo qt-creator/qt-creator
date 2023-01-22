@@ -50529,7 +50529,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="unfinished">&amp;Rückgängig</translation>

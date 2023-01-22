@@ -55,7 +55,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::0</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation type="obsolete">&amp;Visszavonás</translation>
@@ -66,7 +66,7 @@
     </message>
 </context>
 <context>
-    <name>BINEditor::Internal::BinEditorPlugin</name>
+    <name>::BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Visszacsinál</translation>
