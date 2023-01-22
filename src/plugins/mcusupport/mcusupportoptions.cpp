@@ -8,6 +8,7 @@
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
 #include "mcusupportsdk.h"
+#include "mcusupporttr.h"
 #include "mcutarget.h"
 #include "settingshandler.h"
 
@@ -184,8 +185,8 @@ void McuSupportOptions::registerExamples() const
     if (docsDir.isEmpty())
         return;
 
-    auto examples = {std::make_pair(QStringLiteral("demos"), tr("Qt for MCUs Demos")),
-                     std::make_pair(QStringLiteral("examples"), tr("Qt for MCUs Examples"))};
+    auto examples = {std::make_pair(QStringLiteral("demos"), Tr::tr("Qt for MCUs Demos")),
+                     std::make_pair(QStringLiteral("examples"), Tr::tr("Qt for MCUs Examples"))};
     for (const auto &dir : examples) {
         const FilePath examplesDir = qulDirFromSettings() / dir.first;
         if (!examplesDir.exists())
@@ -235,11 +236,11 @@ McuKitManager::UpgradeOption McuSupportOptions::askForKitUpgrades()
 {
     QMessageBox upgradePopup(Core::ICore::dialogParent());
     upgradePopup.setStandardButtons(QMessageBox::Cancel);
-    QPushButton *replaceButton = upgradePopup.addButton(tr("Replace Existing Kits"),
+    QPushButton *replaceButton = upgradePopup.addButton(Tr::tr("Replace Existing Kits"),
                                                         QMessageBox::NoRole);
-    QPushButton *keepButton = upgradePopup.addButton(tr("Create New Kits"), QMessageBox::NoRole);
-    upgradePopup.setWindowTitle(tr("Qt for MCUs"));
-    upgradePopup.setText(tr("New version of Qt for MCUs detected. Upgrade existing kits?"));
+    QPushButton *keepButton = upgradePopup.addButton(Tr::tr("Create New Kits"), QMessageBox::NoRole);
+    upgradePopup.setWindowTitle(Tr::tr("Qt for MCUs"));
+    upgradePopup.setText(Tr::tr("New version of Qt for MCUs detected. Upgrade existing kits?"));
 
     upgradePopup.exec();
 

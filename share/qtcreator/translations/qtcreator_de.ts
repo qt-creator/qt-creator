@@ -44895,7 +44895,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>McuSupport::Internal::McuSupportDevice</name>
+    <name>::McuSupport</name>
     <message>
         <source>MCU Device</source>
         <translation>MCU-Gerät</translation>
@@ -53030,7 +53030,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>McuSupport::Internal::McuDependenciesKitAspect</name>
+    <name>::McuSupport</name>
     <message>
         <source>MCU Dependencies</source>
         <translation type="unfinished"></translation>
@@ -53051,9 +53051,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>CMake variable %1: path %2 does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::McuSupport</name>
     <message>
         <source>Warning for target %1: invalid toolchain path (%2). Update the toolchain in Edit &gt; Preferences &gt; Kits.</source>
         <translation type="unfinished"></translation>
@@ -53083,9 +53080,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuTarget</name>
     <message>
         <source>Warning for target %1: missing CMake toolchain file expected at %2.</source>
         <translation type="unfinished"></translation>
@@ -53126,9 +53120,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Warning creating kit for target %1, package %2: %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuPackage</name>
     <message>
         <source>Path %1 exists, but does not contain %2.</source>
         <translation type="unfinished"></translation>
@@ -53233,9 +53224,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Toolchain description for &quot;%1&quot; is invalid because %2 in file &quot;%3&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptions</name>
     <message>
         <source>Qt for MCUs Demos</source>
         <translation type="unfinished"></translation>
@@ -53260,9 +53248,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>New version of Qt for MCUs detected. Upgrade existing kits?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptionsWidget</name>
     <message>
         <source>Qt for MCUs SDK</source>
         <translation type="unfinished"></translation>
@@ -53292,10 +53277,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>No valid kit descriptions found at %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A kit for the selected target and SDK version already exists.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -53311,16 +53292,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>MCU</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtForMCUs</name>
     <message>
         <source>Qt for MCUs: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportPlugin</name>
     <message>
         <source>Create Kits for Qt for MCUs? To do it later, select Edit &gt; Preferences &gt; Devices &gt; MCU.</source>
         <translation type="unfinished"></translation>
@@ -53345,16 +53320,10 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Proceed</source>
         <translation type="unfinished">Weiter</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::FlashAndRunConfiguration</name>
     <message>
         <source>Flash and run CMake parameters:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Tr</name>
     <message>
         <source>Parsing error: the type entry in JSON kit files must be a string, defaulting to &quot;path&quot;</source>
         <translation type="unfinished"></translation>

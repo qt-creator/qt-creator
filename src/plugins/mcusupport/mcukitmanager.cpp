@@ -288,7 +288,7 @@ public:
                              cMakeToolchainFile.toString().toUtf8());
             if (!cMakeToolchainFile.exists()) {
                 printMessage(
-                    McuTarget::tr(
+                    Tr::tr(
                         "Warning for target %1: missing CMake toolchain file expected at %2.")
                         .arg(generateKitNameFromTarget(mcuTarget),
                              cMakeToolchainFile.toUserOutput()),
@@ -300,7 +300,7 @@ public:
             "/lib/cmake/Qul/QulGenerators.cmake");
         configMap.insert("QUL_GENERATORS", generatorsPath.toString().toUtf8());
         if (!generatorsPath.exists()) {
-            printMessage(McuTarget::tr(
+            printMessage(Tr::tr(
                              "Warning for target %1: missing QulGenerators expected at %2.")
                              .arg(generateKitNameFromTarget(mcuTarget),
                                   generatorsPath.toUserOutput()),
@@ -493,14 +493,14 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {
                 case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    printMessage(McuPackage::tr("Path %1 exists, but does not contain %2.")
+                    printMessage(Tr::tr("Path %1 exists, but does not contain %2.")
                                      .arg(qtForMCUsPackage->path().toUserOutput(),
                                           qtForMCUsPackage->detectionPath().toUserOutput()),
                                  true);
                     break;
                 }
                 case McuAbstractPackage::Status::InvalidPath: {
-                    printMessage(McuPackage::tr(
+                    printMessage(Tr::tr(
                                      "Path %1 does not exist. Add the path in Edit > Preferences > "
                                      "Devices > MCU.")
                                      .arg(qtForMCUsPackage->path().toUserOutput()),
@@ -509,7 +509,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
                     printMessage(
-                        McuPackage::tr(
+                        Tr::tr(
                             "Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
                             .arg(qtForMCUsPackage->detectionPath().toUserOutput()),
                         true);
@@ -523,7 +523,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
 
             if (CMakeProjectManager::CMakeToolManager::cmakeTools().isEmpty()) {
                 printMessage(
-                    McuPackage::tr(
+                    Tr::tr(
                         "No CMake tool was detected. Add a CMake tool in Edit > Preferences > "
                         "Kits > CMake."),
                     true);

@@ -46029,14 +46029,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>McuSupport::Internal::McuPackage</name>
-    <message>
-        <source>Path %1 exists, but does not contain %2.</source>
-        <translation type="unfinished">パス %1 は存在しますが、%2 を含んでいません。</translation>
-    </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptions</name>
+    <name>::McuSupport</name>
     <message>
         <source>Qt for MCUs Demos</source>
         <translation>Qt for MCUs のデモ</translation>
@@ -46061,9 +46054,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>No CMake tool was detected. Add a CMake tool in Tools &gt; Options &gt; Kits &gt; CMake.</source>
         <translation>CMake ツールが検出されませんでした。「ツール」→「オプション」→「キット」→「 CMake 」で CMake ツールを追加してください。</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuTarget</name>
     <message>
         <source>Warning for target %1: missing CMake Toolchain File expected at %2.</source>
         <translation>ターゲット %1 に対する警告: CMake Toolchain ファイルが %2 で見つかりませんでした。</translation>
@@ -46077,23 +46067,13 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>%1をスキップしました - サポート対象外のバージョン &quot;%2&quot; (%3 以上である必要があります)</translation>
     </message>
     <message>
-        <source>No valid kit descriptions found at %1.</source>
-        <translation>%1で有効なキットの説明が見つかりませんでした。</translation>
-    </message>
-    <message>
         <source>Skipped creating fallback desktop kit: Could not find any of %1.</source>
         <translation>予備のデスクトップ・キットの作成をスキップしました。%1 のいずれも見つかりませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>QtForMCUs</name>
     <message>
         <source>Qt for MCUs: %1</source>
         <translation>Qt for MCUs: %1</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptionsWidget</name>
     <message>
         <source>Remove Kit</source>
         <translation>キットを削除する</translation>

@@ -183,7 +183,7 @@ void McuPackage::updateStatusUi()
 QString McuPackage::statusText() const
 {
     const QString displayPackagePath = m_path.toUserOutput();
-    const QString displayVersions = m_versions.join(tr(" or "));
+    const QString displayVersions = m_versions.join(Tr::tr(" or "));
     const QString outDetectionPath = m_detectionPath.toUserOutput();
     const QString displayRequiredPath = m_versions.empty() ? outDetectionPath
                                                            : QString("%1 %2").arg(outDetectionPath,
@@ -198,35 +198,35 @@ QString McuPackage::statusText() const
     case Status::ValidPackage:
         response = m_detectionPath.isEmpty()
                        ? (m_detectedVersion.isEmpty()
-                              ? tr("Path %1 exists.").arg(displayPackagePath)
-                              : tr("Path %1 exists. Version %2 was found.")
+                              ? Tr::tr("Path %1 exists.").arg(displayPackagePath)
+                              : Tr::tr("Path %1 exists. Version %2 was found.")
                                     .arg(displayPackagePath, m_detectedVersion))
-                       : tr("Path %1 is valid, %2 was found.")
+                       : Tr::tr("Path %1 is valid, %2 was found.")
                              .arg(displayPackagePath, displayDetectedPath);
         break;
     case Status::ValidPackageMismatchedVersion: {
         const QString versionWarning
             = m_versions.size() == 1
-                  ? tr("but only version %1 is supported").arg(m_versions.first())
-                  : tr("but only versions %1 are supported").arg(displayVersions);
-        response = tr("Path %1 is valid, %2 was found, %3.")
+                  ? Tr::tr("but only version %1 is supported").arg(m_versions.first())
+                  : Tr::tr("but only versions %1 are supported").arg(displayVersions);
+        response = Tr::tr("Path %1 is valid, %2 was found, %3.")
                        .arg(displayPackagePath, displayDetectedPath, versionWarning);
         break;
     }
     case Status::ValidPathInvalidPackage:
-        response = tr("Path %1 exists, but does not contain %2.")
+        response = Tr::tr("Path %1 exists, but does not contain %2.")
                        .arg(displayPackagePath, displayRequiredPath);
         break;
     case Status::InvalidPath:
-        response = tr("Path %1 does not exist.").arg(displayPackagePath);
+        response = Tr::tr("Path %1 does not exist.").arg(displayPackagePath);
         break;
     case Status::EmptyPath:
         response = m_detectionPath.isEmpty()
-                       ? tr("Path is empty.")
-                       : tr("Path is empty, %1 not found.").arg(displayRequiredPath);
+                       ? Tr::tr("Path is empty.")
+                       : Tr::tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
     case Status::ValidPackageVersionNotDetected:
-        response = tr("Path %1 exists, but version %2 could not be detected.")
+        response = Tr::tr("Path %1 exists, but version %2 could not be detected.")
                        .arg(displayPackagePath, displayVersions);
         break;
     }
@@ -262,7 +262,7 @@ QWidget *McuPackage::widget()
     if (!m_downloadUrl.isEmpty()) {
         auto downLoadButton = new QToolButton(widget);
         downLoadButton->setIcon(Icons::ONLINE.icon());
-        downLoadButton->setToolTip(tr("Download from \"%1\"").arg(m_downloadUrl));
+        downLoadButton->setToolTip(Tr::tr("Download from \"%1\"").arg(m_downloadUrl));
         QObject::connect(downLoadButton, &QToolButton::pressed, this, [this] {
             QDesktopServices::openUrl(m_downloadUrl);
         });
@@ -531,7 +531,7 @@ QVariant McuToolChainPackage::debuggerId() const
     switch (m_type) {
     case ToolChainType::ArmGcc: {
         sub = QString::fromLatin1("bin/arm-none-eabi-gdb-py");
-        displayName = McuPackage::tr("Arm GDB at %1");
+        displayName = Tr::tr("Arm GDB at %1");
         engineType = Debugger::GdbEngineType;
         break;
     }

@@ -10,8 +10,6 @@ namespace Internal {
 
 class McuSupportDevice final : public ProjectExplorer::DesktopDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::McuSupportDevice)
-
 public:
     static ProjectExplorer::IDevice::Ptr create();
 

@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportrunconfiguration.h"
+
 #include "mcusupportconstants.h"
+#include "mcusupporttr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
@@ -39,14 +41,12 @@ static QStringList flashAndRunArgs(const RunConfiguration *rc, const Target *tar
 
 class FlashAndRunConfiguration final : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(McuSupport::Internal::FlashAndRunConfiguration)
-
 public:
     FlashAndRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
         auto flashAndRunParameters = addAspect<StringAspect>();
-        flashAndRunParameters->setLabelText(tr("Flash and run CMake parameters:"));
+        flashAndRunParameters->setLabelText(Tr::tr("Flash and run CMake parameters:"));
         flashAndRunParameters->setDisplayStyle(StringAspect::TextEditDisplay);
         flashAndRunParameters->setSettingsKey("FlashAndRunConfiguration.Parameters");
 

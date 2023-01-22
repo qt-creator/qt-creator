@@ -24664,7 +24664,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>McuSupport::Internal::FlashAndRunConfiguration</name>
+    <name>::McuSupport</name>
     <message>
         <source>Flash and run CMake parameters:</source>
         <translation>Параметры CMake для прошивки и запуска:</translation>
@@ -24673,9 +24673,6 @@ Error: %5</translation>
         <source>Flash and run</source>
         <translation>Прошивка и запуск</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuPackage</name>
     <message>
         <source>Download from &quot;%1&quot;</source>
         <translation>Загрузить «%1»</translation>
@@ -24708,16 +24705,10 @@ Error: %5</translation>
         <source>STM32CubeProgrammer</source>
         <translation>STM32CubeProgrammer</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportDevice</name>
     <message>
         <source>MCU Device</source>
         <translation>Микроконтроллер</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptionsWidget</name>
     <message>
         <source>Targets supported by the %1</source>
         <translation>Поддерживаемые %1 цели</translation>
@@ -24750,9 +24741,6 @@ Error: %5</translation>
         <source>MCU</source>
         <translation>Микроконтроллер</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportPlugin</name>
     <message>
         <source>Create Kits for Qt for MCUs? To do it later, select Options &gt; Devices &gt; MCU.</source>
         <translation>Создать комплекты для Qt для микроконтроллеров? Можно сделать позже через Параметры &gt; Устройства &gt; Микроконтроллер.</translation>

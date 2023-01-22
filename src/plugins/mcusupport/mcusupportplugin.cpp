@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportplugin.h"
+
 #include "mcukitinformation.h"
 #include "mcukitmanager.h"
 #include "mcusupportconstants.h"
@@ -9,6 +10,7 @@
 #include "mcusupportoptions.h"
 #include "mcusupportoptionspage.h"
 #include "mcusupportrunconfiguration.h"
+#include "mcusupporttr.h"
 
 #if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
 #include "test/unittest.h"
@@ -40,8 +42,7 @@ namespace Internal {
 
 void printMessage(const QString &message, bool important)
 {
-    const QString displayMessage = QCoreApplication::translate("QtForMCUs", "Qt for MCUs: %1")
-                                       .arg(message);
+    const QString displayMessage = Tr::tr("Qt for MCUs: %1").arg(message);
     if (important)
         Core::MessageManager::writeFlashing(displayMessage);
     else
@@ -98,11 +99,11 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsSetup()
         return;
 
     Utils::InfoBarEntry info(setupMcuSupportKits,
-                             tr("Create Kits for Qt for MCUs? "
+                             Tr::tr("Create Kits for Qt for MCUs? "
                                 "To do it later, select Edit > Preferences > Devices > MCU."),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     // clazy:excludeall=connect-3arg-lambda
-    info.addCustomButton(tr("Create Kits for Qt for MCUs"), [] {
+    info.addCustomButton(Tr::tr("Create Kits for Qt for MCUs"), [] {
         ICore::infoBar()->removeInfo(setupMcuSupportKits);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
     });
@@ -117,20 +118,20 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::
         return;
 
     Utils::InfoBarEntry info(upgradeMcuSupportKits,
-                             tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
+                             Tr::tr("New version of Qt for MCUs detected. Upgrade existing Kits?"),
                              Utils::InfoBarEntry::GlobalSuppression::Enabled);
     using McuKitManager::UpgradeOption;
     static UpgradeOption selectedOption = UpgradeOption::Keep;
 
     const QList<Utils::InfoBarEntry::ComboInfo> infos
-        = {{tr("Create new kits"), QVariant::fromValue(UpgradeOption::Keep)},
-           {tr("Replace existing kits"), QVariant::fromValue(UpgradeOption::Replace)}};
+        = {{Tr::tr("Create new kits"), QVariant::fromValue(UpgradeOption::Keep)},
+           {Tr::tr("Replace existing kits"), QVariant::fromValue(UpgradeOption::Replace)}};
 
     info.setComboInfo(infos, [](const Utils::InfoBarEntry::ComboInfo &selected) {
         selectedOption = selected.data.value<UpgradeOption>();
     });
 
-    info.addCustomButton(tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
+    info.addCustomButton(Tr::tr("Proceed"), [upgradeMcuSupportKits, settingsHandler] {
         ICore::infoBar()->removeInfo(upgradeMcuSupportKits);
         QTimer::singleShot(0, [settingsHandler]() {
             McuKitManager::upgradeKitsByCreatingNewPackage(settingsHandler, selectedOption);

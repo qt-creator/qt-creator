@@ -3,6 +3,7 @@
 
 #include "mcusupportdevice.h"
 #include "mcusupportconstants.h"
+#include "mcusupporttr.h"
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -14,7 +15,7 @@ McuSupportDevice::McuSupportDevice()
 {
     setupId(IDevice::AutoDetected, Constants::DEVICE_ID);
     setType(Constants::DEVICE_TYPE);
-    const QString displayNameAndType = tr("MCU Device");
+    const QString displayNameAndType = Tr::tr("MCU Device");
     setDefaultDisplayName(displayNameAndType);
     setDisplayType(displayNameAndType);
     setDeviceState(IDevice::DeviceStateUnknown);
@@ -31,7 +32,7 @@ ProjectExplorer::IDevice::Ptr McuSupportDevice::create()
 McuSupportDeviceFactory::McuSupportDeviceFactory()
     : ProjectExplorer::IDeviceFactory(Constants::DEVICE_TYPE)
 {
-    setDisplayName(McuSupportDevice::tr("MCU Device"));
+    setDisplayName(Tr::tr("MCU Device"));
     setCombinedIcon(":/mcusupport/images/mcusupportdevicesmall.png",
                     ":/mcusupport/images/mcusupportdevice.png");
     setConstructionFunction(&McuSupportDevice::create);

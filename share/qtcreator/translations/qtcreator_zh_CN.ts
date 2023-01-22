@@ -24249,14 +24249,11 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>McuSupport::Internal::FlashAndRunConfiguration</name>
+    <name>::McuSupport</name>
     <message>
         <source>Flash and run CMake parameters:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuDependenciesKitAspect</name>
     <message>
         <source>MCU Dependencies</source>
         <translation type="unfinished"></translation>
@@ -24277,9 +24274,6 @@ Error: %5</source>
         <source>CMake variable %1: path %2 does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuPackage</name>
     <message>
         <source>Path %1 exists, but does not contain %2.</source>
         <translation type="unfinished"></translation>
@@ -24356,16 +24350,10 @@ Error: %5</source>
         <source>STM32CubeProgrammer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportDevice</name>
     <message>
         <source>MCU Device</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptions</name>
     <message>
         <source>Qt for MCUs Demos</source>
         <translation type="unfinished"></translation>
@@ -24390,9 +24378,6 @@ Error: %5</source>
         <source>New version of Qt for MCUs detected. Upgrade existing kits?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportOptionsWidget</name>
     <message>
         <source>Qt for MCUs SDK</source>
         <translation type="unfinished"></translation>
@@ -24441,9 +24426,6 @@ Error: %5</source>
         <source>MCU</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuSupportPlugin</name>
     <message>
         <source>Create Kits for Qt for MCUs? To do it later, select Edit &gt; Preferences &gt; Devices &gt; MCU.</source>
         <translation type="unfinished"></translation>
@@ -24468,9 +24450,6 @@ Error: %5</source>
         <source>Proceed</source>
         <translation type="unfinished">继续</translation>
     </message>
-</context>
-<context>
-    <name>McuSupport::Internal::McuTarget</name>
     <message>
         <source>Warning for target %1: missing CMake toolchain file expected at %2.</source>
         <translation type="unfinished"></translation>
@@ -24497,10 +24476,6 @@ Error: %5</source>
     </message>
     <message>
         <source>Skipped %1. %2 Qt for MCUs version &gt;= %3 required.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No valid kit descriptions found at %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -38294,7 +38269,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtForMCUs</name>
+    <name>::McuSupport</name>
     <message>
         <source>Qt for MCUs: %1</source>
         <translation type="unfinished"></translation>
