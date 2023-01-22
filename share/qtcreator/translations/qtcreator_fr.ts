@@ -13191,7 +13191,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -13252,27 +13252,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Log count:</source>
         <translation>Nombre de log :</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Commande Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionOutputWindow</name>
     <message>
         <source>Subversion Output</source>
         <translation type="obsolete">Sortie de Subversion</translation>
     </message>
-    <message>
-        <source>Subversion</source>
-        <translation type="obsolete">Subversion</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -13555,9 +13542,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Subversion n&apos;a pas répondu après la limite de temps (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Submit sur Subversion</translation>
@@ -17804,7 +17788,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="obsolete">Vérifie un projet à partir d&apos;un dépôt Subversion.</translation>
@@ -17817,9 +17801,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Subversion Checkout</source>
         <translation>Import Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="obsolete">Spécifier le dépôt, le répertoire et le chemin de checkout.</translation>
@@ -24846,7 +24827,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
@@ -36123,7 +36104,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>

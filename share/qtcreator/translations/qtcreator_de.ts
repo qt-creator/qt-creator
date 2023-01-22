@@ -11639,7 +11639,7 @@ Rename %2 to %3 anyway?</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionPlugin</name>
+    <name>::Subversion</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -11832,9 +11832,6 @@ Rename %2 to %3 anyway?</source>
         <source>No subversion executable specified.</source>
         <translation>Es wurde keine Subversion-Anwendung angegeben.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion Submit</translation>
@@ -34171,7 +34168,7 @@ Benutzen Sie dies nur für Prototypen. Sie können damit keine vollständige Anw
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotation für Revision &quot;%1&quot;</translation>
@@ -40048,7 +40045,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
+    <name>::Subversion</name>
     <message>
         <source>Verbose</source>
         <translation>Ausführlich</translation>
@@ -55647,7 +55644,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionSettings</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command</source>
         <translation type="unfinished">Subversion-Kommando</translation>

@@ -7696,7 +7696,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -33345,14 +33345,11 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation type="unfinished"></translation>
@@ -33361,16 +33358,10 @@ Row: %4, Column: %5
         <source>Show files changed in each revision</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -33559,9 +33550,6 @@ Row: %4, Column: %5
         <source>No subversion executable specified.</source>
         <translation>Nijedan izvršni subversion nije specificiran.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion Pošalji</translation>

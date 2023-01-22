@@ -42678,7 +42678,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>Авторизация</translation>
@@ -42723,9 +42723,6 @@ Row: %4, Column: %5
         <source>Username:</source>
         <translation>Имя пользователя:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Команда Subversion</translation>
@@ -42734,16 +42731,10 @@ Row: %4, Column: %5
         <source>Subversion</source>
         <translation>Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Аннотация ревизии «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation>Подробно</translation>
@@ -42752,9 +42743,6 @@ Row: %4, Column: %5
         <source>Show files changed in each revision</source>
         <translation>Показывать изменяемые файлы в каждой ревизии</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -42943,9 +42931,6 @@ Row: %4, Column: %5
         <source>No subversion executable specified.</source>
         <translation>Программа Subversion не указана.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Фиксация Subversion</translation>

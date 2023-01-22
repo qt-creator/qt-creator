@@ -18534,7 +18534,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Trust Server Certificate</source>
         <translation type="vanished">Довіряти сертифікату сервера</translation>
@@ -18547,9 +18547,6 @@ with a password, which you can enter below.</source>
         <source>Repository:</source>
         <translation type="vanished">Сховище:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -18598,16 +18595,10 @@ with a password, which you can enter below.</source>
         <source>Subversion</source>
         <translation>Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Команда Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -18616,9 +18607,6 @@ with a password, which you can enter below.</source>
         <source>Ignore Whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -18835,9 +18823,6 @@ with a password, which you can enter below.</source>
         <source>No subversion executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="unfinished"></translation>
@@ -40400,7 +40385,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -41562,7 +41547,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionLogParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Verbose</source>
         <translation>Детально</translation>

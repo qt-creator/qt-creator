@@ -1149,7 +1149,7 @@
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>Autoryzacja</translation>
@@ -8552,14 +8552,11 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command</source>
         <translation>Komenda Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -8776,9 +8773,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>No subversion executable specified.</source>
         <translation>Nie podano komendy programu subversion.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Utwórz poprawkę w Subversion</translation>
@@ -31555,7 +31549,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>
@@ -39938,7 +39932,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
+    <name>::Subversion</name>
     <message>
         <source>Verbose</source>
         <translation>Gadatliwy</translation>

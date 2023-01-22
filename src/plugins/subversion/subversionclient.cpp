@@ -4,6 +4,7 @@
 #include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversionsettings.h"
+#include "subversiontr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 
@@ -43,8 +44,8 @@ public:
     SubversionLogConfig(SubversionSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton("--verbose", tr("Verbose"),
-                                   tr("Show files changed in each revision")),
+        mapSetting(addToggleButton("--verbose", Tr::tr("Verbose"),
+                                   Tr::tr("Show files changed in each revision")),
                    &settings.logVerbose);
     }
 };
@@ -177,7 +178,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         CommandLine command = process.commandLine();
         command << SubversionClient::AddAuthOptions();
         process.setCommand(command);
-        setDescription(tr("Waiting for data..."));
+        setDescription(Tr::tr("Waiting for data..."));
         return TaskAction::Continue;
     };
     const auto onDescriptionDone = [this](const QtcProcess &process) {

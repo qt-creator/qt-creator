@@ -6,6 +6,7 @@
 
 #include "annotationhighlighter.h"
 #include "subversionconstants.h"
+#include "subversiontr.h"
 
 #include <utils/qtcassert.h>
 #include <vcsbase/diffandloghighlighter.h>
@@ -35,7 +36,7 @@ SubversionEditorWidget::SubversionEditorWidget() :
     */
     setDiffFilePattern("^[-+]{3} ([^\\t]+)|^Index: .*|^=+$");
     setLogEntryPattern("^(r\\d+) \\|");
-    setAnnotateRevisionTextFormat(tr("Annotate revision \"%1\""));
+    setAnnotateRevisionTextFormat(Tr::tr("Annotate revision \"%1\""));
     setAnnotationEntryPattern("^(\\d+):");
 }
 

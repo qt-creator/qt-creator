@@ -9350,7 +9350,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command:</source>
         <translation>Comando Subversion:</translation>
@@ -9378,16 +9378,10 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Comando Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionOutputWindow</name>
     <message>
         <source>Subversion Output</source>
         <translation type="obsolete">Salida de Subversion</translation>
@@ -9396,9 +9390,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Subversion</source>
         <translation type="obsolete">Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation></translation>
@@ -9584,9 +9575,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation>Subversion no ha respondido en el tiempo esperado (%1 ms). </translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Envíar a Subversion</translation>
@@ -12589,7 +12577,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="unfinished"></translation>
@@ -12598,9 +12586,6 @@ Check if the phone is connected and the TRK application is running.</source>
         <source>Subversion Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="unfinished"></translation>

@@ -33267,7 +33267,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -33316,23 +33316,14 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Subversion</source>
         <translation>Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Subversion-kommando</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotate revision &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation>Detaljeret</translation>
@@ -33341,9 +33332,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>Show files changed in each revision</source>
         <translation>Vis filer som er ændret i hver revision</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -33560,9 +33548,6 @@ med en adgangskode, som du kan indtaste herunder.</translation>
         <source>No subversion executable specified.</source>
         <translation>Ingen subversion-eksekverbar angivet.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion submit</translation>

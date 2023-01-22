@@ -5910,7 +5910,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -29337,18 +29337,11 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command</source>
         <translation>Subversion コマンド</translation>
     </message>
-    <message>
-        <source>Subversion</source>
-        <translation>Subversion</translation>
-    </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -29565,9 +29558,6 @@ In addition, device connectivity will be tested.</source>
         <source>No subversion executable specified.</source>
         <translation>subversion 実行ファイルが指定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion コミット</translation>
@@ -40970,7 +40960,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionLogParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Verbose</source>
         <translation>冗長</translation>
@@ -40979,9 +40969,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Show files changed in each revision</source>
         <translation>リビジョン毎の差分ファイルを表示する</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>
@@ -48500,11 +48487,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
-    <message>
-        <source>Show files changed in each revision</source>
-        <translation>リビジョン毎の差分ファイルを表示する</translation>
-    </message>
+    <name>::Subversion</name>
 </context>
 <context>
     <name>::TextEditor</name>

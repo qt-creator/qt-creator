@@ -41767,14 +41767,11 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditorWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished">注释修订版本 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation type="unfinished">详细</translation>
@@ -41783,9 +41780,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Show files changed in each revision</source>
         <translation type="unfinished">显示每个修订版本改变的文件</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -41978,9 +41972,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>No subversion executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSettings</name>
     <message>
         <source>Subversion Command</source>
         <translation type="unfinished">Subversion 命令</translation>
@@ -42033,9 +42024,6 @@ Failed to open file &quot;%1&quot;</source>
         <source>Miscellaneous</source>
         <translation type="unfinished">其它</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion提交</translation>

@@ -8783,7 +8783,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>Overjanje</translation>
@@ -8841,16 +8841,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Log count:</source>
         <translation>Dolžina dnevnika:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Ukaz Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -9095,9 +9089,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Subversion se v za to namenjenem času (%1 ms) ni odzval.</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Pošiljanje Subversion</translation>
@@ -12555,7 +12546,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče Subversion in poskusi naložiti vsebovani projekt.</translation>
@@ -12564,9 +12555,6 @@ Razlog: %2</translation>
         <source>Subversion Checkout</source>
         <translation>Prevzem iz Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -16815,7 +16803,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
@@ -27406,7 +27394,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>

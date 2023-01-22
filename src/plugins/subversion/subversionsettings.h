@@ -11,8 +11,6 @@ namespace Internal {
 
 class SubversionSettings : public VcsBase::VcsBaseSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Subversion::Internal::SubversionSettings)
-
 public:
     SubversionSettings();
 

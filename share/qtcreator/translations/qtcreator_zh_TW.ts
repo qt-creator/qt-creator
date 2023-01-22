@@ -8255,7 +8255,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Authentication</source>
         <translation>認證</translation>
@@ -8304,16 +8304,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Username:</source>
         <translation>使用者名稱：</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Subversion 指令</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>Subversion (&amp;S)</translation>
@@ -8530,9 +8524,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>No subversion executable specified!</source>
         <translation>沒有指定 subversion 執行檔！</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion 提交</translation>
@@ -10925,7 +10916,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>::Subversion</name>
     <message>
         <source>Checks out a Subversion repository and tries to load the contained project.</source>
         <translation>從 Subversion 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -10934,9 +10925,6 @@ Reason: %2</source>
         <source>Subversion Checkout</source>
         <translation>Subversion 取出</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -13856,7 +13844,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
@@ -22479,7 +22467,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

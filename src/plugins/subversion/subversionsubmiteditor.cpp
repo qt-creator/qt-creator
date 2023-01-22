@@ -3,6 +3,7 @@
 
 #include "subversionsubmiteditor.h"
 #include "subversionplugin.h"
+#include "subversiontr.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submiteditorwidget.h>
@@ -13,7 +14,7 @@ using namespace Subversion::Internal;
 SubversionSubmitEditor::SubversionSubmitEditor() :
     VcsBase::VcsBaseSubmitEditor(new VcsBase::SubmitEditorWidget)
 {
-    document()->setPreferredDisplayName(tr("Subversion Submit"));
+    document()->setPreferredDisplayName(Tr::tr("Subversion Submit"));
     setDescriptionMandatory(false);
 }
 

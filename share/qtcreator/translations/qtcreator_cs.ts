@@ -13040,7 +13040,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SettingsPage</name>
+    <name>::Subversion</name>
     <message>
         <source>Subversion Command:</source>
         <translation type="obsolete">Příkaz pro Subversion:</translation>
@@ -13101,16 +13101,10 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Log count:</source>
         <translation>Počet záznamů omezit na:</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SettingsPageWidget</name>
     <message>
         <source>Subversion Command</source>
         <translation>Příkaz pro Subversion</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionPlugin</name>
     <message>
         <source>&amp;Subversion</source>
         <translation>&amp;Subversion</translation>
@@ -13388,9 +13382,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <source>Subversion did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">Žádná odpověď od &apos;Subversion&apos; v rámci časového omezení (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::SubversionSubmitEditor</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Odeslání Subversion (submit)</translation>
@@ -18785,7 +18776,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::CheckoutWizard</name>
+    <name>::Subversion</name>
     <message>
         <source>Checks out a project from a Subversion repository.</source>
         <translation type="obsolete">Odhlásí projekt ze skladiště Subversion.</translation>
@@ -18798,9 +18789,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Subversion Checkout</source>
         <translation>Projekt ze skladiště Subversion (checkout)</translation>
     </message>
-</context>
-<context>
-    <name>Subversion::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository, checkout directory and path.</source>
         <translation type="obsolete">Zadejte skladiště, adresář pro odhlášení a cestu.</translation>
@@ -25857,7 +25845,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionEditor</name>
+    <name>::Subversion</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Opatřit anotacemi revizi &quot;%1&quot;</translation>
@@ -36896,7 +36884,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Subversion::Internal::SubversionDiffParameterWidget</name>
+    <name>::Subversion</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
