@@ -40184,9 +40184,6 @@ These files are preserved.</source>
         <source>The script is currently disabled.</source>
         <translation>スクリプトは現在無効化されています。</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Interpreter: </source>
         <translation>インタプリタ: </translation>
@@ -40195,16 +40192,10 @@ These files are preserved.</source>
         <source>Script: </source>
         <translation>スクリプト: </translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>No Python interpreter specified.</source>
         <translation>Python のインタプリタが指定されていません。</translation>
@@ -46420,9 +46411,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Manage...</source>
         <translation>管理...</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -46435,9 +46423,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Python</source>
         <translation>Python</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Install</source>
         <translation>インストールする</translation>

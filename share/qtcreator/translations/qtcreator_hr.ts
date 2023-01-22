@@ -28889,7 +28889,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>::Python</name>
     <message>
         <source>Interpreter:</source>
         <translation>Interpreter:</translation>
@@ -28902,9 +28902,6 @@ These files are preserved.</source>
         <source>Run %1</source>
         <translation>Pokreni %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonProject</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation type="unfinished"></translation>

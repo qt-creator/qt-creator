@@ -25544,7 +25544,7 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>::Python</name>
     <message>
         <source>Interpreter:</source>
         <translation>Fortolker:</translation>

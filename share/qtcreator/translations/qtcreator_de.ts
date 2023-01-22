@@ -53533,7 +53533,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonSettings</name>
+    <name>::Python</name>
     <message>
         <source>Searching Python binaries...</source>
         <translation type="unfinished"></translation>

@@ -32968,9 +32968,6 @@ App ID: %2
         <source>Failed to run Python (%1): &quot;%2&quot;.</source>
         <translation>Не удалось запустить Python (%1): «%2».</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Manage...</source>
         <translation>Управление...</translation>
@@ -32979,9 +32976,6 @@ App ID: %2
         <source>Interpreter</source>
         <translation>Интерпретатор</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Python Language Server (%1)</source>
         <translation>Сервер языка Python (%1)</translation>
@@ -33010,9 +33004,6 @@ App ID: %2
         <source>Enable</source>
         <translation>Включить</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Running &quot;%1 %2&quot; to install Python language server</source>
         <translation>Выполнение «%1 %2» для установки сервера языка Python</translation>
@@ -33033,9 +33024,6 @@ App ID: %2
         <source>Installing the Python language server failed with exit code %1</source>
         <translation>Не удалось установить сервер языка Python, код завершения %1</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation>Не удалось открыть «%1» для чтения: %2</translation>
@@ -33048,9 +33036,6 @@ App ID: %2
         <source>Unable to parse &quot;%1&quot;:%2: %3</source>
         <translation>Не удалось разобрать «%1»:%2: %3</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Buffered output</source>
         <translation>Буферизованный вывод</translation>
@@ -33067,9 +33052,6 @@ App ID: %2
         <source>Run %1</source>
         <translation>Выполнить %1</translation>
     </message>
-</context>
-<context>
-    <name>::Python</name>
     <message>
         <source>Name:</source>
         <translation>Имя:</translation>

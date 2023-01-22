@@ -32706,7 +32706,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>::Python</name>
     <message>
         <source>Run %1</source>
         <translation>Uruchom %1</translation>
@@ -32719,9 +32719,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>The script is currently disabled.</source>
         <translation>Skrypt jest aktualnie zablokowany.</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonRunConfigurationWidget</name>
     <message>
         <source>Interpreter: </source>
         <translation>Interpreter: </translation>

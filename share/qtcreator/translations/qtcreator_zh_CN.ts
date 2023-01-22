@@ -30778,9 +30778,6 @@ Expiration date: %3</source>
         <source>Python:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Python::Internal::PythonSettings</name>
     <message>
         <source>Searching Python binaries...</source>
         <translation type="unfinished"></translation>

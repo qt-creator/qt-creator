@@ -48624,7 +48624,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::FileWizard</name>
+    <name>::Python</name>
     <message>
         <source>Python source file</source>
         <translation>Fichier source Python</translation>
@@ -48637,9 +48637,6 @@ Distant : %4</translation>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizard</name>
     <message>
         <source>Python class</source>
         <translation>Classe Python</translation>
@@ -48656,9 +48653,6 @@ Distant : %4</translation>
         <source>Creates C++/Boost file with bindings for Python</source>
         <translation>Créer un fichier C++/Boost avec des liaisons pour Python</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassNamePage</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Entrer le nom de la classe</translation>
@@ -48667,9 +48661,6 @@ Distant : %4</translation>
         <source>The source file name will be derived from the class name</source>
         <translation>Le nom du fichier source sera déterminé à partir du nom de la classe</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizardDialog</name>
     <message>
         <source>Python Class Wizard</source>
         <translation>Assistant de classe Python</translation>
@@ -51552,26 +51543,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassNamePage</name>
-    <message>
-        <source>Enter Class Name</source>
-        <translation>Entrer le nom de la classe</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation>Le nom du fichier source sera déterminé à partir du nom de la classe</translation>
-    </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation>Assistant de classe Python</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
+    <name>::Python</name>
 </context>
 <context>
     <name>::QmakeProjectManager</name>

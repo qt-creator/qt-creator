@@ -52752,7 +52752,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::FileWizard</name>
+    <name>::Python</name>
     <message>
         <source>Python source file</source>
         <translation>Zdrojový soubor Python</translation>
@@ -52765,9 +52765,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>New %1</source>
         <translation>Nový %1</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizard</name>
     <message>
         <source>Python class</source>
         <translation>Třída Pythonu</translation>
@@ -52784,9 +52781,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Creates C++/Boost file with bindings for Python</source>
         <translation>Vytvoří soubor C++-/Boost s vazbami pro Python</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassNamePage</name>
     <message>
         <source>Enter Class Name</source>
         <translation>Zadejte název třídy</translation>
@@ -52795,9 +52789,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>The source file name will be derived from the class name</source>
         <translation>Název zdrojového soubory se odvodí z názvu pro třídu</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizardDialog</name>
     <message>
         <source>Python Class Wizard</source>
         <translation>Nová třída Pythonu</translation>
@@ -54898,26 +54889,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassNamePage</name>
-    <message>
-        <source>Enter Class Name</source>
-        <translation>Zadejte název třídy</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation>Název zdrojového soubory se odvodí z názvu pro třídu</translation>
-    </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation>Nová třída Pythonu</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
+    <name>::Python</name>
 </context>
 <context>
     <name>::QmakeProjectManager</name>

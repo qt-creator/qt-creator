@@ -32160,7 +32160,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::ClassNamePage</name>
+    <name>::Python</name>
     <message>
         <source>Enter Class Name</source>
         <translation type="vanished">Введіть назву класу</translation>
@@ -32169,9 +32169,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>The source file name will be derived from the class name</source>
         <translation type="vanished">Назва файлу з кодом буде походити від назви класу</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::ClassWizardDialog</name>
     <message>
         <source>Python Class Wizard</source>
         <translation type="vanished">Майстер класу Python</translation>
@@ -32180,9 +32177,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>Details</source>
         <translation type="vanished">Деталі</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::FileWizard</name>
     <message>
         <source>New %1</source>
         <translation type="vanished">Новий %1</translation>
@@ -32630,7 +32624,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>PythonEditor::ClassWizard</name>
+    <name>::Python</name>
     <message>
         <source>Python class</source>
         <translation type="vanished">Клас Python</translation>
@@ -34343,30 +34337,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::ClassNamePage</name>
-    <message>
-        <source>Enter Class Name</source>
-        <translation type="vanished">Введіть назву класу</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation type="vanished">Назва файлу з кодом буде походити від назви класу</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation type="vanished">Майстер класу Python</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
+    <name>::Python</name>
 </context>
 <context>
     <name>::QmakeProjectManager</name>
@@ -42339,7 +42310,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>::Python</name>
     <message>
         <source>Run %1</source>
         <translation>Запустити %1</translation>
@@ -42352,9 +42323,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>The script is currently disabled.</source>
         <translation>Скрипт зараз вимкнено.</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonRunConfigurationWidget</name>
     <message>
         <source>Interpreter: </source>
         <translation>Інтерпретатор:</translation>
@@ -42363,16 +42331,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Script: </source>
         <translation>Скрипт:</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonProjectManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом.</translation>
     </message>
-</context>
-<context>
-    <name>PythonEditor::Internal::PythonRunControl</name>
     <message>
         <source>No Python interpreter specified.</source>
         <translation>Не вказано інтерпретатор Python.</translation>
