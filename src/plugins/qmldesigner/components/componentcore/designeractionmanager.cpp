@@ -1956,15 +1956,6 @@ void DesignerActionManager::createDefaultDesignerActions()
     }
 
     addDesignerAction(new ModelNodeContextMenuAction(
-                          addSignalHandlerCommandId,
-                          addSignalHandlerDisplayName,
-                          {},
-                          rootCategory, QKeySequence(),
-                          42, &addNewSignalHandler,
-                          &singleSelectedAndUiFile,
-                          &singleSelectedAndUiFile));
-
-    addDesignerAction(new ModelNodeContextMenuAction(
                           makeComponentCommandId,
                           makeComponentDisplayName,
                           contextIcon(DesignerIcons::MakeComponentIcon),
