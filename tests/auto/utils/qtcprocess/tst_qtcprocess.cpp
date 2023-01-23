@@ -134,6 +134,7 @@ private slots:
     void recursiveBlockingProcess();
     void quitBlockingProcess_data();
     void quitBlockingProcess();
+    void tarPipe();
 
     void cleanupTestCase();
 
@@ -1437,6 +1438,60 @@ void tst_QtcProcess::quitBlockingProcess()
     } else {
         QVERIFY(!process.isRunning());
     }
+}
+
+void tst_QtcProcess::tarPipe()
+{
+    if (!FilePath::fromString("tar").searchInPath().isExecutableFile())
+        QSKIP("This test uses \"tar\" command.");
+
+    QtcProcess sourceProcess;
+    QtcProcess targetProcess;
+
+    targetProcess.setProcessMode(ProcessMode::Writer);
+
+    QObject::connect(&sourceProcess, &QtcProcess::readyReadStandardOutput,
+                     &targetProcess, [&sourceProcess, &targetProcess]() {
+        targetProcess.writeRaw(sourceProcess.readAllRawStandardOutput());
+    });
+
+    QTemporaryDir sourceDir;
+    QVERIFY(sourceDir.isValid());
+    QTemporaryDir destinationDir;
+    QVERIFY(destinationDir.isValid());
+
+    const FilePath sourcePath = FilePath::fromString(sourceDir.path());
+    const FilePath sourceArchive = sourcePath / "archive";
+    QVERIFY(sourceArchive.createDir());
+    const FilePath sourceFile = sourceArchive / "file1.txt";
+    QVERIFY(sourceFile.writeFileContents("bla bla"));
+
+    const FilePath destinationPath = FilePath::fromString(destinationDir.path());
+    const FilePath destinationArchive = destinationPath / "archive";
+    const FilePath destinationFile = destinationArchive / "file1.txt";
+
+    QVERIFY(!destinationArchive.exists());
+    QVERIFY(!destinationFile.exists());
+
+    sourceProcess.setCommand({"tar", {"cvf", "-", "-C", sourcePath.nativePath(), "."}});
+    targetProcess.setCommand({"tar", {"xvf", "-", "-C", destinationPath.nativePath()}});
+
+    targetProcess.start();
+    QVERIFY(targetProcess.waitForStarted());
+
+    sourceProcess.start();
+    QVERIFY(sourceProcess.waitForFinished());
+
+    if (targetProcess.isRunning()) {
+        targetProcess.closeWriteChannel();
+        QVERIFY(targetProcess.waitForFinished(2000));
+    }
+
+    QCOMPARE(targetProcess.exitCode(), 0);
+    QCOMPARE(targetProcess.result(), ProcessResult::FinishedWithSuccess);
+    QVERIFY(destinationArchive.exists());
+    QVERIFY(destinationFile.exists());
+    QCOMPARE(sourceFile.fileSize(), destinationFile.fileSize());
 }
 
 QTEST_GUILESS_MAIN(tst_QtcProcess)
