@@ -27,7 +27,7 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   set(WITH_TESTS ON)
 
-  find_package(Qt5
+  find_package(Qt6
     COMPONENTS
       Gui Core Core5Compat Widgets Network Qml Concurrent Test Xml MODULE)
   find_package(Threads)

@@ -1,7 +1,6 @@
 add_qtc_plugin(Haskell
   PLUGIN_DEPENDS
     QtCreator::Core QtCreator::TextEditor QtCreator::ProjectExplorer
-  DEPENDS Qt5::Widgets
   SOURCES
     haskell.qrc
     haskell_global.h

@@ -24,7 +24,7 @@ add_qtc_test(unittest GTEST
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
     Qt::Xml Qt::Concurrent Qt::Qml Qt::Gui
-    Qt6Core5Compat QmlJS Sqlite SqliteC
+    Qt::Core5Compat QmlJS Sqlite SqliteC
     Googletest
   DEFINES
     QT_NO_CAST_TO_ASCII

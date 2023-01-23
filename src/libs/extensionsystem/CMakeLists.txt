@@ -19,7 +19,7 @@ add_qtc_library(ExtensionSystem
   SKIP_AUTOMOC pluginmanager.cpp
 )
 
-find_package(Qt5 COMPONENTS Test QUIET)
+find_package(Qt6 COMPONENTS Test QUIET)
 
 extend_qtc_library(ExtensionSystem
   CONDITION TARGET Qt::Test

@@ -126,7 +126,7 @@ endfunction()
 function(add_translation_targets file_prefix)
   if (NOT TARGET Qt::lrelease OR NOT TARGET Qt::lupdate)
     # No Qt translation tools were found: Skip this directory
-    message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt5 COMPONENTS LinguistTools) to CMake to enable.")
+    message(WARNING "No Qt translation tools found, skipping translation targets. Add find_package(Qt6 COMPONENTS LinguistTools) to CMake to enable.")
     return()
   endif()
 

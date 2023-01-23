@@ -224,7 +224,7 @@ function(set_explicit_moc target_name file)
     set(file_dependencies DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${target_name}.json")
   endif()
   set_property(SOURCE "${file}" PROPERTY SKIP_AUTOMOC ON)
-  qt5_wrap_cpp(file_moc "${file}" ${file_dependencies})
+  qt_wrap_cpp(file_moc "${file}" ${file_dependencies})
   target_sources(${target_name} PRIVATE "${file_moc}")
 endfunction()
 

@@ -2,7 +2,7 @@ add_qtc_library(Utils
   DEPENDS Qt::Qml Qt::Xml
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
-    Qt6Core5Compat
+    Qt::Core5Compat
   SOURCES
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp

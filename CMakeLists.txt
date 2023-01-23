@@ -65,7 +65,7 @@ if(MSVC)
   add_compile_options(/wd4573)
 endif()
 
-find_package(Qt5
+find_package(Qt6
   ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
   REQUIRED
@@ -82,8 +82,8 @@ if (MSVC AND QT_FEATURE_static_runtime)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
-find_package(Qt5 COMPONENTS LinguistTools QUIET)
-find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)
+find_package(Qt6 OPTIONAL_COMPONENTS Quick QuickWidgets Designer DesignerComponentsPrivate
+                                     Help SerialPort Svg Tools LinguistTools QUIET)
 
 find_package(Threads)
 find_package(Clang QUIET)
