@@ -261,6 +261,8 @@ QString FilePath::toFSPathString() const
 
 QUrl FilePath::toUrl() const
 {
+    if (!needsDevice())
+        return QUrl::fromLocalFile(toFSPathString());
     QUrl url;
     url.setScheme(scheme().toString());
     url.setHost(host().toString());
