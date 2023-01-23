@@ -16,10 +16,10 @@ def getQtCreatorVersionFromDialog():
         return ""
 
 def getQtCreatorVersionFromFile():
-    qtCreatorPriFileName = "../../../../qtcreator_ide_branding.pri"
+    qtCreatorPriFileName = "../../../../cmake/QtCreatorIDEBranding.cmake"
     # open file <qtCreatorPriFileName> and read version
     fileText = readFile(qtCreatorPriFileName)
-    chk = re.search("(?<=QTCREATOR_DISPLAY_VERSION =)\s\d+.\d+.\d+\S*", fileText)
+    chk = re.search('(?<=set\(IDE_VERSION_DISPLAY ")\d+.\d+.\d+\S*(?="\))', fileText)
     try:
         ver = chk.group(0).strip()
         return ver
