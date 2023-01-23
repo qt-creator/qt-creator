@@ -82,11 +82,13 @@ private:
     void loadQmltypesFile(const Utils::FilePaths &qmltypesFilePaths,
                           const Utils::FilePath &libraryPath,
                           QmlJS::LibraryInfo libraryInfo);
-    QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                          const QString &baseName);
-    QString resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                          const QString &baseName, const QStringList &suffixes,
-                          const QString &prefix = QString());
+    Utils::FilePath resolvePlugin(const Utils::FilePath &qmldirPath,
+                                  const QString &qmldirPluginPath,
+                                  const QString &baseName);
+    Utils::FilePath resolvePlugin(const Utils::FilePath &qmldirPath,
+                                  const QString &qmldirPluginPath,
+                                  const QString &baseName, const QStringList &suffixes,
+                                  const QString &prefix = QString());
 
 private:
     Utils::FileSystemWatcher *pluginWatcher();
@@ -102,7 +104,7 @@ private:
     Utils::FileSystemWatcher *m_pluginWatcher;
     QHash<Utils::QtcProcess *, Utils::FilePath> m_runningQmldumps;
     QList<Plugin> m_plugins;
-    QHash<QString, int> m_libraryToPluginIndex;
+    QHash<Utils::FilePath, int> m_libraryToPluginIndex;
     QHash<QString, QmlJS::ModelManagerInterface::ProjectInfo> m_qtToInfo;
 };
 

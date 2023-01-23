@@ -123,13 +123,10 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     plugin.importVersion = importVersion;
 
     // add default qmltypes file if it exists
-    QDirIterator it(canonicalLibraryPath.toString(), QStringList { "*.qmltypes" }, QDir::Files);
-
-    while (it.hasNext()) {
-        const FilePath defaultQmltypesPath = canonicalLibraryPath.resolvePath(it.next());
-
-        if (!plugin.typeInfoPaths.contains(defaultQmltypesPath))
-            plugin.typeInfoPaths += defaultQmltypesPath;
+    const FilePaths libEntries = canonicalLibraryPath.dirEntries({{"*.qmltypes"}, QDir::Files});
+    for (const FilePath &libEntry : libEntries) {
+        if (!plugin.typeInfoPaths.contains(libEntry))
+            plugin.typeInfoPaths += libEntry;
     }
 
     // add typeinfo files listed in qmldir
@@ -142,7 +139,7 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
     // watch plugin libraries
     const QList<QmlDirParser::Plugin> plugins = snapshot.libraryInfo(canonicalLibraryPath).plugins();
     for (const QmlDirParser::Plugin &plugin : plugins) {
-        const QString pluginLibrary = resolvePlugin(canonicalLibraryPath.toString(), plugin.path, plugin.name);
+        const FilePath pluginLibrary = resolvePlugin(canonicalLibraryPath, plugin.path, plugin.name);
         if (!pluginLibrary.isEmpty()) {
             if (!pluginWatcher()->watchesFile(pluginLibrary))
                 pluginWatcher()->addFile(pluginLibrary, FileSystemWatcher::WatchModifiedDate);
@@ -155,9 +152,9 @@ void PluginDumper::onLoadPluginTypes(const Utils::FilePath &libraryPath,
         for (const FilePath &path : std::as_const(plugin.typeInfoPaths)) {
             if (!path.exists())
                 continue;
-            if (!pluginWatcher()->watchesFile(path.toString()))
-                pluginWatcher()->addFile(path.toString(), FileSystemWatcher::WatchModifiedDate);
-            m_libraryToPluginIndex.insert(path.toString(), index);
+            if (!pluginWatcher()->watchesFile(path))
+                pluginWatcher()->addFile(path, FileSystemWatcher::WatchModifiedDate);
+            m_libraryToPluginIndex.insert(path, index);
         }
     }
 
@@ -319,7 +316,7 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
 
 void PluginDumper::pluginChanged(const QString &pluginLibrary)
 {
-    const int pluginIndex = m_libraryToPluginIndex.value(pluginLibrary, -1);
+    const int pluginIndex = m_libraryToPluginIndex.value(FilePath::fromString(pluginLibrary), -1);
     if (pluginIndex == -1)
         return;
 
@@ -666,12 +663,11 @@ void PluginDumper::dump(const Plugin &plugin)
 
   Adapted from QDeclarativeImportDatabase::resolvePlugin.
 */
-QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                                    const QString &baseName, const QStringList &suffixes,
-                                    const QString &prefix)
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+                                     const QString &baseName, const QStringList &suffixes,
+                                     const QString &prefix)
 {
-    QStringList searchPaths;
-    searchPaths.append(QLatin1String("."));
+    QStringList searchPaths = {"."};
 
     bool qmldirPluginPathIsRelative = QDir::isRelativePath(qmldirPluginPath);
     if (!qmldirPluginPathIsRelative)
@@ -679,32 +675,25 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
 
     for (const QString &pluginPath : std::as_const(searchPaths)) {
 
-        QString resolvedPath;
+        FilePath resolvedPath;
 
         if (pluginPath == QLatin1String(".")) {
             if (qmldirPluginPathIsRelative)
-                resolvedPath = qmldirPath.absoluteFilePath(qmldirPluginPath);
+                resolvedPath = qmldirPath.resolvePath(qmldirPluginPath);
             else
-                resolvedPath = qmldirPath.absolutePath();
+                resolvedPath = qmldirPath.absoluteFilePath();
         } else {
-            resolvedPath = pluginPath;
+            resolvedPath = FilePath::fromString(pluginPath);
         }
 
-        QDir dir(resolvedPath);
         for (const QString &suffix : suffixes) {
-            QString pluginFileName = prefix;
-
-            pluginFileName += baseName;
-            pluginFileName += suffix;
-
-            QFileInfo fileInfo(dir, pluginFileName);
-
-            if (fileInfo.exists())
-                return fileInfo.absoluteFilePath();
+            FilePath candidate = resolvedPath.pathAppended(prefix + baseName + suffix);
+            if (candidate.exists())
+                return candidate.absoluteFilePath();
         }
     }
 
-    return QString();
+    return {};
 }
 
 /*!
@@ -723,8 +712,8 @@ QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldi
 
   Version number on unix are ignored.
 */
-QString PluginDumper::resolvePlugin(const QDir &qmldirPath, const QString &qmldirPluginPath,
-                                    const QString &baseName)
+FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &qmldirPluginPath,
+                                     const QString &baseName)
 {
     QStringList validSuffixList;
     QString prefix;
