@@ -31957,9 +31957,6 @@ Qt バージョンオプションページで qmldump アプリケーション�
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>ドキュメントファイル &quot;%1&quot; を読めません: %2。</translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>コード整形</translation>

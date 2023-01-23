@@ -34959,7 +34959,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Неможливо зберегти стилі. %1 не існує.</translation>
@@ -34988,9 +34988,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Неможливо прочитати файл документації &quot;%1&quot;: %2.</translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>Форматування коду</translation>
@@ -35046,9 +35043,6 @@ Please build the qmldump application on the Qt version options page.</source>
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>Команда %1</translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>No description available.</source>
         <translation>Опис відсутній.</translation>

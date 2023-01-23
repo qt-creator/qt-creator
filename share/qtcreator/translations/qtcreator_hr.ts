@@ -15500,9 +15500,6 @@ Check the test environment.</source>
         <source>AStyle (*.astylerc)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>Bea&amp;utifier</source>
         <translation>Bea&amp;utifier</translation>

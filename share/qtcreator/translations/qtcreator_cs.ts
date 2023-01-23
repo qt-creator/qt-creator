@@ -55720,7 +55720,7 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>AbstractSettings</name>
+    <name>::Beautifier</name>
     <message>
         <source>Cannot save styles. %1 does not exist.</source>
         <translation>Nelze uložit styly. %1 neexistuje.</translation>
@@ -55749,9 +55749,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <source>Cannot read documentation file &quot;%1&quot;: %2.</source>
         <translation>Nelze přečíst soubor s dokumentací &quot;%1&quot;: %2.</translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>Beautifier</source>
         <translation>Zkrášlovadlo</translation>
@@ -55791,9 +55788,6 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
         <extracomment>File dialog title for path chooser when choosing binary</extracomment>
         <translation>Příkaz %1</translation>
     </message>
-</context>
-<context>
-    <name>::Beautifier</name>
     <message>
         <source>No description available.</source>
         <translation>Popis nedostupný.</translation>
