@@ -54,9 +54,9 @@ NimProjectScanner::NimProjectScanner(Project *project)
         }
 
         // Sync watched dirs
-        const QSet<QString> fsDirs = Utils::transform<QSet>(nodes,
-            [](const std::unique_ptr<FileNode> &fn) { return fn->directory().toString(); });
-        const QSet<QString> projectDirs = Utils::toSet(m_directoryWatcher.directories());
+        const QSet<FilePath> fsDirs = Utils::transform<QSet>(nodes,
+            [](const std::unique_ptr<FileNode> &fn) { return fn->directory(); });
+        const QSet<FilePath> projectDirs = Utils::toSet(m_directoryWatcher.directoryPaths());
         m_directoryWatcher.addDirectories(Utils::toList(fsDirs - projectDirs), FileSystemWatcher::WatchAllChanges);
         m_directoryWatcher.removeDirectories(Utils::toList(projectDirs - fsDirs));
 
@@ -98,7 +98,7 @@ void NimProjectScanner::startScan()
 
 void NimProjectScanner::watchProjectFilePath()
 {
-    m_directoryWatcher.addFile(m_project->projectFilePath().toString(), FileSystemWatcher::WatchModifiedDate);
+    m_directoryWatcher.addFile(m_project->projectFilePath(), FileSystemWatcher::WatchModifiedDate);
 }
 
 void NimProjectScanner::setExcludedFiles(const QStringList &list)

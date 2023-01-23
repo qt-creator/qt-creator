@@ -345,8 +345,8 @@ void FileApiReader::startCMakeState(const QStringList &configurationArguments)
 
     qCDebug(cmakeFileApiMode) << ">>>>>> Running cmake with arguments:" << configurationArguments;
     // Reset watcher:
-    m_watcher.removeFiles(m_watcher.files());
-    m_watcher.removeDirectories(m_watcher.directories());
+    m_watcher.removeFiles(m_watcher.filePaths());
+    m_watcher.removeDirectories(m_watcher.directoryPaths());
 
     makeBackupConfiguration(true);
     writeConfigurationIntoBuildDirectory(configurationArguments);

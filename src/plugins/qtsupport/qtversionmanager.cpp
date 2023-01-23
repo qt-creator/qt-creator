@@ -127,8 +127,7 @@ void QtVersionManager::triggerQtVersionRestore()
         m_configFileWatcher = new FileSystemWatcher(m_instance);
         connect(m_configFileWatcher, &FileSystemWatcher::fileChanged,
                 m_fileWatcherTimer, QOverload<>::of(&QTimer::start));
-        m_configFileWatcher->addFile(configFileName.toString(),
-                                     FileSystemWatcher::WatchModifiedDate);
+        m_configFileWatcher->addFile(configFileName, FileSystemWatcher::WatchModifiedDate);
     } // exists
 
     const QtVersions vs = versions();
@@ -226,8 +225,8 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     const FilePath path = globalSettingsFileName();
     // Handle overwritting of data:
     if (m_configFileWatcher) {
-        m_configFileWatcher->removeFile(path.toString());
-        m_configFileWatcher->addFile(path.toString(), FileSystemWatcher::WatchModifiedDate);
+        m_configFileWatcher->removeFile(path);
+        m_configFileWatcher->addFile(path, FileSystemWatcher::WatchModifiedDate);
     }
 
     QList<int> added;

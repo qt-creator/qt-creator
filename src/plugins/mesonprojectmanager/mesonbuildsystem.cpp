@@ -185,8 +185,7 @@ void MesonBuildSystem::init()
     m_IntroWatcher.addFile(buildConfiguration()
                                ->buildDirectory()
                                .pathAppended(Constants::MESON_INFO_DIR)
-                               .pathAppended(Constants::MESON_INFO)
-                               .toString(),
+                               .pathAppended(Constants::MESON_INFO),
                            Utils::FileSystemWatcher::WatchModifiedDate);
 }
 

@@ -329,9 +329,9 @@ void FileSystemWatcher::removeFiles(const QStringList &files)
 void FileSystemWatcher::clear()
 {
     if (!d->m_files.isEmpty())
-        removeFiles(files());
+        removeFiles(filePaths());
     if (!d->m_directories.isEmpty())
-        removeDirectories(directories());
+        removeDirectories(directoryPaths());
 }
 
 QStringList FileSystemWatcher::files() const
@@ -381,9 +381,9 @@ void FileSystemWatcher::addDirectories(const QStringList &directories, WatchMode
         d->m_staticData->m_watcher->addPaths(toAdd);
 }
 
-void FileSystemWatcher::removeDirectory(const QString &directory)
+void FileSystemWatcher::removeDirectory(const FilePath &file)
 {
-    removeDirectories(QStringList(directory));
+    removeDirectories({file.toFSPathString()});
 }
 
 void FileSystemWatcher::removeDirectories(const QStringList &directories)
@@ -494,11 +494,6 @@ void FileSystemWatcher::addDirectory(const FilePath &file, WatchMode wm)
 void FileSystemWatcher::addDirectories(const FilePaths &files, WatchMode wm)
 {
     addDirectories(transform(files, &FilePath::toFSPathString), wm);
-}
-
-void FileSystemWatcher::removeDirectory(const FilePath &file)
-{
-    removeDirectory(file.toFSPathString());
 }
 
 void FileSystemWatcher::removeDirectories(const FilePaths &files)

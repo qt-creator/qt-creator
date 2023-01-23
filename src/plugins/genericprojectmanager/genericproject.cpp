@@ -158,7 +158,7 @@ private:
 
     CppEditor::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
 
-    Utils::FileSystemWatcher m_deployFileWatcher;
+    FileSystemWatcher m_deployFileWatcher;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -602,9 +602,9 @@ void GenericBuildSystem::updateDeploymentData()
         deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
                                                   projectDirectory().toString());
         setDeploymentData(deploymentData);
-        if (m_deployFileWatcher.files() != QStringList(deploymentFilePath.toString())) {
+        if (m_deployFileWatcher.filePaths() != FilePaths{deploymentFilePath}) {
             m_deployFileWatcher.clear();
-            m_deployFileWatcher.addFile(deploymentFilePath.toString(),
+            m_deployFileWatcher.addFile(deploymentFilePath,
                                         FileSystemWatcher::WatchModifiedDate);
         }
     }

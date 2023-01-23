@@ -28,6 +28,8 @@ public:
     explicit FileSystemWatcher(int id, QObject *parent = nullptr);
     ~FileSystemWatcher() override;
 
+    void clear();
+
     // Good to use in new code:
     void addFile(const Utils::FilePath &file, WatchMode wm);
     void addFiles(const Utils::FilePaths &files, WatchMode wm);
@@ -55,15 +57,12 @@ public:
     void removeFile(const QString &file);
     void removeFiles(const QStringList &files);
 
-    void clear();
-
     bool watchesFile(const QString &file) const;
     QStringList files() const;
 
     void addDirectory(const QString &file, WatchMode wm);
     void addDirectories(const QStringList &files, WatchMode wm);
 
-    void removeDirectory(const QString &file);
     void removeDirectories(const QStringList &files);
 
     bool watchesDirectory(const QString &file) const;

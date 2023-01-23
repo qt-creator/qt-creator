@@ -157,9 +157,9 @@ void QmlPreviewConnectionManager::createPreviewClient()
                             bool success = false;
                             QByteArray contents = m_fileLoader(filename.toFSPathString(), &success);
                             if (success) {
-                                if (!m_fileSystemWatcher.watchesFile(filename.toFSPathString())) {
+                                if (!m_fileSystemWatcher.watchesFile(filename)) {
                                     m_fileSystemWatcher
-                                        .addFile(filename.toFSPathString(),
+                                        .addFile(filename,
                                                  Utils::FileSystemWatcher::WatchModifiedDate);
                                 }
                                 m_qmlPreviewClient->announceFile(path, contents);
