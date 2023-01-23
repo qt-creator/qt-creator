@@ -22,6 +22,7 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     //  -> SpriteParticle3D
     //  -> TextureInput
     //  -> SceneEnvironment
+    //  -> Model
     // Effect
     //  -> SceneEnvironment
     // Shader, Command, Buffer
@@ -63,6 +64,8 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
                 propertyList.append("skyBoxCubeMap");
             else
                 propertyList.append("lightProbe");
+        } else if (parentInfo.isQtQuick3DModel()) {
+            propertyList.append("materials");
         }
     } else if (insertInfo.isQtQuick3DEffect()) {
         if (parentInfo.isQtQuick3DSceneEnvironment())
