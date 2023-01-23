@@ -4321,7 +4321,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
@@ -23506,7 +23506,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>JsonRpcMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -23776,14 +23776,11 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Notification</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Request</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>

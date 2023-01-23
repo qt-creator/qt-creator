@@ -43464,7 +43464,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation>コンテンツを &quot;%1&quot; でデコードできません。&quot;%2&quot; にフォールバックします。</translation>
@@ -43473,9 +43473,6 @@ Output:
         <source>Expected an integer in &quot;%1&quot;, but got &quot;%2&quot;.</source>
         <translation>&quot;%1&quot; の中身は整数を期待していましたが、&quot;%2&quot; でした。</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::JsonObject</name>
     <message>
         <source>Expected type %1 but value contained %2</source>
         <translation>期待される型は %1 ですが、値には %2 が含まれています</translation>
@@ -43497,7 +43494,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Notification</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にはパラメータがありません。</translation>
@@ -43511,28 +43508,19 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Request</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot;に ID が設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::HoverContent</name>
     <message>
         <source>HoverContent should be either MarkedString, MarkupContent, or QList&lt;MarkedString&gt;.</source>
         <translation>HoverContent は、MarkedString、MarkupContent、または QList&lt;MarkedString&gt; のいずれかでなければなりません。</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::MarkedString</name>
     <message>
         <source>DocumentFormattingProperty should be either bool, double, or QString.</source>
         <translation>DocumentFormattingProperty は、bool、double、または QString のいずれかでなければなりません。</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocoll::MarkupOrString</name>
     <message>
         <source>Expected a string or MarkupContent in MarkupOrString.</source>
         <translation>MarkupOrString は文字列または MarkupContent に対応しています。</translation>

@@ -4,6 +4,7 @@
 #include "basemessage.h"
 
 #include "jsonrpcmessages.h"
+#include "languageserverprotocoltr.h"
 
 #include <QBuffer>
 #include <QTextCodec>
@@ -80,10 +81,9 @@ static void parseContentType(BaseMessage &message, QByteArray contentType, QStri
             if (equalindex > 0)
                 codec = QTextCodec::codecForName(charset);
             if (!codec) {
-                parseError = BaseMessage::tr("Cannot decode content with \"%1\". "
-                                "Falling back to \"%2\".")
-                        .arg(QLatin1String(charset),
-                             QLatin1String(defaultCharset));
+                parseError = Tr::tr("Cannot decode content with \"%1\". Falling back to \"%2\".")
+                                 .arg(QLatin1String(charset),
+                                      QLatin1String(defaultCharset));
             }
         }
     }
@@ -96,7 +96,7 @@ static void parseContentLength(BaseMessage &message, QByteArray contentLength, Q
     bool ok = true;
     message.contentLength = contentLength.toInt(&ok);
     if (!ok) {
-        parseError = BaseMessage::tr("Expected an integer in \"%1\", but got \"%2\".")
+        parseError = Tr::tr("Expected an integer in \"%1\", but got \"%2\".")
                 .arg(QString::fromLatin1(contentLengthFieldName), QString::fromLatin1(contentLength));
     }
 }

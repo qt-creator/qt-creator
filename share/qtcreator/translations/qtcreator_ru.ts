@@ -4059,7 +4059,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation>Нельзя преобразовать содержимое с помощью «%1». Возврат к «%2».</translation>
@@ -23822,14 +23822,11 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::HoverContent</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>HoverContent should be either MarkedString, MarkupContent, or QList&lt;MarkedString&gt;.</source>
         <translation>HoverContent должен быть или MarkedString, или MarkupContent, или QList&lt;MarkedString&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::JsonObject</name>
     <message>
         <source>Expected type %1 but value contained %2</source>
         <translation>Ожидается тип %1, но значение содержит %2</translation>
@@ -23838,30 +23835,18 @@ Error: %5</translation>
         <source>None of the following variants could be correctly parsed:</source>
         <translation>Ни один из следующих вариантов невозможно корректно разобрать:</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::MarkedString</name>
     <message>
         <source>DocumentFormattingProperty should be either bool, double, or QString.</source>
         <translation>DocumentFormattingProperty должен быть или bool, или double, или QString.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Notification</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Нет параметров в «%1».</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Request</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>Не задан ID в «%1».</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocoll::MarkupOrString</name>
     <message>
         <source>Expected a string or MarkupContent in MarkupOrString.</source>
         <translation>Ожидается string или MarkupContent в MarkupOrString.</translation>

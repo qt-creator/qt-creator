@@ -4,8 +4,9 @@
 #pragma once
 
 #include "basemessage.h"
-#include "lsptypes.h"
 #include "jsonkeys.h"
+#include "languageserverprotocoltr.h"
+#include "lsptypes.h"
 
 #include <utils/qtcassert.h>
 
@@ -94,7 +95,6 @@ struct ResponseHandler
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonRpcMessage
 {
-    Q_DECLARE_TR_FUNCTIONS(JsonRpcMessage)
 public:
     JsonRpcMessage();
     explicit JsonRpcMessage(const BaseMessage &message);
@@ -163,8 +163,7 @@ public:
         if (auto parameter = params())
             return parameter->isValid();
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Notification",
-                                                        "No parameters in \"%1\".").arg(method());
+            *errorMessage = Tr::tr("No parameters in \"%1\".").arg(method());
         return false;
     }
 };
@@ -254,8 +253,7 @@ public:
         CASE_ERRORCODES(ServerNotInitialized);
         CASE_ERRORCODES(RequestCancelled);
         default:
-            return QCoreApplication::translate("LanguageClient::ResponseError",
-                                               "Error %1").arg(code);
+            return QCoreApplication::translate("::LanguageClient", "Error %1").arg(code);
         }
     }
 #undef CASE_ERRORCODES
@@ -376,10 +374,8 @@ public:
             return false;
         if (id().isValid())
             return true;
-        if (errorMessage) {
-            *errorMessage = QCoreApplication::translate("LanguageServerProtocol::Request",
-                                                        "No ID set in \"%1\".").arg(this->method());
-        }
+        if (errorMessage)
+            *errorMessage = Tr::tr("No ID set in \"%1\".").arg(this->method());
         return false;
     }
 

@@ -10737,7 +10737,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Unexpected header line &quot;%1&quot;.</source>
         <translation>Neočekivani redak u zaglavlju &quot;%1&quot;.</translation>
@@ -10754,9 +10754,6 @@ will also disable the following plugins:
         <source>Unexpected header field &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Neočekivano polje u zaglavlju &quot;%1&quot; u &quot;%2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::JsonObject</name>
     <message>
         <source>Expected type %1 but value contained %2</source>
         <translation>Očekivana vrsta %1, ali vrijednost je sadržavala %2</translation>
@@ -10774,7 +10771,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Notification</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Nema parametara u &quot;%1&quot;.</translation>
@@ -10788,14 +10785,11 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol::Request</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>nema postavljene ID-oznake u &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::MarkedString</name>
     <message>
         <source>MarkedString should be either MarkedLanguageString, MarkupContent, or QList&lt;MarkedLanguageString&gt;.</source>
         <translation type="unfinished"></translation>
@@ -10804,9 +10798,6 @@ will also disable the following plugins:
         <source>DocumentFormattingProperty should be either bool, double, or QString.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocoll::MarkupOrString</name>
     <message>
         <source>Expected a string or MarkupContent in MarkupOrString.</source>
         <translation>Dupli klik za prikaz.</translation>

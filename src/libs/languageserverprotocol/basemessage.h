@@ -20,7 +20,6 @@ LANGUAGESERVERPROTOCOL_EXPORT Q_DECLARE_LOGGING_CATEGORY(parseLog)
 
 class LANGUAGESERVERPROTOCOL_EXPORT BaseMessage
 {
-    Q_DECLARE_TR_FUNCTIONS(BaseMessage)
 public:
     BaseMessage();
     BaseMessage(const QByteArray &mimeType, const QByteArray &content,

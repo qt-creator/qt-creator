@@ -41996,7 +41996,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>BaseMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation>Zeichensatz &quot;%1&quot; kann nicht dekodiert werden. Verwende stattdessen &quot;%2&quot;.</translation>
@@ -42005,16 +42005,10 @@ Was soll %1 tun?</translation>
         <source>Expected an integer in &quot;%1&quot;, but got &quot;%2&quot;.</source>
         <translation>Statt eines Ganzzahlwerts wurde &quot;%2&quot; in &quot;%1&quot; gefunden.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Notification</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Keine Parameter in &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>LanguageServerProtocol::Request</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>In &quot;%1&quot; ist keine ID angegeben.</translation>
@@ -50240,7 +50234,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>JsonRpcMessage</name>
+    <name>LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation type="unfinished">Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>

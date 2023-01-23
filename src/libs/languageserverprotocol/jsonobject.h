@@ -14,8 +14,6 @@ namespace LanguageServerProtocol {
 
 class LANGUAGESERVERPROTOCOL_EXPORT JsonObject
 {
-    Q_DECLARE_TR_FUNCTIONS(LanguageServerProtocol::JsonObject)
-
 public:
     using iterator = QJsonObject::iterator;
     using const_iterator = QJsonObject::const_iterator;
