@@ -273,9 +273,11 @@ public:
         ~OpenedDocument()
         {
             QObject::disconnect(contentsChangedConnection);
+            QObject::disconnect(filePathChangedConnection);
             delete document;
         }
         QMetaObject::Connection contentsChangedConnection;
+        QMetaObject::Connection filePathChangedConnection;
         QTextDocument *document = nullptr;
     };
     QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
@@ -623,6 +625,17 @@ void Client::openDocument(TextEditor::TextDocument *document)
                   [this, document](int position, int charsRemoved, int charsAdded) {
                       documentContentsChanged(document, position, charsRemoved, charsAdded);
                   });
+    d->m_openedDocument[document].filePathChangedConnection
+        = connect(document,
+                  &TextDocument::filePathChanged,
+                  this,
+                  [this, document](const FilePath &oldPath, const FilePath &newPath) {
+                      if (oldPath == newPath)
+                          return;
+                      closeDocument(document, oldPath);
+                      if (isSupportedDocument(document))
+                          openDocument(document);
+                  });
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
     d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
@@ -661,7 +674,8 @@ void Client::cancelRequest(const MessageId &id)
         sendMessage(CancelRequest(CancelParameter(id)), SendDocUpdates::Ignore);
 }
 
-void Client::closeDocument(TextEditor::TextDocument *document)
+void Client::closeDocument(TextEditor::TextDocument *document,
+                           const std::optional<FilePath> &overwriteFilePath)
 {
     deactivateDocument(document);
     d->m_postponedDocuments.remove(document);
@@ -669,7 +683,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
     if (d->m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
-            d->sendCloseNotification(document->filePath());
+            d->sendCloseNotification(overwriteFilePath.value_or(document->filePath()));
     }
 
     if (d->m_state != Initialized)

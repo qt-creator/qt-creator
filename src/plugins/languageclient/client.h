@@ -110,7 +110,8 @@ public:
     bool isSupportedFile(const Utils::FilePath &filePath, const QString &mimeType) const;
     bool isSupportedUri(const LanguageServerProtocol::DocumentUri &uri) const;
     virtual void openDocument(TextEditor::TextDocument *document);
-    void closeDocument(TextEditor::TextDocument *document);
+    void closeDocument(TextEditor::TextDocument *document,
+                       const std::optional<Utils::FilePath> &overwriteFilePath = {});
     void activateDocument(TextEditor::TextDocument *document);
     void activateEditor(Core::IEditor *editor);
     void deactivateDocument(TextEditor::TextDocument *document);
