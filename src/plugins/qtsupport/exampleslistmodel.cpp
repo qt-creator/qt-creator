@@ -453,7 +453,7 @@ static QList<ExampleItem *> parseDemos(QXmlStreamReader *reader,
 static QList<ExampleItem *> parseTutorials(QXmlStreamReader *reader, const QString &projectsOffset)
 {
     QList<ExampleItem *> result;
-    std::unique_ptr<ExampleItem> item;
+    std::unique_ptr<ExampleItem> item = std::make_unique<ExampleItem>();
     const QChar slash = QLatin1Char('/');
     while (!reader->atEnd()) {
         switch (reader->readNext()) {
