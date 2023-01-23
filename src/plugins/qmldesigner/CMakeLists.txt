@@ -1,5 +1,5 @@
 add_qtc_plugin(QmlDesigner
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  CONDITION TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
@@ -498,7 +498,7 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
 endfunction()
 
 if (WITH_QMLDOM)
-  if (Qt5_VERSION VERSION_LESS 6.3.2)
+  if (Qt6_VERSION VERSION_LESS 6.3.2)
     message(FATAL_ERROR "You need Qt 6.3.2 or newer to enable WITH_QMLDOM feature.")
   endif()
 

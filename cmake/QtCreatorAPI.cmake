@@ -304,7 +304,8 @@ function(add_qtc_library name)
   endif()
 
   get_target_property(have_automoc_prop ${name} AUTOMOC)
-  if("${Qt5_VERSION}" VERSION_GREATER_EQUAL "6.2.0" AND "${have_automoc_prop}")
+  # check for Qt 6 is needed because sdktool & qml2puppet still build with Qt 5
+  if(Qt6_VERSION AND "${have_automoc_prop}")
     qt_extract_metatypes(${name})
   endif()
 endfunction(add_qtc_library)

@@ -70,37 +70,23 @@ find_package(Qt5
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
   REQUIRED
 )
-if (Qt5_VERSION VERSION_LESS 6.0.0)
-  install(TARGETS Qt6Core5Compat EXPORT QtCreator)
 
-  # Specify standards conformance mode to MSVC 2017 and later
-  # Qt6 has the values as part of the Qt6::Platform target interface
-  if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
-    add_compile_options(/permissive- /Zc:__cplusplus)
-  endif()
-  if (CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    add_compile_options(-Wno-missing-field-initializers)
-  endif()
-else()
-  # Common intermediate directory for QML modules which are defined via qt_add_qml_module()
-  set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
+# Common intermediate directory for QML modules which are defined via qt_add_qml_module()
+set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml_modules")
 
-  # This includes the code that will enable higher compiler warnings level (/W3 for MSVC, -Wall -Wextra for GCC)
-  # This is controlled by QT_COMPILE_OPTIONS_DISABLE_WARNINGS target property.
-  include(QtCompilerFlags)
+# This includes the code that will enable higher compiler warnings level (/W3 for MSVC, -Wall -Wextra for GCC)
+# This is controlled by QT_COMPILE_OPTIONS_DISABLE_WARNINGS target property.
+include(QtCompilerFlags)
 
-  if (MSVC AND QT_FEATURE_static_runtime)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  endif()
+if (MSVC AND QT_FEATURE_static_runtime)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
+
 find_package(Qt5 COMPONENTS LinguistTools QUIET)
 find_package(Qt5 COMPONENTS Quick QuickWidgets Designer DesignerComponents Help SerialPort Svg Tools QUIET)
 
 find_package(Threads)
 find_package(Clang QUIET)
-if (Qt5_VERSION VERSION_LESS 6.0.0)
-  find_package(KF5SyntaxHighlighting QUIET)
-endif()
 
 # Crashpad
 set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
