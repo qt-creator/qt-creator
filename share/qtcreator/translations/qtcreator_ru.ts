@@ -34638,7 +34638,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Состояние сокета изменилось на %1</translation>
@@ -34647,9 +34647,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Error: %1</source>
         <translation>Ошибка: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Отладочное соединение открыто.</translation>
@@ -34662,9 +34659,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Debug connection failed.</source>
         <translation>Не удалось установить отладочное подключение.</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>

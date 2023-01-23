@@ -27284,7 +27284,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-tilstand ændret til %1</translation>
@@ -27293,9 +27293,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Error: %1</source>
         <translation>Fejl: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -39859,7 +39856,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
+    <name>QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Fejlret-forbindelse åbnet.</translation>

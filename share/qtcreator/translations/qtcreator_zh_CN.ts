@@ -32254,7 +32254,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -32264,9 +32264,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <translation type="unfinished">错误: %1
  {1?}</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
     <message>
         <source>Debug connection opened.</source>
         <translation type="unfinished"></translation>
@@ -32279,9 +32276,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Debug connection failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>

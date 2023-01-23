@@ -19719,7 +19719,7 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -28393,7 +28393,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Zmiana stanu gniazda na %1</translation>

@@ -24773,7 +24773,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -36173,7 +36173,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnectionPrivate</name>
+    <name>QmlDebug</name>
     <message>
         <source>Error: (%1) %2</source>
         <extracomment>%1=error code, %2=error message</extracomment>
@@ -36183,37 +36183,6 @@ Are you sure you want to continue?</source>
         <source>&lt;device is gone&gt;</source>
         <translation type="vanished">&lt;пристрій зник&gt;</translation>
     </message>
-    <message>
-        <source>Network connection dropped</source>
-        <translation type="vanished">Мережеве з&apos;єднання розірване</translation>
-    </message>
-    <message>
-        <source>Resolving host</source>
-        <translation type="vanished">Визначення імені вузла</translation>
-    </message>
-    <message>
-        <source>Establishing network connection ...</source>
-        <translation type="vanished">Встановлення мережевого з&apos;єднання...</translation>
-    </message>
-    <message>
-        <source>Network connection established</source>
-        <translation type="vanished">Мережеве з&apos;єднання встановлене</translation>
-    </message>
-    <message>
-        <source>Network connection closing</source>
-        <translation type="vanished">Мережеве з&apos;єднання закривається</translation>
-    </message>
-    <message>
-        <source>Socket state changed to BoundState. This should not happen!</source>
-        <translation type="vanished">Стан сокета змінився на BoundState. Цього не мало трапитись!</translation>
-    </message>
-    <message>
-        <source>Socket state changed to ListeningState. This should not happen!</source>
-        <translation type="vanished">Стан сокета змінився на ListeningState. Цього не мало трапитись!</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDebug::QmlDebugConnection</name>
     <message>
         <source>Connecting to debug server at %1:%2 ...</source>
         <translation type="vanished">Підключення до сервера зневадження на %1: %2 ...</translation>

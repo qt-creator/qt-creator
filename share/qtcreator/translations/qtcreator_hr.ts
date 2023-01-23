@@ -11429,7 +11429,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -11438,9 +11438,6 @@ will also disable the following plugins:
         <source>Error: %1</source>
         <translation>Greška: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
     <message>
         <source>Debug connection opened.</source>
         <translation type="unfinished"></translation>
@@ -11453,9 +11450,6 @@ will also disable the following plugins:
         <source>Debug connection failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlDebug::QmlOutputParser</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>

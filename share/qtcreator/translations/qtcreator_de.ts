@@ -24840,7 +24840,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -30860,7 +30860,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-Status geändert zu %1</translation>
@@ -40755,7 +40755,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
+    <name>QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Debug-Verbindung geöffnet.</translation>

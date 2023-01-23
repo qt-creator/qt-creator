@@ -9153,7 +9153,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -35270,7 +35270,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnection</name>
+    <name>QmlDebug</name>
     <message>
         <source>Network connection dropped</source>
         <translation>ネットワーク接続がありません</translation>
@@ -43558,7 +43558,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlDebugConnectionManager</name>
+    <name>QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>デバッグ接続を開きました。</translation>

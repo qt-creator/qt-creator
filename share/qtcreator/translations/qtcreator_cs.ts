@@ -42141,7 +42141,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug::QmlOutputParser</name>
+    <name>QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
