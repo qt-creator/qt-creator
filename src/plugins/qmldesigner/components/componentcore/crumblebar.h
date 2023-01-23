@@ -10,6 +10,24 @@
 
 namespace QmlDesigner {
 
+class CrumbleBarInfo {
+public:
+
+    CrumbleBarInfo() = default;
+
+    CrumbleBarInfo(Utils::FilePath f,
+                   QString d,
+                   ModelNode m) :
+        fileName(f),
+        displayName(d),
+        modelNode(m)
+    {}
+
+    Utils::FilePath fileName;
+    QString displayName;
+    ModelNode modelNode;
+};
+
 class CrumbleBar : public QObject
 {
     Q_OBJECT
@@ -24,21 +42,23 @@ public:
 
     Utils::CrumblePath *crumblePath();
 
-private:
+    QStringList path() const;
+
+    QList<CrumbleBarInfo> infos() const;
+
     void onCrumblePathElementClicked(const QVariant &data);
+
+signals:
+    void pathChanged();
+
+private:
     void updateVisibility();
     bool showSaveDialog();
 
 private:
     bool m_isInternalCalled = false;
     Utils::CrumblePath *m_crumblePath = nullptr;
-};
-
-class CrumbleBarInfo {
-public:
-    Utils::FilePath fileName;
-    QString displayName;
-    ModelNode modelNode;
+    QList<CrumbleBarInfo> m_pathes;
 };
 
 bool operator ==(const CrumbleBarInfo &first, const CrumbleBarInfo &second);

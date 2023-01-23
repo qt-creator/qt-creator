@@ -87,7 +87,8 @@ TextInput {
         },
         State {
             name: "dragHover"
-            when: control.__parentControl.enabled && control.__parentControl.hasActiveHoverDrag
+            when: control.__parentControl.enabled
+                  && (control.__parentControl.hasActiveHoverDrag ?? false)
             PropertyChanges {
                 target: background
                 color: control.style.background.interaction

@@ -15,6 +15,7 @@
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
 #include "settingspage.h"
+#include <toolbar.h>
 
 #include <colortool/colortool.h>
 #include <connectionview.h>
@@ -92,7 +93,7 @@ public:
         return {"QmlDesigner.Wizards.Enterprise"};
     }
     QSet<Utils::Id> availablePlatforms() const override { return {}; }
-    QString displayNameForPlatform(Utils::Id id) const override { return {}; }
+    QString displayNameForPlatform(Utils::Id) const override { return {}; }
 };
 
 QString normalizeIdentifier(const QString &string)
@@ -269,6 +270,11 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
                                                 : title.toString();
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
+
+    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+        ToolBar::create();
+        ToolBar::createStatusBar();
+    }
 
     return true;
 }

@@ -10,6 +10,10 @@ QtObject {
 
     property real baseHeight: 29
 
+    property real topLevelComboWidth: 210
+    property real topLevelComboHeight: 36
+    property real topLevelComboIcon: 20
+
     property real smallFont: 8
     property real baseFont: 12
     property real mediumFont: 14
@@ -77,6 +81,7 @@ QtObject {
     property real marginTopBottom: 4
     property real border: 1
     property real borderHover: 3
+    property real radius: 0
 
     property real maxComboBoxPopupHeight: Math.round(300 * values.scaleFactor)
     property real maxTextAreaPopupHeight: Math.round(150 * values.scaleFactor)
@@ -350,4 +355,24 @@ QtObject {
 
     property ControlStyle controlStyle: DefaultStyle {}
     property ControlStyle toolbarStyle: ToolbarStyle {}
+    property ControlStyle primaryToolbarStyle: ToolbarStyle {
+        baseIconFontSize: values.baseFontSize
+        radius: 4
+
+        icon: ControlStyle.IconColors {
+            idle: values.themeTextSelectedTextColor
+            disabled: "#636363"
+        }
+
+        background: ControlStyle.BackgroundColors {
+            idle: values.themeInteraction
+        }
+
+        border: ControlStyle.BorderColors {
+            idle: values.themeInteraction
+            hover: "#000000"
+            interaction: "#DCDADA"
+            disabled: "#636363"
+        }
+    }
 }

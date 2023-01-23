@@ -4,7 +4,7 @@
 import QtQuick
 
 ControlStyle {
-    background {
-        idle: "red"
-    }
+    controlSize: Qt.size(Values.topLevelComboWidth, Values.topLevelComboHeight)
+    baseIconFontSize: Values.topLevelComboIcon
+    smallIconFontSize: 10
 }

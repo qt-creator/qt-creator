@@ -14,6 +14,7 @@
 #include <nodeinstanceview.h>
 #include <itemlibrarywidget.h>
 #include <theme.h>
+#include <toolbar.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -341,27 +342,69 @@ void DesignModeWidget::setup()
         mviews->addAction(command);
 
     // Create toolbars
-    auto toolBar = new QToolBar();
+    if (!ToolBar::isVisible()) {
+        auto toolBar = new QToolBar();
 
-    toolBar->addAction(viewManager().componentViewAction());
-    toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
+        toolBar->addAction(viewManager().componentViewAction());
+        toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+        DesignerActionToolBar *designerToolBar = QmlDesignerPlugin::instance()->viewManager().designerActionManager().createToolBar(m_toolBar);
 
-    designerToolBar->layout()->addWidget(toolBar);
+        designerToolBar->layout()->addWidget(toolBar);
 
-    m_toolBar->addCenterToolBar(designerToolBar);
-    m_toolBar->setMinimumWidth(320);
-    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
-    m_toolBar->setNavigationVisible(true);
+        m_toolBar->addCenterToolBar(designerToolBar);
+        m_toolBar->setMinimumWidth(320);
+        m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
+        m_toolBar->setNavigationVisible(true);
 
-    connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
-    connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
+        connect(m_toolBar, &Core::EditorToolBar::goForwardClicked, this, &DesignModeWidget::toolBarOnGoForwardClicked);
+        connect(m_toolBar, &Core::EditorToolBar::goBackClicked, this, &DesignModeWidget::toolBarOnGoBackClicked);
 
-    QToolBar* toolBarWrapper = new QToolBar();
-    toolBarWrapper->addWidget(m_toolBar);
-    toolBarWrapper->addWidget(createCrumbleBarFrame());
-    toolBarWrapper->setMovable(false);
-    addToolBar(Qt::TopToolBarArea, toolBarWrapper);
+
+        QToolBar* toolBarWrapper = new QToolBar();
+        toolBarWrapper->addWidget(m_toolBar);
+        toolBarWrapper->addWidget(createCrumbleBarFrame());
+        toolBarWrapper->setMovable(false);
+        addToolBar(Qt::TopToolBarArea, toolBarWrapper);
+
+
+        addSpacerToToolBar(toolBar);
+
+        auto workspaceComboBox = new QComboBox();
+        workspaceComboBox->setMinimumWidth(120);
+        workspaceComboBox->setToolTip(tr("Switch the active workspace."));
+        auto sortedWorkspaces = m_dockManager->workspaces();
+        Utils::sort(sortedWorkspaces);
+        workspaceComboBox->addItems(sortedWorkspaces);
+        workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
+        toolBar->addWidget(workspaceComboBox);
+
+        connect(m_dockManager, &ADS::DockManager::workspaceListChanged,
+                workspaceComboBox, [this, workspaceComboBox]() {
+                    workspaceComboBox->clear();
+                    auto sortedWorkspaces = m_dockManager->workspaces();
+                    Utils::sort(sortedWorkspaces);
+                    workspaceComboBox->addItems(sortedWorkspaces);
+                    workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
+        });
+        connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
+        connect(workspaceComboBox, &QComboBox::activated,
+                m_dockManager, [this, workspaceComboBox]([[maybe_unused]] int index) {
+                    m_dockManager->openWorkspace(workspaceComboBox->currentText());
+                });
+
+        const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
+                    fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),
+                    36, 36, Theme::getColor(Theme::IconsBaseColor));
+        toolBar->addAction(gaIcon, tr("Edit global annotation for current file."), [&](){
+            ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
+
+            if (node.isValid()) {
+                m_globalAnnotationEditor.setModelNode(node);
+                m_globalAnnotationEditor.showWidget();
+            }
+        });
+
+    }
 
     if (currentDesignDocument())
         setupNavigatorHistory(currentDesignDocument()->textEditor());
@@ -391,43 +434,6 @@ void DesignModeWidget::setup()
                         floatingWidget->hide();
                 }
             });
-
-    addSpacerToToolBar(toolBar);
-
-    auto workspaceComboBox = new QComboBox();
-    workspaceComboBox->setMinimumWidth(120);
-    workspaceComboBox->setToolTip(tr("Switch the active workspace."));
-    auto sortedWorkspaces = m_dockManager->workspaces();
-    Utils::sort(sortedWorkspaces);
-    workspaceComboBox->addItems(sortedWorkspaces);
-    workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-    toolBar->addWidget(workspaceComboBox);
-
-    connect(m_dockManager, &ADS::DockManager::workspaceListChanged,
-            workspaceComboBox, [this, workspaceComboBox]() {
-                workspaceComboBox->clear();
-                auto sortedWorkspaces = m_dockManager->workspaces();
-                Utils::sort(sortedWorkspaces);
-                workspaceComboBox->addItems(sortedWorkspaces);
-                workspaceComboBox->setCurrentText(m_dockManager->activeWorkspace());
-    });
-    connect(m_dockManager, &ADS::DockManager::workspaceLoaded, workspaceComboBox, &QComboBox::setCurrentText);
-    connect(workspaceComboBox, &QComboBox::activated,
-            m_dockManager, [this, workspaceComboBox]([[maybe_unused]] int index) {
-                m_dockManager->openWorkspace(workspaceComboBox->currentText());
-            });
-
-    const QIcon gaIcon = Utils::StyleHelper::getIconFromIconFont(
-                fontName, Theme::getIconUnicode(Theme::Icon::annotationBubble),
-                36, 36, Theme::getColor(Theme::IconsBaseColor));
-    toolBar->addAction(gaIcon, tr("Edit global annotation for current file."), [&](){
-        ModelNode node = currentDesignDocument()->rewriterView()->rootModelNode();
-
-        if (node.isValid()) {
-            m_globalAnnotationEditor.setModelNode(node);
-            m_globalAnnotationEditor.showWidget();
-        }
-    });
 
 
 
@@ -500,6 +506,26 @@ void DesignModeWidget::toolBarOnGoForwardClicked()
     }
 }
 
+bool DesignModeWidget::canGoForward()
+{
+    return m_canGoForward;
+}
+
+bool DesignModeWidget::canGoBack()
+{
+    return m_canGoBack;
+}
+
+ADS::DockManager *DesignModeWidget::dockManager() const
+{
+    return m_dockManager;
+}
+
+GlobalAnnotationEditor &DesignModeWidget::globalAnnotationEditor()
+{
+    return m_globalAnnotationEditor;
+}
+
 DesignDocument *DesignModeWidget::currentDesignDocument() const
 {
     return QmlDesignerPlugin::instance()->documentManager().currentDesignDocument();
@@ -515,11 +541,14 @@ void DesignModeWidget::setupNavigatorHistory(Core::IEditor *editor)
     if (!m_keepNavigatorHistory)
         addNavigatorHistoryEntry(editor->document()->filePath());
 
-    const bool canGoBack = m_navigatorHistoryCounter > 0;
-    const bool canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
-    m_toolBar->setCanGoBack(canGoBack);
-    m_toolBar->setCanGoForward(canGoForward);
-    m_toolBar->setCurrentEditor(editor);
+    m_canGoBack = m_navigatorHistoryCounter > 0;
+    m_canGoForward = m_navigatorHistoryCounter < (m_navigatorHistory.size() - 1);
+    m_toolBar->setCanGoBack(m_canGoBack);
+    m_toolBar->setCanGoForward(m_canGoForward);
+    if (!ToolBar::isVisible())
+        m_toolBar->setCurrentEditor(editor);
+
+    emit navigationHistoryChanged();
 }
 
 void DesignModeWidget::addNavigatorHistoryEntry(const Utils::FilePath &fileName)
@@ -576,6 +605,8 @@ void DesignModeWidget::initialize()
     }
 
     m_initStatus = Initialized;
+
+    emit initialized();
 }
 
 } // namespace Internal

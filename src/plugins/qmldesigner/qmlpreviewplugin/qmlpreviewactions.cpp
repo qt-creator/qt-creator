@@ -113,7 +113,7 @@ QByteArray ZoomPreviewAction::category() const
 
 QByteArray ZoomPreviewAction::menuId() const
 {
-    return QByteArray();
+    return "PreviewZoom";
 }
 
 int ZoomPreviewAction::priority() const

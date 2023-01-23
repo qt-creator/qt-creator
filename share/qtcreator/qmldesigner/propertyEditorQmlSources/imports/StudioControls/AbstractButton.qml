@@ -45,6 +45,7 @@ T.AbstractButton {
         color: control.style.background.idle
         border.color: control.style.border.idle
         border.width: control.style.borderWidth
+        radius: control.style.radius
     }
 
     indicator: Item {
@@ -77,7 +78,7 @@ T.AbstractButton {
                     when: control.enabled && control.pressed
                     PropertyChanges {
                         target: buttonIcon
-                        color: control.style.icon.idle
+                        color: control.style.icon.interaction
                     }
                 },
                 State {

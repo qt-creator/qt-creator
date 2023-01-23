@@ -17,7 +17,7 @@ QtObject {
     property real bigIconFontSize: Values.bigIconFontSize
 
     property real borderWidth: Values.border
-    property real radius: 4
+    property real radius: Values.radius
 
     property size smallControlSize: Qt.size(Values.smallRectWidth,
                                             Values.smallRectWidth)
@@ -28,7 +28,6 @@ QtObject {
 
     property size smallIconSize: Qt.size(Values.spinControlIconSizeMulti,
                                          Values.spinControlIconSizeMulti)
-    property size baseIconSize: Qt.size(Values.height, Values.height)
 
     // TODO only used once
     property size spinBoxIndicatorSize: Qt.size(Values.spinBoxIndicatorWidth,
@@ -92,6 +91,7 @@ QtObject {
     component BorderColors: QtObject {
         property color idle: Values.themeControlOutline
         property color interaction: Values.themeControlOutlineInteraction
+        property color hover: "red"
         property color disabled: Values.themeControlOutlineDisabled
     }
 

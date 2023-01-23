@@ -93,8 +93,8 @@ T.ComboBox {
         __parentPopup: control.popup
         x: comboBoxInput.x + comboBoxInput.width
         y: control.style.borderWidth
-        width: control.style.baseIconSize.width - control.style.borderWidth
-        height: control.style.baseIconSize.height - control.style.borderWidth * 2
+        width: control.style.squareControlSize.width - control.style.borderWidth
+        height: control.style.squareControlSize.height - control.style.borderWidth * 2
     }
 
     background: Rectangle {
@@ -162,7 +162,7 @@ T.ComboBox {
                                                 : control.style.text.idle
                 font.family: StudioTheme.Constants.iconFont.family
                 font.pixelSize: control.style.smallIconFontSize
-                visible: control.currentIndex === index ? true : false
+                visible: control.currentIndex === index
                 anchors.fill: parent
                 renderType: Text.NativeRendering
                 horizontalAlignment: Text.AlignHCenter
@@ -261,8 +261,7 @@ T.ComboBox {
         // tab focus. It is therefor possible to use the mouse wheel to scroll through the items.
         State {
             name: "focus"
-            when: control.enabled && control.activeFocus && !control.editable
-                  && !control.open
+            when: control.enabled && control.activeFocus && !control.editable && !control.open
             PropertyChanges {
                 target: control
                 wheelEnabled: true

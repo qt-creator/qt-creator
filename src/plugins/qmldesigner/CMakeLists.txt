@@ -1112,6 +1112,15 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/toolbar
+  SOURCES
+    toolbar.cpp
+    toolbar.h
+    toolbarbackend.cpp
+    toolbarbackend.h
+)
+
+extend_qtc_plugin(QmlDesigner
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
 )

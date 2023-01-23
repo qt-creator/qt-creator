@@ -307,7 +307,7 @@ Rectangle {
         }
     }
 
-    onCurrentStateInternalIdChanged: layoutTimer.start()
+    //onCurrentStateInternalIdChanged: layoutTimer.start()
 
     StudioControls.Dialog {
         id: editDialog
@@ -573,6 +573,8 @@ Rectangle {
                     y: scrollView.height - height
                     width: scrollView.availableWidth
                     orientation: Qt.Horizontal
+                    active: frame.contentHeight > scrollView.height
+                    visible: frame.contentHeight > scrollView.height
                 }
 
                 ScrollBar.vertical: StateScrollBar {
@@ -582,6 +584,8 @@ Rectangle {
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
                     orientation: Qt.Vertical
+                    active: frame.contentWidth > scrollView.width
+                    visible: frame.contentWidth > scrollView.width
                 }
 
                 Flickable {

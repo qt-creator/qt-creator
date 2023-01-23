@@ -293,6 +293,11 @@ QIcon DesignerActionManager::contextIcon(int contextId) const
     return m_designerIcons->icon(DesignerIcons::IconId(contextId), DesignerIcons::ContextMenuArea);
 }
 
+void DesignerActionManager::addAddActionCallback(ActionAddedInterface callback)
+{
+    m_callBacks.append(callback);
+}
+
 class VisiblityModelNodeAction : public ModelNodeContextMenuAction
 {
 public:
@@ -2051,6 +2056,10 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
 void DesignerActionManager::addDesignerAction(ActionInterface *newAction)
 {
     m_designerActions.append(QSharedPointer<ActionInterface>(newAction));
+
+    for (auto callback : m_callBacks) {
+        callback(newAction);
+    }
 }
 
 void DesignerActionManager::addCreatorCommand(Core::Command *command, const QByteArray &category, int priority,

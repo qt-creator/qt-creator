@@ -64,11 +64,22 @@ public:
 
     static QWidget *createProjectExplorerWidget(QWidget *parent);
 
-private:
-    enum InitializeStatus { NotInitialized, Initializing, Initialized };
-
     void toolBarOnGoBackClicked();
     void toolBarOnGoForwardClicked();
+
+    bool canGoForward();
+    bool canGoBack();
+
+    ADS::DockManager *dockManager() const;
+
+    GlobalAnnotationEditor &globalAnnotationEditor();
+
+signals:
+    void navigationHistoryChanged();
+    void initialized();
+
+private:
+    enum InitializeStatus { NotInitialized, Initializing, Initialized };
 
     void setup();
     bool isInNodeDefinition(int nodeOffset, int nodeLength, int cursorPos) const;
@@ -96,6 +107,9 @@ private:
     ADS::DockManager *m_dockManager = nullptr;
     ADS::DockWidget *m_outputPaneDockWidget = nullptr;
     GlobalAnnotationEditor m_globalAnnotationEditor;
+
+    bool m_canGoForward = false;
+    bool m_canGoBack = false;
 };
 
 } // namespace Internal

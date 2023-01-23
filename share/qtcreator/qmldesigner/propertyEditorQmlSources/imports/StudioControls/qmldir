@@ -49,3 +49,4 @@ TextField 1.0 TextField.qml
 ToolTip 1.0 ToolTip.qml
 TranslationIndicator 1.0 TranslationIndicator.qml
 VerticalScrollBar 1.0 VerticalScrollBar.qml
+TopLevelComboBox 1.0 TopLevelComboBox.qml
