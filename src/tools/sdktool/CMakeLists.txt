@@ -16,14 +16,18 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+
+  find_package(QT NAMES Qt6 Qt5
+    COMPONENTS Core
+    REQUIRED
+  )
+  find_package(Qt${QT_VERSION_MAJOR}
+    COMPONENTS Core
+    REQUIRED
+  )
 endif()
 
 configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
-
-find_package(Qt5
-  COMPONENTS Core
-  REQUIRED
-)
 
 if (APPLE)
   find_library(FWFoundation Foundation)
