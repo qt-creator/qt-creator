@@ -26023,14 +26023,11 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>CPlusplus::CheckSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Nur virtuelle Funktionen können als &apos;override&apos; gekennzeichnet werden</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Nur virtuelle Funktionen können als &apos;final&apos; gekennzeichnet werden</translation>
@@ -26043,9 +26040,6 @@ wirklich löschen?</translation>
         <source>Too many arguments</source>
         <translation>Zu viele Argumente</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Zu wenige Argumente</translation>
@@ -42162,7 +42156,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>CppCodeModelInspectorDialog</name>
+    <name>::CppEditor</name>
     <message>
         <source>Compiler Flags</source>
         <translation>Compiler-Flags</translation>
@@ -49839,9 +49833,6 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
         <source>License &amp;template:</source>
         <translation>Lizenz&amp;vorlage:</translation>
     </message>
-</context>
-<context>
-    <name>CppQuickFixSettingsWidget</name>
     <message>
         <source>Generated Function Locations</source>
         <translation>Platzierung generierter Funktionen</translation>
@@ -51314,10 +51305,6 @@ in &quot;%2&quot; aus.
         <translation>Umbenennen...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
-    </message>
-    <message>
         <source>Clang Warnings</source>
         <translation>Clang-Warnungen</translation>
     </message>
@@ -51874,28 +51861,10 @@ Use drag and drop to change the order of the parameters.</source>
         <source>Old Creator</source>
         <translation>Veraltete Creator-Konvention</translation>
     </message>
-</context>
-<context>
-    <name>CppTypeHierarchyTreeView</name>
     <message>
         <source>Open in Editor</source>
         <translation>In Editor öffnen</translation>
     </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation>Klassenhierarchie öffnen</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Alle aufklappen</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Alle einklappen</translation>
-    </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Searching for Symbol</source>
         <translation>Suche nach Symbol</translation>
@@ -51931,10 +51900,6 @@ Flags: %3</translation>
     <message>
         <source>Projects</source>
         <translation>Projekte</translation>
-    </message>
-    <message>
-        <source>Types:</source>
-        <translation>Typen:</translation>
     </message>
     <message>
         <source>Projects only</source>

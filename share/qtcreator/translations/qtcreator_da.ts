@@ -4527,9 +4527,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Too many arguments</source>
         <translation>For mange argumenter</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Kun virtuelle funktioner kan mærkes &apos;override&apos;</translation>
@@ -8070,14 +8067,11 @@ til versionsstyring (%2)
     </message>
 </context>
 <context>
-    <name>CplusPlus::CheckSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Too few arguments</source>
         <translation>For få argumenter</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>No include hierarchy available</source>
         <translation>Intet tilgængeligt inkluderhierarki</translation>

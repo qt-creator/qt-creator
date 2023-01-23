@@ -6124,9 +6124,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Too many arguments</source>
         <translation>Слишком много параметров</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Только виртуальные функции могут иметь атрибут «override»</translation>
@@ -10916,21 +10913,15 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CplusPlus::CheckSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Too few arguments</source>
         <translation>Слишком мало параметров</translation>
     </message>
-</context>
-<context>
-    <name>CppCodeModelInspectorDialog</name>
     <message>
         <source>Compiler Flags</source>
         <translation>Флаги компилятора</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Создать методы получения и установки значения</translation>

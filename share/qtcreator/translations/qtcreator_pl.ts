@@ -1453,7 +1453,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Wybierz symbol&gt;</translation>
@@ -24031,16 +24031,10 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Parsing C/C++ Files</source>
         <translation>Parsowanie plików C / C++</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Jedynie funkcje wirtualne mogą być opatrzone &quot;override&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>Jedynie funkcje wirtualne mogą być opatrzone &quot;final&quot;</translation>
@@ -24053,9 +24047,6 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Too many arguments</source>
         <translation>Za dużo argumentów</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Za mało argumentów</translation>

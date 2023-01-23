@@ -6436,9 +6436,6 @@ Make sure that CMAKE_BUILD_TYPE variable matches the &quot;Build type&quot; fiel
         <source>Too many arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation type="unfinished"></translation>
@@ -11296,21 +11293,15 @@ to version control (%2)
     </message>
 </context>
 <context>
-    <name>CplusPlus::CheckSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Too few arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppCodeModelInspectorDialog</name>
     <message>
         <source>Compiler Flags</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -12664,9 +12655,6 @@ Flags: %3</source>
         <source>C++ Indexer: Skipping file &quot;%1&quot; because it is too big.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppQuickFixSettingsWidget</name>
     <message>
         <source>Generated Function Locations</source>
         <translation type="unfinished"></translation>
@@ -12800,10 +12788,6 @@ Flags: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Types:</source>
-        <translation type="unfinished">类型:</translation>
-    </message>
-    <message>
         <source>Separate the types by comma.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12832,10 +12816,6 @@ Flags: %3</source>
         <translation type="unfinished">添加</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
         <source>Normally arguments get passed by const reference. If the Type is one of the following ones, the argument gets passed by value. Namespaces and template arguments are removed. The real Type must contain the given Type. For example, &quot;int&quot; matches &quot;int32_t&quot; but not &quot;vector&lt;int&gt;&quot;. &quot;vector&quot; matches &quot;std::pmr::vector&lt;int&gt;&quot; but not &quot;std::optional&lt;vector&lt;int&gt;&gt;&quot;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12858,9 +12838,6 @@ e.g. name = &quot;m_test_foo_&quot;:
 &quot;set&lt;Camel&gt; =&gt; &quot;setTestFoo&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation type="unfinished">%1: 没有文件或者目录</translation>
@@ -12869,24 +12846,9 @@ e.g. name = &quot;m_test_foo_&quot;:
         <source>%1: Could not get file contents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppTypeHierarchyTreeView</name>
     <message>
         <source>Open in Editor</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation type="unfinished">打开类型分层</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation type="unfinished">展开全部</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation type="unfinished">折叠全部</translation>
     </message>
 </context>
 <context>

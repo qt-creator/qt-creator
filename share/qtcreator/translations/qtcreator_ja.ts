@@ -8845,7 +8845,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;シンボルの選択&gt;</translation>
@@ -14715,16 +14715,10 @@ to version control (%2)
         <source>Parsing C/C++ Files</source>
         <translation>C/C++ ファイルの解析中</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>仮想関数のみが &apos;override&apos; としてマークすることができます</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation>仮想関数のみが &apos;final&apos; としてマークすることができます</translation>
@@ -14737,16 +14731,10 @@ to version control (%2)
         <source>Too many arguments</source>
         <translation>引数が多すぎます</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>引数が少なすぎます</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>C++ Classes</source>
         <translation>C++ クラス</translation>
@@ -42840,13 +42828,6 @@ Output:
     </message>
 </context>
 <context>
-    <name>CppQuickFixProjectSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="vanished">フォーム</translation>
-    </message>
-</context>
-<context>
     <name>::CppEditor</name>
     <message>
         <source>Default</source>
@@ -45328,28 +45309,10 @@ Output:
         <source>Default Value</source>
         <translation>デフォルト値</translation>
     </message>
-</context>
-<context>
-    <name>CppTypeHierarchyTreeView</name>
     <message>
         <source>Open in Editor</source>
         <translation>エディタで開く</translation>
     </message>
-    <message>
-        <source>Open Type Hierarchy</source>
-        <translation>型階層を開く</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>すべて展開</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>すべて折りたたむ</translation>
-    </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Built-in</source>
         <translation>ビルトイン</translation>
@@ -45357,14 +45320,6 @@ Output:
     <message>
         <source>Custom</source>
         <translation>カスタム</translation>
-    </message>
-    <message>
-        <source>&lt;Select Symbol&gt;</source>
-        <translation>&lt;シンボルの選択&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;No Symbols&gt;</source>
-        <translation>&lt;シンボルなし&gt;</translation>
     </message>
 </context>
 <context>

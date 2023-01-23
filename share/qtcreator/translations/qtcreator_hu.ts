@@ -493,7 +493,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::0</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;Szimbólum kiválasztása&gt;</translation>
@@ -502,9 +502,6 @@
         <source>&lt;No Symbols&gt;</source>
         <translation type="obsolete">&lt;Nincsen szimbólum&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CPlusPlus::OverviewModel</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Szimbólum kiválasztása&gt;</translation>
@@ -3193,9 +3190,6 @@ p {
         <source>Update code model</source>
         <translation>Kód modell frissítése</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>File Naming Conventions</source>
         <translation>Fájl elnevezési hagyományok</translation>
@@ -3216,19 +3210,9 @@ p {
         <source>License Template:</source>
         <translation>Licensz sablon:</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Nincs ilyen fájl vagy könyvtár</translation>
-    </message>
-</context>
-<context>
-    <name>::CppEditor</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation>Fájl elnevezési hagyományok</translation>
     </message>
     <message>
         <source>Completion</source>

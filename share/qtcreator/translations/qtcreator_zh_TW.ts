@@ -327,7 +327,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;選擇符號&gt;</translation>
@@ -1703,16 +1703,10 @@
         <source>Ctrl+Shift+U</source>
         <translation>Ctrl+Shift+U</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1：檔案或目錄不存在</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>剖析中</translation>

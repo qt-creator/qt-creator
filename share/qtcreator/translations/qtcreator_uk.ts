@@ -1269,7 +1269,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Оберіть символ&gt;</translation>
@@ -3080,20 +3080,6 @@ to version control (%2)
         <source>Derived</source>
         <translation>Похідні</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
-    <message>
-        <source>%1: No such file or directory</source>
-        <translation type="vanished">%1: Файл чи тека не існують</translation>
-    </message>
-    <message>
-        <source>%1: Could not get file contents</source>
-        <translation type="vanished">%1: Не вдалось отримати зміст файлу</translation>
-    </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Code Style</source>
         <translation>Стиль коду</translation>
@@ -26149,9 +26135,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Apply Function Signature Changes</source>
         <translation>Застосувати зміни сигнатури функції</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
         <translation type="vanished">Лише віртуальні методи можуть бути позначені як &apos;override&apos;</translation>
@@ -26160,9 +26143,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Лише віртуальні функції можуть бути позначені як &apos;override&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation type="vanished">Лише віртуальні методи можуть бути позначені як &apos;final&apos;</translation>
@@ -29789,9 +29769,6 @@ cannot be found in the path.</source>
         <source>Parsing C/C++ Files</source>
         <translation>Розбір файлів C/C++</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Замало аргументів</translation>

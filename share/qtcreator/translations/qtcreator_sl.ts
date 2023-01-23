@@ -439,7 +439,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;izberite simbol&gt;</translation>
@@ -1616,9 +1616,6 @@ Ali jih želite nadomestiti?</translation>
         <source>Update Code Model</source>
         <translation>Posodobi model izvorne kode</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>Header suffix:</source>
         <translation>Končnica glave:</translation>
@@ -1638,16 +1635,10 @@ Ali jih želite nadomestiti?</translation>
         <source>License template:</source>
         <translation>Predloga za licenco:</translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: ta datoteka ali mapa ne obstaja</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Parsing</source>
         <translation>Razčlenjevanje</translation>

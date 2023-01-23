@@ -2843,14 +2843,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CppCodeModelInspectorDialog</name>
+    <name>::CppEditor</name>
     <message>
         <source>Compiler Flags</source>
         <translation>Oznake kompajlera</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Additional C++ Preprocessor Directives</source>
         <translation>Dodatne C++ predprocesorske direktive</translation>
@@ -19938,14 +19935,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CPlusplus::CheckSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual functions can be marked &apos;final&apos;</source>
         <translation type="unfinished"></translation>
@@ -19958,16 +19952,10 @@ u kontrolu verzija (%2)
         <source>Too many arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>C++</source>
         <translation type="unfinished"></translation>

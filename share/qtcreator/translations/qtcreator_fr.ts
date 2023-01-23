@@ -505,7 +505,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Selectionner un symbole&gt;</translation>
@@ -2523,43 +2523,14 @@ Voulez vous les écraser ?</translation>
         <source>Update code model</source>
         <translation type="obsolete">Mettre à jour le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation type="obsolete">Convention de nommage des fichiers</translation>
-    </message>
-    <message>
-        <source>Header suffix:</source>
-        <translation type="obsolete">Suffixe des fichier d&apos;en-tête :</translation>
-    </message>
-    <message>
-        <source>Source suffix:</source>
-        <translation type="obsolete">Suffixe des fichiers source :</translation>
-    </message>
-    <message>
-        <source>Lower case file names</source>
-        <translation type="obsolete">Nom de fichiers en minuscule</translation>
-    </message>
     <message>
         <source>License Template:</source>
         <translation type="obsolete">Modèle de licence :</translation>
     </message>
     <message>
-        <source>License template:</source>
-        <translation type="obsolete">Modèle de licence :</translation>
-    </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
-    <message>
         <source>%1: No such file or directory</source>
         <translation>%1 : aucun fichier ou répertoire de ce type</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translatorcomment>Balayage ? (Numérisation ça fait franchement scanner)</translatorcomment>
@@ -43083,9 +43054,6 @@ Oui :)</translatorcomment>
         <translatorcomment>Pluriel ?</translatorcomment>
         <translation>Appliquer les changements de signature de fonction</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked `override&apos;</source>
         <translation type="obsolete">Seules les méthodes virtuelles peuvent être marquée &quot;override&quot;</translation>
@@ -43095,14 +43063,6 @@ Oui :)</translatorcomment>
         <translation type="obsolete">Seules les méthodes virtuelles peuvent être marquées &quot;final&quot;</translation>
     </message>
     <message>
-        <source>Too few arguments</source>
-        <translation type="obsolete">Trop peu d&apos;arguments</translation>
-    </message>
-    <message>
-        <source>Too many arguments</source>
-        <translation type="obsolete">Trop d&apos;arguments</translation>
-    </message>
-    <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
         <translation>Seules les méthodes virtuelles peuvent être marqués &quot;override&quot;</translation>
     </message>
@@ -43110,9 +43070,6 @@ Oui :)</translatorcomment>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Seules les fonctions virtuelles peuvent être marqués &quot;override&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation>Seules les méthodes virtuelles peuvent être marqués &quot;final&quot;</translation>
@@ -47818,9 +47775,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Parsing</source>
         <translation>Analyse syntaxique</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Trop peu d&apos;arguments</translation>

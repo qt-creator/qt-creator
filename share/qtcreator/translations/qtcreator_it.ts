@@ -440,7 +440,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Scegli un Simbolo&gt;</translation>
@@ -2104,9 +2104,6 @@ Vuoi sovrascriverli?</translation>
         <source>Rename Symbol under Cursor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>Header suffix:</source>
         <translation>Estensione header:</translation>
@@ -2131,16 +2128,10 @@ Vuoi sovrascriverli?</translation>
         <source>License Template:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: File o cartella inesistente.</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translation type="unfinished"></translation>

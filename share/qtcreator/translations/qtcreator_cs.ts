@@ -497,7 +497,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Vybrat symbol&gt;</translation>
@@ -1939,21 +1939,6 @@ Chcete je nechat přepsat?</translation>
         <source>Update code model</source>
         <translation type="obsolete">Obnovit model kódu</translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
-    <message>
-        <source>Header suffix:</source>
-        <translation type="obsolete">Přípona hlavičkových souborů:</translation>
-    </message>
-    <message>
-        <source>Source suffix:</source>
-        <translation type="obsolete">Přípona zdrojových souborů:</translation>
-    </message>
-    <message>
-        <source>Lower case file names</source>
-        <translation type="obsolete">Pro názvy souborů používat malých písmen</translation>
-    </message>
     <message>
         <source>File Naming Conventions</source>
         <translation type="obsolete">Zvyklosti při tvoření souborových názvů</translation>
@@ -1963,26 +1948,12 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Předloha pro povolení:</translation>
     </message>
     <message>
-        <source>License template:</source>
-        <translation type="obsolete">Předloha pro povolení:</translation>
-    </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
-    <message>
         <source>%1: No such file or directory</source>
         <translation>%1: Neexistuje žádný soubor nebo adresář s tímto názvem</translation>
     </message>
     <message>
         <source>%1: Could not get file contents</source>
         <translation>%1: Nepodařilo se načíst obsah souboru</translation>
-    </message>
-</context>
-<context>
-    <name>::CppEditor</name>
-    <message>
-        <source>File Naming Conventions</source>
-        <translation type="obsolete">Úmluva pro pojmenování souborů</translation>
     </message>
     <message>
         <source>Code Style</source>
@@ -49882,9 +49853,6 @@ nelze najít v cestě.</translation>
         <source>Parsing</source>
         <translation>Syntaktický rozbor</translation>
     </message>
-</context>
-<context>
-    <name>CPlusplus::CheckSymbols</name>
     <message>
         <source>Only virtual methods can be marked &apos;override&apos;</source>
         <translation>Jen virtuální metody lze označit jako &apos;override&apos;</translation>
@@ -49893,9 +49861,6 @@ nelze najít v cestě.</translation>
         <source>Only virtual functions can be marked &apos;override&apos;</source>
         <translation>Jen virtuální funkce lze označit jako &apos;override&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Only virtual methods can be marked &apos;final&apos;</source>
         <translation>Jen virtuální metody lze označit jako &apos;final&apos;</translation>
@@ -49912,9 +49877,6 @@ nelze najít v cestě.</translation>
         <source>Too many arguments</source>
         <translation>Příliš mnoho argumentů</translation>
     </message>
-</context>
-<context>
-    <name>CplusPlus::CheckSymbols</name>
     <message>
         <source>Too few arguments</source>
         <translation>Příliš málo argumentů</translation>

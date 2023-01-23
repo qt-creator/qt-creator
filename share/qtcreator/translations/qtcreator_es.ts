@@ -422,7 +422,7 @@
     </message>
 </context>
 <context>
-    <name>CPlusPlus::OverviewModel</name>
+    <name>::CppEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Seleccione símbolo&gt;</translation>
@@ -2093,9 +2093,6 @@ Would you like to overwrite them?</source>
         <source>Rename Symbol under Cursor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppFileSettingsPage</name>
     <message>
         <source>Header suffix:</source>
         <translation>Sufijo para encabezados:</translation>
@@ -2124,16 +2121,10 @@ Would you like to overwrite them?</source>
         <source>License Template:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CppPreprocessor</name>
     <message>
         <source>%1: No such file or directory</source>
         <translation>%1: No existe el archivo ó directorio</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Scanning</source>
         <translation type="unfinished"></translation>
@@ -2141,10 +2132,6 @@ Would you like to overwrite them?</source>
     <message>
         <source>Indexing</source>
         <translation>Indizando</translation>
-    </message>
-    <message>
-        <source>File naming conventions</source>
-        <translation type="obsolete">Convenciones de nomenclatura de archivos</translation>
     </message>
     <message>
         <source>File Naming Conventions</source>
