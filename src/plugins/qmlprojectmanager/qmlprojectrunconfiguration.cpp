@@ -7,6 +7,9 @@
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
 
+// getting the qmlpuppet path from setings
+#include <app/app_version.h>
+
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
@@ -40,6 +43,51 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
+namespace {
+Utils::FilePath qmlPuppetPath(const Utils::FilePath puppetDirectoryPath)
+{
+    return puppetDirectoryPath.pathAppended(QString{"qml2puppet-"} +
+                                            Core::Constants::IDE_VERSION_LONG).withExecutableSuffix();
+}
+
+Utils::FilePath qmlPuppetPathFromSettings()
+{
+    const char PUPPET_DEFAULT_DIRECTORY[] = "PuppetDefaultDirectory";
+    const char QML_SETTINGS_GROUP[] = "QML";
+    const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
+    QSettings *settings = Core::ICore::instance()->settings();
+    settings->beginGroup(QLatin1String(QML_SETTINGS_GROUP));
+    settings->beginGroup(QLatin1String(QML_DESIGNER_SETTINGS_GROUP));
+
+    auto puppetFallbackDirectory = Utils::FilePath::fromString(
+                settings->value(PUPPET_DEFAULT_DIRECTORY).toString());
+
+    settings->endGroup();
+    settings->endGroup();
+
+    if (!puppetFallbackDirectory.isEmpty() && puppetFallbackDirectory.exists())
+        return qmlPuppetPath(puppetFallbackDirectory);
+
+    return {};
+}
+
+Utils::FilePath  puppetAsQmlRuntime(QtVersion *version)
+{
+    if (version->qtVersion() >= QVersionNumber(6, 4, 0)) {
+        Utils::FilePath qmlPuppetFilePath = qmlPuppetPathFromSettings();
+        if (qmlPuppetFilePath.isExecutableFile())
+            return qmlPuppetFilePath;
+        else {
+            qmlPuppetFilePath = qmlPuppetPath(version->binPath());
+            if (qmlPuppetFilePath.isExecutableFile())
+                return qmlPuppetFilePath;
+        }
+    }
+    return {};
+}
+
+} // namespace
+
 namespace QmlProjectManager {
 class QmlMultiLanguageAspect;
 namespace Internal {
@@ -66,6 +114,7 @@ private:
     QmlMainFileAspect *m_qmlMainFileAspect = nullptr;
     QmlMultiLanguageAspect *m_multiLanguageAspect = nullptr;
     SelectionAspect *m_qtversionAspect = nullptr;
+    mutable bool usePuppetAsQmlRuntime = false;
 };
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
@@ -158,6 +207,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 
 FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 {
+    usePuppetAsQmlRuntime = false;
     // Give precedence to the manual override.
     const FilePath qmlViewer = m_qmlViewerAspect->filePath();
     if (!qmlViewer.isEmpty())
@@ -180,6 +230,13 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
     if (deviceType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
+
+        Utils::FilePath puppetAsQmlRuntimePath = puppetAsQmlRuntime(version);
+        if (!puppetAsQmlRuntimePath.isEmpty()) {
+            usePuppetAsQmlRuntime = true;
+            return puppetAsQmlRuntimePath;
+        }
+
         return isDesktop ? version->qmlRuntimeFilePath() : "qmlscene";
     }
 
@@ -193,8 +250,13 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
 QString QmlProjectRunConfiguration::commandLineArguments() const
 {
+    QString args;
+    if (usePuppetAsQmlRuntime)
+        ProcessArgs::addArg(&args, "--qml-runtime");
+
     // arguments in .user file
-    QString args = aspect<ArgumentsAspect>()->arguments();
+    if (!aspect<ArgumentsAspect>()->arguments().isEmpty())
+        ProcessArgs::addArg(&args, aspect<ArgumentsAspect>()->arguments());
     const IDevice::ConstPtr device = DeviceKitAspect::device(kit());
     const OsType osType = device ? device->osType() : HostOsInfo::hostOs();
 
