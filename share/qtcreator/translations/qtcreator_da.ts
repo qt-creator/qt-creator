@@ -14284,7 +14284,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Beskrivelse:</translation>
@@ -14333,9 +14333,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>License:</source>
         <translation>Licens:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
         <translation>Følgende plugins har fejl og kan ikke indlæses:</translation>
@@ -14348,9 +14345,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Plugin Loader Messages</source>
         <translation>Plugin-indlæser meddelelser</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Tilstand:</translation>
@@ -14359,9 +14353,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Error message:</source>
         <translation>Fejlmeddelelse:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>Plugin-metadata ikke fundet</translation>
@@ -14386,9 +14377,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation>Argument: &quot;%1&quot; er tom</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>Ingen</translation>
@@ -14401,16 +14389,10 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation>%1 (aktuel: &quot;%2&quot;)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
     <message>
         <source>Continue</source>
         <translation>Fortsæt</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Ugyldig</translation>
@@ -14475,9 +14457,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Plugin ended its life cycle and was deleted.</source>
         <translation>Plugin afsluttede sin livscyklus og blev slettet.</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation>Cirkulær afhængighed detekteret:</translation>
@@ -14502,9 +14481,6 @@ Reason: %3</source>
         <translation>Kan ikke indlæse plugin fordi afhængighed ikke kunne indlæses: %1(%2)
 Årsag: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>%1 (experimental)</source>
         <translation>%1 (eksperimentel)</translation>
@@ -20967,7 +20943,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Pluginet &quot;%1&quot; er angivet to gange for testing.</translation>
@@ -20992,9 +20968,6 @@ Fejl: %5</translation>
         <source>Failed Plugins</source>
         <translation>Mislykkede plugins</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation>&quot;%1&quot; mangler</translation>

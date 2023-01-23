@@ -5596,7 +5596,7 @@ Ez automatikus beállítja a megfelelő Qt verziót is.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::0</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Invalid</source>
         <translation type="obsolete">Érvénytelen</translation>
@@ -5691,9 +5691,6 @@ Reason: %3</source>
         <translation type="obsolete">Nem lehet betölteni a beépülőt, mert nem sikerült betölten a függőséget: %1(%2)
 Ok: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::0</name>
     <message>
         <source>Name:</source>
         <translation type="obsolete">Név:</translation>
@@ -5774,9 +5771,6 @@ Ok: %3</translation>
         <source>Location</source>
         <translation type="obsolete">Hely</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
     <message>
         <source>Name:</source>
         <translation>Név:</translation>
@@ -5817,9 +5811,6 @@ Ok: %3</translation>
         <source>Dependencies:</source>
         <translation>Függőségek:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Státusz:</translation>
@@ -5828,9 +5819,6 @@ Ok: %3</translation>
         <source>Error Message:</source>
         <translation>Hiba üzenet:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation>A fájl nem létezik: &apos;%1&apos;</translation>
@@ -5843,9 +5831,6 @@ Ok: %3</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Hiba történt a(z) %1 fájl elemzése közben: %2, %3 sorban, %4 oszlopban</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation>Státusz</translation>
@@ -5866,9 +5851,6 @@ Ok: %3</translation>
         <source>Location</source>
         <translation>Hely</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Érvénytelen</translation>
@@ -5933,9 +5915,6 @@ Ok: %3</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>A beépülő modul elérte az élettartamának és törölték</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -9967,7 +9946,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>A(z) &apos;%1&apos; beépülő modul nem létezik.</translation>
@@ -9980,9 +9959,6 @@ p, li { white-space: pre-wrap; }
         <source>The option %1 requires an argument.</source>
         <translation>A(z) %1 opció egy argumentumot igényel.</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation></translation>

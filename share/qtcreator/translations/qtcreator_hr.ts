@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hr">
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
@@ -51,9 +51,6 @@
         <source>License:</source>
         <translation>Licenca:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>Plugin Loader Messages</source>
         <translation>Poruke učitača dodataka</translation>
@@ -66,9 +63,6 @@
         <source>Details:</source>
         <translation>Detalji:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stanje:</translation>
@@ -10438,7 +10432,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation type="unfinished"></translation>
@@ -10463,9 +10457,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Failed Plugins</source>
         <translation type="unfinished">Neuspjeli dodaci</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>Bez</translation>
@@ -10478,16 +10469,10 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
     <message>
         <source>Continue</source>
         <translation>Nastavi</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation type="unfinished"></translation>
@@ -10552,9 +10537,6 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
         <source>Plugin ended its life cycle and was deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation type="unfinished"></translation>
@@ -10577,9 +10559,6 @@ Reason: %3</source>
 Reason: %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation type="unfinished"></translation>
@@ -10644,9 +10623,6 @@ Reason: %3</source>
         <source>Internal error: have no plugin instance to perform delayedInitialize</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation type="unfinished"></translation>
@@ -10671,9 +10647,6 @@ Reason: %3</source>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>%1 (experimental)</source>
         <translation type="unfinished"></translation>

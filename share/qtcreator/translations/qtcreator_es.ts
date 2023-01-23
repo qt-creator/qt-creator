@@ -4263,7 +4263,7 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -4313,9 +4313,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Dependencies:</source>
         <translation>Dependencias:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Estado:</translation>
@@ -4325,9 +4322,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Error Message:</source>
         <translation>Mensaje de error:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation>El archivo no existe: %1</translation>
@@ -4340,9 +4334,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Error interpretando el archivo %1: %2, en línea %3, columna %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation>Estado</translation>
@@ -4367,9 +4358,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Location</source>
         <translation>Localización</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Inválido</translation>
@@ -4438,9 +4426,6 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
         <source>Plugin ended it&apos;s life cycle and was deleted</source>
         <translation type="obsolete">El plugin culminó su ciclo de vida y fue removido</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -6498,7 +6483,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>El plugin &apos;%1&apos; no existe.</translation>
@@ -6511,9 +6496,6 @@ en su archivo .pro.</translation>
         <source>The option %1 requires an argument.</source>
         <translation>La opción %1 requiere un argumento.</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>&apos;%1&apos; carece del atributo &apos;%2&apos;</translation>

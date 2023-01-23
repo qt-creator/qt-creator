@@ -17886,7 +17886,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Название:</translation>
@@ -17935,9 +17935,6 @@ Rebuilding the project might help.</source>
         <source>Platforms:</source>
         <translation>Платформы:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
         <translation>Следующие модули содержат ошибки и не могут быть загружены:</translation>
@@ -17950,9 +17947,6 @@ Rebuilding the project might help.</source>
         <source>Plugin Loader Messages</source>
         <translation>Сообщения загрузчика модулей</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Состояние:</translation>
@@ -17962,9 +17956,6 @@ Rebuilding the project might help.</source>
         <translation>Сообщение
 об ошибке:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginManagerPrivate</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation>%1 &gt; О модулях</translation>
@@ -17997,9 +17988,6 @@ Rebuilding the project might help.</source>
         <source>Continue</source>
         <translation>Продолжить</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>Мета-данные модуля не найдены</translation>
@@ -18024,9 +18012,6 @@ Rebuilding the project might help.</source>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation>Аргумент: «%1» пустой</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>Нет</translation>
@@ -18039,16 +18024,6 @@ Rebuilding the project might help.</source>
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation>%1 (текущая: «%2»)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
-    <message>
-        <source>Continue</source>
-        <translation>Продолжить</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Некорректный</translation>
@@ -18113,9 +18088,6 @@ Rebuilding the project might help.</source>
         <source>Deleted</source>
         <translation>Удалён</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation>Обнаружена циклическая зависимость:</translation>
@@ -18140,9 +18112,6 @@ Reason: %3</source>
         <translation>Невозможно загрузить модуль, так как не удалось загрузить его зависимость: %1 (%2)
 Причина: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Name</source>
         <translation>Название</translation>
@@ -27236,7 +27205,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Модуль «%1» указан для тестирования дважды.</translation>
@@ -27261,9 +27230,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Failed Plugins</source>
         <translation>Проблемные модули</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation>«%1» отсутствует</translation>

@@ -3,6 +3,7 @@
 
 #include "plugindetailsview.h"
 
+#include "extensionsystemtr.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
@@ -36,8 +37,6 @@ namespace ExtensionSystem::Internal {
 
 class PluginDetailsViewPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(ExtensionSystem::Internal::PluginDetailsView)
-
 public:
     PluginDetailsViewPrivate(PluginDetailsView *detailsView)
         : q(detailsView)
@@ -58,18 +57,18 @@ public:
 
         // clang-format off
         Form {
-            tr("Name:"), name, br,
-            tr("Version:"), version, br,
-            tr("Compatibility version:"), compatVersion, br,
-            tr("Vendor:"), vendor, br,
-            tr("Group:"), component, br,
-            tr("URL:"), url, br,
-            tr("Location:"), location, br,
-            tr("Platforms:"), platforms, br,
-            tr("Description:"), description, br,
-            tr("Copyright:"), copyright, br,
-            tr("License:"), license, br,
-            tr("Dependencies:"), dependencies
+            Tr::tr("Name:"), name, br,
+            Tr::tr("Version:"), version, br,
+            Tr::tr("Compatibility version:"), compatVersion, br,
+            Tr::tr("Vendor:"), vendor, br,
+            Tr::tr("Group:"), component, br,
+            Tr::tr("URL:"), url, br,
+            Tr::tr("Location:"), location, br,
+            Tr::tr("Platforms:"), platforms, br,
+            Tr::tr("Description:"), description, br,
+            Tr::tr("Copyright:"), copyright, br,
+            Tr::tr("License:"), license, br,
+            Tr::tr("Dependencies:"), dependencies
         }.attachTo(q, WithoutMargins);
         // clang-format on
     }
@@ -138,12 +137,12 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->version->setText(versionString);
     d->compatVersion->setText(spec->compatVersion());
     d->vendor->setText(spec->vendor());
-    d->component->setText(spec->category().isEmpty() ? tr("None") : spec->category());
+    d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
     d->url->setText(QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url()));
     d->location->setText(QDir::toNativeSeparators(spec->filePath()));
     const QString pattern = spec->platformSpecification().pattern();
-    const QString platform = pattern.isEmpty() ? tr("All") : pattern;
-    const QString platformString = tr("%1 (current: \"%2\")")
+    const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
+    const QString platformString = Tr::tr("%1 (current: \"%2\")")
                                    .arg(platform, PluginManager::platformName());
     d->platforms->setText(platformString);
     QString description = spec->description();

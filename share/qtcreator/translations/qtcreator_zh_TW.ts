@@ -4021,7 +4021,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -4066,9 +4066,6 @@ Rebuilding the project might help.</source>
         <source>URL:</source>
         <translation>網址：</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>狀態：</translation>
@@ -4077,9 +4074,6 @@ Rebuilding the project might help.</source>
         <source>Error message:</source>
         <translation>錯誤訊息：</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Cannot open file %1 for reading: %2</source>
         <translation>無法開啟檔案 %1 以讀取：%2</translation>
@@ -4088,9 +4082,6 @@ Rebuilding the project might help.</source>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>剖析檔案時發生錯誤 %1：%2，於第 %3 行第 %4 欄</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -4107,9 +4098,6 @@ Rebuilding the project might help.</source>
         <source>Load</source>
         <translation>載入</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>無效</translation>
@@ -4174,9 +4162,6 @@ Rebuilding the project might help.</source>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>外掛程式結束了其生命週期並且已被刪除</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -6302,7 +6287,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>外掛程式 &apos;%1&apos; 不存在。</translation>
@@ -6319,9 +6304,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Failed Plugins</source>
         <translation>發生錯誤的外掛程式</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>&apos;%1&apos; 缺少屬性 &apos;%2&apos; </translation>
@@ -12077,14 +12059,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>無</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>啟動時載入</translation>
@@ -23513,7 +23492,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - 外掛程式載入器訊息</translation>
@@ -23577,7 +23556,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>繼續</translation>

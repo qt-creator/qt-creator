@@ -5406,7 +5406,7 @@ La version de Qt est aussi définie automatiquement.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nom :</translation>
@@ -5465,9 +5465,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Platforms:</source>
         <translation>Plateformes :</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>État :</translation>
@@ -5480,9 +5477,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Error message:</source>
         <translation>Message d&apos;erreur : </translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation type="obsolete">Le fichier n&apos;existe pas : %1</translation>
@@ -5499,9 +5493,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Erreur pendant l&apos;analyse du fichier %1 : %2, ligne %3, colonne %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation type="obsolete">État</translation>
@@ -5526,9 +5517,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Load</source>
         <translation>Charge</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Invalide</translation>
@@ -5597,9 +5585,6 @@ La version de Qt est aussi définie automatiquement.</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>Le plug-in a terminé son cycle de vie et a été supprimé</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -9695,7 +9680,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation>Le plugin &quot;%1&apos; est spécifié deux fois pour les tests.</translation>
@@ -9716,9 +9701,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <source>Failed Plugins</source>
         <translation>Plug-ins défectueux</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>L&apos;attribute &apos;%1&apos; est manquant pour &quot;%2&quot;</translation>
@@ -20484,7 +20466,7 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Aucune</translation>
@@ -20493,9 +20475,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>All</source>
         <translation>Tout</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>Charger au démarrage</translation>
@@ -36493,7 +36472,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - messages du chargeur de plug-in</translation>
@@ -36740,13 +36719,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Continue</translation>
     </message>
 </context>
 <context>
@@ -46870,7 +46842,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Continue</translation>

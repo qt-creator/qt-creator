@@ -3900,7 +3900,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -3963,9 +3963,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Url:</source>
         <translation type="obsolete">URL:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stanje:</translation>
@@ -3979,9 +3976,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Error Message:</source>
         <translation type="obsolete">Sporočilo napake:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Cannot open file %1 for reading: %2</source>
         <translation>Datoteke %1 ni moč odpreti za branje: %2</translation>
@@ -3998,9 +3992,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Could not open file for read: %1</source>
         <translation type="obsolete">Ni moč odpreti datoteke za branje: %1</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -4020,9 +4011,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Load</source>
         <translation>Naloži</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Neveljavno</translation>
@@ -4087,9 +4075,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>Vstavek je končal svoj življenjski cikel in je bil izbrisan</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -6766,7 +6751,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>Vstavek »%1« ne obstaja.</translation>
@@ -6783,9 +6768,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>Failed Plugins</source>
         <translation>Neuspeli vstavki</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>»%1« pogreša lastnost »%2«</translation>
@@ -14240,14 +14222,11 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Brez</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>Naloži ob zagonu</translation>

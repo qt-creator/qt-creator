@@ -3,6 +3,7 @@
 
 #include "pluginerroroverview.h"
 
+#include "extensionsystemtr.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
@@ -29,7 +30,7 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->setOrientation(Qt::Horizontal);
     buttonBox->setStandardButtons(QDialogButtonBox::NoButton);
-    buttonBox->addButton(tr("Continue"), QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(Tr::tr("Continue"), QDialogButtonBox::AcceptRole);
 
     connect(pluginList, &QListWidget::currentItemChanged,
             this, [pluginError](QListWidgetItem *item) {
@@ -50,11 +51,9 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
     };
 
     Column {
-        createLabel(QCoreApplication::translate("ExtensionSystem::Internal::PluginErrorOverview",
-                    "The following plugins have errors and cannot be loaded:")),
+        createLabel(Tr::tr("The following plugins have errors and cannot be loaded:")),
         pluginList,
-        createLabel(QCoreApplication::translate("ExtensionSystem::Internal::PluginErrorOverview",
-                    "Details:")),
+        createLabel(Tr::tr("Details:")),
         pluginError,
         buttonBox
     }.attachTo(this);

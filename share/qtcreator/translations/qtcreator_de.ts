@@ -6681,7 +6681,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -6730,9 +6730,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Platforms:</source>
         <translation>Plattformen:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Status:</translation>
@@ -6741,9 +6738,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Error message:</source>
         <translation>Fehlermeldung:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>Plugin-Metadaten nicht gefunden</translation>
@@ -6768,9 +6762,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation>Argument: &quot;%1&quot; ist leer</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Ungültig</translation>
@@ -6835,9 +6826,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Deleted</source>
         <translation>Gelöscht</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation>Zirkuläre Abhängigkeit festgestellt:</translation>
@@ -10009,7 +9997,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Das Plugin &quot;%1&quot; ist in der Testliste doppelt vorhanden.</translation>
@@ -10038,9 +10026,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <source>Failed Plugins</source>
         <translation>Nicht geladene Plugins (Fehlschlag beim Ladevorgang)</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation>&quot;%1&quot; fehlt</translation>
@@ -14727,7 +14712,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Keine</translation>
@@ -14740,9 +14725,6 @@ Locked components cannot be modified or selected.</source>
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation>%1 (aktuell: &quot;%2&quot;)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Name</source>
         <translation>Name</translation>
@@ -20837,7 +20819,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
         <translation>Die folgenden Plugins sind fehlerhaft und können nicht geladen werden:</translation>
@@ -25990,7 +25972,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
@@ -44024,7 +44006,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginManagerPrivate</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation>%1 &gt; Plugins</translation>
@@ -44052,10 +44034,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     <message>
         <source>Disable Plugin</source>
         <translation>Plugin deaktivieren</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Fortsetzen</translation>
     </message>
 </context>
 <context>

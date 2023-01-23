@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="pl_PL" sourcelanguage="en">
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nazwa:</translation>
@@ -51,9 +51,6 @@
         <source>Platforms:</source>
         <translation>Platformy:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stan:</translation>
@@ -1464,7 +1461,7 @@
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Wtyczka &quot;%1&quot; występuje dwukrotnie w testach.</translation>
@@ -1507,9 +1504,6 @@ Reason: %3</source>
         <translation>Nie można załadować wtyczki, ponieważ nie udało się załadować zależności: %1(%2)
 Przyczyna: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Niepoprawna</translation>
@@ -1574,9 +1568,6 @@ Przyczyna: %3</translation>
         <source>Deleted</source>
         <translation>Usunięta</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>Brak danych o wtyczce</translation>
@@ -1601,9 +1592,6 @@ Przyczyna: %3</translation>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation>Argument: &quot;%1&quot; jest pusty</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation>Brak &quot;%1&quot;</translation>
@@ -10192,7 +10180,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Brak</translation>
@@ -10206,9 +10194,6 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <translatorcomment>What current? platform?</translatorcomment>
         <translation>%1 (bieżąca platforma: &quot;%2&quot;)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Name</source>
         <translation>Nazwa</translation>
@@ -17448,7 +17433,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - komunikaty ładowania wtyczek</translation>
@@ -23289,7 +23274,7 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Kontynuuj</translation>

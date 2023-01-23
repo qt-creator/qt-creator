@@ -18485,7 +18485,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名称:</translation>
@@ -18534,9 +18534,6 @@ Rebuilding the project might help.</source>
         <source>Platforms:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
         <translation>以下插件有错误，无法被载入:</translation>
@@ -18549,9 +18546,6 @@ Rebuilding the project might help.</source>
         <source>Plugin Loader Messages</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>状态:</translation>
@@ -18560,9 +18554,6 @@ Rebuilding the project might help.</source>
         <source>Error message:</source>
         <translation>错误信息:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginManagerPrivate</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation type="unfinished"></translation>
@@ -18593,9 +18584,6 @@ Rebuilding the project might help.</source>
         <source>Continue</source>
         <translation type="unfinished">继续</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation type="unfinished"></translation>
@@ -18620,9 +18608,6 @@ Rebuilding the project might help.</source>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>无</translation>
@@ -18635,16 +18620,6 @@ Rebuilding the project might help.</source>
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
-    <message>
-        <source>Continue</source>
-        <translation type="unfinished">继续</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>无效</translation>
@@ -18709,9 +18684,6 @@ Rebuilding the project might help.</source>
         <source>Plugin ended its life cycle and was deleted.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
 Reason: %3</source>
@@ -18735,9 +18707,6 @@ Reason: %3</source>
 Reason: %3</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Load on Startup</source>
         <translation>启动时载入</translation>
@@ -26610,7 +26579,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Unknown option %1</source>
         <translation>未知选项 %1</translation>
@@ -26639,9 +26608,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Cannot request scenario &quot;%1&quot; as it was already requested.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>Resolving dependencies failed because state != Read</source>
         <translation>解决依赖关系失败因为 state != Read</translation>

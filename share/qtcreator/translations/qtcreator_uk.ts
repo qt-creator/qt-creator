@@ -7234,7 +7234,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Назва:</translation>
@@ -7283,9 +7283,6 @@ Rebuilding the project might help.</source>
         <source>Platforms:</source>
         <translation>Платформи:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - Повідомлення завантажувача додатків</translation>
@@ -7298,9 +7295,6 @@ Rebuilding the project might help.</source>
         <source>Details:</source>
         <translation>Деталі:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Стан:</translation>
@@ -7309,9 +7303,6 @@ Rebuilding the project might help.</source>
         <source>Error message:</source>
         <translation>Повідомлення про помилку:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>Cannot open file %1 for reading: %2</source>
         <translation type="vanished">Неможливо відкрити файл %1 для читання: %2</translation>
@@ -7344,28 +7335,6 @@ Rebuilding the project might help.</source>
         <source>Argument: &quot;%1&quot; is empty</source>
         <translation>Аргумент: &quot;%1&quot; порожній</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
-    <message>
-        <source>Name</source>
-        <translation type="vanished">Назва</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation type="vanished">Завантажено</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation type="vanished">Версія</translation>
-    </message>
-    <message>
-        <source>Vendor</source>
-        <translation type="vanished">Постачальник</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>Немає</translation>
@@ -7378,9 +7347,6 @@ Rebuilding the project might help.</source>
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation>%1 (зараз: &quot;%2&quot;)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Неправильний</translation>
@@ -7481,9 +7447,6 @@ Rebuilding the project might help.</source>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation type="vanished">Життєвий цикл додатка завершився і він був видалений</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -7514,9 +7477,6 @@ Reason: %3</source>
         <translation>Неможливо завантажити додаток через збій завантаження залежності: %1(%2)
 Причина: %3</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Name</source>
         <translation>Назва</translation>
@@ -12051,7 +12011,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation type="vanished">Додаток для тестування &apos;%1&apos; вказано двічі.</translation>
@@ -12084,9 +12044,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Failed Plugins</source>
         <translation>Збій додатків</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation type="vanished">У &apos;%1&apos; відсутній атрибут &apos;%2&apos;</translation>
@@ -29300,7 +29257,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Продовжити</translation>

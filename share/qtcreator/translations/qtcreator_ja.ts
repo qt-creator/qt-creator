@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja">
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>説明:</translation>
@@ -51,9 +51,6 @@
         <source>License:</source>
         <translation>ライセンス:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - プラグインローダーからのメッセージ</translation>
@@ -70,9 +67,6 @@
         <source>Plugin Loader Messages</source>
         <translation>プラグインローダーからのメッセージ</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>状態:</translation>
@@ -8856,7 +8850,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>プラグイン &quot;%1&quot; はテスト用に2回指定されています。</translation>
@@ -8881,9 +8875,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <source>Failed Plugins</source>
         <translation>読み込みに失敗したプラグイン</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginDetailsView</name>
     <message>
         <source>None</source>
         <translation>なし</translation>
@@ -8896,16 +8887,10 @@ preferShaping プロパティを false に設定すると、このような機�
         <source>%1 (current: &quot;%2&quot;)</source>
         <translation>%1 (現在: &quot;%2&quot;)</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
     <message>
         <source>Continue</source>
         <translation>続行</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>無効</translation>
@@ -8970,9 +8955,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <source>Deleted</source>
         <translation>削除済み</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:</source>
         <translation>循環依存関係が検出されました:</translation>
@@ -9005,9 +8987,6 @@ Reason: %3</source>
         <translation>依存関係が解決できなかったため、以下のプラグインを読み込めませんでした: %1(%2)
 理由: %3</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&quot;%1&quot; is missing</source>
         <translation>&quot;%1&quot; が見つかりません</translation>
@@ -9072,9 +9051,6 @@ Reason: %3</source>
         <source>Internal error: have no plugin instance to perform delayedInitialize</source>
         <translation>内部エラー: delayedInitialize を実行するプラグインインスタンスが存在しません</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
     <message>
         <source>Name</source>
         <translation>名前</translation>
@@ -34648,7 +34624,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>プラグインのメタデータが見つかりません</translation>
@@ -43457,7 +43433,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginManagerPrivate</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation>%1 &gt; プラグインについて</translation>
@@ -43485,10 +43461,6 @@ Output:
     <message>
         <source>Disable Plugin</source>
         <translation>プラグインを無効にする</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>続行</translation>
     </message>
 </context>
 <context>

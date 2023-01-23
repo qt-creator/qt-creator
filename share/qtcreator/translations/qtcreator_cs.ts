@@ -4605,7 +4605,7 @@ Také se automaticky nastaví správná verze Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -4662,9 +4662,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Platforms:</source>
         <translation>Platformy:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorView</name>
     <message>
         <source>State:</source>
         <translation>Stav:</translation>
@@ -4677,9 +4674,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Error message:</source>
         <translation>Hlášení o chybě:</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginSpecPrivate</name>
     <message>
         <source>File does not exist: %1</source>
         <translation type="obsolete">Soubor neexistuje: &apos;%1&apos;</translation>
@@ -4696,9 +4690,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Error parsing file %1: %2, at line %3, column %4</source>
         <translation>Chyba při čtení souboru %1: %2 na řádku %3, sloupec %4</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginView</name>
     <message>
         <source>State</source>
         <translation type="obsolete">Stav</translation>
@@ -4723,9 +4714,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Load</source>
         <translation>Nahrát</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginErrorView</name>
     <message>
         <source>Invalid</source>
         <translation>Neplatný</translation>
@@ -4826,9 +4814,6 @@ Také se automaticky nastaví správná verze Qt.</translation>
         <source>Plugin ended its life cycle and was deleted</source>
         <translation>Přídavný modul byl po uplynutí své doby životnosti smazán</translation>
     </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginManager</name>
     <message>
         <source>Circular dependency detected:
 </source>
@@ -9093,7 +9078,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>PluginManager</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation>Přídavný modul &apos;%1&apos; je ve zkušebním seznamu přítomen dvakrát.</translation>
@@ -9114,9 +9099,6 @@ ve svém .pro souboru.</translation>
         <source>Failed Plugins</source>
         <translation>Přídavné moduly které selhaly při nahrávání</translation>
     </message>
-</context>
-<context>
-    <name>PluginSpec</name>
     <message>
         <source>&apos;%1&apos; misses attribute &apos;%2&apos;</source>
         <translation>U &apos;%1&apos; chybí vlastnost &apos;%2&apos;</translation>
@@ -21331,7 +21313,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginDetailsView</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Žádná</translation>
@@ -21339,25 +21321,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>All</source>
         <translation>Vše</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::PluginView</name>
-    <message>
-        <source>Name</source>
-        <translation>Název</translation>
-    </message>
-    <message>
-        <source>Load</source>
-        <translation>Nahrát</translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation>Verze</translation>
-    </message>
-    <message>
-        <source>Vendor</source>
-        <translation>Prodejce</translation>
     </message>
     <message>
         <source>Load on Startup</source>
@@ -37802,7 +37765,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::Internal::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - Zprávy zavaděče přídavných modulů</translation>
@@ -38171,13 +38134,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
-    </message>
-</context>
-<context>
-    <name>ExtensionSystem::Internal::PluginErrorOverviewPrivate</name>
-    <message>
-        <source>Continue</source>
-        <translation type="obsolete">Pokračovat</translation>
     </message>
 </context>
 <context>
@@ -49451,7 +49407,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem::PluginErrorOverview</name>
+    <name>ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Pokračovat</translation>
