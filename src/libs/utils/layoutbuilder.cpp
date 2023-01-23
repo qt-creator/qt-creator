@@ -369,7 +369,7 @@ LayoutBuilder &LayoutBuilder::addRow(const LayoutItems &items)
 LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
 {
     if (item.aspect) {
-//        item.aspect->addToLayout(*this);
+        item.aspect->addToLayout(*this);
         if (m_layoutType == FormLayout || m_layoutType == VBoxLayout)
             finishRow();
     } else {
