@@ -1,5 +1,5 @@
 find_package(QtCreator COMPONENTS Core REQUIRED)
-find_package(Qt5 COMPONENTS Network Widgets REQUIRED)
+find_package(Qt6 COMPONENTS Network Widgets REQUIRED)
 
 find_package(QtCreatorLicenseChecker QUIET)
 if (TARGET QtCreator::LicenseChecker)
