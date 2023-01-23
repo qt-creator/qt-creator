@@ -17,10 +17,16 @@ if (NOT QT_CREATOR_API_DEFINED)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
 
-  find_package(Qt5
-    COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml Core5Compat
+  find_package(QT 5.15.0 NAMES Qt6 Qt5
+    COMPONENTS Core REQUIRED
+  )
+  find_package(Qt${QT_VERSION_MAJOR}
+    COMPONENTS Concurrent Core Gui Network PrintSupport Qml Quick Sql Widgets Xml
     REQUIRED
   )
+else()
+  # Qt Creator only supports Qt 6
+  set(QT_VERSION_MAJOR ${Qt6_VERSION_MAJOR})
 endif()
 
 configure_file(../../app/app_version.h.cmakein app/app_version.h ESCAPE_QUOTES)
@@ -65,7 +71,7 @@ if(TARGET qml2puppet)
 endif()
 
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+  CONDITION Qt6_VERSION
   SOURCES
     editor3d_qt6.qrc
 )
@@ -87,7 +93,7 @@ extend_qtc_executable(qml2puppet
     nodeinstanceclientproxy.cpp nodeinstanceclientproxy.h
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3D QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3D QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3D
   FEATURE_INFO "Qt Quick 3D support"
@@ -107,7 +113,7 @@ extend_qtc_executable(qml2puppet
     icongizmoimageprovider.cpp icongizmoimageprovider.h
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetImport QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetImport QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetImport
   FEATURE_INFO "Qt Quick 3D asset import"
@@ -115,7 +121,7 @@ extend_qtc_executable(qml2puppet
   DEFINES IMPORT_QUICK3D_ASSETS
 )
 
-find_package(Qt5 5.15.0 COMPONENTS Quick3DParticles QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DParticles QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DParticles
   FEATURE_INFO "Qt Quick 3D particles"
@@ -124,7 +130,7 @@ extend_qtc_executable(qml2puppet
 )
 
 # Quick3DAssetUtils optionally depends on QuickTimeline, so find also it to make the CI build work
-find_package(Qt5 5.15.0 COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick3DAssetUtils QuickTimeline QUIET)
 extend_qtc_executable(qml2puppet
   CONDITION TARGET Qt::Quick3DAssetUtils
   FEATURE_INFO "Qt Quick 3D asset utils"
@@ -133,7 +139,7 @@ extend_qtc_executable(qml2puppet
 )
 
 extend_qtc_executable(qml2puppet
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.0.0
+  CONDITION Qt6_VERSION
   SOURCES_PREFIX qml2puppet/editor3d/qt5compat
   SOURCES
     qquick3darealight.cpp qquick3darealight_p.h
@@ -214,7 +220,7 @@ extend_qtc_executable(qml2puppet
   DEPENDS Nanotrace
 )
 
-if (Qt5_VERSION VERSION_GREATER_EQUAL 6.4.0)
+if (Qt6_VERSION VERSION_GREATER_EQUAL 6.4.0)
     extend_qtc_executable(qml2puppet
       DEFINES ENABLE_INTERNAL_QML_RUNTIME
       PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner
