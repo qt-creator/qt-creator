@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "filesystemwatcher.h"
+
+#include "algorithm.h"
 #include "globalfilechangeblocker.h"
 
 #include <QDebug>
@@ -454,4 +456,64 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
     }
 }
 
-} // namespace Utils
+void FileSystemWatcher::addFile(const FilePath &file, WatchMode wm)
+{
+    addFile(file.toFSPathString(), wm);
+}
+
+void FileSystemWatcher::addFiles(const FilePaths &files, WatchMode wm)
+{
+    addFiles(transform(files, &FilePath::toFSPathString), wm);
+}
+
+void FileSystemWatcher::removeFile(const FilePath &file)
+{
+    removeFile(file.toFSPathString());
+}
+
+void FileSystemWatcher::removeFiles(const FilePaths &files)
+{
+    removeFiles(transform(files, &FilePath::toFSPathString));
+}
+
+bool FileSystemWatcher::watchesFile(const FilePath &file) const
+{
+    return watchesFile(file.toFSPathString());
+}
+
+FilePaths FileSystemWatcher::filePaths() const
+{
+    return transform(files(), &FilePath::fromString);
+}
+
+void FileSystemWatcher::addDirectory(const FilePath &file, WatchMode wm)
+{
+    addDirectory(file.toFSPathString(), wm);
+}
+
+void FileSystemWatcher::addDirectories(const FilePaths &files, WatchMode wm)
+{
+    addDirectories(transform(files, &FilePath::toFSPathString), wm);
+}
+
+void FileSystemWatcher::removeDirectory(const FilePath &file)
+{
+    removeDirectory(file.toFSPathString());
+}
+
+void FileSystemWatcher::removeDirectories(const FilePaths &files)
+{
+    removeDirectories(transform(files, &FilePath::toFSPathString));
+}
+
+bool FileSystemWatcher::watchesDirectory(const FilePath &file) const
+{
+    return watchesDirectory(file.toFSPathString());
+}
+
+FilePaths FileSystemWatcher::directoryPaths() const
+{
+    return transform(directories(), &FilePath::fromString);
+}
+
+} //Utils

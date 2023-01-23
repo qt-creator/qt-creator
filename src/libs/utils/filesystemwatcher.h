@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QObject>
 
 namespace Utils {
@@ -26,6 +28,27 @@ public:
     explicit FileSystemWatcher(int id, QObject *parent = nullptr);
     ~FileSystemWatcher() override;
 
+    // Good to use in new code:
+    void addFile(const Utils::FilePath &file, WatchMode wm);
+    void addFiles(const Utils::FilePaths &files, WatchMode wm);
+
+    void removeFile(const Utils::FilePath &file);
+    void removeFiles(const Utils::FilePaths &files);
+
+    bool watchesFile(const Utils::FilePath &file) const;
+    Utils::FilePaths filePaths() const;
+
+    void addDirectory(const Utils::FilePath &file, WatchMode wm);
+    void addDirectories(const Utils::FilePaths &files, WatchMode wm);
+
+    void removeDirectory(const Utils::FilePath &file);
+    void removeDirectories(const Utils::FilePaths &files);
+
+    bool watchesDirectory(const Utils::FilePath &file) const;
+
+    Utils::FilePaths directoryPaths() const;
+
+    // Phase out:
     void addFile(const QString &file, WatchMode wm);
     void addFiles(const QStringList &files, WatchMode wm);
 
