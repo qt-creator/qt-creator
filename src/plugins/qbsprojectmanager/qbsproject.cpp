@@ -860,13 +860,15 @@ static RawProjectPart generateProjectPart(
         )
 {
     const QString productName = product.value("full-display-name").toString();
-    const QString groupName = group.value("name").toString();
+    const QString groupName = group.isEmpty() ? productName + "_generated_qtc_internal"
+                                              : group.value("name").toString();
+    const QJsonObject &groupOrProduct = group.isEmpty() ? product : group;
     RawProjectPart rpp;
     rpp.setQtVersion(qtVersion);
     QJsonObject props = group.value("module-properties").toObject();
     if (props.isEmpty())
         props = product.value("module-properties").toObject();
-    rpp.setCallGroupId(groupLocationToCallGroupId(group.value("location").toObject()));
+    rpp.setCallGroupId(groupLocationToCallGroupId(groupOrProduct.value("location").toObject()));
 
     QStringList cFlags;
     QStringList cxxFlags;
@@ -879,24 +881,24 @@ static RawProjectPart generateProjectPart(
     rpp.setMacros(transform<QVector>(defines,
             [](const QString &s) { return Macro::fromKeyValue(s); }));
 
-    ProjectExplorer::HeaderPaths grpHeaderPaths;
+    ProjectExplorer::HeaderPaths headerPaths;
     QStringList list = arrayToStringList(props.value("cpp.includePaths"));
     list.removeDuplicates();
     for (const QString &p : std::as_const(list))
-        grpHeaderPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
+        headerPaths += HeaderPath::makeUser(FilePath::fromUserInput(p));
     list = arrayToStringList(props.value("cpp.distributionIncludePaths"))
             + arrayToStringList(props.value("cpp.systemIncludePaths"));
     list.removeDuplicates();
     for (const QString &p : std::as_const(list))
-        grpHeaderPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
+        headerPaths += HeaderPath::makeSystem(FilePath::fromUserInput(p));
     list = arrayToStringList(props.value("cpp.frameworkPaths"));
     list.append(arrayToStringList(props.value("cpp.systemFrameworkPaths")));
     list.removeDuplicates();
     for (const QString &p : std::as_const(list))
-        grpHeaderPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
-    rpp.setHeaderPaths(grpHeaderPaths);
+        headerPaths += HeaderPath::makeFramework(FilePath::fromUserInput(p));
+    rpp.setHeaderPaths(headerPaths);
     rpp.setDisplayName(groupName);
-    const QJsonObject location = group.value("location").toObject();
+    const QJsonObject location = groupOrProduct.value("location").toObject();
     rpp.setProjectFileLocation(location.value("file-path").toString(),
                                location.value("line").toInt(),
                                location.value("column").toInt());
@@ -912,7 +914,7 @@ static RawProjectPart generateProjectPart(
             rpp.setBuildTargetType(BuildTargetType::Unknown);
         }
     }
-    rpp.setSelectedForBuilding(group.value("is-enabled").toBool());
+    rpp.setSelectedForBuilding(groupOrProduct.value("is-enabled").toBool());
 
     QHash<QString, QJsonObject> filePathToSourceArtifact;
     bool hasCFiles = false;
@@ -933,7 +935,10 @@ static RawProjectPart generateProjectPart(
                 hasObjcxxFiles = true;
         }
     };
-    forAllArtifacts(group, artifactWorker);
+    if (!group.isEmpty())
+        forAllArtifacts(group, artifactWorker);
+    else
+        forAllArtifacts(product, ArtifactType::Generated, artifactWorker);
 
     QSet<QString> pchFiles;
     if (hasCFiles && props.value("cpp.useCPrecompiledHeader").toBool()
@@ -998,10 +1003,18 @@ static RawProjectParts generateProjectParts(
                   ? Utils::QtMajorVersion::None
                   : qtVersion;
         const QJsonArray groups = prd.value("groups").toArray();
+        const auto appendIfNotEmpty = [&rpps](const RawProjectPart &rpp) {
+            if (!rpp.files.isEmpty())
+                rpps << rpp;
+        };
         for (const QJsonValue &g : groups) {
-            rpps.append(generateProjectPart(prd, g.toObject(), cToolChain, cxxToolChain,
-                                            qtVersionForPart, cPch, cxxPch, objcPch, objcxxPch));
+            appendIfNotEmpty(generateProjectPart(
+                                 prd, g.toObject(), cToolChain, cxxToolChain, qtVersionForPart,
+                                 cPch, cxxPch, objcPch, objcxxPch));
         }
+        appendIfNotEmpty(generateProjectPart(
+                             prd, {}, cToolChain, cxxToolChain, qtVersionForPart,
+                             cPch, cxxPch, objcPch, objcxxPch));
     });
     return rpps;
 }
