@@ -215,7 +215,7 @@ public:
 private:
     template<typename SetupFunction>
     static TaskItem::GroupSetupHandler wrapSetup(SetupFunction &&function) {
-        constexpr bool isDynamic = std::is_same_v<TaskAction,
+        static constexpr bool isDynamic = std::is_same_v<TaskAction,
                 std::invoke_result_t<std::decay_t<SetupFunction>>>;
         constexpr bool isVoid = std::is_same_v<void,
                 std::invoke_result_t<std::decay_t<SetupFunction>>>;
@@ -278,7 +278,7 @@ public:
 private:
     template<typename SetupFunction>
     static TaskItem::TaskSetupHandler wrapSetup(SetupFunction &&function) {
-        constexpr bool isDynamic = std::is_same_v<TaskAction,
+        static constexpr bool isDynamic = std::is_same_v<TaskAction,
                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
         constexpr bool isVoid = std::is_same_v<void,
                 std::invoke_result_t<std::decay_t<SetupFunction>, typename Adapter::Type &>>;
