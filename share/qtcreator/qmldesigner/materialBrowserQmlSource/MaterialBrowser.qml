@@ -242,6 +242,12 @@ Item {
                                 id: materialRepeater
 
                                 model: materialBrowserModel
+
+                                onItemRemoved: (index, item) => {
+                                    if (item === root.currMaterialItem)
+                                        root.currMaterialItem = null
+                                }
+
                                 delegate: MaterialItem {
                                     width: root.cellWidth
                                     height: root.cellHeight
