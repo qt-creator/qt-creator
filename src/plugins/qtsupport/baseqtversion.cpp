@@ -1123,7 +1123,8 @@ void QtVersion::ensureMkSpecParsed() const
     Environment env = d->m_qmakeCommand.deviceEnvironment();
     setupQmakeRunEnvironment(env);
     option.environment = env.toProcessEnvironment();
-    option.device_root = d->m_qmakeCommand.withNewPath("/").toFSPathString();
+    if (d->m_qmakeCommand.needsDevice())
+        option.device_root = d->m_qmakeCommand.withNewPath("/").toFSPathString(); // Empty for host!
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
