@@ -6,6 +6,7 @@
 #include "pythonconstants.h"
 #include "pythonplugin.h"
 #include "pythontr.h"
+#include "pythonutils.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
@@ -30,19 +31,22 @@
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDialogButtonBox>
 #include <QDir>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
-#include <QPushButton>
 #include <QPointer>
+#include <QPushButton>
 #include <QSettings>
 #include <QStackedWidget>
 #include <QTreeView>
-#include <QWidget>
 #include <QVBoxLayout>
-#include <QGroupBox>
-#include <QCheckBox>
-#include <QJsonDocument>
-#include <QJsonObject>
+#include <QWidget>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -69,7 +73,7 @@ static Interpreter createInterpreter(const FilePath &python,
         result.name = defaultName;
     QDir pythonDir(python.parentDir().toString());
     if (pythonDir.exists() && pythonDir.exists("activate") && pythonDir.cdUp())
-        result.name += QString(" (%1 Virtual Environment)").arg(pythonDir.dirName());
+        result.name += QString(" (%1)").arg(pythonDir.dirName());
     if (!suffix.isEmpty())
         result.name += ' ' + suffix;
 
@@ -769,10 +773,73 @@ void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefau
     saveSettings();
 }
 
+Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath, bool isDefault)
+{
+    const Interpreter interpreter = createInterpreter(interpreterPath, {});
+    addInterpreter(interpreter, isDefault);
+    return interpreter;
+}
+
 PythonSettings *PythonSettings::instance()
 {
     QTC_CHECK(settingsInstance);
     return settingsInstance;
+}
+
+void PythonSettings::createVirtualEnvironment(
+    const FilePath &startDirectory,
+    const Interpreter &defaultInterpreter,
+    const std::function<void(std::optional<Interpreter>)> &callback)
+{
+    QDialog dialog;
+    dialog.setModal(true);
+    auto layout = new QFormLayout(&dialog);
+    auto interpreters = new QComboBox;
+    const QString preselectedId = defaultInterpreter.id.isEmpty()
+                                      ? PythonSettings::defaultInterpreter().id
+                                      : defaultInterpreter.id;
+    for (const Interpreter &interpreter : PythonSettings::interpreters()) {
+        interpreters->addItem(interpreter.name, interpreter.id);
+        if (!preselectedId.isEmpty() && interpreter.id == preselectedId)
+            interpreters->setCurrentIndex(interpreters->count() - 1);
+    }
+    layout->addRow(Tr::tr("Python Interpreter"), interpreters);
+    auto pathChooser = new PathChooser();
+    pathChooser->setInitialBrowsePathBackup(startDirectory);
+    pathChooser->setExpectedKind(PathChooser::Directory);
+    pathChooser->setPromptDialogTitle(Tr::tr("New Python Virtual Environment Directory"));
+    layout->addRow(Tr::tr("Virtual Environment Directory"), pathChooser);
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    auto createButton = buttons->addButton(Tr::tr("Create"), QDialogButtonBox::AcceptRole);
+    createButton->setEnabled(false);
+    connect(pathChooser,
+            &PathChooser::validChanged,
+            createButton,
+            [createButton](bool valid) { createButton->setEnabled(valid); });
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addRow(buttons);
+    dialog.setLayout(layout);
+    if (dialog.exec() == QDialog::Rejected) {
+        callback({});
+        return;
+    }
+
+    const Interpreter interpreter = PythonSettings::interpreter(
+        interpreters->currentData().toString());
+
+    auto venvDir = pathChooser->filePath();
+    createVenv(interpreter.command, venvDir, [venvDir, callback](bool success){
+        std::optional<Interpreter> result;
+        if (success) {
+            FilePath venvPython = venvDir.osType() == Utils::OsTypeWindows ? venvDir / "Scripts"
+                                                                           : venvDir / "bin";
+            venvPython = venvPython.pathAppended("python").withExecutableSuffix();
+            if (venvPython.exists())
+                result = PythonSettings::addInterpreter(venvPython);
+        }
+        callback(result);
+    });
 }
 
 QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)

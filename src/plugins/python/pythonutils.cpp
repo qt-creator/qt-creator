@@ -8,6 +8,7 @@
 #include "pythontr.h"
 
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -162,6 +163,26 @@ PythonProject *pythonProjectForFile(const FilePath &pythonFile)
         }
     }
     return nullptr;
+}
+
+void createVenv(const Utils::FilePath &python,
+                const Utils::FilePath &venvPath,
+                const std::function<void(bool)> &callback)
+{
+    QTC_ASSERT(python.isExecutableFile(), callback(false); return);
+    QTC_ASSERT(!venvPath.exists() || venvPath.isDir(), callback(false); return);
+
+    const CommandLine command(python, QStringList{"-m", "venv", venvPath.toUserOutput()});
+
+    auto process = new QtcProcess;
+    auto progress = new Core::ProcessProgress(process);
+    progress->setDisplayName(Tr::tr("Create Python venv"));
+    QObject::connect(process, &QtcProcess::done, [process, callback](){
+        callback(process->result() == ProcessResult::FinishedWithSuccess);
+        process->deleteLater();
+    });
+    process->setCommand(command);
+    process->start();
 }
 
 } // Python::Internal
