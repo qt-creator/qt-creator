@@ -111,7 +111,9 @@ Project {
             "splashscreencontainerwidget.cpp",
             "splashscreencontainerwidget.h",
             "splashscreenwidget.cpp",
-            "splashscreenwidget.h"
+            "splashscreenwidget.h",
+            "sdkmanageroutputparser.cpp",
+            "sdkmanageroutputparser.h"
         ]
 
         Group {

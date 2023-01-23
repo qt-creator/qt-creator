@@ -52,6 +52,7 @@ add_qtc_plugin(Android
     javaparser.cpp javaparser.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     splashscreenwidget.cpp splashscreenwidget.h
+    sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )
 
 extend_qtc_plugin(Android
