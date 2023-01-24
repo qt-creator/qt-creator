@@ -244,7 +244,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
         else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
-            return tr("Toggles the visibility of this component in the 2D view.\n"
+            return tr("Toggles the visibility of this component in the 2D and 3D views.\n"
                       "This is independent of the visibility property.");
     } else if (index.column() == ColumnType::Lock) { // lock
         if (role == Qt::CheckStateRole)
