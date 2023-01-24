@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ja">
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>説明:</translation>
@@ -5602,7 +5602,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>選択部分</translation>
@@ -8850,7 +8850,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>プラグイン &quot;%1&quot; はテスト用に2回指定されています。</translation>
@@ -9153,7 +9153,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -32751,7 +32751,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>前のイベントにジャンプします。</translation>
@@ -33636,7 +33636,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>カテゴリを折りたたむ</translation>
@@ -34414,7 +34414,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Details</source>
         <translation>詳細</translation>
@@ -34624,7 +34624,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Plugin meta data not found</source>
         <translation>プラグインのメタデータが見つかりません</translation>
@@ -35270,7 +35270,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Network connection dropped</source>
         <translation>ネットワーク接続がありません</translation>
@@ -43198,7 +43198,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
 </context>
 <context>
     <name>::PerfProfiler</name>
@@ -43433,7 +43433,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation>%1 &gt; プラグインについて</translation>
@@ -43464,7 +43464,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation>コンテンツを &quot;%1&quot; でデコードできません。&quot;%2&quot; にフォールバックします。</translation>
@@ -43494,7 +43494,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にはパラメータがありません。</translation>
@@ -43508,7 +43508,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot;に ID が設定されていません。</translation>
@@ -43558,7 +43558,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>デバッグ接続を開きました。</translation>
@@ -43645,7 +43645,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>書き込み用に %1 を開けません。</translation>

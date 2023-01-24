@@ -15,7 +15,7 @@ Button {
     signal setRowHeight(int newHeight)
 
     property string labelText: label.description ? label.description
-                                                 : qsTranslate("Tracing", "[unknown]")
+                                                 : qsTranslate("::Tracing", "[unknown]")
 
     onPressed: selectBySelectionId();
     ToolTip.text: labelText + (label.displayName ? (" (" + label.displayName + ")") : "")

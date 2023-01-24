@@ -4021,7 +4021,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名稱：</translation>
@@ -6287,7 +6287,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>外掛程式 &apos;%1&apos; 不存在。</translation>
@@ -12059,7 +12059,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>無</translation>
@@ -23492,7 +23492,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - 外掛程式載入器訊息</translation>
@@ -23530,7 +23530,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Duration:</source>
         <translation>持續時間：</translation>
@@ -23556,7 +23556,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>繼續</translation>
@@ -25363,7 +25363,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>選擇</translation>
@@ -28328,7 +28328,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>

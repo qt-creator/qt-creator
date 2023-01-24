@@ -4263,7 +4263,7 @@ Adicionalmente ajustará automáticamente la versión de Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nombre:</translation>
@@ -6483,7 +6483,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>El plugin &apos;%1&apos; no existe.</translation>

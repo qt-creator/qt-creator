@@ -6681,7 +6681,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -9999,7 +9999,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Das Plugin &quot;%1&quot; ist in der Testliste doppelt vorhanden.</translation>
@@ -14714,7 +14714,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Keine</translation>
@@ -20821,7 +20821,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The following plugins have errors and cannot be loaded:</source>
         <translation>Die folgenden Plugins sind fehlerhaft und können nicht geladen werden:</translation>
@@ -21144,7 +21144,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Auswahl</translation>
@@ -24842,7 +24842,7 @@ the manifest file by overriding your settings. Allow override?</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -25974,7 +25974,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Fortsetzen</translation>
@@ -30862,7 +30862,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-Status geändert zu %1</translation>
@@ -40757,7 +40757,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Debug-Verbindung geöffnet.</translation>
@@ -41998,7 +41998,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation>Zeichensatz &quot;%1&quot; kann nicht dekodiert werden. Verwende stattdessen &quot;%2&quot;.</translation>
@@ -44002,7 +44002,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>%1 &gt; About Plugins</source>
         <translation>%1 &gt; Plugins</translation>
@@ -50236,7 +50236,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation type="unfinished">Die JSON-Nachricht konnte nicht ausgewertet werden: &quot;%1&quot;.</translation>

@@ -9,7 +9,7 @@ namespace Utils {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils)
+    Q_DECLARE_TR_FUNCTIONS(::Utils)
 };
 
 } // Utils

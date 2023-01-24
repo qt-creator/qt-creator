@@ -9,7 +9,7 @@ namespace QmlJS {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS)
+    Q_DECLARE_TR_FUNCTIONS(::QmlJS)
 };
 
 } // QmlJS

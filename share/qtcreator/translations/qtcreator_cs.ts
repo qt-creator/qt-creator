@@ -4605,7 +4605,7 @@ Také se automaticky nastaví správná verze Qt.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Název:</translation>
@@ -9078,7 +9078,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation>Přídavný modul &apos;%1&apos; je ve zkušebním seznamu přítomen dvakrát.</translation>
@@ -21313,7 +21313,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Žádná</translation>
@@ -37765,7 +37765,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Qt Creator - Plugin loader messages</source>
         <translation>Qt Creator - Zprávy zavaděče přídavných modulů</translation>
@@ -37826,7 +37826,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Details</source>
         <translation type="obsolete">Podrobnosti</translation>
@@ -41033,7 +41033,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Výběr</translation>
@@ -42141,7 +42141,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -49407,7 +49407,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Pokračovat</translation>

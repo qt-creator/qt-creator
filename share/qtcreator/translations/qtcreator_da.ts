@@ -3776,7 +3776,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Hop to forrige event.</translation>
@@ -4533,7 +4533,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>Sammenfold kategori</translation>
@@ -14284,7 +14284,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Beskrivelse:</translation>
@@ -20943,7 +20943,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation>Pluginet &quot;%1&quot; er angivet to gange for testing.</translation>
@@ -27284,7 +27284,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation>Socket-tilstand ændret til %1</translation>
@@ -32244,7 +32244,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[ukendt]</translation>
@@ -32973,7 +32973,7 @@ Række: %4, Kolonne: %5
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Markering</translation>
@@ -39607,7 +39607,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>others</source>
         <translation>andre</translation>
@@ -39856,7 +39856,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Debug connection opened.</source>
         <translation>Fejlret-forbindelse åbnet.</translation>
@@ -39871,7 +39871,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Kunne ikke åbne %1 til skrivning.</translation>

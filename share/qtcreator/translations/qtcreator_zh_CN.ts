@@ -4321,7 +4321,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Cannot decode content with &quot;%1&quot;. Falling back to &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
@@ -18485,7 +18485,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>名称:</translation>
@@ -23506,7 +23506,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -23776,7 +23776,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -26576,7 +26576,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Unknown option %1</source>
         <translation>未知选项 %1</translation>
@@ -32254,7 +32254,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -44978,7 +44978,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Duration</source>
         <translation type="unfinished">持续时间</translation>

@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="hr">
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Description:</source>
         <translation>Opis:</translation>
@@ -382,7 +382,7 @@
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Prijeđi na prethodni događaj.</translation>
@@ -10432,7 +10432,7 @@ onemogućit će sve takve funkcije kad nisu potrebne, što će poboljšati rad u
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &quot;%1&quot; is specified twice for testing.</source>
         <translation type="unfinished"></translation>
@@ -10737,7 +10737,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Unexpected header line &quot;%1&quot;.</source>
         <translation>Neočekivani redak u zaglavlju &quot;%1&quot;.</translation>
@@ -10771,7 +10771,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Nema parametara u &quot;%1&quot;.</translation>
@@ -10785,7 +10785,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>LanguageServerProtocol</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>No ID set in &quot;%1&quot;.</source>
         <translation>nema postavljene ID-oznake u &quot;%1&quot;.</translation>
@@ -11429,7 +11429,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Socket state changed to %1</source>
         <translation type="unfinished"></translation>
@@ -12345,7 +12345,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation type="unfinished"></translation>

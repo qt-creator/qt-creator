@@ -5596,7 +5596,7 @@ Ez automatikus beállítja a megfelelő Qt verziót is.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Invalid</source>
         <translation type="obsolete">Érvénytelen</translation>
@@ -9946,7 +9946,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>A(z) &apos;%1&apos; beépülő modul nem létezik.</translation>

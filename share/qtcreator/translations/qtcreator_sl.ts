@@ -3900,7 +3900,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -6751,7 +6751,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>Vstavek »%1« ne obstaja.</translation>
@@ -14222,7 +14222,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>None</source>
         <translation>Brez</translation>

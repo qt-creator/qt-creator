@@ -9,7 +9,7 @@ namespace AdvancedDockingSystem {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(AdvancedDockingSystem)
+    Q_DECLARE_TR_FUNCTIONS(::AdvancedDockingSystem)
 };
 
 } // AdvancedDockingSystem

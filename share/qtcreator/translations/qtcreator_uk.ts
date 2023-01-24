@@ -7234,7 +7234,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Назва:</translation>
@@ -12011,7 +12011,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; is specified twice for testing.</source>
         <translation type="vanished">Додаток для тестування &apos;%1&apos; вказано двічі.</translation>
@@ -17368,7 +17368,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Duration:</source>
         <translation type="vanished">Тривалість:</translation>
@@ -21689,7 +21689,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Виділення</translation>
@@ -24773,7 +24773,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>The port seems to be in use.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
@@ -29257,7 +29257,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Continue</source>
         <translation>Продовжити</translation>
@@ -36016,7 +36016,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Перейти до попередньої події.</translation>
@@ -36173,7 +36173,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QmlDebug</name>
+    <name>::QmlDebug</name>
     <message>
         <source>Error: (%1) %2</source>
         <extracomment>%1=error code, %2=error message</extracomment>
@@ -40084,7 +40084,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[невідомий]</translation>
@@ -43660,7 +43660,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Tracing</name>
+    <name>::Tracing</name>
     <message>
         <source>Details</source>
         <translation>Деталі</translation>

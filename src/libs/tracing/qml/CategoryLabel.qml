@@ -165,8 +165,8 @@ Item {
         implicitHeight: txt.height - 1
         enabled: labelContainer.expanded || (labelContainer.model && !labelContainer.model.empty)
         imageSource: labelContainer.expanded ? "image://icons/close_split" : "image://icons/split"
-        ToolTip.text: labelContainer.expanded ? qsTranslate("Tracing", "Collapse category")
-                                              : qsTranslate("Tracing", "Expand category")
+        ToolTip.text: labelContainer.expanded ? qsTranslate("::Tracing", "Collapse category")
+                                              : qsTranslate("::Tracing", "Expand category")
         onClicked: labelContainer.model.expanded = !labelContainer.expanded
     }
 

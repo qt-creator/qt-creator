@@ -4165,7 +4165,7 @@ Imposta automaticamente la Versione di Qt corretta.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>Name:</source>
         <translation>Nome:</translation>
@@ -6383,7 +6383,7 @@ nel tuo file .pro.</translation>
     </message>
 </context>
 <context>
-    <name>ExtensionSystem</name>
+    <name>::ExtensionSystem</name>
     <message>
         <source>The plugin &apos;%1&apos; does not exist.</source>
         <translation>Il plugin &apos;%1&apos; non esiste.</translation>
