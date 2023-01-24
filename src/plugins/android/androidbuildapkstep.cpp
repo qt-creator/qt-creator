@@ -397,7 +397,7 @@ void AndroidBuildApkWidget::signPackageCheckBoxToggled(bool checked)
 void AndroidBuildApkWidget::onOpenSslCheckBoxChanged()
 {
     Utils::FilePath projectPath = appProjectFilePath();
-    QFile projectFile(projectPath.toString());
+    QFile projectFile(projectPath.toFSPathString());
     if (!projectFile.open(QIODevice::ReadWrite | QIODevice::Text)) {
         qWarning() << "Cannot open project file to add OpenSSL extra libs: " << projectPath;
         return;
@@ -434,7 +434,7 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 {
     Utils::FilePath projectPath = appProjectFilePath();
     const QString searchStr = openSslIncludeFileContent(projectPath);
-    QFile projectFile(projectPath.toString());
+    QFile projectFile(projectPath.toFSPathString());
     projectFile.open(QIODevice::ReadOnly);
     QTextStream textStream(&projectFile);
     QString fileContent = textStream.readAll();
@@ -564,10 +564,10 @@ bool AndroidBuildApkStep::init()
 
     updateBuildToolsVersionInJsonFile();
 
-    QStringList arguments = {"--input", m_inputFile.toString(),
-                             "--output", outputDir.toString(),
+    QStringList arguments = {"--input", m_inputFile.path(),
+                             "--output", outputDir.path(),
                              "--android-platform", m_buildTargetSdk,
-                             "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().toString()};
+                             "--jdk", AndroidConfigurations::currentConfig().openJDKLocation().path()};
 
     if (m_verbose)
         arguments << "--verbose";
@@ -584,7 +584,7 @@ bool AndroidBuildApkStep::init()
     QStringList argumentsPasswordConcealed = arguments;
 
     if (m_signPackage) {
-        arguments << "--sign" << m_keystorePath.toString() << m_certificateAlias
+        arguments << "--sign" << m_keystorePath.path() << m_certificateAlias
                   << "--storepass" << m_keystorePasswd;
         argumentsPasswordConcealed << "--sign" << "******"
                                    << "--storepass" << "******";
@@ -650,7 +650,7 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
 {
     if (!m_keystorePath.exists()) {
         reportWarningOrError(Tr::tr("Cannot sign the package. Invalid keystore path (%1).")
-                             .arg(m_keystorePath.toString()), Task::Error);
+                             .arg(m_keystorePath.toUserOutput()), Task::Error);
         return false;
     }
 
