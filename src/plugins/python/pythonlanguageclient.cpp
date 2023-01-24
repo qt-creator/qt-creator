@@ -305,7 +305,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
         install->deleteLater();
     });
 
-    install->setPackage(PipPackage{"python-lsp-server[all]", "Python Language Server"});
+    install->setPackages({PipPackage{"python-lsp-server[all]", "Python Language Server"}});
     install->run();
 }
 

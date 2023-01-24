@@ -66,7 +66,8 @@ class PipInstallTask : public QObject
     Q_OBJECT
 public:
     explicit PipInstallTask(const Utils::FilePath &python);
-    void setPackage(const PipPackage &package);
+    void addPackage(const PipPackage &package);
+    void setPackages(const QList<PipPackage> &packages);
     void run();
 
 signals:
@@ -78,8 +79,10 @@ private:
     void handleOutput();
     void handleError();
 
+    QString packagesDisplayName() const;
+
     const Utils::FilePath m_python;
-    PipPackage m_package;
+    QList<PipPackage> m_packages;
     Utils::QtcProcess m_process;
     QFutureInterface<void> m_future;
     QFutureWatcher<void> m_watcher;

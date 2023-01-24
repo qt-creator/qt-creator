@@ -35,23 +35,31 @@ PipInstallTask::PipInstallTask(const FilePath &python)
     m_watcher.setFuture(m_future.future());
 }
 
-void PipInstallTask::setPackage(const PipPackage &package)
+void PipInstallTask::addPackage(const PipPackage &package)
 {
-    m_package = package;
+    m_packages << package;
+}
+
+void PipInstallTask::setPackages(const QList<PipPackage> &packages)
+{
+    m_packages = packages;
 }
 
 void PipInstallTask::run()
 {
-    if (m_package.packageName.isEmpty()) {
+    if (m_packages.isEmpty()) {
         emit finished(false);
         return;
     }
-    const QString taskTitle = Tr::tr("Install %1").arg(m_package.displayName);
+    const QString taskTitle = Tr::tr("Install Python Packages");
     Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
-    QString package = m_package.packageName;
-    if (!m_package.version.isEmpty())
-        package += "==" + m_package.version;
-    QStringList arguments = {"-m", "pip", "install", package};
+    QStringList arguments = {"-m", "pip", "install"};
+    for (const PipPackage &package : m_packages) {
+        QString pipPackage = package.packageName;
+        if (!package.version.isEmpty())
+            pipPackage += "==" + package.version;
+        arguments << pipPackage;
+    }
 
     // add --user to global pythons, but skip it for venv pythons
     if (!QDir(m_python.parentDir().toString()).exists("activate"))
@@ -62,7 +70,7 @@ void PipInstallTask::run()
 
     Core::MessageManager::writeDisrupting(
         Tr::tr("Running \"%1\" to install %2.")
-            .arg(m_process.commandLine().toUserOutput(), m_package.displayName));
+            .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
 
     m_killTimer.setSingleShot(true);
     m_killTimer.start(5 /*minutes*/ * 60 * 1000);
@@ -74,7 +82,7 @@ void PipInstallTask::cancel()
     m_process.waitForFinished();
     Core::MessageManager::writeFlashing(
         Tr::tr("The %1 installation was canceled by %2.")
-            .arg(m_package.displayName, m_killTimer.isActive() ? Tr::tr("user") : Tr::tr("time out")));
+            .arg(packagesDisplayName(), m_killTimer.isActive() ? Tr::tr("user") : Tr::tr("time out")));
 }
 
 void PipInstallTask::handleDone()
@@ -82,8 +90,8 @@ void PipInstallTask::handleDone()
     m_future.reportFinished();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        Core::MessageManager::writeFlashing(Tr::tr("Installing the %1 failed with exit code %2")
-                .arg(m_package.displayName).arg(m_process.exitCode()));
+        Core::MessageManager::writeFlashing(Tr::tr("Installing %1 failed with exit code %2")
+                .arg(packagesDisplayName()).arg(m_process.exitCode()));
     }
     emit finished(success);
 }
@@ -100,6 +108,11 @@ void PipInstallTask::handleError()
     const QString &stdErr = QString::fromLocal8Bit(m_process.readAllRawStandardError().trimmed());
     if (!stdErr.isEmpty())
         Core::MessageManager::writeSilently(stdErr);
+}
+
+QString PipInstallTask::packagesDisplayName() const
+{
+    return Utils::transform(m_packages, &PipPackage::displayName).join(", ");
 }
 
 void PipPackageInfo::parseField(const QString &field, const QStringList &data)

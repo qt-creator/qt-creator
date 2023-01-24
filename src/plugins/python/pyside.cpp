@@ -88,7 +88,7 @@ void PySideInstaller::installPyside(const FilePath &python,
         if (success)
             emit pySideInstalled(python, pySide);
     });
-    install->setPackage(PipPackage(pySide));
+    install->setPackages({PipPackage(pySide)});
     install->run();
 }
 
