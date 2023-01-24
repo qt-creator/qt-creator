@@ -1722,8 +1722,9 @@ bool validateEffect(const QString &effectPath)
     Utils::FilePath qmlPath = effectsResDir.resolvePath(effectName + "/" + effectName + ".qml");
     if (!qmlPath.exists()) {
         QMessageBox msgBox;
-        msgBox.setText(QObject::tr("Effect %1 not complete").arg(effectName));
-        msgBox.setInformativeText(QObject::tr("Do you want to edit %1?").arg(effectName));
+        msgBox.setText(QObject::tr("Effect %1 is not complete.").arg(effectName));
+        msgBox.setInformativeText(QObject::tr("Ensure that you have saved it in Qt Quick Effect Maker."
+                                              "\nDo you want to edit this effect?"));
         msgBox.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
         msgBox.setDefaultButton(QMessageBox::Yes);
         msgBox.setIcon(QMessageBox::Question);
