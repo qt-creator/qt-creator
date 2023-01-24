@@ -20485,7 +20485,7 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation type="obsolete">Valeur inconnue pour l&apos;énumération</translation>
@@ -20682,9 +20682,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; ou &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Le fichier n&apos;est pas un fichier de module.</translation>
@@ -20705,20 +20702,9 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <source>%1: %2</source>
         <translation type="obsolete">%1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">impossible de trouver le fichier ou le répertoire</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">est attendu deux nombres séparés par un point</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">l&apos;importation d&apos;un paquet a besoin d&apos;un numéro de version</translation>
     </message>
     <message>
         <source>package not found</source>
@@ -25207,7 +25193,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>est attendu deux nombres séparés par un point</translation>
@@ -25215,10 +25201,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>package import requires a version number</source>
         <translation>l&apos;importation d&apos;un paquet a besoin d&apos;un numéro de version</translation>
-    </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation type="obsolete">Fichier ou répertoire non trouvé</translation>
     </message>
 </context>
 <context>
@@ -28749,11 +28731,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
-    <message>
-        <source>%1: %2</source>
-        <translation type="obsolete">%1 : %2</translation>
-    </message>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -28781,10 +28759,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>Expected version 1.1 or lower.</source>
         <translation>La version 1.1 ou inférieure est attendue.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Un document ne contiennant qu&apos;une seule définition d&apos;objet est attendu.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
@@ -37140,7 +37114,7 @@ Si vous choisissez de ne pas continuer, Qt Creator n&apos;essayera pas de charge
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">Le type sera disponible dans l&apos;éditeur QML de Qt Creator lorsque le nom du type est une chaîne de caractères</translation>
@@ -46867,14 +46841,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Impossible de trouver le fichier %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Impossible d&apos;analyser le document.</translation>
     </message>
     <message>
         <source>Expected document to contain a single object definition.</source>
@@ -46888,16 +46858,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Expected expression statement to be a literal.</source>
         <translation>L&apos;expression doit être littérale.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Propriété définie deux fois.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &apos;%1&apos; as a constructor.</source>
         <translation>Ne pas utiliser &apos;%1&apos; comme un constructeur.</translation>

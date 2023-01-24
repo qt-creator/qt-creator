@@ -21332,7 +21332,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation type="obsolete">Neznámá hodnota pro &apos;enum&apos;</translation>
@@ -21529,9 +21529,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; nebo &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Soubor není souborem modulu.</translation>
@@ -21552,20 +21549,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>%1: %2</source>
         <translation type="obsolete">%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">Soubor nebo adresář se nepodařilo najít</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">Byla očekávána dvě čísla oddělená čárkou</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">Zavedení balíčku vyžaduje číslo verze</translation>
     </message>
     <message>
         <source>package not found</source>
@@ -29056,7 +29042,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>Byla očekávána dvě čísla oddělená čárkou</translation>
@@ -29065,13 +29051,6 @@ With cache simulation, further event counters are enabled:
         <source>package import requires a version number</source>
         <translation>Importování balíčku vyžaduje číslo verze</translation>
     </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation type="obsolete">Soubor nebo adresář nenalezen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -38559,7 +38538,7 @@ Pokud zvolíte nepokračovat, Qt Creator se soubor .shared nahrát nepokusí.</t
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -49414,18 +49393,10 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Nelze najít soubor %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Nepodařilo se zpracovat dokument.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Očekáván dokument obsahující definici jednoho objektu.</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -49435,16 +49406,10 @@ nelze najít v cestě.</translation>
         <source>Expected expression statement to be a literal.</source>
         <translation>Očekáván výraz tvořený písmeny (literal).</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Vlastnost je stanovena dvakrát.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &apos;%1&apos; as a constructor.</source>
         <translation>&apos;%1&apos; se nesmí používat jako konstruktor.</translation>
@@ -55517,7 +55482,7 @@ Opravdu chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Indexing</source>
         <translation>Indexování</translation>
@@ -55526,9 +55491,6 @@ Opravdu chcete pokračovat?</translation>
         <source>QML import scan</source>
         <translation>Sken importování QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 

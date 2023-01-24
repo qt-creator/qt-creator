@@ -37425,7 +37425,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>Hit maximal recursion depth in AST visit</source>
         <translation>Достигнута максимальная глубина рекурсии обработки AST</translation>
@@ -37434,16 +37434,10 @@ This is independent of the visibility property in QML.</source>
         <source>package import requires a version number</source>
         <translation>импорт пакета требует номер версии</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>«int» или «real»</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Файл или каталог не найден.</translation>
@@ -37498,9 +37492,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation>Модуль QML содержит расширения на C++, идёт чтение информации о типах...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::ModelManagerInterface</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Разбор файлов QML</translation>
@@ -37509,9 +37500,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>Scanning QML Imports</source>
         <translation>Сканирование импорта QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>Automatic type dump of QML module failed.
 Errors:
@@ -37601,7 +37589,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Не удалось найти файл %1.</translation>
@@ -37618,16 +37606,10 @@ Please build the qmldump application on the Qt version options page.</source>
         <source>Expected expression statement after colon.</source>
         <translation>Ожидается выражение после запятой.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Свойство определено дважды.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -37960,9 +37942,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Qt Quick Designer only supports states in the root item.</source>
         <translation>Qt Quick Designer поддерживает состояния только в корневом элементе.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -37976,10 +37955,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
 %2</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Не удалось разобрать документ.</translation>
-    </message>
-    <message>
         <source>Expected a single import.</source>
         <translation>Ожидается одиночный импорт.</translation>
     </message>
@@ -37990,10 +37965,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     <message>
         <source>Major version different from 1 not supported.</source>
         <translation>Версия с основным номером отличным от 1 не поддерживается.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>В документе ожидается определение ровно одного объекта.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>

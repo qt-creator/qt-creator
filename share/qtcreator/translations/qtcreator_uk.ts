@@ -14943,7 +14943,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>очікувались два числа розділених крапкою</translation>
@@ -14952,16 +14952,10 @@ This is independent of the visibility property in QML.</source>
         <source>package import requires a version number</source>
         <translation>імпорт пакунка вимагає номеру версії</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; або &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>file or directory not found</source>
         <translation type="vanished">файл чи тека не знайдені</translation>
@@ -15008,9 +15002,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation>Модуль QML містить додатки C++, триває читання інформації про типи...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -29264,18 +29255,10 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Неможливо знайти файл %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Не вдалось розібрати документ.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -29285,16 +29268,10 @@ cannot be found in the path.</source>
         <source>Expected expression statement to be a literal.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Властивість визначено двічі.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Invalid value for enum.</source>
         <translation type="unfinished"></translation>
@@ -34750,7 +34727,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Indexing</source>
         <translation type="vanished">Індексування</translation>
@@ -34767,9 +34744,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Scanning QML Imports</source>
         <translation>Сканування імпортів QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 

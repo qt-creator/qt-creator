@@ -18,9 +18,6 @@
 #include <QVariant>
 #include <QWeakPointer>
 
-// for Q_DECLARE_TR_FUNCTIONS
-#include <QCoreApplication>
-
 namespace QmlJS {
 
 #ifndef QT_CREATOR
@@ -84,8 +81,6 @@ using namespace QQmlJS;
 
 class QMLJS_EXPORT SimpleAbstractStreamReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::SimpleAbstractStreamReader)
-
 public:
     SimpleAbstractStreamReader();
     virtual ~SimpleAbstractStreamReader();
@@ -124,8 +119,6 @@ private:
 
 class QMLJS_EXPORT SimpleReader: public SimpleAbstractStreamReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::SimpleReader)
-
 public:
     SimpleReader();
     SimpleReaderNode::Ptr readFile(const QString &fileName);

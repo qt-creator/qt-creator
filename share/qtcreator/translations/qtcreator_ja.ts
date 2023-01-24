@@ -9391,7 +9391,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>ドットで区切られた2つの数字がありません</translation>
@@ -9408,16 +9408,10 @@ will also disable the following plugins:
         <source>Nested inline components are not supported</source>
         <translation>インラインコンポーネントのネストはサポートされていません</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos;型か&apos;real&apos;型</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -9590,9 +9584,6 @@ will also disable the following plugins:
         <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
         <translation>Enum にはゲッターやセッターは含めずに、&apos;string: number&apos; のみのエレメントを使用してください。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>ファイルまたはディレクトリが見つかりません。</translation>
@@ -9684,18 +9675,10 @@ CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>ファイル %1 が見つかりません。</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>ドキュメントを解析できませんでした。</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>ドキュメントは一つのオブジェクト定義を持つ必要があります。</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -9705,16 +9688,10 @@ CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を
         <source>Expected expression statement to be a literal.</source>
         <translation>式文はリテラルである必要があります。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>プロパティが二度定義されています。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -31760,7 +31737,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>QML ファイルの解析中</translation>
@@ -31769,9 +31746,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Scanning QML Imports</source>
         <translation>QML import のスキャン中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 

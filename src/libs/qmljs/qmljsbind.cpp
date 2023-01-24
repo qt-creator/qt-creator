@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsbind.h"
+
 #include "parser/qmljsast_p.h"
-#include "qmljsutils.h"
+
 #include "qmljsdocument.h"
 #include "qmljsmodelmanagerinterface.h"
+#include "qmljstr.h"
+#include "qmljsutils.h"
 
 #include <QtCore/QVersionNumber>
 #include <QtCore/QLibraryInfo>
@@ -164,7 +167,8 @@ ObjectValue *Bind::bindObject(UiQualifiedId *qualifiedTypeNameId, UiObjectInitia
 
 void Bind::throwRecursionDepthError()
 {
-    _diagnosticMessages->append(DiagnosticMessage(Severity::Error, SourceLocation(), tr("Hit maximal recursion depth in AST visit.")));
+    _diagnosticMessages->append(DiagnosticMessage(Severity::Error, SourceLocation(),
+                                                  Tr::tr("Hit maximal recursion depth in AST visit.")));
 }
 
 void Bind::accept(Node *node)
@@ -212,7 +216,7 @@ bool Bind::visit(UiImport *ast)
         }
         if (!version.isValid() && (!qtVersion.isNull() && qtVersion.majorVersion() < 6)) {
             _diagnosticMessages->append(
-                        errorMessage(ast, tr("package import requires a version number")));
+                        errorMessage(ast, Tr::tr("package import requires a version number")));
         }
         const QString importId = ast->importId.toString();
 
@@ -322,7 +326,7 @@ bool Bind::visit(UiInlineComponent *ast)
     if (!_currentComponentName.isEmpty()) {
         _currentComponentName += ".";
         _diagnosticMessages->append(
-            errorMessage(ast, tr("Nested inline components are not supported")));
+            errorMessage(ast, Tr::tr("Nested inline components are not supported")));
     }
     _currentComponentName += ast->name.toString();
     _rootObjectValue = nullptr;

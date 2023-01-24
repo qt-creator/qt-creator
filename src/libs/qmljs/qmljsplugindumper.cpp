@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsplugindumper.h"
-#include "qmljsmodelmanagerinterface.h"
-#include "qmljsutils.h"
 
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsviewercontext.h>
+#include "qmljsinterpreter.h"
+#include "qmljsmodelmanagerinterface.h"
+#include "qmljstr.h"
+#include "qmljsutils.h"
+#include "qmljsviewercontext.h"
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
@@ -170,16 +171,16 @@ void PluginDumper::dumpAllPlugins()
 
 static QString noTypeinfoError(const FilePath &libraryPath)
 {
-    return PluginDumper::tr("QML module does not contain information about components contained in plugins.\n\n"
-                            "Module path: %1\n"
-                            "See \"Using QML Modules with Plugins\" in the documentation.").arg(
+    return Tr::tr("QML module does not contain information about components contained in plugins.\n\n"
+                  "Module path: %1\n"
+                  "See \"Using QML Modules with Plugins\" in the documentation.").arg(
                 libraryPath.toUserOutput());
 }
 
 static QString qmldumpErrorMessage(const FilePath &libraryPath, const QString &error)
 {
     return noTypeinfoError(libraryPath) + "\n\n" +
-            PluginDumper::tr("Automatic type dump of QML module failed.\nErrors:\n%1").
+            Tr::tr("Automatic type dump of QML module failed.\nErrors:\n%1").
             arg(error) + QLatin1Char('\n');
 }
 
@@ -187,19 +188,19 @@ static QString qmldumpFailedMessage(const FilePath &libraryPath, const QString &
 {
     QString firstLines = QStringList(error.split('\n').mid(0, 10)).join('\n');
     return noTypeinfoError(libraryPath) + "\n\n" +
-            PluginDumper::tr("Automatic type dump of QML module failed.\n"
-                             "First 10 lines or errors:\n"
-                             "\n"
-                             "%1"
-                             "\n"
-                             "Check General Messages for details."
-                             ).arg(firstLines);
+            Tr::tr("Automatic type dump of QML module failed.\n"
+                   "First 10 lines or errors:\n"
+                   "\n"
+                   "%1"
+                   "\n"
+                   "Check General Messages for details."
+                   ).arg(firstLines);
 }
 
 static void printParseWarnings(const FilePath &libraryPath, const QString &warning)
 {
     ModelManagerInterface::writeWarning(
-                PluginDumper::tr("Warnings while parsing QML type information of %1:\n"
+                Tr::tr("Warnings while parsing QML type information of %1:\n"
                                  "%2").arg(libraryPath.toUserOutput(), warning));
 }
 
@@ -209,24 +210,24 @@ static QString qmlPluginDumpErrorMessage(QtcProcess *process)
     const QString binary = process->commandLine().executable().toUserOutput();
     switch (process->error()) {
     case QProcess::FailedToStart:
-        errorMessage = PluginDumper::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
+        errorMessage = Tr::tr("\"%1\" failed to start: %2").arg(binary, process->errorString());
         break;
     case QProcess::Crashed:
-        errorMessage = PluginDumper::tr("\"%1\" crashed.").arg(binary);
+        errorMessage = Tr::tr("\"%1\" crashed.").arg(binary);
         break;
     case QProcess::Timedout:
-        errorMessage = PluginDumper::tr("\"%1\" timed out.").arg(binary);
+        errorMessage = Tr::tr("\"%1\" timed out.").arg(binary);
         break;
     case QProcess::ReadError:
     case QProcess::WriteError:
-        errorMessage = PluginDumper::tr("I/O error running \"%1\".").arg(binary);
+        errorMessage = Tr::tr("I/O error running \"%1\".").arg(binary);
         break;
     case QProcess::UnknownError:
         if (process->exitCode())
-            errorMessage = PluginDumper::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
+            errorMessage = Tr::tr("\"%1\" returned exit code %2.").arg(binary).arg(process->exitCode());
         break;
     }
-    errorMessage += '\n' + PluginDumper::tr("Arguments: %1").arg(process->commandLine().arguments());
+    errorMessage += '\n' + Tr::tr("Arguments: %1").arg(process->commandLine().arguments());
     if (process->error() != QProcess::FailedToStart) {
         const QString stdErr = QString::fromLocal8Bit(process->readAllRawStandardError());
         if (!stdErr.isEmpty()) {
@@ -344,7 +345,7 @@ QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(c
             CppQmlTypesLoader::parseQmlTypeDescriptions(reader.data(), &objs, &apis, &deps,
                                                         &error, &warning, p.toString());
             if (!error.isEmpty()) {
-                result.errors += tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
+                result.errors += Tr::tr("Failed to parse \"%1\".\nError: %2").arg(p.toUserOutput(), error);
             } else {
                 result.objects += objs.values();
                 result.moduleApis += apis;
@@ -546,7 +547,7 @@ void PluginDumper::prepareLibraryInfo(LibraryInfo &libInfo,
         libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileDone);
     } else {
         printParseWarnings(libraryPath, errors.join(QLatin1Char('\n')));
-        errs.prepend(tr("Errors while reading typeinfo files:"));
+        errs.prepend(Tr::tr("Errors while reading typeinfo files:"));
         libInfo.setPluginTypeInfoStatus(LibraryInfo::TypeInfoFileError, errs.join(QLatin1Char('\n')));
     }
 
@@ -635,7 +636,7 @@ void PluginDumper::dump(const Plugin &plugin)
             errorMessage = noTypeinfoError(plugin.qmldirPath);
         } else {
             errorMessage = qmldumpErrorMessage(plugin.qmldirPath,
-                    tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
+                    Tr::tr("Could not locate the helper application for dumping type information from C++ plugins.\n"
                        "Please build the qmldump application on the Qt version options page."));
         }
 

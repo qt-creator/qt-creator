@@ -28715,7 +28715,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>forventede to numre adskilt af et punktum</translation>
@@ -28724,16 +28724,10 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <source>package import requires a version number</source>
         <translation>pakkeimport kræver et versionsnummer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; eller &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Fil eller mappe ikke fundet.</translation>
@@ -28764,9 +28758,6 @@ Til CMake-projekter, sørg for at QML_IMPORT_PATH-variabler er i CMakeCache.txt.
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation>QML-modul indeholder C++-plugins, læser aktuelt typeinformation...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::ModelManagerInterface</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Parser QML-filer</translation>
@@ -28775,9 +28766,6 @@ Til CMake-projekter, sørg for at QML_IMPORT_PATH-variabler er i CMakeCache.txt.
         <source>Scanning QML Imports</source>
         <translation>Skanner QML importer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -28867,7 +28855,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Kan ikke finde filen %1.</translation>
@@ -28884,16 +28872,10 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
         <source>Expected expression statement after colon.</source>
         <translation>Ventede udsagnsudtryk efter kolon.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Egenskab er defineret to gange.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -29214,9 +29196,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>A State cannot have a child item (%1).</source>
         <translation>En tilstand kan ikke have en barne-post (%1).</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -29230,10 +29209,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
 %2</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Kunne ikke parse dokument.</translation>
-    </message>
-    <message>
         <source>Expected a single import.</source>
         <translation>Forventede en enkelt import.</translation>
     </message>
@@ -29244,10 +29219,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
     <message>
         <source>Major version different from 1 not supported.</source>
         <translation>Stor version som ikke er 1 understøttes ikke.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Forventede at dokument indeholder en enkel objekt-definition.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>

@@ -14554,7 +14554,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; oder &apos;real&apos;</translation>
@@ -14982,7 +14982,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
 </context>
 <context>
-    <name>QmlJS::Link</name>
+    <name>::QmlJS</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Datei oder Verzeichnis nicht gefunden.</translation>
@@ -15959,7 +15959,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>Hit maximal recursion depth in AST visit.</source>
         <translation type="unfinished"></translation>
@@ -16043,7 +16043,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -25981,26 +25981,15 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Die Datei &apos;%1&apos; kann nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Das Dokument konnte nicht ausgewertet werden.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Das Dokument sollte eine einzige Objektdefinition enthalten.</translation>
-    </message>
-    <message>
         <source>Expected expression statement after colon.</source>
         <translation>Nach dem Doppelpunkt wird ein Ausdruck erwartet.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice, previous definition at %1:%2</source>
         <translation>Eigenschaft ist doppelt definiert, vorherige Definition ist bei %1:%2</translation>
@@ -26603,7 +26592,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -30240,7 +30229,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Werte QML-Dateien aus</translation>
@@ -30249,9 +30238,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
         <source>Scanning QML Imports</source>
         <translation>Durchsuche QML-Imports</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>Automatic type dump of QML module failed.
 Errors:
@@ -50247,7 +50233,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal.</source>
         <translation type="unfinished">Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist.</translation>

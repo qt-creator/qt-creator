@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscheck.h"
+
 #include "qmljsbind.h"
 #include "qmljsevaluate.h"
+#include "qmljstr.h"
 #include "qmljsutils.h"
+
 #include "parser/qmljsast_p.h"
 
 #include <utils/algorithm.h>
@@ -1161,7 +1164,7 @@ bool Check::visit(UiPublicMember *ast)
             const Value *init = evaluator(ast->statement);
             QString preferredType;
             if (init->asNumberValue())
-                preferredType = tr("'int' or 'real'");
+                preferredType = Tr::tr("'int' or 'real'");
             else if (init->asStringValue())
                 preferredType = "'string'";
             else if (init->asBooleanValue())
@@ -1216,7 +1219,7 @@ bool Check::visit(IdentifierExpression *)
 //        if (const Reference *ref = value_cast<Reference>(_lastValue)) {
 //            _lastValue = _context->lookupReference(ref);
 //            if (!_lastValue)
-//                error(ast->identifierToken, tr("could not resolve"));
+//                error(ast->identifierToken, Tr::tr("could not resolve"));
 //        }
 //    }
 //    return false;
@@ -1233,7 +1236,7 @@ bool Check::visit(FieldMemberExpression *)
 //    const ObjectValue *obj = _lastValue->asObjectValue();
 //    if (!obj) {
 //        error(locationFromRange(ast->base->firstSourceLocation(), ast->base->lastSourceLocation()),
-//              tr("does not have members"));
+//              Tr::tr("does not have members"));
 //    }
 //    if (!obj || ast->name.isEmpty()) {
 //        _lastValue = 0;
@@ -1241,7 +1244,7 @@ bool Check::visit(FieldMemberExpression *)
 //    }
 //    _lastValue = obj->lookupMember(ast->name.toString(), _context);
 //    if (!_lastValue)
-//        error(ast->identifierToken, tr("unknown member"));
+//        error(ast->identifierToken, Tr::tr("unknown member"));
 //    return false;
 }
 

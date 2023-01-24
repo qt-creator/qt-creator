@@ -8,6 +8,7 @@
 
 #include <qmljs/qmljssimplereader.h>
 
+#include <QCoreApplication>
 #include <QString>
 
 

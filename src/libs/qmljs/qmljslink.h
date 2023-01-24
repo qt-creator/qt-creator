@@ -18,7 +18,6 @@ class LinkPrivate;
 class QMLJS_EXPORT Link
 {
     Q_DISABLE_COPY(Link)
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Link)
 
 public:
     Link(Link &&) = delete;

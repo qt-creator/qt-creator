@@ -14237,7 +14237,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation>neznana vrednost za oštevilčenje</translation>
@@ -14406,9 +14406,6 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>ids must be lower case</source>
         <translation type="obsolete">ID-ji morajo imeti same male črke</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>package not found</source>
         <translation>paket ni bil najden</translation>
@@ -14420,14 +14417,6 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">datoteke ali mape ni bilo moč najti</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">pričakovani sta bili dve števili ločeni s piko</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">uvažanje paketa zahteva številko različice</translation>
     </message>
 </context>
 <context>
@@ -20840,7 +20829,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>pričakovani sta bili dve števili ločeni s piko</translation>
@@ -20853,9 +20842,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>file or directory not found</source>
         <translation>datoteke ali mape ni bilo moč najti</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -30439,7 +30425,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Datoteka ni datoteka modula.</translation>
