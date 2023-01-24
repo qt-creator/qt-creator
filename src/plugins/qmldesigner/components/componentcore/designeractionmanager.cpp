@@ -1929,25 +1929,29 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          editMaterialCommandId,
-                          editMaterialDisplayName,
-                          contextIcon(DesignerIcons::EditIcon),
-                          rootCategory,
-                          QKeySequence(),
-                          44,
-                          &editMaterial,
-                          &modelHasMaterial,
-                          &isModel));
-
-    addDesignerAction(new ModelNodeContextMenuAction(mergeTemplateCommandId,
-                                                     mergeTemplateDisplayName,
-                                                     {},
+    addDesignerAction(new ModelNodeContextMenuAction(editMaterialCommandId,
+                                                     editMaterialDisplayName,
+                                                     contextIcon(DesignerIcons::EditIcon),
                                                      rootCategory,
-                                                     {},
-                                                     Priorities::MergeWithTemplate,
-                                                     [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
-                                                     &SelectionContextFunctors::always));
+                                                     QKeySequence(),
+                                                     44,
+                                                     &editMaterial,
+                                                     &modelHasMaterial,
+                                                     &isModel));
+
+    if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::ACTIONS_MERGE_TEMPLATE_ENABLED).toBool()) {
+        addDesignerAction(new ModelNodeContextMenuAction(
+            mergeTemplateCommandId,
+            mergeTemplateDisplayName,
+            {},
+            rootCategory,
+            {},
+            Priorities::MergeWithTemplate,
+            [&](const SelectionContext &context) {
+                mergeWithTemplate(context, m_externalDependencies);
+            },
+            &SelectionContextFunctors::always));
+    }
 
     addDesignerAction(new ActionGroup(
                           "",

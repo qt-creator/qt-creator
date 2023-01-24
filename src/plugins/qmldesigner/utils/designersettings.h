@@ -55,6 +55,7 @@ const char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
 const char SMOOTH_RENDERING[] = "SmoothRendering";
 const char OLD_STATES_EDITOR[] = "ForceOldStatesEditor";
 const char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
+const char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
 }
 
 class QMLDESIGNERUTILS_EXPORT DesignerSettings
