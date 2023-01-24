@@ -149,8 +149,8 @@ public:
     TaskAction start();
     TaskAction startChildren(int nextChild);
     void stop();
-    bool isRunning() const;
-    int taskCount() const;
+    bool isStarting() const { return m_startGuard.isLocked(); }
+    bool isRunning() const { return m_doneCount >= 0; }
     int currentLimit() const;
     TaskAction childDone(bool success);
     void groupDone(bool success);
@@ -214,7 +214,6 @@ private:
     const TaskItem::TaskHandler m_taskHandler;
     TaskContainer m_container;
     std::unique_ptr<TaskInterface> m_task;
-    Guard m_startGuard;
 };
 
 class TaskTreePrivate
@@ -347,7 +346,7 @@ TaskAction TaskContainer::start()
     m_doneCount = 0;
 
     createStorages();
-    TaskAction groupAction = TaskAction::Continue;
+    TaskAction groupAction = m_children.isEmpty() ? TaskAction::StopWithDone : TaskAction::Continue;
     if (m_groupHandler.m_setupHandler) {
         StorageActivator activator(*this);
         GuardLocker locker(m_taskTreePrivate->m_guard);
@@ -356,15 +355,9 @@ TaskAction TaskContainer::start()
 
     if (groupAction == TaskAction::StopWithDone || groupAction == TaskAction::StopWithError) {
         const bool success = groupAction == TaskAction::StopWithDone;
-        const int skippedTaskCount = taskCount();
-        m_taskTreePrivate->advanceProgress(skippedTaskCount);
+        m_taskTreePrivate->advanceProgress(m_taskCount);
         invokeEndHandler(success);
-        return toTaskAction(success);
-    }
-
-    if (m_children.isEmpty()) {
-        invokeEndHandler(true);
-        return TaskAction::StopWithDone; // TODO: take workflow policy into account?
+        return groupAction;
     }
 
     resetSuccessBit();
@@ -381,11 +374,11 @@ TaskAction TaskContainer::startChildren(int nextChild)
         if (i >= limit)
             break;
 
-        const TaskAction action = m_children.at(i)->start();
-        if (action == TaskAction::Continue)
+        const TaskAction startAction = m_children.at(i)->start();
+        if (startAction == TaskAction::Continue)
             continue;
 
-        const TaskAction finalizeAction = childDone(action == TaskAction::StopWithDone);
+        const TaskAction finalizeAction = childDone(startAction == TaskAction::StopWithDone);
         if (finalizeAction == TaskAction::Continue)
             continue;
 
@@ -419,16 +412,6 @@ void TaskContainer::stop()
     m_doneCount = -1;
 }
 
-bool TaskContainer::isRunning() const
-{
-    return m_doneCount >= 0;
-}
-
-int TaskContainer::taskCount() const
-{
-    return m_taskCount;
-}
-
 int TaskContainer::currentLimit() const
 {
     const int childCount = m_children.size();
@@ -437,19 +420,16 @@ int TaskContainer::currentLimit() const
 
 TaskAction TaskContainer::childDone(bool success)
 {
-    if ((m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
-            || (m_workflowPolicy == WorkflowPolicy::StopOnError && !success)) {
-        stop();
-        invokeEndHandler(success);
-        groupDone(success);
-        return toTaskAction(success);
-    }
-
     const int limit = currentLimit();
+    const bool shouldStop = (m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
+                         || (m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
+    if (shouldStop)
+        stop();
+
     ++m_doneCount;
     updateSuccessBit(success);
 
-    if (m_doneCount == m_children.size()) {
+    if (shouldStop || m_doneCount == m_children.size()) {
         invokeEndHandler(m_successBit);
         groupDone(m_successBit);
         return toTaskAction(m_successBit);
@@ -458,7 +438,7 @@ TaskAction TaskContainer::childDone(bool success)
     if (m_parallelLimit == 0)
         return TaskAction::Continue;
 
-    if (m_startGuard.isLocked())
+    if (isStarting())
         return TaskAction::Continue;
 
     if (limit >= m_children.size())
@@ -469,7 +449,7 @@ TaskAction TaskContainer::childDone(bool success)
 
 void TaskContainer::groupDone(bool success)
 {
-    if (m_startGuard.isLocked())
+    if (isStarting())
         return;
 
     if (m_parentContainer) {
@@ -601,13 +581,12 @@ TaskAction TaskNode::start()
                 m_taskHandler.m_errorHandler(*m_task.get());
         }
         finalize();
-        if (m_startGuard.isLocked())
+        if (m_container.m_parentContainer->isStarting())
             *unwindAction = toTaskAction(success);
         else
             m_container.m_parentContainer->childDone(success);
     });
 
-    GuardLocker locker(m_startGuard);
     m_task->start();
     return *unwindAction;
 }
@@ -646,7 +625,7 @@ bool TaskNode::isTask() const
 
 int TaskNode::taskCount() const
 {
-    return isTask() ? 1 : m_container.taskCount();
+    return isTask() ? 1 : m_container.m_taskCount;
 }
 
 /*!
