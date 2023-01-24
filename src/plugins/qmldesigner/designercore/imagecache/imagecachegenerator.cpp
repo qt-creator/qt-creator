@@ -114,7 +114,7 @@ void ImageCacheGenerator::startGeneration()
             task.extraId,
             std::move(task.auxiliaryData),
             [this, task](const QImage &image, const QImage &smallImage) {
-                if (image.isNull())
+                if (image.isNull() && smallImage.isNull())
                     callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Failed);
                 else
                     callCallbacks(task.captureCallbacks, image, smallImage);

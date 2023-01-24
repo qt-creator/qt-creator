@@ -224,7 +224,7 @@ TEST_F(ImageCacheGenerator, DontStoreNullImageForAbortCallbackFailed)
     notification.wait();
 }
 
-TEST_F(ImageCacheGenerator, AbortForEmptyImage)
+TEST_F(ImageCacheGenerator, AbortForNullImage)
 {
     ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
@@ -233,6 +233,68 @@ TEST_F(ImageCacheGenerator, AbortForEmptyImage)
 
     EXPECT_CALL(abortCallbackMock, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
         .WillOnce([&](auto) { notification.notify(); });
+
+    generator.generateImage(
+        "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, CallImageCallbackIfSmallImageIsNotNull)
+{
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(QImage{}, smallImage1);
+        });
+
+    EXPECT_CALL(imageCallbackMock, Call(Eq(QImage()), Eq(smallImage1))).WillOnce([&](auto, auto) {
+        notification.notify();
+    });
+
+    generator.generateImage(
+        "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, StoreImageIfSmallImageIsNotNull)
+{
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(QImage{}, smallImage1);
+        });
+
+    EXPECT_CALL(storageMock, storeImage(_, _, Eq(QImage()), Eq(smallImage1)))
+        .WillOnce([&](auto, auto, auto, auto) { notification.notify(); });
+
+    generator.generateImage(
+        "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, CallImageCallbackIfImageIsNotNull)
+{
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(image1, QImage{});
+        });
+
+    EXPECT_CALL(imageCallbackMock, Call(Eq(image1), Eq(QImage{}))).WillOnce([&](auto, auto) {
+        notification.notify();
+    });
+
+    generator.generateImage(
+        "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
+    notification.wait();
+}
+
+TEST_F(ImageCacheGenerator, StoreImageIfImageIsNotNull)
+{
+    ON_CALL(collectorMock, start(Eq("name"), _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto captureCallback, auto) {
+            captureCallback(image1, QImage{});
+        });
+
+    EXPECT_CALL(storageMock, storeImage(_, _, Eq(image1), Eq(QImage{})))
+        .WillOnce([&](auto, auto, auto, auto) { notification.notify(); });
 
     generator.generateImage(
         "name", {}, {}, imageCallbackMock.AsStdFunction(), abortCallbackMock.AsStdFunction(), {});
