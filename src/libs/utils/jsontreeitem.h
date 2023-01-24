@@ -14,7 +14,6 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT JsonTreeItem : public TypedTreeItem<JsonTreeItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(JsonTreeModelItem)
 public:
     JsonTreeItem() = default;
     JsonTreeItem(const QString &displayName, const QJsonValue &value);

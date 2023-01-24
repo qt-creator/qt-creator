@@ -14,6 +14,7 @@
 #include "stringutils.h"
 #include "terminalprocess_p.h"
 #include "threadutils.h"
+#include "utilstr.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -245,7 +246,7 @@ bool DefaultImpl::dissolveCommand(QString *program, QStringList *arguments)
             const ProcessResultData result = {0,
                                               QProcess::NormalExit,
                                               QProcess::FailedToStart,
-                                              QtcProcess::tr("Error in command line.")};
+                                              Tr::tr("Error in command line.")};
             emit done(result);
             return false;
         }
@@ -274,7 +275,7 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
         return true;
 
     const QString errorString
-        = QtcProcess::tr("The program \"%1\" does not exist or is not executable.").arg(program);
+        = Tr::tr("The program \"%1\" does not exist or is not executable.").arg(program);
     const ProcessResultData result = { 0, QProcess::NormalExit, QProcess::FailedToStart,
                                        errorString };
     emit done(result);
@@ -1241,12 +1242,12 @@ static bool askToKill(const CommandLine &command)
 #ifdef QT_GUI_LIB
     if (!isMainThread())
         return true;
-    const QString title = QtcProcess::tr("Process Not Responding");
-    QString msg = command.isEmpty() ? QtcProcess::tr("The process is not responding.")
-                                    : QtcProcess::tr("The process \"%1\" is not responding.")
+    const QString title = Tr::tr("Process Not Responding");
+    QString msg = command.isEmpty() ? Tr::tr("The process is not responding.")
+                                    : Tr::tr("The process \"%1\" is not responding.")
                                           .arg(command.executable().toUserOutput());
     msg += ' ';
-    msg += QtcProcess::tr("Terminate the process?");
+    msg += Tr::tr("Terminate the process?");
     // Restore the cursor that is set to wait while running.
     const bool hasOverrideCursor = QApplication::overrideCursor() != nullptr;
     if (hasOverrideCursor)
@@ -1517,16 +1518,16 @@ QString QtcProcess::exitMessage() const
     const QString fullCmd = commandLine().toUserOutput();
     switch (result()) {
     case ProcessResult::FinishedWithSuccess:
-        return QtcProcess::tr("The command \"%1\" finished successfully.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" finished successfully.").arg(fullCmd);
     case ProcessResult::FinishedWithError:
-        return QtcProcess::tr("The command \"%1\" terminated with exit code %2.")
+        return Tr::tr("The command \"%1\" terminated with exit code %2.")
             .arg(fullCmd).arg(exitCode());
     case ProcessResult::TerminatedAbnormally:
-        return QtcProcess::tr("The command \"%1\" terminated abnormally.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" terminated abnormally.").arg(fullCmd);
     case ProcessResult::StartFailed:
-        return QtcProcess::tr("The command \"%1\" could not be started.").arg(fullCmd);
+        return Tr::tr("The command \"%1\" could not be started.").arg(fullCmd);
     case ProcessResult::Hang:
-        return QtcProcess::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
+        return Tr::tr("The command \"%1\" did not respond within the timeout limit (%2 s).")
             .arg(fullCmd).arg(d->m_maxHangTimerCount);
     }
     return {};

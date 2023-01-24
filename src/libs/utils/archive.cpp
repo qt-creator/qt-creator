@@ -7,6 +7,7 @@
 #include "mimeutils.h"
 #include "qtcassert.h"
 #include "qtcprocess.h"
+#include "utilstr.h"
 
 #include <QSettings>
 
@@ -120,7 +121,7 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
     const QVector<Tool> tools = toolsForFilePath(filePath);
     if (tools.isEmpty()) {
         if (reason)
-            *reason = tr("File format not supported.");
+            *reason = Tr::tr("File format not supported.");
         return false;
     }
     if (!anyOf(tools, [tools](const Tool &t) { return resolveTool(t); })) {
@@ -128,7 +129,7 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
             const QStringList execs = transform<QStringList>(tools, [](const Tool &tool) {
                 return tool.command.executable().toUserOutput();
             });
-            *reason = tr("Could not find any unarchiving executable in PATH (%1).")
+            *reason = Tr::tr("Could not find any unarchiving executable in PATH (%1).")
                           .arg(execs.join(", "));
         }
         return false;
@@ -167,11 +168,11 @@ void Archive::unarchive()
     QObject::connect(m_process.get(), &QtcProcess::done, this, [this] {
         const bool successfulFinish = m_process->result() == ProcessResult::FinishedWithSuccess;
         if (!successfulFinish)
-            emit outputReceived(tr("Command failed."));
+            emit outputReceived(Tr::tr("Command failed."));
         emit finished(successfulFinish);
     });
 
-    emit outputReceived(tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
+    emit outputReceived(Tr::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
                  .arg(m_commandLine.toUserOutput(), m_workingDirectory.toUserOutput()));
 
     m_process->setCommand(m_commandLine);

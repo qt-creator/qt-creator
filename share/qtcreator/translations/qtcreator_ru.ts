@@ -17436,7 +17436,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Удалено</translation>
@@ -23607,7 +23607,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>JsonTreeModelItem</name>
+    <name>::Utils</name>
     <message>
         <source>Null</source>
         <translation>Null</translation>
@@ -37578,7 +37578,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Ошибка XML в строке %1, поз. %2: %3</translation>
@@ -42501,7 +42501,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>StringUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Elapsed time: %1.</source>
         <translation>Прошло времени: %1.</translation>
@@ -45962,7 +45962,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>Utils::Archive</name>
+    <name>::Utils</name>
     <message>
         <source>File format not supported.</source>
         <translation>Формат файла не поддерживается.</translation>
@@ -45994,9 +45994,6 @@ in &quot;%2&quot;.
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Utils::CheckableMessageBox</name>
     <message>
         <source>Do not ask again</source>
         <translation>Больше не спрашивать</translation>
@@ -46017,9 +46014,6 @@ in &quot;%2&quot;.
         <source>Do not &amp;show again</source>
         <translation>Больше не п&amp;оказывать</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Имя класса не должно содержать разделителей пространств имён.</translation>
@@ -46032,9 +46026,6 @@ in &quot;%2&quot;.
         <source>The class name contains invalid characters.</source>
         <translation>Имя класса содержит недопустимые символы.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Не удалось создать канал передачи данных: %1</translation>
@@ -46103,9 +46094,6 @@ in &quot;%2&quot;.
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Не удалось получить код завершения подчинённого процесса: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DebuggerMainWindow</name>
     <message>
         <source>&amp;Views</source>
         <translation>&amp;Обзоры</translation>
@@ -46130,16 +46118,10 @@ in &quot;%2&quot;.
         <source>Stop</source>
         <translation>Остановить</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Подробнее</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation>«%1» не является корректным объектом ELF (%2)</translation>
@@ -46184,9 +46166,6 @@ in &quot;%2&quot;.
         <source>section name %1 of %2 behind end of file</source>
         <translation>имя секции %1 из %2 выходит за конец файла</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentDialog</name>
     <message>
         <source>Edit Environment</source>
         <translation>Изменение среды</translation>
@@ -46203,9 +46182,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
 Для очистки переменной в строке укажите только её имя и больше ничего.
 Для отключения переменной, закомментируйте строку символом «#».</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentIdAccessor</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation>Настройки проекта «%1» с другого компьютера?</translation>
@@ -46214,16 +46190,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&lt;p&gt;No settings file created by this instance of %1 was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%2&quot;?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Не удалось найти файл настроек от этого экземпляра %1.&lt;/p&gt;&lt;p&gt;Возможно вы работали с этим проектом на другой машине или использовали другой путь к настройкам.&lt;/p&gt;&lt;p&gt;Продолжить загрузку файла настроек «%2»?&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <translation>&lt;переменная&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FancyLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Фильтр</translation>
@@ -46232,9 +46198,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Clear text</source>
         <translation>Очистить текст</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyMainWindow</name>
     <message>
         <source>Central Widget</source>
         <translation>Центральный виджет</translation>
@@ -46247,9 +46210,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Automatically Hide View Title Bars</source>
         <translation>Автоматически скрывать заголовки окон</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>Имя задано пустым.</translation>
@@ -46278,16 +46238,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>File extensions %1 are required:</source>
         <translation>Требуются файловые расширения %1:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSaverBase</name>
-    <message>
-        <source>File Error</source>
-        <translation>Файловая ошибка</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -46316,9 +46266,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation>Список фильтров, разделенных запятыми. Будут включены файлы, имя или полный путь которых подходит минимум одному фильтру.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Предотвращение удаления корневого каталога.</translation>
@@ -46387,9 +46334,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Overwrite existing file &quot;%1&quot;?</source>
         <translation>Перезаписать существующий файл «%1»?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Размещение</translation>
@@ -46398,16 +46342,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>The default suffix if you do not explicitly specify a file extension is &quot;.%1&quot;.</source>
         <translation>По умолчанию, если не указано явно, используется расширение файлов «.%1».</translation>
     </message>
-</context>
-<context>
-    <name>Utils::HostOsInfo</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Не удалось создать контекст OpenGL.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::InfoBarDisplay</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>Показать п&amp;одробности</translation>
@@ -46420,16 +46358,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Close</source>
         <translation>Закрыть</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>Ошибка бесконечной рекурсии</translation>
@@ -46466,9 +46398,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Access environment variables.</source>
         <translation>Доступ к переменным среды.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NameValueModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;не задано&gt;</translation>
@@ -46491,9 +46420,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;значение&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Выбрать...</translation>
@@ -46554,9 +46480,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Path:</source>
         <translation>Путь:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Вставить...</translation>
@@ -46569,16 +46492,9 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Clear</source>
         <translation>Очистить</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Enter project name</source>
         <translation>Введите название проекта</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
     </message>
     <message>
         <source>The project already exists.</source>
@@ -46587,10 +46503,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <message>
         <source>A file with that name already exists.</source>
         <translation>Файл с таким именем уже существует.</translation>
-    </message>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Имя задано пустым.</translation>
     </message>
     <message>
         <source>Name does not match &quot;%1&quot;.</source>
@@ -46624,9 +46536,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Project:</source>
         <translation>Проект:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProxyCredentialsDialog</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Авторизация на прокси-сервере</translation>
@@ -46651,9 +46560,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Password</source>
         <translation>Пароль</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Ошибка в командной строке.</translation>
@@ -46662,9 +46568,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Invalid command</source>
         <translation>Неверная команда</translation>
     </message>
-</context>
-<context>
-    <name>Utils::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Удаление файла</translation>
@@ -46681,9 +46584,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&amp;Remove from version control</source>
         <translation>Удалить из-под &amp;контроля версий</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsAccessor</name>
     <message>
         <source>Failed to Read File</source>
         <translation>Не удалось прочитать файл</translation>
@@ -46728,9 +46628,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&quot;%1&quot; is not supported by %2. Do you want to try loading it anyway?</source>
         <translation>«%1» не поддерживается %2. Попытаться продолжить загрузку?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Добавить</translation>
@@ -46755,9 +46652,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Rename...</source>
         <translation>Переименовать...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation>НЕИЗВЕСТНАЯ</translation>
@@ -46766,9 +46660,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Unknown</source>
         <translation>Неизвестная</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Команда запущена...</translation>
@@ -46789,9 +46680,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Failed.</source>
         <translation>Сбой.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation>Команда «%1» успешно завершилась.</translation>
@@ -46828,9 +46716,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Would you like to terminate it?</source>
         <translation>Желаете завершить его?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Не хватает памяти.</translation>
@@ -46839,19 +46724,9 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>An encoding error was encountered.</source>
         <translation>Ошибка кодировки.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Переменная&lt;/th&gt;&lt;th&gt;Разворачивается в&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;каталог текущего файла&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;имя файла (с полным путём)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;имя файла (без пути)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
-    <message>
-        <source>Path:</source>
-        <translation>Путь:</translation>
     </message>
     <message>
         <source>Choose the Location</source>
@@ -46861,9 +46736,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>File name:</source>
         <translation>Имя файла:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File Has Been Removed</source>
         <translation>Файл был удалён</translation>
@@ -46888,9 +46760,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&amp;Save</source>
         <translation>&amp;Сохранить</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Файл изменён</translation>
@@ -46906,10 +46775,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <message>
         <source>The default behavior can be set in Tools &gt; Options &gt; Environment &gt; System.</source>
         <translation>Поведение по умолчание можно задать в Инструменты &gt; Параметры &gt; Среда &gt; Система.</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Закрыть</translation>
     </message>
     <message>
         <source>No to All &amp;&amp; &amp;Diff</source>

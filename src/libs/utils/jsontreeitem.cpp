@@ -3,6 +3,8 @@
 
 #include "jsontreeitem.h"
 
+#include "utilstr.h"
+
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -17,19 +19,19 @@ static QString typeName(QJsonValue::Type type)
 {
     switch (type) {
     case QJsonValue::Null:
-        return JsonTreeItem::tr("Null");
+        return Tr::tr("Null");
     case QJsonValue::Bool:
-        return JsonTreeItem::tr("Bool");
+        return Tr::tr("Bool");
     case QJsonValue::Double:
-        return JsonTreeItem::tr("Double");
+        return Tr::tr("Double");
     case QJsonValue::String:
-        return JsonTreeItem::tr("String");
+        return Tr::tr("String");
     case QJsonValue::Array:
-        return JsonTreeItem::tr("Array");
+        return Tr::tr("Array");
     case QJsonValue::Object:
-        return JsonTreeItem::tr("Object");
+        return Tr::tr("Object");
     case QJsonValue::Undefined:
-        return JsonTreeItem::tr("Undefined");
+        return Tr::tr("Undefined");
     }
     return {};
 }
@@ -43,9 +45,9 @@ QVariant JsonTreeItem::data(int column, int role) const
     if (column == 2)
         return typeName(m_value.type());
     if (m_value.isObject())
-        return QString('[' + tr("%n Items", nullptr, m_value.toObject().size()) + ']');
+        return QString('[' + Tr::tr("%n Items", nullptr, m_value.toObject().size()) + ']');
     if (m_value.isArray())
-        return QString('[' + tr("%n Items", nullptr, m_value.toArray().size()) + ']');
+        return QString('[' + Tr::tr("%n Items", nullptr, m_value.toArray().size()) + ']');
     return m_value.toVariant();
 }
 

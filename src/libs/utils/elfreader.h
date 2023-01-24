@@ -136,8 +136,6 @@ public:
 
 class QTCREATOR_UTILS_EXPORT ElfReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::ElfReader)
-
 public:
     explicit ElfReader(const FilePath &binary);
     enum Result { Ok, NotElf, Corrupt };

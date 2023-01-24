@@ -7,6 +7,7 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -299,7 +300,7 @@ void InfoBarDisplay::update()
             auto showDetailsButton = new QToolButton;
             showDetailsButton->setCheckable(true);
             showDetailsButton->setChecked(m_isShowingDetailsWidget);
-            showDetailsButton->setText(tr("&Show Details"));
+            showDetailsButton->setText(Tr::tr("&Show Details"));
             connect(showDetailsButton, &QToolButton::clicked, this, [this, vbox, info] (bool) {
                 QWidget *detailsWidget = vbox->count() == 2 ? vbox->itemAt(1)->widget() : nullptr;
                 if (!detailsWidget) {
@@ -342,7 +343,7 @@ void InfoBarDisplay::update()
         QToolButton *infoWidgetSuppressButton = nullptr;
         if (info.m_globalSuppression == InfoBarEntry::GlobalSuppression::Enabled) {
             infoWidgetSuppressButton = new QToolButton;
-            infoWidgetSuppressButton->setText(tr("Do Not Show Again"));
+            infoWidgetSuppressButton->setText(Tr::tr("Do Not Show Again"));
             connect(infoWidgetSuppressButton, &QAbstractButton::clicked, this, [this, id] {
                 m_infoBar->removeInfo(id);
                 InfoBar::globallySuppressInfo(id);
@@ -365,7 +366,7 @@ void InfoBarDisplay::update()
             if (info.m_cancelButtonText.isEmpty()) {
                 infoWidgetCloseButton->setAutoRaise(true);
                 infoWidgetCloseButton->setIcon(Icons::CLOSE_FOREGROUND.icon());
-                infoWidgetCloseButton->setToolTip(tr("Close"));
+                infoWidgetCloseButton->setToolTip(Tr::tr("Close"));
             } else {
                 infoWidgetCloseButton->setText(info.m_cancelButtonText);
             }

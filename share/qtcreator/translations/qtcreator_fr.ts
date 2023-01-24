@@ -1871,7 +1871,7 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -1892,9 +1892,6 @@ Voulez vous les écraser ?</translation>
         <source>Do not &amp;ask again</source>
         <translation>Ne plus &amp;redemander</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Le nom de classe ne doit pas contenir de délimiteur d&apos;espace de nommage.</translation>
@@ -1907,9 +1904,6 @@ Voulez vous les écraser ?</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Le nom de classe contient des caractères invalides.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Impossible d&apos;établir le canal de communication : %1</translation>
@@ -1986,9 +1980,6 @@ Voulez vous les écraser ?</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Impossible d&apos;obtenir la valeur de retour du processus : %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation type="obsolete">Le nom ne peut pas être vide</translation>
@@ -2033,9 +2024,6 @@ Voulez vous les écraser ?</translation>
         <source>File extensions %1 are required:</source>
         <translation>Les extensions de fichier %1 sont nécessaires : </translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -2057,9 +2045,6 @@ Voulez vous les écraser ?</translation>
             <numerusform>%1 : %n occurences trouvés dans %2 de %3 fichiers.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation type="obsolete">Nom de la classe :</translation>
@@ -2083,10 +2068,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Form file:</source>
         <translation type="obsolete">Fichier d&apos;interface :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
     </message>
     <message>
         <source>Invalid base class name</source>
@@ -2169,9 +2150,6 @@ Voulez vous les écraser ?</translation>
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Hérite de QQuickItem - Qt Quick 2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Choisir...</translation>
@@ -2257,9 +2235,6 @@ Voulez vous les écraser ?</translation>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Insérer...</translation>
@@ -2284,9 +2259,6 @@ Voulez vous les écraser ?</translation>
         <source>From &quot;%1&quot;</source>
         <translation>Depuis &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation type="obsolete">Introduction et emplacement du projet</translation>
@@ -2323,9 +2295,6 @@ Voulez vous les écraser ?</translation>
         <source>Project:</source>
         <translation>Projet :</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation type="obsolete">Le nom ne peut pas contenir le caractère &apos;.&apos;.</translation>
@@ -2334,9 +2303,6 @@ Voulez vous les écraser ?</translation>
         <source>Invalid character &apos;.&apos;.</source>
         <translation>Caractère invalide &apos;.&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="obsolete">Submit Subversion</translation>
@@ -2394,28 +2360,14 @@ Voulez vous les écraser ?</translation>
         <source>Check a&amp;ll</source>
         <translation type="obsolete">Coche&amp;r tout</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation type="obsolete">Choisir l&apos;emplacement</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Nom :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Chemin :</translation>
-    </message>
-    <message>
         <source>Choose the Location</source>
         <translation>Choisir l&apos;emplacement</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Fichier modifié</translation>
@@ -16104,7 +16056,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>::Utils</name>
     <message>
         <source>Show Details</source>
         <translation type="obsolete">Afficher les détails</translation>
@@ -20740,7 +20692,7 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Verrouillé</translation>
@@ -20749,16 +20701,10 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Reset to Default Layout</source>
         <translation>Restaurer la disposition par défaut</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtre</translation>
@@ -20767,9 +20713,6 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Clear text</source>
         <translation>Effacer le texte</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Le fichier a été supprimé</translation>
@@ -20810,16 +20753,10 @@ Pour les projets qmlproject , utilisez la propriété importPaths pour ajouter l
         <source>Save</source>
         <translation type="obsolete">Enregistrer</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Développer en&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;répertoire du fichier courant&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nom du fichier (avec le chemin complet)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;nom du fichier (sans le chemin)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -25258,7 +25195,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerLanguageChooser</name>
+    <name>::Utils</name>
     <message>
         <source>C++</source>
         <translation type="obsolete">C++</translation>
@@ -25275,9 +25212,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Quels sont les prérequis?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>La commande &quot;%1&apos; s&quot;est terminée avec succès.</translation>
@@ -28886,14 +28820,11 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Utils::AbstractProcess</name>
+    <name>::Utils</name>
     <message>
         <source>Cannot retrieve debugging output.</source>
         <translation type="obsolete">Impossible d&apos;obtenir la sortie du débogage.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;NON-DÉFINI&gt;</translation>
@@ -28916,23 +28847,14 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;VALEUR&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>L&apos;adresse IP est invalide.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Erreur dans la ligne de commande.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">Le serveur ne peut démarrer le sous-système sftp.</translation>
@@ -29017,16 +28939,10 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Error reading local file: %1</source>
         <translation type="obsolete">Erreur lors de la lecture du fichier local : %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshChannelManager</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Identifiant %1 du canal invalide</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Erreur dans le protocole SSH : %1</translation>
@@ -29042,10 +28958,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">Identifiant de serveur invalide &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Paquet de type %1 inattendu.</translation>
     </message>
     <message>
         <source>Could not read private key file: %1</source>
@@ -33687,7 +33599,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Impossible de supprimer le répertoire racine.</translation>
@@ -36749,7 +36661,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">Mot de passe requis</translation>
@@ -36758,9 +36670,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">Veuillez insérer votre mot de passe pour votre clé privée.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Mémoire insuffisante.</translation>
@@ -39600,7 +39509,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>::Utils</name>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
@@ -39625,9 +39534,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Rename...</source>
         <translation>Renommer...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">Type du fichier</translation>
@@ -39644,9 +39550,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">Erreur lors du listage du contenu du répertoire &apos;%1&apos; : %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">Processus tué par un signal</translation>
@@ -41970,14 +41873,11 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Ajuster la largeur des colonnes au contenu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; est un objet ELF invalide (%2)</translation>
@@ -46830,7 +46730,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Erreur XML sur la ligne %1, colonne %2 : %3</translation>
@@ -48001,7 +47901,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Supression</translation>

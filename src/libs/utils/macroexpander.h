@@ -22,7 +22,6 @@ using MacroExpanderProviders = QVector<MacroExpanderProvider>;
 
 class QTCREATOR_UTILS_EXPORT MacroExpander
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::MacroExpander)
     Q_DISABLE_COPY(MacroExpander)
 
 public:

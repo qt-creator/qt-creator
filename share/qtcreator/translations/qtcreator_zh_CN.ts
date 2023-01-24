@@ -17883,7 +17883,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation type="unfinished">删除</translation>
@@ -23517,7 +23517,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>JsonTreeModelItem</name>
+    <name>::Utils</name>
     <message>
         <source>Null</source>
         <translation type="unfinished"></translation>
@@ -35986,7 +35986,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation type="unfinished">XML 错误 在第 %1行,  %2列: %3</translation>
@@ -41472,7 +41472,7 @@ Failed to open file &quot;%1&quot;</source>
     </message>
 </context>
 <context>
-    <name>StringUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Elapsed time: %1.</source>
         <translation type="unfinished"></translation>
@@ -45158,7 +45158,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>Utils::Archive</name>
+    <name>::Utils</name>
     <message>
         <source>File format not supported.</source>
         <translation type="unfinished"></translation>
@@ -45179,16 +45179,10 @@ in &quot;%2&quot;.
         <comment>Running &lt;cmd&gt; in &lt;workingdirectory&gt;</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::BaseTreeView</name>
     <message>
         <source>Show %1 Column</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::CheckableMessageBox</name>
     <message>
         <source>Do not ask again</source>
         <translation>下次不再询问</translation>
@@ -45209,9 +45203,6 @@ in &quot;%2&quot;.
         <source>Do not &amp;show again</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>类名不能包含命名空间分隔符。</translation>
@@ -45224,9 +45215,6 @@ in &quot;%2&quot;.
         <source>The class name contains invalid characters.</source>
         <translation>类名含有无效字符。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DebuggerMainWindow</name>
     <message>
         <source>Start</source>
         <translation type="unfinished"></translation>
@@ -45235,16 +45223,10 @@ in &quot;%2&quot;.
         <source>Stop</source>
         <translation type="unfinished">停止</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>详情</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>odd cpu architecture</source>
         <translation>异常的cpu体系架构</translation>
@@ -45287,9 +45269,6 @@ in &quot;%2&quot;.
         <source>odd endianness</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentDialog</name>
     <message>
         <source>Edit Environment</source>
         <translation type="unfinished">编辑时的环境变量</translation>
@@ -45304,9 +45283,6 @@ To clear a variable, put its name on a line with nothing else on it.
 To disable a variable, prefix the line with &quot;#&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentIdAccessor</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation type="unfinished"></translation>
@@ -45315,16 +45291,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&lt;p&gt;No settings file created by this instance of %1 was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%2&quot;?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <translation>&lt;变量&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FancyLineEdit</name>
     <message>
         <source>Filter</source>
         <translation type="unfinished">过滤器</translation>
@@ -45333,9 +45299,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Clear text</source>
         <translation type="unfinished">清除文字</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyMainWindow</name>
     <message>
         <source>Reset to Default Layout</source>
         <translation>重置为默认布局</translation>
@@ -45348,9 +45311,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Automatically Hide View Title Bars</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>名称为空。</translation>
@@ -45379,16 +45339,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Name matches MS Windows device (CON, AUX, PRN, NUL, COM1, COM2, ..., COM9, LPT1, LPT2, ..., LPT9)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSaverBase</name>
-    <message>
-        <source>File Error</source>
-        <translation type="unfinished">文件错误</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -45413,9 +45363,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSystemModel</name>
     <message>
         <source>My Computer</source>
         <translation type="unfinished"></translation>
@@ -45446,9 +45393,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Date Modified</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>拒绝移除根目录(root)。</translation>
@@ -45531,9 +45475,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Failed to create directory &quot;%1&quot;.</source>
         <translation type="unfinished">创建目录失败:&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardPage</name>
     <message>
         <source>Choose the Location</source>
         <translation type="unfinished">选择位置</translation>
@@ -45543,10 +45484,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <translation type="unfinished">文件名:</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation type="unfinished">路径:</translation>
-    </message>
-    <message>
         <source>Location</source>
         <translation type="unfinished"></translation>
     </message>
@@ -45554,16 +45491,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>The default suffix if you do not explicitly specify a file extension is &quot;.%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::HostOsInfo</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::InfoBarDisplay</name>
     <message>
         <source>&amp;Show Details</source>
         <translation type="unfinished"></translation>
@@ -45576,16 +45507,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Close</source>
         <translation type="unfinished">关闭</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LauncherHandle</name>
     <message>
         <source>Process launcher socket error.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::LauncherSocket</name>
     <message>
         <source>Failed to start process launcher at &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
@@ -45610,16 +45535,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Launcher socket closed unexpectedly.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation type="unfinished"></translation>
@@ -45656,16 +45575,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Access environment variables.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::MinimizableInfoBars</name>
     <message>
         <source>Minimize</source>
         <translation type="unfinished">最小化</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NameValueModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="unfinished">&lt;未设定&gt;</translation>
@@ -45681,16 +45594,13 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <message>
         <source>&lt;VARIABLE&gt;</source>
         <extracomment>Name when inserting a new variable</extracomment>
-        <translation type="unfinished">&lt;变量&gt;</translation>
+        <translation>&lt;变量&gt;</translation>
     </message>
     <message>
         <source>&lt;VALUE&gt;</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation type="unfinished">&lt;值&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NameValuesDialog</name>
     <message>
         <source>&amp;OK</source>
         <translation type="unfinished"></translation>
@@ -45699,9 +45609,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&amp;Cancel</source>
         <translation type="unfinished">取消(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>选择...</translation>
@@ -45766,9 +45673,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Full path: &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>插入...</translation>
@@ -45781,9 +45685,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Clear</source>
         <translation>清除</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>The project already exists.</source>
         <translation>项目已经存在。</translation>
@@ -45813,14 +45714,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Name is empty.</source>
-        <translation type="unfinished">名称为空。</translation>
-    </message>
-    <message>
         <source>Project name is invalid.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -45832,9 +45725,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Invalid character &quot;%1&quot; found.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProxyCredentialsDialog</name>
     <message>
         <source>Proxy Credentials</source>
         <translation type="unfinished"></translation>
@@ -45859,9 +45749,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Password</source>
         <translation type="unfinished">密码</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>命令行发生错误。</translation>
@@ -45982,9 +45869,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Invalid command</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation type="unfinished">删除文件</translation>
@@ -46009,9 +45893,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Folder to remove:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsAccessor</name>
     <message>
         <source>Failed to Read File</source>
         <translation type="unfinished"></translation>
@@ -46056,9 +45937,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>&quot;%1&quot; is not supported by %2. Do you want to try loading it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>添加</translation>
@@ -46083,16 +45961,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Rename...</source>
         <translation>重命名...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::StringAspect</name>
     <message>
         <source>Reset</source>
         <translation type="unfinished">重置</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>内存不足。</translation>
@@ -46101,9 +45973,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>An encoding error was encountered.</source>
         <translation>发生了一个编码错误。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TriStateAspect</name>
     <message>
         <source>Enable</source>
         <translation type="unfinished"></translation>
@@ -46116,16 +45985,10 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Leave at Default</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;变量&lt;/th&gt;&lt;th&gt;扩展为&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;当前文件所在目录&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;文件名 (带完整路径)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;文件名 (不带路径)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation type="unfinished"></translation>
@@ -46154,9 +46017,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>Variables</source>
         <translation type="unfinished">变量</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>&amp;Close</source>
         <translation>关闭(&amp;C)</translation>
@@ -46181,9 +46041,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
         <source>C&amp;lose All</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>文件已改变</translation>
@@ -46203,10 +46060,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     </message>
     <message>
         <source>The default behavior can be set in Edit &gt; Preferences &gt; Environment &gt; System.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

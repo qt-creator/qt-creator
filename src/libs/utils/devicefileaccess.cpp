@@ -539,17 +539,13 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
         QDir dir(fileInfo.absoluteFilePath());
         dir.setPath(dir.canonicalPath());
         if (dir.isRoot()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Refusing to remove root directory.");
-            }
+            if (error)
+                *error = Tr::tr("Refusing to remove root directory.");
             return false;
         }
         if (dir.path() == QDir::home().canonicalPath()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Refusing to remove your home directory.");
-            }
+            if (error)
+                *error = Tr::tr("Refusing to remove your home directory.");
             return false;
         }
 
@@ -560,20 +556,14 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Failed to remove directory \"%1\".")
-                             .arg(filePath.toUserOutput());
-            }
+            if (error)
+                *error = Tr::tr("Failed to remove directory \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
     } else {
         if (!QFile::remove(filePath.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Failed to remove file \"%1\".")
-                             .arg(filePath.toUserOutput());
-            }
+            if (error)
+                *error = Tr::tr("Failed to remove file \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
     }

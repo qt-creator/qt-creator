@@ -7,13 +7,13 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "filepath.h"
+#include "utilstr.h"
 
 #ifdef QT_WIDGETS_LIB
 #include <QApplication>
 #include <QClipboard>
 #endif
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
@@ -338,7 +338,7 @@ QString formatElapsedTime(qint64 elapsed)
     elapsed += 500; // round up
     const QString format = QString::fromLatin1(elapsed >= 3600000 ? "h:mm:ss" : "mm:ss");
     const QString time = QTime(0, 0).addMSecs(elapsed).toString(format);
-    return QCoreApplication::translate("StringUtils", "Elapsed time: %1.").arg(time);
+    return Tr::tr("Elapsed time: %1.").arg(time);
 }
 
 /*

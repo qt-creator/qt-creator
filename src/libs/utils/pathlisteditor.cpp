@@ -5,6 +5,7 @@
 
 #include "fileutils.h"
 #include "hostosinfo.h"
+#include "utilstr.h"
 
 #include <QMimeData>
 #include <QPlainTextEdit>
@@ -97,13 +98,13 @@ PathListEditor::PathListEditor(QWidget *parent) :
         d(new PathListEditorPrivate)
 {
     setLayout(d->layout);
-    addButton(tr("Insert..."), this, [this] {
+    addButton(Tr::tr("Insert..."), this, [this] {
         const FilePath dir = FileUtils::getExistingDirectory(this, d->fileDialogTitle);
         if (!dir.isEmpty())
             insertPathAtCursor(dir.toUserOutput());
     });
-    addButton(tr("Delete Line"), this, [this] { deletePathAtCursor(); });
-    addButton(tr("Clear"), this, [this] { d->edit->clear(); });
+    addButton(Tr::tr("Delete Line"), this, [this] { deletePathAtCursor(); });
+    addButton(Tr::tr("Clear"), this, [this] { d->edit->clear(); });
     connect(d->edit, &QPlainTextEdit::textChanged, this, &PathListEditor::changed);
 }
 

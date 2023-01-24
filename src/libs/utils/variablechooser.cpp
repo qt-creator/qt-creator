@@ -6,9 +6,10 @@
 #include "fancylineedit.h"
 #include "headerviewstretcher.h" // IconButton
 #include "macroexpander.h"
-#include "treemodel.h"
 #include "qtcassert.h"
+#include "treemodel.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QApplication>
 #include <QHeaderView>
@@ -82,7 +83,7 @@ public:
     {
         m_iconButton = new IconButton;
         m_iconButton->setIcon(Icons::REPLACE.icon());
-        m_iconButton->setToolTip(VariableChooser::tr("Insert Variable"));
+        m_iconButton->setToolTip(Tr::tr("Insert Variable"));
         m_iconButton->hide();
         connect(m_iconButton.data(), &QAbstractButton::clicked,
                 this, &VariableChooserPrivate::updatePositionAndShow);
@@ -188,7 +189,7 @@ public:
             const QString value = m_expander->value(m_variable).toHtmlEscaped();
             if (!value.isEmpty())
                 description += QLatin1String("<p>")
-                        + VariableChooser::tr("Current Value: %1").arg(value);
+                        + Tr::tr("Current Value: %1").arg(value);
             return description;
         }
 
@@ -212,17 +213,17 @@ void VariableTreeView::contextMenuEvent(QContextMenuEvent *ev)
     QAction *insertExpandedAction = nullptr;
 
     if (unexpandedText.isEmpty()) {
-        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert Unexpanded Value"));
+        insertUnexpandedAction = menu.addAction(Tr::tr("Insert Unexpanded Value"));
         insertUnexpandedAction->setEnabled(false);
     } else {
-        insertUnexpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(unexpandedText));
+        insertUnexpandedAction = menu.addAction(Tr::tr("Insert \"%1\"").arg(unexpandedText));
     }
 
     if (expandedText.isEmpty()) {
-        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert Expanded Value"));
+        insertExpandedAction = menu.addAction(Tr::tr("Insert Expanded Value"));
         insertExpandedAction->setEnabled(false);
     } else {
-        insertExpandedAction = menu.addAction(VariableChooser::tr("Insert \"%1\"").arg(expandedText));
+        insertExpandedAction = menu.addAction(Tr::tr("Insert \"%1\"").arg(expandedText));
     }
 
 
@@ -250,7 +251,7 @@ VariableChooserPrivate::VariableChooserPrivate(VariableChooser *parent)
       m_variableTree(nullptr),
       m_variableDescription(nullptr)
 {
-    m_defaultDescription = VariableChooser::tr("Select a variable to insert.");
+    m_defaultDescription = Tr::tr("Select a variable to insert.");
 
     m_variableFilter = new FancyLineEdit(q);
     m_variableTree = new VariableTreeView(q, this);
@@ -371,7 +372,7 @@ VariableChooser::VariableChooser(QWidget *parent) :
     QWidget(parent),
     d(new VariableChooserPrivate(this))
 {
-    setWindowTitle(tr("Variables"));
+    setWindowTitle(Tr::tr("Variables"));
     setWindowFlags(Qt::Tool);
     setFocusPolicy(Qt::StrongFocus);
     setFocusProxy(d->m_variableTree);

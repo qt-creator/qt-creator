@@ -6,6 +6,7 @@
 #include "algorithm.h"
 #include "qtcassert.h"
 #include "stringutils.h"
+#include "utilstr.h"
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -323,11 +324,11 @@ void DockWidget::handleToplevelChanged(bool floating)
 FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent) :
     q(parent),
     m_handleDockVisibilityChanges(true),
-    m_showCentralWidget(FancyMainWindow::tr("Central Widget"), nullptr),
+    m_showCentralWidget(Tr::tr("Central Widget"), nullptr),
     m_menuSeparator1(nullptr),
     m_menuSeparator2(nullptr),
-    m_resetLayoutAction(FancyMainWindow::tr("Reset to Default Layout"), nullptr),
-    m_autoHideTitleBars(FancyMainWindow::tr("Automatically Hide View Title Bars"), nullptr)
+    m_resetLayoutAction(Tr::tr("Reset to Default Layout"), nullptr),
+    m_autoHideTitleBars(Tr::tr("Automatically Hide View Title Bars"), nullptr)
 {
     m_showCentralWidget.setCheckable(true);
     m_showCentralWidget.setChecked(true);

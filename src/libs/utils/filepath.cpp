@@ -827,14 +827,13 @@ QString FilePath::displayName(const QString &args) const
         if (deviceName.isEmpty())
             return fullPath;
 
-        return QCoreApplication::translate("Utils::FileUtils", "%1 on %2", "File on device")
-                .arg(fullPath, deviceName);
+        return Tr::tr("%1 on %2", "File on device").arg(fullPath, deviceName);
     }
 
     if (deviceName.isEmpty())
         return fullPath + ' ' + args;
 
-    return QCoreApplication::translate("Utils::FileUtils", "%1 %2 on %3", "File and args on device")
+    return Tr::tr("%1 %2 on %3", "File and args on device")
             .arg(fullPath, args, deviceName);
 }
 

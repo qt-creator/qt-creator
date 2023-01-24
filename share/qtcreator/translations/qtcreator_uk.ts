@@ -19714,7 +19714,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Не питати знову</translation>
@@ -19727,9 +19727,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Do not &amp;show again</source>
         <translation>Не &amp;показувати знову</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Назва класу не повинна містити розділювачі простору імен.</translation>
@@ -19742,9 +19739,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>The class name contains invalid characters.</source>
         <translation>Назва класу містить неправильні символи.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Неможливо встановити комунікаційний канал: %1</translation>
@@ -19837,16 +19831,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Неможливо отримати код завершення підлеглого процесу: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Деталі</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;НЕ ЗАДАНО&gt;</translation>
@@ -19869,9 +19857,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;ЗНАЧЕННЯ&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyMainWindow</name>
     <message>
         <source>Locked</source>
         <translation type="vanished">Зафіксовано</translation>
@@ -19884,9 +19869,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Automatically Hide View Title Bars</source>
         <translation>Автоматично ховати заголовки перегляду</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>Порожнє ім&apos;я.</translation>
@@ -19923,9 +19905,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>File extensions %1 are required:</source>
         <translation>Необхідні розширення файлу %1:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -19950,9 +19929,6 @@ Will not be applied to whitespace in comments and strings.</source>
             <numerusform>%1: %n збігів знайдено в %2 з %3 файлів.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Відмова від видалення кореневої теки.</translation>
@@ -20021,41 +19997,14 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Cannot create temporary file in %1: %2</source>
         <translation>Неможливо створити тимчасовий файл в %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
-    <message>
-        <source>Location</source>
-        <translation type="vanished">Розташування</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
-    <message>
-        <source>Filter</source>
-        <translation type="vanished">Фільтр</translation>
-    </message>
-    <message>
-        <source>Clear text</source>
-        <translation type="vanished">Очистити текст</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation type="vanished">Неправильна IP адреса.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>Назва &amp;класу:</translation>
@@ -20140,9 +20089,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Нащадок QQuickItem - Qt Quick 2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Оберіть...</translation>
@@ -20227,9 +20173,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>The path &apos;%1&apos; is not a directory.</source>
         <translation type="vanished">Шлях &apos;%1&apos; не є текою.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Вставити...</translation>
@@ -20250,9 +20193,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>From &quot;%1&quot;</source>
         <translation type="vanished">З &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Name:</source>
         <translation>Назва:</translation>
@@ -20282,10 +20222,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Файл з таким іменем вже існує.</translation>
     </message>
     <message>
-        <source>Name is empty.</source>
-        <translation>Порожнє ім&apos;я.</translation>
-    </message>
-    <message>
         <source>Name does not match &quot;%1&quot;.</source>
         <translation>Ім&apos;я не збігається з &quot;%1&quot;.</translation>
     </message>
@@ -20305,9 +20241,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Project:</source>
         <translation>Проект:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>Invalid character &apos;%1&apos; found!</source>
         <translation type="vanished">Знайдено неправильний символ &apos;%1&apos;!</translation>
@@ -20317,23 +20250,13 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation type="vanished">Знайдено неправильний символ &quot;%1&quot;!</translation>
     </message>
     <message>
-        <source>Invalid character &quot;%1&quot; found.</source>
-        <translation type="vanished">Знайдено неправильний символ &quot;%1&quot;.</translation>
-    </message>
-    <message>
         <source>Invalid character &apos;.&apos;.</source>
         <translation type="vanished">Неправильний символ &apos;.&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Помилка в командному рядку.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation type="vanished">Команда &apos;%1&apos; завершилась успішно.</translation>
@@ -20398,9 +20321,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Would you like to terminate it?</source>
         <translation>Бажаєте завершити його?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Брак пам&apos;яті.</translation>
@@ -20409,31 +20329,14 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>An encoding error was encountered.</source>
         <translation>Сталась помилка кодування.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Змінна&lt;/th&gt;&lt;th&gt;Розгортається в&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;теку поточного фалу&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;ім&apos;я файлу (з повним шляхом)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;ім&apos;я файлу (без шляху)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the Location</source>
         <translation>Оберіть розташування</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>Назва:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Шлях:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Файл було видалено</translation>
@@ -20462,9 +20365,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>The file %1 was removed. Do you want to save it under a different name, or close the editor?</source>
         <translation>Файл %1 було видалено. Бажаєте зберегти його під іншим іменем чи закрити редактор?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Файл змінено</translation>
@@ -20472,10 +20372,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
         <translation>Незбережений файл &lt;i&gt;%1&lt;/i&gt; було змінено поза Qt Creator. Бажаєте перезавантажити його та відкинути ваші зміни?</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Закрити</translation>
     </message>
     <message>
         <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
@@ -22701,7 +22597,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>::Utils</name>
     <message>
         <source>Add</source>
         <translation>Додати</translation>
@@ -25043,14 +24939,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="vanished">Підігнати ширину стовпців до змісту</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation type="vanished">&apos;%1&apos; не є правильним об&apos;єктом ELF (%2)</translation>
@@ -31733,7 +31626,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Видалено</translation>
@@ -32067,7 +31960,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Помилка XML в рядку %1, позиція %2: %3</translation>
@@ -34821,7 +34714,7 @@ Please build the qmldump application on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>Filter</source>
         <translation>Фільтр</translation>
@@ -35906,7 +35799,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Utils::ProxyCredentialsDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Авторизація на проксі-сервері</translation>
@@ -36222,11 +36115,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardPage</name>
-    <message>
-        <source>Location</source>
-        <translation>Розташування</translation>
-    </message>
+    <name>::Utils</name>
 </context>
 <context>
     <name>::Android</name>
@@ -36723,7 +36612,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Utils::SettingsAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>No Valid Settings Found</source>
         <translation>Не знайдено правильний налаштувань</translation>
@@ -37337,7 +37226,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>Utils::MacroExpander</name>
+    <name>::Utils</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>Помилка нескінченної рекурсії</translation>
@@ -39923,13 +39812,6 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>Utils::GlobalMacroExpander</name>
-    <message>
-        <source>Access environment variables.</source>
-        <translation type="vanished">Доступ до змінних середовища.</translation>
-    </message>
-</context>
-<context>
     <name>::Core</name>
     <message>
         <source>Are you sure you want to delete the theme &quot;%1&quot; permanently?</source>
@@ -41497,7 +41379,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Utils::ShellCommand</name>
+    <name>::Utils</name>
     <message>
         <source>UNKNOWN</source>
         <translation>НЕВІДОМО</translation>
@@ -41510,9 +41392,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Error: Executable timed out after %1 s.</source>
         <translation>Помилка: Час очікування на виконуваний модуль вичерпано після %1 с.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Команда запущена...</translation>
@@ -42876,7 +42755,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Utils::HostOsInfo</name>
+    <name>::Utils</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Неможливо створити контекст OpenGL.</translation>
@@ -44572,7 +44451,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Views</source>
         <translation>Види</translation>
