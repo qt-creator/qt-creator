@@ -214,7 +214,8 @@ extend_qtc_executable(qml2puppet
 
 if (Qt5_VERSION VERSION_GREATER_EQUAL 6.4.0)
     extend_qtc_executable(qml2puppet
-      DEFINES ENABLE_INTERNAL_QML_RUNTIME
+      # QT_QML_DEBUG is disabled in release builds, but is necessary to have the preview debug channel
+      DEFINES ENABLE_INTERNAL_QML_RUNTIME QT_QML_DEBUG
       PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qml2puppet/runner
       SOURCES_PREFIX qml2puppet/runner
       SOURCES
