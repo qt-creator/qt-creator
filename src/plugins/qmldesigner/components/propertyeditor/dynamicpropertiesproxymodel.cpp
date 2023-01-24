@@ -79,6 +79,9 @@ void DynamicPropertiesProxyModel::initModel(QmlDesigner::Internal::DynamicProper
 
 int DynamicPropertiesProxyModel::rowCount(const QModelIndex &) const
 {
+    if (!m_model)
+        return 0;
+
     return m_model->rowCount();
 }
 
