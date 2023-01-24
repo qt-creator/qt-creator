@@ -92,7 +92,7 @@ void BuildDirectoryAspect::toMap(QVariantMap &map) const
     StringAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
         const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
-        saveToMap(map, shadowDir.toString(), QString(), settingsKey() + ".shadowDir");
+        saveToMap(map, shadowDir.toSettings(), QString(), settingsKey() + ".shadowDir");
     }
 }
 
@@ -100,8 +100,7 @@ void BuildDirectoryAspect::fromMap(const QVariantMap &map)
 {
     StringAspect::fromMap(map);
     if (!d->sourceDir.isEmpty()) {
-        d->savedShadowBuildDir = FilePath::fromString(map.value(settingsKey() + ".shadowDir")
-                                                      .toString());
+        d->savedShadowBuildDir = FilePath::fromSettings(map.value(settingsKey() + ".shadowDir"));
         if (d->savedShadowBuildDir.isEmpty())
             setFilePath(d->sourceDir);
         setChecked(d->sourceDir != filePath());
