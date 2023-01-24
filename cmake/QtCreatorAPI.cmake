@@ -111,16 +111,23 @@ function(qtc_source_dir varName)
   endif()
 endfunction()
 
+function(get_default_defines varName allow_ascii_casts)
+  get_directory_property(_compile_definitions COMPILE_DEFINITIONS)
+  list(FIND _compile_definitions QT_NO_CAST_FROM_ASCII no_cast_index)
+  set(default_defines_copy ${DEFAULT_DEFINES})
+  if(allow_ascii_casts OR no_cast_index GREATER_EQUAL 0)
+    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+  endif()
+  set(${varName} ${default_defines_copy} PARENT_SCOPE)
+endfunction()
+
 function(add_qtc_library name)
   cmake_parse_arguments(_arg "STATIC;OBJECT;SHARED;SKIP_TRANSLATION;ALLOW_ASCII_CASTS;FEATURE_INFO;SKIP_PCH"
     "DESTINATION;COMPONENT;SOURCES_PREFIX;BUILD_DEFAULT"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;PUBLIC_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES" ${ARGN}
   )
 
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  if (_arg_ALLOW_ASCII_CASTS)
-    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
-  endif()
+  get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_library had unparsed arguments")
@@ -617,10 +624,7 @@ function(add_qtc_executable name)
     message(FATAL_ERROR "add_qtc_executable had unparsed arguments!")
   endif()
 
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  if (_arg_ALLOW_ASCII_CASTS)
-    list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
-  endif()
+  get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
   update_cached_list(__QTC_EXECUTABLES "${name}")
 
@@ -848,8 +852,7 @@ function(add_qtc_test name)
   set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   # relax cast requirements for tests
-  set(default_defines_copy ${DEFAULT_DEFINES})
-  list(REMOVE_ITEM default_defines_copy QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII)
+  get_default_defines(default_defines_copy YES)
 
   file(RELATIVE_PATH _RPATH "/${IDE_BIN_PATH}" "/${IDE_LIBRARY_PATH}")
 
