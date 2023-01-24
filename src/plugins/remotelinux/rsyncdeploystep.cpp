@@ -98,12 +98,14 @@ TaskItem RsyncDeployService::transferTask()
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
-        if (result.m_error == QProcess::FailedToStart)
+        if (result.m_error == QProcess::FailedToStart) {
             emit errorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
-        else if (result.m_exitStatus == QProcess::CrashExit)
+        } else if (result.m_exitStatus == QProcess::CrashExit) {
             emit errorMessage(Tr::tr("rsync crashed."));
-        else if (result.m_exitCode != 0)
-            emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
+        } else if (result.m_exitCode != 0) {
+            emit errorMessage(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode)
+                + "\n" + result.m_errorString);
+        }
     };
     return Transfer(setupHandler, {}, errorHandler);
 }
