@@ -42,9 +42,9 @@ protected:
     void *activeStorageVoid() const;
 
 private:
-    int createStorage();
-    void deleteStorage(int id);
-    void activateStorage(int id);
+    int createStorage() const;
+    void deleteStorage(int id) const;
+    void activateStorage(int id) const;
 
     friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
     { return first.m_storageData == second.m_storageData; }

@@ -39,7 +39,7 @@ void *TreeStorageBase::activeStorageVoid() const
     return it.value();
 }
 
-int TreeStorageBase::createStorage()
+int TreeStorageBase::createStorage() const
 {
     QTC_ASSERT(m_storageData->m_constructor, return 0); // TODO: add isValid()?
     QTC_ASSERT(m_storageData->m_destructor, return 0);
@@ -49,7 +49,7 @@ int TreeStorageBase::createStorage()
     return newId;
 }
 
-void TreeStorageBase::deleteStorage(int id)
+void TreeStorageBase::deleteStorage(int id) const
 {
     QTC_ASSERT(m_storageData->m_constructor, return); // TODO: add isValid()?
     QTC_ASSERT(m_storageData->m_destructor, return);
@@ -61,7 +61,7 @@ void TreeStorageBase::deleteStorage(int id)
 }
 
 // passing 0 deactivates currently active storage
-void TreeStorageBase::activateStorage(int id)
+void TreeStorageBase::activateStorage(int id) const
 {
     if (id == 0) {
         QTC_ASSERT(m_storageData->m_activeStorage, return);
@@ -163,15 +163,17 @@ public:
     void activateStorages();
     void deactivateStorages();
 
-    TaskTreePrivate *m_taskTreePrivate = nullptr;
-    TaskContainer *m_parentContainer = nullptr;
+    TaskTreePrivate * const m_taskTreePrivate = nullptr;
+    TaskContainer * const m_parentContainer = nullptr;
+
     const int m_parallelLimit = 1;
     const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const TaskItem::GroupHandler m_groupHandler;
-    QList<TreeStorageBase> m_storageList;
+    const QList<TreeStorageBase> m_storageList;
+    const QList<TaskNode *> m_children;
+    const int m_taskCount = 0;
+
     QList<int> m_storageIdList;
-    int m_taskCount = 0;
-    QList<TaskNode *> m_children;
     int m_doneCount = -1;
     bool m_successBit = true;
     Guard m_startGuard;
@@ -318,6 +320,16 @@ public:
     std::unique_ptr<TaskNode> m_root = nullptr; // Keep me last in order to destruct first
 };
 
+static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
+                                        const TaskItem &task)
+{
+    QList<TaskNode *> result;
+    const QList<TaskItem> &children = task.children();
+    for (const TaskItem &child : children)
+        result.append(new TaskNode(taskTreePrivate, container, child));
+    return result;
+}
+
 TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *parentContainer,
                              const TaskItem &task)
     : m_taskTreePrivate(taskTreePrivate)
@@ -326,13 +338,10 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, TaskContainer *pa
     , m_workflowPolicy(task.workflowPolicy())
     , m_groupHandler(task.groupHandler())
     , m_storageList(taskTreePrivate->addStorages(task.storageList()))
+    , m_children(createChildren(taskTreePrivate, this, task))
+    , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
+                                  [](int r, TaskNode *n) { return r + n->taskCount(); }))
 {
-    const QList<TaskItem> &children = task.children();
-    for (const TaskItem &child : children) {
-        TaskNode *node = new TaskNode(m_taskTreePrivate, this, child);
-        m_children.append(node);
-        m_taskCount += node->taskCount();
-    }
 }
 
 TaskContainer::~TaskContainer()
