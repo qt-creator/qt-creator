@@ -3,19 +3,10 @@
 
 #pragma once
 
-#include <QtGlobal>
 #include <utils/id.h>
 
-namespace Android {
-namespace Internal {
-#ifdef Q_OS_WIN32
-#define ANDROID_BAT_SUFFIX ".bat"
-#else
-#define ANDROID_BAT_SUFFIX ""
-#endif
-} // namespace Internal
+namespace Android::Constants {
 
-namespace Constants {
 const char ANDROID_SETTINGS_ID[] = "BB.Android Configurations";
 const char ANDROID_TOOLCHAIN_TYPEID[] = "Qt4ProjectManager.ToolChain.Android";
 const char ANDROID_QT_TYPE[] = "Qt4ProjectManager.QtVersion.Android";
@@ -84,5 +75,4 @@ const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 const char cmdlineToolsName[] = "cmdline-tools";
 const char ndkPackageName[] = "ndk";
 
-} // namespace Constants;
-} // namespace Android
+} // Android::Constants

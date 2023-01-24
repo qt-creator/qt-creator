@@ -72,6 +72,12 @@ static Q_LOGGING_CATEGORY(avdConfigLog, "qtc.android.androidconfig", QtWarningMs
 namespace Android {
 using namespace Internal;
 
+#ifdef Q_OS_WIN32
+#define ANDROID_BAT_SUFFIX ".bat"
+#else
+#define ANDROID_BAT_SUFFIX ""
+#endif
+
 const char JsonFilePath[] = "android/sdk_definitions.json";
 const char SdkToolsUrlKey[] = "sdk_tools_url";
 const char CommonKey[] = "common";
