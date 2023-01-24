@@ -1954,15 +1954,15 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new EditListModelAction);
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          openSignalDialogCommandId,
-                          openSignalDialogDisplayName,
-                          {},
-                          rootCategory,
-                          QKeySequence(),
-                          Priorities::SignalsDialog,
-                          &openSignalDialog,
-                          &singleSelectionAndHasSlotTrigger));
+    addDesignerAction(new ModelNodeContextMenuAction(openSignalDialogCommandId,
+                                                     openSignalDialogDisplayName,
+                                                     {},
+                                                     rootCategory,
+                                                     QKeySequence(),
+                                                     Priorities::SignalsDialog,
+                                                     &openSignalDialog,
+                                                     &singleSelectionAndHasSlotTrigger,
+                                                     &singleSelectionAndHasSlotTrigger));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           update3DAssetCommandId,
