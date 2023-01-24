@@ -147,7 +147,7 @@ public:
                   const TaskItem &task);
     ~TaskContainer();
     TaskAction start();
-    TaskAction startChildren();
+    TaskAction startChildren(int nextChild);
     void stop();
     bool isRunning() const;
     int taskCount() const;
@@ -370,13 +370,13 @@ TaskAction TaskContainer::start()
     resetSuccessBit();
 
     GuardLocker locker(m_startGuard);
-    return startChildren();
+    return startChildren(0);
 }
 
-TaskAction TaskContainer::startChildren()
+TaskAction TaskContainer::startChildren(int nextChild)
 {
     const int childCount = m_children.size();
-    for (int i = m_doneCount; i < childCount; ++i) {
+    for (int i = nextChild; i < childCount; ++i) {
         const int limit = currentLimit();
         if (i >= limit)
             break;
@@ -432,7 +432,7 @@ int TaskContainer::taskCount() const
 int TaskContainer::currentLimit() const
 {
     const int childCount = m_children.size();
-    return  m_parallelLimit ? qMin(m_doneCount + m_parallelLimit, childCount) : childCount;
+    return m_parallelLimit ? qMin(m_doneCount + m_parallelLimit, childCount) : childCount;
 }
 
 TaskAction TaskContainer::childDone(bool success)
@@ -445,6 +445,7 @@ TaskAction TaskContainer::childDone(bool success)
         return toTaskAction(success);
     }
 
+    const int limit = currentLimit();
     ++m_doneCount;
     updateSuccessBit(success);
 
@@ -460,7 +461,10 @@ TaskAction TaskContainer::childDone(bool success)
     if (m_startGuard.isLocked())
         return TaskAction::Continue;
 
-    return startChildren();
+    if (limit >= m_children.size())
+        return TaskAction::Continue;
+
+    return startChildren(limit);
 }
 
 void TaskContainer::groupDone(bool success)
@@ -563,6 +567,7 @@ void TaskContainer::deactivateStorages()
 
 TaskAction TaskNode::start()
 {
+    QTC_CHECK(!isRunning());
     if (!isTask())
         return m_container.start();
 

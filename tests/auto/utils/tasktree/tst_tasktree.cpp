@@ -565,6 +565,53 @@ void tst_TaskTree::processTree_data()
                                       {-1, Handler::GroupDone}};
     QTest::newRow("DynamicSetupContinue") << dynamicSetupContinueRoot << storage
                                           << dynamicSetupContinueLog << true << true << 4;
+
+    const Group nestedParallelRoot {
+        ParallelLimit(2),
+        Storage(storage),
+        Group {
+            Storage(TreeStorage<CustomStorage>()),
+            OnGroupSetup(std::bind(groupSetup, 1)),
+            Group {
+                parallel,
+                Process(std::bind(setupProcess, _1, 1)),
+            }
+        },
+        Group {
+            Storage(TreeStorage<CustomStorage>()),
+            OnGroupSetup(std::bind(groupSetup, 2)),
+            Group {
+                parallel,
+                Process(std::bind(setupProcess, _1, 2)),
+            }
+        },
+        Group {
+            Storage(TreeStorage<CustomStorage>()),
+            OnGroupSetup(std::bind(groupSetup, 3)),
+            Group {
+                parallel,
+                Process(std::bind(setupProcess, _1, 3)),
+            }
+        },
+        Group {
+            Storage(TreeStorage<CustomStorage>()),
+            OnGroupSetup(std::bind(groupSetup, 4)),
+            Group {
+                parallel,
+                Process(std::bind(setupProcess, _1, 4)),
+            }
+        },
+    };
+    const Log nestedParallelLog{{1, Handler::GroupSetup},
+                                {1, Handler::Setup},
+                                {2, Handler::GroupSetup},
+                                {2, Handler::Setup},
+                                {3, Handler::GroupSetup},
+                                {3, Handler::Setup},
+                                {4, Handler::GroupSetup},
+                                {4, Handler::Setup}};
+    QTest::newRow("NestedParallel") << nestedParallelRoot << storage << nestedParallelLog
+                                    << true << true << 4;
 }
 
 void tst_TaskTree::processTree()
