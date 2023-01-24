@@ -450,6 +450,7 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
 void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 {
     dropEvent->accept();
+    setFocus();
     const QPointF pos = m_canvas->mapFrom(this, dropEvent->position());
 
     // handle dropping materials and textures
