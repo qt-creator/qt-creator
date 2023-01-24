@@ -55,7 +55,8 @@ enum class ControlSignal {
     Terminate,
     Kill,
     Interrupt,
-    KickOff
+    KickOff,
+    CloseWriteChannel
 };
 
 enum class ProcessSignalType {

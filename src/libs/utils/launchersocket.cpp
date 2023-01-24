@@ -171,7 +171,7 @@ QProcess::ProcessState CallerHandle::state() const
     return m_processState;
 }
 
-void CallerHandle::sendStopPacket(StopProcessPacket::SignalType signalType)
+void CallerHandle::sendControlPacket(ControlProcessPacket::SignalType signalType)
 {
     if (m_processState == QProcess::NotRunning)
         return;
@@ -180,7 +180,7 @@ void CallerHandle::sendStopPacket(StopProcessPacket::SignalType signalType)
     // we might want to remove posted start packet and finish the process immediately.
     // In addition, we may always try to check if correspodning start packet for the m_token
     // is still awaiting and do the same (remove the packet from the stack and finish immediately).
-    StopProcessPacket packet(m_token);
+    ControlProcessPacket packet(m_token);
     packet.signalType = signalType;
     sendPacket(packet);
 }
@@ -188,19 +188,25 @@ void CallerHandle::sendStopPacket(StopProcessPacket::SignalType signalType)
 void CallerHandle::terminate()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    sendStopPacket(StopProcessPacket::SignalType::Terminate);
+    sendControlPacket(ControlProcessPacket::SignalType::Terminate);
 }
 
 void CallerHandle::kill()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    sendStopPacket(StopProcessPacket::SignalType::Kill);
+    sendControlPacket(ControlProcessPacket::SignalType::Kill);
 }
 
 void CallerHandle::close()
 {
     QTC_ASSERT(isCalledFromCallersThread(), return);
-    sendStopPacket(StopProcessPacket::SignalType::Close);
+    sendControlPacket(ControlProcessPacket::SignalType::Close);
+}
+
+void CallerHandle::closeWriteChannel()
+{
+    QTC_ASSERT(isCalledFromCallersThread(), return);
+    sendControlPacket(ControlProcessPacket::SignalType::CloseWriteChannel);
 }
 
 qint64 CallerHandle::processId() const

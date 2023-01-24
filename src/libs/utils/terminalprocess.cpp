@@ -434,6 +434,9 @@ void TerminalImpl::sendControlSignal(ControlSignal controlSignal)
     case ControlSignal::KickOff:
         sendCommand('c');
         break;
+    case ControlSignal::CloseWriteChannel:
+        QTC_CHECK(false);
+        break;
     }
 }
 

@@ -19,6 +19,7 @@ int ProcessInterface::controlSignalToInt(ControlSignal controlSignal)
     case ControlSignal::Kill:      return 9;
     case ControlSignal::Interrupt: return 2;
     case ControlSignal::KickOff:   QTC_CHECK(false); return 0;
+    case ControlSignal::CloseWriteChannel:   QTC_CHECK(false); return 0;
     }
     return 0;
 }

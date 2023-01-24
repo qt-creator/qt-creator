@@ -62,10 +62,11 @@ public:
 
     // Called from caller's or launcher's thread.
     QProcess::ProcessState state() const;
-    void sendStopPacket(StopProcessPacket::SignalType signalType);
+    void sendControlPacket(ControlProcessPacket::SignalType signalType);
     void terminate();
     void kill();
     void close();
+    void closeWriteChannel();
 
     qint64 processId() const;
 

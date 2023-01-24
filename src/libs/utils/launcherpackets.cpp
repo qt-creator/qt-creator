@@ -90,17 +90,17 @@ void ProcessStartedPacket::doDeserialize(QDataStream &stream)
 }
 
 
-StopProcessPacket::StopProcessPacket(quintptr token)
-    : LauncherPacket(LauncherPacketType::StopProcess, token)
+ControlProcessPacket::ControlProcessPacket(quintptr token)
+    : LauncherPacket(LauncherPacketType::ControlProcess, token)
 {
 }
 
-void StopProcessPacket::doSerialize(QDataStream &stream) const
+void ControlProcessPacket::doSerialize(QDataStream &stream) const
 {
     stream << int(signalType);
 }
 
-void StopProcessPacket::doDeserialize(QDataStream &stream)
+void ControlProcessPacket::doDeserialize(QDataStream &stream)
 {
     int signalTypeInt;
     stream >> signalTypeInt;

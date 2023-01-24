@@ -43,6 +43,7 @@ public:
     void kill();
     void interrupt();
     void kickoffProcess();
+    void closeWriteChannel();
     void close();
     void stop();
 

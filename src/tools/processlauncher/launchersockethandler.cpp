@@ -84,8 +84,8 @@ void LauncherSocketHandler::handleSocketData()
     case LauncherPacketType::WriteIntoProcess:
         handleWritePacket();
         break;
-    case LauncherPacketType::StopProcess:
-        handleStopPacket();
+    case LauncherPacketType::ControlProcess:
+        handleControlPacket();
         break;
     case LauncherPacketType::Shutdown:
         handleShutdownPacket();
@@ -211,7 +211,7 @@ void LauncherSocketHandler::handleWritePacket()
     process->write(packet.inputData);
 }
 
-void LauncherSocketHandler::handleStopPacket()
+void LauncherSocketHandler::handleControlPacket()
 {
     Process * const process = m_processes.value(m_packetParser.token());
     if (!process) {
@@ -220,19 +220,22 @@ void LauncherSocketHandler::handleStopPacket()
         logDebug("Got stop request for unknown process");
         return;
     }
-    const auto packet = LauncherPacket::extractPacket<StopProcessPacket>(
+    const auto packet = LauncherPacket::extractPacket<ControlProcessPacket>(
                 m_packetParser.token(),
                 m_packetParser.packetData());
 
     switch (packet.signalType) {
-    case StopProcessPacket::SignalType::Terminate:
+    case ControlProcessPacket::SignalType::Terminate:
         process->terminate();
         break;
-    case StopProcessPacket::SignalType::Kill:
+    case ControlProcessPacket::SignalType::Kill:
         process->kill();
         break;
-    case StopProcessPacket::SignalType::Close:
+    case ControlProcessPacket::SignalType::Close:
         removeProcess(process->token());
+        break;
+    case ControlProcessPacket::SignalType::CloseWriteChannel:
+        process->closeWriteChannel();
         break;
     }
 }

@@ -337,6 +337,9 @@ private:
         case ControlSignal::KickOff:
             QTC_CHECK(false);
             break;
+        case ControlSignal::CloseWriteChannel:
+            m_process->closeWriteChannel();
+            break;
         }
     }
 
@@ -463,6 +466,9 @@ private:
             break;
         case ControlSignal::KickOff:
             QTC_CHECK(false);
+            break;
+        case ControlSignal::CloseWriteChannel:
+            m_handle->closeWriteChannel();
             break;
         }
     }
@@ -1130,6 +1136,11 @@ void QtcProcess::interrupt()
 void QtcProcess::kickoffProcess()
 {
     d->sendControlSignal(ControlSignal::KickOff);
+}
+
+void QtcProcess::closeWriteChannel()
+{
+    d->sendControlSignal(ControlSignal::CloseWriteChannel);
 }
 
 bool QtcProcess::startDetached(const CommandLine &cmd, const FilePath &workingDirectory, qint64 *pid)

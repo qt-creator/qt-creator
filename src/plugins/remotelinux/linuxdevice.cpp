@@ -505,14 +505,19 @@ qint64 SshProcessInterface::write(const QByteArray &data)
     return d->m_process.writeRaw(data);
 }
 
-void SshProcessInterface::sendControlSignal(Utils::ControlSignal controlSignal)
+void SshProcessInterface::sendControlSignal(ControlSignal controlSignal)
 {
+    if (controlSignal == ControlSignal::CloseWriteChannel) {
+        d->m_process.closeWriteChannel();
+        return;
+    }
     if (d->m_process.usesTerminal()) {
         switch (controlSignal) {
-        case Utils::ControlSignal::Terminate: d->m_process.terminate();      break;
-        case Utils::ControlSignal::Kill:      d->m_process.kill();           break;
-        case Utils::ControlSignal::Interrupt: d->m_process.interrupt();      break;
-        case Utils::ControlSignal::KickOff:   d->m_process.kickoffProcess(); break;
+        case ControlSignal::Terminate: d->m_process.terminate();      break;
+        case ControlSignal::Kill:      d->m_process.kill();           break;
+        case ControlSignal::Interrupt: d->m_process.interrupt();      break;
+        case ControlSignal::KickOff:   d->m_process.kickoffProcess(); break;
+        case ControlSignal::CloseWriteChannel: break;
         }
         return;
     }
@@ -532,6 +537,7 @@ LinuxProcessInterface::~LinuxProcessInterface()
 void LinuxProcessInterface::handleSendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(controlSignal != ControlSignal::KickOff, return);
+    QTC_ASSERT(controlSignal != ControlSignal::CloseWriteChannel, return);
     const qint64 pid = processId();
     QTC_ASSERT(pid, return); // TODO: try sending a signal based on process name
     const QString args = QString::fromLatin1("-%1 -%2")

@@ -21,7 +21,7 @@ enum class LauncherPacketType {
     Shutdown,
     StartProcess,
     WriteIntoProcess,
-    StopProcess,
+    ControlProcess,
     // launcher -> client packets:
     ProcessStarted,
     ReadyReadStandardOutput,
@@ -116,15 +116,16 @@ private:
     void doDeserialize(QDataStream &stream) override;
 };
 
-class StopProcessPacket : public LauncherPacket
+class ControlProcessPacket : public LauncherPacket
 {
 public:
-    StopProcessPacket(quintptr token);
+    ControlProcessPacket(quintptr token);
 
     enum class SignalType {
         Kill, // Calls QProcess::kill
         Terminate, // Calls QProcess::terminate
-        Close // Puts the process into the reaper, no confirmation signal is being sent.
+        Close, // Puts the process into the reaper, no confirmation signal is being sent.
+        CloseWriteChannel
     };
 
     SignalType signalType = SignalType::Kill;

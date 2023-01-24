@@ -39,7 +39,7 @@ private:
 
     void handleStartPacket();
     void handleWritePacket();
-    void handleStopPacket();
+    void handleControlPacket();
     void handleShutdownPacket();
 
     void sendPacket(const LauncherPacket &packet);

@@ -309,7 +309,11 @@ qint64 DockerProcessImpl::write(const QByteArray &data)
 void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
 {
     QTC_ASSERT(m_remotePID, return);
-    int signal = controlSignalToInt(controlSignal);
+    if (controlSignal == ControlSignal::CloseWriteChannel) {
+        m_process.closeWriteChannel();
+        return;
+    }
+    const int signal = controlSignalToInt(controlSignal);
     m_devicePrivate->runInShell(
         {"kill", {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
 }
