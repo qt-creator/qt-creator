@@ -165,9 +165,9 @@ static FilePath debugServer(bool useLldb, const Target *target)
         const auto handleLldbServerCandidate = [&abiNeedle, &lldbServer] (const FilePath &path) {
             if (path.parentDir().fileName() == abiNeedle) {
                 lldbServer = path;
-                return false;
+                return IterationPolicy::Stop;
             }
-            return true;
+            return IterationPolicy::Continue;
         };
         prebuilt.iterateDirectory(handleLldbServerCandidate,
                                   {{"lldb-server"}, dirFilter, QDirIterator::Subdirectories});

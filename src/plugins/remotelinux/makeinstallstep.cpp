@@ -209,7 +209,7 @@ void MakeInstallStep::finish(ProcessResult result)
                 : DeployableFile::TypeNormal;
             const QString targetDir = filePath.parentDir().path().mid(startPos);
             m_deploymentData.addFile(filePath, targetDir, type);
-            return true;
+            return IterationPolicy::Continue;
         };
         rootDir.iterateDirectory(handleFile,
                                  {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});

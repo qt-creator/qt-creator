@@ -148,9 +148,9 @@ void FileSystemAccessTest::testDirStatus()
         [&fileExists](const FilePath &filePath) {
             if (filePath.baseName() == "test") {
                 fileExists = true;
-                return true;
+                return IterationPolicy::Continue;
             }
-            return false;
+            return IterationPolicy::Stop;
         },
         {{"test"}, QDir::Files});
 

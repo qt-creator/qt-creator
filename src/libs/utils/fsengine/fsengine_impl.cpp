@@ -205,7 +205,7 @@ QStringList FSEngineImpl::entryList(QDir::Filters filters, const QStringList &fi
                 .cache(p,
                        new FilePathInfoCache::CachedData{fi,
                                                          QDateTime::currentDateTime().addSecs(60)});
-            return true;
+            return IterationPolicy::Continue;
         },
         {filterNames, filters});
     return result;
@@ -309,7 +309,7 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
                 = new FilePathInfoCache::CachedData{fi,
                                                     QDateTime::currentDateTime().addSecs(60)};
             g_filePathInfoCache.cache(p, data);
-            return true;
+            return IterationPolicy::Continue;
         },
         {filterNames, filters});
 

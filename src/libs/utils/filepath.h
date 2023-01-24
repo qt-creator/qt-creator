@@ -51,6 +51,8 @@ public:
 
 using FilePaths = QList<class FilePath>;
 
+enum class IterationPolicy { Stop, Continue };
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -161,8 +163,8 @@ public:
 
     using IterateDirCallback
         = std::variant<
-            std::function<bool(const FilePath &item)>,
-            std::function<bool(const FilePath &item, const FilePathInfo &info)>
+            std::function<IterationPolicy(const FilePath &item)>,
+            std::function<IterationPolicy(const FilePath &item, const FilePathInfo &info)>
           >;
 
     void iterateDirectory(

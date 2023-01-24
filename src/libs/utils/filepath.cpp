@@ -524,8 +524,10 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
 {
     FilePaths result;
 
-    const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
-    iterateDirectory(callBack, filter);
+    iterateDirectory(
+        [&result](const FilePath &path) { result.append(path); return IterationPolicy::Continue; },
+        filter
+     );
 
     // FIXME: Not all flags supported here.
     const QDir::SortFlags sortBy = (sort & QDir::SortByMask);

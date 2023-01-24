@@ -220,7 +220,6 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                                  [qtVersion](QtVersion* other) {
                                      return qtVersion->mkspecPath() == other->mkspecPath();
                                  })) {
-
                     qtVersions.append(qtVersion);
                     QtVersionManager::addVersion(qtVersion);
                     emit q->logOutput(
@@ -228,7 +227,7 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                 }
             }
         }
-        return true;
+        return IterationPolicy::Continue;
     };
 
     emit q->logOutput(ProjectExplorer::Tr::tr("Searching for qmake executables..."));

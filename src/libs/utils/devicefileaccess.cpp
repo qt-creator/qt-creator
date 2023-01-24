@@ -162,15 +162,15 @@ expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath 
             if (!targetPath.parentDir().ensureWritableDir()) {
                 error = QString("Could not create directory %1")
                             .arg(targetPath.parentDir().toUserOutput());
-                return false;
+                return IterationPolicy::Stop;
             }
 
             const expected_str<void> result = path.copyFile(targetPath);
             if (!result) {
                 error = result.error();
-                return false;
+                return IterationPolicy::Stop;
             }
-            return true;
+            return IterationPolicy::Continue;
         },
         {{"*"}, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories});
 
@@ -627,12 +627,12 @@ void DesktopDeviceFileAccess::iterateDirectory(const FilePath &filePath,
     QDirIterator it(filePath.path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
     while (it.hasNext()) {
         const FilePath path = FilePath::fromString(it.next());
-        bool res = false;
+        IterationPolicy res;
         if (callBack.index() == 0)
             res = std::get<0>(callBack)(path);
         else
             res = std::get<1>(callBack)(path, path.filePathInfo());
-        if (!res)
+        if (res == IterationPolicy::Stop)
             return;
     }
 }
@@ -1074,7 +1074,7 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     if (entries.isEmpty())
         return true;
 
-    const auto toFilePath = [&filePath, &callBack](const QString &entry) -> bool {
+    const auto toFilePath = [&filePath, &callBack](const QString &entry) {
         if (callBack.index() == 0)
             return std::get<0>(callBack)(filePath.withNewPath(entry));
 
@@ -1083,12 +1083,12 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
 
         const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos);
         if (!fi.fileFlags)
-            return true;
+            return IterationPolicy::Continue;
 
         const FilePath fp = filePath.withNewPath(fileName);
         // Do not return the entry for the directory we are searching in.
         if (fp.path() == filePath.path())
-            return true;
+            return IterationPolicy::Continue;
         return std::get<1>(callBack)(fp, fi);
     };
 
@@ -1098,7 +1098,7 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
         entries.pop_front();
 
     for (const QString &entry : entries) {
-        if (!toFilePath(entry))
+        if (toFilePath(entry) == IterationPolicy::Stop)
             break;
     }
 
@@ -1152,12 +1152,12 @@ static void iterateLsOutput(const FilePath &base,
         if (!nameMatches(entry))
             continue;
         const FilePath current = base.pathAppended(entry);
-        bool res = false;
+        IterationPolicy res;
         if (callBack.index() == 0)
             res = std::get<0>(callBack)(current);
         else
             res = std::get<1>(callBack)(current, current.filePathInfo());
-        if (!res)
+        if (res == IterationPolicy::Stop)
             break;
     }
 }
