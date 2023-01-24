@@ -59,5 +59,6 @@ extend_qtc_plugin(Android
   CONDITION WITH_TESTS
   SOURCES
     androidsdkmanager_test.cpp androidsdkmanager_test.h
+    sdkmanageroutputparser_test.cpp sdkmanageroutputparser_test.h
     android_tst.qrc
 )

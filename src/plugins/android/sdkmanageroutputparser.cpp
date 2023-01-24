@@ -3,8 +3,9 @@
 
 #include "sdkmanageroutputparser.h"
 
-#include "avdmanageroutputparser.h"
+#include "androidconstants.h"
 #include "androidsdkpackage.h"
+#include "avdmanageroutputparser.h"
 
 #include <utils/algorithm.h>
 
@@ -440,8 +441,8 @@ SdkManagerOutputParser::MarkerTag SdkManagerOutputParser::parseMarkers(const QSt
         if (line.startsWith(QLatin1String(pair.second)))
             return pair.first;
     }
-
-    QRegularExpressionMatch match = QRegularExpression("^[a-zA-Z]+[A-Za-z0-9;._-]+").match(line);
+    static const QRegularExpression reg("^[a-zA-Z]+[A-Za-z0-9;._-]+");
+    const QRegularExpressionMatch match = reg.match(line);
     if (match.hasMatch() && match.captured(0) == line)
         return GenericToolMarker;
 

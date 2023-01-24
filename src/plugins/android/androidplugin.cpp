@@ -17,10 +17,14 @@
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
 #include "androidruncontrol.h"
-#include "androidsdkmanager_test.h"
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
+
+#ifdef WITH_TESTS
+#  include "androidsdkmanager_test.h"
+#  include "sdkmanageroutputparser_test.h"
+#endif
 
 #include "javaeditor.h"
 #include "javalanguageserver.h"
@@ -118,6 +122,7 @@ void AndroidPlugin::initialize()
 
 #ifdef WITH_TESTS
     addTest<AndroidSdkManagerTest>();
+    addTest<SdkManagerOutputParserTest>();
 #endif
 }
 
