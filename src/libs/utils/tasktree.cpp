@@ -154,9 +154,10 @@ public:
     int currentLimit() const;
     TaskAction childDone(bool success);
     void groupDone(bool success);
+    void treeDone(bool success);
     void invokeEndHandler(bool success);
-    void resetSuccessBit();
-    void updateSuccessBit(bool success);
+    void resetSuccessBit(); // only on start
+    void updateSuccessBit(bool success); // only on childDone
 
     void createStorages();
     void deleteStorages();
@@ -233,11 +234,7 @@ public:
             QTC_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
                        "exist in task tree. Its handlers will never be called."));
         }
-        const TaskAction action = m_root->start();
-        if (action == TaskAction::StopWithDone)
-            emitDone();
-        else if (action == TaskAction::StopWithError)
-            emitError();
+        m_root->start();
     }
     void stop() {
         QTC_ASSERT(m_root, return);
@@ -366,17 +363,17 @@ TaskAction TaskContainer::start()
         const bool success = groupAction == TaskAction::StopWithDone;
         m_taskTreePrivate->advanceProgress(m_taskCount);
         invokeEndHandler(success);
+        groupDone(success);
         return groupAction;
     }
 
     resetSuccessBit();
-
-    GuardLocker locker(m_startGuard);
     return startChildren(0);
 }
 
 TaskAction TaskContainer::startChildren(int nextChild)
 {
+    GuardLocker locker(m_startGuard);
     const int childCount = m_children.size();
     for (int i = nextChild; i < childCount; ++i) {
         const int limit = currentLimit();
@@ -396,6 +393,7 @@ TaskAction TaskContainer::startChildren(int nextChild)
         for (int j = i + 1; j < limit; ++j)
             skippedTaskCount += m_children.at(j)->taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
+        treeDone(finalizeAction == TaskAction::StopWithDone);
 
         return finalizeAction;
     }
@@ -458,13 +456,19 @@ TaskAction TaskContainer::childDone(bool success)
 
 void TaskContainer::groupDone(bool success)
 {
-    if (isStarting())
-        return;
-
     if (m_parentContainer) {
-        m_parentContainer->childDone(success);
+        if (!m_parentContainer->isStarting())
+            m_parentContainer->childDone(success);
         return;
     }
+    if (!isStarting())
+        treeDone(success);
+}
+
+void TaskContainer::treeDone(bool success)
+{
+    if (m_parentContainer)
+        return;
     if (success)
         m_taskTreePrivate->emitDone();
     else
