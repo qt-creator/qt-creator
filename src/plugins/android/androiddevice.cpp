@@ -236,8 +236,7 @@ AndroidDeviceInfo AndroidDevice::androidDeviceInfoFromIDevice(const IDevice *dev
     info.avdName = dev->extraData(Constants::AndroidAvdName).toString();
     info.serialNumber = dev->extraData(Constants::AndroidSerialNumber).toString();
     info.cpuAbi = dev->extraData(Constants::AndroidCpuAbi).toStringList();
-    const QString avdPath = dev->extraData(Constants::AndroidAvdPath).toString();
-    info.avdPath = FilePath::fromUserInput(avdPath);
+    info.avdPath = FilePath::fromSettings(dev->extraData(Constants::AndroidAvdPath));
     info.sdk = dev->extraData(Constants::AndroidSdk).toInt();
     info.type = dev->machineType();
 
@@ -334,12 +333,12 @@ int AndroidDevice::sdkLevel() const
 
 FilePath AndroidDevice::avdPath() const
 {
-    return FilePath::fromUserInput(extraData(Constants::AndroidAvdPath).toString());
+    return FilePath::fromSettings(extraData(Constants::AndroidAvdPath));
 }
 
 void AndroidDevice::setAvdPath(const FilePath &path)
 {
-    setExtraData(Constants::AndroidAvdPath, path.toUserOutput());
+    setExtraData(Constants::AndroidAvdPath, path.toSettings());
     initAvdSettings();
 }
 
