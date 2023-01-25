@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "propertyeditorimageprovider.h"
-#include "asset.h"
+
+#include <asset.h>
+#include <imagecacheimageresponse.h>
 
 #include <projectexplorer/target.h>
 #include <utils/hdrimage.h>
@@ -25,11 +27,11 @@ QQuickImageResponse *PropertyEditorImageProvider::requestImageResponse(const QSt
         return m_smallImageCacheProvider.requestImageResponse("#" + id.split('.').first(),
                                                               requestedSize);
 
-    auto response = std::make_unique<QmlDesigner::ImageResponse>(m_smallImageCacheProvider.defaultImage());
+    auto response = std::make_unique<ImageCacheImageResponse>(m_smallImageCacheProvider.defaultImage());
 
     QMetaObject::invokeMethod(
         response.get(),
-        [response = QPointer<QmlDesigner::ImageResponse>(response.get()), asset, requestedSize] {
+        [response = QPointer<ImageCacheImageResponse>(response.get()), asset, requestedSize] {
             if (asset.isImage()) {
                 QImage image = QImage(Utils::StyleHelper::dpiSpecificImageFile(asset.id()));
                 if (!image.isNull()) {

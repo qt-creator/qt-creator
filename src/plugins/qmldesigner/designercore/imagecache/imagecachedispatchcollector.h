@@ -32,9 +32,9 @@ public:
             m_collectors);
     }
 
-    std::pair<QImage, QImage> createImage(Utils::SmallStringView filePath,
-                                          Utils::SmallStringView state,
-                                          const ImageCache::AuxiliaryData &auxiliaryData) override
+    ImageTuple createImage(Utils::SmallStringView filePath,
+                           Utils::SmallStringView state,
+                           const ImageCache::AuxiliaryData &auxiliaryData) override
     {
         return std::apply(
             [&](const auto &...entries) {
@@ -113,11 +113,11 @@ private:
     }
 
     template<typename Collector, typename... Collectors>
-    std::pair<QImage, QImage> dispatchCreateImage(Utils::SmallStringView filePath,
-                                                  Utils::SmallStringView state,
-                                                  const ImageCache::AuxiliaryData &auxiliaryData,
-                                                  const Collector &collector,
-                                                  const Collectors &...collectors)
+    ImageTuple dispatchCreateImage(Utils::SmallStringView filePath,
+                                   Utils::SmallStringView state,
+                                   const ImageCache::AuxiliaryData &auxiliaryData,
+                                   const Collector &collector,
+                                   const Collectors &...collectors)
     {
         if (collector.first(filePath, state, auxiliaryData)) {
             return collector.second->createImage(filePath, state, auxiliaryData);
@@ -126,9 +126,9 @@ private:
         return dispatchCreateImage(filePath, state, auxiliaryData, collectors...);
     }
 
-    std::pair<QImage, QImage> dispatchCreateImage(Utils::SmallStringView,
-                                                  Utils::SmallStringView,
-                                                  const ImageCache::AuxiliaryData &)
+    ImageTuple dispatchCreateImage(Utils::SmallStringView,
+                                   Utils::SmallStringView,
+                                   const ImageCache::AuxiliaryData &)
     {
         qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
 

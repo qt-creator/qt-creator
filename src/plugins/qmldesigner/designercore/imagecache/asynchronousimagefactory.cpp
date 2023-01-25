@@ -99,8 +99,8 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     if (currentModifiedTime < (storageModifiedTime + pause))
         return;
 
-    auto capture = [=](const QImage &image, const QImage &smallImage) {
-        m_storage.storeImage(id, currentModifiedTime, image, smallImage);
+    auto capture = [=](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+        m_storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
     };
 
     collector.start(name,

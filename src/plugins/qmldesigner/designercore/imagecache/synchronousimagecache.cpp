@@ -32,11 +32,34 @@ QImage SynchronousImageCache::image(Utils::PathString filePath,
     if (entry)
         return *entry;
 
-    const auto &[image, smallImage] = m_collector.createImage(filePath, extraId, auxiliaryData);
+    const auto &[image, midSizeImage, smallImage] = m_collector.createImage(filePath,
+                                                                            extraId,
+                                                                            auxiliaryData);
 
-    m_storage.storeImage(id, timeStamp, image, smallImage);
+    m_storage.storeImage(id, timeStamp, image, midSizeImage, smallImage);
 
     return image;
+}
+
+QImage SynchronousImageCache::midSizeImage(Utils::PathString filePath,
+                                           Utils::SmallString extraId,
+                                           const ImageCache::AuxiliaryData &auxiliaryData)
+{
+    const auto id = createId(filePath, extraId);
+
+    const auto timeStamp = m_timeStampProvider.timeStamp(filePath);
+    const auto entry = m_storage.fetchMidSizeImage(id, timeStamp);
+
+    if (entry)
+        return *entry;
+
+    const auto &[image, midSizeImage, smallImage] = m_collector.createImage(filePath,
+                                                                            extraId,
+                                                                            auxiliaryData);
+
+    m_storage.storeImage(id, timeStamp, image, midSizeImage, smallImage);
+
+    return midSizeImage;
 }
 
 QImage SynchronousImageCache::smallImage(Utils::PathString filePath,
@@ -51,9 +74,11 @@ QImage SynchronousImageCache::smallImage(Utils::PathString filePath,
     if (entry)
         return *entry;
 
-    const auto &[image, smallImage] = m_collector.createImage(filePath, extraId, auxiliaryData);
+    const auto &[image, midSizeImage, smallImage] = m_collector.createImage(filePath,
+                                                                            extraId,
+                                                                            auxiliaryData);
 
-    m_storage.storeImage(id, timeStamp, image, smallImage);
+    m_storage.storeImage(id, timeStamp, image, midSizeImage, smallImage);
 
     return smallImage;
 }

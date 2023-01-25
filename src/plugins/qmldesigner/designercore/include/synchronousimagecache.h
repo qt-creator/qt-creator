@@ -39,6 +39,9 @@ public:
     QImage image(Utils::PathString filePath,
                  Utils::SmallString extraId = {},
                  const ImageCache::AuxiliaryData &auxiliaryData = {});
+    QImage midSizeImage(Utils::PathString filePath,
+                        Utils::SmallString extraId = {},
+                        const ImageCache::AuxiliaryData &auxiliaryData = {});
     QImage smallImage(Utils::PathString filePath,
                       Utils::SmallString extraId = {},
                       const ImageCache::AuxiliaryData &auxiliaryData = {});

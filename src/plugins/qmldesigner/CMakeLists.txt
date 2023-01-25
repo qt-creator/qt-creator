@@ -911,6 +911,10 @@ extend_qtc_plugin(QmlDesigner
   SOURCES
     explicitimagecacheimageprovider.cpp
     explicitimagecacheimageprovider.h
+    imagecacheimageresponse.cpp
+    imagecacheimageresponse.h
+    midsizeimagecacheprovider.cpp
+    midsizeimagecacheprovider.h
     smallimagecacheprovider.cpp
     smallimagecacheprovider.h
 )

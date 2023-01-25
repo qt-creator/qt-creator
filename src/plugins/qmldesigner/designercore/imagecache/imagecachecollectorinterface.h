@@ -14,9 +14,9 @@ namespace QmlDesigner {
 class ImageCacheCollectorInterface
 {
 public:
-    using CaptureCallback = ImageCache::CaptureImageWithSmallImageCallback;
+    using CaptureCallback = ImageCache::CaptureImageWithScaledImagesCallback;
     using AbortCallback = ImageCache::AbortCallback;
-    using ImagePair = std::pair<QImage, QImage>;
+    using ImageTuple = std::tuple<QImage, QImage, QImage>;
 
     virtual void start(Utils::SmallStringView filePath,
                        Utils::SmallStringView extraId,
@@ -25,9 +25,9 @@ public:
                        AbortCallback abortCallback)
         = 0;
 
-    virtual ImagePair createImage(Utils::SmallStringView filePath,
-                                  Utils::SmallStringView extraId,
-                                  const ImageCache::AuxiliaryData &auxiliaryData)
+    virtual ImageTuple createImage(Utils::SmallStringView filePath,
+                                   Utils::SmallStringView extraId,
+                                   const ImageCache::AuxiliaryData &auxiliaryData)
         = 0;
     virtual QIcon createIcon(Utils::SmallStringView filePath,
                              Utils::SmallStringView extraId,

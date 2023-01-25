@@ -20,9 +20,9 @@ public:
                CaptureCallback captureCallback,
                AbortCallback abortCallback) override;
 
-    std::pair<QImage, QImage> createImage(Utils::SmallStringView filePath,
-                                          Utils::SmallStringView extraId,
-                                          const ImageCache::AuxiliaryData &auxiliaryData) override;
+    ImageTuple createImage(Utils::SmallStringView filePath,
+                           Utils::SmallStringView extraId,
+                           const ImageCache::AuxiliaryData &auxiliaryData) override;
 
     QIcon createIcon(Utils::SmallStringView filePath,
                      Utils::SmallStringView extraId,

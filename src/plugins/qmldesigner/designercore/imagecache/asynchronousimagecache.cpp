@@ -57,8 +57,21 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
                                     : Utils::PathString::join({name, "+", extraId});
 
     const auto timeStamp = timeStampProvider.timeStamp(name);
-    const auto entry = requestType == RequestType::Image ? storage.fetchImage(id, timeStamp)
-                                                         : storage.fetchSmallImage(id, timeStamp);
+    auto requestImageFromStorage = [&](RequestType requestType) {
+        switch (requestType) {
+        case RequestType::Image:
+            return storage.fetchImage(id, timeStamp);
+        case RequestType::MidSizeImage:
+            return storage.fetchMidSizeImage(id, timeStamp);
+        case RequestType::SmallImage:
+            return storage.fetchSmallImage(id, timeStamp);
+        default:
+            break;
+        }
+
+        return storage.fetchImage(id, timeStamp);
+    };
+    const auto entry = requestImageFromStorage(requestType);
 
     if (entry) {
         if (entry->isNull())
@@ -66,10 +79,28 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
         else
             captureCallback(*entry);
     } else {
-        auto callback = [captureCallback = std::move(captureCallback),
-                         requestType](const QImage &image, const QImage &smallImage) {
-            captureCallback(requestType == RequestType::Image ? image : smallImage);
-        };
+        auto callback =
+            [captureCallback = std::move(captureCallback),
+             requestType](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+                auto selectImage = [](RequestType requestType,
+                                      const QImage &image,
+                                      const QImage &midSizeImage,
+                                      const QImage &smallImage) {
+                    switch (requestType) {
+                    case RequestType::Image:
+                        return image;
+                    case RequestType::MidSizeImage:
+                        return midSizeImage;
+                    case RequestType::SmallImage:
+                        return smallImage;
+                    default:
+                        break;
+                    }
+
+                    return image;
+                };
+                captureCallback(selectImage(requestType, image, midSizeImage, smallImage));
+            };
         generator.generateImage(name,
                                 extraId,
                                 timeStamp,
@@ -99,6 +130,21 @@ void AsynchronousImageCache::requestImage(Utils::PathString name,
              std::move(abortCallback),
              std::move(auxiliaryData),
              RequestType::Image);
+    m_condition.notify_all();
+}
+
+void AsynchronousImageCache::requestMidSizeImage(Utils::PathString name,
+                                                 ImageCache::CaptureImageCallback captureCallback,
+                                                 ImageCache::AbortCallback abortCallback,
+                                                 Utils::SmallString extraId,
+                                                 ImageCache::AuxiliaryData auxiliaryData)
+{
+    addEntry(std::move(name),
+             std::move(extraId),
+             std::move(captureCallback),
+             std::move(abortCallback),
+             std::move(auxiliaryData),
+             RequestType::MidSizeImage);
     m_condition.notify_all();
 }
 

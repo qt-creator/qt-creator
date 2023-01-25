@@ -24,6 +24,7 @@ protected:
     NiceMock<MockTimeStampProvider> mockTimeStampProvider;
     QmlDesigner::AsynchronousImageCache cache{mockStorage, mockGenerator, mockTimeStampProvider};
     QImage image1{10, 10, QImage::Format_ARGB32};
+    QImage midSizeImage1{5, 5, QImage::Format_ARGB32};
     QImage smallImage1{1, 1, QImage::Format_ARGB32};
 };
 
@@ -105,7 +106,7 @@ TEST_F(AsynchronousImageCache, RequestImageCallsCaptureCallbackWithImageFromGene
 {
     ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto &&callback, auto, auto) {
-            callback(QImage{image1}, QImage{smallImage1});
+            callback(QImage{image1}, QImage{midSizeImage1}, QImage{smallImage1});
             notification.notify();
         });
 
@@ -130,6 +131,113 @@ TEST_F(AsynchronousImageCache, RequestImageCallsAbortCallbackFromGenerator)
     cache.requestImage("/path/to/Component.qml",
                        mockCaptureCallback.AsStdFunction(),
                        mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageFetchesMidSizeImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::ImageEntry{};
+        });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageFetchesMidSizeImageFromStorageWithTimeStamp)
+{
+    EXPECT_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillRepeatedly(Return(Sqlite::TimeStamp{123}));
+    EXPECT_CALL(mockStorage,
+                fetchMidSizeImage(Eq("/path/to/Component.qml"), Eq(Sqlite::TimeStamp{123})))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::ImageEntry{};
+        });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageCallsCaptureCallbackWithImageFromStorage)
+{
+    ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{smallImage1}));
+
+    EXPECT_CALL(mockCaptureCallback, Call(Eq(smallImage1))).WillRepeatedly([&](const QImage &) {
+        notification.notify();
+    });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageCallsAbortCallbackWithoutMidSizeImage)
+{
+    ON_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml"), _))
+        .WillByDefault(Return(QmlDesigner::ImageCacheStorageInterface::ImageEntry{QImage{}}));
+
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)))
+        .WillRepeatedly([&](auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageRequestImageFromGenerator)
+{
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+
+    EXPECT_CALL(mockGenerator,
+                generateImage(Eq("/path/to/Component.qml"), _, Eq(Sqlite::TimeStamp{123}), _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageCallsCaptureCallbackWithImageFromGenerator)
+{
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&callback, auto, auto) {
+            callback(QImage{image1}, QImage{midSizeImage1}, QImage{smallImage1});
+            notification.notify();
+        });
+
+    EXPECT_CALL(mockCaptureCallback, Call(Eq(midSizeImage1)));
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageCallsAbortCallbackFromGenerator)
+{
+    ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
+        .WillByDefault([&](auto, auto, auto, auto &&, auto &&abortCallback, auto) {
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Failed);
+            notification.notify();
+        });
+
+    EXPECT_CALL(mockAbortCallback, Call(Eq(QmlDesigner::ImageCache::AbortReason::Failed)));
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction());
     notification.wait();
 }
 
@@ -211,7 +319,7 @@ TEST_F(AsynchronousImageCache, RequestSmallImageCallsCaptureCallbackWithImageFro
 {
     ON_CALL(mockGenerator, generateImage(Eq("/path/to/Component.qml"), _, _, _, _, _))
         .WillByDefault([&](auto, auto, auto, auto &&callback, auto, auto) {
-            callback(QImage{image1}, QImage{smallImage1});
+            callback(QImage{image1}, QImage{midSizeImage1}, QImage{smallImage1});
             notification.notify();
         });
 
@@ -243,7 +351,7 @@ TEST_F(AsynchronousImageCache, CleanRemovesEntries)
 {
     EXPECT_CALL(mockGenerator, generateImage(_, _, _, _, _, _))
         .WillRepeatedly([&](auto, auto, auto, auto &&captureCallback, auto &&, auto) {
-            captureCallback(QImage{}, QImage{});
+            captureCallback(QImage{}, QImage{}, QImage{});
             waitInThread.wait();
         });
     cache.requestSmallImage("/path/to/Component1.qml",
@@ -315,6 +423,21 @@ TEST_F(AsynchronousImageCache, RequestImageWithExtraIdFetchesImageFromStorage)
     notification.wait();
 }
 
+TEST_F(AsynchronousImageCache, RequestMidSizeImageWithExtraIdFetchesImageFromStorage)
+{
+    EXPECT_CALL(mockStorage, fetchMidSizeImage(Eq("/path/to/Component.qml+extraId1"), _))
+        .WillRepeatedly([&](Utils::SmallStringView, auto) {
+            notification.notify();
+            return QmlDesigner::ImageCacheStorageInterface::ImageEntry{};
+        });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction(),
+                              "extraId1");
+    notification.wait();
+}
+
 TEST_F(AsynchronousImageCache, RequestSmallImageWithExtraIdFetchesImageFromStorage)
 {
     EXPECT_CALL(mockStorage, fetchSmallImage(Eq("/path/to/Component.qml+extraId1"), _))
@@ -344,6 +467,23 @@ TEST_F(AsynchronousImageCache, RequestImageWithExtraIdRequestImageFromGenerator)
                        mockCaptureCallback.AsStdFunction(),
                        mockAbortCallback.AsStdFunction(),
                        "extraId1");
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageWithExtraIdRequestImageFromGenerator)
+{
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+
+    EXPECT_CALL(mockGenerator,
+                generateImage(
+                    Eq("/path/to/Component.qml"), Eq("extraId1"), Eq(Sqlite::TimeStamp{123}), _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto &&, auto, auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction(),
+                              "extraId1");
     notification.wait();
 }
 
@@ -389,6 +529,34 @@ TEST_F(AsynchronousImageCache, RequestImageWithAuxiliaryDataRequestImageFromGene
                        mockAbortCallback.AsStdFunction(),
                        "extraId1",
                        FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
+    notification.wait();
+}
+
+TEST_F(AsynchronousImageCache, RequestMidSizeImageWithAuxiliaryDataRequestImageFromGenerator)
+{
+    using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
+    std::vector<QSize> sizes{{20, 11}};
+    ON_CALL(mockTimeStampProvider, timeStamp(Eq("/path/to/Component.qml")))
+        .WillByDefault(Return(Sqlite::TimeStamp{123}));
+
+    EXPECT_CALL(mockGenerator,
+                generateImage(Eq("/path/to/Component.qml"),
+                              Eq("extraId1"),
+                              Eq(Sqlite::TimeStamp{123}),
+                              _,
+                              _,
+                              VariantWith<FontCollectorSizesAuxiliaryData>(
+                                  AllOf(Field(&FontCollectorSizesAuxiliaryData::sizes,
+                                              ElementsAre(QSize{20, 11})),
+                                        Field(&FontCollectorSizesAuxiliaryData::colorName,
+                                              Eq(u"color"))))))
+        .WillRepeatedly([&](auto, auto, auto, auto &&, auto, auto) { notification.notify(); });
+
+    cache.requestMidSizeImage("/path/to/Component.qml",
+                              mockCaptureCallback.AsStdFunction(),
+                              mockAbortCallback.AsStdFunction(),
+                              "extraId1",
+                              FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
     notification.wait();
 }
 

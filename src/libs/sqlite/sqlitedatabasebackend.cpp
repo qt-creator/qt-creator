@@ -168,6 +168,19 @@ LockingMode DatabaseBackend::lockingMode() const
     return pragmaToLockingMode(pragmaValue("main.locking_mode"));
 }
 
+int DatabaseBackend::version() const
+{
+    return toValue<int>("PRAGMA main.user_version");
+}
+
+void DatabaseBackend::setVersion(int version)
+{
+    ReadWriteStatement<>{Utils::SmallString{"PRAGMA main.user_version = "}
+                             + Utils::SmallString::number(version),
+                         m_database}
+        .execute();
+}
+
 int DatabaseBackend::changesCount() const
 {
     return sqlite3_changes(sqliteDatabaseHandle());

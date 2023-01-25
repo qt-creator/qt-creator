@@ -46,7 +46,8 @@ using AuxiliaryData = std::variant<std::monostate,
 enum class AbortReason : char { Abort, Failed };
 
 using CaptureImageCallback = std::function<void(const QImage &)>;
-using CaptureImageWithSmallImageCallback = std::function<void(const QImage &image, const QImage &smallImage)>;
+using CaptureImageWithScaledImagesCallback = std::function<
+    void(const QImage &image, const QImage &midSizeImage, const QImage &smallImage)>;
 using AbortCallback = std::function<void(ImageCache::AbortReason)>;
 } // namespace ImageCache
 

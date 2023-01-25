@@ -19,14 +19,16 @@ MATCHER_P(IsIcon, icon, std::string(negation ? "isn't " : "is ") + PrintToString
     return icon.availableSizes() == other.availableSizes();
 }
 
-MATCHER_P2(IsImage,
+MATCHER_P3(IsImage,
            image,
+           midSizeImage,
            smallImage,
-           std::string(negation ? "aren't " : "are ") + PrintToString(image) + " and "
-               + PrintToString(smallImage))
+           std::string(negation ? "aren't " : "are ") + PrintToString(image) + ", "
+               + PrintToString(midSizeImage) + " and " + PrintToString(smallImage))
 {
-    const std::pair<QImage, QImage> &other = arg;
-    return other.first == image && other.second == smallImage;
+    const std::tuple<QImage, QImage, QImage> &other = arg;
+    return std::get<0>(other) == image && std::get<1>(other) == midSizeImage
+           && std::get<2>(other) == smallImage;
 }
 
 class ImageCacheDispatchCollector : public ::testing::Test
@@ -38,21 +40,23 @@ protected:
         ON_CALL(collectorMock2, createIcon(_, _, _)).WillByDefault(Return(icon2));
 
         ON_CALL(collectorMock1, createImage(_, _, _))
-            .WillByDefault(Return(std::pair{image1, smallImage1}));
+            .WillByDefault(Return(std::tuple{image1, midSizeImage1, smallImage1}));
         ON_CALL(collectorMock2, createImage(_, _, _))
-            .WillByDefault(Return(std::pair{image2, smallImage2}));
+            .WillByDefault(Return(std::tuple{image2, midSizeImage2, smallImage2}));
     }
 
 protected:
     std::vector<QSize> sizes{{20, 11}};
-    NiceMock<MockFunction<void(const QImage &, const QImage &)>> captureCallbackMock;
+    NiceMock<MockFunction<void(const QImage &, const QImage &, const QImage &)>> captureCallbackMock;
     NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> abortCallbackMock;
     NiceMock<ImageCacheCollectorMock> collectorMock1;
     NiceMock<ImageCacheCollectorMock> collectorMock2;
     QImage image1{1, 1, QImage::Format_ARGB32};
-    QImage image2{2, 2, QImage::Format_ARGB32};
-    QImage smallImage1{1, 1, QImage::Format_ARGB32};
-    QImage smallImage2{2, 1, QImage::Format_ARGB32};
+    QImage image2{1, 2, QImage::Format_ARGB32};
+    QImage midSizeImage1{2, 1, QImage::Format_ARGB32};
+    QImage midSizeImage2{2, 2, QImage::Format_ARGB32};
+    QImage smallImage1{3, 1, QImage::Format_ARGB32};
+    QImage smallImage2{3, 2, QImage::Format_ARGB32};
     QIcon icon1{QPixmap::fromImage(image1)};
     QIcon icon2{QPixmap::fromImage(image2)};
 };
@@ -79,7 +83,7 @@ TEST_F(ImageCacheDispatchCollector, CallQmlCollectorStart)
             },
             &collectorMock2))};
 
-    EXPECT_CALL(captureCallbackMock, Call(_, _));
+    EXPECT_CALL(captureCallbackMock, Call(_, _, _));
     EXPECT_CALL(abortCallbackMock, Call(_));
     EXPECT_CALL(collectorMock2,
                 start(Eq("foo.qml"),
@@ -91,7 +95,7 @@ TEST_F(ImageCacheDispatchCollector, CallQmlCollectorStart)
                       _,
                       _))
         .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback) {
-            captureCallback(QImage{}, QImage{});
+            captureCallback({}, {}, {});
             abortCallback(QmlDesigner::ImageCache::AbortReason::Abort);
         });
     EXPECT_CALL(collectorMock1, start(_, _, _, _, _)).Times(0);
@@ -115,7 +119,7 @@ TEST_F(ImageCacheDispatchCollector, CallUiFileCollectorStart)
                           const QmlDesigner::ImageCache::AuxiliaryData &) { return true; },
                        &collectorMock2))};
 
-    EXPECT_CALL(captureCallbackMock, Call(_, _));
+    EXPECT_CALL(captureCallbackMock, Call(_, _, _));
     EXPECT_CALL(abortCallbackMock, Call(_));
     EXPECT_CALL(collectorMock1,
                 start(Eq("foo.ui.qml"),
@@ -127,7 +131,7 @@ TEST_F(ImageCacheDispatchCollector, CallUiFileCollectorStart)
                       _,
                       _))
         .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback) {
-            captureCallback(QImage{}, QImage{});
+            captureCallback({}, {}, {});
             abortCallback(QmlDesigner::ImageCache::AbortReason::Abort);
         });
     EXPECT_CALL(collectorMock2, start(_, _, _, _, _)).Times(0);
@@ -288,7 +292,7 @@ TEST_F(ImageCacheDispatchCollector, CallFirstCollectorCreateImage)
                                        "state",
                                        FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 
-    ASSERT_THAT(image, IsImage(image1, smallImage1));
+    ASSERT_THAT(image, IsImage(image1, midSizeImage1, smallImage1));
 }
 
 TEST_F(ImageCacheDispatchCollector, FirstCollectorCreateImageCalls)
@@ -334,7 +338,7 @@ TEST_F(ImageCacheDispatchCollector, CallSecondCollectorCreateImage)
                                        "state",
                                        FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 
-    ASSERT_THAT(image, IsImage(image2, smallImage2));
+    ASSERT_THAT(image, IsImage(image2, midSizeImage2, smallImage2));
 }
 
 TEST_F(ImageCacheDispatchCollector, SecondCollectorCreateImageCalls)
@@ -380,7 +384,8 @@ TEST_F(ImageCacheDispatchCollector, DontCallCollectorCreateImageForUnknownFile)
                                        "state",
                                        FontCollectorSizesAuxiliaryData{sizes, "color", "text"});
 
-    ASSERT_TRUE(image.first.isNull() && image.second.isNull());
+    ASSERT_TRUE(std::get<0>(image).isNull() && std::get<1>(image).isNull()
+                && std::get<2>(image).isNull());
 }
 
 } // namespace

@@ -50,6 +50,9 @@ public:
 
     Utils::SmallStringVector columnNames(Utils::SmallStringView tableName);
 
+    int version() const;
+    void setVersion(int version);
+
     int changesCount() const;
     int totalChangesCount() const;
 

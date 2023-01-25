@@ -1,24 +1,20 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "itemlibraryiconimageprovider.h"
+#include "midsizeimagecacheprovider.h"
+#include "imagecacheimageresponse.h"
 
-#include <imagecacheimageresponse.h>
-
-#include <projectexplorer/target.h>
-#include <utils/stylehelper.h>
+#include <asynchronousimagecache.h>
 
 #include <QMetaObject>
-#include <QQuickImageResponse>
 
 namespace QmlDesigner {
 
-QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QString &id,
-                                                                        const QSize &)
+QQuickImageResponse *MidSizeImageCacheProvider::requestImageResponse(const QString &id, const QSize &)
 {
-    auto response = std::make_unique<ImageCacheImageResponse>();
+    auto response = std::make_unique<ImageCacheImageResponse>(m_defaultImage);
 
-    m_cache.requestSmallImage(
+    m_cache.requestMidSizeImage(
         id,
         [response = QPointer<ImageCacheImageResponse>(response.get())](const QImage &image) {
             QMetaObject::invokeMethod(
@@ -45,9 +41,7 @@ QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QS
                     }
                 },
                 Qt::QueuedConnection);
-        },
-        "libIcon",
-        ImageCache::LibraryIconAuxiliaryData{true});
+        });
 
     return response.release();
 }

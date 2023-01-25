@@ -32,6 +32,7 @@ protected:
     NiceMock<MockTimeStampProvider> timeStampProviderMock;
     QmlDesigner::AsynchronousImageFactory factory{storageMock, timeStampProviderMock, collectorMock};
     QImage image1{10, 10, QImage::Format_ARGB32};
+    QImage midSizeImage1{5, 5, QImage::Format_ARGB32};
     QImage smallImage1{1, 1, QImage::Format_ARGB32};
 };
 
@@ -162,14 +163,17 @@ TEST_F(AsynchronousImageFactory, CaptureImageCallbackStoresImage)
                   VariantWith<std::monostate>(std::monostate{}),
                   _,
                   _))
-        .WillByDefault([&](auto, auto, auto, auto capture, auto) { capture(image1, smallImage1); });
+        .WillByDefault([&](auto, auto, auto, auto capture, auto) {
+            capture(image1, midSizeImage1, smallImage1);
+        });
 
     EXPECT_CALL(storageMock,
                 storeImage(Eq("/path/to/Component.qml+id"),
                            Sqlite::TimeStamp{125},
                            Eq(image1),
+                           Eq(midSizeImage1),
                            Eq(smallImage1)))
-        .WillOnce([&](auto, auto, auto, auto) { notification.notify(); });
+        .WillOnce([&](auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml", "id");
     notification.wait();
