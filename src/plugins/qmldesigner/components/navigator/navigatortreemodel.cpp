@@ -453,6 +453,7 @@ QStringList NavigatorTreeModel::mimeTypes() const
                                     Constants::MIME_TYPE_ITEM_LIBRARY_INFO,
                                     Constants::MIME_TYPE_TEXTURE,
                                     Constants::MIME_TYPE_MATERIAL,
+                                    Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                     Constants::MIME_TYPE_BUNDLE_MATERIAL,
                                     Constants::MIME_TYPE_ASSETS});
 
@@ -553,6 +554,11 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             handleTextureDrop(mimeData, dropModelIndex);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
             handleMaterialDrop(mimeData, dropModelIndex);
+        } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+            QByteArray filePath = mimeData->data(Constants::MIME_TYPE_BUNDLE_TEXTURE);
+            ModelNode targetNode(modelNodeForIndex(dropModelIndex));
+            if (targetNode.metaInfo().isQtQuick3DModel())
+                m_view->emitCustomNotification("apply_bundle_texture_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             ModelNode targetNode(modelNodeForIndex(dropModelIndex));
             if (targetNode.isValid())

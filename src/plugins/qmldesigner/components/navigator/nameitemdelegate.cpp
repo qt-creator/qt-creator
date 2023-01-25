@@ -13,6 +13,7 @@
 
 #include <metainfo.h>
 #include <modelnodecontextmenu.h>
+#include <qmldesignerconstants.h>
 #include <qmlobjectnode.h>
 #include <theme.h>
 
@@ -216,17 +217,23 @@ void NameItemDelegate::paint(QPainter *painter,
         if (widget && !widget->dragType().isEmpty()) {
             QByteArray dragType = widget->dragType();
             const NodeMetaInfo metaInfo = node.metaInfo();
-            const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
-            ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);
 
-            if (!filter->propertyList.isEmpty()) {
+            bool validDrop = false;
+            if (dragType == Constants::MIME_TYPE_BUNDLE_TEXTURE) {
+                validDrop = metaInfo.isQtQuick3DModel();
+            } else {
+                const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
+                ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);
+                validDrop = !filter->propertyList.isEmpty();
+                delete filter;
+            }
+            if (validDrop) {
                 painter->setOpacity(0.5);
                 painter->fillRect(styleOption.rect.adjusted(0, delegateMargin, 0, -delegateMargin),
                                   Theme::getColor(Theme::Color::DSnavigatorDropIndicatorBackground));
                 painter->setOpacity(1.0);
                 painter->setPen(Theme::getColor(Theme::Color::DSnavigatorTextSelected));
             }
-            delete filter;
         }
     }
 

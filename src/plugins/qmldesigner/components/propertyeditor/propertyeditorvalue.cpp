@@ -511,6 +511,7 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
                 bool needsImport = !imagePath.isChildOf(QmlDesigner::DocumentManager::currentResourcePath());
                 auto texCreator = new QmlDesigner::CreateTexture(m_modelNode.view(), needsImport);
                 texture = texCreator->execute(imagePath.toString(), QmlDesigner::AddTextureMode::Texture);
+                texCreator->deleteLater();
             }
 
             // assign the texture to the property

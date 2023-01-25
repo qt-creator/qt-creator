@@ -5,14 +5,18 @@
 
 #include <modelnode.h>
 
+#include <QObject>
+
 namespace QmlDesigner {
 
 class AbstractView;
 
 enum class AddTextureMode { Image, Texture, LightProbe };
 
-class CreateTexture
+class CreateTexture : public QObject
 {
+    Q_OBJECT
+
 public:
     CreateTexture(AbstractView *view, bool importFiles = false);
     ModelNode execute(const QString &filePath, AddTextureMode mode, int sceneId = -1);
