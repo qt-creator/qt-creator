@@ -7,7 +7,9 @@
 #include <designeractionmanager.h>
 #include <designmodewidget.h>
 #include <viewmanager.h>
+#include <zoomaction.h>
 #include <qmldesignerplugin.h>
+#include <qmleditormenu.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -146,6 +148,30 @@ void ToolBarBackend::editGlobalAnnoation()
         designModeWidget()->globalAnnotationEditor().setModelNode(node);
         designModeWidget()->globalAnnotationEditor().showWidget();
     }
+}
+
+void ToolBarBackend::showZoomMenu(int x, int y)
+{
+    ZoomAction *zoomAction = qobject_cast<ZoomAction *>(m_zoomAction->action());
+
+    QTC_ASSERT(zoomAction, return );
+
+    auto mainMenu = new QmlEditorMenu();
+
+    int currentIndex = zoomAction->currentIndex();
+    int i = 0;
+
+    for (double d : zoomAction->zoomLevels()) {
+        auto action = mainMenu->addAction(QString::number(d) + "%");
+        action->setCheckable(true);
+        if (i == currentIndex)
+            action->setChecked(true);
+        ++i;
+        connect(action, &QAction::triggered, this, [zoomAction, d] { zoomAction->setZoomFactor(d); });
+    }
+
+    mainMenu->exec(QPoint(x, y));
+    mainMenu->deleteLater();
 }
 
 bool ToolBarBackend::canGoBack() const

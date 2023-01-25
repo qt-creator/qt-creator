@@ -91,6 +91,7 @@ public:
     Q_INVOKABLE void shareApplicationOnline();
     Q_INVOKABLE void setCurrentWorkspace(const QString &workspace);
     Q_INVOKABLE void editGlobalAnnoation();
+    Q_INVOKABLE void showZoomMenu(int x, int y);
 
     bool canGoBack() const;
     bool canGoForward() const;
