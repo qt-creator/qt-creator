@@ -14,7 +14,7 @@ QtcLibrary {
     cpp.defines: {
         var defines = base;
         base.push(
-            "UTILS_LIBRARY",
+            "UTILS_STATIC_LIBRARY",
             qbs.targetOS.contains("macos")
                 ? 'DATA_PATH="."'
                 : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
