@@ -31,22 +31,8 @@ ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetActio
 {
     // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
     // will result in a platform-specific style being chosen.
-    items = {
-        {"Basic", "Basic", {}},
-        {"Default", "Default", {}},
-        {"Fusion", "Fusion", {}},
-        {"Imagine", "Imagine", {}},
-        {"Material Light", "Material", "Light"},
-        {"Material Dark", "Material", "Dark"},
-        {"Universal Light", "Universal", "Light"},
-        {"Universal Dark", "Universal", "Dark"},
-        {"Universal System", "Universal", "System"}
-    };
 
-    if (Utils::HostOsInfo::isMacHost())
-        items.append({"macOS", "macOS", {}});
-    if (Utils::HostOsInfo::isWindowsHost())
-        items.append({"Windows", "Windows", {}});
+    items = getAllStyleItems();
 }
 
 void ChangeStyleWidgetAction::handleModelUpdate(const QString &style)
@@ -59,12 +45,35 @@ const QList<StyleWidgetEntry> ChangeStyleWidgetAction::styleItems() const
     return items;
 }
 
-void ChangeStyleWidgetAction::changeStyle(const QString &style)
+QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
+{
+    QList<StyleWidgetEntry> items = {{"Basic", "Basic", {}},
+                                     {"Default", "Default", {}},
+                                     {"Fusion", "Fusion", {}},
+                                     {"Imagine", "Imagine", {}},
+                                     {"Material Light", "Material", "Light"},
+                                     {"Material Dark", "Material", "Dark"},
+                                     {"Universal Light", "Universal", "Light"},
+                                     {"Universal Dark", "Universal", "Dark"},
+                                     {"Universal System", "Universal", "System"}};
+
+    if (Utils::HostOsInfo::isMacHost())
+        items.append({"macOS", "macOS", {}});
+    if (Utils::HostOsInfo::isWindowsHost())
+        items.append({"Windows", "Windows", {}});
+
+    return items;
+}
+
+void ChangeStyleWidgetAction::changeCurrentStyle(const QString &style, const QString &qmlFileName)
 {
     if (style.isEmpty())
         return;
 
-    const Utils::FilePath configFileName = Utils::FilePath::fromString(styleConfigFileName(qmlFileName));
+    auto items = getAllStyleItems();
+
+    const Utils::FilePath configFileName = Utils::FilePath::fromString(
+        styleConfigFileName(qmlFileName));
 
     if (configFileName.exists()) {
         QSettings infiFile(configFileName.toString(), QSettings::IniFormat);
@@ -86,14 +95,39 @@ void ChangeStyleWidgetAction::changeStyle(const QString &style)
 
             if (!styleTheme.isEmpty())
                 infiFile.setValue((styleName + "/Theme"), styleTheme);
-        }
-        else {
+        } else {
             infiFile.setValue("Controls/Style", style);
         }
-
-        if (view)
-            view->resetPuppet();
     }
+}
+
+int ChangeStyleWidgetAction::getCurrentStyle(const QString &fileName)
+{
+    const QString confFileName = styleConfigFileName(fileName);
+
+    if (Utils::FilePath::fromString(confFileName).exists()) {
+        QSettings infiFile(confFileName, QSettings::IniFormat);
+        const QString styleName = infiFile.value("Controls/Style", "Basic").toString();
+        const QString styleTheme = infiFile.value(styleName + "/Theme", "").toString();
+        const auto items = getAllStyleItems();
+
+        int i = 0;
+        for (const auto &item : items) {
+            if (item.styleName == styleName && item.styleTheme == styleTheme)
+                return i;
+            ++i;
+        }
+    }
+
+    return 0;
+}
+
+void ChangeStyleWidgetAction::handleStyleChanged(const QString &style)
+{
+    changeCurrentStyle(style, qmlFileName);
+
+    if (view)
+        view->resetPuppet();
 }
 
 const char enabledTooltip[] = QT_TRANSLATE_NOOP("ChangeStyleWidgetAction",
@@ -134,8 +168,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
         }
     });
 
-    connect(comboBox, &QComboBox::textActivated,
-            this, &ChangeStyleWidgetAction::changeStyle);
+    connect(comboBox, &QComboBox::textActivated, this, &ChangeStyleWidgetAction::handleStyleChanged);
 
     return comboBox;
 }
