@@ -193,7 +193,7 @@ Rectangle {
             anchors.right: annotations.left
             anchors.rightMargin: 10
             model: backend.workspaces
-            onCurrentTextChanged: backend.setCurrentWorkspace(workspaces.currentText)
+            onActivated: backend.setCurrentWorkspace(workspaces.currentText)
         }
 
         ToolbarButton {

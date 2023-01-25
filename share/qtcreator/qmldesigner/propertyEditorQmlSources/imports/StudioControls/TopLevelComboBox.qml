@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Templates 2.12 as T
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
 T.ComboBox {
@@ -118,6 +118,7 @@ T.ComboBox {
                 text: modelData
                 onTriggered: {
                     control.currentIndex = index
+                    control.activated(index)
                     comboBoxPopup.close()
                 }
 
