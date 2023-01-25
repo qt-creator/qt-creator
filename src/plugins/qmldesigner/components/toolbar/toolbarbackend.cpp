@@ -257,7 +257,9 @@ int ToolBarBackend::documentIndex() const
 
 QString ToolBarBackend::currentWorkspace() const
 {
-    return designModeWidget()->dockManager()->activeWorkspace();
+    if (designModeWidget() && designModeWidget()->dockManager())
+        return designModeWidget()->dockManager()->activeWorkspace();
+    return {};
 }
 
 QStringList ToolBarBackend::workspaces() const
