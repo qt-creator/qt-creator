@@ -92,15 +92,6 @@ void PySideInstaller::installPyside(const FilePath &python,
     install->run();
 }
 
-void PySideInstaller::changeInterpreter(const QString &interpreterId,
-                                        RunConfiguration *runConfig)
-{
-    if (runConfig) {
-        if (auto aspect = runConfig->aspect<InterpreterAspect>())
-            aspect->setCurrentInterpreter(PythonSettings::interpreter(interpreterId));
-    }
-}
-
 void PySideInstaller::handlePySideMissing(const FilePath &python,
                                           const QString &pySide,
                                           TextEditor::TextDocument *document)

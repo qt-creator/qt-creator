@@ -30,7 +30,6 @@ private:
 
     void installPyside(const Utils::FilePath &python,
                        const QString &pySide, TextEditor::TextDocument *document);
-    void changeInterpreter(const QString &interpreterId, ProjectExplorer::RunConfiguration *runConfig);
     void handlePySideMissing(const Utils::FilePath &python,
                              const QString &pySide,
                              TextEditor::TextDocument *document);
