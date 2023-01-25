@@ -17,15 +17,21 @@ class TaskProgressPrivate;
 
 class CORE_EXPORT TaskProgress : public QObject
 {
+    Q_OBJECT
+
 public:
     TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
     ~TaskProgress() override;
 
+    void setAutoStopOnCancel(bool enable); // Default is true
     void setHalfLifeTimePerTask(int msecs); // Default is 1000 ms
     void setDisplayName(const QString &name);
     void setKeepOnFinish(FutureProgress::KeepOnFinishType keepType);
     void setSubtitleVisibleInStatusBar(bool visible);
     void setSubtitle(const QString &subtitle);
+
+signals:
+    void canceled();
 
 private:
     std::unique_ptr<TaskProgressPrivate> d;

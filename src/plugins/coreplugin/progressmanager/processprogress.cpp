@@ -82,7 +82,7 @@ ProcessProgress::ProcessProgress(QtcProcess *process)
     , d(new ProcessProgressPrivate(this, process))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
-        d->m_process->stop(); // TODO: should we have different cancel policies?
+        d->m_process->stop(); // TODO: See TaskProgress::setAutoStopOnCancel
     });
     connect(d->m_process, &QtcProcess::starting, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
