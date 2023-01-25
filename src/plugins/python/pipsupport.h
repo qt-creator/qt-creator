@@ -12,25 +12,6 @@
 
 namespace Python::Internal {
 
-class PipPackageInfo;
-
-class PipPackage
-{
-public:
-    explicit PipPackage(const QString &packageName = {},
-                        const QString &displayName = {},
-                        const QString &version = {})
-        : packageName(packageName)
-        , displayName(displayName.isEmpty() ? packageName : displayName)
-        , version(version)
-    {}
-    QString packageName;
-    QString displayName;
-    QString version;
-
-    PipPackageInfo info(const Utils::FilePath &python) const;
-};
-
 class PipPackageInfo
 {
 public:
@@ -47,6 +28,37 @@ public:
     Utils::FilePaths files;
 
     void parseField(const QString &field, const QStringList &value);
+};
+
+class PipPackage
+{
+public:
+    explicit PipPackage(const QString &packageName = {},
+                        const QString &displayName = {},
+                        const QString &version = {})
+        : packageName(packageName)
+        , displayName(displayName.isEmpty() ? packageName : displayName)
+        , version(version)
+    {}
+    QString packageName;
+    QString displayName;
+    QString version;
+};
+
+class Pip : public QObject
+{
+public:
+    static Pip *instance(const Utils::FilePath &python);
+
+    QFuture<PipPackageInfo> info(const PipPackage &package);
+
+private:
+    Pip(const Utils::FilePath &python);
+
+    PipPackageInfo infoImpl(const PipPackage &package);
+
+    QMutex m_lock;
+    Utils::FilePath m_python;
 };
 
 class PipInstallTask : public QObject

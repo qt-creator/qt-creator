@@ -6,8 +6,11 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <QFutureWatcher>
+
 namespace Python::Internal {
 
+class PythonRunConfigurationPrivate;
 class PySideUicExtraCompiler;
 
 class PythonRunConfiguration : public ProjectExplorer::RunConfiguration
@@ -20,11 +23,7 @@ public:
     QList<PySideUicExtraCompiler *> extraCompilers() const;
 
 private:
-    void checkForPySide(const Utils::FilePath &python);
-    void updateExtraCompilers();
-    Utils::FilePath m_pySideUicPath;
-
-    QList<PySideUicExtraCompiler *> m_extraCompilers;
+    PythonRunConfigurationPrivate *d = nullptr;
 };
 
 class PythonRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
