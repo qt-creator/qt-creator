@@ -13,6 +13,7 @@ T.ComboBox {
     property bool hover: (comboBoxInput.hover || window.visible) && control.enabled
     property bool edit: false
     property bool open: window.visible
+    property bool openUpwards: false
 
     editable: false
     width: control.style.controlSize.width
@@ -75,8 +76,14 @@ T.ComboBox {
 
             window.show()
             window.requestActivate()
-            window.x = control.mapToGlobal(0,0).x
-            window.y = control.mapToGlobal(0,0).y + control.height
+            if (!control.openUpwards) {
+                window.x = control.mapToGlobal(0,0).x
+                window.y = control.mapToGlobal(0,0).y + control.height
+            } else {
+                window.x = control.mapToGlobal(0,0).x
+                window.y = control.mapToGlobal(0,0).y - window.height
+            }
+
             control.menuDelegate.focus = true
         }
 
