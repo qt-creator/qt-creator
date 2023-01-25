@@ -101,6 +101,11 @@ T.ComboBox {
         modality: Qt.NonModal
         transientParent: control.Window.window
         color: "transparent"
+
+        onActiveChanged: {
+            if (!window.active)
+                comboBoxPopup.close()
+        }
     }
 
     property Menu menuDelegate: Menu {
