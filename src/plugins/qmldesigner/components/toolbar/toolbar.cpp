@@ -62,6 +62,8 @@ void ToolBar::create()
 
     auto toolBar = new QToolBar;
 
+    toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
+
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
 
