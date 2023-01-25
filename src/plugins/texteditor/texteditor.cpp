@@ -7082,12 +7082,13 @@ void TextEditorWidgetPrivate::addSelectionNextFindMatch()
         return;
 
     const QTextCursor &firstCursor = cursors.first();
-    QTextDocumentFragment selection = firstCursor.selection();
+    const QString selection = firstCursor.selectedText();
+    if (selection.contains(QChar::ParagraphSeparator))
+        return;
     QTextDocument *document = firstCursor.document();
 
-    if (Utils::anyOf(cursors, [&firstCursor](const QTextCursor &c) {
-            return c.selection().toPlainText().toCaseFolded()
-                   != firstCursor.selection().toPlainText().toCaseFolded();
+    if (Utils::anyOf(cursors, [selection = selection.toCaseFolded()](const QTextCursor &c) {
+            return c.selectedText().toCaseFolded() != selection;
         })) {
         return;
     }
@@ -7096,8 +7097,9 @@ void TextEditorWidgetPrivate::addSelectionNextFindMatch()
 
     int searchFrom = cursors.last().selectionEnd();
     while (true) {
-        QTextCursor next = document->find(selection.toPlainText(), searchFrom, findFlags);
+        QTextCursor next = document->find(selection, searchFrom, findFlags);
         if (next.isNull()) {
+            QTC_ASSERT(searchFrom != 0, return);
             searchFrom = 0;
             continue;
         }

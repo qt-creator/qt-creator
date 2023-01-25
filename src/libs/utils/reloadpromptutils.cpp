@@ -100,15 +100,15 @@ QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer
                                               "Do you want to save it under a different name, or close "
                                               "the editor?").arg(QDir::toNativeSeparators(fileName));
     QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
+    QPushButton *saveas =
+            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save &as..."),
+                          QMessageBox::ActionRole);
     QPushButton *close =
             box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Close"),
                           QMessageBox::RejectRole);
     QPushButton *closeAll =
             box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "C&lose All"),
                           QMessageBox::RejectRole);
-    QPushButton *saveas =
-            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save &as..."),
-                          QMessageBox::ActionRole);
     QPushButton *save =
             box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Save"),
                           QMessageBox::AcceptRole);
