@@ -163,7 +163,8 @@ public:
     void scheduleUpdateAllNowOrLater();
 
 private:
-    ProjectExplorer::ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) override;
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const ExtraCompilerFilter &filter) const override;
 
     void scheduleUpdateAll(QmakeProFile::AsyncUpdateDelay delay);
     void scheduleUpdateAllLater() { scheduleUpdateAll(QmakeProFile::ParseLater); }

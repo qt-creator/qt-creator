@@ -586,11 +586,9 @@ void QbsBuildSystem::delayParsing()
         requestDelayedParse();
 }
 
-ExtraCompiler *QbsBuildSystem::extraCompilerForSource(const Utils::FilePath &source)
+ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filter) const
 {
-    return Utils::findOrDefault(m_extraCompilers, [source](ExtraCompiler *ec) {
-        return ec->source() == source;
-    });
+    return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
 void QbsBuildSystem::parseCurrentBuildConfiguration()

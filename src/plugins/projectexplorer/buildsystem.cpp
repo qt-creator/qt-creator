@@ -4,6 +4,7 @@
 #include "buildsystem.h"
 
 #include "buildconfiguration.h"
+#include "extracompiler.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "runconfiguration.h"
@@ -190,6 +191,12 @@ void BuildSystem::requestParseHelper(int delay)
     d->m_delayedParsingTimer.start();
 }
 
+ExtraCompiler *BuildSystem::findExtraCompiler(
+        const std::function<bool (const ExtraCompiler *)> &) const
+{
+    return nullptr;
+}
+
 bool BuildSystem::addFiles(Node *, const FilePaths &filePaths, FilePaths *notAdded)
 {
     Q_UNUSED(filePaths)
@@ -236,10 +243,9 @@ bool BuildSystem::supportsAction(Node *, ProjectAction, const Node *) const
     return false;
 }
 
-ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source)
+ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source) const
 {
-    Q_UNUSED(source);
-    return nullptr;
+    return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });
 }
 
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
