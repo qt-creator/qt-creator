@@ -135,7 +135,7 @@ private:
     SquishServerProcess m_serverProcess;
 
     SquishRunnerProcess *m_primaryRunner = nullptr;
-    Utils::QtcProcess *m_secondaryRunner = nullptr;
+    SquishRunnerProcess *m_secondaryRunner = nullptr;
 
     QString m_serverHost;
     Request m_request = None;

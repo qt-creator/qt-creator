@@ -15,8 +15,8 @@ class SquishRunnerProcess : public SquishProcessBase
 {
     Q_OBJECT
 public:
-    enum RunnerCommand { Continue, Exit, Next, PrintVariables, Quit, Return, Step };
-    enum RunnerMode { Run, StartAut, QueryServer };
+    enum RunnerCommand { Continue, EndRecord, Exit, Next, PrintVariables, Quit, Return, Step };
+    enum RunnerMode { Run, StartAut, QueryServer, Record };
     enum RunnerError { InvalidSocket, MappedAutMissing };
 
     explicit SquishRunnerProcess(QObject *parent = nullptr);
@@ -37,6 +37,7 @@ public:
 
 signals:
     void queryDone(const QString &output, const QString &error);
+    void recorderDone();
     void runnerFinished();
     void interrupted(const QString &fileName, int line, int column);
     void localsUpdated(const QString &output);

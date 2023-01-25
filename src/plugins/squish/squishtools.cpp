@@ -589,14 +589,15 @@ void SquishTools::setupAndStartRecorder()
         args << "--useScriptedObjectMap";
     args << "--autid" << QString::number(m_primaryRunner->autId());
 
-    m_secondaryRunner = new QtcProcess(this);
-    m_secondaryRunner->setProcessMode(ProcessMode::Writer);
-    m_secondaryRunner->setCommand({toolsSettings.runnerPath, args});
-    connect(m_secondaryRunner, &QtcProcess::done, this, &SquishTools::onRecorderFinished);
-    qCDebug(LOG) << "Recorder starting:" << m_secondaryRunner->commandLine().toUserOutput();
+    m_secondaryRunner = new SquishRunnerProcess(this);
+    m_secondaryRunner->setupProcess(SquishRunnerProcess::Record);
+    const CommandLine cmd = {toolsSettings.runnerPath, args};
+    connect(m_secondaryRunner, &SquishRunnerProcess::recorderDone,
+            this, &SquishTools::onRecorderFinished);
+    qCDebug(LOG) << "Recorder starting:" << cmd.toUserOutput();
     if (m_suiteConf.objectMapPath().isReadableFile())
         Core::DocumentManager::expectFileChange(m_suiteConf.objectMapPath());
-    m_secondaryRunner->start();
+    m_secondaryRunner->start(cmd, squishEnvironment());
 }
 
 void SquishTools::stopRecorder()
@@ -604,10 +605,10 @@ void SquishTools::stopRecorder()
     QTC_ASSERT(m_secondaryRunner && m_secondaryRunner->isRunning(), return);
     if (m_squishRunnerState == RunnerState::CancelRequested) {
         qCDebug(LOG) << "Stopping recorder (exit)";
-        m_secondaryRunner->write("exit\n");
+        m_secondaryRunner->writeCommand(SquishRunnerProcess::Exit);
     } else {
         qCDebug(LOG) << "Stopping recorder (endrecord)";
-        m_secondaryRunner->write("endrecord\n");
+        m_secondaryRunner->writeCommand(SquishRunnerProcess::EndRecord);
     }
 }
 
@@ -688,7 +689,7 @@ void SquishTools::onRunnerFinished()
 void SquishTools::onRecorderFinished()
 {
     QTC_ASSERT(m_secondaryRunner, return);
-    qCDebug(LOG) << "Recorder finished:" << m_secondaryRunner->exitCode();
+    qCDebug(LOG) << "Recorder finished"; // exit code?
     m_secondaryRunner->deleteLater();
     m_secondaryRunner = nullptr;
 

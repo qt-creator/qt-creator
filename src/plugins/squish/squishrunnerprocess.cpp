@@ -33,6 +33,9 @@ void SquishRunnerProcess::setupProcess(RunnerMode mode)
         break;
     case QueryServer:
         break;
+    case Record:
+        m_process.setProcessMode(Utils::ProcessMode::Writer);
+        break;
     }
 }
 
@@ -52,6 +55,8 @@ void SquishRunnerProcess::onDone()
         const QString error = m_licenseIssues ? Tr::tr("Could not get Squish license from server.")
                                               : QString();
         emit queryDone(m_process.stdOut(), error);
+    } if (m_mode == Record) {
+        emit recorderDone();
     } else {
         emit runnerFinished(); // handle output file stuff - FIXME move over to runner?
     }
@@ -134,6 +139,7 @@ static QString cmdToString(SquishRunnerProcess::RunnerCommand cmd)
 {
     switch (cmd) {
     case SquishRunnerProcess::Continue: return "continue\n";
+    case SquishRunnerProcess::EndRecord: return "endrecord\n";
     case SquishRunnerProcess::Exit: return "exit\n";
     case SquishRunnerProcess::Next: return "next\n";
     case SquishRunnerProcess::PrintVariables: return "print variables\n";
