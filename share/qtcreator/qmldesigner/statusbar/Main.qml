@@ -64,10 +64,11 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: kits.right
             anchors.leftMargin: 32
-            model: [ "Basic", "Default", "Universal", "Material" ]
-            //onActivated: backend.setCurrentWorkspace(workspaces.currentText)
+            model: backend.styles
+            onActivated: backend.setCurrentStyle(styles.currentIndex)
             openUpwards: true
             enabled: backend.isInDesignMode
+            currentIndex: backend.currentStyle
         }
 
 

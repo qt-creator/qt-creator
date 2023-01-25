@@ -74,8 +74,10 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(int documentIndex READ documentIndex NOTIFY documentIndexChanged)
     Q_PROPERTY(QString currentWorkspace READ currentWorkspace NOTIFY currentWorkspaceChanged)
     Q_PROPERTY(QStringList workspaces READ workspaces NOTIFY workspacesChanged)
+    Q_PROPERTY(QStringList styles READ styles FINAL)
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
     Q_PROPERTY(bool isDesignModeEnabled READ isDesignModeEnabled NOTIFY isDesignModeEnabledChanged)
+    Q_PROPERTY(int currentStyle READ currentStyle NOTIFY currentStyleChanged)
 
 public:
     ToolBarBackend(QObject *parent  = nullptr);
@@ -92,6 +94,7 @@ public:
     Q_INVOKABLE void setCurrentWorkspace(const QString &workspace);
     Q_INVOKABLE void editGlobalAnnoation();
     Q_INVOKABLE void showZoomMenu(int x, int y);
+    Q_INVOKABLE void setCurrentStyle(int index);
 
     bool canGoBack() const;
     bool canGoForward() const;
@@ -104,8 +107,11 @@ public:
     QString currentWorkspace() const;
     QStringList workspaces() const;
 
+    QStringList styles() const;
+
     bool isInDesignMode() const;
     bool isDesignModeEnabled() const;
+    int currentStyle() const;
 
 signals:
     void navigationHistoryChanged();
@@ -115,6 +121,7 @@ signals:
     void workspacesChanged();
     void isInDesignModeChanged();
     void isDesignModeEnabledChanged();
+    void currentStyleChanged();
 
 private:
     void setupWorkspaces();

@@ -3,6 +3,7 @@
 
 #include "toolbarbackend.h"
 
+#include <changestyleaction.h>
 #include <crumblebar.h>
 #include <designeractionmanager.h>
 #include <designmodewidget.h>
@@ -174,6 +175,26 @@ void ToolBarBackend::showZoomMenu(int x, int y)
     mainMenu->deleteLater();
 }
 
+void ToolBarBackend::setCurrentStyle(int index)
+{
+    const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
+
+    QTC_ASSERT(items.count() > index, return );
+    QTC_ASSERT(index > 0, return );
+
+    QTC_ASSERT(currentDesignDocument(), return );
+
+    auto item = items.at(index);
+
+    auto view = currentDesignDocument()->rewriterView();
+
+    const QString qmlFile = view->model()->fileUrl().toLocalFile();
+
+    ChangeStyleWidgetAction::changeCurrentStyle(item.styleName, qmlFile);
+
+    view->resetPuppet();
+}
+
 bool ToolBarBackend::canGoBack() const
 {
     QTC_ASSERT(designModeWidget(), return false);
@@ -222,6 +243,11 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             &Core::EditorManager::currentEditorChanged,
             this,
             &ToolBarBackend::documentIndexChanged);
+
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            &ToolBarBackend::currentStyleChanged);
 
     connect(designModeWidget(), &Internal::DesignModeWidget::initialized, this, [this]() {
         const auto dockManager = designModeWidget()->dockManager();
@@ -300,6 +326,16 @@ QStringList ToolBarBackend::workspaces() const
     return m_workspaces;
 }
 
+QStringList ToolBarBackend::styles() const
+{
+    const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
+    QStringList list;
+    for (const auto &item : items)
+        list.append(item.displayName);
+
+    return list;
+}
+
 bool ToolBarBackend::isInDesignMode() const
 {
     if (!Core::ModeManager::instance())
@@ -314,6 +350,19 @@ bool ToolBarBackend::isDesignModeEnabled() const
         return Core::DesignMode::instance()->isEnabled() || getMainUiFile().exists();
 
     return false;
+}
+
+int ToolBarBackend::currentStyle() const
+{
+    QTC_ASSERT(currentDesignDocument(), return 0);
+
+    auto view = currentDesignDocument()->rewriterView();
+
+    const QString qmlFile = view->model()->fileUrl().toLocalFile();
+
+    const int index = ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
+
+    return index;
 }
 
 void ToolBarBackend::setupWorkspaces()
