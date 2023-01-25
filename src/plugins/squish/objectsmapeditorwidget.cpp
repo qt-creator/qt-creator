@@ -7,6 +7,7 @@
 #include "objectsmapdocument.h"
 #include "objectsmaptreeitem.h"
 #include "propertyitemdelegate.h"
+#include "squishmessages.h"
 #include "squishtr.h"
 #include "symbolnameitemdelegate.h"
 
@@ -25,7 +26,6 @@
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
-#include <QMessageBox>
 #include <QMimeData>
 #include <QModelIndex>
 #include <QPushButton>
@@ -467,10 +467,8 @@ void ObjectsMapEditorWidget::onRemoveSymbolicNameTriggered()
         newReference = dialog.selectedSymbolicName();
     } else {
         // Squish does not ask for removing objects without references, but we prefer to do it
-        if (QMessageBox::question(Core::ICore::dialogParent(),
-                                  Tr::tr("Remove Symbolic Name"),
-                                  Tr::tr("Do you really want to remove \"%1\"?").arg(symbolicName))
-            != QMessageBox::Yes)
+        const QString detail = Tr::tr("Do you really want to remove \"%1\"?").arg(symbolicName);
+        if (SquishMessages::simpleQuestion(Tr::tr("Remove Symbolic Name"), detail) != QMessageBox::Yes)
             return;
     }
 

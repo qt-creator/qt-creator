@@ -4,6 +4,7 @@
 #include "squishsettings.h"
 
 #include "squishconstants.h"
+#include "squishmessages.h"
 #include "squishtools.h"
 #include "squishtr.h"
 
@@ -20,7 +21,6 @@
 #include <QDialogButtonBox>
 #include <QFrame>
 #include <QHeaderView>
-#include <QMessageBox>
 #include <QPushButton>
 #include <QSettings>
 #include <QVBoxLayout>
@@ -691,10 +691,9 @@ SquishServerSettingsDialog::SquishServerSettingsDialog(QWidget *parent)
 
 void SquishServerSettingsDialog::configWriteFailed(QProcess::ProcessError error)
 {
-    QMessageBox::critical(Core::ICore::dialogParent(),
-                          Tr::tr("Error"),
-                          Tr::tr("Failed to write configuration changes.\n"
-                                 "Squish server finished with process error %1.").arg(error));
+    const QString detail = Tr::tr("Failed to write configuration changes.\n"
+                                  "Squish server finished with process error %1.").arg(error);
+    SquishMessages::criticalMessage(detail);
 }
 
 } // namespace Internal

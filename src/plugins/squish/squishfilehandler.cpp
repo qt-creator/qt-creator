@@ -5,7 +5,7 @@
 
 #include "opensquishsuitesdialog.h"
 #include "squishconstants.h"
-#include "squishplugin.h"
+#include "squishmessages.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
@@ -327,12 +327,10 @@ void SquishFileHandler::runTestCase(const QString &suiteName, const QString &tes
 
     const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to run test case \"%2\".")
-                                  .arg(suitePath.toUserOutput())
-                                  .arg(testCaseName));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to run test case \"%2\".")
+                .arg(suitePath.toUserOutput()).arg(testCaseName);
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -350,11 +348,9 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     const Utils::FilePath suiteConf = m_suites.value(suiteName);
     const Utils::FilePath suitePath = suiteConf.parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to run test cases.")
-                                  .arg(suitePath.toUserOutput()));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to run test cases.").arg(suitePath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -379,12 +375,10 @@ void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &
 
     const Utils::FilePath suitePath = m_suites.value(suiteName).parentDir();
     if (!suitePath.exists() || !suitePath.isReadableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Test Suite Path Not Accessible"),
-                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
-                                     "Refusing to record test case \"%2\".")
-                                  .arg(suitePath.toUserOutput())
-                                  .arg(testCaseName));
+        const QString detail = Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                      "Refusing to record test case \"%2\".")
+                .arg(suitePath.toUserOutput()).arg(testCaseName);
+        SquishMessages::criticalMessage(Tr::tr("Test Suite Path Not Accessible"), detail);
         return;
     }
 
@@ -491,10 +485,8 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
     QTC_ASSERT(conf.ensureObjectMapExists(), return);
 
     if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Failed to open objects.map file at \"%1\".")
-                                  .arg(objectsMapPath.toUserOutput()));
+        SquishMessages::criticalMessage(Tr::tr("Failed to open objects.map file at \"%1\".")
+                                        .arg(objectsMapPath.toUserOutput()));
     }
 }
 

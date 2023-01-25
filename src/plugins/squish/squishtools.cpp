@@ -4,6 +4,7 @@
 #include "squishtools.h"
 
 #include "scripthelper.h"
+#include "squishmessages.h"
 #include "squishoutputpane.h"
 #include "squishplugin.h"
 #include "squishsettings.h"
@@ -31,7 +32,6 @@
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
-#include <QMessageBox>
 #include <QTimer>
 #include <QWindow>
 
@@ -198,18 +198,13 @@ void SquishTools::runTestCases(const FilePath &suitePath,
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to run a test case.")
-                                .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to run a test case."));
         return;
     }
     // create test results directory (if necessary) and return on fail
     if (!resultsDirectory.ensureWritableDir()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Could not create test results folder. Canceling test run."));
+        SquishMessages::criticalMessage(
+                    Tr::tr("Could not create test results folder. Canceling test run."));
         return;
     }
 
@@ -264,11 +259,7 @@ void SquishTools::queryServer(RunnerQuery query)
         return;
 
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to execute server query.")
-                                  .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to execute server query."));
         return;
     }
     m_perspective.setPerspectiveMode(SquishPerspective::Querying);
@@ -283,11 +274,7 @@ void SquishTools::recordTestCase(const FilePath &suitePath, const QString &testC
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to record a test case.")
-                                .arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to record a test case."));
         return;
     }
 
@@ -306,10 +293,7 @@ void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
     if (m_shutdownInitiated)
         return;
     if (m_state != Idle) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to write configuration changes.").arg(m_state));
+        SquishMessages::toolsInUnexpectedState(m_state, Tr::tr("Refusing to write configuration changes."));
         return;
     }
     m_serverConfigChanges = changes;
@@ -435,9 +419,8 @@ void SquishTools::onRunnerStateChanged(SquishProcessState state)
         break;
     case StartFailed:
         logAndChangeToolsState(SquishTools::RunnerStartFailed);
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Error"),
-                              Tr::tr("Squish runner failed to start within given timeframe."));
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Error"),
+                                        Tr::tr("Squish runner failed to start within given timeframe."));
         onRunnerStopped();
         break;
     case Stopped:
@@ -473,7 +456,7 @@ void SquishTools::onRunnerStopped()
                                                  m_suitePath.fileName(),
                                                  &error);
         if (!error.isEmpty())
-            QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), error);
+            SquishMessages::criticalMessage(error);
         logrotateTestResults();
     } else {
         m_xmlOutputHandler->clearForNextRun();
@@ -494,12 +477,10 @@ void SquishTools::onRunnerError(SquishRunnerProcess::RunnerError error)
         }
         break;
     case SquishRunnerProcess::MappedAutMissing:
-        QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"),
-                              Tr::tr("Squish could not find the AUT \"%1\" to start. "
-                                     "Make sure it has been added as a Mapped AUT in the "
-                                     "squishserver settings.\n"
-                                     "(Tools > Squish > Server Settings...)")
-                              .arg(m_suiteConf.aut()));
+        SquishMessages::criticalMessage(
+                    Tr::tr("Squish could not find the AUT \"%1\" to start. Make sure it has been "
+                           "added as a Mapped AUT in the squishserver settings.\n"
+                           "(Tools > Squish > Server Settings...)").arg(m_suiteConf.aut()));
         break;
     }
 }
@@ -534,11 +515,9 @@ void SquishTools::startSquishServer(Request request)
     const FilePath squishServer = Environment::systemEnvironment().searchInPath(
         toolsSettings.serverPath.toString());
     if (!squishServer.isExecutableFile()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Server Error"),
-                              Tr::tr("\"%1\" could not be found or is not executable.\n"
-                                     "Check the settings.")
-                                  .arg(toolsSettings.serverPath.toUserOutput()));
+        const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
+                                      "settings.").arg(toolsSettings.serverPath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Squish Server Error"), detail);
         setIdle();
         return;
     }
@@ -1070,33 +1049,29 @@ void SquishTools::terminateRunner()
 
 void SquishTools::handleSquishServerAlreadyRunning()
 {
-    if (QMessageBox::question(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Server Already Running"),
-                              Tr::tr("There is still an old Squish server instance running.\n"
-                                     "This will cause problems later on.\n\n"
-                                     "If you continue, the old instance will be terminated.\n"
-                                     "Do you want to continue?"))
-        == QMessageBox::Yes) {
-        switch (m_request) {
-        case RunTestRequested:
-            m_request = KillOldBeforeRunRunner;
-            break;
-        case RecordTestRequested:
-            m_request = KillOldBeforeRecordRunner;
-            break;
-        case RunnerQueryRequested:
-            m_request = KillOldBeforeQueryRunner;
-            break;
-        default:
-            QMessageBox::critical(Core::ICore::dialogParent(),
-                                  Tr::tr("Error"),
-                                  Tr::tr("Unexpected state or request while starting Squish "
-                                         "server. (state: %1, request: %2)")
-                                      .arg(m_state)
-                                      .arg(m_request));
-        }
-        stopSquishServer();
+    const QString detail = Tr::tr("There is still an old Squish server instance running.\n"
+                                  "This will cause problems later on.\n\n"
+                                  "If you continue, the old instance will be terminated.\n"
+                                  "Do you want to continue?");
+    if (SquishMessages::simpleQuestion(Tr::tr("Squish Server Already Running"), detail) != QMessageBox::Yes)
+        return;
+
+    switch (m_request) {
+    case RunTestRequested:
+        m_request = KillOldBeforeRunRunner;
+        break;
+    case RecordTestRequested:
+        m_request = KillOldBeforeRecordRunner;
+        break;
+    case RunnerQueryRequested:
+        m_request = KillOldBeforeQueryRunner;
+        break;
+    default:
+        const QString detail = Tr::tr("Unexpected state or request while starting Squish server. "
+                                      "(state: %1, request: %2)").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(detail);
     }
+    stopSquishServer();
 }
 
 QStringList SquishTools::serverArgumentsFromSettings() const
@@ -1165,37 +1140,26 @@ QStringList SquishTools::runnerArgumentsFromSettings()
 bool SquishTools::isValidToStartRunner()
 {
     if (!m_serverProcess.isRunning()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("No Squish Server"),
-                              Tr::tr("Squish server does not seem to be running.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
+        const QString detail = Tr::tr("Squish server does not seem to be running.\n(state: %1, "
+                                      "request: %2)\nTry again.").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("No Squish Server"), detail);
         setIdle();
         return false;
     }
     if (m_serverProcess.port() == -1) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("No Squish Server Port"),
-                              Tr::tr("Failed to get the server port.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
+        const QString detail = Tr::tr("Failed to get the server port.\n(state: %1, request: %2)\n"
+                                      "Try again.").arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("No Squish Server Port"), detail);
         // setting state to ServerStartFailed will terminate/kill the current unusable server
         onServerStateChanged(StartFailed);
         return false;
     }
 
     if (m_primaryRunner && m_primaryRunner->state() != QProcess::NotRunning) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Running"),
-                              Tr::tr("Squish runner seems to be running already.\n"
-                                     "(state: %1, request: %2)\n"
-                                     "Wait until it has finished and try again.")
-                                  .arg(m_state)
-                                  .arg(m_request));
+        const QString detail = Tr::tr("Squish runner seems to be running already.\n(state: %1, "
+                                      "request: %2)\nWait until it has finished and try again.")
+                .arg(m_state).arg(m_request);
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Running"), detail);
         return false;
     }
     return true;
@@ -1206,11 +1170,9 @@ bool SquishTools::setupRunnerPath()
     const FilePath squishRunner = Environment::systemEnvironment().searchInPath(
         toolsSettings.runnerPath.toString());
     if (!squishRunner.isExecutableFile()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Squish Runner Error"),
-                              Tr::tr("\"%1\" could not be found or is not executable.\n"
-                                     "Check the settings.")
-                                  .arg(toolsSettings.runnerPath.toUserOutput()));
+        const QString detail = Tr::tr("\"%1\" could not be found or is not executable.\nCheck the "
+                                      "settings.").arg(toolsSettings.runnerPath.toUserOutput());
+        SquishMessages::criticalMessage(Tr::tr("Squish Runner Error"), detail);
         onRunnerStateChanged(Stopped);
         return false;
     }

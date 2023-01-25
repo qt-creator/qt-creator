@@ -5,6 +5,7 @@
 
 #include "squishconstants.h"
 #include "squishfilehandler.h"
+#include "squishmessages.h"
 #include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
@@ -22,7 +23,6 @@
 
 #include <QHeaderView>
 #include <QMenu>
-#include <QMessageBox>
 #include <QVBoxLayout>
 
 namespace Squish {
@@ -185,10 +185,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         menu.addAction(closeAllSuites);
 
         connect(closeAllSuites, &QAction::triggered, this, [this] {
-            if (QMessageBox::question(this,
-                                      Tr::tr("Close All Test Suites"),
-                                      Tr::tr("Close all test suites?"
-                                         /*"\nThis will close all related files as well."*/))
+            if (SquishMessages::simpleQuestion(Tr::tr("Close All Test Suites"),
+                                               Tr::tr("Close all test suites?"
+                                                      /*"\nThis will close all related files as well."*/))
                 == QMessageBox::Yes)
                 SquishFileHandler::instance()->closeAllTestSuites();
         });
@@ -273,13 +272,10 @@ void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModel
     const auto folder = Utils::FilePath::fromVariant(m_sortModel->index(row, 0, parent).data(LinkRole));
     QTC_ASSERT(!folder.isEmpty(), return );
 
-    if (QMessageBox::question(Core::ICore::dialogParent(),
-                              Tr::tr("Remove Shared Folder"),
-                              Tr::tr("Remove \"%1\" from the list of shared folders?")
-                                  .arg(folder.toUserOutput()))
-        != QMessageBox::Yes) {
+    const QString detail = Tr::tr("Remove \"%1\" from the list of shared folders?")
+            .arg(folder.toUserOutput());
+    if (SquishMessages::simpleQuestion(Tr::tr("Remove Shared Folder"), detail) != QMessageBox::Yes)
         return;
-    }
 
     const QModelIndex &realIdx = m_sortModel->mapToSource(m_sortModel->index(row, 0, parent));
     if (SquishFileHandler::instance()->removeSharedFolder(folder))
@@ -288,10 +284,8 @@ void SquishNavigationWidget::onRemoveSharedFolderTriggered(int row, const QModel
 
 void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 {
-    if (QMessageBox::question(Core::ICore::dialogParent(),
-                              Tr::tr("Remove All Shared Folders"),
-                              Tr::tr("Remove all shared folders?"))
-        != QMessageBox::Yes) {
+    if (SquishMessages::simpleQuestion(Tr::tr("Remove All Shared Folders"),
+                                       Tr::tr("Remove all shared folders?")) != QMessageBox::Yes) {
         return;
     }
 
@@ -320,10 +314,8 @@ void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
     QTC_ASSERT(settings, return);
 
     if (!settings->squishPath.filePath().pathAppended("scriptmodules").exists()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              Tr::tr("Error"),
-                              Tr::tr("Set up a valid Squish path to be able to create "
-                                     "a new test case.\n(Edit > Preferences > Squish)"));
+        SquishMessages::criticalMessage(Tr::tr("Set up a valid Squish path to be able to create "
+                                               "a new test case.\n(Edit > Preferences > Squish)"));
         return;
     }
 

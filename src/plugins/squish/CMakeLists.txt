@@ -14,6 +14,7 @@ add_qtc_plugin(Squish
     scripthelper.cpp scripthelper.h
     squish.qrc
     squishfilehandler.cpp squishfilehandler.h
+    squishmessages.cpp squishmessages.h
     squishnavigationwidget.cpp squishnavigationwidget.h
     squishoutputpane.cpp squishoutputpane.h
     squishperspective.cpp squishperspective.h
