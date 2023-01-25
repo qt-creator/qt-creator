@@ -118,9 +118,6 @@ private:
     void setupWorkspaces();
 
     ActionInterface *m_zoomAction;
-    ActionInterface *editAnnotation;
-    ActionInterface *goIntoComponent;
-    ActionInterface *moveToComponent;
 
     QStringList m_openDocuments;
     QStringList m_workspaces;
