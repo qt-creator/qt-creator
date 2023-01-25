@@ -80,7 +80,20 @@ Rectangle {
             iconFont: StudioTheme.Constants.font
             buttonIcon: qsTr("Live Preview")
 
-            onClicked: livePreview.trigger()
+            onClicked: {
+                livePreview.trigger()
+            }
+
+            MouseArea {
+                acceptedButtons: Qt.RightButton
+                anchors.fill: parent
+
+                onClicked: {
+                    var p = livePreviewButton.mapToGlobal(0, 0)
+                    backend.showZoomMenu(p.x, p.y)
+                }
+
+            }
 
             ActionSubscriber {
                 id: livePreview
