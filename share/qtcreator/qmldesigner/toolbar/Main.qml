@@ -31,7 +31,7 @@ Rectangle {
             anchors.left: parent.left
             anchors.leftMargin: 10
             enabled: backend.isDesignModeEnabled
-            tooltip: qsTr("Switch to Design Mode")
+            tooltip: qsTr("Switch to Design Mode.")
             buttonIcon: StudioTheme.Constants.topToolbar_designMode
 
             onClicked: backend.triggerModeChange()
@@ -49,6 +49,7 @@ Rectangle {
             anchors.left: parent.left
             anchors.leftMargin: 10
             buttonIcon: StudioTheme.Constants.topToolbar_home
+            tooltip: qsTr("Switch to Welcome Mode.")
 
             onClicked: backend.triggerModeChange()
         }
@@ -66,6 +67,7 @@ Rectangle {
             }
 
             onClicked: backend.runProject()
+            tooltip: qsTr("Run Project")
         }
 
         ToolbarButton {
