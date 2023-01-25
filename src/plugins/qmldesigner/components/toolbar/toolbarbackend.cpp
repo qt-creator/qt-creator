@@ -289,6 +289,7 @@ void ToolBarBackend::setupWorkspaces()
     m_workspaces = designModeWidget()->dockManager()->workspaces();
     Utils::sort(m_workspaces);
     emit workspacesChanged();
+    emit currentWorkspaceChanged();
 }
 
 ActionSubscriber::ActionSubscriber(QObject *parent)

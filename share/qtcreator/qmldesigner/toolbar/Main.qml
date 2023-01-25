@@ -193,6 +193,8 @@ Rectangle {
             anchors.right: annotations.left
             anchors.rightMargin: 10
             model: backend.workspaces
+            currentIndex: workspaces.find(backend.currentWorkspace)
+
             onActivated: backend.setCurrentWorkspace(workspaces.currentText)
         }
 
