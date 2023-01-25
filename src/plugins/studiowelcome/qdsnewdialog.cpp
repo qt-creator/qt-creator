@@ -390,14 +390,13 @@ void QdsNewDialog::accept()
     create.withName(m_qmlProjectName)
         .atLocation(m_qmlProjectLocation)
         .withScreenSizes(m_qmlScreenSizeIndex, m_qmlCustomWidth, m_qmlCustomHeight)
-        .withStyle(m_qmlStyleIndex)
+        .withStyle(getStyleIndex())
         .useQtVirtualKeyboard(m_qmlUseVirtualKeyboard)
         .saveAsDefaultLocation(m_qmlSaveAsDefaultLocation)
         .withTargetQtVersion(m_qmlTargetQtVersionIndex)
         .execute();
 
     std::shared_ptr<PresetItem> item = m_wizard.preset();
-    QString customSizeName = m_qmlCustomWidth + " x " + m_qmlCustomHeight;
 
     UserPresetData preset = currentUserPresetData(m_currentPreset->displayName());
     m_recentsStore.save(preset);
@@ -451,7 +450,7 @@ UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) c
         targetQtVersion = m_wizard.targetQtVersionName(m_qmlTargetQtVersionIndex);
 
     if (m_wizard.haveStyleModel())
-        styleName = m_wizard.styleName(m_qmlStyleIndex);
+        styleName = m_wizard.styleName(getStyleIndex());
 
     if (m_wizard.haveVirtualKeyboard())
         useVirtualKeyboard = m_qmlUseVirtualKeyboard;
