@@ -82,6 +82,7 @@ public:
     static void registerDeclarativeType();
 
     Q_INVOKABLE void triggerModeChange();
+    Q_INVOKABLE void triggerProjectSettings();
     Q_INVOKABLE void runProject();
     Q_INVOKABLE void goForward();
     Q_INVOKABLE void goBackward();

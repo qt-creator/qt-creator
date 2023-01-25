@@ -89,6 +89,13 @@ void ToolBarBackend::triggerModeChange()
     });
 }
 
+void ToolBarBackend::triggerProjectSettings()
+{
+    QTimer::singleShot(0, []() { //Do not trigger mode change directly from QML
+        Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
+    });
+}
+
 void ToolBarBackend::runProject()
 {
     ProjectExplorer::ProjectExplorerPlugin::runStartupProject(
