@@ -48,11 +48,6 @@ public:
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreImages(const QStringList &filePaths) const;
 
-    Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
-    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
-
-    Q_INVOKABLE bool canCreateEffects() const;
-
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
         int result = QSortFilterProxyModel::columnCount(parent);
@@ -60,6 +55,8 @@ public:
     }
 
     bool haveFiles() const { return m_haveFiles; }
+
+    QString getUniqueName(const QString &oldName);
 
 signals:
     void directoryLoaded(const QString &path);
@@ -75,7 +72,6 @@ private:
     void destroyBackendModel();
     bool checkHaveFiles(const QModelIndex &parentIdx) const;
     bool checkHaveFiles() const;
-    QString getUniqueName(const QString &oldName);
 
     QString m_searchText;
     QString m_rootPath;

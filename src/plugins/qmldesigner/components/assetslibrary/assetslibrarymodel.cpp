@@ -167,46 +167,6 @@ bool AssetsLibraryModel::allFilePathsAreImages(const QStringList &filePaths) con
     });
 }
 
-QString AssetsLibraryModel::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
-{
-    auto genEffectPath = [=](const QString &name) {
-        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
-        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
-    };
-
-    QString uniqueName = effectName;
-    QString path = genEffectPath(uniqueName);
-    QFileInfo file{path};
-
-    while (file.exists()) {
-        uniqueName = getUniqueName(uniqueName);
-
-        path = genEffectPath(uniqueName);
-        file.setFile(path);
-    }
-
-    return path;
-}
-
-bool AssetsLibraryModel::createNewEffect(const QString &effectPath, bool openEffectMaker)
-{
-    bool created = QFile(effectPath).open(QIODevice::WriteOnly);
-
-    if (created && openEffectMaker)
-        ModelNodeOperations::openEffectMaker(effectPath);
-
-    return created;
-}
-
-bool AssetsLibraryModel::canCreateEffects() const
-{
-#ifdef LICENSECHECKER
-    return checkLicense() == FoundLicense::enterprise;
-#else
-    return true;
-#endif
-}
-
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QString path = m_sourceFsModel->filePath(sourceParent);

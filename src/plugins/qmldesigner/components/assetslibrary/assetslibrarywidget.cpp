@@ -144,11 +144,52 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     reloadQmlSource();
 }
 
+QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
+{
+    auto genEffectPath = [&parentFolder](const QString &name) {
+        QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);
+        return QLatin1String("%1/%2.qep").arg(effectsDir, name);
+    };
+
+    QString uniqueName = effectName;
+    QString path = genEffectPath(uniqueName);
+    QFileInfo file{path};
+
+    while (file.exists()) {
+        uniqueName = m_assetsModel->getUniqueName(uniqueName);
+
+        path = genEffectPath(uniqueName);
+        file.setFile(path);
+    }
+
+    return path;
+}
+
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openEffectMaker)
+{
+    bool created = QFile(effectPath).open(QIODevice::WriteOnly);
+
+    if (created && openEffectMaker) {
+        ModelNodeOperations::openEffectMaker(effectPath);
+        emit directoryCreated(QFileInfo(effectPath).absolutePath());
+    }
+
+    return created;
+}
+
+bool AssetsLibraryWidget::canCreateEffects() const
+{
+#ifdef LICENSECHECKER
+    return checkLicense() == FoundLicense::enterprise;
+#else
+    return true;
+#endif
+}
+
 bool AssetsLibraryWidget::qtVersionIsAtLeast6_4() const
 {
     return (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0));
 }
-
 
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {

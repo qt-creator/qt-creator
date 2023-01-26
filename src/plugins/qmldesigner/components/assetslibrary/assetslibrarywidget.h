@@ -87,6 +87,11 @@ public:
     Q_INVOKABLE void addLightProbe(const QString &filePaths);
     Q_INVOKABLE void updateHasMaterialLibrary();
 
+    Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
+    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
+
+    Q_INVOKABLE bool canCreateEffects() const;
+
 signals:
     void itemActivated(const QString &itemName);
     void extFilesDrop(const QList<QUrl> &simpleFilePaths,

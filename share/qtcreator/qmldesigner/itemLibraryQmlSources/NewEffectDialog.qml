@@ -91,8 +91,8 @@ Dialog {
                          && effectName.length >=3
                          && effectName.text.length <= root.__maxPath
                 onClicked: {
-                    const path = assetsModel.getUniqueEffectPath(root.dirPath, effectName.text)
-                    if (assetsModel.createNewEffect(path))
+                    const path = rootView.getUniqueEffectPath(root.dirPath, effectName.text)
+                    if (rootView.createNewEffect(path))
                         root.accept()
                     else
                         creationFailedDialog.open()
@@ -107,7 +107,7 @@ Dialog {
     }
 
     onOpened: {
-        const path = assetsModel.getUniqueEffectPath(root.dirPath, "Effect01")
+        const path = rootView.getUniqueEffectPath(root.dirPath, "Effect01")
         effectName.text = path.split('/').pop().replace(".qep", '')
         effectName.selectAll()
         effectName.forceActiveFocus()
