@@ -3,8 +3,6 @@
 
 #include "externaleditors.h"
 
-#include <coreplugin/editormanager/iexternaleditor.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -37,13 +35,9 @@ enum { debug = 0 };
 
 namespace QtSupport::Internal {
 
-struct Tr
-{
+struct Tr {
     Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
 };
-
-const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer");
-const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
 
 static QString msgStartFailed(const QString &binary, QStringList arguments)
 {
@@ -160,28 +154,12 @@ static bool startEditorProcess(const LaunchData &data, QString *errorMessage)
 
 // DesignerExternalEditor with Designer Tcp remote control.
 
-class DesignerExternalEditor : public Core::IExternalEditor
-{
-public:
-    DesignerExternalEditor()
-    {
-        setId("Qt.Designer");
-        setDisplayName(designerDisplayName);
-        setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
-    }
+// A per-binary entry containing the socket
+using ProcessCache = QMap<QString, QTcpSocket*>;
 
-    bool startEditor(const FilePath &filePath, QString *errorMessage) override;
+static ProcessCache m_processCache;
 
-private:
-    void processTerminated(const QString &binary);
-
-    // A per-binary entry containing the socket
-    using ProcessCache = QMap<QString, QTcpSocket*>;
-
-    ProcessCache m_processCache;
-};
-
-void DesignerExternalEditor::processTerminated(const QString &binary)
+static void processTerminated(const QString &binary)
 {
     const ProcessCache::iterator it = m_processCache.find(binary);
     if (it == m_processCache.end())
@@ -194,6 +172,13 @@ void DesignerExternalEditor::processTerminated(const QString &binary)
     if (socket->state() == QAbstractSocket::ConnectedState)
         socket->close();
     socket->deleteLater();
+}
+
+DesignerExternalEditor::DesignerExternalEditor()
+{
+    setId("Qt.Designer");
+    setDisplayName(QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer"));
+    setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
 }
 
 bool DesignerExternalEditor::startEditor(const FilePath &filePath, QString *errorMessage)
@@ -246,17 +231,11 @@ bool DesignerExternalEditor::startEditor(const FilePath &filePath, QString *erro
         socket->setParent(this);
         const QString binary = data.binary;
         m_processCache.insert(binary, socket);
-        auto mapSlot = [this, binary] { processTerminated(binary); };
+        auto mapSlot = [binary] { processTerminated(binary); };
         connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
         connect(socket, &QAbstractSocket::errorOccurred, this, mapSlot);
     }
     return true;
-}
-
-DesignerEditorFactory::DesignerEditorFactory()
-{
-    auto editor = new DesignerExternalEditor;
-    editor->setParent(this);
 }
 
 // Linguist
@@ -268,28 +247,18 @@ static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
     return QLatin1String(HostOsInfo::isMacHost() ? "Linguist" : "linguist");
 }
 
-class LinguistEditor : public Core::IExternalEditor
+LinguistEditor::LinguistEditor()
 {
-public:
-    LinguistEditor()
-    {
-        setId("Qt.Linguist");
-        setDisplayName(linguistDisplayName);
-        setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
-    }
+    setId("Qt.Linguist");
+    setDisplayName(QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist"));
+    setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
+}
 
-    bool startEditor(const FilePath &filePath, QString *errorMessage) override
-    {
-        LaunchData data;
-        return getEditorLaunchData(linguistBinary, filePath, &data, errorMessage)
-               && startEditorProcess(data, errorMessage);
-    }
-};
-
-LinguistEditorFactory::LinguistEditorFactory()
+bool LinguistEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
 {
-    auto editor = new LinguistEditor;
-    editor->setParent(this);
+    LaunchData data;
+    return getEditorLaunchData(linguistBinary, filePath, &data, errorMessage)
+           && startEditorProcess(data, errorMessage);
 }
 
 } // QtSupport::Internal

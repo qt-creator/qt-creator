@@ -63,8 +63,8 @@ public:
     UicGeneratorFactory uicGeneratorFactory;
     QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
 
-    DesignerEditorFactory designerEditorFactory;
-    LinguistEditorFactory linguistEditorFactory;
+    DesignerExternalEditor designerEditor;
+    LinguistEditor linguistEditor;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
