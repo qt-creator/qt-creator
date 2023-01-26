@@ -127,11 +127,8 @@ public:
     // These (or some of them) may be potentially moved outside of the class.
     // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
 
-    // TODO: How below 2 methods relate to QtcProcess?
-    // Action: move/merge them somewhere else, FilePath::searchInPath() ?
-    // Helpers to find binaries. Do not use it for other path variables
-    // and file types.
-    static QString locateBinary(const QString &path, const QString &binary);
+    // TODO: How below method relates to QtcProcess?
+    // Action: move/merge it somewhere else
     static QString normalizeNewlines(const QString &text);
 
     // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
