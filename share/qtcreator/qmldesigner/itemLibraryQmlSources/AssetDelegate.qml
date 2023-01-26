@@ -252,22 +252,15 @@ TreeViewDelegate {
         let modelIndex = assetsModel.indexForPath(model.filePath)
 
         function onFolderCreated(path) {
-            root.assetsView.addCreatedFolder(path)
+            if (path)
+                root.assetsView.addCreatedFolder(path)
         }
 
         if (root.__isDirectory) {
-            var row = root.assetsView.rowAtIndex(modelIndex)
-            var expanded = root.assetsView.isExpanded(row)
-
             var allExpandedState = root.assetsView.computeAllExpandedState()
 
-            function onFolderRenamed() {
-                if (expanded)
-                    root.assetsView.rowToExpand = row
-            }
-
             root.assetsView.contextMenu.openContextMenuForDir(modelIndex, model.filePath,
-                model.fileName, allExpandedState, onFolderCreated, onFolderRenamed)
+                model.fileName, allExpandedState, onFolderCreated)
        } else {
             let parentDirIndex = assetsModel.parentDirIndex(model.filePath)
             let selectedPaths = root.assetsView.selectedPathsAsList()

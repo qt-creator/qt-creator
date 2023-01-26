@@ -17,6 +17,7 @@ Dialog {
     modal: true
 
     property bool renameError: false
+    property string renamedDirPath: ""
     required property string dirPath
     required property string dirName
 
@@ -84,8 +85,10 @@ Dialog {
                 enabled: folderRename.text !== ""
                 onClicked: {
                     var success = assetsModel.renameFolder(root.dirPath, folderRename.text)
-                    if (success)
+                    if (success) {
+                        root.renamedDirPath = root.dirPath.replace(/(.*\/)[^/]+$/, "$1" + folderRename.text)
                         root.accept()
+                    }
 
                     root.renameError = !success
                 }
@@ -103,5 +106,9 @@ Dialog {
         folderRename.selectAll()
         folderRename.forceActiveFocus()
         root.renameError = false
+    }
+
+    onRejected: {
+        root.renamedDirPath = ""
     }
 }

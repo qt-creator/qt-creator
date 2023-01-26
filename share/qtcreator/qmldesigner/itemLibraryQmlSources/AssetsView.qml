@@ -29,7 +29,6 @@ TreeView {
     property int rootPathRow: 0
     // i.e. first child of the root path
     readonly property int firstRow: root.rootPathRow + 1
-    property int rowToExpand: -1
     property var __createdDirectories: []
 
     rowHeightProvider: (row) => {
@@ -170,11 +169,6 @@ TreeView {
             if (root.requestedExpandAll)
                 root.__doExpandAll()
         } else {
-            if (root.rowToExpand > 0) {
-                root.expand(root.rowToExpand)
-                root.rowToExpand = -1
-            }
-
             // on collapsing, set expandAll flag to false.
             root.requestedExpandAll = false;
         }

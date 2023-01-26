@@ -16,7 +16,6 @@ StudioControls.Menu {
     property string __dirPath: ""
     property string __dirName: ""
     property var __onFolderCreated: null
-    property var __onFolderRenamed: null
     property var __dirIndex: null
     property string __allExpandedState: ""
     property var __selectedAssetPathsList: null
@@ -37,12 +36,11 @@ StudioControls.Menu {
     }
 
     function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState,
-                                   onFolderCreated, onFolderRenamed)
+                                   onFolderCreated)
     {
         rootView.updateHasMaterialLibrary()
 
         root.__onFolderCreated = onFolderCreated
-        root.__onFolderRenamed = onFolderRenamed
         root.__dirPath = dirPath
         root.__dirName = dirName
         root.__fileIndex = ""
@@ -159,7 +157,7 @@ StudioControls.Menu {
             dirPath: root.__dirPath
             dirName: root.__dirName
 
-            onAccepted: root.__onFolderRenamed()
+            onAccepted: root.__onFolderCreated(renameFolderDialog.renamedDirPath)
         }
     }
 
