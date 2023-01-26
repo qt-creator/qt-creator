@@ -171,7 +171,7 @@ public:
     FilePath m_initialBrowsePathOverride;
     QString m_defaultValue;
     FilePath m_baseDirectory;
-    EnvironmentChange m_environmentChange;
+    Environment m_environment;
     BinaryVersionToolTipEventFilter *m_binaryVersionToolTipEventFilter = nullptr;
     QList<QAbstractButton *> m_buttons;
     const MacroExpander *m_macroExpander = globalMacroExpander();
@@ -196,8 +196,7 @@ FilePath PathChooserPrivate::expandedPath(const FilePath &input) const
 
     FilePath path = input;
 
-    Environment env = path.deviceEnvironment();
-    m_environmentChange.applyToEnvironment(env);
+    Environment env = m_environment.appliedToEnvironment(path.deviceEnvironment());
     path = env.expandVariables(path);
 
     if (m_macroExpander)
@@ -324,20 +323,15 @@ void PathChooser::setBaseDirectory(const FilePath &base)
     triggerChanged();
 }
 
-void PathChooser::setEnvironment(const Environment &env)
-{
-    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
-}
-
 FilePath PathChooser::baseDirectory() const
 {
     return d->m_baseDirectory;
 }
 
-void PathChooser::setEnvironmentChange(const EnvironmentChange &env)
+void PathChooser::setEnvironment(const Environment &env)
 {
     QString oldExpand = filePath().toString();
-    d->m_environmentChange = env;
+    d->m_environment = env;
     if (filePath().toString() != oldExpand) {
         triggerChanged();
         emit rawPathChanged();

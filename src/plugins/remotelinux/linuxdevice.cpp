@@ -338,9 +338,6 @@ Environment LinuxDevicePrivate::getEnvironment()
 
     QtcProcess getEnvProc;
     getEnvProc.setCommand({FilePath("env").onDevice(q->rootPath()), {}});
-    Environment inEnv;
-    inEnv.setCombineWithDeviceEnvironment(false);
-    getEnvProc.setEnvironment(inEnv);
     getEnvProc.runBlocking();
 
     const QString remoteOutput = getEnvProc.cleanedStdOut();
@@ -919,16 +916,11 @@ LinuxDevice::LinuxDevice()
             d->m_terminals.removeOne(proc);
         });
 
-        // We recreate the same way that QtcProcess uses to create the actual environment.
-        const Environment finalEnv = (!env.hasChanges() && env.combineWithDeviceEnvironment())
-                                         ? d->getEnvironment()
-                                         : env;
         // If we will not set any environment variables, we can leave out the shell executable
         // as the "ssh ..." call will automatically launch the default shell if there are
         // no arguments. But if we will set environment variables, we need to explicitly
         // specify the shell executable.
-        const QString shell = finalEnv.hasChanges() ? finalEnv.value_or("SHELL", "/bin/sh")
-                                                    : QString();
+        const QString shell = env.hasChanges() ? env.value_or("SHELL", "/bin/sh") : QString();
 
         proc->setCommand({filePath(shell), {}});
         proc->setTerminalMode(TerminalMode::On);

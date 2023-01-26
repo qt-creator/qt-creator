@@ -353,13 +353,18 @@ public:
             return;
         }
 
+        QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
+        if (penv.isEmpty())
+            penv = Environment::systemEnvironment().toProcessEnvironment();
+        const QStringList senv = penv.toStringList();
+
         bool startResult
             = m_ptyProcess->startProcess(program,
                                          HostOsInfo::isWindowsHost()
                                              ? QStringList{m_setup.m_nativeArguments} << arguments
                                              : arguments,
                                          m_setup.m_workingDirectory.nativePath(),
-                                         m_setup.m_environment.toProcessEnvironment().toStringList(),
+                                         senv,
                                          m_setup.m_ptyData->size().width(),
                                          m_setup.m_ptyData->size().height());
 
@@ -458,7 +463,9 @@ private:
         handler->setWindowsSpecificStartupFlags(m_setup.m_belowNormalPriority,
                                                 m_setup.m_createConsoleOnWindows);
 
-        m_process->setProcessEnvironment(m_setup.m_environment.toProcessEnvironment());
+        const QProcessEnvironment penv = m_setup.m_environment.toProcessEnvironment();
+        if (!penv.isEmpty())
+            m_process->setProcessEnvironment(penv);
         m_process->setWorkingDirectory(m_setup.m_workingDirectory.path());
         m_process->setStandardInputFile(m_setup.m_standardInputFile);
         m_process->setProcessChannelMode(m_setup.m_processChannelMode);
@@ -715,7 +722,6 @@ public:
         , q(parent)
         , m_killTimer(this)
     {
-        m_setup.m_controlEnvironment = Environment::systemEnvironment();
         m_killTimer.setSingleShot(true);
         connect(&m_killTimer, &QTimer::timeout, this, [this] {
             m_killTimer.stop();
@@ -767,22 +773,6 @@ public:
         CommandLine rootCommand("sudo", {"-A"});
         rootCommand.addCommandLineAsArgs(m_setup.m_commandLine);
         return rootCommand;
-    }
-
-    Environment fullEnvironment() const
-    {
-        Environment env = m_setup.m_environment;
-        if (!env.hasChanges() && env.combineWithDeviceEnvironment()) {
-            // FIXME: Either switch to using EnvironmentChange instead of full Environments, or
-            // feed the full environment into the QtcProcess instead of fixing it up here.
-            //            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-            //                 qPrintable(m_setup.m_commandLine.executable().toString()));
-            env = m_setup.m_commandLine.executable().deviceEnvironment();
-        }
-        // TODO: needs SshSettings
-        //        if (m_runAsRoot)
-        //            RunControl::provideAskPassEntry(env);
-        return env;
     }
 
     QtcProcess *q;
@@ -1227,7 +1217,6 @@ void QtcProcess::start()
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
     d->m_process->m_setup.m_commandLine = d->fullCommandLine();
-    d->m_process->m_setup.m_environment = d->fullEnvironment();
     d->emitGuardedSignal(&QtcProcess::starting);
     d->m_process->start();
 }

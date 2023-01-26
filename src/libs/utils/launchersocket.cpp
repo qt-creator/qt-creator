@@ -246,6 +246,8 @@ void CallerHandle::start(const QString &program, const QStringList &arguments)
     p.command = m_command;
     p.arguments = m_arguments;
     p.env = m_setup->m_environment.toStringList();
+    if (p.env.isEmpty())
+        p.env = Environment::systemEnvironment().toStringList();
     p.workingDir = m_setup->m_workingDirectory.path();
     p.processMode = m_setup->m_processMode;
     p.writeData = m_setup->m_writeData;

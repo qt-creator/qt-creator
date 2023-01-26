@@ -32,7 +32,6 @@ namespace Utils {
 
 class DeviceFileAccess;
 class Environment;
-class EnvironmentChange;
 enum class FileStreamHandle;
 
 template <class ...Args> using Continuation = std::function<void(Args...)>;

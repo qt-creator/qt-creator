@@ -632,7 +632,7 @@ public:
     QString m_placeHolderText;
     QString m_historyCompleterKey;
     PathChooser::Kind m_expectedKind = PathChooser::File;
-    EnvironmentChange m_environmentChange;
+    Environment m_environment;
     QPointer<ElidingLabel> m_labelDisplay;
     QPointer<FancyLineEdit> m_lineEditDisplay;
     QPointer<PathChooser> m_pathChooserDisplay;
@@ -975,16 +975,11 @@ void StringAspect::setExpectedKind(const PathChooser::Kind expectedKind)
         d->m_pathChooserDisplay->setExpectedKind(expectedKind);
 }
 
-void StringAspect::setEnvironmentChange(const EnvironmentChange &change)
-{
-    d->m_environmentChange = change;
-    if (d->m_pathChooserDisplay)
-        d->m_pathChooserDisplay->setEnvironmentChange(change);
-}
-
 void StringAspect::setEnvironment(const Environment &env)
 {
-    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+    d->m_environment = env;
+    if (d->m_pathChooserDisplay)
+        d->m_pathChooserDisplay->setEnvironment(env);
 }
 
 void StringAspect::setBaseFileName(const FilePath &baseFileName)
@@ -1082,7 +1077,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
             d->m_pathChooserDisplay->setHistoryCompleter(d->m_historyCompleterKey);
         if (d->m_validator)
             d->m_pathChooserDisplay->setValidationFunction(d->m_validator);
-        d->m_pathChooserDisplay->setEnvironmentChange(d->m_environmentChange);
+        d->m_pathChooserDisplay->setEnvironment(d->m_environment);
         d->m_pathChooserDisplay->setBaseDirectory(d->m_baseFileName);
         d->m_pathChooserDisplay->setOpenTerminalHandler(d->m_openTerminal);
         if (defaultValue() == value())

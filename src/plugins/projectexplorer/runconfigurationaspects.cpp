@@ -570,19 +570,12 @@ void ExecutableAspect::setExpectedKind(const PathChooser::Kind expectedKind)
    Sets the environment in which paths will be searched when the expected kind
    of paths is chosen as PathChooser::Command or PathChooser::ExistingCommand
    to \a env.
-
-   \sa Utils::StringAspect::setEnvironmentChange()
 */
-void ExecutableAspect::setEnvironmentChange(const EnvironmentChange &change)
-{
-    m_executable.setEnvironmentChange(change);
-    if (m_alternativeExecutable)
-        m_alternativeExecutable->setEnvironmentChange(change);
-}
-
 void ExecutableAspect::setEnvironment(const Environment &env)
 {
-    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+    m_executable.setEnvironment(env);
+    if (m_alternativeExecutable)
+        m_alternativeExecutable->setEnvironment(env);
 }
 
 /*!

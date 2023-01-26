@@ -438,9 +438,9 @@ void SystemSettingsWidget::resetFileBrowser()
 
 void SystemSettingsWidget::updatePath()
 {
-    EnvironmentChange change;
-    change.addAppendToPath(VcsManager::additionalToolsPath());
-    m_patchChooser->setEnvironmentChange(change);
+    Environment env;
+    env.appendToPath(VcsManager::additionalToolsPath());
+    m_patchChooser->setEnvironment(env);
 }
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()
