@@ -163,7 +163,7 @@ void ToolBarBackend::showZoomMenu(int x, int y)
     int i = 0;
 
     for (double d : zoomAction->zoomLevels()) {
-        auto action = mainMenu->addAction(QString::number(d) + "%");
+        auto action = mainMenu->addAction(QString::number(d * 100) + "%");
         action->setCheckable(true);
         if (i == currentIndex)
             action->setChecked(true);
