@@ -183,22 +183,31 @@ expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath 
 expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
                                                      const FilePath &target) const
 {
-#ifdef UTILS_STATIC_LIBRARY
-    return copyRecursively_fallback(src, target);
-#else
-    if (!target.isWritableDir()) {
+    if (!src.isDir()) {
+        return make_unexpected(Tr::tr("Cannot copy from %1, it is not a directory.")
+                                   .arg(src.toUserOutput())
+                                   .arg(target.toUserOutput()));
+    }
+
+    if (!target.ensureWritableDir()) {
         return make_unexpected(Tr::tr("Cannot copy %1 to %2, it is not a writable directory.")
                                    .arg(src.toUserOutput())
                                    .arg(target.toUserOutput()));
     }
 
+#ifdef UTILS_STATIC_LIBRARY
+    return copyRecursively_fallback(src, target);
+#else
     const FilePath tar = FilePath::fromString("tar").onDevice(target);
     const FilePath targetTar = tar.searchInPath();
 
     const FilePath sTar = FilePath::fromString("tar").onDevice(src);
     const FilePath sourceTar = sTar.searchInPath();
 
-    if (!targetTar.isExecutableFile() || !sourceTar.isExecutableFile())
+    const bool isSrcOrTargetQrc = src.toFSPathString().startsWith(":/")
+                                  || target.toFSPathString().startsWith(":/");
+
+    if (isSrcOrTargetQrc || !targetTar.isExecutableFile() || !sourceTar.isExecutableFile())
         return copyRecursively_fallback(src, target);
 
     QtcProcess srcProcess;
