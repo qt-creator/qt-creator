@@ -44,24 +44,18 @@ public:
     QnxDeployQtLibrariesDialogPrivate(QnxDeployQtLibrariesDialog *parent,
                                       const IDevice::ConstPtr &device);
 
-    void deployLibraries();
+    void start();
+    void stop();
+
     void updateProgress(const QString &progressMessage);
     void handleUploadFinished();
-
-    void startCheckDirProcess();
-    void startRemoveDirProcess();
-
-    void handleCheckDirDone();
-    void handleRemoveDirDone();
-    bool handleError(const Utils::QtcProcess &process);
 
     QList<ProjectExplorer::DeployableFile> gatherFiles();
     QList<ProjectExplorer::DeployableFile> gatherFiles(const QString &dirPath,
                                                        const QString &baseDir = {},
                                                        const QStringList &nameFilters = {});
 
-    QString fullRemoteDirectory() const;
-    void startUpload();
+    QString fullRemoteDirectory() const { return m_remoteDirectory->text(); }
 
     QnxDeployQtLibrariesDialog *q;
 
@@ -73,23 +67,9 @@ public:
     QPlainTextEdit *m_deployLogWindow;
     QPushButton *m_closeButton;
 
-    Utils::QtcProcess m_checkDirProcess;
-    Utils::QtcProcess m_removeDirProcess;
-
     ProjectExplorer::IDeviceConstPtr m_device;
 
-    enum State {
-        Inactive,
-        CheckingRemoteDirectory,
-        RemovingRemoteDirectory,
-        Uploading
-    };
-
     int m_progressCount = 0;
-    State m_state = Inactive;
-
-    void start();
-    void stop();
 
     void emitProgressMessage(const QString &msg)
     {
@@ -110,10 +90,14 @@ public:
 
 private:
     Group deployRecipe();
+    TaskItem checkDirTask();
+    TaskItem removeDirTask();
     TaskItem uploadTask();
     TaskItem chmodTask(const DeployableFile &file);
     TaskItem chmodTree();
 
+    enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
+    CheckResult m_checkResult = CheckResult::Abort;
     mutable QList<DeployableFile> m_deployableFiles;
     std::unique_ptr<TaskTree> m_taskTree;
 };
@@ -133,26 +117,49 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
     return collected;
 }
 
-void QnxDeployQtLibrariesDialogPrivate::start()
+TaskItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 {
-    QTC_ASSERT(!m_taskTree, return);
-
-    m_taskTree.reset(new TaskTree(deployRecipe()));
-    const auto endHandler = [this] {
-        m_taskTree.release()->deleteLater();
-        handleUploadFinished();
+    const auto setupHandler = [this](QtcProcess &process) {
+        m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
+                                           .arg(fullRemoteDirectory()));
+        process.setCommand({m_device->filePath("test"), {"-d", fullRemoteDirectory()}});
     };
-    connect(m_taskTree.get(), &TaskTree::done, this, endHandler);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
-    m_taskTree->start();
+    const auto doneHandler = [this](const QtcProcess &process) {
+        Q_UNUSED(process)
+        const int answer = QMessageBox::question(q, q->windowTitle(),
+                Tr::tr("The remote directory \"%1\" already exists.\n"
+                       "Deploying to that directory will remove any files already present.\n\n"
+                       "Are you sure you want to continue?").arg(fullRemoteDirectory()),
+                       QMessageBox::Yes | QMessageBox::No);
+        m_checkResult = answer == QMessageBox::Yes ? CheckResult::RemoveDir : CheckResult::Abort;
+    };
+    const auto errorHandler = [this](const QtcProcess &process) {
+        if (process.result() != ProcessResult::FinishedWithError) {
+            m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
+                                               .arg(process.errorString()));
+            m_checkResult = CheckResult::Abort;
+            return;
+        }
+        m_checkResult = CheckResult::SkipRemoveDir;
+    };
+    return Process(setupHandler, doneHandler, errorHandler);
 }
 
-void QnxDeployQtLibrariesDialogPrivate::stop()
+TaskItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
-    if (!m_taskTree)
-        return;
-    m_taskTree.reset();
-    handleUploadFinished();
+    const auto setupHandler = [this](QtcProcess &process) {
+        if (m_checkResult != CheckResult::RemoveDir)
+            return TaskAction::StopWithDone;
+        m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
+        process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
+        return TaskAction::Continue;
+    };
+    const auto errorHandler = [this](const QtcProcess &process) {
+        QTC_ASSERT(process.exitCode() == 0, return);
+        m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
+                                           .arg(process.errorString()));
+    };
+    return Process(setupHandler, {}, errorHandler);
 }
 
 TaskItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
@@ -248,13 +255,66 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
     const auto doneHandler = [this] {
         emitProgressMessage(Tr::tr("All files successfully deployed."));
     };
+    const auto subGroupSetupHandler = [this] {
+        if (m_checkResult == CheckResult::Abort)
+            return TaskAction::StopWithError;
+        return TaskAction::Continue;
+    };
     const Group root {
         OnGroupSetup(setupHandler),
-        uploadTask(),
-        chmodTree(),
+        Group {
+            optional,
+            checkDirTask()
+        },
+        Group {
+            OnGroupSetup(subGroupSetupHandler),
+            removeDirTask(),
+            uploadTask(),
+            chmodTree()
+        },
         OnGroupDone(doneHandler)
     };
     return root;
+}
+
+void QnxDeployQtLibrariesDialogPrivate::start()
+{
+    QTC_ASSERT(m_device, return);
+    QTC_ASSERT(!m_taskTree, return);
+    if (m_remoteDirectory->text().isEmpty()) {
+        QMessageBox::warning(q, q->windowTitle(),
+                             Tr::tr("Please input a remote directory to deploy to."));
+        return;
+    }
+
+    m_progressCount = 0;
+    m_deployProgress->setValue(0);
+    m_remoteDirectory->setEnabled(false);
+    m_deployButton->setEnabled(false);
+    m_qtLibraryCombo->setEnabled(false);
+    m_deployLogWindow->clear();
+
+    m_checkResult = CheckResult::Abort;
+
+    m_deployableFiles = gatherFiles();
+    m_deployProgress->setRange(0, m_deployableFiles.count());
+
+    m_taskTree.reset(new TaskTree(deployRecipe()));
+    const auto endHandler = [this] {
+        m_taskTree.release()->deleteLater();
+        handleUploadFinished();
+    };
+    connect(m_taskTree.get(), &TaskTree::done, this, endHandler);
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
+    m_taskTree->start();
+}
+
+void QnxDeployQtLibrariesDialogPrivate::stop()
+{
+    if (!m_taskTree)
+        return;
+    m_taskTree.reset();
+    handleUploadFinished();
 }
 
 QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &device,
@@ -303,13 +363,8 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
         Row { st, m_closeButton }
     }.attachTo(q);
 
-    connect(&m_checkDirProcess, &QtcProcess::done,
-            this, &QnxDeployQtLibrariesDialogPrivate::handleCheckDirDone);
-    connect(&m_removeDirProcess, &QtcProcess::done,
-            this, &QnxDeployQtLibrariesDialogPrivate::handleRemoveDirDone);
-
     connect(m_deployButton, &QAbstractButton::clicked,
-            this, &QnxDeployQtLibrariesDialogPrivate::deployLibraries);
+            this, &QnxDeployQtLibrariesDialogPrivate::start);
     connect(m_closeButton, &QAbstractButton::clicked,
             q, &QWidget::close);
 }
@@ -324,7 +379,7 @@ int QnxDeployQtLibrariesDialog::execAndDeploy(int qtVersionId, const QString &re
     d->m_remoteDirectory->setText(remoteDirectory);
     d->m_qtLibraryCombo->setCurrentIndex(d->m_qtLibraryCombo->findData(qtVersionId));
 
-    d->deployLibraries();
+    d->start();
     return exec();
 }
 
@@ -342,44 +397,8 @@ void QnxDeployQtLibrariesDialog::closeEvent(QCloseEvent *event)
     }
 }
 
-void QnxDeployQtLibrariesDialogPrivate::deployLibraries()
-{
-    QTC_ASSERT(m_state == Inactive, return);
-
-    if (m_remoteDirectory->text().isEmpty()) {
-        QMessageBox::warning(q, q->windowTitle(),
-                             Tr::tr("Please input a remote directory to deploy to."));
-        return;
-    }
-
-    QTC_ASSERT(!m_device.isNull(), return);
-
-    m_progressCount = 0;
-    m_deployProgress->setValue(0);
-    m_remoteDirectory->setEnabled(false);
-    m_deployButton->setEnabled(false);
-    m_qtLibraryCombo->setEnabled(false);
-    m_deployLogWindow->clear();
-
-    startCheckDirProcess();
-}
-
-void QnxDeployQtLibrariesDialogPrivate::startUpload()
-{
-    QTC_CHECK(m_state == CheckingRemoteDirectory || m_state == RemovingRemoteDirectory);
-
-    m_state = Uploading;
-
-    m_deployableFiles = gatherFiles();
-    m_deployProgress->setRange(0, m_deployableFiles.count());
-
-    start();
-}
-
 void QnxDeployQtLibrariesDialogPrivate::updateProgress(const QString &progressMessage)
 {
-    QTC_CHECK(m_state == Uploading);
-
     const int progress = progressMessage.count("sftp> put") + progressMessage.count("sftp> ln -s");
     if (progress != 0) {
         m_progressCount += progress;
@@ -392,8 +411,6 @@ void QnxDeployQtLibrariesDialogPrivate::handleUploadFinished()
     m_remoteDirectory->setEnabled(true);
     m_deployButton->setEnabled(true);
     m_qtLibraryCombo->setEnabled(true);
-
-    m_state = Inactive;
 }
 
 QList<DeployableFile> QnxDeployQtLibrariesDialogPrivate::gatherFiles()
@@ -432,10 +449,9 @@ QList<DeployableFile> QnxDeployQtLibrariesDialogPrivate::gatherFiles(
         return result;
 
     const QDir dir(dirPath);
-    QFileInfoList list = dir.entryInfoList(nameFilters,
-            QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
-
-    for (auto &fileInfo : list) {
+    const QFileInfoList list = dir.entryInfoList(nameFilters,
+                                                 QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot);
+    for (const QFileInfo &fileInfo : list) {
         if (fileInfo.isDir()) {
             result.append(gatherFiles(fileInfo.absoluteFilePath(), baseDirPath.isEmpty() ?
                                           dirPath : baseDirPath));
@@ -446,88 +462,17 @@ QList<DeployableFile> QnxDeployQtLibrariesDialogPrivate::gatherFiles(
 
             QString remoteDir;
             if (baseDirPath.isEmpty()) {
-                remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
-                        QFileInfo(dirPath).baseName();
+                remoteDir = fullRemoteDirectory() + '/' + QFileInfo(dirPath).baseName();
             } else {
                 QDir baseDir(baseDirPath);
                 baseDir.cdUp();
-                remoteDir = fullRemoteDirectory() + QLatin1Char('/') +
-                        baseDir.relativeFilePath(dirPath);
+                remoteDir = fullRemoteDirectory() + '/' + baseDir.relativeFilePath(dirPath);
             }
             result.append(DeployableFile(FilePath::fromString(fileInfo.absoluteFilePath()),
                                          remoteDir));
         }
     }
-
     return result;
-}
-
-QString QnxDeployQtLibrariesDialogPrivate::fullRemoteDirectory() const
-{
-    return m_remoteDirectory->text();
-}
-
-void QnxDeployQtLibrariesDialogPrivate::startCheckDirProcess()
-{
-    QTC_CHECK(m_state == Inactive);
-    m_state = CheckingRemoteDirectory;
-    m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
-                                           .arg(fullRemoteDirectory()));
-    m_checkDirProcess.setCommand({m_device->filePath("test"),
-                                  {"-d", fullRemoteDirectory()}});
-    m_checkDirProcess.start();
-}
-
-void QnxDeployQtLibrariesDialogPrivate::startRemoveDirProcess()
-{
-    QTC_CHECK(m_state == CheckingRemoteDirectory);
-    m_state = RemovingRemoteDirectory;
-    m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
-    m_removeDirProcess.setCommand({m_device->filePath("rm"),
-                                  {"-rf", fullRemoteDirectory()}});
-    m_removeDirProcess.start();
-}
-
-void QnxDeployQtLibrariesDialogPrivate::handleCheckDirDone()
-{
-    QTC_CHECK(m_state == CheckingRemoteDirectory);
-    if (handleError(m_checkDirProcess))
-        return;
-
-    if (m_checkDirProcess.exitCode() == 0) { // Directory exists
-        const int answer = QMessageBox::question(q, q->windowTitle(),
-            Tr::tr("The remote directory \"%1\" already exists.\n"
-               "Deploying to that directory will remove any files already present.\n\n"
-               "Are you sure you want to continue?").arg(fullRemoteDirectory()),
-               QMessageBox::Yes | QMessageBox::No);
-        if (answer == QMessageBox::Yes)
-            startRemoveDirProcess();
-        else
-            handleUploadFinished();
-    } else {
-        startUpload();
-    }
-}
-
-void QnxDeployQtLibrariesDialogPrivate::handleRemoveDirDone()
-{
-    QTC_CHECK(m_state == RemovingRemoteDirectory);
-    if (handleError(m_removeDirProcess))
-        return;
-
-    QTC_ASSERT(m_removeDirProcess.exitCode() == 0, return);
-    startUpload();
-}
-
-// Returns true if the error appeared, false when finished with success
-bool QnxDeployQtLibrariesDialogPrivate::handleError(const QtcProcess &process)
-{
-    if (process.result() == ProcessResult::FinishedWithSuccess)
-        return false;
-
-    m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1").arg(process.errorString()));
-    handleUploadFinished();
-    return true;
 }
 
 } // Qnx::Internal
