@@ -61,6 +61,7 @@ void ToolBar::create()
     //Core::ICore::statusBar()->hide();
 
     auto toolBar = new QToolBar;
+    toolBar->setObjectName("QDS-TOOLBAR");
 
     toolBar->setContextMenuPolicy(Qt::PreventContextMenu);
 
