@@ -2564,7 +2564,7 @@ bool NodeMetaInfo::isBool() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "bool" || type == "boolean";
     }
@@ -2579,7 +2579,7 @@ bool NodeMetaInfo::isInteger() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "int" || type == "integer";
     }
@@ -2597,7 +2597,7 @@ bool NodeMetaInfo::isFloat() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "qreal" || type == "double" || type == "float";
     }
@@ -2609,7 +2609,7 @@ bool NodeMetaInfo::isVariant() const
         using namespace Storage::Info;
         return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
     } else {
-        return isValid() && m_privateData->qualfiedTypeName() == "QVariant";
+        return isValid() && simplifiedTypeName() == "QVariant";
     }
 }
 
@@ -2622,7 +2622,7 @@ bool NodeMetaInfo::isString() const
         if (!isValid())
             return false;
 
-        auto type = m_privateData->qualfiedTypeName();
+        auto type = simplifiedTypeName();
 
         return type == "string" || type == "QString";
     }
