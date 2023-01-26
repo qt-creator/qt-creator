@@ -417,10 +417,10 @@ void EnvironmentChange::addAppendToPath(const FilePaths &values)
         m_changeItems.append(Item{std::in_place_index_t<AppendToPath>(), value});
 }
 
-EnvironmentChange EnvironmentChange::fromFixedEnvironment(const Environment &fixedEnv)
+EnvironmentChange EnvironmentChange::fromDictionary(const NameValueDictionary &dict)
 {
     EnvironmentChange change;
-    change.m_changeItems.append(Item{std::in_place_index_t<SetFixedEnvironment>(), fixedEnv});
+    change.m_changeItems.append(Item{std::in_place_index_t<SetFixedDictionary>(), dict});
     return change;
 }
 
@@ -431,8 +431,8 @@ void EnvironmentChange::applyToEnvironment(Environment &env) const
         case SetSystemEnvironment:
             env = Environment::systemEnvironment();
             break;
-        case SetFixedEnvironment:
-            env = std::get<SetFixedEnvironment>(item);
+        case SetFixedDictionary:
+            env = Environment(std::get<SetFixedDictionary>(item));
             break;
         case SetValue: {
             const QPair<QString, QString> data = std::get<SetValue>(item);

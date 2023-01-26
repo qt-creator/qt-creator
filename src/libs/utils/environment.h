@@ -111,7 +111,7 @@ public:
 
     enum Type {
         SetSystemEnvironment,
-        SetFixedEnvironment,
+        SetFixedDictionary,
         SetValue,
         UnsetValue,
         PrependToPath,
@@ -120,14 +120,14 @@ public:
 
     using Item = std::variant<
         std::monostate,          // SetSystemEnvironment dummy
-        Environment,             // SetFixedEnvironment
+        NameValueDictionary,     // SetFixedDictionary
         QPair<QString, QString>, // SetValue
         QString,                 // UnsetValue
         FilePath,                // PrependToPath
         FilePath                 // AppendToPath
     >;
 
-    static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
+    static EnvironmentChange fromDictionary(const NameValueDictionary &dict);
 
     void applyToEnvironment(Environment &) const;
 

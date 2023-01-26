@@ -76,6 +76,7 @@ public:
     FilePath baseDirectory() const;
     void setBaseDirectory(const FilePath &base);
 
+    void setEnvironment(const Environment &env);
     void setEnvironmentChange(const EnvironmentChange &change);
 
     /** Returns the suggested label title when used in a form layout. */

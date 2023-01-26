@@ -356,6 +356,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const PathChooser::Kind expectedKind);
     void setEnvironmentChange(const EnvironmentChange &change);
+    void setEnvironment(const Environment &env);
     void setBaseFileName(const FilePath &baseFileName);
     void setUndoRedoEnabled(bool readOnly);
     void setAcceptRichText(bool acceptRichText);

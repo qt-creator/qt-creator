@@ -974,6 +974,11 @@ void StringAspect::setEnvironmentChange(const EnvironmentChange &change)
         d->m_pathChooserDisplay->setEnvironmentChange(change);
 }
 
+void StringAspect::setEnvironment(const Environment &env)
+{
+    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+}
+
 void StringAspect::setBaseFileName(const FilePath &baseFileName)
 {
     d->m_baseFileName = baseFileName;

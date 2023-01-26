@@ -169,6 +169,7 @@ public:
     void setHistoryCompleter(const QString &historyCompleterKey);
     void setExpectedKind(const Utils::PathChooser::Kind expectedKind);
     void setEnvironmentChange(const Utils::EnvironmentChange &change);
+    void setEnvironment(const Utils::Environment &env);
     void setDisplayStyle(Utils::StringAspect::DisplayStyle style);
 
     struct Data : BaseAspect::Data
