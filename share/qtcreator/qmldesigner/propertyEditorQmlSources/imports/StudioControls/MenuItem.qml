@@ -66,7 +66,7 @@ T.MenuItem {
         implicitHeight: control.style.controlSize.height
         x: control.style.borderWidth
         y: control.style.borderWidth
-        width: control.menu.width - (control.style.borderWidth * 2)
+        width: (control.menu?.width ?? 0) - (control.style.borderWidth * 2)
         height: control.height - (control.style.borderWidth * 2)
         color: control.down ? control.palette.midlight
                             : control.highlighted ? control.style.interaction
