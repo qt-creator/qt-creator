@@ -2,22 +2,27 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contextpanewidgetimage.h"
+#include "filewidget.h"
 
-#include "ui_contextpanewidgetimage.h"
-#include "ui_contextpanewidgetborderimage.h"
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/layoutbuilder.h>
+
+#include <QApplication>
+#include <QBoxLayout>
+#include <QButtonGroup>
+#include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDir>
-#include <QPixmap>
-#include <QPainter>
 #include <QGraphicsEffect>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QRadioButton>
 #include <QScrollArea>
 #include <QSlider>
 #include <QStyle>
 #include <QToolButton>
-#include <QDebug>
 
 namespace QmlEditorWidgets {
 
@@ -44,35 +49,76 @@ bool WheelFilter::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage) :
-    QWidget(parent),
-    ui(nullptr), uiBorderImage(nullptr), previewWasVisible(false)
+ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage)
+    : QWidget(parent)
+    , m_isBorderImage(borderImage)
 {
     LabelFilter *labelFilter = new LabelFilter(this);
 
-    m_borderImage = borderImage;
+    const auto radioButton = [] (const QString &icon, const QString &toolTip) {
+        auto result = new QRadioButton;
+        result->setIcon(QIcon(":/qmldesigner/images/" + icon + ".png"));
+        result->setIconSize({24, 24});
+        result->setToolTip(toolTip);
+        return result;
+    };
 
-    if (m_borderImage) {
-        uiBorderImage = new Ui::ContextPaneWidgetBorderImage;
-        uiBorderImage->setupUi(this);
-        m_fileWidget = uiBorderImage->fileWidget;
-        m_sizeLabel = uiBorderImage->sizeLabel;
-        uiBorderImage->label->setToolTip(tr("Double click for preview."));
-        uiBorderImage->label->installEventFilter(labelFilter);
+    m_previewLabel = new QLabel;
+    m_previewLabel->setToolTip(tr("Double click for preview."));
+    m_previewLabel->setFixedSize(76, 76);
+    m_previewLabel->installEventFilter(labelFilter);
 
+    m_sizeLabel = new QLabel;
+    m_sizeLabel->setAlignment(Qt::AlignHCenter);
+    m_fileWidget = new FileWidget;
 
-        connect(uiBorderImage->verticalTileRadioButton, &QRadioButton::toggled,
+    if (m_isBorderImage) {
+        m_borderImage.horizontalTileRadioButton = radioButton("tile-icon-hor-crop",
+            tr("Repeat vertically. Tiles the image until there is no more space. May crop the last image."));
+        m_borderImage.horizontalStretchRadioButton = radioButton("horizontal-scale-icon",
+            tr("Stretch vertically. Scales the image to fit to the available area."));
+        m_borderImage.horizontalTileRadioButtonNoCrop = radioButton("tile-icon-hor-scale",
+            tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
+        auto hRadioButtons = new QButtonGroup(this);
+        hRadioButtons->addButton(m_borderImage.horizontalTileRadioButton);
+        hRadioButtons->addButton(m_borderImage.horizontalStretchRadioButton);
+        hRadioButtons->addButton(m_borderImage.horizontalTileRadioButtonNoCrop);
+
+        m_borderImage.verticalTileRadioButton = radioButton("tile-icon-vert-crop",
+            tr("Repeat horizontally. Tiles the image until there is no more space. May crop the last image."));
+        m_borderImage.verticalStretchRadioButton = radioButton("vertical-scale-icon",
+            tr("Stretch horizontally. Scales the image to fit to the available area."));
+        m_borderImage.verticalTileRadioButtonNoCrop = radioButton("tile-icon-vert-scale",
+            tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
+        auto vRadioButtons = new QButtonGroup(this);
+        vRadioButtons->addButton(m_borderImage.verticalTileRadioButton);
+        vRadioButtons->addButton(m_borderImage.verticalStretchRadioButton);
+        vRadioButtons->addButton(m_borderImage.verticalTileRadioButtonNoCrop);
+
+        using namespace Utils::Layouting;
+        Row {
+            Column { m_previewLabel, m_sizeLabel, },
+            Column {
+                m_fileWidget,
+                Grid {
+                    m_borderImage.horizontalTileRadioButton, m_borderImage.horizontalStretchRadioButton, m_borderImage.horizontalTileRadioButtonNoCrop, br,
+                    m_borderImage.verticalTileRadioButton, m_borderImage.verticalStretchRadioButton, m_borderImage.verticalTileRadioButtonNoCrop,
+                },
+            },
+        }.attachTo(this);
+
+        connect(m_borderImage.verticalTileRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onVerticalStretchChanged);
-        connect(uiBorderImage->verticalStretchRadioButton, &QRadioButton::toggled,
+        connect(m_borderImage.verticalStretchRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onVerticalStretchChanged);
-        connect(uiBorderImage->verticalTileRadioButtonNoCrop, &QRadioButton::toggled,
+        connect(m_borderImage.verticalTileRadioButtonNoCrop, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onVerticalStretchChanged);
 
-        connect(uiBorderImage->horizontalTileRadioButton, &QRadioButton::toggled,
+        connect(m_borderImage.horizontalTileRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
-        connect(uiBorderImage->horizontalStretchRadioButton, &QRadioButton::toggled,
+        connect(m_borderImage.horizontalStretchRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
-        connect(uiBorderImage->horizontalTileRadioButtonNoCrop, &QRadioButton::toggled,
+        connect(m_borderImage.horizontalTileRadioButtonNoCrop, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onHorizontalStretchChanged);
         PreviewLabel *previewLabel = previewDialog()->previewLabel();
         connect(previewLabel, &PreviewLabel::leftMarginChanged,
@@ -83,26 +129,44 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
                 this, &ContextPaneWidgetImage::onTopMarginsChanged);
         connect(previewLabel, &PreviewLabel::bottomMarginChanged,
                 this, &ContextPaneWidgetImage::onBottomMarginsChanged);
-
     } else {
-        ui = new Ui::ContextPaneWidgetImage;
-        ui->setupUi(this);
-        ui->label->setToolTip(tr("Double click for preview."));
-        ui->label->installEventFilter(labelFilter);
-        m_fileWidget = ui->fileWidget;
-        m_sizeLabel = ui->sizeLabel;
+        m_image.stretchRadioButton = radioButton("scale-icon",
+            tr("The image is scaled to fit."));
+        m_image.horizontalStretchRadioButton = radioButton("horizontal-scale-icon",
+            tr("The image is stretched horizontally and tiled vertically."));
+        m_image.verticalStretchRadioButton = radioButton("vertical-scale-icon",
+            tr("The image is stretched vertically and tiled horizontally."));
 
-        connect(ui->stretchRadioButton, &QRadioButton::toggled,
+        m_image.tileRadioButton = radioButton("tile-icon",
+            tr("The image is duplicated horizontally and vertically."));
+        m_image.preserveAspectFitRadioButton = radioButton("aspect-fit-icon",
+            tr("The image is scaled uniformly to fit without cropping."));
+        m_image.cropAspectFitRadioButton = radioButton("aspect-crop-icon",
+            tr("The image is scaled uniformly to fill, cropping if necessary."));
+
+        using namespace Utils::Layouting;
+        Row {
+            Column { m_previewLabel, m_sizeLabel, },
+            Column {
+                m_fileWidget,
+                Grid {
+                    m_image.stretchRadioButton, m_image.horizontalStretchRadioButton, m_image.verticalStretchRadioButton, br,
+                    m_image.tileRadioButton, m_image.preserveAspectFitRadioButton, m_image.cropAspectFitRadioButton,
+                },
+            },
+        }.attachTo(this);
+
+        connect(m_image.stretchRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
-        connect(ui->tileRadioButton, &QRadioButton::toggled,
+        connect(m_image.tileRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
-        connect(ui->horizontalStretchRadioButton, &QRadioButton::toggled,
+        connect(m_image.horizontalStretchRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
-        connect(ui->verticalStretchRadioButton, &QRadioButton::toggled,
+        connect(m_image.verticalStretchRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
-        connect(ui->preserveAspectFitRadioButton, &QRadioButton::toggled,
+        connect(m_image.preserveAspectFitRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
-        connect(ui->cropAspectFitRadioButton, &QRadioButton::toggled,
+        connect(m_image.cropAspectFitRadioButton, &QRadioButton::toggled,
                 this, &ContextPaneWidgetImage::onStretchChanged);
     }
     previewDialog();
@@ -116,17 +180,9 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
 
 }
 
-ContextPaneWidgetImage::~ContextPaneWidgetImage()
-{
-    if (ui)
-        delete ui;
-    if (uiBorderImage)
-        delete uiBorderImage;
-}
-
 void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader)
 {
-    if (m_borderImage) {
+    if (m_isBorderImage) {
 
         int leftBorder = 0;
         int rightBorder = 0;
@@ -148,34 +204,34 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
             if (fillMode.contains(QLatin1String("BorderImage.")))
                 fillMode.remove(QLatin1String("BorderImage."));
 
-            uiBorderImage->horizontalStretchRadioButton->setChecked(true);
+            m_borderImage.horizontalStretchRadioButton->setChecked(true);
 
             if (fillMode == QLatin1String("Stretch"))
-                uiBorderImage->horizontalStretchRadioButton->setChecked(true);
+                m_borderImage.horizontalStretchRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Repeat"))
-                uiBorderImage->horizontalTileRadioButton->setChecked(true);
+                m_borderImage.horizontalTileRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Round"))
-                uiBorderImage->horizontalTileRadioButtonNoCrop->setChecked(true);
+                m_borderImage.horizontalTileRadioButtonNoCrop->setChecked(true);
         } else {
             //uiBorderImage
-            uiBorderImage->horizontalStretchRadioButton->setChecked(true);
+            m_borderImage.horizontalStretchRadioButton->setChecked(true);
         }
         if (propertyReader->hasProperty(QLatin1String("verticalTileMode"))) {
             QString fillMode = propertyReader->readProperty(QLatin1String("verticalTileMode")).toString();
             if (fillMode.contains(QLatin1String("BorderImage.")))
                 fillMode.remove(QLatin1String("BorderImage."));
 
-            uiBorderImage->verticalStretchRadioButton->setChecked(true);
+            m_borderImage.verticalStretchRadioButton->setChecked(true);
 
             if (fillMode == QLatin1String("Stretch"))
-                uiBorderImage->verticalStretchRadioButton->setChecked(true);
+                m_borderImage.verticalStretchRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Repeat"))
-                uiBorderImage->verticalTileRadioButton->setChecked(true);
+                m_borderImage.verticalTileRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Round"))
-                uiBorderImage->verticalTileRadioButtonNoCrop->setChecked(true);
+                m_borderImage.verticalTileRadioButtonNoCrop->setChecked(true);
         } else {
             //uiBorderImage
-            uiBorderImage->verticalStretchRadioButton->setChecked(true);
+            m_borderImage.verticalStretchRadioButton->setChecked(true);
         }
     } else {
         if (propertyReader->hasProperty(QLatin1String("fillMode"))) {
@@ -183,20 +239,20 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
             if (fillMode.contains(QLatin1String("Image.")))
                 fillMode.remove(QLatin1String("Image."));
 
-            ui->stretchRadioButton->setChecked(true);
+            m_image.stretchRadioButton->setChecked(true);
 
             if (fillMode == QLatin1String("Image.Tile") || fillMode == QLatin1String("Tile"))
-                ui->tileRadioButton->setChecked(true);
+                m_image.tileRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Image.TileVertically") || fillMode == QLatin1String("TileVertically"))
-                ui->horizontalStretchRadioButton->setChecked(true);
+                m_image.horizontalStretchRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Image.TileHorizontally") || fillMode == QLatin1String("TileHorizontally"))
-                ui->verticalStretchRadioButton->setChecked(true);
+                m_image.verticalStretchRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Image.PreserveAspectFit") || fillMode == QLatin1String("PreserveAspectFit"))
-                ui->preserveAspectFitRadioButton->setChecked(true);
+                m_image.preserveAspectFitRadioButton->setChecked(true);
             if (fillMode == QLatin1String("Image.PreserveAspectCrop") || fillMode == QLatin1String("PreserveAspectCrop"))
-                ui->cropAspectFitRadioButton->setChecked(true);
+                m_image.cropAspectFitRadioButton->setChecked(true);
         } else {
-            ui->stretchRadioButton->setChecked(true);
+            m_image.stretchRadioButton->setChecked(true);
         }
     }
     if (propertyReader->hasProperty(QLatin1String("source"))) {
@@ -255,7 +311,7 @@ void PreviewDialog::setZoom(int z)
 
 void PreviewDialog::setIsBorderImage(bool b)
 {
-    m_borderImage = b;
+    m_isBorderImage = b;
     m_label->setIsBorderImage(b);
 }
 
@@ -267,17 +323,17 @@ PreviewLabel *PreviewDialog::previewLabel() const
 void ContextPaneWidgetImage::onStretchChanged()
 {
     QString stretch;
-    if (ui->stretchRadioButton->isChecked())
+    if (m_image.stretchRadioButton->isChecked())
         stretch = QLatin1String("Image.Stretch");
-    else if (ui->tileRadioButton->isChecked())
+    else if (m_image.tileRadioButton->isChecked())
         stretch = QLatin1String("Image.Tile");
-    else if (ui->horizontalStretchRadioButton->isChecked())
+    else if (m_image.horizontalStretchRadioButton->isChecked())
         stretch = QLatin1String("Image.TileVertically");
-    else if (ui->verticalStretchRadioButton->isChecked())
+    else if (m_image.verticalStretchRadioButton->isChecked())
         stretch = QLatin1String("Image.TileHorizontally");
-    else if (ui->preserveAspectFitRadioButton->isChecked())
+    else if (m_image.preserveAspectFitRadioButton->isChecked())
         stretch = QLatin1String("Image.PreserveAspectFit");
-    else if (ui->cropAspectFitRadioButton->isChecked())
+    else if (m_image.cropAspectFitRadioButton->isChecked())
         stretch = QLatin1String("Image.PreserveAspectCrop");
 
     if (stretch == QLatin1String("Image.Stretch"))
@@ -289,11 +345,11 @@ void ContextPaneWidgetImage::onStretchChanged()
 void ContextPaneWidgetImage::onHorizontalStretchChanged()
 {
     QString stretch;
-    if (uiBorderImage->horizontalStretchRadioButton->isChecked())
+    if (m_borderImage.horizontalStretchRadioButton->isChecked())
         stretch = QLatin1String("BorderImage.Stretch");
-    if (uiBorderImage->horizontalTileRadioButton->isChecked())
+    if (m_borderImage.horizontalTileRadioButton->isChecked())
         stretch = QLatin1String("BorderImage.Repeat");
-    if (uiBorderImage->horizontalTileRadioButtonNoCrop->isChecked())
+    if (m_borderImage.horizontalTileRadioButtonNoCrop->isChecked())
         stretch = QLatin1String("BorderImage.Round");
 
     if (stretch == QLatin1String("BorderImage.Stretch"))
@@ -305,11 +361,11 @@ void ContextPaneWidgetImage::onHorizontalStretchChanged()
 void ContextPaneWidgetImage::onVerticalStretchChanged()
 {
     QString stretch;
-    if (uiBorderImage->verticalStretchRadioButton->isChecked())
+    if (m_borderImage.verticalStretchRadioButton->isChecked())
         stretch = QLatin1String("BorderImage.Stretch");
-    if (uiBorderImage->verticalTileRadioButton->isChecked())
+    if (m_borderImage.verticalTileRadioButton->isChecked())
         stretch = QLatin1String("BorderImage.Repeat");
-    if (uiBorderImage->verticalTileRadioButtonNoCrop->isChecked())
+    if (m_borderImage.verticalTileRadioButtonNoCrop->isChecked())
         stretch = QLatin1String("BorderImage.Round");
 
     if (stretch == QLatin1String("BorderImage.Stretch"))
@@ -331,9 +387,9 @@ void ContextPaneWidgetImage::onPixmapDoubleClicked()
 {
     previewDialog()->setParent(parentWidget()->parentWidget());
     previewDialog()->setMaximumSize(previewDialog()->parentWidget()->size() - QSize(150, 100));
-    if (m_borderImage)
+    if (m_isBorderImage)
         previewDialog()->setZoom(4);
-    previewDialog()->setIsBorderImage(m_borderImage);
+    previewDialog()->setIsBorderImage(m_isBorderImage);
 
     QPoint p = parentWidget()->pos();
     p = p + QPoint(-2, -2);
@@ -459,7 +515,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
     QPixmap pix(76,76);
     pix.fill(Qt::black);
 
-    if (m_borderImage) {
+    if (m_isBorderImage) {
         QString localFileName(fileName);
         if (QFileInfo::exists(fileName)) {
             if (fileName.endsWith(QLatin1String("sci"))) {
@@ -475,7 +531,7 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
                     localFileName = QFileInfo(fileName).absoluteDir().absolutePath() + QLatin1Char('/') + pixmapFileName;
                     previewDialog()->previewLabel()->setMargins(left, top, right, bottom);
                 } else { // sci file not parsed correctly
-                    uiBorderImage->sizeLabel->clear();
+                    m_sizeLabel->clear();
                     return;
                 }
             }
@@ -483,18 +539,18 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             if (source.isNull())
                 source = pix;
             previewDialog()->setPixmap(source, previewDialog()->zoom());
-            uiBorderImage->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x')
-                                              + QString::number(source.height()));
+            m_sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x')
+                                 + QString::number(source.height()));
             QPainter p(&pix);
             Qt::TileRule horizontalTileMode = Qt::StretchTile;
             Qt::TileRule verticalTileMode = Qt::StretchTile;
-            if (uiBorderImage->horizontalTileRadioButton->isChecked())
+            if (m_borderImage.horizontalTileRadioButton->isChecked())
                 horizontalTileMode =Qt::RepeatTile;
-            if (uiBorderImage->horizontalTileRadioButtonNoCrop->isChecked())
+            if (m_borderImage.horizontalTileRadioButtonNoCrop->isChecked())
                 horizontalTileMode =Qt::RoundTile;
-            if (uiBorderImage->verticalTileRadioButton->isChecked())
+            if (m_borderImage.verticalTileRadioButton->isChecked())
                 verticalTileMode =Qt::RepeatTile;
-            if (uiBorderImage->verticalTileRadioButtonNoCrop->isChecked())
+            if (m_borderImage.verticalTileRadioButtonNoCrop->isChecked())
                 verticalTileMode =Qt::RoundTile;
             QTileRules rules(horizontalTileMode, verticalTileMode);
             PreviewLabel *previewLabel = previewDialog()->previewLabel();
@@ -502,46 +558,46 @@ void ContextPaneWidgetImage::setPixmap(const QString &fileName)
             qDrawBorderPixmap(&p, QRect(0, 0, 76, 76), margins, source, source.rect(), margins, rules);
             //p.drawPixmap(0,0,76,76, source);
         } else {
-            uiBorderImage->sizeLabel->clear();
+            m_sizeLabel->clear();
         }
-        uiBorderImage->label->setPixmap(pix);
+        m_previewLabel->setPixmap(pix);
     } else {
         if (QFileInfo::exists(fileName)) {
             QPixmap source(fileName);
             previewDialog()->setPixmap(source, 1);
-            ui->sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x') + QString::number(source.height()));
+            m_sizeLabel->setText(QString::number(source.width()) + QLatin1Char('x') + QString::number(source.height()));
             QPainter p(&pix);
-            if (ui->stretchRadioButton->isChecked()) {
+            if (m_image.stretchRadioButton->isChecked()) {
                 p.drawPixmap(0,0,76,76, source);
-            } else if (ui->tileRadioButton->isChecked()) {
+            } else if (m_image.tileRadioButton->isChecked()) {
                 QPixmap small = source.scaled(38,38);
                 p.drawTiledPixmap(0,0,76,76, small);
-            } else if (ui->horizontalStretchRadioButton->isChecked()) {
+            } else if (m_image.horizontalStretchRadioButton->isChecked()) {
                 QPixmap small = source.scaled(38,38);
                 QPixmap half = pix.scaled(38, 76);
                 QPainter p2(&half);
                 p2.drawTiledPixmap(0,0,38,76, small);
                 p.drawPixmap(0,0,76,76, half);
-            } else if (ui->verticalStretchRadioButton->isChecked()) {
+            } else if (m_image.verticalStretchRadioButton->isChecked()) {
                 QPixmap small = source.scaled(38,38);
                 QPixmap half = pix.scaled(76, 38);
                 QPainter p2(&half);
                 p2.drawTiledPixmap(0,0,76,38, small);
                 p.drawPixmap(0,0,76,76, half);
-            } else if (ui->preserveAspectFitRadioButton->isChecked()) {
+            } else if (m_image.preserveAspectFitRadioButton->isChecked()) {
                 QPixmap preserved = source.scaledToWidth(76);
                 int offset = (76 - preserved.height()) / 2;
                 p.drawPixmap(0, offset, 76, preserved.height(), source);
-            } else if (ui->cropAspectFitRadioButton->isChecked()) {
+            } else if (m_image.cropAspectFitRadioButton->isChecked()) {
                 QPixmap cropped = source.scaledToHeight(76);
                 int offset = (76 - cropped.width()) / 2;
                 p.drawPixmap(offset, 0, cropped.width(), 76, source);
             }
         } else {
-            ui->sizeLabel->clear();
+            m_sizeLabel->clear();
         }
 
-        ui->label->setPixmap(pix);
+        m_previewLabel->setPixmap(pix);
 
     }
 }
@@ -556,32 +612,16 @@ PreviewDialog* ContextPaneWidgetImage::previewDialog()
     return m_previewDialog.data();
 }
 
-void ContextPaneWidgetImage::changeEvent(QEvent *e)
-{
-    QWidget::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        if (ui)
-            ui->retranslateUi(this);
-        if (uiBorderImage)
-            uiBorderImage->retranslateUi(this);
-        break;
-    default:
-        break;
-    }
-}
-
-
 void ContextPaneWidgetImage::hideEvent(QHideEvent * event)
 {
-    previewWasVisible = previewDialog()->isVisible();
+    m_previewWasVisible = previewDialog()->isVisible();
     previewDialog()->hide();
     QWidget::hideEvent(event);
 }
 
 void ContextPaneWidgetImage::showEvent(QShowEvent* event)
 {
-    if (previewWasVisible)
+    if (m_previewWasVisible)
         previewDialog()->show();
     QWidget::showEvent(event);
 }
@@ -620,7 +660,7 @@ void PreviewLabel::setZoom(int z)
 
 void PreviewLabel::setIsBorderImage(bool b)
 {
-    m_borderImage = b;
+    m_isBorderImage = b;
 }
 
 void PreviewLabel::setMargins(int left, int top, int right, int bottom)
@@ -634,7 +674,7 @@ void PreviewLabel::setMargins(int left, int top, int right, int bottom)
 void PreviewLabel::paintEvent(QPaintEvent *event)
 {
     QLabel::paintEvent(event);
-    if (m_borderImage) {
+    if (m_isBorderImage) {
 
         QPainter p(this);
 
@@ -682,7 +722,7 @@ static inline bool rangeCheck(int target, int pos)
 
 void PreviewLabel::mousePressEvent(QMouseEvent * event)
 {
-    if (!m_borderImage) {
+    if (!m_isBorderImage) {
         QLabel::mouseMoveEvent(event);
         return;
     }
@@ -732,7 +772,7 @@ void PreviewLabel::mousePressEvent(QMouseEvent * event)
 
 void PreviewLabel::mouseReleaseEvent(QMouseEvent * event)
 {
-    if (!m_borderImage)
+    if (!m_isBorderImage)
         return QLabel::mouseMoveEvent(event);
 
     if (m_dragging_left || m_dragging_top || m_dragging_right|| m_dragging_bottom) {
@@ -771,7 +811,7 @@ static inline int limitPositive(int i)
 
 void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
 {
-    if (!m_borderImage) {
+    if (!m_isBorderImage) {
         QLabel::mouseMoveEvent(event);
         return;
     }
@@ -849,7 +889,7 @@ void PreviewLabel::leaveEvent(QEvent* event )
 
 PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 {
-    m_borderImage = false;
+    m_isBorderImage = false;
     setAutoFillBackground(true);
 
     m_label = new PreviewLabel(this);
