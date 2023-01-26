@@ -732,6 +732,11 @@ static bool hideAnalyzeMenuSetting()
         .toBool();
 }
 
+static bool hideToolsMenuSetting()
+{
+    return Core::ICore::settings()->value(Core::Constants::SETTINGS_MENU_HIDE_TOOLS, false).toBool();
+}
+
 void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
 {
     QSettings *s = Core::ICore::settings();
@@ -797,12 +802,15 @@ StudioSettingsPage::StudioSettingsPage()
     : m_buildCheckBox(new QCheckBox(tr("Build")))
     , m_debugCheckBox(new QCheckBox(tr("Debug")))
     , m_analyzeCheckBox(new QCheckBox(tr("Analyze")))
+    , m_toolsCheckBox(new QCheckBox(tr("Tools")))
     , m_pathChooser(new Utils::PathChooser())
 {
     const QString toolTip = tr(
         "Hide top-level menus with advanced functionality to simplify the UI. <b>Build</b> is "
-        "generally not required in the context of Qt Design Studio. <b>Debug</b> and <b>Analyze</b> "
-        "are only required for debugging and profiling.");
+        "generally not required in the context of Qt Design Studio. <b>Debug</b> and "
+        "<b>Analyze</b> "
+        "are only required for debugging and profiling. <b>Tools</b> can be useful for bookmarks "
+        "and git integration.");
 
     QVBoxLayout *boxLayout = new QVBoxLayout();
     setLayout(boxLayout);
@@ -816,16 +824,20 @@ StudioSettingsPage::StudioSettingsPage()
     m_buildCheckBox->setToolTip(toolTip);
     m_debugCheckBox->setToolTip(toolTip);
     m_analyzeCheckBox->setToolTip(toolTip);
+    m_toolsCheckBox->setToolTip(toolTip);
 
     verticalLayout->addWidget(m_buildCheckBox);
     verticalLayout->addWidget(m_debugCheckBox);
     verticalLayout->addWidget(m_analyzeCheckBox);
+    verticalLayout->addWidget(m_toolsCheckBox);
+
     verticalLayout->addSpacerItem(
         new QSpacerItem(10, 10, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     m_buildCheckBox->setChecked(hideBuildMenuSetting());
     m_debugCheckBox->setChecked(hideDebugMenuSetting());
     m_analyzeCheckBox->setChecked(hideAnalyzeMenuSetting());
+    m_toolsCheckBox->setChecked(hideToolsMenuSetting());
 
     auto examplesGroupBox = new QGroupBox(tr("Examples"));
     boxLayout->addWidget(examplesGroupBox);
@@ -867,6 +879,9 @@ void StudioSettingsPage::apply()
                           m_analyzeCheckBox->isChecked(),
                           dirty);
 
+    setSettingIfDifferent(Core::Constants::SETTINGS_MENU_HIDE_TOOLS,
+                          m_toolsCheckBox->isChecked(),
+                          dirty);
 
     if (dirty) {
         const QString restartText = tr("The menu visibility change will take effect after restart.");

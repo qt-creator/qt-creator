@@ -215,5 +215,7 @@ const int MODEBAR_ICON_SIZE = 34;
 const int MODEBAR_ICONSONLY_BUTTON_SIZE = MODEBAR_ICON_SIZE + 4;
 const int DEFAULT_MAX_CHAR_COUNT = 10000000;
 
+const char SETTINGS_MENU_HIDE_TOOLS[] = "Menu/HideTools";
+
 } // namespace Constants
 } // namespace Core

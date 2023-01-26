@@ -27,6 +27,7 @@ private:
     QCheckBox *m_buildCheckBox;
     QCheckBox *m_debugCheckBox;
     QCheckBox *m_analyzeCheckBox;
+    QCheckBox *m_toolsCheckBox;
     Utils::PathChooser *m_pathChooser;
 };
 
