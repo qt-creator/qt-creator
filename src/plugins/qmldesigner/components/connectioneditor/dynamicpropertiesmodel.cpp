@@ -375,7 +375,9 @@ void DynamicPropertiesModel::reset()
 void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
 {
     QTC_ASSERT(m_explicitSelection, return);
-    QTC_ASSERT(node.isValid(), return);
+
+    if (!node.isValid())
+        return;
 
     m_selectedNodes.clear();
     m_selectedNodes.append(node);
