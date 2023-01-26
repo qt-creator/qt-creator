@@ -109,7 +109,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
         return ToolChainKitAspect::toolChain(kit, language);
 
     // Try exact compiler match.
-    const Utils::FilePath compiler = Utils::FilePath::fromString(compilerPath(flags.front()));
+    const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
     ToolChain *toolchain = ToolChainManager::toolChain([&compiler, &language](const ToolChain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
