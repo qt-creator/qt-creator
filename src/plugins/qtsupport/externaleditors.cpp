@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "externaleditors.h"
-#include "qmakeprojectmanagertr.h"
+
+#include <coreplugin/editormanager/iexternaleditor.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -29,14 +30,17 @@
 
 #include <functional>
 
-#include <coreplugin/editormanager/iexternaleditor.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
 enum { debug = 0 };
 
-namespace QmakeProjectManager::Internal {
+namespace QtSupport::Internal {
+
+struct Tr
+{
+    Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
+};
 
 const char designerDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer");
 const char linguistDisplayName[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist");
@@ -288,4 +292,4 @@ LinguistEditorFactory::LinguistEditorFactory()
     editor->setParent(this);
 }
 
-} // QmakeProjectManager::Internal
+} // QtSupport::Internal

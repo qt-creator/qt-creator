@@ -5,7 +5,6 @@
 
 #include "addlibrarywizard.h"
 #include "customwidgetwizard/customwidgetwizard.h"
-#include "externaleditors.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
 #include "qmakekitinformation.h"
@@ -82,9 +81,6 @@ public:
     ProFileEditorFactory profileEditorFactory;
 
     QmakeSettingsPage settingsPage;
-
-    DesignerEditorFactory designerEditorFactory;
-    LinguistEditorFactory linguistEditorFactory;
 
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;

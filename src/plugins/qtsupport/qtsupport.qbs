@@ -64,6 +64,8 @@ Project {
             "codegensettings.h",
             "codegensettingspage.cpp",
             "codegensettingspage.h",
+            "externaleditors.cpp",
+            "externaleditors.h",
             "qtbuildaspects.cpp",
             "qtbuildaspects.h",
             "qtconfigwidget.cpp",

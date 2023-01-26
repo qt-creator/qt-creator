@@ -5,7 +5,7 @@
 
 #include <QObject>
 
-namespace QmakeProjectManager::Internal {
+namespace QtSupport::Internal {
 
 class DesignerEditorFactory : public QObject
 {
@@ -19,4 +19,4 @@ public:
     LinguistEditorFactory();
 };
 
-} // QmakeProjectManager::Internal
+} // QtSupport::Internal

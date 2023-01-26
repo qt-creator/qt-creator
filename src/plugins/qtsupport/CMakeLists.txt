@@ -8,6 +8,7 @@ add_qtc_plugin(QtSupport
     codegensettings.cpp codegensettings.h
     codegensettingspage.cpp codegensettingspage.h
     exampleslistmodel.cpp exampleslistmodel.h
+    externaleditors.cpp externaleditors.h
     gettingstartedwelcomepage.cpp gettingstartedwelcomepage.h
     profilereader.cpp profilereader.h
     qscxmlcgenerator.cpp qscxmlcgenerator.h

@@ -12,7 +12,6 @@ add_qtc_plugin(QmakeProjectManager
     customwidgetwizard/filenamingparameters.h
     customwidgetwizard/plugingenerator.cpp customwidgetwizard/plugingenerator.h
     customwidgetwizard/pluginoptions.h
-    externaleditors.cpp externaleditors.h
     librarydetailscontroller.cpp librarydetailscontroller.h
     makefileparse.cpp makefileparse.h
     profilecompletionassist.cpp profilecompletionassist.h

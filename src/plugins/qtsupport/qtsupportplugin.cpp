@@ -5,6 +5,7 @@
 
 #include "codegenerator.h"
 #include "codegensettingspage.h"
+#include "externaleditors.h"
 #include "gettingstartedwelcomepage.h"
 #include "profilereader.h"
 #include "qscxmlcgenerator.h"
@@ -61,6 +62,9 @@ public:
 
     UicGeneratorFactory uicGeneratorFactory;
     QScxmlcGeneratorFactory qscxmlcGeneratorFactory;
+
+    DesignerEditorFactory designerEditorFactory;
+    LinguistEditorFactory linguistEditorFactory;
 };
 
 QtSupportPlugin::~QtSupportPlugin()
