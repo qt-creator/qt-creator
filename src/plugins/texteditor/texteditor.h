@@ -469,6 +469,9 @@ public:
     void addHoverHandler(BaseHoverHandler *handler);
     void removeHoverHandler(BaseHoverHandler *handler);
 
+    void insertSuggestion(const QString &suggestion);
+    void clearSuggestion();
+
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);
 #endif

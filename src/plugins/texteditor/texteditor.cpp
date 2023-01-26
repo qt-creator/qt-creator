@@ -819,6 +819,10 @@ public:
     QStack<UndoMultiCursor> m_undoCursorStack;
     QList<int> m_visualIndentCache;
     int m_visualIndentOffset = 0;
+
+    void insertSuggestion(const QString &suggestion, const QTextBlock &block);
+    void clearCurrentSuggestion();
+    QTextBlock m_suggestionBlock;
 };
 
 class TextEditorWidgetFind : public BaseTextFind
@@ -1646,6 +1650,26 @@ void TextEditorWidgetPrivate::handleMoveBlockSelection(QTextCursor::MoveOperatio
     q->setMultiTextCursor(MultiTextCursor(cursors));
 }
 
+void TextEditorWidgetPrivate::insertSuggestion(const QString &suggestion, const QTextBlock &block)
+{
+    clearCurrentSuggestion();
+    m_suggestionBlock = block;
+    m_document->insertSuggestion(suggestion, block);
+    auto cursor = q->textCursor();
+    cursor.setPosition(block.position());
+    cursor.movePosition(QTextCursor::EndOfBlock);
+    q->setTextCursor(cursor);
+}
+
+void TextEditorWidgetPrivate::clearCurrentSuggestion()
+{
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(m_suggestionBlock)) {
+        userData->clearReplacement();
+        m_document->updateLayout();
+    }
+    m_suggestionBlock = QTextBlock();
+}
+
 void TextEditorWidget::selectEncoding()
 {
     TextDocument *doc = d->m_document.data();
@@ -1828,6 +1852,17 @@ TextEditorWidget *TextEditorWidget::fromEditor(const IEditor *editor)
 
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
+    if (m_suggestionBlock.isValid()) {
+        if (TextBlockUserData *data = TextDocumentLayout::textUserData(m_suggestionBlock)) {
+            if (auto replacementDocument = data->replacement()) {
+                if (replacementDocument->firstBlock().text().startsWith(m_suggestionBlock.text()))
+                    TextDocumentLayout::updateReplacmentFormats(m_suggestionBlock, m_document->fontSettings());
+                else
+                    clearCurrentSuggestion();
+            }
+        }
+    }
+
     if (m_bracketsAnimator)
         m_bracketsAnimator->finish();
 
@@ -2506,6 +2541,11 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
         d->m_maybeFakeTooltipEvent = false;
         if (e->key() == Qt::Key_Escape ) {
             TextEditorWidgetFind::cancelCurrentSelectAll();
+            if (d->m_suggestionBlock.isValid()) {
+                d->clearCurrentSuggestion();
+                e->accept();
+                return;
+            }
             if (d->m_snippetOverlay->isVisible()) {
                 e->accept();
                 d->m_snippetOverlay->accept();
@@ -2639,6 +2679,14 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab:
     case Qt::Key_Backtab: {
         if (ro) break;
+        if (d->m_suggestionBlock.isValid()) {
+            QTextCursor cursor(d->m_suggestionBlock);
+            cursor.movePosition(QTextCursor::EndOfBlock);
+            cursor.insertText(TextDocumentLayout::replacement(d->m_suggestionBlock));
+            setTextCursor(cursor);
+            e->accept();
+            return;
+        }
         if (d->m_snippetOverlay->isVisible() && !d->m_snippetOverlay->isEmpty()) {
             d->snippetTabOrBacktab(e->key() == Qt::Key_Tab);
             e->accept();
@@ -2684,6 +2732,8 @@ void TextEditorWidget::keyPressEvent(QKeyEvent *e)
                                | Qt::AltModifier
                                | Qt::MetaModifier)) == Qt::NoModifier) {
             e->accept();
+            if (d->m_suggestionBlock.isValid())
+                d->clearCurrentSuggestion();
             if (cursor.hasSelection()) {
                 cursor.removeSelectedText();
                 setMultiTextCursor(cursor);
@@ -2944,6 +2994,8 @@ void TextEditorWidgetPrivate::universalHelper()
 {
     // Test function for development. Place your new fangled experiment here to
     // give it proper scrutiny before pushing it onto others.
+
+    insertSuggestion("Teste\nWeste\nBeste", q->textCursor().block());
 }
 
 void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor, bool keepMultiSelection)
@@ -3105,7 +3157,9 @@ bool TextEditorWidget::event(QEvent *e)
     case QEvent::ShortcutOverride: {
         auto ke = static_cast<QKeyEvent *>(e);
         if (ke->key() == Qt::Key_Escape
-            && (d->m_snippetOverlay->isVisible() || multiTextCursor().hasMultipleCursors())) {
+            && (d->m_snippetOverlay->isVisible()
+                || multiTextCursor().hasMultipleCursors()
+                || d->m_suggestionBlock.isValid())) {
             e->accept();
         } else {
             // hack copied from QInputControl::isCommonTextEditShortcut
@@ -4394,7 +4448,22 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
                              visualArrow);
         }
         if (!nextBlockIsValid) { // paint EOF symbol
-            QTextLine line = layout->lineAt(lineCount-1);
+            if (m_suggestionBlock.isValid() && data.block == m_suggestionBlock) {
+                if (TextBlockUserData *userData = TextDocumentLayout::textUserData(
+                        m_suggestionBlock)) {
+                    if (QTextDocument *replacement = userData->replacement()) {
+                        const QTextBlock lastReplacementBlock = replacement->lastBlock();
+                        for (QTextBlock block = replacement->firstBlock();
+                             block != lastReplacementBlock && block.isValid();
+                             block = block.next()) {
+                            top += replacement->documentLayout()->blockBoundingRect(block).height();
+                        }
+                        layout = lastReplacementBlock.layout();
+                        lineCount = layout->lineCount();
+                    }
+                }
+            }
+            QTextLine line = layout->lineAt(lineCount - 1);
             QRectF lineRect = line.naturalTextRect().translated(data.offset.x(), top);
             int h = 4;
             lineRect.adjust(0, 0, -1, -1);
@@ -4868,6 +4937,21 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QVector<QTextLayout::FormatRange> &selections,
                                   const QRect &clipRect) const
 {
+    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block)) {
+        if (QTextDocument *replacement = userData->replacement()) {
+            QTextBlock replacementBlock = replacement->firstBlock();
+            QPointF replacementOffset = offset;
+            replacementOffset.rx() += document()->documentMargin();
+            while (replacementBlock.isValid()) {
+                replacementBlock.layout()->draw(painter, replacementOffset, selections, clipRect);
+                replacementOffset.ry()
+                    += replacement->documentLayout()->blockBoundingRect(replacementBlock).height();
+                replacementBlock = replacementBlock.next();
+            }
+            return;
+        }
+    }
+
     block.layout()->draw(painter, offset, selections, clipRect);
 }
 
@@ -5405,6 +5489,12 @@ void TextEditorWidget::slotCursorPositionChanged()
         if (EditorManager::currentEditor() && EditorManager::currentEditor()->widget() == this)
             EditorManager::setLastEditLocation(EditorManager::currentEditor());
     }
+    if (d->m_suggestionBlock.isValid()) {
+        if (textCursor().position()
+            != d->m_suggestionBlock.position() + d->m_suggestionBlock.length() - 1) {
+            d->clearCurrentSuggestion();
+        }
+    }
     MultiTextCursor cursor = multiTextCursor();
     cursor.replaceMainCursor(textCursor());
     setMultiTextCursor(cursor);
@@ -5847,6 +5937,16 @@ void TextEditorWidget::removeHoverHandler(BaseHoverHandler *handler)
 {
     d->m_hoverHandlers.removeAll(handler);
     d->m_hoverHandlerRunner.handlerRemoved(handler);
+}
+
+void TextEditorWidget::insertSuggestion(const QString &suggestion)
+{
+    d->insertSuggestion(suggestion, textCursor().block());
+}
+
+void TextEditorWidget::clearSuggestion()
+{
+    d->clearCurrentSuggestion();
 }
 
 #ifdef WITH_TESTS

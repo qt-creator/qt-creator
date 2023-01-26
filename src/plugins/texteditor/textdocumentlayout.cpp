@@ -345,6 +345,13 @@ void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
     m_codeFormatterData = data;
 }
 
+void TextBlockUserData::setReplacement(const QString replacement)
+{
+    m_replacement.reset(new QTextDocument(replacement));
+    m_replacement->setDocumentLayout(new TextDocumentLayout(m_replacement.get()));
+    m_replacement->setDocumentMargin(0);
+}
+
 void TextBlockUserData::addMark(TextMark *mark)
 {
     int i = 0;
@@ -354,7 +361,6 @@ void TextBlockUserData::addMark(TextMark *mark)
     }
     m_marks.insert(i, mark);
 }
-
 
 TextDocumentLayout::TextDocumentLayout(QTextDocument *doc)
     : QPlainTextDocumentLayout(doc)
@@ -519,6 +525,33 @@ QByteArray TextDocumentLayout::expectedRawStringSuffix(const QTextBlock &block)
     return {};
 }
 
+void TextDocumentLayout::updateReplacmentFormats(const QTextBlock &block,
+                                                 const FontSettings &fontSettings)
+{
+    if (TextBlockUserData *userData = textUserData(block)) {
+        if (QTextDocument *replacement = userData->replacement()) {
+            const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
+                TextStyles{C_TEXT, {C_DISABLED_CODE}});
+            QTextCursor cursor(replacement);
+            cursor.select(QTextCursor::Document);
+            cursor.setCharFormat(fontSettings.toTextCharFormat(C_TEXT));
+            cursor.setPosition(block.length() - 1);
+            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+            cursor.setCharFormat(replacementFormat);
+            replacement->firstBlock().layout()->setFormats(block.layout()->formats());
+        }
+    }
+}
+
+QString TextDocumentLayout::replacement(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block)) {
+        if (QTextDocument *replacement = userData->replacement())
+            return replacement->toPlainText().mid(block.length() - 1);
+    }
+    return {};
+}
+
 void TextDocumentLayout::requestExtraAreaUpdate()
 {
     emit updateExtraArea();
@@ -632,8 +665,28 @@ void TextDocumentLayout::requestUpdateNow()
     requestUpdate();
 }
 
+static QRectF replacementBoundingRect(const QTextDocument *replacement)
+{
+    QTC_ASSERT(replacement, return {});
+    auto *layout = static_cast<QPlainTextDocumentLayout *>(replacement->documentLayout());
+    QRectF boundingRect;
+    QTextBlock block = replacement->firstBlock();
+    while (block.isValid()) {
+        const QRectF blockBoundingRect = layout->blockBoundingRect(block);
+        boundingRect.setWidth(std::max(boundingRect.width(), blockBoundingRect.width()));
+        boundingRect.setHeight(boundingRect.height() + blockBoundingRect.height());
+        block = block.next();
+    }
+    return boundingRect;
+}
+
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
+    if (TextBlockUserData *userData = textUserData(block)) {
+        if (auto replacement = userData->replacement())
+            return replacementBoundingRect(replacement);
+    }
+
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
 
     if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100) {

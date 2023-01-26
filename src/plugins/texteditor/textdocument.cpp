@@ -373,6 +373,13 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
+void TextDocument::insertSuggestion(const QString text, const QTextBlock &block)
+{
+    TextDocumentLayout::userData(block)->setReplacement(block.text() + text);
+    TextDocumentLayout::updateReplacmentFormats(block, fontSettings());
+    updateLayout();
+}
+
 #ifdef WITH_TESTS
 void TextDocument::setSilentReload()
 {
@@ -419,6 +426,12 @@ IAssistProvider *TextDocument::quickFixAssistProvider() const
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
+    QTextBlock block = document()->firstBlock();
+    while (block.isValid()) {
+        TextDocumentLayout::updateReplacmentFormats(block, fontSettings());
+        block = block.next();
+    }
+    updateLayout();
     if (d->m_highlighter) {
         d->m_highlighter->setFontSettings(d->m_fontSettings);
         d->m_highlighter->rehighlight();

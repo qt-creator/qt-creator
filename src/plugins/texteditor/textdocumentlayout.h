@@ -126,6 +126,10 @@ public:
     QByteArray expectedRawStringSuffix() { return m_expectedRawStringSuffix; }
     void setExpectedRawStringSuffix(const QByteArray &suffix) { m_expectedRawStringSuffix = suffix; }
 
+    void setReplacement(const QString replacement);
+    void clearReplacement() { m_replacement.reset(); }
+    QTextDocument *replacement() const { return m_replacement.get(); }
+
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16;
@@ -139,6 +143,7 @@ private:
     CodeFormatterData *m_codeFormatterData;
     KSyntaxHighlighting::State m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
+    std::unique_ptr<QTextDocument> m_replacement;
 };
 
 
@@ -172,6 +177,8 @@ public:
     static void setFolded(const QTextBlock &block, bool folded);
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
+    static void updateReplacmentFormats(const QTextBlock &block, const FontSettings &fontSettings);
+    static QString replacement(const QTextBlock &block);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {
