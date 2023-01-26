@@ -6,6 +6,8 @@
 #define %{GLOBAL_GUARD}
 @endif
 
+#include <qglobal.h>
+
 #if defined(%{LibraryDefine})
 #  define %{LibraryExport} Q_DECL_EXPORT
 #else
