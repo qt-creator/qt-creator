@@ -2,47 +2,101 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contextpanetextwidget.h"
+
+#include "colorbutton.h"
 #include "contextpanewidget.h"
 #include "customcolordialog.h"
-#include "ui_contextpanetext.h"
+#include "fontsizespinbox.h"
+
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/layoutbuilder.h>
+
+#include <QButtonGroup>
+#include <QComboBox>
+#include <QFontComboBox>
+#include <QLabel>
 #include <QTimerEvent>
+#include <QToolButton>
 #include <QVariant>
+
 namespace QmlEditorWidgets {
 
 ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ContextPaneTextWidget),
-    m_fontSizeTimer(-1)
+    QWidget(parent)
 {
-    ui->setupUi(this);
-    ui->boldButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-bold"),
-            QIcon(QLatin1String(":/qmldesigner/images/bold-h-icon.png"))));
-    ui->italicButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-italic"),
-            QIcon(QLatin1String(":/qmldesigner/images/italic-h-icon.png"))));
-    ui->underlineButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-underline"),
-            QIcon(QLatin1String(":/qmldesigner/images/underline-h-icon.png"))));
-    ui->strikeoutButton->setIcon(QIcon::fromTheme(QLatin1String("format-text-strikethrough"),
-            QIcon(QLatin1String(":/qmldesigner/images/strikeout-h-icon.png"))));
+    setWindowTitle(tr("Text"));
 
-    ui->leftAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-left"),
-            QIcon(QLatin1String(":/qmldesigner/images/alignmentleft-h-icon.png"))));
-    ui->centerHAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-center"),
-            QIcon(QLatin1String(":/qmldesigner/images/alignmentcenterh-h-icon.png"))));
-    ui->rightAlignmentButton->setIcon(QIcon::fromTheme(QLatin1String("format-justify-right"),
-            QIcon(QLatin1String(":/qmldesigner/images/alignmentright-h-icon.png"))));
+    auto iconToolButton = [] (const QString &iconName, const QString &iconFallBack,
+            bool autoExclusive = true) {
+        auto result = new QToolButton;
+        result->setAutoExclusive(autoExclusive);
+        result->setCheckable(true);
+        result->setFixedSize(30, 30);
+        result->setIcon(QIcon::fromTheme(iconName,
+                                         QIcon(":/qmldesigner/images/" + iconFallBack + ".png")));
+        result->setIconSize({24, 24});
+        return result;
+    };
 
-    ui->centerVAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentmiddle-h-icon.png")));
+    auto colorButton = [] () {
+        auto result = new ColorButton;
+        result->setCheckable(true);
+        result->setFixedSize(22, 22);
+        result->setShowArrow(false);
+        return result;
+    };
 
-    ui->bottomAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmentbottom-h-icon.png")));
-    ui->topAlignmentButton->setIcon(QIcon(QLatin1String(":/qmldesigner/images/alignmenttop-h-icon.png")));
+    m_fontComboBox = new QFontComboBox;
+    m_colorButton = colorButton();
+    m_fontSizeSpinBox = new FontSizeSpinBox;
+    m_fontSizeSpinBox->setMinimumWidth(60);
 
-    ui->colorButton->setShowArrow(false);
-    ui->textColorButton->setShowArrow(false);
+    m_boldButton = iconToolButton("format-text-bold", "bold-h-icon", false);
+    m_italicButton = iconToolButton("format-text-italic", "italic-h-icon", false);
+    m_underlineButton = iconToolButton("format-text-underline", "underline-h-icon", false);
+    m_strikeoutButton = iconToolButton("format-text-strikethrough", "strikeout-h-icon", false);
 
-    connect(ui->colorButton, &QmlEditorWidgets::ColorButton::toggled,
+    m_leftAlignmentButton = iconToolButton("format-justify-left", "alignmentleft-h-icon");
+    m_centerHAlignmentButton = iconToolButton("format-justify-center", "alignmentcenterh-h-icon");
+    m_rightAlignmentButton = iconToolButton("format-justify-right", "alignmentright-h-icon");
+
+    m_topAlignmentButton = iconToolButton({}, "alignmenttop-h-icon");
+    m_centerVAlignmentButton = iconToolButton({}, "alignmentmiddle-h-icon");
+    m_bottomAlignmentButton = iconToolButton({}, "alignmentbottom-h-icon");
+
+    m_styleLabel = new QLabel(tr("Style"));
+    m_styleComboBox = new QComboBox;
+    m_styleComboBox->addItems({"Normal", "Outline", "Raised", "Sunken"});
+    m_textColorButton = colorButton();
+
+    auto hAlignButtons = new QButtonGroup(this);
+    hAlignButtons->addButton(m_leftAlignmentButton);
+    hAlignButtons->addButton(m_centerHAlignmentButton);
+    hAlignButtons->addButton(m_rightAlignmentButton);
+
+    auto vAlignButtons = new QButtonGroup(this);
+    vAlignButtons->addButton(m_topAlignmentButton);
+    vAlignButtons->addButton(m_centerVAlignmentButton);
+    vAlignButtons->addButton(m_bottomAlignmentButton);
+
+    using namespace Utils::Layouting;
+    Column {
+        Row { m_fontComboBox, m_colorButton, m_fontSizeSpinBox, },
+        Row {
+            Column {
+                Row { m_boldButton, m_italicButton, m_underlineButton, m_strikeoutButton, st, },
+                Form { m_styleLabel, m_styleComboBox, m_textColorButton, },
+            },
+            Grid {
+                m_leftAlignmentButton, m_centerHAlignmentButton, m_rightAlignmentButton, br,
+                m_topAlignmentButton, m_centerVAlignmentButton, m_bottomAlignmentButton,
+            },
+        },
+    }.attachTo(this);
+
+    connect(m_colorButton, &QmlEditorWidgets::ColorButton::toggled,
             this, &ContextPaneTextWidget::onColorButtonToggled);
-    connect(ui->textColorButton, &QmlEditorWidgets::ColorButton::toggled,
+    connect(m_textColorButton, &QmlEditorWidgets::ColorButton::toggled,
             this, &ContextPaneTextWidget::onTextColorButtonToggled);
 
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
@@ -51,37 +105,37 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     connect(parentContextWidget->colorDialog(), &CustomColorDialog::rejected,
             this, &ContextPaneTextWidget::onColorDialogCancled);
 
-    connect(ui->fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::valueChanged,
+    connect(m_fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::valueChanged,
             this, &ContextPaneTextWidget::onFontSizeChanged);
-    connect(ui->fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::formatChanged,
+    connect(m_fontSizeSpinBox, &QmlEditorWidgets::FontSizeSpinBox::formatChanged,
             this, &ContextPaneTextWidget::onFontFormatChanged);
 
-    connect(ui->boldButton, &QToolButton::toggled,
+    connect(m_boldButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onBoldCheckedChanged);
-    connect(ui->italicButton, &QToolButton::toggled,
+    connect(m_italicButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onItalicCheckedChanged);
-    connect(ui->underlineButton, &QToolButton::toggled,
+    connect(m_underlineButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onUnderlineCheckedChanged);
-    connect(ui->strikeoutButton, &QToolButton::toggled,
+    connect(m_strikeoutButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onStrikeoutCheckedChanged);
-    connect(ui->fontComboBox, &QFontComboBox::currentFontChanged,
+    connect(m_fontComboBox, &QFontComboBox::currentFontChanged,
             this, &ContextPaneTextWidget::onCurrentFontChanged);
 
-    connect(ui->centerHAlignmentButton, &QToolButton::toggled,
+    connect(m_centerHAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
-    connect(ui->leftAlignmentButton, &QToolButton::toggled,
+    connect(m_leftAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
-    connect(ui->rightAlignmentButton, &QToolButton::toggled,
+    connect(m_rightAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onHorizontalAlignmentChanged);
 
-    connect(ui->centerVAlignmentButton, &QToolButton::toggled,
+    connect(m_centerVAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
-    connect(ui->topAlignmentButton, &QToolButton::toggled,
+    connect(m_topAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
-    connect(ui->bottomAlignmentButton, &QToolButton::toggled,
+    connect(m_bottomAlignmentButton, &QToolButton::toggled,
             this, &ContextPaneTextWidget::onVerticalAlignmentChanged);
 
-    connect(ui->styleComboBox, &QComboBox::currentIndexChanged,
+    connect(m_styleComboBox, &QComboBox::currentIndexChanged,
             this, &ContextPaneTextWidget::onStyleComboBoxChanged);
 }
 
@@ -95,12 +149,12 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     if (propertyReader->hasProperty(QLatin1String("font.pointSize"))) {
         QVariant variant = propertyReader->readProperty(QLatin1String("font.pointSize"));
         bool b;
-        ui->fontSizeSpinBox->setValue(variant.toInt(&b));
-        ui->fontSizeSpinBox->setEnabled(b);
-        ui->fontSizeSpinBox->setIsPointSize(true);
+        m_fontSizeSpinBox->setValue(variant.toInt(&b));
+        m_fontSizeSpinBox->setEnabled(b);
+        m_fontSizeSpinBox->setIsPointSize(true);
     } else if (!propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
-        ui->fontSizeSpinBox->setValue(8);
-        ui->fontSizeSpinBox->setIsPointSize(true);
+        m_fontSizeSpinBox->setValue(8);
+        m_fontSizeSpinBox->setIsPointSize(true);
     }
 
     if (m_fontSizeTimer > 0) {
@@ -111,150 +165,150 @@ void ContextPaneTextWidget::setProperties(QmlJS::PropertyReader *propertyReader)
     if (propertyReader->hasProperty(QLatin1String("font.pixelSize"))) {
         QVariant variant = propertyReader->readProperty(QLatin1String("font.pixelSize"));
         bool b;
-        ui->fontSizeSpinBox->setValue(variant.toInt(&b));
+        m_fontSizeSpinBox->setValue(variant.toInt(&b));
 
-        ui->fontSizeSpinBox->setEnabled(b);
-        ui->fontSizeSpinBox->setIsPixelSize(true);
+        m_fontSizeSpinBox->setEnabled(b);
+        m_fontSizeSpinBox->setIsPixelSize(true);
     }
 
-    ui->boldButton->setEnabled(true);
+    m_boldButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.bold"))) {
         QVariant v = propertyReader->readProperty(QLatin1String("font.bold"));
         if (checkIfBoolean(v))
-            ui->boldButton->setChecked(v.toBool());
+            m_boldButton->setChecked(v.toBool());
         else
-            ui->boldButton->setEnabled(false);
+            m_boldButton->setEnabled(false);
     } else {
-        ui->boldButton->setChecked(false);
+        m_boldButton->setChecked(false);
     }
 
-    ui->italicButton->setEnabled(true);
+    m_italicButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.italic"))) {
         QVariant v = propertyReader->readProperty(QLatin1String("font.italic"));
         if (checkIfBoolean(v))
-            ui->italicButton->setChecked(v.toBool());
+            m_italicButton->setChecked(v.toBool());
         else
-            ui->italicButton->setEnabled(false);
+            m_italicButton->setEnabled(false);
     } else {
-        ui->italicButton->setChecked(false);
+        m_italicButton->setChecked(false);
     }
 
-    ui->underlineButton->setEnabled(true);
+    m_underlineButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.underline"))) {
         QVariant v = propertyReader->readProperty(QLatin1String("font.underline"));
         if (checkIfBoolean(v))
-            ui->underlineButton->setChecked(v.toBool());
+            m_underlineButton->setChecked(v.toBool());
         else
-            ui->underlineButton->setEnabled(false);
+            m_underlineButton->setEnabled(false);
     } else {
-        ui->underlineButton->setChecked(false);
+        m_underlineButton->setChecked(false);
     }
 
-    ui->strikeoutButton->setEnabled(true);
+    m_strikeoutButton->setEnabled(true);
     if (propertyReader->hasProperty(QLatin1String("font.strikeout"))) {
         QVariant v = propertyReader->readProperty(QLatin1String("font.strikeout"));
         if (checkIfBoolean(v))
-            ui->strikeoutButton->setChecked(v.toBool());
+            m_strikeoutButton->setChecked(v.toBool());
         else
-            ui->strikeoutButton->setEnabled(false);
+            m_strikeoutButton->setEnabled(false);
     } else {
-        ui->strikeoutButton->setChecked(false);
+        m_strikeoutButton->setChecked(false);
     }
 
     if (propertyReader->hasProperty(QLatin1String("color")))
-        ui->colorButton->setColor(propertyReader->readProperty(QLatin1String("color")).toString());
+        m_colorButton->setColor(propertyReader->readProperty(QLatin1String("color")).toString());
     else
-        ui->colorButton->setColor(QLatin1String("black"));
+        m_colorButton->setColor(QLatin1String("black"));
 
     if (propertyReader->hasProperty(QLatin1String("styleColor")))
-        ui->textColorButton->setColor(propertyReader->readProperty(QLatin1String("styleColor")).toString());
+        m_textColorButton->setColor(propertyReader->readProperty(QLatin1String("styleColor")).toString());
     else
-        ui->textColorButton->setColor(QLatin1String("black"));
+        m_textColorButton->setColor(QLatin1String("black"));
 
     if (propertyReader->hasProperty(QLatin1String("font.family"))) {
         QString familyName = propertyReader->readProperty(QLatin1String("font.family")).toString();
         QFont font;
         font.setFamily(familyName);
 
-        ui->fontComboBox->setCurrentFont(font);
+        m_fontComboBox->setCurrentFont(font);
         if (propertyReader->isBindingOrEnum(QLatin1String("font.family")))
-            ui->fontComboBox->setEnabled(false);
+            m_fontComboBox->setEnabled(false);
         else
-            ui->fontComboBox->setEnabled(true);
+            m_fontComboBox->setEnabled(true);
     }
 
     if (propertyReader->hasProperty(QLatin1String("horizontalAlignment"))) {
         QString alignment = propertyReader->readProperty(QLatin1String("horizontalAlignment")).toString();
-        ui->leftAlignmentButton->setChecked(true);
-        ui->leftAlignmentButton->setEnabled(true);
+        m_leftAlignmentButton->setChecked(true);
+        m_leftAlignmentButton->setEnabled(true);
         if (alignment == QLatin1String("Text.AlignHCenter") || alignment == QLatin1String("AlignHCenter"))
-            ui->centerHAlignmentButton->setChecked(true);
+            m_centerHAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignRight") || alignment == QLatin1String("AlignRight"))
-            ui->rightAlignmentButton->setChecked(true);
+            m_rightAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignLeft") || alignment == QLatin1String("AlignLeft"))
-            ui->leftAlignmentButton->setChecked(true);
+            m_leftAlignmentButton->setChecked(true);
         else
-            ui->leftAlignmentButton->setEnabled(false);
+            m_leftAlignmentButton->setEnabled(false);
     } else {
-        ui->leftAlignmentButton->setChecked(true);
+        m_leftAlignmentButton->setChecked(true);
     }
 
     if (propertyReader->hasProperty(QLatin1String("verticalAlignment"))) {
         QString alignment = propertyReader->readProperty(QLatin1String("verticalAlignment")).toString();
-        ui->topAlignmentButton->setChecked(true);
-        ui->bottomAlignmentButton->setEnabled(true);
+        m_topAlignmentButton->setChecked(true);
+        m_bottomAlignmentButton->setEnabled(true);
         if (alignment == QLatin1String("Text.AlignVCenter") || alignment == QLatin1String("AlignVCenter"))
-            ui->centerVAlignmentButton->setChecked(true);
+            m_centerVAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.AlignBottom") || alignment == QLatin1String("AlignBottom"))
-            ui->bottomAlignmentButton->setChecked(true);
+            m_bottomAlignmentButton->setChecked(true);
         else if (alignment == QLatin1String("Text.Top") || alignment == QLatin1String("AlignTop"))
-            ui->topAlignmentButton->setChecked(true);
+            m_topAlignmentButton->setChecked(true);
         else
-            ui->bottomAlignmentButton->setEnabled(false);
+            m_bottomAlignmentButton->setEnabled(false);
     } else {
-        ui->topAlignmentButton->setChecked(true);
+        m_topAlignmentButton->setChecked(true);
     }
 
     if (propertyReader->hasProperty(QLatin1String("style"))) {
         QString style = propertyReader->readProperty(QLatin1String("style")).toString();
-        ui->styleComboBox->setCurrentIndex(0);
-        ui->styleComboBox->setEnabled(true);
+        m_styleComboBox->setCurrentIndex(0);
+        m_styleComboBox->setEnabled(true);
         if (style == QLatin1String("Text.Outline") || style == QLatin1String("Outline"))
-            ui->styleComboBox->setCurrentIndex(1);
+            m_styleComboBox->setCurrentIndex(1);
         else if (style == QLatin1String("Text.Raised") || style == QLatin1String("Raised"))
-            ui->styleComboBox->setCurrentIndex(2);
+            m_styleComboBox->setCurrentIndex(2);
         else if (style == QLatin1String("Text.Sunken") || style == QLatin1String("Sunken"))
-            ui->styleComboBox->setCurrentIndex(3);
+            m_styleComboBox->setCurrentIndex(3);
         else if (style == QLatin1String("Text.Normal") || style == QLatin1String("Normal"))
-            ui->styleComboBox->setCurrentIndex(0);
+            m_styleComboBox->setCurrentIndex(0);
         else
-            ui->styleComboBox->setEnabled(false);
+            m_styleComboBox->setEnabled(false);
     } else {
-        ui->styleComboBox->setCurrentIndex(0);
+        m_styleComboBox->setCurrentIndex(0);
     }
 }
 
 void ContextPaneTextWidget::setVerticalAlignmentVisible(bool b)
 {
-    ui->centerVAlignmentButton->setEnabled(b);
-    ui->topAlignmentButton->setEnabled(b);
-    ui->bottomAlignmentButton->setEnabled(b);
+    m_centerVAlignmentButton->setEnabled(b);
+    m_topAlignmentButton->setEnabled(b);
+    m_bottomAlignmentButton->setEnabled(b);
 }
 
 void ContextPaneTextWidget::setStyleVisible(bool b)
 {
-    ui->styleComboBox->setEnabled(b);
-    ui->styleLabel->setEnabled(b);
-    ui->textColorButton->setEnabled(b);
+    m_styleComboBox->setEnabled(b);
+    m_styleLabel->setEnabled(b);
+    m_textColorButton->setEnabled(b);
 }
 
 void ContextPaneTextWidget::onTextColorButtonToggled(bool flag)
 {
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     if (flag)
-        ui->colorButton->setChecked(false);
-    QPoint p = mapToGlobal(ui->textColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->textColorButton->color().toString());
+        m_colorButton->setChecked(false);
+    QPoint p = mapToGlobal(m_textColorButton->pos());
+    parentContextWidget->colorDialog()->setupColor(m_textColorButton->color().toString());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -262,10 +316,10 @@ void ContextPaneTextWidget::onTextColorButtonToggled(bool flag)
 void ContextPaneTextWidget::onColorButtonToggled(bool flag)
 {
     if (flag)
-        ui->textColorButton->setChecked(false);
+        m_textColorButton->setChecked(false);
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
-    QPoint p = mapToGlobal(ui->colorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->colorButton->color().toString());
+    QPoint p = mapToGlobal(m_colorButton->pos());
+    parentContextWidget->colorDialog()->setupColor(m_colorButton->color().toString());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -274,20 +328,20 @@ void ContextPaneTextWidget::onColorDialogApplied(const QColor &)
 {
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
-    if (ui->textColorButton->isChecked())
+    if (m_textColorButton->isChecked())
         emit  propertyChanged(QLatin1String("styleColor"),parentContextWidget->colorDialog()->color()); //write back color
-    if (ui->colorButton->isChecked())
+    if (m_colorButton->isChecked())
         emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color()); //write back color
-    ui->textColorButton->setChecked(false);
-    ui->colorButton->setChecked(false);
+    m_textColorButton->setChecked(false);
+    m_colorButton->setChecked(false);
 }
 
 void ContextPaneTextWidget::onColorDialogCancled()
 {
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
-    ui->colorButton->setChecked(false);
-    ui->colorButton->setChecked(false);
+    m_colorButton->setChecked(false);
+    m_colorButton->setChecked(false);
 }
 
 void ContextPaneTextWidget::onFontSizeChanged(int)
@@ -299,8 +353,8 @@ void ContextPaneTextWidget::onFontSizeChanged(int)
 
 void ContextPaneTextWidget::onFontFormatChanged()
 {
-    int size = ui->fontSizeSpinBox->value();
-    if (ui->fontSizeSpinBox->isPointSize())
+    int size = m_fontSizeSpinBox->value();
+    if (m_fontSizeSpinBox->isPointSize())
         emit removeAndChangeProperty(QLatin1String("font.pixelSize"), QLatin1String("font.pointSize"), size, true);
     else
         emit removeAndChangeProperty(QLatin1String("font.pointSize"), QLatin1String("font.pixelSize"), size, true);
@@ -349,11 +403,11 @@ void ContextPaneTextWidget::onCurrentFontChanged(const QFont &font)
 void ContextPaneTextWidget::onHorizontalAlignmentChanged()
 {
     QString alignment;
-    if (ui->centerHAlignmentButton->isChecked())
+    if (m_centerHAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignHCenter");
-    else if (ui->leftAlignmentButton->isChecked())
+    else if (m_leftAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignLeft");
-    else if (ui->rightAlignmentButton->isChecked())
+    else if (m_rightAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignRight");
     if (m_horizontalAlignment != alignment) {
         m_horizontalAlignment = alignment;
@@ -366,7 +420,7 @@ void ContextPaneTextWidget::onHorizontalAlignmentChanged()
 
 void ContextPaneTextWidget::onStyleComboBoxChanged(int index)
 {
-    const QString style = ui->styleComboBox->itemText(index);
+    const QString style = m_styleComboBox->itemText(index);
     if (style == QLatin1String("Normal"))
         emit removeProperty(QLatin1String("style"));
     else
@@ -376,11 +430,11 @@ void ContextPaneTextWidget::onStyleComboBoxChanged(int index)
 void ContextPaneTextWidget::onVerticalAlignmentChanged()
 {
     QString alignment;
-    if (ui->centerVAlignmentButton->isChecked())
+    if (m_centerVAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignVCenter");
-    else if (ui->topAlignmentButton->isChecked())
+    else if (m_topAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignTop");
-    else if (ui->bottomAlignmentButton->isChecked())
+    else if (m_bottomAlignmentButton->isChecked())
         alignment = QLatin1String("Text.AlignBottom");
     if (m_verticalAlignment != alignment) {
         m_verticalAlignment = alignment;
@@ -391,18 +445,13 @@ void ContextPaneTextWidget::onVerticalAlignmentChanged()
     }
 }
 
-ContextPaneTextWidget::~ContextPaneTextWidget()
-{
-    delete ui;
-}
-
 void ContextPaneTextWidget::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_fontSizeTimer) {
         killTimer(m_fontSizeTimer);
         m_fontSizeTimer = -1;
-        int value = ui->fontSizeSpinBox->value();
-        if (ui->fontSizeSpinBox->isPointSize())
+        int value = m_fontSizeSpinBox->value();
+        if (m_fontSizeSpinBox->isPointSize())
             emit propertyChanged(QLatin1String("font.pointSize"), value);
         else
             emit propertyChanged(QLatin1String("font.pixelSize"), value);

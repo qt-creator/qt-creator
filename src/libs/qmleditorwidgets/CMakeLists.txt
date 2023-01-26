@@ -3,7 +3,6 @@ add_qtc_library(QmlEditorWidgets
   SOURCES
     colorbox.cpp colorbox.h
     colorbutton.cpp colorbutton.h
-    contextpanetext.ui
     contextpanetextwidget.cpp contextpanetextwidget.h
     contextpanewidget.cpp contextpanewidget.h
     contextpanewidgetborderimage.ui
