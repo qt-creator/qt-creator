@@ -198,7 +198,7 @@ public:
 
     QString m_container;
 
-    Environment m_cachedEnviroment;
+    std::optional<Environment> m_cachedEnviroment;
     bool m_isShutdown = false;
     DockerDeviceFileAccess m_fileAccess{this};
 };
@@ -500,7 +500,7 @@ void DockerDevicePrivate::stopCurrentContainer()
 
     proc.runBlocking();
 
-    m_cachedEnviroment.clear();
+    m_cachedEnviroment.reset();
 }
 
 bool DockerDevicePrivate::prepareForBuild(const Target *target)
@@ -1137,11 +1137,11 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
 
 Environment DockerDevicePrivate::environment()
 {
-    if (!m_cachedEnviroment.hasChanges())
+    if (!m_cachedEnviroment)
         fetchSystemEnviroment();
 
-    QTC_CHECK(m_cachedEnviroment.hasChanges());
-    return m_cachedEnviroment;
+    QTC_ASSERT(m_cachedEnviroment, return {});
+    return m_cachedEnviroment.value();
 }
 
 void DockerDevicePrivate::shutdown()
