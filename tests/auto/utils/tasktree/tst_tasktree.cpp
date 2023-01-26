@@ -10,11 +10,44 @@
 
 #include <QtTest>
 
-#include <iostream>
-#include <fstream>
-
 using namespace Utils;
 using namespace Utils::Tasking;
+
+enum class Handler {
+    Setup,
+    Done,
+    Error,
+    GroupSetup,
+    GroupDone,
+    GroupError
+};
+
+using Log = QList<QPair<int, Handler>>;
+
+struct CustomStorage
+{
+    CustomStorage() { ++s_count; }
+    ~CustomStorage() { --s_count; }
+    Log m_log;
+    static int instanceCount() { return s_count; }
+private:
+    static int s_count;
+};
+
+int CustomStorage::s_count = 0;
+static const char s_processIdProperty[] = "__processId";
+
+enum class OnStart { Running, NotRunning };
+enum class OnDone { Success, Failure };
+
+struct TestData {
+    TreeStorage<CustomStorage> storage;
+    Group root;
+    Log expectedLog;
+    int taskCount = 0;
+    OnStart onStart = OnStart::Running;
+    OnDone onDone = OnDone::Success;
+};
 
 class tst_TaskTree : public QObject
 {
@@ -37,8 +70,8 @@ private:
 
 void tst_TaskTree::initTestCase()
 {
-    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
-                             + Core::Constants::IDE_CASED_ID + "-XXXXXX");
+    TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
+                                                    + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     const QString libExecPath(qApp->applicationDirPath() + '/'
                               + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
     LauncherInterface::setPathToLauncher(libExecPath);
@@ -48,7 +81,7 @@ void tst_TaskTree::initTestCase()
 
 void tst_TaskTree::cleanupTestCase()
 {
-    Utils::Singleton::deleteAll();
+    Singleton::deleteAll();
 }
 
 void tst_TaskTree::validConstructs()
@@ -80,7 +113,7 @@ void tst_TaskTree::validConstructs()
             Group {
                 parallel,
                 Process([](QtcProcess &) {}, [](const QtcProcess &) {}),
-                OnGroupDone([] {}),
+                OnGroupDone([] {})
             }
         },
         process,
@@ -89,42 +122,9 @@ void tst_TaskTree::validConstructs()
     };
 }
 
-static const char s_processIdProperty[] = "__processId";
-
-enum class Handler {
-    Setup,
-    Done,
-    Error,
-    GroupSetup,
-    GroupDone,
-    GroupError
-};
-
-using Log = QList<QPair<int, Handler>>;
-
-struct CustomStorage
-{
-    CustomStorage() { ++s_count; }
-    ~CustomStorage() { --s_count; }
-    Log m_log;
-    static int instanceCount() { return s_count; }
-private:
-    static int s_count;
-};
-
-int CustomStorage::s_count = 0;
-
-
 void tst_TaskTree::processTree_data()
 {
-    using namespace std::placeholders;
-
-    QTest::addColumn<Group>("root");
-    QTest::addColumn<TreeStorage<CustomStorage>>("storage");
-    QTest::addColumn<Log>("expectedLog");
-    QTest::addColumn<bool>("runningAfterStart");
-    QTest::addColumn<bool>("success");
-    QTest::addColumn<int>("taskCount");
+    QTest::addColumn<TestData>("testData");
 
     TreeStorage<CustomStorage> storage;
 
@@ -134,14 +134,21 @@ void tst_TaskTree::processTree_data()
         process.setProperty(s_processIdProperty, processId);
         storage->m_log.append({processId, Handler::Setup});
     };
-    const auto setupProcess = [setupProcessHelper](QtcProcess &process, int processId) {
-        setupProcessHelper(process, {"-return", "0"}, processId);
+    const auto setupProcess = [setupProcessHelper](int processId) {
+        return [=](QtcProcess &process) {
+            setupProcessHelper(process, {"-return", "0"}, processId);
+        };
     };
-    const auto setupCrashProcess = [setupProcessHelper](QtcProcess &process, int processId) {
-        setupProcessHelper(process, {"-crash"}, processId);
+    const auto setupCrashProcess = [setupProcessHelper](int processId) {
+        return [=](QtcProcess &process) {
+            setupProcessHelper(process, {"-crash"}, processId);
+        };
     };
-    const auto readResultAnonymous = [storage](const QtcProcess &) {
-        storage->m_log.append({-1, Handler::Done});
+    const auto setupDynamicProcess = [setupProcessHelper](int processId, TaskAction action) {
+        return [=](QtcProcess &process) {
+            setupProcessHelper(process, {"-return", "0"}, processId);
+            return action;
+        };
     };
     const auto readResult = [storage](const QtcProcess &process) {
         const int processId = process.property(s_processIdProperty).toInt();
@@ -151,481 +158,543 @@ void tst_TaskTree::processTree_data()
         const int processId = process.property(s_processIdProperty).toInt();
         storage->m_log.append({processId, Handler::Error});
     };
-    const auto groupSetup = [storage](int processId) {
-        storage->m_log.append({processId, Handler::GroupSetup});
+    const auto groupSetup = [storage](int groupId) {
+        return [=] { storage->m_log.append({groupId, Handler::GroupSetup}); };
     };
-    const auto groupDone = [storage](int processId) {
-        storage->m_log.append({processId, Handler::GroupDone});
+    const auto groupDone = [storage](int groupId) {
+        return [=] { storage->m_log.append({groupId, Handler::GroupDone}); };
     };
-    const auto rootDone = [storage] {
-        storage->m_log.append({-1, Handler::GroupDone});
+    const auto groupError = [storage](int groupId) {
+        return [=] { storage->m_log.append({groupId, Handler::GroupError}); };
     };
-    const auto rootError = [storage] {
-        storage->m_log.append({-1, Handler::GroupError});
-    };
-    const auto setupDynamicProcess = [storage, setupProcess](QtcProcess &process, int processId,
-                                                             TaskAction action) {
-        setupProcess(process, processId);
-        return action;
-    };
-
-    const Group emptyRoot {
-        Storage(storage),
-        OnGroupDone(rootDone)
-    };
-    const Log emptyLog{{-1, Handler::GroupDone}};
-    QTest::newRow("Empty") << emptyRoot << storage << emptyLog << false << true << 0;
-
-    const Group dynamicTaskDoneRoot {
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::StopWithDone), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::StopWithDone), readResult, readError)
-    };
-    const Log dynamicTaskDoneLog{{1, Handler::Setup},
-                                 {2, Handler::Setup}};
-    QTest::newRow("DynamicTaskDone") << dynamicTaskDoneRoot << storage << dynamicTaskDoneLog
-                                     << false << true << 2;
-
-    const Group dynamicTaskErrorRoot {
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::StopWithError), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::StopWithError), readResult, readError)
-    };
-    const Log dynamicTaskErrorLog{{1, Handler::Setup}};
-    QTest::newRow("DynamicTaskError") << dynamicTaskErrorRoot << storage << dynamicTaskErrorLog
-                                      << false << false << 2;
-
-    const Group dynamicMixedRoot {
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
-    };
-    const Log dynamicMixedLog{{1, Handler::Setup},
-                              {1, Handler::Done},
-                              {2, Handler::Setup},
-                              {2, Handler::Done},
-                              {3, Handler::Setup}};
-    QTest::newRow("DynamicMixed") << dynamicMixedRoot << storage << dynamicMixedLog
-                                  << true << false << 4;
-
-    const Group dynamicParallelRoot {
-        parallel,
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
-    };
-    const Log dynamicParallelLog{{1, Handler::Setup},
-                                 {2, Handler::Setup},
-                                 {3, Handler::Setup},
-                                 {1, Handler::Error},
-                                 {2, Handler::Error}};
-    QTest::newRow("DynamicParallel") << dynamicParallelRoot << storage << dynamicParallelLog
-                                     << false << false << 4;
-
-    const Group dynamicParallelGroupRoot {
-        parallel,
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
-        Group {
-            Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::StopWithError), readResult, readError)
-        },
-        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
-    };
-    const Log dynamicParallelGroupLog{{1, Handler::Setup},
-                                      {2, Handler::Setup},
-                                      {3, Handler::Setup},
-                                      {1, Handler::Error},
-                                      {2, Handler::Error}};
-    QTest::newRow("DynamicParallelGroup") << dynamicParallelGroupRoot << storage
-                                          << dynamicParallelGroupLog << false << false << 4;
-
-    const Group dynamicParallelGroupSetupRoot {
-        parallel,
-        Storage(storage),
-        Process(std::bind(setupDynamicProcess, _1, 1, TaskAction::Continue), readResult, readError),
-        Process(std::bind(setupDynamicProcess, _1, 2, TaskAction::Continue), readResult, readError),
-        Group {
-            OnGroupSetup([storage] { storage->m_log.append({0, Handler::GroupSetup});
-                                     return TaskAction::StopWithError; }),
-            Process(std::bind(setupDynamicProcess, _1, 3, TaskAction::Continue), readResult, readError)
-        },
-        Process(std::bind(setupDynamicProcess, _1, 4, TaskAction::Continue), readResult, readError)
-    };
-    const Log dynamicParallelGroupSetupLog{{1, Handler::Setup},
-                                           {2, Handler::Setup},
-                                           {0, Handler::GroupSetup},
-                                           {1, Handler::Error},
-                                           {2, Handler::Error}};
-    QTest::newRow("DynamicParallelGroupSetup") << dynamicParallelGroupSetupRoot << storage
-                                               << dynamicParallelGroupSetupLog << false << false << 4;
-
-    const Group nestedRoot {
-        Storage(storage),
-        Group {
-            Group {
-                Group {
-                    Group {
-                        Group {
-                            Process(std::bind(setupProcess, _1, 5), readResult),
-                            OnGroupSetup(std::bind(groupSetup, 5)),
-                            OnGroupDone(std::bind(groupDone, 5))
-                        },
-                        OnGroupSetup(std::bind(groupSetup, 4)),
-                        OnGroupDone(std::bind(groupDone, 4))
-                    },
-                    OnGroupSetup(std::bind(groupSetup, 3)),
-                    OnGroupDone(std::bind(groupDone, 3))
-                },
-                OnGroupSetup(std::bind(groupSetup, 2)),
-                OnGroupDone(std::bind(groupDone, 2))
-            },
-            OnGroupSetup(std::bind(groupSetup, 1)),
-            OnGroupDone(std::bind(groupDone, 1))
-        },
-        OnGroupDone(rootDone)
-    };
-    const Log nestedLog{{1, Handler::GroupSetup},
-                        {2, Handler::GroupSetup},
-                        {3, Handler::GroupSetup},
-                        {4, Handler::GroupSetup},
-                        {5, Handler::GroupSetup},
-                        {5, Handler::Setup},
-                        {5, Handler::Done},
-                        {5, Handler::GroupDone},
-                        {4, Handler::GroupDone},
-                        {3, Handler::GroupDone},
-                        {2, Handler::GroupDone},
-                        {1, Handler::GroupDone},
-                        {-1, Handler::GroupDone}};
-    QTest::newRow("Nested") << nestedRoot << storage << nestedLog << true << true << 1;
-
-    const Group parallelRoot {
-        Storage(storage),
-        parallel,
-        Process(std::bind(setupProcess, _1, 1), readResultAnonymous),
-        Process(std::bind(setupProcess, _1, 2), readResultAnonymous),
-        Process(std::bind(setupProcess, _1, 3), readResultAnonymous),
-        Process(std::bind(setupProcess, _1, 4), readResultAnonymous),
-        Process(std::bind(setupProcess, _1, 5), readResultAnonymous),
-        OnGroupDone(rootDone)
-    };
-    const Log parallelLog{{1, Handler::Setup}, // Setup order is determined in parallel mode
-                          {2, Handler::Setup},
-                          {3, Handler::Setup},
-                          {4, Handler::Setup},
-                          {5, Handler::Setup},
-                          {-1, Handler::Done}, // Done order isn't determined in parallel mode
-                          {-1, Handler::Done},
-                          {-1, Handler::Done},
-                          {-1, Handler::Done},
-                          {-1, Handler::Done},
-                          {-1, Handler::GroupDone}}; // Done handlers may come in different order
-    QTest::newRow("Parallel") << parallelRoot << storage << parallelLog << true << true << 5;
-
-    const Group sequentialRoot {
-        Storage(storage),
-        Process(std::bind(setupProcess, _1, 1), readResult),
-        Process(std::bind(setupProcess, _1, 2), readResult),
-        Process(std::bind(setupProcess, _1, 3), readResult),
-        Process(std::bind(setupProcess, _1, 4), readResult),
-        Process(std::bind(setupProcess, _1, 5), readResult),
-        OnGroupDone(rootDone)
-    };
-    const Group sequentialEncapsulatedRoot {
-        Storage(storage),
-        Group {
-            Process(std::bind(setupProcess, _1, 1), readResult)
-        },
-        Group {
-            Process(std::bind(setupProcess, _1, 2), readResult)
-        },
-        Group {
-            Process(std::bind(setupProcess, _1, 3), readResult)
-        },
-        Group {
-            Process(std::bind(setupProcess, _1, 4), readResult)
-        },
-        Group {
-            Process(std::bind(setupProcess, _1, 5), readResult)
-        },
-        OnGroupDone(rootDone)
-    };
-    auto setupSubTree = [=](TaskTree &taskTree) {
-        const Group nestedRoot {
-            Storage(storage),
-            Process(std::bind(setupProcess, _1, 2), readResult),
-            Process(std::bind(setupProcess, _1, 3), readResult),
-            Process(std::bind(setupProcess, _1, 4), readResult),
-        };
-        taskTree.setupRoot(nestedRoot);
-        CustomStorage *activeStorage = storage.activeStorage();
-        auto collectSubLog = [activeStorage](CustomStorage *subTreeStorage){
-            activeStorage->m_log += subTreeStorage->m_log;
-        };
-        taskTree.onStorageDone(storage, collectSubLog);
-    };
-    const Group sequentialSubTreeRoot {
-        Storage(storage),
-        Process(std::bind(setupProcess, _1, 1), readResult),
-        Tree(setupSubTree),
-        Process(std::bind(setupProcess, _1, 5), readResult),
-        OnGroupDone(rootDone)
-    };
-    const Log sequentialLog{{1, Handler::Setup},
-                            {1, Handler::Done},
-                            {2, Handler::Setup},
-                            {2, Handler::Done},
-                            {3, Handler::Setup},
-                            {3, Handler::Done},
-                            {4, Handler::Setup},
-                            {4, Handler::Done},
-                            {5, Handler::Setup},
-                            {5, Handler::Done},
-                            {-1, Handler::GroupDone}};
-    QTest::newRow("Sequential") << sequentialRoot << storage << sequentialLog << true << true << 5;
-    QTest::newRow("SequentialEncapsulated") << sequentialEncapsulatedRoot << storage
-                                            << sequentialLog << true << true << 5;
-    QTest::newRow("SequentialSubTree") << sequentialSubTreeRoot << storage << sequentialLog
-                                       << true << true << 3; // We don't inspect subtrees
-
-    const Group sequentialNestedRoot {
-        Storage(storage),
-        Group {
-            Process(std::bind(setupProcess, _1, 1), readResult),
-            Group {
-                Process(std::bind(setupProcess, _1, 2), readResult),
-                Group {
-                    Process(std::bind(setupProcess, _1, 3), readResult),
-                    Group {
-                        Process(std::bind(setupProcess, _1, 4), readResult),
-                        Group {
-                            Process(std::bind(setupProcess, _1, 5), readResult),
-                            OnGroupDone(std::bind(groupDone, 5))
-                        },
-                        OnGroupDone(std::bind(groupDone, 4))
-                    },
-                    OnGroupDone(std::bind(groupDone, 3))
-                },
-                OnGroupDone(std::bind(groupDone, 2))
-            },
-            OnGroupDone(std::bind(groupDone, 1))
-        },
-        OnGroupDone(rootDone)
-    };
-    const Log sequentialNestedLog{{1, Handler::Setup},
-                                  {1, Handler::Done},
-                                  {2, Handler::Setup},
-                                  {2, Handler::Done},
-                                  {3, Handler::Setup},
-                                  {3, Handler::Done},
-                                  {4, Handler::Setup},
-                                  {4, Handler::Done},
-                                  {5, Handler::Setup},
-                                  {5, Handler::Done},
-                                  {5, Handler::GroupDone},
-                                  {4, Handler::GroupDone},
-                                  {3, Handler::GroupDone},
-                                  {2, Handler::GroupDone},
-                                  {1, Handler::GroupDone},
-                                  {-1, Handler::GroupDone}};
-    QTest::newRow("SequentialNested") << sequentialNestedRoot << storage << sequentialNestedLog
-                                      << true << true << 5;
-
-    const Group sequentialErrorRoot {
-        Storage(storage),
-        Process(std::bind(setupProcess, _1, 1), readResult),
-        Process(std::bind(setupProcess, _1, 2), readResult),
-        Process(std::bind(setupCrashProcess, _1, 3), readResult, readError),
-        Process(std::bind(setupProcess, _1, 4), readResult),
-        Process(std::bind(setupProcess, _1, 5), readResult),
-        OnGroupDone(rootDone),
-        OnGroupError(rootError)
-    };
-    const Log sequentialErrorLog{{1, Handler::Setup},
-                                 {1, Handler::Done},
-                                 {2, Handler::Setup},
-                                 {2, Handler::Done},
-                                 {3, Handler::Setup},
-                                 {3, Handler::Error},
-                                 {-1, Handler::GroupError}};
-    QTest::newRow("SequentialError") << sequentialErrorRoot << storage << sequentialErrorLog
-                                     << true << false << 5;
 
     const auto constructSimpleSequence = [=](const Workflow &policy) {
         return Group {
             Storage(storage),
             policy,
-            Process(std::bind(setupProcess, _1, 1), readResult),
-            Process(std::bind(setupCrashProcess, _1, 2), readResult, readError),
-            Process(std::bind(setupProcess, _1, 3), readResult),
-            OnGroupDone(rootDone),
-            OnGroupError(rootError)
+            Process(setupProcess(1), readResult),
+            Process(setupCrashProcess(2), readResult, readError),
+            Process(setupProcess(3), readResult),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
         };
     };
-
-    const Group stopOnErrorRoot = constructSimpleSequence(stopOnError);
-    const Log stopOnErrorLog{{1, Handler::Setup},
-                             {1, Handler::Done},
-                             {2, Handler::Setup},
-                             {2, Handler::Error},
-                             {-1, Handler::GroupError}};
-    QTest::newRow("StopOnError") << stopOnErrorRoot << storage << stopOnErrorLog << true << false << 3;
-
-    const Group continueOnErrorRoot = constructSimpleSequence(continueOnError);
-    const Log continueOnErrorLog{{1, Handler::Setup},
-                                 {1, Handler::Done},
-                                 {2, Handler::Setup},
-                                 {2, Handler::Error},
-                                 {3, Handler::Setup},
-                                 {3, Handler::Done},
-                                 {-1, Handler::GroupError}};
-    QTest::newRow("ContinueOnError") << continueOnErrorRoot << storage << continueOnErrorLog
-                                     << true << false << 3;
-
-    const Group stopOnDoneRoot = constructSimpleSequence(stopOnDone);
-    const Log stopOnDoneLog{{1, Handler::Setup},
-                            {1, Handler::Done},
-                            {-1, Handler::GroupDone}};
-    QTest::newRow("StopOnDone") << stopOnDoneRoot << storage << stopOnDoneLog
-                                << true << true << 3;
-
-    const Group continueOnDoneRoot = constructSimpleSequence(continueOnDone);
-    const Log continueOnDoneLog{{1, Handler::Setup},
-                                {1, Handler::Done},
-                                {2, Handler::Setup},
-                                {2, Handler::Error},
-                                {3, Handler::Setup},
-                                {3, Handler::Done},
-                                {-1, Handler::GroupDone}};
-    QTest::newRow("ContinueOnDone") << continueOnDoneRoot << storage << continueOnDoneLog
-                                    << true << true << 3;
-
-    const Group optionalRoot {
-        Storage(storage),
-        optional,
-        Process(std::bind(setupCrashProcess, _1, 1), readResult, readError),
-        Process(std::bind(setupCrashProcess, _1, 2), readResult, readError),
-        OnGroupDone(rootDone),
-        OnGroupError(rootError)
-    };
-    const Log optionalLog{{1, Handler::Setup},
-                          {1, Handler::Error},
-                          {2, Handler::Setup},
-                          {2, Handler::Error},
-                          {-1, Handler::GroupDone}};
-    QTest::newRow("Optional") << optionalRoot << storage << optionalLog << true << true << 2;
-
-    const auto stopWithDoneSetup = [] { return TaskAction::StopWithDone; };
-    const auto stopWithErrorSetup = [] { return TaskAction::StopWithError; };
-    const auto continueSetup = [] { return TaskAction::Continue; };
-    const auto constructDynamicSetup = [=](const OnGroupSetup &dynamicSetup) {
+    const auto constructDynamicHierarchy = [=](TaskAction taskAction) {
         return Group {
             Storage(storage),
             Group {
-                Process(std::bind(setupProcess, _1, 1), readResult)
+                Process(setupProcess(1), readResult)
             },
             Group {
-                dynamicSetup,
-                Process(std::bind(setupProcess, _1, 2), readResult),
-                Process(std::bind(setupProcess, _1, 3), readResult),
-                Process(std::bind(setupProcess, _1, 4), readResult)
+                OnGroupSetup([=] { return taskAction; }),
+                Process(setupProcess(2), readResult),
+                Process(setupProcess(3), readResult),
+                Process(setupProcess(4), readResult)
             },
-            OnGroupDone(rootDone),
-            OnGroupError(rootError)
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
         };
     };
-    const Group dynamicSetupDoneRoot = constructDynamicSetup({stopWithDoneSetup});
-    const Log dynamicSetupDoneLog{{1, Handler::Setup},
-                                  {1, Handler::Done},
-                                  {-1, Handler::GroupDone}};
-    QTest::newRow("DynamicSetupDone") << dynamicSetupDoneRoot << storage << dynamicSetupDoneLog
-                                      << true << true << 4;
 
-    const Group dynamicSetupErrorRoot = constructDynamicSetup({stopWithErrorSetup});
-    const Log dynamicSetupErrorLog{{1, Handler::Setup},
-                                  {1, Handler::Done},
-                                  {-1, Handler::GroupError}};
-    QTest::newRow("DynamicSetupError") << dynamicSetupErrorRoot << storage << dynamicSetupErrorLog
-                                       << true << false << 4;
+    {
+        const Group root {
+            Storage(storage),
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {{0, Handler::GroupDone}};
+        QTest::newRow("Empty")
+                << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+    }
 
-    const Group dynamicSetupContinueRoot = constructDynamicSetup({continueSetup});
-    const Log dynamicSetupContinueLog{{1, Handler::Setup},
-                                      {1, Handler::Done},
-                                      {2, Handler::Setup},
-                                      {2, Handler::Done},
-                                      {3, Handler::Setup},
-                                      {3, Handler::Done},
-                                      {4, Handler::Setup},
-                                      {4, Handler::Done},
-                                      {-1, Handler::GroupDone}};
-    QTest::newRow("DynamicSetupContinue") << dynamicSetupContinueRoot << storage
-                                          << dynamicSetupContinueLog << true << true << 4;
+    {
+        const Group root {
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::StopWithDone), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::StopWithDone), readResult, readError)
+        };
+        const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
+        QTest::newRow("DynamicTaskDone")
+                << TestData{storage, root, log, 2, OnStart::NotRunning, OnDone::Success};
+    }
 
-    const Group nestedParallelRoot {
-        ParallelLimit(2),
-        Storage(storage),
-        Group {
-            Storage(TreeStorage<CustomStorage>()),
-            OnGroupSetup(std::bind(groupSetup, 1)),
+    {
+        const Group root {
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::StopWithError), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::StopWithError), readResult, readError)
+        };
+        const Log log {{1, Handler::Setup}};
+        QTest::newRow("DynamicTaskError")
+                << TestData{storage, root, log, 2, OnStart::NotRunning, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError),
+            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::Setup}
+        };
+        QTest::newRow("DynamicMixed")
+                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            parallel,
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError),
+            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Error}
+        };
+        QTest::newRow("DynamicParallel")
+                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            parallel,
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
             Group {
-                parallel,
-                Process(std::bind(setupProcess, _1, 1)),
-            }
-        },
-        Group {
-            Storage(TreeStorage<CustomStorage>()),
-            OnGroupSetup(std::bind(groupSetup, 2)),
+                Process(setupDynamicProcess(3, TaskAction::StopWithError), readResult, readError)
+            },
+            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Error}
+        };
+        QTest::newRow("DynamicParallelGroup")
+                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            parallel,
+            Storage(storage),
+            Process(setupDynamicProcess(1, TaskAction::Continue), readResult, readError),
+            Process(setupDynamicProcess(2, TaskAction::Continue), readResult, readError),
             Group {
-                parallel,
-                Process(std::bind(setupProcess, _1, 2)),
-            }
-        },
-        Group {
-            Storage(TreeStorage<CustomStorage>()),
-            OnGroupSetup(std::bind(groupSetup, 3)),
+                OnGroupSetup([storage] {
+                    storage->m_log.append({0, Handler::GroupSetup});
+                    return TaskAction::StopWithError;
+                }),
+                Process(setupDynamicProcess(3, TaskAction::Continue), readResult, readError)
+            },
+            Process(setupDynamicProcess(4, TaskAction::Continue), readResult, readError)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {2, Handler::Setup},
+            {0, Handler::GroupSetup},
+            {1, Handler::Error},
+            {2, Handler::Error}
+        };
+        QTest::newRow("DynamicParallelGroupSetup")
+                << TestData{storage, root, log, 4, OnStart::NotRunning, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
             Group {
-                parallel,
-                Process(std::bind(setupProcess, _1, 3)),
-            }
-        },
-        Group {
-            Storage(TreeStorage<CustomStorage>()),
-            OnGroupSetup(std::bind(groupSetup, 4)),
+                Group {
+                    Group {
+                        Group {
+                            Group {
+                                Process(setupProcess(5), readResult, readError),
+                                OnGroupSetup(groupSetup(5)),
+                                OnGroupDone(groupDone(5))
+                            },
+                            OnGroupSetup(groupSetup(4)),
+                            OnGroupDone(groupDone(4))
+                        },
+                        OnGroupSetup(groupSetup(3)),
+                        OnGroupDone(groupDone(3))
+                    },
+                    OnGroupSetup(groupSetup(2)),
+                    OnGroupDone(groupDone(2))
+                },
+                OnGroupSetup(groupSetup(1)),
+                OnGroupDone(groupDone(1))
+            },
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {2, Handler::GroupSetup},
+            {3, Handler::GroupSetup},
+            {4, Handler::GroupSetup},
+            {5, Handler::GroupSetup},
+            {5, Handler::Setup},
+            {5, Handler::Done},
+            {5, Handler::GroupDone},
+            {4, Handler::GroupDone},
+            {3, Handler::GroupDone},
+            {2, Handler::GroupDone},
+            {1, Handler::GroupDone},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("Nested")
+                << TestData{storage, root, log, 1, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const auto readResultAnonymous = [=](const QtcProcess &) {
+            storage->m_log.append({0, Handler::Done});
+        };
+        const Group root {
+            Storage(storage),
+            parallel,
+            Process(setupProcess(1), readResultAnonymous),
+            Process(setupProcess(2), readResultAnonymous),
+            Process(setupProcess(3), readResultAnonymous),
+            Process(setupProcess(4), readResultAnonymous),
+            Process(setupProcess(5), readResultAnonymous),
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {
+            {1, Handler::Setup}, // Setup order is determined in parallel mode
+            {2, Handler::Setup},
+            {3, Handler::Setup},
+            {4, Handler::Setup},
+            {5, Handler::Setup},
+            {0, Handler::Done}, // Done order isn't determined in parallel mode
+            {0, Handler::Done},
+            {0, Handler::Done},
+            {0, Handler::Done},
+            {0, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("Parallel")
+                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        auto setupSubTree = [=](TaskTree &taskTree) {
+            const Group nestedRoot {
+                Storage(storage),
+                Process(setupProcess(2), readResult),
+                Process(setupProcess(3), readResult),
+                Process(setupProcess(4), readResult)
+            };
+            taskTree.setupRoot(nestedRoot);
+            CustomStorage *activeStorage = storage.activeStorage();
+            auto collectSubLog = [activeStorage](CustomStorage *subTreeStorage){
+                activeStorage->m_log += subTreeStorage->m_log;
+            };
+            taskTree.onStorageDone(storage, collectSubLog);
+        };
+        const Group root1 {
+            Storage(storage),
+            Process(setupProcess(1), readResult),
+            Process(setupProcess(2), readResult),
+            Process(setupProcess(3), readResult),
+            Process(setupProcess(4), readResult),
+            Process(setupProcess(5), readResult),
+            OnGroupDone(groupDone(0))
+        };
+        const Group root2 {
+            Storage(storage),
+            Group { Process(setupProcess(1), readResult) },
+            Group { Process(setupProcess(2), readResult) },
+            Group { Process(setupProcess(3), readResult) },
+            Group { Process(setupProcess(4), readResult) },
+            Group { Process(setupProcess(5), readResult) },
+            OnGroupDone(groupDone(0))
+        };
+        const Group root3 {
+            Storage(storage),
+            Process(setupProcess(1), readResult),
+            Tree(setupSubTree),
+            Process(setupProcess(5), readResult),
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Setup},
+            {4, Handler::Done},
+            {5, Handler::Setup},
+            {5, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("Sequential")
+                << TestData{storage, root1, log, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("SequentialEncapsulated")
+                << TestData{storage, root2, log, 5, OnStart::Running, OnDone::Success};
+        QTest::newRow("SequentialSubTree") // We don't inspect subtrees, so taskCount is 3, not 5.
+                << TestData{storage, root3, log, 3, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
             Group {
-                parallel,
-                Process(std::bind(setupProcess, _1, 4)),
+                Process(setupProcess(1), readResult),
+                Group {
+                    Process(setupProcess(2), readResult),
+                    Group {
+                        Process(setupProcess(3), readResult),
+                        Group {
+                            Process(setupProcess(4), readResult),
+                            Group {
+                                Process(setupProcess(5), readResult),
+                                OnGroupDone(groupDone(5))
+                            },
+                            OnGroupDone(groupDone(4))
+                        },
+                        OnGroupDone(groupDone(3))
+                    },
+                    OnGroupDone(groupDone(2))
+                },
+                OnGroupDone(groupDone(1))
+            },
+            OnGroupDone(groupDone(0))
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Setup},
+            {4, Handler::Done},
+            {5, Handler::Setup},
+            {5, Handler::Done},
+            {5, Handler::GroupDone},
+            {4, Handler::GroupDone},
+            {3, Handler::GroupDone},
+            {2, Handler::GroupDone},
+            {1, Handler::GroupDone},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("SequentialNested")
+                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            Process(setupProcess(1), readResult),
+            Process(setupProcess(2), readResult),
+            Process(setupCrashProcess(3), readResult, readError),
+            Process(setupProcess(4), readResult),
+            Process(setupProcess(5), readResult),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Error},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("SequentialError")
+                << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root = constructSimpleSequence(stopOnError);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("StopOnError")
+                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root = constructSimpleSequence(continueOnError);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("ContinueOnError")
+                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root = constructSimpleSequence(stopOnDone);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("StopOnDone")
+                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root = constructSimpleSequence(continueOnDone);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("ContinueOnDone")
+                << TestData{storage, root, log, 3, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            optional,
+            Process(setupCrashProcess(1), readResult, readError),
+            Process(setupCrashProcess(2), readResult, readError),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {2, Handler::Setup},
+            {2, Handler::Error},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("Optional")
+                << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root = constructDynamicHierarchy(TaskAction::StopWithDone);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("DynamicSetupDone")
+                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root = constructDynamicHierarchy(TaskAction::StopWithError);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("DynamicSetupError")
+                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root = constructDynamicHierarchy(TaskAction::Continue);
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::Done},
+            {2, Handler::Setup},
+            {2, Handler::Done},
+            {3, Handler::Setup},
+            {3, Handler::Done},
+            {4, Handler::Setup},
+            {4, Handler::Done},
+            {0, Handler::GroupDone}
+        };
+        QTest::newRow("DynamicSetupContinue")
+                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(1)),
+                Group {
+                    parallel,
+                    Process(setupProcess(1))
+                }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(2)),
+                Group {
+                    parallel,
+                    Process(setupProcess(2))
+                }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(3)),
+                Group {
+                    parallel,
+                    Process(setupProcess(3))
+                }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(4)),
+                Group {
+                    parallel,
+                    Process(setupProcess(4))
+                }
             }
-        },
-    };
-    const Log nestedParallelLog{{1, Handler::GroupSetup},
-                                {1, Handler::Setup},
-                                {2, Handler::GroupSetup},
-                                {2, Handler::Setup},
-                                {3, Handler::GroupSetup},
-                                {3, Handler::Setup},
-                                {4, Handler::GroupSetup},
-                                {4, Handler::Setup}};
-    QTest::newRow("NestedParallel") << nestedParallelRoot << storage << nestedParallelLog
-                                    << true << true << 4;
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {4, Handler::GroupSetup},
+            {4, Handler::Setup}
+        };
+        QTest::newRow("NestedParallel")
+                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+    }
 }
 
 void tst_TaskTree::processTree()
 {
-    QFETCH(Group, root);
-    QFETCH(TreeStorage<CustomStorage>, storage);
-    QFETCH(Log, expectedLog);
-    QFETCH(bool, runningAfterStart);
-    QFETCH(bool, success);
-    QFETCH(int, taskCount);
+    QFETCH(TestData, testData);
 
     QEventLoop eventLoop;
-    TaskTree taskTree(root);
-    QCOMPARE(taskTree.taskCount(), taskCount);
+    TaskTree taskTree(testData.root);
+    QCOMPARE(taskTree.taskCount(), testData.taskCount);
     int doneCount = 0;
     int errorCount = 0;
     connect(&taskTree, &TaskTree::done, this, [&doneCount, &eventLoop] {
@@ -640,11 +709,12 @@ void tst_TaskTree::processTree()
     auto collectLog = [&actualLog](CustomStorage *storage){
         actualLog = storage->m_log;
     };
-    taskTree.onStorageDone(storage, collectLog);
+    taskTree.onStorageDone(testData.storage, collectLog);
     taskTree.start();
-    QCOMPARE(taskTree.isRunning(), runningAfterStart);
+    const bool expectRunning = testData.onStart == OnStart::Running;
+    QCOMPARE(taskTree.isRunning(), expectRunning);
 
-    if (runningAfterStart) {
+    if (expectRunning) {
         QTimer timer;
         bool timedOut = false;
         connect(&timer, &QTimer::timeout, &eventLoop, [&eventLoop, &timedOut] {
@@ -659,12 +729,13 @@ void tst_TaskTree::processTree()
         QCOMPARE(taskTree.isRunning(), false);
     }
 
-    QCOMPARE(taskTree.progressValue(), taskCount);
-    QCOMPARE(actualLog, expectedLog);
+    QCOMPARE(taskTree.progressValue(), testData.taskCount);
+    QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
-    const int expectedDoneCount = success ? 1 : 0;
-    const int expectedErrorCount = success ? 0 : 1;
+    const bool expectSuccess = testData.onDone == OnDone::Success;
+    const int expectedDoneCount = expectSuccess ? 1 : 0;
+    const int expectedErrorCount = expectSuccess ? 0 : 1;
     QCOMPARE(doneCount, expectedDoneCount);
     QCOMPARE(errorCount, expectedErrorCount);
 }
