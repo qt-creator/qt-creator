@@ -177,7 +177,7 @@ static void processTerminated(const QString &binary)
 DesignerExternalEditor::DesignerExternalEditor()
 {
     setId("Qt.Designer");
-    setDisplayName(QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Designer"));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Designer"));
     setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
 }
 
@@ -250,7 +250,7 @@ static QString linguistBinary(const QtSupport::QtVersion *qtVersion)
 LinguistEditor::LinguistEditor()
 {
     setId("Qt.Linguist");
-    setDisplayName(QT_TRANSLATE_NOOP("OpenWith::Editors", "Qt Linguist"));
+    setDisplayName(QCoreApplication::translate("OpenWith::Editors", "Qt Linguist"));
     setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
 }
 
