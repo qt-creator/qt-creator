@@ -354,7 +354,8 @@ bool ToolBarBackend::isDesignModeEnabled() const
 
 int ToolBarBackend::currentStyle() const
 {
-    QTC_ASSERT(currentDesignDocument(), return 0);
+    if (!currentDesignDocument())
+        return 0;
 
     auto view = currentDesignDocument()->rewriterView();
 
