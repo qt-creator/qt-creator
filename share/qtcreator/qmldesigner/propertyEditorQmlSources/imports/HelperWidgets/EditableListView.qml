@@ -23,6 +23,8 @@ Item {
     property real __actionIndicatorWidth: StudioTheme.Values.squareComponentWidth
     property real __actionIndicatorHeight: StudioTheme.Values.height
     property string typeFilter: "QtQuick3D.Material"
+    property string textRole: "IdAndNameRole"
+    property string valueRole: "IdRole"
     property int activatedReason: ComboBox.ActivatedReason.Other
 
     property bool delegateHover: false
@@ -49,8 +51,9 @@ Item {
 
                 actionIndicatorVisible: false
                 typeFilter: editableListView.typeFilter
-                editText: modelData
                 initialModelData: modelData
+                textRole: editableListView.textRole
+                valueRole: editableListView.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: implicitWidth
 
@@ -58,20 +61,22 @@ Item {
                     if (itemFilterComboBox.focus)
                         myColumn.currentIndex = index
 
-                    if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
+                    var curValue = itemFilterComboBox.availableValue()
+                    if (itemFilterComboBox.empty && curValue !== "") {
                         myRepeater.dirty = false
-                        editableListView.add(itemFilterComboBox.editText)
+                        editableListView.add(curValue)
                     }
                 }
 
-                onCompressedActivated: {
+                onCompressedActivated: function(index, reason) {
                     editableListView.activatedReason = reason
 
-                    if (itemFilterComboBox.empty && itemFilterComboBox.editText !== "") {
+                    var curValue = itemFilterComboBox.availableValue()
+                    if (itemFilterComboBox.empty && curValue) {
                         myRepeater.dirty = false
-                        editableListView.add(itemFilterComboBox.editText)
+                        editableListView.add(curValue)
                     } else {
-                        editableListView.replace(itemFilterComboBox.myIndex, itemFilterComboBox.editText)
+                        editableListView.replace(itemFilterComboBox.myIndex, curValue)
                     }
                 }
 
@@ -170,21 +175,25 @@ Item {
                 validator: RegExpValidator { regExp: /(^[a-z_]\w*|^[A-Z]\w*\.{1}([a-z_]\w*\.?)+)/ }
                 actionIndicatorVisible: false
                 typeFilter: editableListView.typeFilter
+                textRole: editableListView.textRole
+                valueRole: editableListView.valueRole
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: implicitWidth
 
                 onFocusChanged: {
-                    if (dummyComboBox.editText !== "")
-                        editableListView.add(dummyComboBox.editText)
+                    var curValue = dummyComboBox.availableValue()
+                    if (curValue !== "")
+                        editableListView.add(curValue)
                 }
 
                 onCompressedActivated: {
                     editableListView.activatedReason = reason
 
-                    if (dummyComboBox.editText !== "")
-                        editableListView.add(dummyComboBox.editText)
+                    var curValue = dummyComboBox.availableValue()
+                    if (curValue !== "")
+                        editableListView.add(curValue)
                     else
-                        editableListView.replace(dummyComboBox.myIndex, dummyComboBox.editText)
+                        editableListView.replace(dummyComboBox.myIndex, curValue)
                 }
 
                 onHoverChanged: editableListView.delegateHover = dummyComboBox.hover

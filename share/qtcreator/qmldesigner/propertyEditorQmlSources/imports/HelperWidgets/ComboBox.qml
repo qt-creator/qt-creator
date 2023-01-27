@@ -146,11 +146,15 @@ StudioControls.ComboBox {
         if (!comboBox.__isCompleted)
             return
 
-        let inputValue = comboBox.editText
-
-        let index = comboBox.find(inputValue)
-        if (index !== -1)
-            inputValue = comboBox.textAt(index)
+        let inputText = comboBox.editText
+        let inputValue = inputText;
+        let index = comboBox.find(inputText)
+        if (index !== -1) {
+            let modelIdx = comboBox.model.index(index)
+            inputValue = comboBox.valueRole
+                    ? comboBox.model.data(modelIdx, comboBox.valueRole)
+                    : comboBox.textAt(index)
+        }
 
         comboBox.backendValue.value = inputValue
 
@@ -166,6 +170,18 @@ StudioControls.ComboBox {
 
         if (comboBox.manualMapping)
             return
+
+        if (comboBox.valueRole && comboBox.textRole !== comboBox.valueRole) {
+            let inputText = comboBox.currentText
+            let inputValue = comboBox.currentValue
+            let index = comboBox.find(inputText)
+            if (index !== -1) {
+                let modelIdx = comboBox.model.index(index)
+                inputValue = comboBox.model.data(modelIdx, comboBox.valueRole)
+            }
+            comboBox.backendValue.value = inputValue
+            return
+        }
 
         switch (comboBox.valueType) {
         case ComboBox.ValueType.String:

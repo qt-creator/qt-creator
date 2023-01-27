@@ -14,7 +14,9 @@ StudioControls.ComboBox {
     property bool __isCompleted: false
 
     editable: true
-    model: itemFilterModel.itemModel
+    model: itemFilterModel
+    textRole: "IdRole"
+    valueRole: "IdRole"
 
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
@@ -23,12 +25,48 @@ StudioControls.ComboBox {
 
     Component.onCompleted: {
         comboBox.__isCompleted = true
+        resetInitialIndex()
+    }
+
+    onInitialModelDataChanged: resetInitialIndex()
+    onValueRoleChanged: resetInitialIndex()
+    onModelChanged: resetInitialIndex()
+    onTextRoleChanged: resetInitialIndex()
+
+    function resetInitialIndex() {
+        let currentSelectedDataIndex = -1
 
         // Workaround for proper initialization. Use the initial modelData value and search for it
         // in the model. If nothing was found, set the editText to the initial modelData.
-        comboBox.currentIndex = comboBox.find(comboBox.initialModelData)
-
+        if (textRole === valueRole) {
+            currentSelectedDataIndex = comboBox.find(comboBox.initialModelData)
+        } else {
+            for (let i = 0; i < comboBox.count; ++i) {
+                let movingModelIndex = model.index(i)
+                let movingModelValueData = model.data(movingModelIndex, valueRole)
+                if (movingModelValueData === initialModelData) {
+                    currentSelectedDataIndex = i
+                    break
+                }
+            }
+        }
+        comboBox.currentIndex = currentSelectedDataIndex
         if (comboBox.currentIndex === -1)
             comboBox.editText = comboBox.initialModelData
+    }
+
+    function currentData(role = valueRole) {
+        if (comboBox.currentIndex !== -1) {
+            let currentModelIndex = model.index(currentIndex)
+            return model.data(currentModelIndex, role)
+        }
+        return comboBox.editText
+    }
+
+    function availableValue() {
+        if (comboBox.currentIndex !== -1 && currentValue !== "")
+            return currentValue
+
+        return comboBox.editText
     }
 }
