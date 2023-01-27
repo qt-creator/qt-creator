@@ -443,6 +443,17 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
     return str;
 }
 
+QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
+{
+    QString res = text;
+    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
+        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.chop(std::distance(newEnd, res.end()));
+    res.replace("\r\n", "\n");
+    return res;
+}
+
 QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
 {
     return base + QString::number(n);

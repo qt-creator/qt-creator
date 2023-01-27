@@ -127,10 +127,6 @@ public:
     // These (or some of them) may be potentially moved outside of the class.
     // For some we may aggregate in another public utils class (or subclass of QtcProcess)?
 
-    // TODO: How below method relates to QtcProcess?
-    // Action: move/merge it somewhere else
-    static QString normalizeNewlines(const QString &text);
-
     // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
     static Environment systemEnvironmentForBinary(const FilePath &filePath);
 

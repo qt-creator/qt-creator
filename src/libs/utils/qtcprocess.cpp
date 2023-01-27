@@ -11,6 +11,7 @@
 #include "launchersocket.h"
 #include "processreaper.h"
 #include "processutils.h"
+#include "stringutils.h"
 #include "terminalprocess_p.h"
 #include "threadutils.h"
 
@@ -1305,17 +1306,6 @@ bool QtcProcess::readDataFromProcess(QByteArray *stdOut, QByteArray *stdErr, int
     return finished;
 }
 
-QString QtcProcess::normalizeNewlines(const QString &text)
-{
-    QString res = text;
-    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
-        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
-    });
-    res.chop(std::distance(newEnd, res.end()));
-    res.replace("\r\n", "\n");
-    return res;
-}
-
 ProcessResult QtcProcess::result() const
 {
     return d->m_result;
@@ -1593,12 +1583,12 @@ QString QtcProcess::stdErr() const
 
 QString QtcProcess::cleanedStdOut() const
 {
-    return normalizeNewlines(stdOut());
+    return Utils::normalizeNewlines(stdOut());
 }
 
 QString QtcProcess::cleanedStdErr() const
 {
-    return normalizeNewlines(stdErr());
+    return Utils::normalizeNewlines(stdErr());
 }
 
 static QStringList splitLines(const QString &text)
@@ -1681,7 +1671,7 @@ void ChannelBuffer::append(const QByteArray &text)
             break;
 
         // Get completed lines and remove them from the incompleteLinesBuffer:
-        const QString line = QtcProcess::normalizeNewlines(incompleteLineBuffer.left(pos + 1));
+        const QString line = Utils::normalizeNewlines(incompleteLineBuffer.left(pos + 1));
         incompleteLineBuffer = incompleteLineBuffer.mid(pos + 1);
 
         QTC_ASSERT(outputCallback, return);
