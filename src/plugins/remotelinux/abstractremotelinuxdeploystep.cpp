@@ -96,11 +96,6 @@ void AbstractRemoteLinuxDeployService::setTarget(Target *target)
     d->deviceConfiguration = DeviceKitAspect::device(kit());
 }
 
-void AbstractRemoteLinuxDeployService::setDevice(const IDevice::ConstPtr &device)
-{
-    d->deviceConfiguration = device;
-}
-
 void AbstractRemoteLinuxDeployService::start()
 {
     QTC_ASSERT(!d->m_taskTree, return);
