@@ -273,18 +273,30 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
     m_nameToEntry.clear();
     m_createSubMenu = m_contextMenu->addMenu(tr("Create"));
 
+    const QString docPath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().toString();
+
+    auto isEntryValid = [&](const ItemLibraryEntry &entry) -> bool {
+        // Don't allow entries that match current document
+        const QString path = entry.customComponentSource();
+        return path.isEmpty() || docPath != path;
+    };
+
     for (const QString &cat : keys) {
         QList<ItemLibraryEntry> entries = entriesMap.value(cat);
         if (entries.isEmpty())
             continue;
 
-        QMenu *catMenu = m_createSubMenu->addMenu(cat);
+        QMenu *catMenu = nullptr;
 
         std::sort(entries.begin(), entries.end(), [](const ItemLibraryEntry &a, const ItemLibraryEntry &b) {
             return a.name() < b.name();
         });
 
         for (const ItemLibraryEntry &entry : std::as_const(entries)) {
+            if (!isEntryValid(entry))
+                continue;
+            if (!catMenu)
+                catMenu = m_createSubMenu->addMenu(cat);
             QAction *action = catMenu->addAction(entry.name(), this, &Edit3DWidget::onCreateAction);
             action->setData(entry.name());
             m_nameToEntry.insert(entry.name(), entry);
