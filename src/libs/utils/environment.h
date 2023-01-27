@@ -35,7 +35,7 @@ public:
     void unset(const QString &key) { m_dict.unset(key); }
     void modify(const NameValueItems &items) { m_dict.modify(items); }
 
-    int isValid() const;
+    bool hasChanges() const;
     void clear() { return m_dict.clear(); }
 
     QStringList toStringList() const { return m_dict.toStringList(); }

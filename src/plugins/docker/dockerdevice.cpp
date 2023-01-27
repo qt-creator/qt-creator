@@ -1137,10 +1137,10 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
 
 Environment DockerDevicePrivate::environment()
 {
-    if (!m_cachedEnviroment.isValid())
+    if (!m_cachedEnviroment.hasChanges())
         fetchSystemEnviroment();
 
-    QTC_CHECK(m_cachedEnviroment.isValid());
+    QTC_CHECK(m_cachedEnviroment.hasChanges());
     return m_cachedEnviroment;
 }
 

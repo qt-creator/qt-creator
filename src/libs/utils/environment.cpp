@@ -23,7 +23,7 @@ NameValueItems Environment::diff(const Environment &other, bool checkAppendPrepe
     return m_dict.diff(other.m_dict, checkAppendPrepend);
 }
 
-int Environment::isValid() const
+bool Environment::hasChanges() const
 {
     return m_dict.size() != 0;
 }
