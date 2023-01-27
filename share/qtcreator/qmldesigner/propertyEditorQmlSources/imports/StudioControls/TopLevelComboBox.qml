@@ -10,7 +10,8 @@ T.ComboBox {
 
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    property bool hover: (comboBoxInput.hover || window.visible) && control.enabled
+    property bool hover: (comboBoxInput.hover || window.visible || popupIndicator.hover)
+                         && control.enabled
     property bool edit: false
     property bool open: window.visible
     property bool openUpwards: false
