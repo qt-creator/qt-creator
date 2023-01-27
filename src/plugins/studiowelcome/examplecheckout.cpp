@@ -118,6 +118,7 @@ bool DataModelDownloader::start()
         return false;
     }
 
+    m_fileDownloader.setDownloadEnabled(true);
     m_fileDownloader.setUrl(QUrl::fromUserInput(
         "https://download.qt.io/learning/examples/qtdesignstudio/dataImports.zip"));
 
