@@ -641,6 +641,119 @@ void tst_TaskTree::processTree_data()
             ParallelLimit(2),
             Storage(storage),
             Group {
+                OnGroupSetup(groupSetup(1)),
+                Process(setupProcess(1))
+            },
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                Process(setupProcess(2))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                Process(setupProcess(3))
+            },
+            Group {
+                OnGroupSetup(groupSetup(4)),
+                Process(setupProcess(4))
+            }
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {4, Handler::GroupSetup},
+            {4, Handler::Setup}
+        };
+        QTest::newRow("NestedParallel")
+            << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                OnGroupSetup(groupSetup(1)),
+                Process(setupProcess(1))
+            },
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                Process(setupProcess(2))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                Process(setupDynamicProcess(3, TaskAction::StopWithDone))
+            },
+            Group {
+                OnGroupSetup(groupSetup(4)),
+                Process(setupProcess(4))
+            },
+            Group {
+                OnGroupSetup(groupSetup(5)),
+                Process(setupProcess(5))
+            }
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {4, Handler::GroupSetup},
+            {4, Handler::Setup},
+            {5, Handler::GroupSetup},
+            {5, Handler::Setup}
+        };
+        QTest::newRow("NestedParallelDone")
+            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                OnGroupSetup(groupSetup(1)),
+                Process(setupProcess(1))
+            },
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                Process(setupProcess(2))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                Process(setupDynamicProcess(3, TaskAction::StopWithError))
+            },
+            Group {
+                OnGroupSetup(groupSetup(4)),
+                Process(setupProcess(4))
+            },
+            Group {
+                OnGroupSetup(groupSetup(5)),
+                Process(setupProcess(5))
+            }
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup}
+        };
+        QTest::newRow("NestedParallelError")
+            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
                 Storage(TreeStorage<CustomStorage>()),
                 OnGroupSetup(groupSetup(1)),
                 Group {
@@ -683,8 +796,96 @@ void tst_TaskTree::processTree_data()
             {4, Handler::GroupSetup},
             {4, Handler::Setup}
         };
-        QTest::newRow("NestedParallel")
-                << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+        QTest::newRow("DeeplyNestedParallel")
+            << TestData{storage, root, log, 4, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(1)),
+                Group { Process(setupProcess(1)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(2)),
+                Group { Process(setupProcess(2)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(3)),
+                Group { Process(setupDynamicProcess(3, TaskAction::StopWithDone)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(4)),
+                Group { Process(setupProcess(4)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(5)),
+                Group { Process(setupProcess(5)) }
+            }
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup},
+            {4, Handler::GroupSetup},
+            {4, Handler::Setup},
+            {5, Handler::GroupSetup},
+            {5, Handler::Setup}
+        };
+        QTest::newRow("DeeplyNestedParallelDone")
+            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(1)),
+                Group { Process(setupProcess(1)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(2)),
+                Group { Process(setupProcess(2)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(3)),
+                Group { Process(setupDynamicProcess(3, TaskAction::StopWithError)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(4)),
+                Group { Process(setupProcess(4)) }
+            },
+            Group {
+                Storage(TreeStorage<CustomStorage>()),
+                OnGroupSetup(groupSetup(5)),
+                Group { Process(setupProcess(5)) }
+            }
+        };
+        const Log log {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {2, Handler::GroupSetup},
+            {2, Handler::Setup},
+            {3, Handler::GroupSetup},
+            {3, Handler::Setup}
+        };
+        QTest::newRow("DeeplyNestedParallelError")
+            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
     }
 }
 
