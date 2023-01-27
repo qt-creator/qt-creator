@@ -2,40 +2,82 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contextpanewidgetrectangle.h"
-#include "ui_contextpanewidgetrectangle.h"
+
+#include "colorbutton.h"
 #include "contextpanewidget.h"
 #include "customcolordialog.h"
+#include "gradientline.h"
+
 #include <qmljs/qmljspropertyreader.h>
+#include <utils/layoutbuilder.h>
 #include <qmljs/qmljsutils.h>
+
+#include <QButtonGroup>
 #include <QDebug>
+#include <QLabel>
+#include <QTimerEvent>
+#include <QToolButton>
 
 namespace QmlEditorWidgets {
 
-ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::ContextPaneWidgetRectangle)
+ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
+    : QWidget(parent)
 {
-    ui->setupUi(this);
+    const auto toolButton = [] (const QString &icon) {
+        auto result = new QToolButton;
+        result->setAutoExclusive(true);
+        result->setCheckable(true);
+        result->setFixedSize(30, 30);
+        result->setIcon(QIcon(":/qmldesigner/images/" + icon + ".png"));
+        return result;
+    };
 
-    ui->colorColorButton->setShowArrow(false);
-    ui->borderColorButton->setShowArrow(false);
+    m_gradientLabel = new QLabel(tr("Gradient"));
+    m_gradientLabel->setAlignment(Qt::AlignBottom);
+    m_gradientLine = new GradientLine;
+    m_gradientLine->setMinimumWidth(240);
 
-    connect(ui->colorColorButton, &QmlEditorWidgets::ColorButton::toggled,
+    m_colorColorButton = new ColorButton;
+    m_colorColorButton->setShowArrow(false);
+    m_colorSolid = toolButton("icon_color_solid");
+    m_colorGradient = toolButton("icon_color_gradient");
+    m_colorNone = toolButton("icon_color_none");
+    auto colorButtons = new QButtonGroup(this);
+    colorButtons->addButton(m_colorSolid);
+    colorButtons->addButton(m_colorGradient);
+    colorButtons->addButton(m_colorNone);
+
+    m_borderColorButton = new ColorButton;
+    m_borderColorButton->setShowArrow(false);
+    m_borderSolid = toolButton("icon_color_solid");
+    m_borderNone = toolButton("icon_color_none");
+    auto borderButtons = new QButtonGroup(this);
+    borderButtons->addButton(m_borderSolid);
+    borderButtons->addButton(m_borderNone);
+
+    using namespace Utils::Layouting;
+    Grid {
+        m_gradientLabel, m_gradientLine, br,
+        tr("Color"), Row { m_colorColorButton, m_colorSolid, m_colorGradient, m_colorNone, st, }, br,
+        tr("Border"), Row { m_borderColorButton, m_borderSolid, m_borderNone, st, }, br,
+    }.attachTo(this);
+
+    connect(m_colorColorButton, &QmlEditorWidgets::ColorButton::toggled,
             this, &ContextPaneWidgetRectangle::onColorButtonToggled);
-    connect(ui->borderColorButton, &QmlEditorWidgets::ColorButton::toggled,
+    connect(m_borderColorButton, &QmlEditorWidgets::ColorButton::toggled,
             this, &ContextPaneWidgetRectangle::onBorderColorButtonToggled);
 
-    connect(ui->colorSolid, &QToolButton::clicked,
+    connect(m_colorSolid, &QToolButton::clicked,
             this, &ContextPaneWidgetRectangle::onColorSolidClicked);
-    connect(ui->borderSolid, &QToolButton::clicked,
+    connect(m_borderSolid, &QToolButton::clicked,
             this, &ContextPaneWidgetRectangle::onBorderSolidClicked);
 
-    connect(ui->colorNone, &QToolButton::clicked,
+    connect(m_colorNone, &QToolButton::clicked,
             this, &ContextPaneWidgetRectangle::onColorNoneClicked);
-    connect(ui->borderNone, &QToolButton::clicked,
+    connect(m_borderNone, &QToolButton::clicked,
             this, &ContextPaneWidgetRectangle::onBorderNoneClicked);
 
-    connect(ui->colorGradient, &QToolButton::clicked, this, &ContextPaneWidgetRectangle::onGradientClicked);
+    connect(m_colorGradient, &QToolButton::clicked, this, &ContextPaneWidgetRectangle::onGradientClicked);
 
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     connect(parentContextWidget->colorDialog(), &CustomColorDialog::accepted,
@@ -43,15 +85,10 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent) :
     connect(parentContextWidget->colorDialog(), &CustomColorDialog::rejected,
             this, &ContextPaneWidgetRectangle::onColorDialogCancled);
 
-    connect(ui->gradientLine, &QmlEditorWidgets::GradientLine::openColorDialog,
+    connect(m_gradientLine, &QmlEditorWidgets::GradientLine::openColorDialog,
             this, &ContextPaneWidgetRectangle::onGradientLineDoubleClicked);
-    connect(ui->gradientLine, &QmlEditorWidgets::GradientLine::gradientChanged,
+    connect(m_gradientLine, &QmlEditorWidgets::GradientLine::gradientChanged,
             this, &ContextPaneWidgetRectangle::onUpdateGradient);
-}
-
-ContextPaneWidgetRectangle::~ContextPaneWidgetRectangle()
-{
-    delete ui;
 }
 
 void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyReader)
@@ -64,44 +101,44 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
         QString str = propertyReader->readProperty(QLatin1String("color")).toString();
         if (QmlJS::toQColor(str).alpha() == 0)
             m_none = true;
-        ui->colorColorButton->setColor(str);
+        m_colorColorButton->setColor(str);
 
     } else {
-        ui->colorColorButton->setColor(QLatin1String("white"));
+        m_colorColorButton->setColor(QLatin1String("white"));
     }
 
     if (propertyReader->hasProperty(QLatin1String("border.color"))) {
-        ui->borderColorButton->setColor(propertyReader->readProperty(QLatin1String("border.color")).toString());
+        m_borderColorButton->setColor(propertyReader->readProperty(QLatin1String("border.color")).toString());
         m_hasBorder = true;
     } else {
-        ui->borderColorButton->setColor(QLatin1String("transparent"));
+        m_borderColorButton->setColor(QLatin1String("transparent"));
     }
 
     if (propertyReader->hasProperty(QLatin1String("border.width")))
         m_hasBorder = true;
 
-    ui->colorSolid->setChecked(true);
-    ui->borderNone->setChecked(true);
-    ui->borderSolid->setChecked(m_hasBorder);
+    m_colorSolid->setChecked(true);
+    m_borderNone->setChecked(true);
+    m_borderSolid->setChecked(m_hasBorder);
 
     if (m_none)
-        ui->colorNone->setChecked(true);
+        m_colorNone->setChecked(true);
 
-    ui->gradientLabel->setEnabled(true);
-    ui->gradientLine->setEnabled(true);
+    m_gradientLabel->setEnabled(true);
+    m_gradientLine->setEnabled(true);
 
     if (m_hasGradient && isGradientEditingEnabled()) {
         bool isBound;
-        ui->colorGradient->setChecked(true);
-        ui->gradientLine->setGradient(propertyReader->parseGradient(QLatin1String("gradient"), &isBound));
+        m_colorGradient->setChecked(true);
+        m_gradientLine->setGradient(propertyReader->parseGradient(QLatin1String("gradient"), &isBound));
         if (isBound) {
-            ui->gradientLabel->setEnabled(false);
-            ui->gradientLine->setEnabled(false);
-            ui->colorColorButton->setColor(QLatin1String("invalidColor"));
+            m_gradientLabel->setEnabled(false);
+            m_gradientLine->setEnabled(false);
+            m_colorColorButton->setColor(QLatin1String("invalidColor"));
         }
     } else {
-        ui->gradientLine->setEnabled(false);
-        ui->gradientLabel->setEnabled(false);
+        m_gradientLine->setEnabled(false);
+        m_gradientLabel->setEnabled(false);
         setColor();
     }
 
@@ -110,7 +147,7 @@ void ContextPaneWidgetRectangle::setProperties(QmlJS::PropertyReader *propertyRe
         m_gradientTimer = -1;
     }
 
-    ui->colorGradient->setEnabled(isGradientEditingEnabled());
+    m_colorGradient->setEnabled(isGradientEditingEnabled());
 }
 
 void ContextPaneWidgetRectangle::enabableGradientEditing(bool b)
@@ -121,12 +158,12 @@ void ContextPaneWidgetRectangle::enabableGradientEditing(bool b)
 void ContextPaneWidgetRectangle::onBorderColorButtonToggled(bool flag)
 {
     if (flag) {
-        ui->colorColorButton->setChecked(false);
+        m_colorColorButton->setChecked(false);
         m_gradientLineDoubleClicked = false;
     }
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
-    QPoint p = mapToGlobal(ui->borderColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->borderColorButton->convertedColor());
+    QPoint p = mapToGlobal(m_borderColorButton->pos());
+    parentContextWidget->colorDialog()->setupColor(m_borderColorButton->convertedColor());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -134,12 +171,12 @@ void ContextPaneWidgetRectangle::onBorderColorButtonToggled(bool flag)
 void ContextPaneWidgetRectangle::onColorButtonToggled(bool flag )
 {
     if (flag) {
-        ui->borderColorButton->setChecked(false);
+        m_borderColorButton->setChecked(false);
         m_gradientLineDoubleClicked = false;
     }
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
-    QPoint p = mapToGlobal(ui->colorColorButton->pos());
-    parentContextWidget->colorDialog()->setupColor(ui->colorColorButton->convertedColor());
+    QPoint p = mapToGlobal(m_colorColorButton->pos());
+    parentContextWidget->colorDialog()->setupColor(m_colorColorButton->convertedColor());
     p = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(p);
     parentContextWidget->onShowColorDialog(flag, p);
 }
@@ -148,14 +185,14 @@ void ContextPaneWidgetRectangle::onColorDialogApplied(const QColor &)
 {
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
-    if (ui->colorColorButton->isChecked())
+    if (m_colorColorButton->isChecked())
         emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color()); //write back color
-    if (ui->borderColorButton->isChecked())
+    if (m_borderColorButton->isChecked())
         emit  propertyChanged(QLatin1String("border.color"),parentContextWidget->colorDialog()->color()); //write back color
     if (m_gradientLineDoubleClicked)
-        ui->gradientLine->setActiveColor(parentContextWidget->colorDialog()->color());
-    ui->colorColorButton->setChecked(false);
-    ui->borderColorButton->setChecked(false);
+        m_gradientLine->setActiveColor(parentContextWidget->colorDialog()->color());
+    m_colorColorButton->setChecked(false);
+    m_borderColorButton->setChecked(false);
     m_gradientLineDoubleClicked = false;
 }
 
@@ -163,48 +200,48 @@ void ContextPaneWidgetRectangle::onColorDialogCancled()
 {
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
-    ui->colorColorButton->setChecked(false);
-    ui->borderColorButton->setChecked(false);
+    m_colorColorButton->setChecked(false);
+    m_borderColorButton->setChecked(false);
     m_gradientLineDoubleClicked = false;
 }
 
 void ContextPaneWidgetRectangle::onGradientClicked()
 {
-    if (ui->colorGradient->isChecked()) {
+    if (m_colorGradient->isChecked()) {
         m_hasGradient = true;
         QLinearGradient gradient;
         QGradientStops stops;
-        stops.append(QGradientStop(0, ui->colorColorButton->convertedColor()));
+        stops.append(QGradientStop(0, m_colorColorButton->convertedColor()));
         stops.append(QGradientStop(1, Qt::white));
         gradient.setStops(stops);
-        ui->gradientLine->setEnabled(true);
-        ui->gradientLine->setGradient(gradient);
+        m_gradientLine->setEnabled(true);
+        m_gradientLine->setGradient(gradient);
     }
 }
 
 void ContextPaneWidgetRectangle::onColorNoneClicked()
 {
-    if (ui->colorNone->isChecked()) {
-        ui->colorGradient->setEnabled(isGradientEditingEnabled());
+    if (m_colorNone->isChecked()) {
+        m_colorGradient->setEnabled(isGradientEditingEnabled());
         emit removeAndChangeProperty(QLatin1String("gradient"), QLatin1String("color"),
                                      QLatin1String("\"transparent\""), true);
     }
-    ui->colorGradient->setEnabled(isGradientEditingEnabled());
+    m_colorGradient->setEnabled(isGradientEditingEnabled());
 }
 
 void ContextPaneWidgetRectangle::onColorSolidClicked()
 {
-    if (ui->colorSolid->isChecked()) {
-        ui->gradientLine->setEnabled(false);
+    if (m_colorSolid->isChecked()) {
+        m_gradientLine->setEnabled(false);
         emit removeAndChangeProperty(QLatin1String("gradient"), QLatin1String("color"),
                                      QLatin1String("\"black\""), true);
     }
-    ui->colorGradient->setEnabled(isGradientEditingEnabled());
+    m_colorGradient->setEnabled(isGradientEditingEnabled());
 }
 
 void ContextPaneWidgetRectangle::onBorderNoneClicked()
 {
-    if (ui->borderNone->isChecked()) {
+    if (m_borderNone->isChecked()) {
         emit removeProperty(QLatin1String("border.color"));
         emit removeProperty(QLatin1String("border.width"));//###
     }
@@ -212,7 +249,7 @@ void ContextPaneWidgetRectangle::onBorderNoneClicked()
 
 void ContextPaneWidgetRectangle::onBorderSolidClicked()
 {
-    if (ui->borderSolid->isChecked())
+    if (m_borderSolid->isChecked())
         emit propertyChanged(QLatin1String("border.color"), QLatin1String("\"black\""));
 }
 
@@ -221,7 +258,7 @@ void ContextPaneWidgetRectangle::onGradientLineDoubleClicked(const QPoint &p)
     m_gradientLineDoubleClicked = true;
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     QPoint pos = mapToGlobal(p);
-    parentContextWidget->colorDialog()->setupColor(ui->gradientLine->activeColor());
+    parentContextWidget->colorDialog()->setupColor(m_gradientLine->activeColor());
     pos = parentContextWidget->colorDialog()->parentWidget()->mapFromGlobal(pos);
     parentContextWidget->onShowColorDialog(true, pos);
 }
@@ -239,7 +276,7 @@ void ContextPaneWidgetRectangle::timerEvent(QTimerEvent *event)
         killTimer(m_gradientTimer);
         m_gradientTimer = -1;
 
-        QLinearGradient gradient = ui->gradientLine->gradient();
+        QLinearGradient gradient = m_gradientLine->gradient();
         QString str = QLatin1String("Gradient {\n");
         const QGradientStops stops = gradient.stops();
         for (const QGradientStop &stop : stops) {
@@ -257,11 +294,11 @@ void ContextPaneWidgetRectangle::setColor()
 {
     QLinearGradient gradient;
     QGradientStops stops;
-    QColor color = ui->colorColorButton->convertedColor();
+    QColor color = m_colorColorButton->convertedColor();
     stops.append(QGradientStop(0, color));
     stops.append(QGradientStop(1, color));
     gradient.setStops(stops);
-    ui->gradientLine->setGradient(gradient);
+    m_gradientLine->setGradient(gradient);
 }
 
 } //QmlDesigner

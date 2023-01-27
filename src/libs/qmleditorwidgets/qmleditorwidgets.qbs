@@ -20,7 +20,7 @@ QtcLibrary {
             "contextpanetextwidget.cpp", "contextpanetextwidget.h",
             "contextpanewidget.cpp", "contextpanewidget.h",
             "contextpanewidgetimage.cpp", "contextpanewidgetimage.h",
-            "contextpanewidgetrectangle.cpp", "contextpanewidgetrectangle.h", "contextpanewidgetrectangle.ui",
+            "contextpanewidgetrectangle.cpp", "contextpanewidgetrectangle.h",
             "customcolordialog.cpp", "customcolordialog.h",
             "filewidget.cpp", "filewidget.h",
             "fontsizespinbox.cpp", "fontsizespinbox.h",

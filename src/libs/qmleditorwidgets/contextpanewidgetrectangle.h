@@ -7,12 +7,16 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class ContextPaneWidgetRectangle; }
+class QLabel;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
+
+class ColorButton;
+class GradientLine;
 
 class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetRectangle : public QWidget
 {
@@ -20,7 +24,7 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetRectangle : public QWidget
 
 public:
     explicit ContextPaneWidgetRectangle(QWidget *parent = nullptr);
-    ~ContextPaneWidgetRectangle();
+
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void enabableGradientEditing(bool);
 
@@ -48,7 +52,17 @@ private:
     void setColor();
     bool isGradientEditingEnabled() const
     { return m_enableGradientEditing; }
-    Ui::ContextPaneWidgetRectangle *ui;
+
+    QLabel *m_gradientLabel;
+    GradientLine *m_gradientLine;
+    ColorButton *m_colorColorButton;
+    QToolButton *m_colorSolid;
+    QToolButton *m_colorGradient;
+    QToolButton *m_colorNone;
+    ColorButton *m_borderColorButton;
+    QToolButton *m_borderSolid;
+    QToolButton *m_borderNone;
+
     bool m_hasBorder = false;
     bool m_hasGradient = false;
     bool m_none = false;
