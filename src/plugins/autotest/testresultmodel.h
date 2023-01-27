@@ -20,9 +20,9 @@ namespace Internal {
 class TestResultItem : public Utils::TypedTreeItem<TestResultItem, TestResultItem>
 {
 public:
-    explicit TestResultItem(const TestResultPtr &testResult);
+    explicit TestResultItem(const TestResult &testResult);
     QVariant data(int column, int role) const override;
-    const TestResult *testResult() const { return m_testResult.data(); }
+    TestResult testResult() const { return m_testResult; }
     void updateDescription(const QString &description);
 
     struct SummaryEvaluation
@@ -45,7 +45,7 @@ public:
     std::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
 private:
-    TestResultPtr m_testResult;
+    TestResult m_testResult;
     std::optional<SummaryEvaluation> m_summaryResult;
 };
 
@@ -54,11 +54,11 @@ class TestResultModel : public Utils::TreeModel<TestResultItem>
 public:
     explicit TestResultModel(QObject *parent = nullptr);
 
-    void addTestResult(const TestResultPtr &testResult, bool autoExpand = false);
+    void addTestResult(const TestResult &testResult, bool autoExpand = false);
     void removeCurrentTestMessage();
     void clearTestResults();
 
-    const TestResult *testResult(const QModelIndex &idx);
+    TestResult testResult(const QModelIndex &idx);
 
     int maxWidthOfFileName(const QFont &font);
     int maxWidthOfLineNumber(const QFont &font);
@@ -92,7 +92,7 @@ public:
     void toggleTestResultType(ResultType type);
     void clearTestResults();
     bool hasResults();
-    const TestResult *testResult(const QModelIndex &index) const;
+    TestResult testResult(const QModelIndex &index) const;
     TestResultItem *itemForIndex(const QModelIndex &index) const;
 
 protected:

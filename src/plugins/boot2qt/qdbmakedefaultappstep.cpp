@@ -11,7 +11,6 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <remotelinux/abstractremotelinuxdeployservice.h>
 #include <remotelinux/abstractremotelinuxdeploystep.h>
 
 #include <utils/commandline.h>

@@ -13,7 +13,7 @@ class BoostTestConfiguration : public DebuggableTestConfiguration
 public:
     explicit BoostTestConfiguration(ITestFramework *framework)
         : DebuggableTestConfiguration(framework) {}
-    TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+    TestOutputReader *createOutputReader(const QFutureInterface<TestResult> &fi,
                                          Utils::QtcProcess *app) const override;
     QStringList argumentsForTestRunner(QStringList *omitted = nullptr) const override;
     Utils::Environment filteredEnvironment(const Utils::Environment &original) const override;

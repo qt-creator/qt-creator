@@ -105,6 +105,9 @@ public:
 private:
     friend class QbsProject;
 
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const ExtraCompilerFilter &filter) const override;
+
     void handleQbsParsingDone(bool success);
     void changeActiveTarget(ProjectExplorer::Target *t);
     void prepareForParsing();

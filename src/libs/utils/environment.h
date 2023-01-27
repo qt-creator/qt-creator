@@ -35,7 +35,7 @@ public:
     void unset(const QString &key) { m_dict.unset(key); }
     void modify(const NameValueItems &items) { m_dict.modify(items); }
 
-    int isValid() const;
+    bool hasChanges() const;
     void clear() { return m_dict.clear(); }
 
     QStringList toStringList() const { return m_dict.toStringList(); }
@@ -111,7 +111,7 @@ public:
 
     enum Type {
         SetSystemEnvironment,
-        SetFixedEnvironment,
+        SetFixedDictionary,
         SetValue,
         UnsetValue,
         PrependToPath,
@@ -120,14 +120,14 @@ public:
 
     using Item = std::variant<
         std::monostate,          // SetSystemEnvironment dummy
-        Environment,             // SetFixedEnvironment
+        NameValueDictionary,     // SetFixedDictionary
         QPair<QString, QString>, // SetValue
         QString,                 // UnsetValue
         FilePath,                // PrependToPath
         FilePath                 // AppendToPath
     >;
 
-    static EnvironmentChange fromFixedEnvironment(const Environment &fixedEnv);
+    static EnvironmentChange fromDictionary(const NameValueDictionary &dict);
 
     void applyToEnvironment(Environment &) const;
 

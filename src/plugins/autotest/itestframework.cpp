@@ -8,6 +8,8 @@
 #include "testtreeitem.h"
 #include "testtreemodel.h"
 
+using namespace Utils;
+
 namespace Autotest {
 
 ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
@@ -15,15 +17,15 @@ ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
     , m_type(type)
 {}
 
-Utils::Id ITestBase::settingsId() const
+Id ITestBase::settingsId() const
 {
-    return Utils::Id(Constants::SETTINGSPAGE_PREFIX)
+    return Id(Constants::SETTINGSPAGE_PREFIX)
             .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
 }
 
-Utils::Id ITestBase::id() const
+Id ITestBase::id() const
 {
-    return Utils::Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
+    return Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
 }
 
 void ITestBase::resetRootNode()

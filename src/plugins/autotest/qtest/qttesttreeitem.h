@@ -11,8 +11,8 @@ namespace Internal {
 class QtTestTreeItem : public TestTreeItem
 {
 public:
-    explicit QtTestTreeItem(ITestFramework *framework, const QString &name = QString(),
-                            const Utils::FilePath &filePath = Utils::FilePath(), Type type = Root);
+    explicit QtTestTreeItem(ITestFramework *framework, const QString &name = {},
+                            const Utils::FilePath &filePath = {}, Type type = Root);
 
     TestTreeItem *copyWithoutChildren() override;
     QVariant data(int column, int role) const override;

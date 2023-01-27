@@ -411,7 +411,7 @@ void CdbEngine::setupEngine()
 
     m_autoBreakPointCorrection = false;
 
-    Environment inferiorEnvironment = sp.inferior.environment.isValid()
+    Environment inferiorEnvironment = sp.inferior.environment.hasChanges()
             ? sp.inferior.environment : Environment::systemEnvironment();
 
     // Make sure that QTestLib uses OutputDebugString for logging.

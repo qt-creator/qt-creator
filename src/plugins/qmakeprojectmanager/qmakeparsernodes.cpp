@@ -2080,6 +2080,22 @@ QList<ExtraCompiler *> QmakeProFile::extraCompilers() const
     return m_extraCompilers;
 }
 
+ExtraCompiler *QmakeProFile::findExtraCompiler(
+        const std::function<bool(ProjectExplorer::ExtraCompiler *)> &filter)
+{
+    for (ExtraCompiler * const ec : std::as_const(m_extraCompilers)) {
+        if (filter(ec))
+            return ec;
+    }
+    for (QmakePriFile * const priFile : std::as_const(m_children)) {
+        if (const auto proFile = dynamic_cast<QmakeProFile *>(priFile)) {
+            if (ExtraCompiler * const ec = proFile->findExtraCompiler(filter))
+                return ec;
+        }
+    }
+    return nullptr;
+}
+
 void QmakeProFile::setupExtraCompiler(const FilePath &buildDir,
                                       const FileType &fileType, ExtraCompilerFactory *factory)
 {

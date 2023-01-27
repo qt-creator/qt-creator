@@ -19,6 +19,7 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildStepList;
+class ExtraCompiler;
 class Node;
 
 struct TestCaseInfo
@@ -81,6 +82,9 @@ public:
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
     virtual QString name() const = 0;
+
+    // Owned by the build system. Use only in main thread. Can go away at any time.
+    ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;
 
     virtual MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 
@@ -157,8 +161,11 @@ protected:
     // Call in GUI thread right after the actual parsing is done
     void emitParsingFinished(bool success);
 
+    using ExtraCompilerFilter = std::function<bool(const ExtraCompiler *)>;
 private:
     void requestParseHelper(int delay); // request a (delayed!) parser run.
+
+    virtual ExtraCompiler *findExtraCompiler(const ExtraCompilerFilter &filter) const;
 
     class BuildSystemPrivate *d = nullptr;
 };

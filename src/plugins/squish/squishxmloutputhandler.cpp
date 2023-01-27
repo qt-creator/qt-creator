@@ -244,7 +244,7 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
             // SquishReport tags will be ignored completely
             if (currentName == "epilog") {
                 QTC_ASSERT(testCaseRootItem, break);
-                TestResult result(Result::End, QString(), time);
+                const TestResult result(Result::End, QString(), time);
                 SquishResultItem *item = new SquishResultItem(result);
                 testCaseRootItem->appendChild(item);
                 emit updateStatus(result.text());
@@ -283,7 +283,7 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
 
                 if (!logDetailsList.isEmpty()) {
                     for (const QString &detail : std::as_const(logDetailsList)) {
-                        TestResult childResult(Result::Detail, detail);
+                        const TestResult childResult(Result::Detail, detail);
                         SquishResultItem *childItem = new SquishResultItem(childResult);
                         item->appendChild(childItem);
                         emit updateStatus(childResult.text());

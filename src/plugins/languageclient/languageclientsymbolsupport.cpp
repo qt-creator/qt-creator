@@ -295,7 +295,8 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
             Core::EditorManager::openEditorAtSearchResult(item);
         });
         search->finishSearch(false);
-        search->popup();
+        if (search->isInteractive())
+            search->popup();
     }
 }
 
@@ -365,6 +366,7 @@ bool SymbolSupport::supportsRename(TextEditor::TextDocument *document)
 void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
                                  const QTextCursor &cursor,
                                  const QString &newSymbolName,
+                                 const std::function<void ()> &callback,
                                  bool preferLowerCaseFileNames)
 {
     const TextDocumentPositionParams params = generateDocPosParams(document, cursor, m_client);
@@ -376,17 +378,19 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document,
     if (!LanguageClient::supportsRename(m_client, document, prepareSupported)) {
         const QString error = Tr::tr("Renaming is not supported with %1").arg(m_client->name());
         createSearch(params, derivePlaceholder(oldSymbolName, newSymbolName),
-                     {}, {})->finishSearch(true, error);
+                     {}, callback, {})->finishSearch(true, error);
     } else if (prepareSupported) {
         requestPrepareRename(document,
                              generateDocPosParams(document, cursor, m_client),
                              newSymbolName,
                              oldSymbolName,
+                             callback,
                              preferLowerCaseFileNames);
     } else {
         startRenameSymbol(generateDocPosParams(document, cursor, m_client),
                           newSymbolName,
                           oldSymbolName,
+                          callback,
                           preferLowerCaseFileNames);
     }
 }
@@ -395,6 +399,7 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
                                          const TextDocumentPositionParams &params,
                                          const QString &placeholder,
                                          const QString &oldSymbolName,
+                                         const std::function<void()> &callback,
                                          bool preferLowerCaseFileNames)
 {
     PrepareRenameRequest request(params);
@@ -402,13 +407,15 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
                                  params,
                                  placeholder,
                                  oldSymbolName,
+                                 callback,
                                  preferLowerCaseFileNames,
                                  document = QPointer<TextEditor::TextDocument>(document)](
                                     const PrepareRenameRequest::Response &response) {
         const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
         if (error.has_value()) {
             m_client->log(*error);
-            createSearch(params, placeholder, {}, {})->finishSearch(true, error->toString());
+            createSearch(params, placeholder, {}, callback, {})
+                    ->finishSearch(true, error->toString());
         }
 
         const std::optional<PrepareRenameResult> &result = response.result();
@@ -419,6 +426,7 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
                                   placeholder.isEmpty() ? placeHolderResult.placeHolder()
                                                         : placeholder,
                                   oldSymbolName,
+                                  callback,
                                   preferLowerCaseFileNames);
             } else if (std::holds_alternative<Range>(*result)) {
                 auto range = std::get<Range>(*result);
@@ -429,9 +437,11 @@ void SymbolSupport::requestPrepareRename(TextEditor::TextDocument *document,
                     startRenameSymbol(params,
                                       derivePlaceholder(reportedSymbolName, placeholder),
                                       reportedSymbolName,
+                                      callback,
                                       preferLowerCaseFileNames);
                 } else {
-                    startRenameSymbol(params, placeholder, oldSymbolName, preferLowerCaseFileNames);
+                    startRenameSymbol(params, placeholder, oldSymbolName, callback,
+                                      preferLowerCaseFileNames);
                 }
             }
         }
@@ -449,7 +459,8 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
         handleRenameResponse(search, response);
     });
     m_client->sendMessage(request);
-    search->popup();
+    if (search->isInteractive())
+        search->popup();
 }
 
 QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
@@ -480,6 +491,7 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
 Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams &positionParams,
                                                 const QString &placeholder,
                                                 const QString &oldSymbolName,
+                                                const std::function<void()> &callback,
                                                 bool preferLowerCaseFileNames)
 {
     Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
@@ -491,6 +503,8 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
     const auto extraWidget = new ReplaceWidget;
     search->setAdditionalReplaceWidget(extraWidget);
     search->setTextToReplace(placeholder);
+    if (callback)
+        search->makeNonInteractive(callback);
 
     connect(search, &Core::SearchResult::activated, [](const Core::SearchResultItem &item) {
         Core::EditorManager::openEditorAtSearchResult(item);
@@ -521,10 +535,12 @@ Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams
 void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &positionParams,
                                       const QString &placeholder,
                                       const QString &oldSymbolName,
+                                      const std::function<void()> &callback,
                                       bool preferLowerCaseFileNames)
 {
     requestRename(positionParams,
-                  createSearch(positionParams, placeholder, oldSymbolName, preferLowerCaseFileNames));
+                  createSearch(positionParams, placeholder, oldSymbolName, callback,
+                               preferLowerCaseFileNames));
 }
 
 void SymbolSupport::handleRenameResponse(Core::SearchResult *search,

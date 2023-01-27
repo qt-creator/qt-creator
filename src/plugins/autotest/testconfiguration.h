@@ -26,8 +26,6 @@ class TestOutputReader;
 class TestResult;
 enum class TestRunMode;
 
-using TestResultPtr = QSharedPointer<TestResult>;
-
 class ITestConfiguration
 {
 public:
@@ -40,8 +38,9 @@ public:
     Utils::FilePath workingDirectory() const;
     bool hasExecutable() const;
     Utils::FilePath executableFilePath() const;
+    virtual Utils::FilePath testExecutable() const { return executableFilePath(); };
 
-    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResultPtr> &fi,
+    virtual TestOutputReader *createOutputReader(const QFutureInterface<TestResult> &fi,
                                                  Utils::QtcProcess *app) const = 0;
     virtual Utils::Environment filteredEnvironment(const Utils::Environment &original) const;
 
@@ -126,6 +125,7 @@ public:
     explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
     Utils::CommandLine commandLine() const { return m_commandLine; }
     void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
+    virtual Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
 
 private:
     Utils::CommandLine m_commandLine;

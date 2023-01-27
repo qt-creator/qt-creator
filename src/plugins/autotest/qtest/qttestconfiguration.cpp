@@ -13,6 +13,8 @@
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -26,8 +28,8 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
     });
 }
 
-TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResultPtr> &fi,
-                                                           Utils::QtcProcess *app) const
+TestOutputReader *QtTestConfiguration::createOutputReader(const QFutureInterface<TestResult> &fi,
+                                                          QtcProcess *app) const
 {
     auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
     const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
@@ -71,7 +73,7 @@ QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) co
     return arguments;
 }
 
-Utils::Environment QtTestConfiguration::filteredEnvironment(const Utils::Environment &original) const
+Environment QtTestConfiguration::filteredEnvironment(const Environment &original) const
 {
     return QTestUtils::prepareBasicEnvironment(original);
 }

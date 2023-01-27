@@ -18,10 +18,7 @@ ITestParser *QtTestFramework::createTestParser()
 
 ITestTreeItem *QtTestFramework::createRootNode()
 {
-    return new QtTestTreeItem(
-                this,
-                displayName(),
-                Utils::FilePath(), ITestTreeItem::Root);
+    return new QtTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *QtTestFramework::name() const

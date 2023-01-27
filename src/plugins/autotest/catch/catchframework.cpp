@@ -32,9 +32,7 @@ ITestParser *CatchFramework::createTestParser()
 
 ITestTreeItem *CatchFramework::createRootNode()
 {
-    return new CatchTreeItem(this,
-                             displayName(),
-                             Utils::FilePath(), ITestTreeItem::Root);
+    return new CatchTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 } // namespace Internal

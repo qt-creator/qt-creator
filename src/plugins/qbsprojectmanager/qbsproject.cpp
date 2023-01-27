@@ -586,6 +586,11 @@ void QbsBuildSystem::delayParsing()
         requestDelayedParse();
 }
 
+ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filter) const
+{
+    return Utils::findOrDefault(m_extraCompilers, filter);
+}
+
 void QbsBuildSystem::parseCurrentBuildConfiguration()
 {
     m_parsingScheduled = false;

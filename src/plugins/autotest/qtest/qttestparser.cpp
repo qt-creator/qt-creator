@@ -36,8 +36,7 @@ TestTreeItem *QtTestParseResult::createTestTreeItem() const
 
 static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot)
 {
-    static QStringList expectedHeaderPrefixes
-            = Utils::HostOsInfo::isMacHost()
+    static QStringList expectedHeaderPrefixes = HostOsInfo::isMacHost()
             ? QStringList({"QtTest.framework/Headers", "QtTest"}) : QStringList({"QtTest"});
 
     const QList<CPlusPlus::Document::Include> includes = doc->resolvedIncludes();
@@ -71,7 +70,7 @@ static bool includesQtTest(const CPlusPlus::Document::Ptr &doc, const CPlusPlus:
     return false;
 }
 
-static bool qtTestLibDefined(const Utils::FilePath &fileName)
+static bool qtTestLibDefined(const FilePath &fileName)
 {
     const QList<CppEditor::ProjectPart::ConstPtr> parts =
             CppEditor::CppModelManager::instance()->projectPart(fileName);
@@ -84,7 +83,7 @@ static bool qtTestLibDefined(const Utils::FilePath &fileName)
 }
 
 TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager,
-                                  const Utils::FilePath &filePath) const
+                                  const FilePath &filePath) const
 {
     const QByteArray &fileContent = getFileContent(filePath);
     CPlusPlus::Document::Ptr document = modelManager->document(filePath);
@@ -141,7 +140,7 @@ TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager
 static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                   const CPlusPlus::Snapshot &snapshot,
                                                   const QString &testCaseName,
-                                                  const Utils::FilePaths &alternativeFiles = {},
+                                                  const FilePaths &alternativeFiles = {},
                                                   int *line = nullptr,
                                                   int *column = nullptr)
 {
@@ -153,7 +152,7 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
                                                           doc->globalNamespace());
     // fallback for inherited functions
     if (lookupItems.size() == 0 && !alternativeFiles.isEmpty()) {
-        for (const Utils::FilePath &alternativeFile : alternativeFiles) {
+        for (const FilePath &alternativeFile : alternativeFiles) {
             if (snapshot.contains(alternativeFile)) {
                 CPlusPlus::Document::Ptr document = snapshot.document(alternativeFile);
                 CPlusPlus::TypeOfExpression typeOfExpr; // we need a new one with no bindings
@@ -179,10 +178,10 @@ static CPlusPlus::Document::Ptr declaringDocument(CPlusPlus::Document::Ptr doc,
     return declaringDoc;
 }
 
-static QSet<Utils::FilePath> filesWithDataFunctionDefinitions(
+static QSet<FilePath> filesWithDataFunctionDefinitions(
             const QMap<QString, QtTestCodeLocationAndType> &testFunctions)
 {
-    QSet<Utils::FilePath> result;
+    QSet<FilePath> result;
     QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = testFunctions.begin();
     const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = testFunctions.end();
 
@@ -195,7 +194,7 @@ static QSet<Utils::FilePath> filesWithDataFunctionDefinitions(
 }
 
 QHash<QString, QtTestCodeLocationList> QtTestParser::checkForDataTags(
-        const Utils::FilePath &fileName) const
+        const FilePath &fileName) const
 {
     const QByteArray fileContent = getFileContent(fileName);
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, fileName);
@@ -289,12 +288,12 @@ static QtTestCodeLocationList tagLocationsFor(const QtTestParseResult *func,
 static bool isQObject(const CPlusPlus::Document::Ptr &declaringDoc)
 {
     const FilePath file = declaringDoc->filePath();
-    return (Utils::HostOsInfo::isMacHost() && file.endsWith("QtCore.framework/Headers/qobject.h"))
+    return (HostOsInfo::isMacHost() && file.endsWith("QtCore.framework/Headers/qobject.h"))
             || file.endsWith("QtCore/qobject.h")  || file.endsWith("kernel/qobject.h");
 }
 
 bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureInterface,
-                                   const Utils::FilePath &fileName)
+                                   const FilePath &fileName)
 {
     CPlusPlus::Document::Ptr doc = document(fileName);
     if (doc.isNull())
@@ -359,8 +358,8 @@ std::optional<bool> QtTestParser::fillTestCaseData(
     if (data.testFunctions.isEmpty() && testCaseName == "QObject" && isQObject(declaringDoc))
         return true; // we did not handle it, but we do not expect any test defined there either
 
-    const QSet<Utils::FilePath> &files = filesWithDataFunctionDefinitions(data.testFunctions);
-    for (const Utils::FilePath &file : files)
+    const QSet<FilePath> &files = filesWithDataFunctionDefinitions(data.testFunctions);
+    for (const FilePath &file : files)
         Utils::addToHash(&(data.dataTags), checkForDataTags(file));
 
     data.fileName = declaringDoc->filePath();
@@ -378,7 +377,7 @@ QtTestParseResult *QtTestParser::createParseResult(
     parseResult->displayName = testCaseName;
     parseResult->line = data.line;
     parseResult->column = data.column;
-    parseResult->proFile = Utils::FilePath::fromString(projectFile);
+    parseResult->proFile = FilePath::fromString(projectFile);
     parseResult->setRunsMultipleTestcases(data.multipleTestCases);
     QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = data.testFunctions.begin();
     const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = data.testFunctions.end();
@@ -414,7 +413,7 @@ QtTestParseResult *QtTestParser::createParseResult(
     return parseResult;
 }
 
-void QtTestParser::init(const Utils::FilePaths &filesToParse, bool fullParse)
+void QtTestParser::init(const FilePaths &filesToParse, bool fullParse)
 {
     if (!fullParse) { // in a full parse cached information might lead to wrong results
         m_testCases = QTestUtils::testCaseNamesForFiles(framework(), filesToParse);

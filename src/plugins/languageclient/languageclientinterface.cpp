@@ -113,7 +113,7 @@ void StdIOClientInterface::startImpl()
     m_logFile.write(QString("Starting server: %1\nOutput:\n\n").arg(m_cmd.toUserOutput()).toUtf8());
     m_process->setCommand(m_cmd);
     m_process->setWorkingDirectory(m_workingDirectory);
-    if (m_env.isValid())
+    if (m_env.hasChanges())
         m_process->setEnvironment(m_env);
     m_process->start();
 }

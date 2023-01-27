@@ -18,10 +18,7 @@ ITestParser *BoostTestFramework::createTestParser()
 
 ITestTreeItem *BoostTestFramework::createRootNode()
 {
-    return new BoostTestTreeItem(
-                this,
-                displayName(),
-                Utils::FilePath(), ITestTreeItem::Root);
+    return new BoostTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
 }
 
 const char *BoostTestFramework::name() const

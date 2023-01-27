@@ -532,6 +532,11 @@ void QmakeBuildSystem::scheduleUpdateAllNowOrLater()
         scheduleUpdateAll(QmakeProFile::ParseLater);
 }
 
+ExtraCompiler *QmakeBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filter) const
+{
+    return m_rootProFile->findExtraCompiler(filter);
+}
+
 QmakeBuildConfiguration *QmakeBuildSystem::qmakeBuildConfiguration() const
 {
     return static_cast<QmakeBuildConfiguration *>(BuildSystem::buildConfiguration());

@@ -301,6 +301,8 @@ public:
                                        const Utils::FilePath &sourceFile,
                                        const ProjectExplorer::FileType &sourceFileType) const;
     QList<ProjectExplorer::ExtraCompiler *> extraCompilers() const;
+    ProjectExplorer::ExtraCompiler *findExtraCompiler(
+            const std::function<bool(ProjectExplorer::ExtraCompiler *)> &filter);
 
     TargetInformation targetInformation() const;
     InstallsList installsList() const;

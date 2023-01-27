@@ -324,6 +324,11 @@ void PathChooser::setBaseDirectory(const FilePath &base)
     triggerChanged();
 }
 
+void PathChooser::setEnvironment(const Environment &env)
+{
+    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
+}
+
 FilePath PathChooser::baseDirectory() const
 {
     return d->m_baseDirectory;

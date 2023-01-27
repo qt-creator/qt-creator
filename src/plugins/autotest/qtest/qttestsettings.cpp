@@ -86,7 +86,7 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
 {
     switch (type) {
     case MetricsType::Walltime:
-        return QString();
+        return {};
     case MetricsType::TickCounter:
         return QString("-tickcounter");
     case MetricsType::EventCounter:
@@ -96,7 +96,7 @@ QString QtTestSettings::metricsTypeToOption(const MetricsType type)
     case MetricsType::Perf:
         return QString("-perf");
     }
-    return QString();
+    return {};
 }
 
 QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)

@@ -5,12 +5,9 @@
 
 #include "autotestconstants.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QColor>
-#include <QMetaType>
-#include <QSharedPointer>
-#include <QString>
 
 namespace Autotest {
 
@@ -82,6 +79,7 @@ public:
     TestResult(const QString &id, const QString &name, const ResultHooks &hooks = {});
     virtual ~TestResult() {}
 
+    bool isValid() const;
     const QString outputString(bool selected) const;
     const ITestTreeItem *findTestTreeItem() const;
 
@@ -103,9 +101,9 @@ public:
     static QString resultToString(const ResultType type);
     static QColor colorForType(const ResultType type);
 
-    bool isDirectParentOf(const TestResult *other, bool *needsIntermediate) const;
-    bool isIntermediateFor(const TestResult *other) const;
-    TestResult *createIntermediateResult() const;
+    bool isDirectParentOf(const TestResult &other, bool *needsIntermediate) const;
+    bool isIntermediateFor(const TestResult &other) const;
+    TestResult intermediateResult() const;
 
 private:
     QString m_id;
@@ -116,8 +114,6 @@ private:
     int m_line = 0;
     ResultHooks m_hooks;
 };
-
-using TestResultPtr = QSharedPointer<TestResult>;
 
 } // namespace Autotest
 

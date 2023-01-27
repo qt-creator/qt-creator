@@ -51,8 +51,8 @@ public:
     };
 
     explicit ITestTreeItem(ITestBase *testBase,
-                           const QString &name = QString(),
-                           const Utils::FilePath &filePath = Utils::FilePath(),
+                           const QString &name = {},
+                           const Utils::FilePath &filePath = {},
                            Type type = Root);
 
     virtual QVariant data(int column, int role) const override;
@@ -97,8 +97,8 @@ class TestTreeItem : public ITestTreeItem
 {
 public:
     explicit TestTreeItem(ITestFramework *testFramework,
-                          const QString &name = QString(),
-                          const Utils::FilePath &filePath = Utils::FilePath(),
+                          const QString &name = {},
+                          const Utils::FilePath &filePath = {},
                           Type type = Root);
 
     virtual TestTreeItem *copyWithoutChildren() = 0;

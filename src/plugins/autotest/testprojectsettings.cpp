@@ -12,6 +12,8 @@
 
 #include <QLoggingCategory>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
@@ -43,7 +45,7 @@ void TestProjectSettings::setUseGlobalSettings(bool useGlobal)
      m_useGlobalSettings = useGlobal;
 }
 
-void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
+void TestProjectSettings::activateFramework(const Id &id, bool activate)
 {
     ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
     m_activeTestFrameworks[framework] = activate;
@@ -51,7 +53,7 @@ void TestProjectSettings::activateFramework(const Utils::Id &id, bool activate)
         framework->resetRootNode();
 }
 
-void TestProjectSettings::activateTestTool(const Utils::Id &id, bool activate)
+void TestProjectSettings::activateTestTool(const Id &id, bool activate)
 {
     ITestTool *testTool = TestFrameworkManager::testToolForId(id);
     m_activeTestTools[testTool] = activate;
@@ -74,12 +76,12 @@ void TestProjectSettings::load()
     if (activeFrameworks.isValid()) {
         const QMap<QString, QVariant> frameworksMap = activeFrameworks.toMap();
         for (ITestFramework *framework : registeredFrameworks) {
-            const Utils::Id id = framework->id();
+            const Id id = framework->id();
             bool active = frameworksMap.value(id.toString(), framework->active()).toBool();
             m_activeTestFrameworks.insert(framework, active);
         }
         for (ITestTool *testTool : registeredTestTools) {
-            const Utils::Id id = testTool->id();
+            const Id id = testTool->id();
             bool active = frameworksMap.value(id.toString(), testTool->active()).toBool();
             m_activeTestTools.insert(testTool, active);
         }

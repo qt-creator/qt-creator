@@ -14,6 +14,8 @@
 #include <QByteArrayList>
 #include <QSet>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 namespace QTestUtils {
@@ -25,10 +27,9 @@ bool isQTestMacro(const QByteArray &macro)
     return valid.contains(macro);
 }
 
-QHash<Utils::FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework,
-                                                        const Utils::FilePaths &files)
+QHash<FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framework, const FilePaths &files)
 {
-    QHash<Utils::FilePath, TestCases> result;
+    QHash<FilePath, TestCases> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
@@ -48,18 +49,17 @@ QHash<Utils::FilePath, TestCases> testCaseNamesForFiles(ITestFramework *framewor
     return result;
 }
 
-QMultiHash<Utils::FilePath, Utils::FilePath> alternativeFiles(ITestFramework *framework,
-                                                              const Utils::FilePaths &files)
+QMultiHash<FilePath, FilePath> alternativeFiles(ITestFramework *framework, const FilePaths &files)
 {
-    QMultiHash<Utils::FilePath, Utils::FilePath> result;
+    QMultiHash<FilePath, FilePath> result;
     TestTreeItem *rootNode = framework->rootNode();
     QTC_ASSERT(rootNode, return result);
 
     rootNode->forFirstLevelChildren([&result, &files](ITestTreeItem *child) {
-        const Utils::FilePath &baseFilePath = child->filePath();
+        const FilePath &baseFilePath = child->filePath();
         for (int childRow = 0, count = child->childCount(); childRow < count; ++childRow) {
             auto grandChild = static_cast<const QtTestTreeItem *>(child->childAt(childRow));
-            const Utils::FilePath &filePath = grandChild->filePath();
+            const FilePath &filePath = grandChild->filePath();
             if (grandChild->inherited() && baseFilePath != filePath && files.contains(filePath)) {
                 if (!result.contains(filePath, baseFilePath))
                     result.insert(filePath, baseFilePath);
@@ -128,10 +128,10 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted,
     return allowed;
 }
 
-Utils::Environment prepareBasicEnvironment(const Utils::Environment &env)
+Environment prepareBasicEnvironment(const Environment &env)
 {
-    Utils::Environment result(env);
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    Environment result(env);
+    if (HostOsInfo::isWindowsHost()) {
         result.set("QT_FORCE_STDERR_LOGGING", "1");
         result.set("QT_LOGGING_TO_CONSOLE", "1");
     }

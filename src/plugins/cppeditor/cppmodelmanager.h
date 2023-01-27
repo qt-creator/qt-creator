@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QStringList>
 
+#include <functional>
 #include <memory>
 
 namespace Core {
@@ -149,7 +150,13 @@ public:
                                      int position) const;
 
     void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                      const QString &replacement = QString());
+                      const QString &replacement = QString(),
+                      const std::function<void()> &callback = {});
+    void renameUsages(const CPlusPlus::Document::Ptr &doc,
+                      const QTextCursor &cursor,
+                      const CPlusPlus::Snapshot &snapshot,
+                      const QString &replacement,
+                      const std::function<void()> &callback);
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
     void findMacroUsages(const CPlusPlus::Macro &macro);
@@ -178,6 +185,7 @@ public:
                                    RenameCallback &&renameSymbolsCallback,
                                    Backend backend = Backend::Best);
     static void globalRename(const CursorInEditor &data, const QString &replacement,
+                             const std::function<void()> &callback = {},
                              Backend backend = Backend::Best);
     static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);

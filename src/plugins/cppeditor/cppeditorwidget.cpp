@@ -619,6 +619,16 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
     d->m_modelManager->globalRename(cursorInEditor, replacement);
 }
 
+void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QString &replacement,
+                                   QTextCursor cursor, const std::function<void ()> &callback)
+{
+    if (cursor.isNull())
+        cursor = textCursor();
+    CursorInEditor cursorInEditor{cursor, filePath, this, textDocument()};
+    QPointer<CppEditorWidget> cppEditorWidget = this;
+    d->m_modelManager->globalRename(cursorInEditor, replacement, callback);
+}
+
 bool CppEditorWidget::selectBlockUp()
 {
     if (!behaviorSettings().m_smartSelectionChanging)
@@ -1160,7 +1170,7 @@ void CppEditorWidget::updateSemanticInfo()
 void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
                                          bool updateUseSelectionSynchronously)
 {
-    if (semanticInfo.revision != documentRevision())
+    if (semanticInfo.revision < documentRevision())
         return;
 
     d->m_lastSemanticInfo = semanticInfo;

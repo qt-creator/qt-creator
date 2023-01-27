@@ -64,7 +64,7 @@ QStringList SshParameters::connectionOptions(const FilePath &binary) const
 bool SshParameters::setupSshEnvironment(QtcProcess *process)
 {
     Environment env = process->controlEnvironment();
-    if (!env.isValid())
+    if (!env.hasChanges())
         env = Environment::systemEnvironment();
     const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
     if (SshSettings::askpassFilePath().exists()) {

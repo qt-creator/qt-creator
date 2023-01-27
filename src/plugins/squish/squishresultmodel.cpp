@@ -160,8 +160,7 @@ TestResult SquishResultFilterModel::testResult(const QModelIndex &idx) const
 {
     if (auto item = static_cast<SquishResultItem *>(m_sourceModel->itemForIndex(mapToSource(idx))))
         return item->result();
-
-    return TestResult();
+    return {};
 }
 
 bool SquishResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

@@ -27,8 +27,8 @@ public:
     Q_DECLARE_FLAGS(TestStates, TestState)
 
     explicit BoostTestTreeItem(ITestFramework *framework,
-                               const QString &name = QString(),
-                               const Utils::FilePath &filePath = Utils::FilePath(),
+                               const QString &name = {},
+                               const Utils::FilePath &filePath = {},
                                Type type = Root)
         : TestTreeItem(framework, name, filePath, type)
     {}

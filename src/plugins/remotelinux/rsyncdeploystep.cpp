@@ -4,8 +4,6 @@
 #include "rsyncdeploystep.h"
 
 #include "abstractremotelinuxdeploystep.h"
-#include "abstractremotelinuxdeployservice.h"
-#include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 

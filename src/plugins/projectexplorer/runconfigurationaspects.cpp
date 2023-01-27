@@ -187,9 +187,9 @@ void WorkingDirectoryAspect::addToLayout(LayoutBuilder &builder)
 
     if (m_envAspect) {
         connect(m_envAspect, &EnvironmentAspect::environmentChanged, m_chooser.data(), [this] {
-            m_chooser->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(m_envAspect->environment()));
+            m_chooser->setEnvironment(m_envAspect->environment());
         });
-        m_chooser->setEnvironmentChange(EnvironmentChange::fromFixedEnvironment(m_envAspect->environment()));
+        m_chooser->setEnvironment(m_envAspect->environment());
     }
 
     builder.addItems({Tr::tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
@@ -578,6 +578,11 @@ void ExecutableAspect::setEnvironmentChange(const EnvironmentChange &change)
     m_executable.setEnvironmentChange(change);
     if (m_alternativeExecutable)
         m_alternativeExecutable->setEnvironmentChange(change);
+}
+
+void ExecutableAspect::setEnvironment(const Environment &env)
+{
+    setEnvironmentChange(EnvironmentChange::fromDictionary(env.toDictionary()));
 }
 
 /*!

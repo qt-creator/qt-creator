@@ -72,13 +72,11 @@ TestRunner::TestRunner()
 
     m_cancelTimer.setSingleShot(true);
     connect(&m_cancelTimer, &QTimer::timeout, this, [this] { cancelCurrent(Timeout); });
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::resultReadyAt,
-            this, [this](int index) { emit testResultReady(m_futureWatcher.resultAt(index)); });
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::finished,
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::finished,
             this, &TestRunner::onFinished);
     connect(this, &TestRunner::requestStopTestRun,
-            &m_futureWatcher, &QFutureWatcher<TestResultPtr>::cancel);
-    connect(&m_futureWatcher, &QFutureWatcher<TestResultPtr>::canceled, this, [this] {
+            &m_futureWatcher, &QFutureWatcher<TestResult>::cancel);
+    connect(&m_futureWatcher, &QFutureWatcher<TestResult>::canceled, this, [this] {
         cancelCurrent(UserCanceled);
         reportResult(ResultType::MessageFatal, Tr::tr("Test run canceled by user."));
     });
@@ -148,42 +146,22 @@ static QString constructOmittedVariablesDetailsString(const EnvironmentItems &di
 
 bool TestRunner::currentConfigValid()
 {
-    FilePath commandFilePath;
-    if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
-        TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        commandFilePath = current->executableFilePath();
-    } else {
-        TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
-        commandFilePath = current->commandLine().executable();
-    }
-    if (commandFilePath.isEmpty()) {
-        reportResult(ResultType::MessageFatal,
-                     Tr::tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
-        delete m_currentConfig;
-        m_currentConfig = nullptr;
-        if (m_selectedTests.isEmpty()) {
-            if (m_fakeFutureInterface)
-                m_fakeFutureInterface->reportFinished();
-            onFinished();
-        } else {
-            onProcessDone();
-        }
-        return false;
-    }
-    return true;
-}
+    const FilePath commandFilePath = m_currentConfig->testExecutable();
+    if (!commandFilePath.isEmpty())
+        return true;
 
-void TestRunner::setUpProcess()
-{
-    QTC_ASSERT(m_currentConfig, return);
-    m_currentProcess = new QtcProcess;
-    if (m_currentConfig->testBase()->type() == ITestBase::Framework) {
-        TestConfiguration *current = static_cast<TestConfiguration *>(m_currentConfig);
-        m_currentProcess->setCommand({current->executableFilePath(), {}});
+    reportResult(ResultType::MessageFatal,
+                 Tr::tr("Executable path is empty. (%1)").arg(m_currentConfig->displayName()));
+    delete m_currentConfig;
+    m_currentConfig = nullptr;
+    if (m_selectedTests.isEmpty()) {
+        if (m_fakeFutureInterface)
+            m_fakeFutureInterface->reportFinished();
+        onFinished();
     } else {
-        TestToolConfiguration *current = static_cast<TestToolConfiguration *>(m_currentConfig);
-        m_currentProcess->setCommand({current->commandLine().executable(), {}});
+        onProcessDone();
     }
+    return false;
 }
 
 void TestRunner::setUpProcessEnv()
@@ -234,12 +212,13 @@ void TestRunner::scheduleNext()
     if (!m_currentConfig->project())
         onProcessDone();
 
-    setUpProcess();
-    QTC_ASSERT(m_currentProcess, onProcessDone(); return);
+    m_currentProcess = new QtcProcess;
+    m_currentProcess->setCommand({m_currentConfig->testExecutable(), {}});
+
     QTC_ASSERT(!m_currentOutputReader, delete m_currentOutputReader);
     m_currentOutputReader = m_currentConfig->createOutputReader(*m_fakeFutureInterface, m_currentProcess);
     QTC_ASSERT(m_currentOutputReader, onProcessDone(); return);
-
+    connect(m_currentOutputReader, &TestOutputReader::newResult, this, &TestRunner::testResultReady);
     connect(m_currentOutputReader, &TestOutputReader::newOutputLineAvailable,
             TestResultsPane::instance(), &TestResultsPane::addOutputLine);
 
@@ -537,8 +516,8 @@ void TestRunner::runTestsHelper()
     int testCaseCount = precheckTestConfigurations();
 
     // Fake future interface - destruction will be handled by QFuture/QFutureWatcher
-    m_fakeFutureInterface = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
-    QFuture<TestResultPtr> future = m_fakeFutureInterface->future();
+    m_fakeFutureInterface = new QFutureInterface<TestResult>(QFutureInterfaceBase::Running);
+    QFuture<TestResult> future = m_fakeFutureInterface->future();
     m_fakeFutureInterface->setProgressRange(0, testCaseCount);
     m_fakeFutureInterface->setProgressValue(0);
     m_futureWatcher.setFuture(future);
@@ -648,12 +627,13 @@ void TestRunner::debugTests()
     }
 
     // We need a fake QFuture for the results. TODO: replace with QtConcurrent::run
-    QFutureInterface<TestResultPtr> *futureInterface
-            = new QFutureInterface<TestResultPtr>(QFutureInterfaceBase::Running);
+    QFutureInterface<TestResult> *futureInterface
+            = new QFutureInterface<TestResult>(QFutureInterfaceBase::Running);
     m_futureWatcher.setFuture(futureInterface->future());
 
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->createOutputReader(*futureInterface, nullptr);
+        connect(outputreader, &TestOutputReader::newResult, this, &TestRunner::testResultReady);
         outputreader->setId(inferior.command.executable().toString());
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
@@ -804,9 +784,9 @@ void TestRunner::onFinished()
 
 void TestRunner::reportResult(ResultType type, const QString &description)
 {
-    TestResultPtr result(new TestResult);
-    result->setResult(type);
-    result->setDescription(description);
+    TestResult result("internal", {});
+    result.setResult(type);
+    result.setDescription(description);
     emit testResultReady(result);
 }
 

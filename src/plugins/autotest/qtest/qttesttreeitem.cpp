@@ -12,11 +12,13 @@
 #include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
+using namespace Utils;
+
 namespace Autotest {
 namespace Internal {
 
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
-                               const Utils::FilePath &filePath, TestTreeItem::Type type)
+                               const FilePath &filePath, TestTreeItem::Type type)
     : TestTreeItem(testFramework, name, filePath, type)
 {
     if (type == TestDataTag)
@@ -286,7 +288,7 @@ QList<ITestConfiguration *> QtTestTreeItem::getFailedTestConfigurations() const
     return result;
 }
 
-QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const Utils::FilePath &fileName) const
+QList<ITestConfiguration *> QtTestTreeItem::getTestConfigurationsForFile(const FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
 
@@ -321,7 +323,7 @@ TestTreeItem *QtTestTreeItem::find(const TestParseResult *result)
     switch (type()) {
     case Root:
         if (result->framework->grouping()) {
-            const Utils::FilePath path = result->fileName.absolutePath();
+            const FilePath path = result->fileName.absolutePath();
             for (int row = 0; row < childCount(); ++row) {
                 TestTreeItem *group = childItem(row);
                 if (group->filePath() != path)
@@ -394,7 +396,7 @@ bool QtTestTreeItem::modify(const TestParseResult *result)
 
 TestTreeItem *QtTestTreeItem::createParentGroupNode() const
 {
-    const Utils::FilePath &absPath = filePath().absolutePath();
+    const FilePath &absPath = filePath().absolutePath();
     return new QtTestTreeItem(framework(), absPath.baseName(), absPath, TestTreeItem::GroupNode);
 }
 
@@ -403,7 +405,7 @@ bool QtTestTreeItem::isGroupable() const
     return type() == TestCase;
 }
 
-TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const Utils::FilePath &file,
+TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const FilePath &file,
                                                          const QString &name, Type type) const
 {
     return findFirstLevelChildItem([file, name, type](const TestTreeItem *other) {

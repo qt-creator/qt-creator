@@ -142,7 +142,8 @@ void BuiltinModelManagerSupport::startLocalRenaming(const CursorInEditor &data,
 }
 
 void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
-                                              const QString &replacement)
+                                              const QString &replacement,
+                                              const std::function<void()> &callback)
 {
     CppModelManager *modelManager = CppModelManager::instance();
     if (!modelManager)
@@ -161,7 +162,7 @@ void BuiltinModelManagerSupport::globalRename(const CursorInEditor &data,
         Internal::CanonicalSymbol cs(info.doc, info.snapshot);
         CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
         if (canonicalSymbol)
-            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement);
+            modelManager->renameUsages(canonicalSymbol, cs.context(), replacement, callback);
     }
 }
 

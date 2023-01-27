@@ -13,8 +13,6 @@ Project {
         Depends { name: "ProjectExplorer" }
 
         files: [
-            "abstractremotelinuxdeployservice.cpp",
-            "abstractremotelinuxdeployservice.h",
             "abstractremotelinuxdeploystep.cpp",
             "abstractremotelinuxdeploystep.h",
             "deploymenttimeinfo.cpp",

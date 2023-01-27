@@ -6,6 +6,7 @@
 #include "abstracteditorsupport.h"
 #include "baseeditordocumentprocessor.h"
 #include "compileroptionsbuilder.h"
+#include "cppcanonicalsymbol.h"
 #include "cppcodemodelinspectordumper.h"
 #include "cppcodemodelsettings.h"
 #include "cppcurrentdocumentfilter.h"
@@ -325,9 +326,9 @@ void CppModelManager::startLocalRenaming(const CursorInEditor &data,
 }
 
 void CppModelManager::globalRename(const CursorInEditor &data, const QString &replacement,
-                                   Backend backend)
+                                   const std::function<void()> &callback, Backend backend)
 {
-    instance()->modelManagerSupport(backend)->globalRename(data, replacement);
+    instance()->modelManagerSupport(backend)->globalRename(data, replacement, callback);
 }
 
 void CppModelManager::findUsages(const CursorInEditor &data, Backend backend)
@@ -1170,10 +1171,21 @@ void CppModelManager::findUsages(Symbol *symbol, const LookupContext &context)
 
 void CppModelManager::renameUsages(Symbol *symbol,
                                    const LookupContext &context,
-                                   const QString &replacement)
+                                   const QString &replacement,
+                                   const std::function<void()> &callback)
 {
     if (symbol->identifier())
-        d->m_findReferences->renameUsages(symbol, context, replacement);
+        d->m_findReferences->renameUsages(symbol, context, replacement, callback);
+}
+
+void CppModelManager::renameUsages(const Document::Ptr &doc, const QTextCursor &cursor,
+                                   const Snapshot &snapshot, const QString &replacement,
+                                   const std::function<void ()> &callback)
+{
+    Internal::CanonicalSymbol cs(doc, snapshot);
+    CPlusPlus::Symbol *canonicalSymbol = cs(cursor);
+    if (canonicalSymbol)
+        renameUsages(canonicalSymbol, cs.context(), replacement, callback);
 }
 
 void CppModelManager::findMacroUsages(const CPlusPlus::Macro &macro)

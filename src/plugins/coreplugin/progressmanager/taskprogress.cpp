@@ -39,6 +39,8 @@ public:
     QFutureWatcher<void> m_watcher;
     QFutureInterface<void> m_futureInterface;
     QPointer<FutureProgress> m_futureProgress;
+    Id m_id;
+    bool m_isAutoStopOnCancel = true;
     int m_halfLifeTimePerTask = 1000; // 1000 ms
     QString m_displayName;
     FutureProgress::KeepOnFinishType m_keep = FutureProgress::HideOnFinish;
@@ -99,7 +101,9 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     , d(new TaskProgressPrivate(this, taskTree))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, [this] {
-        d->m_taskTree->stop(); // TODO: should we have different cancel policies?
+        emit canceled();
+        if (d->m_isAutoStopOnCancel)
+            d->m_taskTree->stop();
     });
     connect(d->m_taskTree, &TaskTree::started, this, [this] {
         d->m_futureInterface = QFutureInterface<void>();
@@ -109,7 +113,7 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
         d->m_futureInterface.reportStarted();
         d->advanceProgress(0);
 
-        const auto id = Id::fromString(d->m_displayName + ".action");
+        const Id id = d->m_id.isValid() ? d->m_id : Id::fromString(d->m_displayName + ".action");
         d->m_futureProgress = ProgressManager::addTask(d->m_futureInterface.future(),
                                                        d->m_displayName, id);
         d->m_futureProgress->setKeepOnFinish(d->m_keep);
@@ -132,6 +136,16 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
 }
 
 TaskProgress::~TaskProgress() = default;
+
+void TaskProgress::setId(Utils::Id id)
+{
+    d->m_id = id;
+}
+
+void TaskProgress::setAutoStopOnCancel(bool enable)
+{
+    d->m_isAutoStopOnCancel = enable;
+}
 
 void TaskProgress::setHalfLifeTimePerTask(int msecs)
 {

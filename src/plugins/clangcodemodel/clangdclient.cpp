@@ -292,7 +292,7 @@ public:
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
                     const QString &searchTerm, const std::optional<QString> &replacement,
-                    bool categorize);
+                    const std::function<void()> &callback, bool categorize);
 
     void handleDeclDefSwitchReplies();
 
@@ -509,7 +509,8 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 }
 
 void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
-                              const std::optional<QString> &replacement)
+                              const std::optional<QString> &replacement,
+                              const std::function<void()> &renameCallback)
 {
     // Quick check: Are we even on anything searchable?
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
@@ -519,7 +520,7 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
 
     if (replacement && versionNumber() >= QVersionNumber(16)
             && Utils::qtcEnvironmentVariable("QTC_CLANGD_RENAMING") != "0") {
-        symbolSupport().renameSymbol(document, adjustedCursor, *replacement,
+        symbolSupport().renameSymbol(document, adjustedCursor, *replacement, renameCallback,
                                      CppEditor::preferLowerCaseFileNames());
         return;
     }
@@ -530,19 +531,20 @@ void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
     if (searchTerm != "operator" && Utils::allOf(searchTerm, [](const QChar &c) {
             return c.isLetterOrNumber() || c == '_';
     })) {
-        d->findUsages(document, adjustedCursor, searchTerm, replacement, categorize);
+        d->findUsages(document, adjustedCursor, searchTerm, replacement, renameCallback, categorize);
         return;
     }
 
     // Otherwise get the proper spelling of the search term from clang, so we can put it into the
     // search widget.
-    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement, categorize]
+    const auto symbolInfoHandler = [this, doc = QPointer(document), adjustedCursor, replacement,
+                                    renameCallback, categorize]
             (const QString &name, const QString &, const MessageId &) {
         if (!doc)
             return;
         if (name.isEmpty())
             return;
-        d->findUsages(doc.data(), adjustedCursor, name, replacement, categorize);
+        d->findUsages(doc.data(), adjustedCursor, name, replacement, renameCallback, categorize);
     };
     requestSymbolInfo(document->filePath(), Range(adjustedCursor).start(), symbolInfoHandler);
 }
@@ -704,10 +706,11 @@ CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->s
 
 void ClangdClient::Private::findUsages(TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const std::optional<QString> &replacement, bool categorize)
+        const std::optional<QString> &replacement, const std::function<void()> &renameCallback,
+        bool categorize)
 {
     const auto findRefs = new ClangdFindReferences(q, document, cursor, searchTerm, replacement,
-                                                   categorize);
+                                                   renameCallback, categorize);
     if (isTesting) {
         connect(findRefs, &ClangdFindReferences::foundReferences,
                 q, &ClangdClient::foundReferences);

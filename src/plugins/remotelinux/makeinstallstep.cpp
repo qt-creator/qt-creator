@@ -170,7 +170,7 @@ bool MakeInstallStep::init()
     }
 
     const MakeInstallCommand cmd = buildSystem()->makeInstallCommand(rootDir);
-    if (cmd.environment.isValid()) {
+    if (cmd.environment.hasChanges()) {
         Environment env = processParameters()->environment();
         for (auto it = cmd.environment.constBegin(); it != cmd.environment.constEnd(); ++it) {
             if (cmd.environment.isEnabled(it)) {

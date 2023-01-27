@@ -6,6 +6,8 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+using namespace Utils;
+
 namespace Autotest {
 
 TestResult::TestResult(const QString &id, const QString &name, const ResultHooks &hooks)
@@ -13,6 +15,11 @@ TestResult::TestResult(const QString &id, const QString &name, const ResultHooks
     , m_name(name)
     , m_hooks(hooks)
 {
+}
+
+bool TestResult::isValid() const
+{
+    return !m_id.isEmpty();
 }
 
 const QString TestResult::outputString(bool selected) const
@@ -113,10 +120,10 @@ QString TestResult::resultToString(const ResultType type)
         return QString("BXFAIL");
     case ResultType::MessageLocation:
     case ResultType::Application:
-        return QString();
+        return {};
     default:
         if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
-            return QString();
+            return {};
         return QString("UNKNOWN");
     }
 }
@@ -126,64 +133,60 @@ QColor TestResult::colorForType(const ResultType type)
     if (type >= ResultType::INTERNAL_MESSAGES_BEGIN && type <= ResultType::INTERNAL_MESSAGES_END)
         return QColor("transparent");
 
-    Utils::Theme *creatorTheme = Utils::creatorTheme();
+    const Theme *theme = creatorTheme();
     switch (type) {
     case ResultType::Pass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestPassTextColor);
+        return theme->color(Theme::OutputPanes_TestPassTextColor);
     case ResultType::Fail:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFailTextColor);
+        return theme->color(Theme::OutputPanes_TestFailTextColor);
     case ResultType::ExpectedFail:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXFailTextColor);
+        return theme->color(Theme::OutputPanes_TestXFailTextColor);
     case ResultType::UnexpectedPass:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestXPassTextColor);
+        return theme->color(Theme::OutputPanes_TestXPassTextColor);
     case ResultType::Skip:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestSkipTextColor);
+        return theme->color(Theme::OutputPanes_TestSkipTextColor);
     case ResultType::MessageDebug:
     case ResultType::MessageInfo:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestDebugTextColor);
+        return theme->color(Theme::OutputPanes_TestDebugTextColor);
     case ResultType::MessageWarn:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestWarnTextColor);
+        return theme->color(Theme::OutputPanes_TestWarnTextColor);
     case ResultType::MessageFatal:
     case ResultType::MessageSystem:
     case ResultType::MessageError:
-        return creatorTheme->color(Utils::Theme::OutputPanes_TestFatalTextColor);
+        return theme->color(Theme::OutputPanes_TestFatalTextColor);
     case ResultType::BlacklistedPass:
     case ResultType::BlacklistedFail:
     case ResultType::BlacklistedXPass:
     case ResultType::BlacklistedXFail:
     default:
-        return creatorTheme->color(Utils::Theme::OutputPanes_StdOutTextColor);
+        return theme->color(Theme::OutputPanes_StdOutTextColor);
     }
 }
 
-bool TestResult::isDirectParentOf(const TestResult *other, bool *needsIntermediate) const
+bool TestResult::isDirectParentOf(const TestResult &other, bool *needsIntermediate) const
 {
-    QTC_ASSERT(other, return false);
-    const bool ret = !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+    QTC_ASSERT(other.isValid(), return false);
+    const bool ret = !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
     if (!ret)
         return false;
     if (m_hooks.directParent)
-        return m_hooks.directParent(*this, *other, needsIntermediate);
+        return m_hooks.directParent(*this, other, needsIntermediate);
     return true;
 }
 
-bool TestResult::isIntermediateFor(const TestResult *other) const
+bool TestResult::isIntermediateFor(const TestResult &other) const
 {
-    QTC_ASSERT(other, return false);
+    QTC_ASSERT(other.isValid(), return false);
     if (m_hooks.intermediate)
-        return m_hooks.intermediate(*this, *other);
-    return !m_id.isEmpty() && m_id == other->m_id && m_name == other->m_name;
+        return m_hooks.intermediate(*this, other);
+    return !m_id.isEmpty() && m_id == other.m_id && m_name == other.m_name;
 }
 
-TestResult *TestResult::createIntermediateResult() const
+TestResult TestResult::intermediateResult() const
 {
-    if (m_hooks.createResult) {
-        TestResult *newResult = new TestResult;
-        *newResult = m_hooks.createResult(*this);
-        return newResult;
-    }
-    TestResult *intermediate = new TestResult(m_id, m_name);
-    return intermediate;
+    if (m_hooks.createResult)
+        return m_hooks.createResult(*this);
+    return {m_id, m_name};
 }
 
 } // namespace Autotest

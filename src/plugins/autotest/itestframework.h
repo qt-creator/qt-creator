@@ -72,7 +72,7 @@ public:
     bool grouping() const { return m_grouping; }
     void setGrouping(bool group) { m_grouping = group; }
     // framework specific tool tip to be displayed on the general settings page
-    virtual QString groupingToolTip() const { return QString(); }
+    virtual QString groupingToolTip() const { return {}; }
 
     ITestFramework *asFramework() final { return this; }
 
