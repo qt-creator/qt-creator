@@ -10,17 +10,14 @@
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 
-#include <QStatusBar>
-#include <QToolBar>
 #include <QMainWindow>
 #include <QQmlEngine>
+#include <QStatusBar>
+#include <QToolBar>
 
 namespace QmlDesigner {
 
-QmlDesigner::ToolBar::ToolBar()
-{
-
-}
+QmlDesigner::ToolBar::ToolBar() {}
 
 static Utils::FilePath propertyEditorResourcesPath()
 {
@@ -78,7 +75,7 @@ void ToolBar::create()
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesPath() / "Main.qml";
-    QTC_ASSERT(qmlFilePath.exists(), return );
+    QTC_ASSERT(qmlFilePath.exists(), return);
 
     Theme::setupTheme(quickWidget->engine());
 
@@ -97,7 +94,7 @@ void ToolBar::createStatusBar()
 
     auto quickWidget = new QQuickWidget;
 
-    quickWidget->setFixedHeight(24);
+    quickWidget->setFixedHeight(41);
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -105,7 +102,7 @@ void ToolBar::createStatusBar()
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesStatusBarPath() + QStringLiteral("/Main.qml");
-    QTC_ASSERT(qmlFilePath.exists(), return );
+    QTC_ASSERT(qmlFilePath.exists(), return);
 
     Theme::setupTheme(quickWidget->engine());
 
@@ -116,6 +113,7 @@ void ToolBar::createStatusBar()
     }
 
     Core::ICore::statusBar()->addWidget(quickWidget);
+    Core::ICore::statusBar()->setFixedHeight(41);
 }
 
 bool ToolBar::isVisible()
