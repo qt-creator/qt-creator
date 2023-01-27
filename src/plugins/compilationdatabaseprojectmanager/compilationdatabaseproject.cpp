@@ -27,7 +27,6 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QFileDialog>
 

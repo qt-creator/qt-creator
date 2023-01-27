@@ -1,7 +1,6 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "assetexporter.h"
-#include "assetexportpluginconstants.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
 
@@ -14,7 +13,6 @@
 #include "coreplugin/editormanager/editormanager.h"
 #include "utils/qtcassert.h"
 #include "utils/runextensions.h"
-#include "variantproperty.h"
 #include "projectexplorer/session.h"
 #include "projectexplorer/project.h"
 

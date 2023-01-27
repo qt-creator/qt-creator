@@ -7,7 +7,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 #include <utils/qtcprocess.h>
 

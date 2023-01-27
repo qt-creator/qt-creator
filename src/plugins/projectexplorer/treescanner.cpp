@@ -3,14 +3,11 @@
 
 #include "treescanner.h"
 
-#include "projectexplorerconstants.h"
 #include "projectnodeshelper.h"
 #include "projecttree.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-
-#include <cppeditor/cppeditorconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

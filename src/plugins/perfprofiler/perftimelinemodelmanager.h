@@ -8,7 +8,6 @@
 
 #include <tracing/timelinemodelaggregator.h>
 #include <tracing/timelinezoomcontrol.h>
-#include <utils/runextensions.h>
 
 #include <QPointer>
 #include <unordered_map>

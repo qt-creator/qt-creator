@@ -9,7 +9,6 @@
 #include "deployconfiguration.h"
 #include "kitinformation.h"
 #include "project.h"
-#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "sanitizerparser.h"
 #include "target.h"
@@ -19,7 +18,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/variablechooser.h>
 
 #include <QFormLayout>

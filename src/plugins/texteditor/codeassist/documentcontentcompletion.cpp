@@ -13,7 +13,6 @@
 #include "../texteditorsettings.h"
 
 #include <utils/algorithm.h>
-#include <utils/runextensions.h>
 
 #include <QElapsedTimer>
 #include <QRegularExpression>
