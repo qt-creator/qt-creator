@@ -144,6 +144,7 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
     const auto onProcessSetup = [=](QtcProcess &process) {
         process.setEnvironment(input.environment);
         process.setUseCtrlCStub(true);
+        process.setLowPriority();
         process.setWorkingDirectory(input.outputDirPath); // Current clang-cl puts log file into working dir.
 
         const ClangToolStorage *data = storage.activeStorage();
