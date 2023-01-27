@@ -8,7 +8,7 @@ add_qtc_library(QmlEditorWidgets
     contextpanewidgetimage.cpp contextpanewidgetimage.h
     contextpanewidgetrectangle.cpp contextpanewidgetrectangle.h contextpanewidgetrectangle.ui
     customcolordialog.cpp customcolordialog.h
-    easingpane/easingcontextpane.cpp easingpane/easingcontextpane.h easingpane/easingcontextpane.ui
+    easingpane/easingcontextpane.cpp easingpane/easingcontextpane.h
     easingpane/easinggraph.cpp easingpane/easinggraph.h
     easingpane/easingpane.qrc
     filewidget.cpp filewidget.h

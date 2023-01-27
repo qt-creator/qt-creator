@@ -37,7 +37,7 @@ QtcLibrary {
         id: easingPane
         prefix: "easingpane/"
         files: [
-            "easingcontextpane.cpp", "easingcontextpane.h", "easingcontextpane.ui",
+            "easingcontextpane.cpp", "easingcontextpane.h",
             "easinggraph.cpp", "easinggraph.h",
             "easingpane.qrc",
         ]
