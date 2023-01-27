@@ -23,6 +23,7 @@ public:
     TaskProgress(Utils::TaskTree *taskTree); // Makes TaskProgress a child of task tree
     ~TaskProgress() override;
 
+    void setId(Utils::Id id);
     void setAutoStopOnCancel(bool enable); // Default is true
     void setHalfLifeTimePerTask(int msecs); // Default is 1000 ms
     void setDisplayName(const QString &name);
