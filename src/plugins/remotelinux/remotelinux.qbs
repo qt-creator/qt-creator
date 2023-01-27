@@ -19,8 +19,6 @@ Project {
             "deploymenttimeinfo.h",
             "customcommanddeploystep.cpp",
             "customcommanddeploystep.h",
-            "genericdirectuploadservice.cpp",
-            "genericdirectuploadservice.h",
             "genericdirectuploadstep.cpp",
             "genericdirectuploadstep.h",
             "genericlinuxdeviceconfigurationwidget.cpp",
