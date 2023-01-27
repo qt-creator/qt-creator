@@ -978,13 +978,13 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
     return res;
 }
 
-/// \returns the relativePath of FilePath from a given \a anchor.
+/// \returns the relative path of FilePath from a given \a anchor.
 /// Both, FilePath and anchor may be files or directories.
 /// Example usage:
 ///
 /// \code
 ///     FilePath filePath("/foo/b/ar/file.txt");
-///     FilePath relativePath = filePath.relativePath("/foo/c");
+///     FilePath relativePath = filePath.relativePathFrom("/foo/c");
 ///     qDebug() << relativePath
 /// \endcode
 ///
