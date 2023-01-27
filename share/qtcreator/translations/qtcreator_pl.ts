@@ -12088,7 +12088,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -12101,9 +12101,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -12132,17 +12129,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Rozciągnięcie w poziomie. Dopasowuje rozmiar obrazu do dostępnej powierzchni.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Dopasowuje obraz do dostępnej powierzchni.</translation>
@@ -12167,13 +12153,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Obraz jest skalowany jednolicie, może zostać przycięty.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
@@ -12183,16 +12162,9 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <translation>Kolor</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Brzeg</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -12395,7 +12367,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Ukrywa ten pasek narzędzi.</translation>
@@ -12416,16 +12388,10 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Ukrywa ten pasek narzędzi. Można go zablokować na stałe, na stronie z opcjami lub z podręcznego menu.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Kliknij dwukrotnie aby wyświetlić podgląd.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Otwórz plik</translation>

@@ -4,6 +4,7 @@
 #include "easingcontextpane.h"
 
 #include "easinggraph.h"
+#include "qmleditorwidgetstr.h"
 
 #include <qmljs/qmljspropertyreader.h>
 #include <utils/layoutbuilder.h>
@@ -110,34 +111,34 @@ EasingContextPane::EasingContextPane(QWidget *parent)
     m_playButton = new QPushButton;
     m_playButton->setIcon(Utils::Icons::RUN_SMALL.icon());
     m_playButton->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-    m_playButton->setToolTip(tr("Play simulation."));
+    m_playButton->setToolTip(Tr::tr("Play simulation."));
 
     m_easingShapeComboBox = new QComboBox;
     m_easingShapeComboBox->addItems(
         {"Linear", "Quad", "Cubic", "Quart", "Quint", "Sine", "Expo", "Circ", "Elastic", "Back", "Bounce"});
-    m_easingShapeComboBox->setToolTip(tr("Type of easing curve."));
+    m_easingShapeComboBox->setToolTip(Tr::tr("Type of easing curve."));
     m_easingExtremesComboBox = new QComboBox;
     m_easingExtremesComboBox->addItems(
         {"In", "Out", "InOut", "OutIn"});
-    m_easingExtremesComboBox->setToolTip(tr("Acceleration or deceleration of easing curve."));
+    m_easingExtremesComboBox->setToolTip(Tr::tr("Acceleration or deceleration of easing curve."));
 
     m_durationSpinBox = new QSpinBox;
     m_durationSpinBox->setKeyboardTracking(false);
     m_durationSpinBox->setMaximum(9999999);
     m_durationSpinBox->setMinimum(-1);
     m_durationSpinBox->setSingleStep(10);
-    m_durationSpinBox->setSuffix(tr(" ms"));
-    m_durationSpinBox->setToolTip(tr("Duration of animation."));
+    m_durationSpinBox->setSuffix(Tr::tr(" ms"));
+    m_durationSpinBox->setToolTip(Tr::tr("Duration of animation."));
 
     m_amplitudeSpinBox = new QDoubleSpinBox;
     m_amplitudeSpinBox->setSingleStep(0.05);
-    m_amplitudeSpinBox->setToolTip(tr("Amplitude of elastic and bounce easing curves."));
+    m_amplitudeSpinBox->setToolTip(Tr::tr("Amplitude of elastic and bounce easing curves."));
     m_periodSpinBox = new QDoubleSpinBox;
     m_periodSpinBox->setSingleStep(0.01);
-    m_periodSpinBox->setToolTip(tr("Easing period of an elastic curve."));
+    m_periodSpinBox->setToolTip(Tr::tr("Easing period of an elastic curve."));
     m_overshootSpinBox = new QDoubleSpinBox;
     m_overshootSpinBox->setSingleStep(0.05);
-    m_overshootSpinBox->setToolTip(tr("Easing overshoot for a back curve."));
+    m_overshootSpinBox->setToolTip(Tr::tr("Easing overshoot for a back curve."));
     for (auto spinBox : {m_amplitudeSpinBox, m_periodSpinBox, m_overshootSpinBox}) {
         spinBox->setDecimals(3);
         spinBox->setKeyboardTracking(false);
@@ -149,14 +150,14 @@ EasingContextPane::EasingContextPane(QWidget *parent)
         Row { m_graphicsView, m_playButton, },
         Row {
             Form {
-                tr("Easing"), m_easingShapeComboBox, br,
-                tr("Duration"), m_durationSpinBox, br,
-                tr("Period"), m_periodSpinBox, br,
+                Tr::tr("Easing"), m_easingShapeComboBox, br,
+                Tr::tr("Duration"), m_durationSpinBox, br,
+                Tr::tr("Period"), m_periodSpinBox, br,
             },
             Form {
-                tr("Subtype"), m_easingExtremesComboBox, br,
-                tr("Amplitude"), m_amplitudeSpinBox, br,
-                tr("Overshoot"), m_overshootSpinBox, br,
+                Tr::tr("Subtype"), m_easingExtremesComboBox, br,
+                Tr::tr("Amplitude"), m_amplitudeSpinBox, br,
+                Tr::tr("Overshoot"), m_overshootSpinBox, br,
             },
         },
     }.attachTo(this);

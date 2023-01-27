@@ -1497,7 +1497,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Текст</translation>
@@ -1510,9 +1510,6 @@ Local pulls are not applied to the master branch.</source>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -1541,13 +1538,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Розтягнути горизонтально. Масштабує зображення, щоб відповідати доступній області.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation type="vanished">Зображення масштабоване, щоб відповідати</translation>
@@ -1573,10 +1563,6 @@ Local pulls are not applied to the master branch.</source>
         <translation type="vanished">Зображення рівномірно масштабоване, щоб заповнити; обрізується, якщо необхідно</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-    <message>
         <source>The image is scaled to fit.</source>
         <translation>Зображення масштабоване, щоб відповідати.</translation>
     </message>
@@ -1600,13 +1586,6 @@ Local pulls are not applied to the master branch.</source>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Зображення рівномірно масштабоване, щоб заповнити; обрізується, якщо необхідно.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Градієнт</translation>
@@ -1614,10 +1593,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Color</source>
         <translation>Колір</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
     </message>
     <message>
         <source>Border</source>
@@ -7077,7 +7052,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EasingContextPane</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -14902,7 +14877,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Сховати цю панель інструментів.</translation>
@@ -14923,9 +14898,6 @@ This is independent of the visibility property in QML.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Сховати цю панель інструментів. Цю панель інструментів можна вимкнути назавжди в опціях або в контекстному меню.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation type="vanished">подвійне клацання для попереднього перегляду</translation>
@@ -14934,9 +14906,6 @@ This is independent of the visibility property in QML.</source>
         <source>Double click for preview.</source>
         <translation>Подвійне клацання для попереднього перегляду.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Відкрити файл</translation>

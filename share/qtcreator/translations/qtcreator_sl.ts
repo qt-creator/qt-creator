@@ -13062,7 +13062,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Besedilo</translation>
@@ -16970,7 +16970,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -17005,13 +17005,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <source>10 x 10</source>
         <translation>10 ⨯ 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
     <message>
         <location/>
         <source>The image is scaled to fit</source>
@@ -17044,18 +17037,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location/>
-        <source>10 x 10</source>
-        <translation>10 ⨯ 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-    <message>
-        <location/>
         <source>Gradient</source>
         <translation>Preliv</translation>
     </message>
@@ -17066,17 +17047,9 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location/>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <location/>
         <source>Border</source>
         <translation>Rob</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -20735,7 +20708,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skrij to orodjarno.</translation>
@@ -20756,16 +20729,10 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skrije to orodjarno. To orodjarno je mogoče trajno onemogočiti na strani z možnostmi ali na priročnem meniju.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>Dvokliknite za ogled</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>

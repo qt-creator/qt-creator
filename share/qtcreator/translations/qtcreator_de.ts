@@ -15318,7 +15318,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -15331,9 +15331,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
@@ -15357,13 +15354,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Horizontal anpassen. Skaliert das Bild, so dass es die zur Verfügung stehende Fläche ausfüllt.</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
     </message>
     <message>
         <source>The image is scaled to fit.</source>
@@ -15389,9 +15379,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Das Bild ist gleichmäßig skaliert, Überstehendes wird abgeschnitten sofern nötig.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
     <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
@@ -15401,16 +15388,9 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Farbe</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rahmen</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -15666,7 +15646,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Schließt diese Werkzeugleiste.</translation>
@@ -15687,16 +15667,10 @@ Möchten Sie sie überschreiben?</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Schließt diese Werkzeugleiste. Sie kann in den Einstellung oder durch das Kontextmenü dauerhaft abgeschaltet werden.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Doppelklick zur Vorschau.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Datei öffnen</translation>

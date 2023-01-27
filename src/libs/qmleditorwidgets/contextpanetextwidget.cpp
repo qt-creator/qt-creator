@@ -7,6 +7,7 @@
 #include "contextpanewidget.h"
 #include "customcolordialog.h"
 #include "fontsizespinbox.h"
+#include "qmleditorwidgetstr.h"
 
 #include <qmljs/qmljspropertyreader.h>
 #include <utils/layoutbuilder.h>
@@ -24,7 +25,7 @@ namespace QmlEditorWidgets {
 ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     QWidget(parent)
 {
-    setWindowTitle(tr("Text"));
+    setWindowTitle(Tr::tr("Text"));
 
     auto iconToolButton = [] (const QString &iconName, const QString &iconFallBack,
             bool autoExclusive = true) {
@@ -64,7 +65,7 @@ ContextPaneTextWidget::ContextPaneTextWidget(QWidget *parent) :
     m_centerVAlignmentButton = iconToolButton({}, "alignmentmiddle-h-icon");
     m_bottomAlignmentButton = iconToolButton({}, "alignmentbottom-h-icon");
 
-    m_styleLabel = new QLabel(tr("Style"));
+    m_styleLabel = new QLabel(Tr::tr("Style"));
     m_styleComboBox = new QComboBox;
     m_styleComboBox->addItems({"Normal", "Outline", "Raised", "Sunken"});
     m_textColorButton = colorButton();

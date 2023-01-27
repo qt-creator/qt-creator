@@ -14187,7 +14187,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -14691,7 +14691,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -14720,13 +14720,6 @@ Ids must begin with a lowercase letter.</source>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation>圖像被縮放到合適大小</translation>
@@ -14752,17 +14745,6 @@ Ids must begin with a lowercase letter.</source>
         <translation>影像被一致地縮放到合適大小，如果需要會被裁剪</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
-    <message>
         <source>Gradient</source>
         <translation>漸層</translation>
     </message>
@@ -14771,16 +14753,9 @@ Ids must begin with a lowercase letter.</source>
         <translation>顏色</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>邊框</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -15006,7 +14981,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隱藏此工具列。</translation>
@@ -15027,16 +15002,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>隱藏此工具列。該工具列可在選項頁面或內文選單中永久停用。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>雙擊以預覽</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>

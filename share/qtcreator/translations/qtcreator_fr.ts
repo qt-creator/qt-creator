@@ -24592,7 +24592,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Texte</translation>
@@ -24637,7 +24637,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -24662,17 +24662,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Étirer horizontalement. Redimensionne l&apos;image pour qu&apos;elle occupe l&apos;espace disponible.</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>The image is scaled to fit</source>
@@ -24703,13 +24692,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translatorcomment>wtf ? encore ?</translatorcomment>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Dégradé</translation>
@@ -24719,16 +24701,9 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translation>Couleur</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Bordure</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -25092,7 +25067,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Cache cette barre d&apos;outils.</translation>
@@ -25113,17 +25088,11 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Cache cette barre d&apos;outils. Cette barre d&apos;outils peut être désactivée définitivement dans la page des options ou dans le menu contextuel.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translatorcomment>double-cliquez plutôt que cliquer deux fois</translatorcomment>
         <translation>double-cliquez pour la prévisualisation</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Ouvrir le fichier</translation>

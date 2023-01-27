@@ -8034,7 +8034,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Текст</translation>
@@ -8047,9 +8047,6 @@ p, li { white-space: pre-wrap; }
         <source>...</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>10 x 10</source>
         <translation></translation>
@@ -8073,13 +8070,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Горизонтальное растягивание. Растягивание изображения для заполнения доступного места.</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>10 x 10</source>
-        <translation></translation>
     </message>
     <message>
         <source>The image is scaled to fit.</source>
@@ -8105,9 +8095,6 @@ p, li { white-space: pre-wrap; }
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Увеличить изображение до полного заполнения, возможно, с обрезкой.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
     <message>
         <source>Gradient</source>
         <translation>Градиент</translation>
@@ -8115,10 +8102,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Color</source>
         <translation>Цвет</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation></translation>
     </message>
     <message>
         <source>Border</source>
@@ -17669,7 +17652,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EasingContextPane</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -37366,7 +37349,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Скрывает эту панель.</translation>
@@ -37387,16 +37370,10 @@ This is independent of the visibility property in QML.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Скрывает эту панель. Она может быть навсегда отключена в настройках или контекстном меню.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Двойной щелчок для предпросмотра.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Открытие файла</translation>

@@ -3,6 +3,8 @@
 
 #include "filewidget.h"
 
+#include "qmleditorwidgetstr.h"
+
 #include <QLabel>
 #include <QToolButton>
 #include <QLineEdit>
@@ -67,7 +69,7 @@ void FileWidget::comboBoxChanged()
 
 void FileWidget::onButtonReleased()
 {
-    QString newFile = QFileDialog::getOpenFileName(this, tr("Open File"),
+    QString newFile = QFileDialog::getOpenFileName(this, Tr::tr("Open File"),
                                                    m_path.toLocalFile(), m_filter);
     if (!newFile.isEmpty())
         setFileNameStr(newFile);

@@ -8413,7 +8413,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文本</translation>
@@ -8426,9 +8426,6 @@ Set a valid executable first.</source>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>竖直拉伸，将图片在竖直方向拉伸以填满可用区域。</translation>
@@ -8449,13 +8446,6 @@ Set a valid executable first.</source>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>水平拉伸，将图片水平拉伸以适应可用区域。</translation>
     </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
@@ -8484,9 +8474,6 @@ Set a valid executable first.</source>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
     <message>
         <source>Gradient</source>
         <translation>渐变填充</translation>
@@ -8494,10 +8481,6 @@ Set a valid executable first.</source>
     <message>
         <source>Color</source>
         <translation>颜色</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
     </message>
     <message>
         <source>Border</source>
@@ -18287,7 +18270,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EasingContextPane</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -35808,7 +35791,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隐藏这个工具条.</translation>
@@ -35829,16 +35812,10 @@ Locked components cannot be modified or selected.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>隐藏这个工具栏。该工具栏可在选项页或上下文菜单中永久禁用。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>打开文件</translation>

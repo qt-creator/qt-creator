@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>テキスト</translation>
@@ -90,9 +90,6 @@
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -116,17 +113,6 @@
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>水平方向に引き伸ばします。画像は有効範囲に収まるように拡縮されます。</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>10 x 10</source>
@@ -156,13 +142,6 @@
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>画像は枠の大きさ一杯になるように必要に応じてトリミングされながら縦横比を維持して拡縮されます。</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>グラデーション</translation>
@@ -172,16 +151,9 @@
         <translation>色</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>枠線</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -9156,7 +9128,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>ツールバーを隠します。</translation>
@@ -9177,9 +9149,6 @@ will also disable the following plugins:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>ツールバーを隠すと、オプションページや右クリックメニューでも恒久的に使用できなくなります。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -31651,7 +31620,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Double click for preview.</source>
         <translation>ダブルクリックでプレビューを表示します。</translation>

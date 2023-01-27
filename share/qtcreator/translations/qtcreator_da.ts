@@ -5498,7 +5498,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -5511,9 +5511,6 @@ p, li { white-space: pre-wrap; }
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Stræk lodret. Skalerer billedet så det passer til det tilgængelige område.</translation>
@@ -5538,9 +5535,6 @@ p, li { white-space: pre-wrap; }
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Billedet er skaleret til at passe.</translation>
@@ -5566,23 +5560,12 @@ p, li { white-space: pre-wrap; }
         <translation>Billedet er skaleret ensartet for at fylde, klipning hvis nødvendigt.</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
     </message>
     <message>
         <source>Color</source>
         <translation>Farve</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
     </message>
     <message>
         <source>Border</source>
@@ -14093,7 +14076,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>EasingContextPane</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -28667,7 +28650,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skjuler denne værktøjslinje.</translation>
@@ -28688,16 +28671,10 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skjuler denne værktøjslinje. Denne værktøjslinje kan deaktiveres permanent på valgmulighedssiden eller i genvejsmenuen.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Dobbeltklik for forhåndsvisning.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Åbn fil</translation>

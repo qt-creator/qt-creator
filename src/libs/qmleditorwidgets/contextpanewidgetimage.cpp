@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "contextpanewidgetimage.h"
+
 #include "filewidget.h"
+#include "qmleditorwidgetstr.h"
 
 #include <qmljs/qmljspropertyreader.h>
 #include <utils/layoutbuilder.h>
@@ -64,7 +66,7 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
     };
 
     m_previewLabel = new QLabel;
-    m_previewLabel->setToolTip(tr("Double click for preview."));
+    m_previewLabel->setToolTip(Tr::tr("Double click for preview."));
     m_previewLabel->setFixedSize(76, 76);
     m_previewLabel->installEventFilter(labelFilter);
 
@@ -74,22 +76,22 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
 
     if (m_isBorderImage) {
         m_borderImage.horizontalTileRadioButton = radioButton("tile-icon-hor-crop",
-            tr("Repeat vertically. Tiles the image until there is no more space. May crop the last image."));
+            Tr::tr("Repeat vertically. Tiles the image until there is no more space. May crop the last image."));
         m_borderImage.horizontalStretchRadioButton = radioButton("horizontal-scale-icon",
-            tr("Stretch vertically. Scales the image to fit to the available area."));
+            Tr::tr("Stretch vertically. Scales the image to fit to the available area."));
         m_borderImage.horizontalTileRadioButtonNoCrop = radioButton("tile-icon-hor-scale",
-            tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
+            Tr::tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
         auto hRadioButtons = new QButtonGroup(this);
         hRadioButtons->addButton(m_borderImage.horizontalTileRadioButton);
         hRadioButtons->addButton(m_borderImage.horizontalStretchRadioButton);
         hRadioButtons->addButton(m_borderImage.horizontalTileRadioButtonNoCrop);
 
         m_borderImage.verticalTileRadioButton = radioButton("tile-icon-vert-crop",
-            tr("Repeat horizontally. Tiles the image until there is no more space. May crop the last image."));
+            Tr::tr("Repeat horizontally. Tiles the image until there is no more space. May crop the last image."));
         m_borderImage.verticalStretchRadioButton = radioButton("vertical-scale-icon",
-            tr("Stretch horizontally. Scales the image to fit to the available area."));
+            Tr::tr("Stretch horizontally. Scales the image to fit to the available area."));
         m_borderImage.verticalTileRadioButtonNoCrop = radioButton("tile-icon-vert-scale",
-            tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
+            Tr::tr("Round. Like Repeat, but scales the images down to ensure that the last image is not cropped."));
         auto vRadioButtons = new QButtonGroup(this);
         vRadioButtons->addButton(m_borderImage.verticalTileRadioButton);
         vRadioButtons->addButton(m_borderImage.verticalStretchRadioButton);
@@ -131,18 +133,18 @@ ContextPaneWidgetImage::ContextPaneWidgetImage(QWidget *parent, bool borderImage
                 this, &ContextPaneWidgetImage::onBottomMarginsChanged);
     } else {
         m_image.stretchRadioButton = radioButton("scale-icon",
-            tr("The image is scaled to fit."));
+            Tr::tr("The image is scaled to fit."));
         m_image.horizontalStretchRadioButton = radioButton("horizontal-scale-icon",
-            tr("The image is stretched horizontally and tiled vertically."));
+            Tr::tr("The image is stretched horizontally and tiled vertically."));
         m_image.verticalStretchRadioButton = radioButton("vertical-scale-icon",
-            tr("The image is stretched vertically and tiled horizontally."));
+            Tr::tr("The image is stretched vertically and tiled horizontally."));
 
         m_image.tileRadioButton = radioButton("tile-icon",
-            tr("The image is duplicated horizontally and vertically."));
+            Tr::tr("The image is duplicated horizontally and vertically."));
         m_image.preserveAspectFitRadioButton = radioButton("aspect-fit-icon",
-            tr("The image is scaled uniformly to fit without cropping."));
+            Tr::tr("The image is scaled uniformly to fit without cropping."));
         m_image.cropAspectFitRadioButton = radioButton("aspect-crop-icon",
-            tr("The image is scaled uniformly to fill, cropping if necessary."));
+            Tr::tr("The image is scaled uniformly to fill, cropping if necessary."));
 
         using namespace Utils::Layouting;
         Row {

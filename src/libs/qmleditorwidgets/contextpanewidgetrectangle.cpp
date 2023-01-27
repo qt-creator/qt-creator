@@ -7,6 +7,7 @@
 #include "contextpanewidget.h"
 #include "customcolordialog.h"
 #include "gradientline.h"
+#include "qmleditorwidgetstr.h"
 
 #include <qmljs/qmljspropertyreader.h>
 #include <utils/layoutbuilder.h>
@@ -32,7 +33,7 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
         return result;
     };
 
-    m_gradientLabel = new QLabel(tr("Gradient"));
+    m_gradientLabel = new QLabel(Tr::tr("Gradient"));
     m_gradientLabel->setAlignment(Qt::AlignBottom);
     m_gradientLine = new GradientLine;
     m_gradientLine->setMinimumWidth(240);
@@ -58,8 +59,8 @@ ContextPaneWidgetRectangle::ContextPaneWidgetRectangle(QWidget *parent)
     using namespace Utils::Layouting;
     Grid {
         m_gradientLabel, m_gradientLine, br,
-        tr("Color"), Row { m_colorColorButton, m_colorSolid, m_colorGradient, m_colorNone, st, }, br,
-        tr("Border"), Row { m_borderColorButton, m_borderSolid, m_borderNone, st, }, br,
+        Tr::tr("Color"), Row { m_colorColorButton, m_colorSolid, m_colorGradient, m_colorNone, st, }, br,
+        Tr::tr("Border"), Row { m_borderColorButton, m_borderSolid, m_borderNone, st, }, br,
     }.attachTo(this);
 
     connect(m_colorColorButton, &QmlEditorWidgets::ColorButton::toggled,

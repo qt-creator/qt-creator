@@ -73,7 +73,7 @@
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -86,9 +86,6 @@
         <source>...</source>
         <translation>…</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Rastegni uspravno. Rasteže sliku, kako bi popunila područje.</translation>
@@ -113,9 +110,6 @@
         <source>10 x 10</source>
         <translation>10 × 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Slika se skalira kako bi popunila područje.</translation>
@@ -141,13 +135,6 @@
         <translation>Slika se skalira proporcionalno kako bi popunila područje i reže se po potrebi.</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 × 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
         <source>Gradient</source>
         <translation>Gradijent</translation>
     </message>
@@ -156,16 +143,9 @@
         <translation>Boja</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>…</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rub</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -11446,7 +11426,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation type="unfinished"></translation>
@@ -11467,16 +11447,10 @@ will also disable the following plugins:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
