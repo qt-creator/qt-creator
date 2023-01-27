@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
