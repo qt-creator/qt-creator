@@ -7,25 +7,21 @@
 #include "autotesttr.h"
 #include "testtreemodel.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <coreplugin/progressmanager/taskprogress.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <qmljstools/qmljsmodelmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/mapreduce.h>
+#include <utils/asynctask.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
-#include <QFuture>
-#include <QFutureInterface>
 #include <QLoggingCategory>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Autotest {
@@ -45,24 +41,19 @@ TestCodeParser::TestCodeParser()
     :  m_threadPool(new QThreadPool(this))
 {
     // connect to ProgressManager to postpone test parsing when CppModelManager is parsing
-    auto progressManager = qobject_cast<Core::ProgressManager *>(Core::ProgressManager::instance());
-    connect(progressManager, &Core::ProgressManager::taskStarted,
+    ProgressManager *progressManager = ProgressManager::instance();
+    connect(progressManager, &ProgressManager::taskStarted,
             this, &TestCodeParser::onTaskStarted);
-    connect(progressManager, &Core::ProgressManager::allTasksFinished,
+    connect(progressManager, &ProgressManager::allTasksFinished,
             this, &TestCodeParser::onAllTasksFinished);
-    connect(&m_futureWatcher, &QFutureWatcher<TestParseResultPtr>::started,
-            this, &TestCodeParser::parsingStarted);
-    connect(&m_futureWatcher, &QFutureWatcher<TestParseResultPtr>::finished,
-            this, &TestCodeParser::onFinished);
-    connect(&m_futureWatcher, &QFutureWatcher<TestParseResultPtr>::resultReadyAt,
-            this, [this](int index) {
-        emit testParseResultReady(m_futureWatcher.resultAt(index));
-    });
     connect(this, &TestCodeParser::parsingFinished, this, &TestCodeParser::releaseParserInternals);
     m_reparseTimer.setSingleShot(true);
     connect(&m_reparseTimer, &QTimer::timeout, this, &TestCodeParser::parsePostponedFiles);
     m_threadPool->setMaxThreadCount(std::max(QThread::idealThreadCount()/4, 1));
+    m_futureSynchronizer.setCancelOnWait(true);
 }
+
+TestCodeParser::~TestCodeParser() = default;
 
 void TestCodeParser::setState(State state)
 {
@@ -100,7 +91,7 @@ void TestCodeParser::syncTestFrameworks(const QList<ITestParser *> &parsers)
         // there's a running parse
         m_postponedUpdateType = UpdateType::NoUpdate;
         m_postponedFiles.clear();
-        Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
+        ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }
     qCDebug(LOG) << "Setting" << parsers << "as current parsers";
     m_testCodeParsers = parsers;
@@ -185,7 +176,7 @@ void TestCodeParser::onStartupProjectChanged(Project *project)
 {
     if (m_parserState == FullParse || m_parserState == PartialParse) {
         qCDebug(LOG) << "Canceling scanForTest (startup project changed)";
-        Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
+        ProgressManager::cancelTasks(Constants::TASK_PARSE);
     }
     emit aboutToPerformFullParse();
     if (project)
@@ -205,12 +196,9 @@ void TestCodeParser::onProjectPartsUpdated(Project *project)
 void TestCodeParser::aboutToShutdown()
 {
     qCDebug(LOG) << "Disabling (immediately) - shutting down";
-    State oldState = m_parserState;
     m_parserState = Shutdown;
-    if (oldState == PartialParse || oldState == FullParse) {
-        m_futureWatcher.cancel();
-        m_futureWatcher.waitForFinished();
-    }
+    m_taskTree.reset();
+    m_futureSynchronizer.waitForFinished();
 }
 
 bool TestCodeParser::postponed(const FilePaths &fileList)
@@ -249,7 +237,7 @@ bool TestCodeParser::postponed(const FilePaths &fileList)
             m_postponedFiles.clear();
             m_postponedUpdateType = UpdateType::FullUpdate;
             qCDebug(LOG) << "Canceling scanForTest (full parse triggered while running a scan)";
-            Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
+            ProgressManager::cancelTasks(Constants::TASK_PARSE);
         } else {
             // partial parse triggered, but full parse is postponed already, ignoring this
             if (m_postponedUpdateType == UpdateType::FullUpdate)
@@ -266,9 +254,8 @@ bool TestCodeParser::postponed(const FilePaths &fileList)
     QTC_ASSERT(false, return false); // should not happen at all
 }
 
-static void parseFileForTests(const QList<ITestParser *> &parsers,
-                              QFutureInterface<TestParseResultPtr> &futureInterface,
-                              const FilePath &fileName)
+static void parseFileForTests(QFutureInterface<TestParseResultPtr> &futureInterface,
+                              const QList<ITestParser *> &parsers, const FilePath &fileName)
 {
     for (ITestParser *parser : parsers) {
         if (futureInterface.isCanceled())
@@ -339,7 +326,7 @@ void TestCodeParser::scanForTests(const FilePaths &fileList, const QList<ITestPa
             emit requestRemoval(filePath);
     }
 
-    QTC_ASSERT(!(isFullParse && list.isEmpty()), onFinished(); return);
+    QTC_ASSERT(!(isFullParse && list.isEmpty()), onFinished(true); return);
 
     // use only a single parser or all current active?
     const QList<ITestParser *> codeParsers = parsers.isEmpty() ? m_testCodeParsers : parsers;
@@ -367,18 +354,35 @@ void TestCodeParser::scanForTests(const FilePaths &fileList, const QList<ITestPa
     qCDebug(LOG) << "Starting scan of" << filteredList.size() << "(" << list.size() << ")"
                  << "files with" << codeParsers.size() << "parsers";
 
-    QFuture<TestParseResultPtr> future = Utils::map(filteredList,
-        [codeParsers](QFutureInterface<TestParseResultPtr> &fi, const FilePath &file) {
-            parseFileForTests(codeParsers, fi, file);
-        },
-        MapReduceOption::Unordered,
-        m_threadPool,
-        QThread::LowestPriority);
-    m_futureWatcher.setFuture(future);
-    if (filteredList.size() > 5) {
-        Core::ProgressManager::addTask(future, Tr::tr("Scanning for Tests"),
-                                       Autotest::Constants::TASK_PARSE);
+    using namespace Tasking;
+
+    QList<TaskItem> tasks{parallel}; // TODO: use ParallelLimit(N) and add to settings?
+    for (const FilePath &file : filteredList) {
+        const auto setup = [this, codeParsers, file](AsyncTask<TestParseResultPtr> &async) {
+            async.setAsyncCallData(parseFileForTests, codeParsers, file);
+            async.setThreadPool(m_threadPool);
+            async.setPriority(QThread::LowestPriority);
+            async.setFutureSynchronizer(&m_futureSynchronizer);
+        };
+        const auto onDone = [this](const AsyncTask<TestParseResultPtr> &async) {
+            const QList<TestParseResultPtr> results = async.results();
+            for (const TestParseResultPtr &result : results)
+                emit testParseResultReady(result);
+        };
+        tasks.append(Async<TestParseResultPtr>(setup, onDone));
     }
+    m_taskTree.reset(new TaskTree{tasks});
+    const auto onDone = [this] { m_taskTree.release()->deleteLater(); onFinished(true); };
+    const auto onError = [this] { m_taskTree.release()->deleteLater(); onFinished(false); };
+    connect(m_taskTree.get(), &TaskTree::started, this, &TestCodeParser::parsingStarted);
+    connect(m_taskTree.get(), &TaskTree::done, this, onDone);
+    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onError);
+    if (filteredList.size() > 5) {
+        auto progress = new TaskProgress(m_taskTree.get());
+        progress->setDisplayName(Tr::tr("Scanning for Tests"));
+        progress->setId(Constants::TASK_PARSE);
+    }
+    m_taskTree->start();
 }
 
 void TestCodeParser::onTaskStarted(Id type)
@@ -390,7 +394,7 @@ void TestCodeParser::onTaskStarted(Id type)
                     ? UpdateType::FullUpdate : UpdateType::PartialUpdate;
             qCDebug(LOG) << "Canceling scan for test (CppModelParsing started)";
             m_parsingHasFailed = true;
-            Core::ProgressManager::cancelTasks(Constants::TASK_PARSE);
+            ProgressManager::cancelTasks(Constants::TASK_PARSE);
         }
     }
 }
@@ -410,10 +414,9 @@ void TestCodeParser::onAllTasksFinished(Id type)
     setState(Idle);
 }
 
-void TestCodeParser::onFinished()
+void TestCodeParser::onFinished(bool success)
 {
-    if (m_futureWatcher.isCanceled())
-        m_parsingHasFailed = true;
+    m_parsingHasFailed = !success;
     switch (m_parserState) {
     case PartialParse:
         qCDebug(LOG) << "setting state to Idle (onFinished, PartialParse)";

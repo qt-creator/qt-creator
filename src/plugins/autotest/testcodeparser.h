@@ -6,10 +6,10 @@
 #include "itestparser.h"
 
 #include <qmljs/qmljsdocument.h>
+
+#include <utils/futuresynchronizer.h>
 #include <utils/id.h>
 
-#include <QFutureWatcher>
-#include <QMap>
 #include <QObject>
 #include <QTimer>
 
@@ -18,9 +18,9 @@ class QThreadPool;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
+namespace Utils { class TaskTree; }
 
 namespace Autotest {
-
 namespace Internal {
 
 class TestCodeParser : public QObject
@@ -35,6 +35,7 @@ public:
     };
 
     TestCodeParser();
+    ~TestCodeParser();
 
     void setState(State state);
     State state() const { return m_parserState; }
@@ -48,7 +49,7 @@ public:
 
 signals:
     void aboutToPerformFullParse();
-    void testParseResultReady(const TestParseResultPtr result);
+    void testParseResultReady(const TestParseResultPtr result); // TODO: pass list of results?
     void parsingStarted();
     void parsingFinished();
     void parsingFailed();
@@ -73,7 +74,7 @@ private:
     void onDocumentUpdated(const Utils::FilePath &fileName, bool isQmlFile = false);
     void onTaskStarted(Utils::Id type);
     void onAllTasksFinished(Utils::Id type);
-    void onFinished();
+    void onFinished(bool success);
     void onPartialParsingFinished();
     void parsePostponedFiles();
     void releaseParserInternals();
@@ -83,21 +84,19 @@ private:
     bool m_parsingHasFailed = false;
 
     bool m_codeModelParsing = false;
-    enum class UpdateType {
-        NoUpdate,
-        PartialUpdate,
-        FullUpdate
-    } m_postponedUpdateType = UpdateType::NoUpdate;
+    enum class UpdateType { NoUpdate, PartialUpdate, FullUpdate };
+    UpdateType m_postponedUpdateType = UpdateType::NoUpdate;
     bool m_dirty = false;
     bool m_singleShotScheduled = false;
     bool m_reparseTimerTimedOut = false;
     QSet<Utils::FilePath> m_postponedFiles;
     State m_parserState = Idle;
-    QFutureWatcher<TestParseResultPtr> m_futureWatcher;
     QList<ITestParser *> m_testCodeParsers; // ptrs are still owned by TestFrameworkManager
     QTimer m_reparseTimer;
     QSet<ITestParser *> m_updateParsers;
     QThreadPool *m_threadPool = nullptr;
+    Utils::FutureSynchronizer m_futureSynchronizer;
+    std::unique_ptr<Utils::TaskTree> m_taskTree;
 };
 
 } // namespace Internal
