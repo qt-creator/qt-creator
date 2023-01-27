@@ -153,9 +153,8 @@ public:
     bool isRunning() const { return m_doneCount >= 0; }
     int currentLimit() const;
     TaskAction childDone(bool success);
-    void groupDone(bool success);
-    void treeDone(bool success);
-    void invokeEndHandler(bool success);
+    void groupDone();
+    void invokeEndHandler();
     void resetSuccessBit(); // only on start
     void updateSuccessBit(bool success); // only on childDone
 
@@ -350,8 +349,9 @@ TaskContainer::~TaskContainer()
 TaskAction TaskContainer::start()
 {
     m_doneCount = 0;
-
+    resetSuccessBit();
     createStorages();
+
     TaskAction groupAction = m_children.isEmpty() ? TaskAction::StopWithDone : TaskAction::Continue;
     if (m_groupHandler.m_setupHandler) {
         StorageActivator activator(*this);
@@ -359,16 +359,17 @@ TaskAction TaskContainer::start()
         groupAction = m_groupHandler.m_setupHandler();
     }
 
-    if (groupAction == TaskAction::StopWithDone || groupAction == TaskAction::StopWithError) {
-        const bool success = groupAction == TaskAction::StopWithDone;
+    if (groupAction == TaskAction::Continue)
+        groupAction = startChildren(0);
+    else
         m_taskTreePrivate->advanceProgress(m_taskCount);
-        invokeEndHandler(success);
-        groupDone(success);
-        return groupAction;
+
+    if (groupAction != TaskAction::Continue) {
+        updateSuccessBit(groupAction == TaskAction::StopWithDone);
+        groupDone();
     }
 
-    resetSuccessBit();
-    return startChildren(0);
+    return groupAction;
 }
 
 TaskAction TaskContainer::startChildren(int nextChild)
@@ -393,8 +394,6 @@ TaskAction TaskContainer::startChildren(int nextChild)
         for (int j = i + 1; j < limit; ++j)
             skippedTaskCount += m_children.at(j)->taskCount();
         m_taskTreePrivate->advanceProgress(skippedTaskCount);
-        treeDone(finalizeAction == TaskAction::StopWithDone);
-
         return finalizeAction;
     }
     return TaskAction::Continue;
@@ -408,7 +407,7 @@ void TaskContainer::stop()
     const int childCount = m_children.size();
     const int limit = currentLimit();
 
-    for (int i = m_doneCount; i < limit; ++i)
+    for (int i = 0; i < limit; ++i)
         m_children.at(i)->stop();
 
     int skippedTaskCount = 0;
@@ -432,55 +431,46 @@ TaskAction TaskContainer::childDone(bool success)
                          || (m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
     if (shouldStop)
         stop();
+    else
+        ++m_doneCount;
 
-    ++m_doneCount;
     updateSuccessBit(success);
+    TaskAction groupAction = (shouldStop || m_doneCount == m_children.size())
+                           ? toTaskAction(m_successBit) : TaskAction::Continue;
+    if (isStarting())
+        return groupAction;
 
-    if (shouldStop || m_doneCount == m_children.size()) {
-        invokeEndHandler(m_successBit);
-        groupDone(m_successBit);
-        return toTaskAction(m_successBit);
+    if (groupAction == TaskAction::Continue) {
+        groupAction = startChildren(limit);
+        if (groupAction != TaskAction::Continue)
+            updateSuccessBit(groupAction == TaskAction::StopWithDone);
     }
 
-    if (m_parallelLimit == 0)
-        return TaskAction::Continue;
+    if (groupAction != TaskAction::Continue)
+        groupDone();
 
-    if (isStarting())
-        return TaskAction::Continue;
-
-    if (limit >= m_children.size())
-        return TaskAction::Continue;
-
-    return startChildren(limit);
+    return groupAction;
 }
 
-void TaskContainer::groupDone(bool success)
+void TaskContainer::groupDone()
 {
+    invokeEndHandler();
     if (m_parentContainer) {
         if (!m_parentContainer->isStarting())
-            m_parentContainer->childDone(success);
+            m_parentContainer->childDone(m_successBit);
         return;
     }
-    if (!isStarting())
-        treeDone(success);
-}
-
-void TaskContainer::treeDone(bool success)
-{
-    if (m_parentContainer)
-        return;
-    if (success)
+    if (m_successBit)
         m_taskTreePrivate->emitDone();
     else
         m_taskTreePrivate->emitError();
 }
 
-void TaskContainer::invokeEndHandler(bool success)
+void TaskContainer::invokeEndHandler()
 {
     m_doneCount = -1;
-    m_successBit = success;
-    const bool callDoneHandler = success && m_groupHandler.m_doneHandler;
-    const bool callErrorHandler = !success && m_groupHandler.m_errorHandler;
+    const bool callDoneHandler = m_successBit && m_groupHandler.m_doneHandler;
+    const bool callErrorHandler = !m_successBit && m_groupHandler.m_errorHandler;
     if (callDoneHandler || callErrorHandler) {
         StorageActivator activator(*this);
         GuardLocker locker(m_taskTreePrivate->m_guard);
@@ -611,7 +601,7 @@ void TaskNode::stop()
 
     if (!m_task) {
         m_container.stop();
-        m_container.invokeEndHandler(false);
+        m_container.invokeEndHandler();
         return;
     }
 
