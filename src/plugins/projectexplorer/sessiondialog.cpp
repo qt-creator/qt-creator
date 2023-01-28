@@ -83,6 +83,13 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
         buttons,
     }.attachTo(this);
 
+    connect(m_newSessionLineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+        m_okButton->setEnabled(!text.isEmpty());
+        m_switchToButton->setEnabled(!text.isEmpty());
+    });
+    m_okButton->setEnabled(false);
+    m_switchToButton->setEnabled(false);
+
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
