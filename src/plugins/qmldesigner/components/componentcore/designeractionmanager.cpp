@@ -1335,6 +1335,26 @@ bool anchorsMenuEnabled(const SelectionContext &context)
            || singleSelectionItemIsAnchored(context);
 }
 
+static QIcon createResetIcon(const QStringList &basicIconAddresses)
+{
+    using namespace Utils;
+    static const IconMaskAndColor resetMask({":/utils/images/iconoverlay_reset.png",
+                                             Theme::IconsStopToolBarColor});
+    QList<IconMaskAndColor> iconMaskList = transform(basicIconAddresses, [=] (const QString &refAddr) {
+        return IconMaskAndColor(
+                    FilePath::fromString(refAddr),
+                    Theme::IconsBaseColor);
+    });
+
+    QIcon finalIcon = Icon(asInitializerList(iconMaskList)).icon();
+    iconMaskList.append(resetMask);
+    QIcon finalOn = Icon(asInitializerList(iconMaskList)).icon();
+    for (const QSize &iSize : finalIcon.availableSizes()) {
+        for (const QIcon::Mode &mode : {QIcon::Normal, QIcon::Disabled, QIcon::Active, QIcon::Selected})
+            finalIcon.addPixmap(finalOn.pixmap(iSize, mode, QIcon::On), mode, QIcon::On);
+    }
+    return finalIcon;
+}
 
 void DesignerActionManager::createDefaultDesignerActions()
 {
@@ -1342,6 +1362,15 @@ void DesignerActionManager::createDefaultDesignerActions()
     using namespace ComponentCoreConstants;
     using namespace ModelNodeOperations;
     using namespace FormatOperation;
+
+    const Utils::Icon prevIcon({
+        {":/utils/images/prev.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon nextIcon({
+        {":/utils/images/next.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
+
+    const Utils::Icon addIcon({
+        {":/utils/images/plus.png", Utils::Theme::QmlDesigner_FormEditorForegroundColor}}, Utils::Icon::MenuTintedStyle);
 
     addDesignerAction(new SelectionModelNodeAction(
                           selectionCategoryDisplayName,
@@ -1424,21 +1453,21 @@ void DesignerActionManager::createDefaultDesignerActions()
 
     addDesignerAction(new SeparatorDesignerAction(editCategory, 30));
 
-    addDesignerAction(
-        new ModelNodeAction(resetPositionCommandId,
-                            resetPositionDisplayName,
-                            {},
-                            resetPositionTooltip,
-                            editCategory,
-                            QKeySequence("Ctrl+d"),
-                            32,
-                            &resetPosition,
-                            &selectionNotEmptyAndHasXorYProperty));
+    addDesignerAction(new ModelNodeAction(
+                          resetPositionCommandId,
+                          resetPositionDisplayName,
+                          createResetIcon({":/utils/images/pan.png"}),
+                          resetPositionTooltip,
+                          editCategory,
+                          QKeySequence("Ctrl+d"),
+                          32,
+                          &resetPosition,
+                          &selectionNotEmptyAndHasXorYProperty));
 
     addDesignerAction(new ModelNodeAction(
                           copyFormatCommandId,
                           copyFormatDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::CopyIcon),
                           copyFormatTooltip,
                           editCategory,
                           QKeySequence(),
@@ -1449,7 +1478,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           applyFormatCommandId,
                           applyFormatDisplayName,
-                          {},
+                          contextIcon(DesignerIcons::PasteIcon),
                           applyFormatTooltip,
                           editCategory,
                           QKeySequence(),
@@ -1460,7 +1489,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           resetSizeCommandId,
                           resetSizeDisplayName,
-                          {},
+                          createResetIcon({":/utils/images/fittoview.png"}),
                           resetSizeToolTip,
                           editCategory,
                           QKeySequence("shift+s"),
@@ -1489,7 +1518,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsFillCommandId,
                           anchorsFillDisplayName,
-                          {},
+                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor}}).icon(),
                           anchorsFillToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("shift+f")),
@@ -1500,7 +1529,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           anchorsResetCommandId,
                           anchorsResetDisplayName,
-                          {},
+                          Utils::Icon({{":/qmldesigner/images/anchor_fill.png", Utils::Theme::IconsBaseColor},
+                                       {":/utils/images/iconoverlay_reset.png", Utils::Theme::IconsStopToolBarColor}}).icon(),
                           anchorsResetToolTip,
                           anchorsCategory,
                           QKeySequence(QKeySequence("Ctrl+Shift+r")),
@@ -1513,7 +1543,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopAndBottomCommandId,
                           anchorParentTopAndBottomDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_top.png",
+                                           ":/qmldesigner/images/anchor_bottom.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1523,7 +1554,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentLeftAndRightCommandId,
                           anchorParentLeftAndRightDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_left.png",
+                                           ":/qmldesigner/images/anchor_right.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1535,7 +1567,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopCommandId,
                           anchorParentTopDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_top.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1545,7 +1577,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentBottomCommandId,
                           anchorParentBottomDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_bottom.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1555,7 +1587,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentLeftCommandId,
                           anchorParentLeftDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_left.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1565,7 +1597,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ParentAnchorAction(
                           anchorParentRightCommandId,
                           anchorParentRightDisplayName,
-                          {},
+                          createResetIcon({":/qmldesigner/images/anchor_right.png"}),
                           {},
                           anchorsCategory,
                           QKeySequence(),
@@ -1622,7 +1654,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           createFlowActionAreaCommandId,
                           createFlowActionAreaDisplayName,
-                          {},
+                          addIcon.icon(),
                           addFlowActionToolTip,
                           flowCategory,
                           {},
@@ -1660,21 +1692,22 @@ void DesignerActionManager::createDefaultDesignerActions()
     addCustomTransitionEffectAction();
 
     addDesignerAction(new ModelNodeContextMenuAction(
-        selectFlowEffectCommandId,
-        selectEffectDisplayName,
-        {},
-        flowCategory,
-        {},
-        2,
-        &selectFlowEffect,
-        &isFlowTransitionItemWithEffect));
+                          selectFlowEffectCommandId,
+                          selectEffectDisplayName,
+                          {},
+                          flowCategory,
+                          {},
+                          2,
+                          &selectFlowEffect,
+                          &isFlowTransitionItemWithEffect));
 
-    addDesignerAction(new ActionGroup(stackedContainerCategoryDisplayName,
-                                      stackedContainerCategory,
-                                      {},
-                                      Priorities::StackedContainerCategory,
-                                      &isStackedContainer,
-                                      &isStackedContainer));
+    addDesignerAction(new ActionGroup(
+                          stackedContainerCategoryDisplayName,
+                          stackedContainerCategory,
+                          addIcon.icon(),
+                          Priorities::StackedContainerCategory,
+                          &isStackedContainer,
+                          &isStackedContainer));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removePositionerCommandId,
@@ -1747,7 +1780,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           addItemToStackedContainerCommandId,
                           addItemToStackedContainerDisplayName,
-                          {},
+                          addIcon.icon(),
                           addItemToStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+a"),
@@ -1770,7 +1803,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           decreaseIndexOfStackedContainerCommandId,
                           decreaseIndexToStackedContainerDisplayName,
-                          {},
+                          prevIcon.icon(),
                           decreaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Left"),
@@ -1782,7 +1815,7 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeFormEditorAction(
                           increaseIndexOfStackedContainerCommandId,
                           increaseIndexToStackedContainerDisplayName,
-                          {},
+                          nextIcon.icon(),
                           increaseIndexOfStackedContainerToolTip,
                           stackedContainerCategory,
                           QKeySequence("Ctrl+Shift+Right"),
@@ -1794,7 +1827,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutRowLayoutCommandId,
                           layoutRowLayoutDisplayName,
-                          {},
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutRowLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+u"),
@@ -1805,7 +1839,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutColumnLayoutCommandId,
                           layoutColumnLayoutDisplayName,
-                          {},
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutColumnLayoutToolTip,
                           layoutCategory,
                           QKeySequence("Ctrl+l"),
@@ -1816,7 +1851,8 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
                           layoutGridLayoutDisplayName,
-                          {},
+                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/grid.png",
+                                        Utils::Theme::IconsBaseColor}}).icon(),
                           layoutGridLayoutToolTip,
                           layoutCategory,
                           QKeySequence("shift+g"),
