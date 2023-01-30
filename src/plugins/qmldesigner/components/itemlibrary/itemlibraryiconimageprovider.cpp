@@ -16,7 +16,8 @@ namespace QmlDesigner {
 QQuickImageResponse *ItemLibraryIconImageProvider::requestImageResponse(const QString &id,
                                                                         const QSize &)
 {
-    auto response = std::make_unique<ImageCacheImageResponse>();
+    auto response = std::make_unique<ImageCacheImageResponse>(QImage{
+        Utils::StyleHelper::dpiSpecificImageFile(":/ItemLibrary/images/item-default-icon.png")});
 
     m_cache.requestSmallImage(
         id,
