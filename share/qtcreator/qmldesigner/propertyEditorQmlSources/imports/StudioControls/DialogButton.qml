@@ -58,11 +58,11 @@ T.Button {
             PropertyChanges {
                 target: buttonBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: textItem
-                color: control.style.text.idle
+                color: control.style.text.hover
             }
         },
         State {
@@ -76,7 +76,7 @@ T.Button {
             }
             PropertyChanges {
                 target: textItem
-                color: control.style.text.idle
+                color: control.style.text.interaction
             }
         },
         State {

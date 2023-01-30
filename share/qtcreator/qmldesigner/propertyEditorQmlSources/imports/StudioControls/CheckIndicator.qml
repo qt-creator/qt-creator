@@ -65,6 +65,10 @@ Rectangle {
                   && !control.__parentControl.hover && !control.__parentControl.drag
                   && !control.checked && !control.hasActiveDrag
             PropertyChanges {
+                target: icon
+                color: control.style.icon.idle
+            }
+            PropertyChanges {
                 target: control
                 color: control.style.background.idle
             }
@@ -93,6 +97,10 @@ Rectangle {
             when: control.__parentControl.enabled && control.enabled
                   && !control.__parentControl.drag && control.hover && control.__parentControl.hover
                   && !control.pressed && !control.checked
+            PropertyChanges {
+                target: icon
+                color: control.style.icon.hover
+            }
             PropertyChanges {
                 target: control
                 color: control.style.background.hover

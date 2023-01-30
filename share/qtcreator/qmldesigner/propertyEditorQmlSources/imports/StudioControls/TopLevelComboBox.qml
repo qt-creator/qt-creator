@@ -196,7 +196,16 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.idle
+                border.color: control.style.border.idle
+            }
+        },
+        State {
+            name: "hover"
+            when: control.enabled && control.hover && !control.edit && !control.open
+                  && !control.activeFocus && !control.hasActiveDrag
+            PropertyChanges {
+                target: comboBoxBackground
+                border.color: control.style.border.hover
             }
         },
         // This state is intended for ComboBoxes which aren't editable, but have focus e.g. via
@@ -227,7 +236,6 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.interaction
             }
         },
@@ -236,7 +244,6 @@ T.ComboBox {
             when: !control.enabled
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.disabled
                 border.color: control.style.border.disabled
             }
         }

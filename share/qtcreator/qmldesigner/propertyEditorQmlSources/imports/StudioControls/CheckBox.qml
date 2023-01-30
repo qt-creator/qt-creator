@@ -133,15 +133,15 @@ T.CheckBox {
             PropertyChanges {
                 target: checkBoxBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: checkedIcon
-                color: control.style.icon.idle
+                color: control.style.icon.hover
             }
             PropertyChanges {
                 target: partiallyCheckedIcon
-                color: control.style.icon.idle
+                color: control.style.icon.hover
             }
         },
         State {

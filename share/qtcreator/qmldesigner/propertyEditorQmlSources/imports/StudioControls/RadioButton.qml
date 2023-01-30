@@ -117,7 +117,7 @@ T.RadioButton {
             PropertyChanges {
                 target: radioButtonBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: radioButtonIndicator

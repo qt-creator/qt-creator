@@ -67,10 +67,18 @@ T.AbstractButton {
             states: [
                 State {
                     name: "default"
-                    when: control.enabled && !control.pressed && !control.checked
+                    when: control.enabled && !control.pressed && !control.checked && !control.hover
                     PropertyChanges {
                         target: buttonIcon
                         color: control.style.icon.idle
+                    }
+                },
+                State {
+                    name: "hover"
+                    when: control.enabled && !control.pressed && !control.checked && control.hover
+                    PropertyChanges {
+                        target: buttonIcon
+                        color: control.style.icon.hover
                     }
                 },
                 State {
@@ -132,7 +140,7 @@ T.AbstractButton {
             PropertyChanges {
                 target: buttonBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
         },
         State {
@@ -143,7 +151,7 @@ T.AbstractButton {
                 color: control.checkedInverted ? control.style.interactionHover
                                                : control.style.background.hover
                 border.color: control.checkedInverted ? control.style.interactionHover
-                                                      : control.style.border.idle
+                                                      : control.style.border.hover
             }
         },
         State {

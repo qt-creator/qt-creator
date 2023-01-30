@@ -226,8 +226,16 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: spinBoxBackground
-                color: control.style.background.idle
                 border.color: control.style.border.idle
+            }
+        },
+        State {
+            name: "hover"
+            when: control.enabled && control.hover && control.hovered
+                  && !control.edit && !control.drag && !control.sliderDrag
+            PropertyChanges {
+                target: spinBoxBackground
+                border.color: control.style.border.hover
             }
         },
         State {
@@ -243,7 +251,6 @@ T.SpinBox {
             }
             PropertyChanges {
                 target: spinBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.idle
             }
         },
@@ -252,7 +259,6 @@ T.SpinBox {
             when: control.drag || control.sliderDrag
             PropertyChanges {
                 target: spinBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.interaction
             }
         },
@@ -261,7 +267,6 @@ T.SpinBox {
             when: !control.enabled
             PropertyChanges {
                 target: spinBoxBackground
-                color: control.style.background.disabled
                 border.color: control.style.border.disabled
             }
         }

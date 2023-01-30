@@ -124,11 +124,11 @@ T.Switch {
             PropertyChanges {
                 target: switchBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: switchIndicator
-                color: control.style.icon.idle
+                color: control.style.icon.hover
             }
         },
         State {

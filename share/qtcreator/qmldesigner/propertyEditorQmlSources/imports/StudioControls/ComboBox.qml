@@ -237,7 +237,16 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.idle
+                border.color: control.style.border.idle
+            }
+        },
+        State {
+            name: "hover"
+            when: control.enabled && control.hover && !control.edit && !control.open
+                  && !control.activeFocus && !control.hasActiveDrag
+            PropertyChanges {
+                target: comboBoxBackground
+                border.color: control.style.border.hover
             }
         },
         State {
@@ -253,7 +262,6 @@ T.ComboBox {
             when: control.enabled && control.hasActiveHoverDrag
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.interaction
             }
         },
@@ -285,9 +293,8 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.interaction
-                }
+            }
             StateChangeScript {
                 script: comboBoxPopup.close()
             }
@@ -306,16 +313,14 @@ T.ComboBox {
             }
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.interaction
                 border.color: control.style.border.interaction
-                }
+            }
         },
         State {
             name: "disable"
             when: !control.enabled
             PropertyChanges {
                 target: comboBoxBackground
-                color: control.style.background.disabled
                 border.color: control.style.border.disabled
             }
         }

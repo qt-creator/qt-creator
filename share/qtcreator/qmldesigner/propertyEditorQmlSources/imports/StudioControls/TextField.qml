@@ -191,11 +191,11 @@ T.TextField {
             PropertyChanges {
                 target: textFieldBackground
                 color: control.style.background.hover
-                border.color: control.style.border.idle
+                border.color: control.style.border.hover
             }
             PropertyChanges {
                 target: control
-                color: control.style.text.idle
+                color: control.style.text.hover
                 placeholderTextColor: control.style.text.placeholder
             }
         },

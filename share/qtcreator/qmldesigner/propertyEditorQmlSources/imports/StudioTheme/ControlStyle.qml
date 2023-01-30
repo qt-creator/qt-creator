@@ -99,6 +99,8 @@ QtObject {
 
     component TextColors: QtObject {
         property color idle: Values.themeTextColor
+        property color interaction: "yellow"
+        property color hover: "red"
         property color disabled: Values.themeTextColorDisabled
         property color selection: Values.themeTextSelectionColor
         property color selectedText: Values.themeTextSelectedTextColor
