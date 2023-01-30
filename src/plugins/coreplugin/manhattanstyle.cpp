@@ -522,9 +522,16 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
     case PM_ButtonShiftHorizontal:
     case PM_MenuBarPanelWidth:
     case PM_ToolBarItemMargin:
+        if (StyleHelper::isQDSTheme()) {
+            retval = 0;
+            break;
+        }
+        [[fallthrough]];
     case PM_ToolBarItemSpacing:
         if (panelWidget(widget))
             retval = 0;
+        if (StyleHelper::isQDSTheme())
+            retval = 4;
         break;
     case PM_DefaultFrameWidth:
         if (qobject_cast<const QLineEdit*>(widget) && panelWidget(widget))
@@ -1030,7 +1037,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
         break;
 
     case PE_IndicatorToolBarSeparator:
-        {
+        if (!StyleHelper::isQDSTheme()) {
             QRect separatorRect = rect;
             separatorRect.setLeft(rect.width() / 2);
             separatorRect.setWidth(1);
@@ -1147,6 +1154,7 @@ void ManhattanStyle::drawControlForQmlEditor(ControlElement element,
                                              QPainter *painter,
                                              const QWidget *widget) const
 {
+    Q_UNUSED(element)
     if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
         painter->save();
         const int iconHeight = pixelMetric(QStyle::PM_SmallIconSize, option, widget);
@@ -1518,7 +1526,7 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
             bool drawLightColored = lightColored(widget);
             // draws the background of the 'Type hierarchy', 'Projects' headers
             if (creatorTheme()->flag(Theme::FlatToolBars))
-                painter->fillRect(rect, StyleHelper::baseColor(drawLightColored));
+                painter->fillRect(rect, StyleHelper::toolbarBaseColor(drawLightColored));
             else if (horizontal)
                 StyleHelper::horizontalGradient(painter, gradientSpan, rect, drawLightColored);
             else

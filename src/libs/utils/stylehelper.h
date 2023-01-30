@@ -33,6 +33,7 @@ public:
     // This is our color table, all colors derive from baseColor
     static QColor requestedBaseColor() { return m_requestedBaseColor; }
     static QColor baseColor(bool lightColored = false);
+    static QColor toolbarBaseColor(bool lightColored = false);
     static QColor panelTextColor(bool lightColored = false);
     static QColor highlightColor(bool lightColored = false);
     static QColor shadowColor(bool lightColored = false);
@@ -71,6 +72,8 @@ public:
 
     static void tintImage(QImage &img, const QColor &tintColor);
     static QLinearGradient statusBarGradient(const QRect &statusBarRect);
+
+    static bool isQDSTheme();
 
     class IconFontHelper
     {

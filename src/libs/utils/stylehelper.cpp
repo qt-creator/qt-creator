@@ -101,6 +101,14 @@ QColor StyleHelper::baseColor(bool lightColored)
     return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
 }
 
+QColor StyleHelper::toolbarBaseColor(bool lightColored)
+{
+    if (creatorTheme()->flag(Theme::QDSTheme))
+        return creatorTheme()->color(Utils::Theme::DStoolbarBackground);
+    else
+        return StyleHelper::baseColor(lightColored);
+}
+
 QColor StyleHelper::highlightColor(bool lightColored)
 {
     QColor result = baseColor(lightColored);
@@ -624,6 +632,11 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
     grad.setColorAt(0, startColor);
     grad.setColorAt(1, endColor);
     return grad;
+}
+
+bool StyleHelper::isQDSTheme()
+{
+    return creatorTheme()->flag(Theme::QDSTheme);
 }
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
