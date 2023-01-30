@@ -2,10 +2,22 @@ cmake_minimum_required(VERSION 3.16)
 
 project(%{ProjectName} VERSION 0.1 LANGUAGES CXX)
 
+@if !%{HasQSPSetup}
 set(CMAKE_AUTOMOC ON)
+@endif
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.2 REQUIRED COMPONENTS Quick)
+find_package(Qt6 %{MinimumSupportedQtVersion} REQUIRED COMPONENTS Quick)
+
+@if %{HasQSPSetup}
+@if %{UsesAutoResourcePrefix}
+qt_standard_project_setup(
+    MIN_VERSION 6.5
+)
+@else
+qt_standard_project_setup()
+@endif
+@endif
 
 qt_add_executable(%{TargetName}
     main.cpp
@@ -14,7 +26,7 @@ qt_add_executable(%{TargetName}
 qt_add_qml_module(%{TargetName}
     URI %{ProjectName}
     VERSION 1.0
-    QML_FILES main.qml
+    QML_FILES Main.qml
 )
 
 set_target_properties(%{TargetName} PROPERTIES

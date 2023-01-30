@@ -17,6 +17,10 @@
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0 }" },
         { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName') }" },
+        { "key": "HasQSPSetup", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"},
+        { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},
+        { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('BuildSystem') === 'cmake' }"},
+        { "key": "HasLoadFromModule", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('UsesAutoResourcePrefix') }"},
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "QdsProjectStyle", "value": "%{JS: value('BuildSystem') === 'cmake' ? %{QdsProjectStyleInput} : false }" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
@@ -104,6 +108,16 @@
                     {
                         "checked": "%{UseVirtualKeyboardByDefault}"
                     }
+                },
+                {
+                    "name": "MinimumSupportedQtVersion",
+                    "trDisplayName": "The minimum version of Qt you want to build the application for",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "items": [ "6.2", "6.4", "6.5" ],
+                        "index": 1
+                    }
                 }
             ]
         },
@@ -146,8 +160,8 @@
                     "condition": "%{NoQdsProjectStyle}"
                 },
                 {
-                    "source": "main.qml.tpl",
-                    "target": "main.qml",
+                    "source": "Main.qml.tpl",
+                    "target": "Main.qml",
                     "openInEditor": true,
                     "condition": "%{NoQdsProjectStyle}"
                 },

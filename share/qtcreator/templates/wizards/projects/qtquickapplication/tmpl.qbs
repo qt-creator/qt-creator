@@ -16,6 +16,6 @@ CppApplication {
     Group {
         Qt.core.resourcePrefix: "%{ProjectName}/"
         fileTags: ["qt.qml.qml", "qt.core.resource_data"]
-        files: ["main.qml"]
+        files: ["Main.qml"]
     }
 }
