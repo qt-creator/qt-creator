@@ -23,19 +23,19 @@ AlignEscapedNewlines: DontAlign
 AlignOperands:   true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
-AlwaysBreakTemplateDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
   AfterClass:      true
-  AfterControlStatement: false
+  AfterControlStatement: Never
   AfterEnum:       false
   AfterFunction:   true
   AfterNamespace:  false
@@ -99,7 +99,7 @@ PenaltyExcessCharacter: 50
 PenaltyReturnTypeOnItsOwnLine: 300
 PointerAlignment: Right
 ReflowComments:  false
-SortIncludes:    true
+SortIncludes: CaseSensitive
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: true
 SpaceAfterTemplateKeyword: false
@@ -112,6 +112,6 @@ SpacesInContainerLiterals: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
-Standard:        Cpp11
+Standard: c++11
 TabWidth:        4
 UseTab:          Never
