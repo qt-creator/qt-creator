@@ -103,7 +103,7 @@ bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)
             continue;
 
         const int tabPosition = line.indexOf(kPropertySeparator);
-        const QString objectName = QLatin1String(line.left(tabPosition).trimmed());
+        const QString objectName = QString::fromUtf8(line.left(tabPosition).trimmed());
         if (!objectName.startsWith(ObjectsMapTreeItem::COLON)) {
             qDeleteAll(itemForName);
             return false;
