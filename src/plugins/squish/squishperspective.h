@@ -30,7 +30,7 @@ class SquishPerspective : public Utils::Perspective
 {
     Q_OBJECT
 public:
-    enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying };
+    enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying, Configuring };
 
     SquishPerspective();
     void initPerspective();

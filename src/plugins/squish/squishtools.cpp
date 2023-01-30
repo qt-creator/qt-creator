@@ -297,6 +297,7 @@ void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
         return;
     }
     m_serverConfigChanges = changes;
+    m_perspective.setPerspectiveMode(SquishPerspective::Configuring);
     startSquishServer(ServerConfigChangeRequested);
 }
 
@@ -363,10 +364,12 @@ void SquishTools::onServerStopped()
         }
 
         m_serverConfigChanges.removeFirst();
-        if (!m_serverConfigChanges.isEmpty())
+        if (!m_serverConfigChanges.isEmpty()) {
             startSquishServer(ServerConfigChangeRequested);
-        else
-            emit configChangesWritten();
+            return;
+        }
+        emit configChangesWritten();
+        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
     } else if (m_request == ServerStopRequested) {
         m_request = None;
         if (m_perspective.perspectiveMode() == SquishPerspective::Running)
