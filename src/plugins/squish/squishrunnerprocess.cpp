@@ -143,7 +143,6 @@ static QString cmdToString(SquishRunnerProcess::RunnerCommand cmd)
     case SquishRunnerProcess::Exit: return "exit\n";
     case SquishRunnerProcess::Next: return "next\n";
     case SquishRunnerProcess::PrintVariables: return "print variables\n";
-    case SquishRunnerProcess::Quit: return "quit\n";
     case SquishRunnerProcess::Return: return "return\n";
     case SquishRunnerProcess::Step: return "step\n";
     }

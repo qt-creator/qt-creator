@@ -50,10 +50,9 @@ static QString runnerStateName(RunnerState state)
     case RunnerState::RunRequested: return "RunRequested";
     case RunnerState::Interrupted: return "Interrupted";
     case RunnerState::InterruptRequested: return "InterruptedRequested";
-    case RunnerState::Canceling: return "Canceling";
-    case RunnerState::Canceled: return "Canceled";
     case RunnerState::CancelRequested: return "CancelRequested";
     case RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
+    case RunnerState::Canceled: return "Canceled";
     case RunnerState::Finished: return "Finished";
     }
     return "ThouShallNotBeHere";
@@ -606,7 +605,7 @@ void SquishTools::setupAndStartRecorder()
 void SquishTools::stopRecorder()
 {
     QTC_ASSERT(m_secondaryRunner && m_secondaryRunner->isRunning(), return);
-    if (m_squishRunnerState == RunnerState::CancelRequested) {
+    if (m_squishRunnerState == RunnerState::Canceled) {
         qCDebug(LOG) << "Stopping recorder (exit)";
         m_secondaryRunner->writeCommand(SquishRunnerProcess::Exit);
     } else {
@@ -666,7 +665,12 @@ void SquishTools::onRunnerFinished()
 {
     qCDebug(LOG) << "Runner finished";
     if (!m_shutdownInitiated) {
-        logAndChangeRunnerState(RunnerState::Finished);
+        if (m_squishRunnerState == RunnerState::CancelRequested
+                || m_squishRunnerState == RunnerState::CancelRequestedWhileInterrupted) {
+            logAndChangeRunnerState(RunnerState::Canceled);
+        } else {
+            logAndChangeRunnerState(RunnerState::Finished);
+        }
         if (m_request == RunTestRequested)
             m_perspective.updateStatus(Tr::tr("Test run finished."));
         else if (m_request == RecordTestRequested)
@@ -817,8 +821,8 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
             break;
         case RunnerState::CancelRequested:
         case RunnerState::CancelRequestedWhileInterrupted:
+            logAndChangeRunnerState(RunnerState::Canceled);
             stopRecorder();
-            logAndChangeRunnerState(RunnerState::Canceling);
             break;
         case RunnerState::Canceled:
             QTC_CHECK(false);
@@ -849,13 +853,9 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     }
     case RunnerState::CancelRequested:
     case RunnerState::CancelRequestedWhileInterrupted:
+        logAndChangeRunnerState(RunnerState::Canceled);
         m_primaryRunner->writeCommand(SquishRunnerProcess::Exit);
         clearLocationMarker();
-        logAndChangeRunnerState(RunnerState::Canceling);
-        break;
-    case RunnerState::Canceling:
-        m_primaryRunner->writeCommand(SquishRunnerProcess::Quit);
-        logAndChangeRunnerState(RunnerState::Canceled);
         break;
     case RunnerState::Canceled:
         QTC_CHECK(false);

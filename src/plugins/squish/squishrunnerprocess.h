@@ -15,7 +15,7 @@ class SquishRunnerProcess : public SquishProcessBase
 {
     Q_OBJECT
 public:
-    enum RunnerCommand { Continue, EndRecord, Exit, Next, PrintVariables, Quit, Return, Step };
+    enum RunnerCommand { Continue, EndRecord, Exit, Next, PrintVariables, Return, Step };
     enum RunnerMode { Run, StartAut, QueryServer, Record };
     enum RunnerError { InvalidSocket, MappedAutMissing };
 

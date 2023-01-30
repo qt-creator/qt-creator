@@ -29,10 +29,9 @@ enum class RunnerState {
     RunRequested,
     Interrupted,
     InterruptRequested,
-    Canceling,
-    Canceled,
     CancelRequested,
     CancelRequestedWhileInterrupted,
+    Canceled,
     Finished
 };
 
