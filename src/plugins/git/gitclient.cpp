@@ -322,7 +322,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     };
 
     const auto setupDescription = [this, id](QtcProcess &process) {
-        process.setCodec(m_instance->encoding(workingDirectory(), "i18n.commitEncoding"));
+        process.setCodec(m_instance->encoding(GitClient::EncodingCommit, workingDirectory()));
         setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
@@ -821,13 +821,27 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
     return res;
 }
 
-QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const FilePath &source) const
+QTextCodec *GitClient::encoding(GitClient::EncodingType encodingType, const FilePath &source) const
 {
-    if (codecType == CodecSource)
-        return source.isFile() ? VcsBaseEditor::getCodec(source) : encoding(source, "gui.encoding");
-    if (codecType == CodecLogOutput)
-        return encoding(source, "i18n.logOutputEncoding");
-    return nullptr;
+    auto codec = [this](const FilePath &workingDirectory, const QString &configVar) {
+        const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
+        // Set default commit encoding to 'UTF-8', when it's not set,
+        // to solve displaying error of commit log with non-latin characters.
+        if (codecName.isEmpty())
+            return QTextCodec::codecForName("UTF-8");
+        return QTextCodec::codecForName(codecName.toUtf8());
+    };
+
+    switch (encodingType) {
+    case EncodingSource:
+        return source.isFile() ? VcsBaseEditor::getCodec(source) : codec(source, "gui.encoding");
+    case EncodingLogOutput:
+        return codec(source, "i18n.logOutputEncoding");
+    case EncodingCommit:
+        return codec(source, "i18n.commitEncoding");
+    default:
+        return nullptr;
+    }
 }
 
 void GitClient::chunkActionsRequested(DiffEditor::DiffEditorController *controller,
@@ -1057,7 +1071,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, fileName);
     GitEditorWidget *editor = static_cast<GitEditorWidget *>(
                 createVcsEditor(editorId, title, sourceFile,
-                                codecFor(CodecLogOutput), "logTitle", msgArg));
+                                encoding(EncodingLogOutput), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor);
@@ -1112,7 +1126,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
     // Creating document might change the referenced workingDirectory. Store a copy and use it.
     const FilePath workingDir = workingDirectory;
     GitEditorWidget *editor = static_cast<GitEditorWidget *>(
-                createVcsEditor(editorId, title, workingDir, codecFor(CodecLogOutput),
+                createVcsEditor(editorId, title, workingDir, encoding(EncodingLogOutput),
                                 "reflogRepository", workingDir.toString()));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
@@ -1225,7 +1239,7 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDir, file);
 
     VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile,
-            codecFor(CodecSource, sourceFile), "blameFileName", id);
+            encoding(EncodingSource, sourceFile), "blameFileName", id);
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
         argWidget = new GitBlameArgumentsWidget(settings(), editor->toolBar());
@@ -1403,7 +1417,7 @@ bool GitClient::synchronousLog(const FilePath &workingDirectory, const QStringLi
     allArguments.append(arguments);
 
     const CommandResult result = vcsSynchronousExec(workingDirectory, allArguments, flags,
-                        vcsTimeoutS(), encoding(workingDirectory, "i18n.logOutputEncoding"));
+                        vcsTimeoutS(), encoding(EncodingLogOutput, workingDirectory));
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         *output = result.cleanedStdOut();
         return true;
@@ -2566,16 +2580,6 @@ FilePath GitClient::vcsBinary() const
     return binary;
 }
 
-QTextCodec *GitClient::encoding(const FilePath &workingDirectory, const QString &configVar) const
-{
-    const QString codecName = readConfigValue(workingDirectory, configVar).trimmed();
-    // Set default commit encoding to 'UTF-8', when it's not set,
-    // to solve displaying error of commit log with non-latin characters.
-    if (codecName.isEmpty())
-        return QTextCodec::codecForName("UTF-8");
-    return QTextCodec::codecForName(codecName.toUtf8());
-}
-
 // returns first line from log and removes it
 static QByteArray shiftLogLine(QByteArray &logText)
 {
@@ -2709,7 +2713,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         }
     }
 
-    commitData.commitEncoding = encoding(workingDirectory, "i18n.commitEncoding");
+    commitData.commitEncoding = encoding(EncodingCommit, workingDirectory);
 
     // Get the commit template or the last commit message
     switch (commitData.commitType) {
@@ -3124,7 +3128,7 @@ void GitClient::subversionLog(const FilePath &workingDirectory) const
     const QString title = Tr::tr("Git SVN Log");
     const Id editorId = Git::Constants::GIT_SVN_LOG_EDITOR_ID;
     const FilePath sourceFile = VcsBaseEditor::getSource(workingDirectory, QStringList());
-    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, codecFor(CodecNone),
+    VcsBaseEditorWidget *editor = createVcsEditor(editorId, title, sourceFile, encoding(EncodingDefault),
                                                   "svnLog", sourceFile.toString());
     editor->setWorkingDirectory(workingDirectory);
     vcsExecWithEditor(workingDirectory, arguments, editor);

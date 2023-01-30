@@ -1581,7 +1581,7 @@ void GitPluginPrivate::instantBlame()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };
-    QTextCodec *codec = GitClient::instance()->encoding(workingDirectory, "i18n.commitEncoding");
+    QTextCodec *codec = GitClient::instance()->encoding(GitClient::EncodingCommit, workingDirectory);
     GitClient::instance()->vcsExecWithHandler(workingDirectory,
                            {"blame", "-p", "-L", lineString, "--", filePath.toString()},
                            this, commandHandler, RunFlags::NoOutput, codec);
