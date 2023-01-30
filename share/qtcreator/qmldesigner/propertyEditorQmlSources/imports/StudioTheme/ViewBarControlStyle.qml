@@ -4,8 +4,8 @@
 import QtQuick
 
 ControlStyle {
-    controlSize: Qt.size(Values.topLevelComboWidth, Values.topLevelComboHeight)
-    baseIconFontSize: Values.topLevelComboIcon
+    baseIconFontSize: Values.baseFont
+    controlSize: Qt.size(Values.viewBarComboWidth, Values.viewBarComboHeight)
     smallIconFontSize: Values.baseFont
     background.idle: Values.themeControlBackground_toolbarIdle
     background.hover: Values.themeControlBackground_topToolbarHover

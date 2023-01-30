@@ -14,6 +14,10 @@ QtObject {
     property real topLevelComboHeight: 36
     property real topLevelComboIcon: 20
 
+    property real viewBarComboWidth: 210
+    property real viewBarComboHeight: 29
+    property real viewBarComboIcon: 16
+
     property real smallFont: 8
     property real baseFont: 12
     property real mediumFont: 14
@@ -81,7 +85,9 @@ QtObject {
     property real marginTopBottom: 4
     property real border: 1
     property real borderHover: 3
-    property real radius: 0
+    property real radius: 0 //adding specific radiuses
+
+    property real smallRadius: 4
 
     property real maxComboBoxPopupHeight: Math.round(300 * values.scaleFactor)
     property real maxTextAreaPopupHeight: Math.round(150 * values.scaleFactor)
@@ -212,8 +218,9 @@ QtObject {
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Toolbar
-    property real toolbarHeight: 35
-    property real toolbarSpacing: 8
+    property real toolbarHeight: 41
+    property real toolbarSpacing: 10
+
 
     // Dialog
     property real dialogPadding: 12
@@ -223,6 +230,43 @@ QtObject {
     // Theme Colors
 
     property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue
+
+    //NEW QtDS 4.0
+
+    //Top & View toolbar colors
+
+    //backgrounds
+    property color themeControlBackground_toolbarIdle: Theme.color(Theme.DScontrolBackground_toolbarIdle)
+    property color themeControlBackground_toolbarHover: Theme.color(Theme.DScontrolBackground_toolbarHover)
+    property color themeControlBackground_topToolbarHover: Theme.color(Theme.DScontrolBackground_topToolbarHover)
+    property color themeToolbarBackground: Theme.color(Theme.DStoolbarBackground)
+
+    //outlines
+    property color controlOutline_toolbarIdle: Theme.color(Theme.DScontrolOutline_topToolbarIdle)
+    property color controlOutline_toolbarHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
+
+    //icons
+    property color themeToolbarIcon_blocked: Theme.color(Theme.DStoolbarIcon_blocked)
+
+    //primary buttons
+    property color themePrimaryButton_hoverHighlight: Theme.color(Theme.DSprimaryButton_hoverHighlight)
+
+    //states
+    property color themeStateControlBackgroundColor_hover: Theme.color(Theme.DSstateControlBackgroundColor_hover)
+    property color themeStateBackgroundColor_hover: Theme.color(Theme.DSstateBackgroundColor_hover)
+    property color themeStateControlBackgroundColor_globalHover: Theme.color(Theme.DSstateControlBackgroundColor_globalHover)
+    property color themeThumbnailBackground_baseState: Theme.color(Theme.DSthumbnailBackground_baseState)
+
+    //task bar
+    property color themeStatusbarBackground:Theme.color(Theme.DSstatusbarBackground)
+    property color themecontrolBackground_statusbarIdle:Theme.color(Theme.DScontrolBackground_statusbarIdle)
+    property color themecontrolBackground_statusbarHover:Theme.color(Theme.DSControlBackground_statusbarHover)
+
+    //run project button
+    property color themeIdleGreen: Theme.color(Theme.DSidleGreen)
+    property color themeRunningGreen: Theme.color(Theme.DSrunningGreen)
+
+    //END NEW COLORS QtDS 4.0
 
     property color themePanelBackground: Theme.color(Theme.DSpanelBackground)
 
@@ -353,26 +397,14 @@ QtObject {
     property color themeDialogBackground: values.themeThumbnailBackground
     property color themeDialogOutline: values.themeInteraction
 
+    // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
     property ControlStyle toolbarStyle: ToolbarStyle {}
-    property ControlStyle primaryToolbarStyle: ToolbarStyle {
-        baseIconFontSize: values.baseFontSize
-        radius: 4
-
-        icon: ControlStyle.IconColors {
-            idle: values.themeTextSelectedTextColor
-            disabled: "#636363"
-        }
-
-        background: ControlStyle.BackgroundColors {
-            idle: values.themeInteraction
-        }
-
-        border: ControlStyle.BorderColors {
-            idle: values.themeInteraction
-            hover: "#000000"
-            interaction: "#DCDADA"
-            disabled: "#636363"
-        }
-    }
+    property ControlStyle primaryToolbarStyle: PrimaryButtonStyle {}
+    property ControlStyle toolbarButtonStyle: TopToolbarButtonStyle {}
+    property ControlStyle viewBarButtonStyle: ViewBarButtonStyle {}
+    property ControlStyle viewBarControlStyle: ViewBarControlStyle {}
+    property ControlStyle statusbarButtonStyle: StatusBarButtonStyle {}
+    property ControlStyle statusbarControlStyle: StatusBarControlStyle {}
+    property ControlStyle statesControlStyle: StatesControlStyle {}
 }

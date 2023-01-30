@@ -81,8 +81,8 @@ QtObject {
     component BackgroundColors: QtObject {
         property color idle: Values.themeControlBackground
         property color interaction: Values.themeControlBackgroundInteraction
-        property color globalHover: Values.themeControlBackgroundGlobalHover
-        property color hover: Values.themeControlBackgroundHover
+        property color globalHover: Values.themeControlBackground_toolbarHover
+        property color hover: Values.themeControlBackground_toolbarHover
         property color disabled: Values.themeControlBackgroundDisabled
     }
 
@@ -91,16 +91,16 @@ QtObject {
     component BorderColors: QtObject {
         property color idle: Values.themeControlOutline
         property color interaction: Values.themeControlOutlineInteraction
-        property color hover: "red"
-        property color disabled: Values.themeControlOutlineDisabled
+        property color hover: Values.controlOutline_toolbarHover
+        property color disabled: Values.themeControlBackground
     }
 
     property BorderColors border: BorderColors {}
 
     component TextColors: QtObject {
         property color idle: Values.themeTextColor
-        property color interaction: "yellow"
-        property color hover: "red"
+        property color interaction: Values.themeTextSelectedTextColor
+        property color hover: Values.themeTextColor
         property color disabled: Values.themeTextColorDisabled
         property color selection: Values.themeTextSelectionColor
         property color selectedText: Values.themeTextSelectedTextColor
