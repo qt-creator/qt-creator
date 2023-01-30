@@ -129,7 +129,9 @@ public:
                     QSize{1000, 1000},
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::DontCaptureNullImage}
-    {}
+    {
+        timer.setSingleShot(true);
+    }
 
 public:
     Sqlite::Database database{Utils::PathString{
@@ -142,8 +144,10 @@ public:
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
     AsynchronousImageFactory factory{storage, timeStampProvider, collector};
+    QTimer timer;
 };
 
+namespace {
 class ProjectStorageData
 {
 public:
@@ -162,6 +166,16 @@ public:
         fileSystem, storage, fileStatusCache, pathCache, qmlDocumentParser, qmlTypesParser};
 };
 
+std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)
+{
+    if (qEnvironmentVariableIsSet("QDS_ACTIVATE_PROJECT_STORAGE")) {
+        return std::make_unique<ProjectStorageData>(project);
+    }
+
+    return {};
+}
+} // namespace
+
 class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 {
 public:
@@ -174,14 +188,14 @@ public:
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
         , factory{storage, timeStampProvider, collector}
-        , projectStorageData{project}
+        , projectStorageData{createProjectStorageData(project)}
     {}
 
     ImageCacheConnectionManager connectionManager;
     ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
-    ProjectStorageData projectStorageData;
+    std::unique_ptr<ProjectStorageData> projectStorageData;
     QPointer<::ProjectExplorer::Target> activeTarget;
 };
 
@@ -210,7 +224,7 @@ QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterfa
                      &::ProjectExplorer::SessionManager::projectRemoved,
                      [&](auto *project) { projectRemoved(project); });
 
-    QObject::connect(&m_previewTimer,
+    QObject::connect(&m_previewImageCacheData->timer,
                      &QTimer::timeout,
                      this,
                      &QmlDesignerProjectManager::generatePreview);
@@ -233,17 +247,15 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 
 ProjectStorage<Sqlite::Database> &QmlDesignerProjectManager::projectStorage()
 {
-    return m_projectData->projectStorageData.storage;
+    return m_projectData->projectStorageData->storage;
 }
 
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
 
 void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)
 {
-    if (!m_projectData || !m_projectData->activeTarget)
-        return;
-
-    m_previewTimer.start(10000);
+    using namespace std::chrono_literals;
+    m_previewImageCacheData->timer.start(10s);
 }
 
 void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) {}
@@ -365,26 +377,25 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    if (qEnvironmentVariableIsSet("QDS_ACTIVATE_PROJECT_STORAGE")) {
-        m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
-            m_previewImageCacheData->storage, project, m_externalDependencies);
-        m_projectData->activeTarget = project->activeTarget();
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
+                                                                           project,
+                                                                           m_externalDependencies);
+    m_projectData->activeTarget = project->activeTarget();
 
-        QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
-            fileListChanged();
-        });
+    QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
+        fileListChanged();
+    });
 
-        QObject::connect(project,
-                         &::ProjectExplorer::Project::activeTargetChanged,
-                         [&](auto *target) { activeTargetChanged(target); });
+    QObject::connect(project, &::ProjectExplorer::Project::activeTargetChanged, [&](auto *target) {
+        activeTargetChanged(target);
+    });
 
-        QObject::connect(project,
-                         &::ProjectExplorer::Project::aboutToRemoveTarget,
-                         [&](auto *target) { aboutToRemoveTarget(target); });
+    QObject::connect(project, &::ProjectExplorer::Project::aboutToRemoveTarget, [&](auto *target) {
+        aboutToRemoveTarget(target);
+    });
 
-        if (auto target = project->activeTarget(); target)
-            activeTargetChanged(target);
-    }
+    if (auto target = project->activeTarget(); target)
+        activeTargetChanged(target);
 }
 
 void QmlDesignerProjectManager::aboutToRemoveProject(::ProjectExplorer::Project *)
@@ -492,11 +503,11 @@ void QmlDesignerProjectManager::projectChanged()
 
 void QmlDesignerProjectManager::update()
 {
-    if (!m_projectData)
+    if (!m_projectData || !m_projectData->projectStorageData)
         return;
 
-    m_projectData->projectStorageData.updater.update(qmlDirs(m_projectData->activeTarget),
-                                                     qmlTypes(m_projectData->activeTarget));
+    m_projectData->projectStorageData->updater.update(qmlDirs(m_projectData->activeTarget),
+                                                      qmlTypes(m_projectData->activeTarget));
 }
 
 } // namespace QmlDesigner
