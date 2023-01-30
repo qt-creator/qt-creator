@@ -119,14 +119,6 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths, bool dontAskA
             QMessageBox::warning(Core::ICore::dialogParent(),
                                  tr("Failed to Delete File"),
                                  tr("Could not delete \"%1\".").arg(filePath));
-            continue;
-        }
-
-        QFileInfo fInfo(filePath);
-        QString effectName = fInfo.baseName();
-        if (fInfo.suffix() == "qep") {
-            if (!ModelNodeOperations::deleteEffectResources(effectName))
-                qWarning() << __FUNCTION__ << " could not remove folder for effect: " << effectName;
         }
     }
 }

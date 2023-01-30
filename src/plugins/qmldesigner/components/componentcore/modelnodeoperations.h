@@ -125,7 +125,6 @@ void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
-bool deleteEffectResources(const QString &effectName);
 
 Utils::FilePath getImagesDefaultDirectory();
 

@@ -1735,15 +1735,6 @@ bool validateEffect(const QString &effectPath)
     return true;
 }
 
-bool deleteEffectResources(const QString &effectName)
-{
-    Utils::FilePath effectResPath = getEffectsImportDirectory().resolvePath(effectName);
-    if (effectResPath.exists())
-         return effectResPath.removeRecursively();
-
-    return false;
-}
-
 Utils::FilePath getImagesDefaultDirectory()
 {
     return Utils::FilePath::fromString(
