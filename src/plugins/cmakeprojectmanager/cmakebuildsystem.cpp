@@ -747,8 +747,8 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         checkAndReportError(errorMessage);
     }
 
-    const CMakeTool *tool = m_parameters.cmakeTool();
-    m_ctestPath = tool->cmakeExecutable().withNewPath(m_reader.ctestPath());
+    if (const CMakeTool *tool = m_parameters.cmakeTool())
+        m_ctestPath = tool->cmakeExecutable().withNewPath(m_reader.ctestPath());
 
     setApplicationTargets(appTargets());
     setDeploymentData(deploymentData());
