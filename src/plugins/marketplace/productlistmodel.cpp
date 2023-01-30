@@ -173,7 +173,7 @@ void SectionedProducts::onFetchSingleCollectionFinished(QNetworkReply *reply)
 
             product->handle = handle;
             const QJsonArray tags = obj.value("tags").toArray();
-            for (auto val : tags)
+            for (const auto &val : tags)
                 product->tags.append(val.toString());
 
             const auto images = obj.value("images").toArray();
