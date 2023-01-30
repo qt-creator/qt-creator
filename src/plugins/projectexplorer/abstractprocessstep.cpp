@@ -246,7 +246,7 @@ void AbstractProcessStep::runTaskTree(const Tasking::Group &recipe)
 
     d->m_taskTree.reset(new TaskTree(recipe));
     connect(d->m_taskTree.get(), &TaskTree::progressValueChanged, this, [this](int value) {
-        emit progress(qRound(double(value) * 100 / d->m_taskTree->progressMaximum()), {});
+        emit progress(qRound(double(value) * 100 / std::max(d->m_taskTree->progressMaximum(), 1)), {});
     });
     connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
         emit finished(true);
