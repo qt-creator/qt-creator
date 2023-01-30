@@ -166,6 +166,16 @@ QString Theme::getIconUnicode(const QString &name)
     return instance()->m_constants->property(name.toStdString().data()).toString();
 }
 
+QIcon Theme::iconFromName(Icon i, QColor c)
+{
+    QColor color = c;
+    if (!color.isValid())
+        color = getColor(Theme::Color::IconsBaseColor);
+
+    const QString fontName = "qtds_propertyIconFont.ttf";
+    return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(i), 32, 32, color);
+}
+
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
     return getColor(QmlDesigner_BackgroundColorDarker);

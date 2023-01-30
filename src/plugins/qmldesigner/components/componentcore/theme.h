@@ -334,6 +334,8 @@ public:
     static QString getIconUnicode(Theme::Icon i);
     static QString getIconUnicode(const QString &name);
 
+    static QIcon iconFromName(Theme::Icon i, QColor c = {});
+
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarker() const;
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarkAlternate() const;
     Q_INVOKABLE QColor qmlDesignerTabLight() const;
