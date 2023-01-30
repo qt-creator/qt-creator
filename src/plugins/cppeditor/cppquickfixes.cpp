@@ -3475,7 +3475,6 @@ public:
     }
 
     bool hasSourceFile() const { return m_headerFile != m_sourceFile; }
-    bool isHeaderHeaderFile() const { return m_isHeaderHeaderFile; }
 
 protected:
     void insertAndIndent(const RefactoringFilePtr &file,
@@ -3671,6 +3670,7 @@ protected:
     const CppRefactoringChanges m_changes;
     const InsertionPointLocator m_locator;
     const CppRefactoringFilePtr m_headerFile;
+    bool m_isHeaderHeaderFile = false; // the "header" (where the class is defined) can be a source file
     const CppRefactoringFilePtr m_sourceFile;
     CppQuickFixSettings *const m_settings = CppQuickFixProjectsSettings::getQuickFixSettings(
         ProjectExplorer::ProjectTree::currentProject());
@@ -3683,7 +3683,6 @@ private:
     InsertionLocation m_sourceFileInsertionPoint;
     QString m_sourceFileCode;
     QMap<InsertionPointLocator::AccessSpec, QString> m_headerFileCode;
-    bool m_isHeaderHeaderFile; // the "header" (where the class is defined) can be a source file
 };
 
 class GenerateGetterSetterOp : public CppQuickFixOperation
@@ -9018,7 +9017,7 @@ private:
                     addSourceFileCode(implCode);
                 } else if (constructorLocation
                            == CppQuickFixSettings::FunctionLocation::OutsideClass) {
-                    if (isHeaderHeaderFile())
+                    if (m_isHeaderHeaderFile)
                         implCode.prepend("inline ");
                     insertAndIndent(m_headerFile, implLoc, implCode);
                 }
