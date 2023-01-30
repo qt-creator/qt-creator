@@ -58,7 +58,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_context->setWidget(this);
 
     auto fillLayout = new QVBoxLayout(this);
-    fillLayout->setContentsMargins(0, 0, 0, 0);
+    fillLayout->setContentsMargins(4, 0, 4, 0);
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
@@ -143,26 +143,40 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QColor iconColorNormal(Theme::getColor(Theme::IconsBaseColor));
     const QColor iconColorDisabled(Theme::getColor(Theme::IconsDisabledColor));
-    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomAll), 28, 28, iconColorNormal);
 
-    const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::zoomSelection);
+    const int iconSize = 32;
+    const QIcon zoomAllIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                      Theme::getIconUnicode(
+                                                                          Theme::Icon::fitAll_medium),
+                                                                      iconSize,
+                                                                      iconSize,
+                                                                      iconColorNormal);
+
+    const QString zoomSelectionUnicode = Theme::getIconUnicode(Theme::Icon::fitSelection_medium);
     const auto zoomSelectionNormal = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
                                                                         iconColorNormal,
-                                                                        QSize(28, 28),
+                                                                        QSize(iconSize, iconSize),
                                                                         QIcon::Normal);
     const auto zoomSelectionDisabeld = Utils::StyleHelper::IconFontHelper(zoomSelectionUnicode,
                                                                           iconColorDisabled,
-                                                                          QSize(28, 28),
+                                                                          QSize(iconSize, iconSize),
                                                                           QIcon::Disabled);
 
     const QIcon zoomSelectionIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
                                                                             {zoomSelectionNormal,
                                                                              zoomSelectionDisabeld});
-    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomIn), 28, 28, iconColorNormal);
-    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(
-        fontName, Theme::getIconUnicode(Theme::Icon::zoomOut), 28, 28, iconColorNormal);
+    const QIcon zoomInIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                     Theme::getIconUnicode(
+                                                                         Theme::Icon::zoomIn_medium),
+                                                                     iconSize,
+                                                                     iconSize,
+                                                                     iconColorNormal);
+    const QIcon zoomOutIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                      Theme::getIconUnicode(
+                                                                          Theme::Icon::zoomOut_medium),
+                                                                      iconSize,
+                                                                      iconSize,
+                                                                      iconColorNormal);
 
     auto writeZoomLevel = [this]() {
         double level = m_graphicsView->transform().m11();
@@ -270,7 +284,13 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
-    m_resetAction = new QAction(DesignerActionManager::instance().contextIcon(DesignerIcons::ResetViewIcon), tr("Reset View"), this);
+    const QIcon resetIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
+                                                                    Theme::getIconUnicode(
+                                                                        Theme::Icon::reload_medium),
+                                                                    iconSize,
+                                                                    iconSize,
+                                                                    iconColorNormal);
+    m_resetAction = new QAction(resetIcon, tr("Reset View"), this);
     registerActionAsCommand(m_resetAction,
                             Constants::FORMEDITOR_REFRESH,
                             QKeySequence(Qt::Key_R),

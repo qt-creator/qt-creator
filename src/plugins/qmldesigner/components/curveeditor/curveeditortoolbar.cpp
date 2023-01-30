@@ -4,6 +4,8 @@
 #include "curveeditortoolbar.h"
 #include "curveeditormodel.h"
 
+#include <theme.h>
+
 #include <QAction>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -37,15 +39,13 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
 {
     setFloatable(false);
+    setContentsMargins(0, 0, 0, 0);
 
-    QAction *tangentLinearAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsLinearIcon.png"), "Linear");
-    QAction *tangentStepAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsStepIcon.png"), "Step");
-    QAction *tangentSplineAction = addAction(
-        QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
+    QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium), "Linear");
+    QAction *tangentStepAction = addAction(Theme::iconFromName(Theme::step_medium), "Step");
+    QAction *tangentSplineAction = addAction(Theme::iconFromName(Theme::bezier_medium), "Spline");
 
-    QAction *tangentUnifyAction = addAction(tr("Unify"));
+    QAction *tangentUnifyAction = addAction(Theme::iconFromName(Theme::unify_medium), tr("Unify"));
 
     auto setLinearInterpolation = [this]() {
         emit interpolationClicked(Keyframe::Interpolation::Linear);
@@ -100,6 +100,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     connect(m_currentSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::currentFrameChanged);
 
     auto *durationBox = new QHBoxLayout;
+    durationBox->setContentsMargins(0, 0, 0, 0);
     durationBox->addWidget(new QLabel(tr("Start Frame")));
     durationBox->addWidget(m_startSpin);
     durationBox->addWidget(new QLabel(tr("End Frame")));

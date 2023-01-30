@@ -44,11 +44,11 @@ inline T reverseLerp(const T &val, const T &lhs, const T &rhs)
     return (val - rhs) / (lhs - rhs);
 }
 
-inline QIcon mergeIcons(const Utils::Icon &on, const Utils::Icon &off)
+inline QIcon mergeIcons(const QIcon &on, const QIcon &off)
 {
     QIcon out;
-    out.addPixmap(on.pixmap(), QIcon::Normal, QIcon::On);
-    out.addPixmap(off.pixmap(), QIcon::Normal, QIcon::Off);
+    out.addPixmap(on.pixmap({16, 16}), QIcon::Normal, QIcon::On);
+    out.addPixmap(off.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
     return out;
 }
 

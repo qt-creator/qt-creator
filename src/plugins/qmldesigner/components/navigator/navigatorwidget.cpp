@@ -21,8 +21,9 @@
 #include <QToolButton>
 
 #include <utils/fileutils.h>
-#include <utils/utilsicons.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 namespace QmlDesigner {
 
@@ -80,28 +81,32 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     QList<QToolButton *> buttons;
 
     auto button = new QToolButton();
-    button->setIcon(Icons::ARROW_LEFT.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveUpwards_medium));
+    // button->setIcon(Icons::ARROW_LEFT.icon());
     button->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
     button->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_RIGHT.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveInwards_medium));
+    //button->setIcon(Icons::ARROW_RIGHT.icon());
     button->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
     button->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_DOWN.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveDown_medium));
+    //button->setIcon(Icons::ARROW_DOWN.icon());
     button->setToolTip(tr("Move down (CTRL + Down)."));
     button->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
     buttons.append(button);
 
     button = new QToolButton();
-    button->setIcon(Icons::ARROW_UP.icon());
+    button->setIcon(Theme::iconFromName(Theme::Icon::moveUp_medium));
+    //button->setIcon(Icons::ARROW_UP.icon());
     button->setToolTip(tr("Move up (CTRL + Up)."));
     button->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
     connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
@@ -142,6 +147,7 @@ QToolBar *NavigatorWidget::createToolBar()
     const QList<QToolButton*> buttons = createToolBarWidgets();
 
     auto toolBar = new QToolBar();
+    toolBar->setFixedHeight(41);
     for (auto toolButton : buttons)
         toolBar->addWidget(toolButton);
 

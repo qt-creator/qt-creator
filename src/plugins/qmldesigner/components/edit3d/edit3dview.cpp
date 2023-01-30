@@ -22,8 +22,10 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <theme.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
 #include <QToolButton>
@@ -465,8 +467,8 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::Key_Q),
         true,
         false,
-        Icons::EDIT3D_SELECTION_MODE_OFF.icon(),
-        Icons::EDIT3D_SELECTION_MODE_ON.icon(),
+        Theme::iconFromName(Theme::Icon::selectOutline_medium),
+        Theme::iconFromName(Theme::Icon::selectFill_medium), //s_selection
         this);
 
     m_moveToolAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_MOVE_TOOL,
@@ -476,8 +478,8 @@ void Edit3DView::createEdit3DActions()
                                         QKeySequence(Qt::Key_W),
                                         true,
                                         true,
-                                        Icons::EDIT3D_MOVE_TOOL_OFF.icon(),
-                                        Icons::EDIT3D_MOVE_TOOL_ON.icon(),
+                                        Theme::iconFromName(Theme::Icon::move_medium),
+                                        Theme::iconFromName(Theme::Icon::move_medium),
                                         this);
 
     m_rotateToolAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_ROTATE_TOOL,
@@ -487,8 +489,8 @@ void Edit3DView::createEdit3DActions()
                                           QKeySequence(Qt::Key_E),
                                           true,
                                           false,
-                                          Icons::EDIT3D_ROTATE_TOOL_OFF.icon(),
-                                          Icons::EDIT3D_ROTATE_TOOL_ON.icon(),
+                                          Theme::iconFromName(Theme::Icon::roatate_medium),
+                                          Theme::iconFromName(Theme::Icon::roatate_medium),
                                           this);
 
     m_scaleToolAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_SCALE_TOOL,
@@ -498,8 +500,8 @@ void Edit3DView::createEdit3DActions()
                                          QKeySequence(Qt::Key_R),
                                          true,
                                          false,
-                                         Icons::EDIT3D_SCALE_TOOL_OFF.icon(),
-                                         Icons::EDIT3D_SCALE_TOOL_ON.icon(),
+                                         Theme::iconFromName(Theme::Icon::scale_medium),
+                                         Theme::iconFromName(Theme::Icon::scale_medium),
                                          this);
 
     m_fitAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_FIT_SELECTED,
@@ -509,7 +511,7 @@ void Edit3DView::createEdit3DActions()
                                    QKeySequence(Qt::Key_F),
                                    false,
                                    false,
-                                   Icons::EDIT3D_FIT_SELECTED_OFF.icon(),
+                                   Theme::iconFromName(Theme::Icon::fitToView_medium),
                                    {},
                                    this);
 
@@ -520,7 +522,7 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(),
         false,
         false,
-        Icons::EDIT3D_ALIGN_CAMERA_ON.icon(),
+        Theme::iconFromName(Theme::Icon::alignToCam_medium),
         {},
         this);
 
@@ -531,7 +533,7 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(),
         false,
         false,
-        Icons::EDIT3D_ALIGN_VIEW_ON.icon(),
+        Theme::iconFromName(Theme::Icon::alignToView_medium),
         {},
         this);
 
@@ -543,8 +545,8 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::Key_T),
         true,
         false,
-        Icons::EDIT3D_EDIT_CAMERA_OFF.icon(),
-        Icons::EDIT3D_EDIT_CAMERA_ON.icon(),
+        Theme::iconFromName(Theme::Icon::orthCam_small),
+        Theme::iconFromName(Theme::Icon::perspectiveCam_small),
         this);
 
     m_orientationModeAction = new Edit3DAction(
@@ -554,8 +556,8 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::Key_Y),
         true,
         false,
-        Icons::EDIT3D_ORIENTATION_OFF.icon(),
-        Icons::EDIT3D_ORIENTATION_ON.icon(),
+        Theme::iconFromName(Theme::Icon::localOrient_medium),
+        Theme::iconFromName(Theme::Icon::globalOrient_medium),
         this);
 
     m_editLightAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_EDIT_LIGHT,
@@ -565,8 +567,8 @@ void Edit3DView::createEdit3DActions()
                                          QKeySequence(Qt::Key_U),
                                          true,
                                          false,
-                                         Icons::EDIT3D_LIGHT_OFF.icon(),
-                                         Icons::EDIT3D_LIGHT_ON.icon(),
+                                         Theme::iconFromName(Theme::Icon::editLightOff_medium),
+                                         Theme::iconFromName(Theme::Icon::editLightOn_medium),
                                          this);
 
     m_showGridAction = new Edit3DAction(
@@ -676,22 +678,22 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::Key_V),
         true,
         false,
-        Icons::EDIT3D_PARTICLE_OFF.icon(),
-        Icons::EDIT3D_PARTICLE_ON.icon(),
+        Theme::iconFromName(Theme::Icon::particleAnimation_medium),
+        Theme::iconFromName(Theme::Icon::particleAnimation_medium),
         this,
         particlesTrigger);
     particlemode = false;
-    m_particlesPlayAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_PARTICLES_PLAY,
-                                             View3DActionType::ParticlesPlay,
-                                             QCoreApplication::translate("ParticlesPlayAction",
-                                                                         "Play Particles"),
-                                             QKeySequence(Qt::Key_Comma),
-                                             true,
-                                             true,
-                                             Icons::EDIT3D_PARTICLE_PLAY.icon(),
-                                             Icons::EDIT3D_PARTICLE_PAUSE.icon(),
-                                             this,
-                                             particlesPlayTrigger);
+    m_particlesPlayAction = new Edit3DAction(
+        QmlDesigner::Constants::EDIT3D_PARTICLES_PLAY,
+        View3DActionType::ParticlesPlay,
+        QCoreApplication::translate("ParticlesPlayAction", "Play Particles"),
+        QKeySequence(Qt::Key_Comma),
+        true,
+        true,
+        Theme::iconFromName(Theme::Icon::playOutline_medium), //Icons::EDIT3D_PARTICLE_PLAY.icon(),
+        Theme::iconFromName(Theme::Icon::pause), // Icons::EDIT3D_PARTICLE_PAUSE.icon(),
+        this,
+        particlesPlayTrigger);
     m_particlesRestartAction = new Edit3DAction(
         QmlDesigner::Constants::EDIT3D_PARTICLES_RESTART,
         View3DActionType::ParticlesRestart,
@@ -699,18 +701,19 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::Key_Slash),
         false,
         false,
-        Icons::EDIT3D_PARTICLE_RESTART.icon(),
-        Icons::EDIT3D_PARTICLE_RESTART.icon(),
+        Theme::iconFromName(Theme::Icon::restartParticles_medium),
+        Theme::iconFromName(Theme::Icon::restartParticles_medium),
         this);
     m_particlesPlayAction->action()->setEnabled(particlemode);
     m_particlesRestartAction->action()->setEnabled(particlemode);
+
     m_resetAction = new Edit3DAction(QmlDesigner::Constants::EDIT3D_RESET_VIEW,
                                      View3DActionType::Empty,
                                      QCoreApplication::translate("ResetView", "Reset View"),
                                      QKeySequence(Qt::Key_P),
                                      false,
                                      false,
-                                     Utils::Icons::RESET_TOOLBAR.icon(),
+                                     Theme::iconFromName(Theme::Icon::resetView_small),
                                      {},
                                      this,
                                      resetTrigger);
@@ -739,8 +742,8 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(),
         false,
         false,
-        Utils::Icons::EYE_OPEN_TOOLBAR.icon(),
-        {},
+        Theme::iconFromName(Theme::Icon::invisible_medium),
+        Theme::iconFromName(Theme::Icon::visible_medium),
         this,
         visibilityTogglesTrigger);
 
@@ -768,7 +771,7 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(),
         false,
         false,
-        Icons::COLOR_PALETTE.icon(),
+        Theme::iconFromName(Theme::Icon::colorSelection_medium),
         {},
         this,
         backgroundColorActionsTrigger);
