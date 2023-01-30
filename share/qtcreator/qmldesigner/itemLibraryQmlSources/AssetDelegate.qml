@@ -194,6 +194,9 @@ TreeViewDelegate {
                 let fileExtMatches = model.filePath.match(/\.(.*)$/)
                 let fileExt = fileExtMatches ? "(" + fileExtMatches[1] + ")" : ""
 
+                if (root.__isDirectory)
+                    return filePath
+
                 if (rootView.assetIsImage(model.filePath)) {
                     let size = rootView.imageSize(model.filePath)
 
