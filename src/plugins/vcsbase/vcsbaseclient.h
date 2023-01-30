@@ -83,7 +83,8 @@ public:
                             const QStringList &arguments,
                             const QObject *context,
                             const CommandHandler &handler,
-                            RunFlags additionalFlags = RunFlags::None) const;
+                            RunFlags additionalFlags = RunFlags::None,
+                            QTextCodec *codec = nullptr) const;
     void vcsExec(const Utils::FilePath &workingDirectory,
                  const QStringList &arguments,
                  RunFlags additionalFlags = RunFlags::None) const;
