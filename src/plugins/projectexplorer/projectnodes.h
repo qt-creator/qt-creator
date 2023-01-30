@@ -5,7 +5,6 @@
 
 #include "projectexplorer_export.h"
 
-#include <QFutureInterface>
 #include <QIcon>
 #include <QStringList>
 

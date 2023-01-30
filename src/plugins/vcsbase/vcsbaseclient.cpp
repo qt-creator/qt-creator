@@ -24,7 +24,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QFutureInterface>
 #include <QStringList>
 #include <QTextCodec>
 #include <QVariant>

@@ -23,7 +23,6 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 
-#include <QFutureWatcher>
 #include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonObject>

@@ -20,10 +20,6 @@
 #include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
-#include <QFormLayout>
-#include <QFutureWatcher>
-#include <QPointer>
-
 /*!
     \class ProjectExplorer::BuildStep
 

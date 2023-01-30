@@ -12,7 +12,6 @@
 #include <utils/utilsicons.h>
 
 #include <QFutureWatcher>
-#include <QIcon>
 #include <QList>
 #include <QScopeGuard>
 #include <QSet>
