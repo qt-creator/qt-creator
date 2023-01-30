@@ -30,6 +30,7 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         "To create an animation, add a timeline by clicking the + button in the \"Timeline\" view."
     );
     m_infoText = new QLabel(labelText);
+    setContentsMargins(0, 0, 0, 0);
 
     auto *splitter = new QSplitter;
     splitter->addWidget(m_tree);
@@ -39,10 +40,12 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     QScrollArea* area = new QScrollArea;
     area->setWidget(splitter);
     area->setWidgetResizable(true);
+    area->setContentsMargins(0, 0, 0, 0);
 
     m_statusLine = new QLabel();
 
     auto *box = new QVBoxLayout;
+    box->setContentsMargins(0, 0, 0, 0);
     box->addWidget(m_infoText);
     box->addWidget(m_toolbar);
     box->addWidget(area);
