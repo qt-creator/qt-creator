@@ -44,11 +44,11 @@ int main(int argc, char **argv)
         }
         if (arg == SLEEP_OPTION) {
             if (argc > 2) {
-                const auto secondsString = QString::fromLocal8Bit(argv[2]);
+                const auto msecsString = QString::fromLocal8Bit(argv[2]);
                 bool ok = false;
-                const int secondsVal = secondsString.toInt(&ok);
+                const int msecsVal = msecsString.toInt(&ok);
                 if (ok) {
-                    QThread::sleep(secondsVal);
+                    QThread::msleep(msecsVal);
                     return 0;
                 }
                 // not an int return value

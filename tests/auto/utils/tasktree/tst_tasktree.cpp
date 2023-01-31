@@ -144,6 +144,11 @@ void tst_TaskTree::processTree_data()
             setupProcessHelper(process, {"-crash"}, processId);
         };
     };
+    const auto setupSleepProcess = [setupProcessHelper](int processId, int msecs) {
+        return [=](QtcProcess &process) {
+            setupProcessHelper(process, {"-sleep", QString::number(msecs)}, processId);
+        };
+    };
     const auto setupDynamicProcess = [setupProcessHelper](int processId, TaskAction action) {
         return [=](QtcProcess &process) {
             setupProcessHelper(process, {"-return", "0"}, processId);
@@ -739,7 +744,7 @@ void tst_TaskTree::processTree_data()
     }
 
     {
-        const Group root {
+        const Group root1 {
             ParallelLimit(2),
             Storage(storage),
             Group {
@@ -763,7 +768,72 @@ void tst_TaskTree::processTree_data()
                 Process(setupProcess(5))
             }
         };
-        const Log log {
+
+        // Inside this test the process 2 should finish first, then synchonously:
+        // - process 3 should exit setup with error
+        // - process 1 should be stopped as a consequence of error inside the group
+        // - processes 4 and 5 should be skipped
+        const Group root2 {
+            ParallelLimit(2),
+            Storage(storage),
+            Group {
+                OnGroupSetup(groupSetup(1)),
+                Process(setupSleepProcess(1, 100))
+            },
+            Group {
+                OnGroupSetup(groupSetup(2)),
+                Process(setupProcess(2))
+            },
+            Group {
+                OnGroupSetup(groupSetup(3)),
+                Process(setupDynamicProcess(3, TaskAction::StopWithError))
+            },
+            Group {
+                OnGroupSetup(groupSetup(4)),
+                Process(setupProcess(4))
+            },
+            Group {
+                OnGroupSetup(groupSetup(5)),
+                Process(setupProcess(5))
+            }
+        };
+
+        // This test ensures process 1 doesn't invoke its done handler,
+        // being ready while sleeping in process 2 done handler.
+        // Inside this test the process 2 should finish first, then synchonously:
+        // - process 3 should exit setup with error
+        // - process 1 should be stopped as a consequence of error inside the group
+        // - process 4 should be skipped
+        // - the first child group of root should finish with error
+        // - process 5 should be started (because of root's continueOnError policy)
+        const Group root3 {
+            continueOnError,
+            Storage(storage),
+            Group {
+                ParallelLimit(2),
+                Group {
+                    OnGroupSetup(groupSetup(1)),
+                    Process(setupSleepProcess(1, 100))
+                },
+                Group {
+                    OnGroupSetup(groupSetup(2)),
+                    Process(setupProcess(2), [](const QtcProcess &) { QThread::msleep(200); })
+                },
+                Group {
+                    OnGroupSetup(groupSetup(3)),
+                    Process(setupDynamicProcess(3, TaskAction::StopWithError))
+                },
+                Group {
+                    OnGroupSetup(groupSetup(4)),
+                    Process(setupProcess(4))
+                }
+            },
+            Group {
+                OnGroupSetup(groupSetup(5)),
+                Process(setupProcess(5))
+            }
+        };
+        const Log shortLog {
             {1, Handler::GroupSetup},
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
@@ -771,8 +841,13 @@ void tst_TaskTree::processTree_data()
             {3, Handler::GroupSetup},
             {3, Handler::Setup}
         };
-        QTest::newRow("NestedParallelError")
-            << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
+        const Log longLog = shortLog + Log {{5, Handler::GroupSetup}, {5, Handler::Setup}};
+        QTest::newRow("NestedParallelError1")
+            << TestData{storage, root1, shortLog, 5, OnStart::Running, OnDone::Failure};
+        QTest::newRow("NestedParallelError2")
+            << TestData{storage, root2, shortLog, 5, OnStart::Running, OnDone::Failure};
+        QTest::newRow("NestedParallelError3")
+            << TestData{storage, root3, longLog, 5, OnStart::Running, OnDone::Failure};
     }
 
     {
@@ -978,12 +1053,15 @@ void tst_TaskTree::storageOperators()
     QVERIFY(storage2 != storage3);
 }
 
+// This test checks whether a running task tree may be safely destructed.
+// It also checks whether destructor of task tree deletes properly the storage created
+// while starting the task tree.
 void tst_TaskTree::storageDestructor()
 {
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
         const auto setupProcess = [testAppPath = m_testAppPath](QtcProcess &process) {
-            process.setCommand(CommandLine(testAppPath, {"-sleep", "1"}));
+            process.setCommand(CommandLine(testAppPath, {"-sleep", "1000"}));
         };
         const Group root {
             Storage(TreeStorage<CustomStorage>()),
