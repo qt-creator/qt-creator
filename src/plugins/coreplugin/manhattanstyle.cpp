@@ -422,14 +422,31 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
     case CT_MenuItem:
         if (isQmlEditorMenu(widget)) {
             if (const auto mbi = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+                const int leftMargin = pixelMetric(QStyle::PM_LayoutLeftMargin, option, widget);
+                const int rightMargin = pixelMetric(QStyle::PM_LayoutRightMargin, option, widget);
                 const int horizontalSpacing = pixelMetric(QStyle::PM_LayoutHorizontalSpacing, option, widget);
                 const int iconHeight = pixelMetric(QStyle::PM_SmallIconSize, option, widget) + horizontalSpacing;
-                int width = horizontalSpacing;
+                int width = leftMargin + rightMargin;
                 if (mbi->menuHasCheckableItems || mbi->maxIconWidth)
                     width += iconHeight + horizontalSpacing;
 
-                if (!mbi->text.isEmpty())
-                    width += option->fontMetrics.boundingRect(mbi->text).width() + horizontalSpacing;
+                if (!mbi->text.isEmpty()) {
+                    QString itemText = mbi->text;
+                    QString shortcutText;
+                    int tabIndex = itemText.indexOf("\t");
+                    if (tabIndex > -1) {
+                        shortcutText = itemText.mid(tabIndex + 1);
+                        itemText = itemText.left(tabIndex);
+                    }
+
+                    if (itemText.size())
+                        width += option->fontMetrics.boundingRect(itemText).width() + horizontalSpacing;
+
+                    if (shortcutText.size()) {
+                        QSize shortcutSize = ManhattanShortcut(mbi, shortcutText).getSize();
+                        width += shortcutSize.width() + 2 * horizontalSpacing;
+                    }
+                }
 
                 if (mbi->menuItemType == QStyleOptionMenuItem::SubMenu)
                     width += iconHeight + horizontalSpacing;
@@ -439,7 +456,8 @@ QSize ManhattanStyle::sizeFromContents(ContentsType type, const QStyleOption *op
                 switch (mbi->menuItemType) {
                 case QStyleOptionMenuItem::Normal:
                 case QStyleOptionMenuItem::DefaultItem:
-                    newSize += QSize(0, 5);
+                case QStyleOptionMenuItem::SubMenu:
+                    newSize.setHeight(19);
                     break;
                 default:
                     newSize += QSize(0, 7);
@@ -503,13 +521,22 @@ int ManhattanStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, 
     case PM_DockWidgetHandleExtent:
     case PM_DockWidgetSeparatorExtent:
         return 1;
+    case PM_LayoutLeftMargin:
+    case PM_LayoutRightMargin:
+        if (isQmlEditorMenu(widget))
+            retval = 7;
+        break;
     case PM_LayoutHorizontalSpacing:
         if (isQmlEditorMenu(widget))
-            retval = 5;
+            retval = 12;
         break;
     case PM_MenuHMargin:
         if (isQmlEditorMenu(widget))
-            retval = 12;
+            retval = 5;
+        break;
+    case PM_SubMenuOverlap:
+        if (isQmlEditorMenu(widget))
+            retval = 10;
         break;
     case PM_MenuPanelWidth:
     case PM_MenuBarHMargin:
@@ -1164,14 +1191,19 @@ void ManhattanStyle::drawControlForQmlEditor(ControlElement element,
         const bool isDisabled = !(mbi->state & State_Enabled);
         const bool isCheckable = mbi->checkType != QStyleOptionMenuItem::NotCheckable;
         const bool isChecked = isCheckable ? mbi->checked : false;
+        int startMargin = pixelMetric(QStyle::PM_LayoutLeftMargin, option, widget);
+        int endMargin = pixelMetric(QStyle::PM_LayoutRightMargin, option, widget);
         int forwardX = 0;
+
+        if (option->direction == Qt::RightToLeft)
+            std::swap(startMargin, endMargin);
 
         QStyleOptionMenuItem item = *mbi;
 
         if (isActive) {
             painter->fillRect(item.rect, creatorTheme()->color(Theme::DSinteraction));
         }
-        forwardX += horizontalSpacing;
+        forwardX += startMargin;
 
         if (item.menuItemType == QStyleOptionMenuItem::Separator) {
             int commonHeight = item.rect.center().y();
@@ -1262,7 +1294,7 @@ void ManhattanStyle::drawControlForQmlEditor(ControlElement element,
                                                                                 : PE_IndicatorArrowLeft;
 
             QSize elSize(iconHeight, iconHeight);
-            int xOffset = iconHeight;
+            int xOffset = iconHeight + endMargin;
             int yOffset = (item.rect.height() - iconHeight) / 2;
             QRect dropRect(item.rect.topRight(), elSize);
             dropRect.adjust(-xOffset, yOffset, -xOffset, yOffset);
@@ -1277,7 +1309,7 @@ void ManhattanStyle::drawControlForQmlEditor(ControlElement element,
             QPixmap pix = ManhattanShortcut(&item, shortcutText).getPixmap();
 
             if (pix.width()) {
-                int xOffset = pix.width() + iconHeight/2;
+                int xOffset = pix.width() + (iconHeight / 2) + endMargin;
                 QRect shortcutRect = item.rect.translated({item.rect.width() - xOffset, 0});
                 shortcutRect.setSize({pix.width(), item.rect.height()});
                 shortcutRect = visualRect(item.direction,
