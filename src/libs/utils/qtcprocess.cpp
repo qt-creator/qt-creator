@@ -670,11 +670,11 @@ public:
     Environment fullEnvironment() const
     {
         Environment env = m_setup.m_environment;
-        if (!env.hasChanges()) {
-// FIXME: Either switch to using EnvironmentChange instead of full Environments, or
-// feed the full environment into the QtcProcess instead of fixing it up here.
-//            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
-//                 qPrintable(m_setup.m_commandLine.executable().toString()));
+        if (!env.hasChanges() && env.combineWithDeviceEnvironment()) {
+            // FIXME: Either switch to using EnvironmentChange instead of full Environments, or
+            // feed the full environment into the QtcProcess instead of fixing it up here.
+            //            qWarning("QtcProcess::start: Empty environment set when running '%s'.",
+            //                 qPrintable(m_setup.m_commandLine.executable().toString()));
             env = m_setup.m_commandLine.executable().deviceEnvironment();
         }
         // TODO: needs SshSettings

@@ -359,6 +359,8 @@ public:
     RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
 
+    Environment deviceEnvironment() const override;
+
     LinuxDevicePrivate *m_dev;
 };
 
@@ -386,6 +388,19 @@ RunResult LinuxDeviceFileAccess::runInShell(const CommandLine &cmdLine,
                                             const QByteArray &stdInData) const
 {
     return m_dev->runInShell(cmdLine, stdInData);
+}
+
+Environment LinuxDeviceFileAccess::deviceEnvironment() const
+{
+    QtcProcess getEnvProc;
+    getEnvProc.setCommand({FilePath("env").onDevice(m_dev->q->rootPath()), {}});
+    Environment inEnv;
+    inEnv.setCombineWithDeviceEnvironment(false);
+    getEnvProc.setEnvironment(inEnv);
+    getEnvProc.runBlocking();
+
+    const QString remoteOutput = getEnvProc.cleanedStdOut();
+    return Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), m_dev->q->osType());
 }
 
 // SshProcessImpl
