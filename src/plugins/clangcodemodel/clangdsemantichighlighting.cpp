@@ -594,16 +594,9 @@ void ExtraHighlightingResultsCollector::setResultPosFromRange(HighlightingResult
 
 void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &node)
 {
-    if (node.kind() == "UserDefinedLiteral")
+    if (node.kind().endsWith("Literal"))
         return;
-    if (node.kind().endsWith("Literal")) {
-        if (node.kind() == "CXXBoolLiteral" || node.kind() == "CXXNullPtrLiteral")
-            return;
-        if (node.kind().startsWith("String") || node.kind().startsWith("Character"))
-            return;
-        insertResult(node, C_NUMBER);
-        return;
-    }
+
     if (node.role() == "type" && node.kind() == "Builtin") {
         insertResult(node, C_PRIMITIVE_TYPE);
         return;

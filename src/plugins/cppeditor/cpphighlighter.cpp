@@ -481,7 +481,7 @@ void CppHighlighterTest::test_data()
     QTest::addColumn<int>("lastColumn");
     QTest::addColumn<TextStyle>("style");
 
-    QTest::newRow("auto") << 1 << 1 << 1 << 4 << C_KEYWORD;
+    QTest::newRow("auto return type") << 1 << 1 << 1 << 4 << C_KEYWORD;
     QTest::newRow("opening brace") << 2 << 1 << 2 << 1 << C_PUNCTUATION;
     QTest::newRow("return") << 3 << 5 << 3 << 10 << C_KEYWORD;
     QTest::newRow("raw string prefix") << 3 << 12 << 3 << 14 << C_KEYWORD;
@@ -501,6 +501,15 @@ void CppHighlighterTest::test_data()
     QTest::newRow("true") << 11 << 15 << 11 << 18 << C_KEYWORD;
     QTest::newRow("false") << 12 << 15 << 12 << 19 << C_KEYWORD;
     QTest::newRow("nullptr") << 13 << 15 << 13 << 21 << C_KEYWORD;
+    QTest::newRow("auto var type") << 18 << 15 << 18 << 8 << C_KEYWORD;
+    QTest::newRow("integer literal") << 18 << 28 << 18 << 28 << C_NUMBER;
+    QTest::newRow("floating-point literal 1") << 19 << 28 << 19 << 31 << C_NUMBER;
+    QTest::newRow("floating-point literal 2") << 20 << 28 << 20 << 30 << C_NUMBER;
+    QTest::newRow("template keyword") << 23 << 1 << 23 << 8 << C_KEYWORD;
+    QTest::newRow("type in template type parameter") << 23 << 10 << 23 << 12 << C_PRIMITIVE_TYPE;
+    QTest::newRow("integer literal as non-type template parameter default value")
+        << 23 << 18 << 23 << 18 << C_NUMBER;
+    QTest::newRow("class keyword") << 23 << 21 << 23 << 25 << C_KEYWORD;
 }
 
 void CppHighlighterTest::test()

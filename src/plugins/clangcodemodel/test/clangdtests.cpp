@@ -693,8 +693,6 @@ void ClangdTestHighlighting::test_data()
     QTest::addColumn<QList<int>>("expectedStyles");
     QTest::addColumn<int>("expectedKind");
 
-    QTest::newRow("integer literal") << 23 << 24 << 23 << 25 << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("float literal") << 24 << 24 << 24 << 28 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function definition") << 45 << 5 << 45 << 13
         << QList<int>{C_FUNCTION, C_FUNCTION_DEFINITION, C_DECLARATION} << 0;
     QTest::newRow("member function definition") << 52 << 10 << 52 << 24
@@ -797,15 +795,12 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator<<= call") << 629 << 12 << 629 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("integer literal 2") << 629 << 16 << 629 << 17 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator(int) member declaration (opening paren") << 619 << 19 << 619 << 20
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator(int) member declaration (closing paren") << 619 << 20 << 619 << 21
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator(int) call (opening parenthesis)") << 632 << 12 << 632 << 13
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator(int) call (argument)") << 632 << 13 << 632 << 14
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator(int) call (closing parenthesis)") << 632 << 14 << 632 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator[] member declaration (opening bracket") << 620 << 18 << 620 << 19
@@ -814,8 +809,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator[] call (opening bracket)") << 633 << 12 << 633 << 13
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator[] call (argument)") << 633 << 13 << 633 << 14
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator[] call (closing bracket)") << 633 << 14 << 633 << 15
         << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new member declaration") << 621 << 20 << 621 << 23
@@ -834,8 +827,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new[] member call (type argument)") << 637 << 23 << 637 << 28
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("operator new[] member call (size argument)") << 637 << 29 << 637 << 31
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("operator delete[] member declaration (keyword)") << 624 << 19 << 624 << 25
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator delete[] member call (keyword") << 638 << 5 << 638 << 11
@@ -878,10 +869,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("function-like macro call") << 236 << 5 << 236 << 20
         << QList<int>{C_MACRO} << 0;
-    QTest::newRow("function-like macro call argument 1") << 236 << 21 << 236 << 22
-        << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("function-like macro call argument 2") << 236 << 24 << 236 << 25
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function template call") << 254 << 5 << 254 << 21 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("template type parameter") << 265 << 17 << 265 << 38
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
@@ -889,8 +876,6 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_TYPE} << 0;
     QTest::newRow("template non-type parameter") << 265 << 50 << 265 << 74
         << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
-    QTest::newRow("template non-type parameter default argument") << 265 << 77 << 265 << 78
-        << QList<int>{C_NUMBER} << 0;
     QTest::newRow("template template parameter") << 265 << 103 << 265 << 128
         << QList<int>{C_TYPE, C_DECLARATION} << 0;
     QTest::newRow("template template parameter default argument") << 265 << 131 << 265 << 142
