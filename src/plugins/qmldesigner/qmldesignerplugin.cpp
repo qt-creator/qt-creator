@@ -57,6 +57,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <sqlitelibraryinitializer.h>
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <utils/algorithm.h>
@@ -132,8 +133,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 class QmlDesignerPluginPrivate
 {
 public:
-    DesignerSettings settings{Core::ICore::instance()->settings()};
-    ExternalDependencies externalDependencies{settings};
+    ExternalDependencies externalDependencies{QmlDesignerBasePlugin::settings()};
     QmlDesignerProjectManager projectManager{externalDependencies};
     ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
     DocumentManager documentManager{projectManager, externalDependencies};
@@ -819,7 +819,7 @@ ExternalDependenciesInterface &QmlDesignerPlugin::externalDependenciesForPluginI
 
 DesignerSettings &QmlDesignerPlugin::settings()
 {
-    return instance()->d->settings;
+    return QmlDesignerBasePlugin::settings();
 }
 
 } // namespace QmlDesigner

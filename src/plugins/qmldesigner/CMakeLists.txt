@@ -14,15 +14,14 @@ add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
-    Qt5::Gui
+    Qt::Gui Utils Qt::QmlPrivate
   DEFINES QMLDESIGNERUTILS_LIBRARY
   PUBLIC_DEFINES $<$<BOOL:${QTC_STATIC_BUILD}>:QMLDESIGNER_STATIC_LIBRARY>
-  DEPENDS Utils Qt5::QmlPrivate
+
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
   SOURCES
     asset.cpp asset.h
-    designersettings.cpp designersettings.h
     filedownloader.cpp filedownloader.h
     fileextractor.cpp fileextractor.h
     hdrimage.cpp hdrimage.h
@@ -33,11 +32,11 @@ add_qtc_library(QmlDesignerUtils STATIC
 add_qtc_library(QmlDesignerCore STATIC
   DEPENDS
     Threads::Threads
-    Qt5::CorePrivate
+    Qt::CorePrivate
     CPlusPlus
     Utils
-    Qt5::Widgets
-    Qt5::Qml
+    Qt::Widgets
+    Qt::Qml
     Core
     ProjectExplorer
     QmakeProjectManager
@@ -47,6 +46,7 @@ add_qtc_library(QmlDesignerCore STATIC
     QmlProjectManager
     QtSupport
   PUBLIC_DEPENDS
+    QmlDesignerBase
     QmlPuppetCommunication
     QmlDesignerUtils
     TextEditor
@@ -398,10 +398,10 @@ file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 add_qtc_plugin(QmlDesigner
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
+  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt5::QuickWidgets Qt5::CorePrivate Sqlite Qt5::Xml Qt5::Svg
+    Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
@@ -427,7 +427,7 @@ add_qtc_plugin(QmlDesigner
   PUBLIC_DEPENDS
     QmlDesignerCore
   PLUGIN_DEPENDS
-    Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
+    Core ProjectExplorer QmlDesignerBase QmlJSEditor QmakeProjectManager QmlProjectManager
     QtSupport
   PLUGIN_RECOMMENDS QmlPreview
   SOURCES
@@ -521,7 +521,7 @@ endif()
 
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
-  get_target_property(_designerType Qt5::Designer TYPE)
+  get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
     extend_qtc_target(QmlDesigner PUBLIC_DEFINES QT_DESIGNER_STATIC)
   endif()
@@ -531,7 +531,7 @@ endif()
 add_qtc_plugin(assetexporterplugin
   PLUGIN_CLASS AssetExporterPlugin
   CONDITION TARGET QmlDesigner
-  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml Qt5::QuickPrivate
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt::Qml Qt::QuickPrivate
   PUBLIC_INCLUDES assetexporterplugin
   SOURCES
     assetexporterplugin/assetexportdialog.h assetexporterplugin/assetexportdialog.cpp assetexporterplugin/assetexportdialog.ui
@@ -553,7 +553,7 @@ add_qtc_plugin(assetexporterplugin
 add_qtc_plugin(componentsplugin
   PLUGIN_CLASS ComponentsPlugin
   CONDITION TARGET QmlDesigner
-  DEPENDS Core QmlDesigner Utils Qt5::Qml
+  DEPENDS Core QmlDesigner Utils Qt::Qml
   DEFINES COMPONENTS_LIBRARY
   SOURCES
     componentsplugin/addtabdesigneraction.cpp componentsplugin/addtabdesigneraction.h
@@ -569,7 +569,7 @@ add_qtc_plugin(componentsplugin
 add_qtc_plugin(qmlpreviewplugin
   PLUGIN_CLASS QmlPreviewWidgetPlugin
   CONDITION TARGET QmlDesigner
-  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt5::Qml
+  DEPENDS Core ProjectExplorer QmlDesigner Utils Qt::Qml
   SOURCES
     qmlpreviewplugin/qmlpreviewactions.cpp qmlpreviewplugin/qmlpreviewactions.h
     qmlpreviewplugin/qmlpreviewplugin.cpp qmlpreviewplugin/qmlpreviewplugin.h
@@ -580,7 +580,7 @@ add_qtc_plugin(qmlpreviewplugin
 add_qtc_plugin(qtquickplugin
   PLUGIN_CLASS QtQuickPlugin
   CONDITION TARGET QmlDesigner
-  DEPENDS Core QmlDesigner Utils Qt5::Qml
+  DEPENDS Core QmlDesigner Utils Qt::Qml
   DEFINES QTQUICK_LIBRARY
   SOURCES
     qtquickplugin/qtquickplugin.cpp qtquickplugin/qtquickplugin.h
