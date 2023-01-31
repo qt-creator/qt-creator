@@ -336,6 +336,8 @@ public:
 
     static QIcon iconFromName(Theme::Icon i, QColor c = {});
 
+    static int toolbarSize();
+
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarker() const;
     Q_INVOKABLE QColor qmlDesignerBackgroundColorDarkAlternate() const;
     Q_INVOKABLE QColor qmlDesignerTabLight() const;

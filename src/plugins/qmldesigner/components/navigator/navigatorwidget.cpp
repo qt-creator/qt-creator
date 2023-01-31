@@ -147,7 +147,7 @@ QToolBar *NavigatorWidget::createToolBar()
     const QList<QToolButton*> buttons = createToolBarWidgets();
 
     auto toolBar = new QToolBar();
-    toolBar->setFixedHeight(41);
+    toolBar->setFixedHeight(Theme::toolbarSize());
     for (auto toolButton : buttons)
         toolBar->addWidget(toolButton);
 

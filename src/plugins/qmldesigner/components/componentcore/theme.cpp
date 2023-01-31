@@ -176,6 +176,11 @@ QIcon Theme::iconFromName(Icon i, QColor c)
     return Utils::StyleHelper::getIconFromIconFont(fontName, Theme::getIconUnicode(i), 32, 32, color);
 }
 
+int Theme::toolbarSize()
+{
+    return 41;
+}
+
 QColor Theme::qmlDesignerBackgroundColorDarker() const
 {
     return getColor(QmlDesigner_BackgroundColorDarker);

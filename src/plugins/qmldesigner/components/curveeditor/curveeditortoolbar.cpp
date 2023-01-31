@@ -39,6 +39,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
 {
     setFloatable(false);
+    setFixedHeight(Theme::toolbarSize());
     setContentsMargins(0, 0, 0, 0);
 
     QAction *tangentLinearAction = addAction(Theme::iconFromName(Theme::linear_medium), "Linear");
@@ -111,6 +112,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     addWidget(durationWidget);
 
     auto *positionBox = new QHBoxLayout;
+    positionBox->setContentsMargins(0, 0, 0, 0);
     positionBox->addWidget(new QLabel(tr("Current Frame")));
     positionBox->addWidget(m_currentSpin);
 

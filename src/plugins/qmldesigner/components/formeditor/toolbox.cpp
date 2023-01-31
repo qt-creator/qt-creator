@@ -3,6 +3,8 @@
 
 #include "toolbox.h"
 
+#include <theme.h>
+
 #include <QToolBar>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -17,6 +19,7 @@ ToolBox::ToolBox(SeekerSlider *seeker, QWidget *parentWidget)
   m_rightToolBar(new QToolBar(QLatin1String("RightSidebar"), this)),
   m_seeker(seeker)
 {
+    setProperty("panelwidget", false);
     m_leftToolBar->setFloatable(true);
     m_leftToolBar->setMovable(true);
     m_leftToolBar->setOrientation(Qt::Horizontal);
@@ -25,15 +28,19 @@ ToolBox::ToolBox(SeekerSlider *seeker, QWidget *parentWidget)
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
     horizontalLayout->setSpacing(0);
 
+    setFixedHeight(Theme::toolbarSize());
+
     auto stretchToolbar = new QToolBar(this);
 
-    m_leftToolBar->setProperty("panelwidget", true);
+    m_leftToolBar->setProperty("panelwidget", false);
     m_leftToolBar->setProperty("panelwidget_singlerow", false);
+    m_leftToolBar->setFixedHeight(Theme::toolbarSize());
 
-    m_rightToolBar->setProperty("panelwidget", true);
+    m_rightToolBar->setProperty("panelwidget", false);
     m_rightToolBar->setProperty("panelwidget_singlerow", false);
+    m_rightToolBar->setFixedHeight(Theme::toolbarSize());
 
-    stretchToolbar->setProperty("panelwidget", true);
+    stretchToolbar->setProperty("panelwidget", false);
     stretchToolbar->setProperty("panelwidget_singlerow", false);
 
     stretchToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);

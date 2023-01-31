@@ -83,6 +83,7 @@ TransitionEditorToolBar::TransitionEditorToolBar(QWidget *parent)
     : QToolBar(parent)
     , m_grp()
 {
+    setFixedHeight(Theme::toolbarSize());
     setContentsMargins(0, 0, 0, 0);
     createLeftControls();
     createCenterControls();
@@ -165,7 +166,7 @@ void TransitionEditorToolBar::createLeftControls()
     addSpacingToGroup(5);
 
     auto *settingsAction = createAction(TransitionEditorConstants::C_SETTINGS,
-                                        TimelineIcons::ANIMATION.icon(),
+                                        Theme::iconFromName(Theme::Icon::settings_medium),
                                         tr("Transition Settings"),
                                         QKeySequence(Qt::Key_S));
     connect(settingsAction,
@@ -206,7 +207,7 @@ void TransitionEditorToolBar::createCenterControls()
     addSpacing(10);
 
     auto *curvePicker = createAction(TransitionEditorConstants::C_CURVE_PICKER,
-                                     TimelineIcons::CURVE_EDITOR.icon(),
+                                     Theme::iconFromName(Theme::Icon::curveDesigner_medium),
                                      tr("Easing Curve Editor"),
                                      QKeySequence(Qt::Key_C));
 
@@ -236,7 +237,7 @@ void TransitionEditorToolBar::createRightControls()
     addSpacing(10);
 
     auto *zoomOut = createAction(TransitionEditorConstants::C_ZOOM_OUT,
-                                 TimelineIcons::ZOOM_SMALL.icon(),
+                                 Theme::iconFromName(Theme::Icon::zoomOut_medium),
                                  tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
@@ -261,7 +262,7 @@ void TransitionEditorToolBar::createRightControls()
     addSpacing(10);
 
     auto *zoomIn = createAction(TransitionEditorConstants::C_ZOOM_IN,
-                                TimelineIcons::ZOOM_BIG.icon(),
+                                Theme::iconFromName(Theme::Icon::zoomIn_medium),
                                 tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 

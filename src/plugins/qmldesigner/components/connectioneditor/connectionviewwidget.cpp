@@ -72,6 +72,7 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
 
     const QList<QToolButton*> buttons = createToolBarWidgets();
 
+    ui->toolBar->setFixedHeight(41);
     for (auto toolButton : buttons)
         ui->toolBar->addWidget(toolButton);
 

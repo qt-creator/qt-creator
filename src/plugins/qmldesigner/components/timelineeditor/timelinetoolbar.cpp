@@ -96,7 +96,7 @@ TimelineToolBar::TimelineToolBar(QWidget *parent)
     , m_grp()
 {
     setContentsMargins(0, 0, 0, 0);
-    setFixedHeight(41);
+    setFixedHeight(Theme::toolbarSize());
     createLeftControls();
     createCenterControls();
     createRightControls();

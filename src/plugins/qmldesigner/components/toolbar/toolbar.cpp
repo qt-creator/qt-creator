@@ -94,7 +94,7 @@ void ToolBar::createStatusBar()
 
     auto quickWidget = new QQuickWidget;
 
-    quickWidget->setFixedHeight(41);
+    quickWidget->setFixedHeight(Theme::toolbarSize());
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -113,7 +113,7 @@ void ToolBar::createStatusBar()
     }
 
     Core::ICore::statusBar()->addWidget(quickWidget);
-    Core::ICore::statusBar()->setFixedHeight(41);
+    Core::ICore::statusBar()->setFixedHeight(Theme::toolbarSize());
 }
 
 bool ToolBar::isVisible()
