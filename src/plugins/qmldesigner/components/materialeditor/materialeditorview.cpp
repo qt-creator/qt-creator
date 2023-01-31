@@ -12,6 +12,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
+#include <designdocument.h>
 #include <dynamicpropertiesmodel.h>
 #include <metainfo.h>
 #include <nodeinstanceview.h>
@@ -60,7 +61,9 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            ensureMaterialLibraryNode();
+            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (doc && !doc->inFileComponentModelActive())
+                ensureMaterialLibraryNode();
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
                 m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();

@@ -28,6 +28,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
+#include <designdocument.h>
 #include <designmodewidget.h>
 #include <propertyeditorqmlbackend.h>
 #include <utils/environment.h>
@@ -62,7 +63,9 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     m_ensureMatLibTimer.callOnTimeout([this] {
         if (model() && model()->rewriterView() && !model()->rewriterView()->hasIncompleteTypeInformation()
             && model()->rewriterView()->errors().isEmpty()) {
-            ensureMaterialLibraryNode();
+            DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
+            if (doc && !doc->inFileComponentModelActive())
+                ensureMaterialLibraryNode();
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
                 m_qmlBackEnd->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
             m_ensureMatLibTimer.stop();
