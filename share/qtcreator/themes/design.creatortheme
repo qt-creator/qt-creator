@@ -22,6 +22,7 @@ splitter=ff474747
 textColorLink=ff007af4
 textColorLinkVisited=ffa57aff
 backgroundColorDisabled=ff444444
+midnightGrey=ff333333
 
 [Colors]
 ;DS controls theme START
@@ -35,7 +36,6 @@ DSthumbnailLabelBackground=ff2b2a2a
 DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
-midnightGrey=ff333333
 
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
