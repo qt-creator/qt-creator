@@ -93,7 +93,8 @@ public:
 
     static void setKitDefaultConfigHash(ProjectExplorer::Kit *k);
     static CMakeConfigItem kitDefaultConfigHashItem(const ProjectExplorer::Kit *k);
-    static QByteArray computeDefaultConfigHash(const CMakeConfig &config);
+    static QByteArray computeDefaultConfigHash(const CMakeConfig &config,
+                                               const Utils::FilePath &cmakeBinary);
 
     // KitAspect interface
     ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;

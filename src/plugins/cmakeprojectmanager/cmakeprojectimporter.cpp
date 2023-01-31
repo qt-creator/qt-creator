@@ -464,6 +464,35 @@ void updateCompilerPaths(CMakeConfig &config, const Environment &env)
     updateRelativePath("CMAKE_CXX_COMPILER");
 }
 
+void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<DirectoryData> &data)
+{
+    auto updateCompilerValue = [&config, &data](const QByteArray &key, const Utils::Id &language) {
+        auto it = std::find_if(config.begin(), config.end(), [&key](const CMakeConfigItem &ci) {
+            return ci.key == key;
+        });
+
+        auto tcd = Utils::findOrDefault(data->toolChains,
+                                        [&language](const ToolChainDescription &t) {
+                                            return t.language == language;
+                                        });
+
+        if (it != config.end() && it->value.isEmpty())
+            it->value = tcd.compilerPath.toString().toUtf8();
+        else
+            config << CMakeConfigItem(key,
+                                      CMakeConfigItem::FILEPATH,
+                                      tcd.compilerPath.toString().toUtf8());
+    };
+
+    updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
+    updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+
+    if (data->qt.qt)
+        config << CMakeConfigItem("QT_QMAKE_EXECUTABLE",
+                                  CMakeConfigItem::FILEPATH,
+                                  data->qt.qt->qmakeFilePath().toString().toUtf8());
+}
+
 QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                                      QString *warningMessage) const
 {
@@ -550,8 +579,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           CMakeConfigItem::STRING,
                                           configurePreset.generator.value().toUtf8());
         }
-        data->cmakePresetDefaultConfigHash = CMakeConfigurationKitAspect::computeDefaultConfigHash(
-            config);
 
         const FilePath qmake = qmakeFromCMakeCache(config);
         if (!qmake.isEmpty())
@@ -559,6 +586,12 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         // ToolChains:
         data->toolChains = extractToolChainsFromCache(config);
+
+        // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
+        updateConfigWithDirectoryData(config, data);
+
+        data->cmakePresetDefaultConfigHash
+            = CMakeConfigurationKitAspect::computeDefaultConfigHash(config, data->cmakeBinary);
 
         QByteArrayList buildConfigurationTypes = {cache.valueOf("CMAKE_BUILD_TYPE")};
         if (buildConfigurationTypes.front().isEmpty()) {
