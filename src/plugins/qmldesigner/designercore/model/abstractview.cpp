@@ -853,6 +853,18 @@ ModelNode AbstractView::materialLibraryNode()
     return modelNodeForId(Constants::MATERIAL_LIB_ID);
 }
 
+bool AbstractView::isPartOfMaterialLibrary(const ModelNode &node)
+{
+    if (!node.isValid())
+        return false;
+
+    ModelNode matLib = materialLibraryNode();
+
+    return matLib.isValid()
+            && (node == matLib
+                || (node.hasParentProperty() && node.parentProperty().parentModelNode() == matLib));
+}
+
 ModelNode AbstractView::active3DSceneNode()
 {
     auto activeSceneAux = rootModelNode().auxiliaryData(active3dSceneProperty);

@@ -229,6 +229,7 @@ public:
 
     void ensureMaterialLibraryNode();
     ModelNode materialLibraryNode();
+    bool isPartOfMaterialLibrary(const ModelNode &node);
     ModelNode active3DSceneNode();
     void assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode = {});
     ModelNode getTextureDefaultInstance(const QString &source);

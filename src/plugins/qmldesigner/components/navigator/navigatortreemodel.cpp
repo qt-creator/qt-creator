@@ -1219,13 +1219,17 @@ Qt::DropActions NavigatorTreeModel::supportedDragActions() const
 
 bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    QTC_ASSERT(m_view, return false);
     ModelNode modelNode = modelNodeForIndex(index);
     if (index.column() == ColumnType::Alias && role == Qt::CheckStateRole) {
-        QTC_ASSERT(m_view, return false);
         m_view->handleChangedExport(modelNode, value.toInt() != 0);
     } else if (index.column() == ColumnType::Visibility && role == Qt::CheckStateRole) {
+        if (m_view->isPartOfMaterialLibrary(modelNode))
+            return false;
         QmlVisualNode(modelNode).setVisibilityOverride(value.toInt() == 0);
     } else if (index.column() == ColumnType::Lock && role == Qt::CheckStateRole) {
+        if (m_view->isPartOfMaterialLibrary(modelNode))
+            return false;
         modelNode.setLocked(value.toInt() != 0);
     }
 
