@@ -692,7 +692,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.SpatialAudio.AmbientSound"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/ambient-sound-16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -703,8 +703,8 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Ambient Sound"
             category: "Spatial Audio"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
-            version: "6.4"
+            libraryIcon: ":/qtquickplugin/images/ambient-sound-24.png"
+            version: "6.0"
             requiredImport: "QtQuick3D.SpatialAudio"
             toolTip: qsTr("An ambient background sound.")
         }
@@ -712,7 +712,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.SpatialAudio.AudioEngine"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/audio-engine-16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -723,8 +723,8 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Audio Engine"
             category: "Spatial Audio"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
-            version: "6.4"
+            libraryIcon: ":/qtquickplugin/images/audio-engine-24.png"
+            version: "6.0"
             requiredImport: "QtQuick3D.SpatialAudio"
             toolTip: qsTr("Manages sound objects inside a 3D scene.")
         }
@@ -732,7 +732,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.SpatialAudio.AudioListener"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/audio-listener-16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -743,8 +743,8 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Audio Listener"
             category: "Spatial Audio"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
-            version: "6.4"
+            libraryIcon: ":/qtquickplugin/images/audio-listener-24.png"
+            version: "6.0"
             requiredImport: "QtQuick3D.SpatialAudio"
             toolTip: qsTr("Sets the position and orientation of listening.")
         }
@@ -752,7 +752,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.SpatialAudio.AudioRoom"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/audio-room-16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -763,8 +763,8 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Audio Room"
             category: "Spatial Audio"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
-            version: "6.4"
+            libraryIcon: ":/qtquickplugin/images/audio-room-24.png"
+            version: "6.0"
             requiredImport: "QtQuick3D.SpatialAudio"
             toolTip: qsTr("Sets up a room for the spatial audio engine.")
         }
@@ -772,7 +772,7 @@ MetaInfo {
 
     Type {
         name: "QtQuick3D.SpatialAudio.SpatialSound"
-        icon: ":/qtquickplugin/images/default3d16.png"
+        icon: ":/qtquickplugin/images/spatial-audio-16.png"
 
         Hints {
             canBeDroppedInNavigator: true
@@ -783,8 +783,8 @@ MetaInfo {
         ItemLibraryEntry {
             name: "Spatial Sound"
             category: "Spatial Audio"
-            libraryIcon: ":/qtquickplugin/images/default3d.png"
-            version: "6.4"
+            libraryIcon: ":/qtquickplugin/images/spatial-audio-24.png"
+            version: "6.0"
             requiredImport: "QtQuick3D.SpatialAudio"
             toolTip: qsTr("A sound object in 3D space.")
         }
