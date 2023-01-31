@@ -52,7 +52,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Checkable")
-            tooltip: qsTr("Whether the button is checkable.")
+            tooltip: qsTr("Toggles if the button is checkable.")
         }
 
         SecondColumnLayout {
@@ -68,7 +68,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Checked")
-            tooltip: qsTr("Whether the button is checked.")
+            tooltip: qsTr("Toggles if the button is checked.")
         }
 
         SecondColumnLayout {
@@ -84,7 +84,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Exclusive")
-            tooltip: qsTr("Whether the button is exclusive.")
+            tooltip: qsTr("Toggles if the button is exclusive. Non-exclusive checkable buttons that belong to the same parent behave as if they are part of the same button group; only one button can be checked at any time.")
             blockedByTemplate: !backendValues.autoExclusive.isAvailable
         }
 
@@ -102,7 +102,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Auto-repeat")
-            tooltip: qsTr("Whether the button repeats pressed(), released() and clicked() signals while the button is pressed and held down.")
+            tooltip: qsTr("Toggles if pressed, released, and clicked actions are repeated while the button is pressed and held down.")
         }
 
         SecondColumnLayout {
@@ -119,7 +119,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Repeat delay")
-            tooltip: qsTr("Initial delay of auto-repetition in milliseconds.")
+            tooltip: qsTr("Sets the initial delay of auto-repetition in milliseconds.")
             enabled: autoRepeat.checked
         }
 
@@ -148,7 +148,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Repeat interval")
-            tooltip: qsTr("Interval of auto-repetition in milliseconds.")
+            tooltip: qsTr("Sets the interval between auto-repetitions in milliseconds.")
             enabled: autoRepeat.checked
         }
 
