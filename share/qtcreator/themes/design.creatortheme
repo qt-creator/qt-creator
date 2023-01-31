@@ -35,6 +35,7 @@ DSthumbnailLabelBackground=ff2b2a2a
 DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
+midnightGrey=ff333333
 
 DSinteraction=ff2aafd3
 DSerrorColor=ffdf3a3a
@@ -66,7 +67,7 @@ DSiconColorHover=ffffffff
 DSiconColorInteraction=ff707070
 DSiconColorDisabled=ffC7C7C7
 DSiconColorSelected=ff2aafd3
-
+DStoolbarBackground=midnightGrey
 DSlinkIndicatorColor=ff808080
 DSlinkIndicatorColorHover=ffffffff
 DSlinkIndicatorColorInteraction=ff2aafd3

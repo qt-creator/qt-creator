@@ -305,6 +305,7 @@ public:
         DStextSelectionColor,
         DStextSelectedTextColor,
 
+        DStoolbarBackground,
         DSplaceholderTextColor,
         DSplaceholderTextColorInteraction,
 

@@ -163,6 +163,8 @@ DSUnimportedModuleColor=ffe33c2e
 DSBackgroundColorAlternate=ffeaeaea
 DSBackgroundColorNormal=ffd8d8d8
 
+DStoolbarBackground=ff333333
+
 ;DS controls theme END
 
 BackgroundColorAlternate=ff3d3d3d
