@@ -599,10 +599,9 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     if (node.kind().endsWith("Literal")) {
         const bool isKeyword = node.kind() == "CXXBoolLiteral"
                 || node.kind() == "CXXNullPtrLiteral";
-        const bool isStringLike = !isKeyword && (node.kind().startsWith("String")
-                || node.kind().startsWith("Character"));
-        const TextStyle style = isKeyword ? C_KEYWORD : isStringLike ? C_STRING : C_NUMBER;
-        insertResult(node, style);
+        if (!isKeyword && (node.kind().startsWith("String") || node.kind().startsWith("Character")))
+            return;
+        insertResult(node, isKeyword ? C_KEYWORD : C_NUMBER);
         return;
     }
     if (node.role() == "type" && node.kind() == "Builtin") {

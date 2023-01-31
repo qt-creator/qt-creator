@@ -25,7 +25,8 @@ public:
 
 private:
     void highlightWord(QStringView word, int position, int length);
-    bool highlightRawStringLiteral(QStringView text, const CPlusPlus::Token &tk);
+    bool highlightRawStringLiteral(QStringView text, const CPlusPlus::Token &tk,
+                                   const QString &inheritedSuffix);
 
     void highlightDoxygenComment(const QString &text, int position,
                                  int length);
@@ -35,5 +36,22 @@ private:
 private:
     CPlusPlus::LanguageFeatures m_languageFeatures = CPlusPlus::LanguageFeatures::defaultFeatures();
 };
+
+namespace Internal {
+class CppHighlighterTest : public CppHighlighter
+{
+    Q_OBJECT
+
+public:
+    CppHighlighterTest();
+
+private slots:
+    void test_data();
+    void test();
+
+private:
+    QTextDocument m_doc;
+};
+} // namespace Internal
 
 } // namespace CppEditor

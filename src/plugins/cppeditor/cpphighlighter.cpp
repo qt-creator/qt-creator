@@ -4,19 +4,26 @@
 #include "cpphighlighter.h"
 
 #include "cppdoxygen.h"
-#include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 
 #include <texteditor/textdocumentlayout.h>
+#include <utils/textutils.h>
 
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Lexer.h>
 
+#include <QFile>
 #include <QTextDocument>
+#include <QTextLayout>
 
-using namespace CppEditor;
+#ifdef WITH_TESTS
+#include <QtTest>
+#endif
+
 using namespace TextEditor;
 using namespace CPlusPlus;
+
+namespace CppEditor {
 
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
@@ -38,8 +45,11 @@ void CppHighlighter::highlightBlock(const QString &text)
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(m_languageFeatures);
     const QTextBlock prevBlock = currentBlock().previous();
-    if (prevBlock.isValid())
-        tokenize.setExpectedRawStringSuffix(TextDocumentLayout::expectedRawStringSuffix(prevBlock));
+    QByteArray inheritedRawStringSuffix;
+    if (prevBlock.isValid()) {
+        inheritedRawStringSuffix = TextDocumentLayout::expectedRawStringSuffix(prevBlock);
+        tokenize.setExpectedRawStringSuffix(inheritedRawStringSuffix);
+    }
 
     int initialLexerState = lexerState;
     const Tokens tokens = tokenize(text, initialLexerState);
@@ -84,6 +94,8 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         int previousTokenEnd = 0;
         if (i != 0) {
+            inheritedRawStringSuffix.clear();
+
             // mark the whitespaces
             previousTokenEnd = tokens.at(i - 1).utf16charsBegin() +
                                tokens.at(i - 1).utf16chars();
@@ -148,7 +160,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (tk.is(T_NUMERIC_LITERAL)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_NUMBER));
         } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
-            if (!highlightRawStringLiteral(text, tk)) {
+            if (!highlightRawStringLiteral(text, tk, QString::fromUtf8(inheritedRawStringSuffix))) {
                 setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
                                     formatForCategory(C_STRING));
             }
@@ -354,7 +366,8 @@ void CppHighlighter::highlightWord(QStringView word, int position, int length)
     }
 }
 
-bool CppHighlighter::highlightRawStringLiteral(QStringView _text, const Token &tk)
+bool CppHighlighter::highlightRawStringLiteral(QStringView text, const Token &tk,
+                                               const QString &inheritedSuffix)
 {
     // Step one: Does the lexer think this is a raw string literal?
     switch (tk.kind()) {
@@ -368,37 +381,50 @@ bool CppHighlighter::highlightRawStringLiteral(QStringView _text, const Token &t
         return false;
     }
 
-    // TODO: Remove on upgrade to Qt >= 5.14.
-    const QString text = _text.toString();
+    // Step two: Try to find all the components (prefix/string/suffix). We might be in the middle
+    //           of a multi-line literal, though, so prefix and/or suffix might be missing.
+    int delimiterOffset = -1;
+    int stringOffset = 0;
+    int stringLength = tk.utf16chars();
+    int endDelimiterOffset = -1;
+    QString expectedSuffix = inheritedSuffix;
+    [&] {
+        // If the "inherited" suffix is not empty, then this token is a string continuation and
+        // can therefore not start a new raw string literal.
+        // FIXME: The lexer starts the token at the first non-whitespace character, so
+        //        we have to correct for that here.
+        if (!inheritedSuffix.isEmpty()) {
+            stringLength += tk.utf16charOffset;
+            return;
+        }
 
-    // Step two: Find all the components. Bail out if we don't have a complete,
-    //           well-formed raw string literal.
-    const int rOffset = text.indexOf(QLatin1String("R\""), tk.utf16charsBegin());
-    if (rOffset == -1)
-        return false;
-    const int delimiterOffset = rOffset + 2;
-    const int openParenOffset = text.indexOf('(', delimiterOffset);
-    if (openParenOffset == -1)
-        return false;
-    const QStringView delimiter = text.mid(delimiterOffset, openParenOffset - delimiterOffset);
-    if (text.at(tk.utf16charsEnd() - 1) != '"')
-        return false;
-    const int endDelimiterOffset = tk.utf16charsEnd() - 1 - delimiter.length();
-    if (endDelimiterOffset <= delimiterOffset)
-        return false;
-    if (text.mid(endDelimiterOffset, delimiter.length()) != delimiter)
-        return false;
-    if (text.at(endDelimiterOffset - 1) != ')')
-        return false;
+        // Conversely, since we are in a raw string literal that is not a continuation,
+        // the start sequence must be in here.
+        const int rOffset = text.indexOf(QLatin1String("R\""), tk.utf16charsBegin());
+        QTC_ASSERT(rOffset != -1, return);
+        const int tentativeDelimiterOffset = rOffset + 2;
+        const int openParenOffset = text.indexOf('(', tentativeDelimiterOffset);
+        QTC_ASSERT(openParenOffset != -1, return);
+        const QStringView delimiter = text.mid(tentativeDelimiterOffset,
+                                               openParenOffset - tentativeDelimiterOffset);
+        expectedSuffix = ')' + delimiter + '"';
+        delimiterOffset = tentativeDelimiterOffset;
+        stringOffset = delimiterOffset + delimiter.length() + 1;
+        stringLength -= delimiter.length() + 1;
+    }();
+    if (text.mid(tk.utf16charsBegin(), tk.utf16chars()).endsWith(expectedSuffix)) {
+        endDelimiterOffset = tk.utf16charsBegin() + tk.utf16chars() - expectedSuffix.size();
+        stringLength -= expectedSuffix.size();
+    }
 
     // Step three: Do the actual formatting. For clarity, we display only the actual content as
     //             a string, and the rest (including the delimiter) as a keyword.
     const QTextCharFormat delimiterFormat = formatForCategory(C_KEYWORD);
-    const int stringOffset = delimiterOffset + delimiter.length() + 1;
-    setFormat(tk.utf16charsBegin(), stringOffset, delimiterFormat);
-    setFormatWithSpaces(text, stringOffset, endDelimiterOffset - stringOffset - 1,
-                        formatForCategory(C_STRING));
-    setFormat(endDelimiterOffset - 1, delimiter.length() + 2, delimiterFormat);
+    if (delimiterOffset != -1)
+        setFormat(tk.utf16charsBegin(), stringOffset, delimiterFormat);
+    setFormatWithSpaces(text.toString(), stringOffset, stringLength, formatForCategory(C_STRING));
+    if (endDelimiterOffset != -1)
+        setFormat(endDelimiterOffset, expectedSuffix.size(), delimiterFormat);
     return true;
 }
 
@@ -434,3 +460,87 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
     setFormatWithSpaces(text, initial, it - uc - initial, format);
 }
 
+namespace Internal {
+CppHighlighterTest::CppHighlighterTest()
+{
+    QFile source(":/cppeditor/testcases/highlightingtestcase.cpp");
+    QVERIFY(source.open(QIODevice::ReadOnly));
+
+    m_doc.setPlainText(QString::fromUtf8(source.readAll()));
+    setDocument(&m_doc);
+    rehighlight();
+}
+
+void CppHighlighterTest::test_data()
+{
+    QTest::addColumn<int>("line");
+    QTest::addColumn<int>("column");
+    QTest::addColumn<int>("lastLine");
+    QTest::addColumn<int>("lastColumn");
+    QTest::addColumn<TextStyle>("style");
+
+    QTest::newRow("auto") << 1 << 1 << 1 << 4 << C_KEYWORD;
+    QTest::newRow("opening brace") << 2 << 1 << 2 << 1 << C_PUNCTUATION;
+    QTest::newRow("return") << 3 << 5 << 3 << 10 << C_KEYWORD;
+    QTest::newRow("raw string prefix") << 3 << 12 << 3 << 14 << C_KEYWORD;
+    QTest::newRow("raw string content (multi-line)") << 3 << 15 << 6 << 13 << C_STRING;
+    QTest::newRow("raw string suffix") << 6 << 14 << 6 << 15 << C_KEYWORD;
+    QTest::newRow("raw string prefix 2") << 6 << 17 << 6 << 19 << C_KEYWORD;
+    QTest::newRow("raw string content 2") << 6 << 20 << 6 << 25 << C_STRING;
+    QTest::newRow("raw string suffix 2") << 6 << 26 << 6 << 27 << C_KEYWORD;
+    QTest::newRow("comment") << 6 << 29 << 6 << 41 << C_COMMENT;
+    QTest::newRow("raw string prefix 3") << 6 << 53 << 6 << 45 << C_KEYWORD;
+    QTest::newRow("raw string content 3") << 6 << 46 << 6 << 50 << C_STRING;
+    QTest::newRow("raw string suffix 3") << 6 << 51 << 6 << 52 << C_KEYWORD;
+    QTest::newRow("semicolon") << 6 << 53 << 6 << 53 << C_PUNCTUATION;
+    QTest::newRow("closing brace") << 7 << 1 << 7 << 1 << C_PUNCTUATION;
+}
+
+void CppHighlighterTest::test()
+{
+    QFETCH(int, line);
+    QFETCH(int, column);
+    QFETCH(int, lastLine);
+    QFETCH(int, lastColumn);
+    QFETCH(TextStyle, style);
+
+    const int startPos = Utils::Text::positionInText(&m_doc, line, column);
+    const int lastPos = Utils::Text::positionInText(&m_doc, lastLine, lastColumn);
+    const auto getActualFormat = [&](int pos) -> QTextCharFormat {
+        const QTextBlock block = m_doc.findBlock(pos);
+        if (!block.isValid())
+            return {};
+        const QList<QTextLayout::FormatRange> &ranges = block.layout()->formats();
+        for (const QTextLayout::FormatRange &range : ranges) {
+            const int offset = block.position() + range.start;
+            if (offset > pos)
+                return {};
+            if (offset + range.length <= pos)
+                continue;
+            return range.format;
+        }
+        return {};
+    };
+
+    const QTextCharFormat formatForStyle = formatForCategory(style);
+    for (int pos = startPos; pos <= lastPos; ++pos) {
+        const QChar c = m_doc.characterAt(pos);
+        if (c == QChar::ParagraphSeparator)
+            continue;
+        const QTextCharFormat expectedFormat = c.isSpace()
+                ? whitespacified(formatForStyle) : formatForStyle;
+        const QTextCharFormat actualFormat = getActualFormat(pos);
+        if (actualFormat != expectedFormat) {
+            int posLine;
+            int posCol;
+            Utils::Text::convertPosition(&m_doc, pos, &posLine, &posCol);
+            qDebug() << posLine << posCol << c
+                     << actualFormat.foreground() << expectedFormat.foreground()
+                     << actualFormat.background() << expectedFormat.background();
+        }
+        QCOMPARE(actualFormat, expectedFormat);
+    }
+}
+
+} // namespace Internal
+} // namespace CppEditor

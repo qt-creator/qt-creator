@@ -693,10 +693,6 @@ void ClangdTestHighlighting::test_data()
     QTest::addColumn<QList<int>>("expectedStyles");
     QTest::addColumn<int>("expectedKind");
 
-    QTest::newRow("string literal") << 1 << 24 << 1 << 34 << QList<int>{C_STRING} << 0;
-    QTest::newRow("UTF-8 string literal") << 2 << 24 << 2 << 36 << QList<int>{C_STRING} << 0;
-    QTest::newRow("raw string literal") << 3 << 24 << 4 << 9 << QList<int>{C_STRING} << 0;
-    QTest::newRow("character literal") << 5 << 24 << 5 << 27 << QList<int>{C_STRING} << 0;
     QTest::newRow("integer literal") << 23 << 24 << 23 << 25 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("float literal") << 24 << 24 << 24 << 28 << QList<int>{C_NUMBER} << 0;
     QTest::newRow("function definition") << 45 << 5 << 45 << 13
@@ -1225,7 +1221,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("triply nested template instantiation with spacing (closing angle bracket 4)")
         << 812 << 3 << 812 << 4
         << QList<int>{C_PUNCTUATION} << int(CppEditor::SemanticHighlighter::AngleBracketClose);
-    QTest::newRow("cyrillic string") << 792 << 24 << 792 << 27 << QList<int>{C_STRING} << 0;
     QTest::newRow("macro in struct") << 795 << 9 << 795 << 14
         << QList<int>{C_MACRO, C_DECLARATION} << 0;
     QTest::newRow("#ifdef'ed out code") << 800 << 1 << 800 << 17
@@ -1248,10 +1243,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("simple return") << 841 << 12 << 841 << 15 << QList<int>{C_LOCAL} << 0;
     QTest::newRow("lambda parameter") << 847 << 49 << 847 << 52
                                       << QList<int>{C_PARAMETER, C_DECLARATION} << 0;
-    QTest::newRow("string literal passed to macro from same file") << 853 << 32 << 853 << 38
-                                      << QList<int>{C_STRING} << 0;
-    QTest::newRow("string literal passed to macro from header file") << 854 << 32 << 854 << 38
-                                      << QList<int>{C_STRING} << 0;
     QTest::newRow("user-defined operator call") << 860 << 7 << 860 << 8
                                       << QList<int>{C_LOCAL} << 0;
     QTest::newRow("const member as function argument") << 868 << 32 << 868 << 43
