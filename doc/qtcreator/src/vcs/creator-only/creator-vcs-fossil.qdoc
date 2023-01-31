@@ -1,0 +1,89 @@
+/****************************************************************************
+**
+** Copyright (c) 2018 Artur Shepilko
+** Contact: https://www.qt.io/licensing/
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see https://www.qt.io/terms-conditions. For further
+** information use the contact form at https://www.qt.io/contact-us.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3 as published by the Free Software
+** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
+**
+****************************************************************************/
+
+// **********************************************************************
+// NOTE: the sections are not ordered by their logical order to avoid
+// reshuffling the file each time the index order changes (i.e., often).
+// Run the fixnavi.pl script to adjust the links to the index order.
+// **********************************************************************
+
+/*!
+    \page creator-vcs-fossil.html
+
+    \title Qt Creator Fossil Plugin Manual
+
+    Fossil is an open source distributed version control system, designed
+    and developed by the creator of SQLite. A stand-alone Fossil executable
+    contains a source control management engine, web interface, issue tracker,
+    wiki, and built-in web server. Fossil is available for Linux, Windows,
+    and \macos.
+
+    To use Fossil from \QC, you must install and configure it, as described in
+    the following sections.
+
+    \section1 Configuring Fossil
+
+    \list 1
+        \li Download the \l{http://fossil-scm.org}{Fossil SCM client} and
+            install the \c fossil executable file in your \c PATH.
+
+        \li Create or designate a directory to store local Fossil repositories
+            and remote clones. For example: \c ~/fossils/qt.
+
+        \li Configure \uicontrol {Version Control Options} for the Fossil plugin
+            to use the designated directory as
+            \uicontrol {Local Repositories Default path}.
+    \endlist
+
+    Now Fossil should become available as a VCS choice to create new local
+    repositories, as well as a choice in \uicontrol {New File or Project} to
+    clone a remote Fossil repository.
+
+    \section1 Additional Fossil Functions
+
+    In addition to the standard version control system functions described in
+    \l {Using Version Control Systems}, the \uicontrol Fossil submenu contains
+    the following items:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol Pull
+            \li Pull changes from the remote repository.
+        \row
+            \li \uicontrol Push
+            \li Push committed changes to the remote repository.
+        \row
+            \li \uicontrol Update
+            \li Change the version of the current checkout. Any uncommitted
+                changes are retained and applied to the new checkout.
+        \row
+            \li \uicontrol Settings
+            \li Configure the settings of the local repository.
+    \endtable
+
+*/

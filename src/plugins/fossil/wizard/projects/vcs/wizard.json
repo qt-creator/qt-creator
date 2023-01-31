@@ -1,0 +1,255 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "UNKNOWN_PROJECT" ],
+    "id": "I.Fossil",
+    "category": "T.Import",
+    "trDescription": "Clones a Fossil repository and tries to load the contained project.",
+    "trDisplayName": "Fossil Clone",
+    "trDisplayCategory": "Import Project",
+    "icon": "icon.png",
+    "enabled": "%{JS: [ %{Plugins} ].indexOf('Fossil') >= 0}",
+
+    "options":
+    [
+        { "key": "vcsId", "value": "I.Fossil" },
+        { "key": "vcsName", "value": "%{JS: Vcs.displayName('%{vcsId}')}" },
+        { "key": "isCloneRepo", "value": "%{JS: '%{RepoType}' === 'cloneRepo' }" },
+        { "key": "isLocalRepo", "value": "%{JS: '%{RepoType}' === 'localRepo' }" },
+        { "key": "SR", "value": "%{JS: '%{Repo}'.substr('%{Repo}'.indexOf(':') + 1).replace(/[^/@]+@/,'').replace(/:[0-9]+$/,'').replace(/[.](fossil|fsl)$/, '') }"},
+        { "key": "defaultDir", "value": "%{JS: %{isCloneRepo} ? '%{SR}'.substr('%{SR}'.lastIndexOf('/') + 1).replace(/[.:\"]+/g, '-') : %{isLocalRepo} ? Util.baseName('%{LocalRepo}') : '' }"},
+        { "key": "defaultFossilName", "value": "%{JS: %{isCloneRepo} ? '%{defaultDir}' : %{isLocalRepo} ? Util.completeBaseName('%{LocalRepo}') : '' }" },
+        { "key": "defaultLocalRepoPath", "value": "%{JS: Fossil.defaultLocalRepoPath() }" },
+        { "key": "defaultSslIdentityFile", "value": "%{JS: Fossil.defaultSslIdentityFile() }" },
+        { "key": "defaultDisableAutosync", "value": "%{JS: Fossil.defaultDisableAutosync() }" },
+        { "key": "SourceRepo", "value": "%{JS: %{isCloneRepo} ? '%{Repo}' : %{isLocalRepo} ? '%{LocalRepo}' : '' }" },
+        { "key": "TargetPath", "value": "%{Path}/%{Dir}" },
+        { "key": "FossilFile", "value": "%{defaultLocalRepoPath}/%{FossilName}.fossil" },
+        { "key": "argRepoType", "value": "repository-type|%{RepoType}" },
+        { "key": "argBranchTag", "value": "%{JS: '%{Branch}' ? 'branch-tag|%{Branch}' : '' }" },
+        { "key": "argAdminUser", "value": "%{JS: '%{AdminUser}' ? 'admin-user|%{AdminUser}' : '' }" },
+        { "key": "argSslIdentity", "value": "%{JS: '%{SslIdentity}' ? 'ssl-identity|%{SslIdentity}' : '' }" },
+        { "key": "argIncludePrivate", "value": "%{JS: '%{IncludePrivate}' ? 'include-private|%{IncludePrivate}' : '' }" },
+        { "key": "argDisableAutosync", "value": "%{JS: '%{DisableAutosync}' ? 'settings-autosync|%{DisableAutosync}' : '' }" },
+        { "key": "argFossilFile", "value": "fossil-file|%{FossilFile}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Configuration",
+            "trShortTitle": "Configuration",
+            "trSubTitle": "Please configure <b>%{vcsName}</b> now.",
+            "typeId": "VcsConfiguration",
+            "enabled": "%{JS: !Vcs.isConfigured('%{vcsId}')}",
+            "data": { "vcsId": "%{vcsId}" }
+        },
+        {
+            "trDisplayName": "Select repository location type",
+            "trShortTitle": "Repository",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "RepoType",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 0,
+                        "items":
+                        [
+                            { "trKey": "Remote repository clone", "value": "cloneRepo" },
+                            { "trKey": "Local repository checkout", "value": "localRepo" }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify repository location, branch, checkout destination, and options.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "GotSource",
+                    "type": "LineEdit",
+                    "visible": false,
+                    "mandatory": true,
+                    "isComplete": "%{JS: '%{FossilName}' === '' || (%{isCloneRepo} && !Util.exists('%{FossilFile}')) }",
+                    "trIncompleteMessage": "The clone fossil already exists in local repositories path.",
+                    "data":
+                    {
+                        "trText": "%{JS: (%{isCloneRepo} && '%{Repo}' !== '' && '%{FossilName}' !== '') || (%{isLocalRepo} && '%{LocalRepo}' !== '') ? 'true' : '' }"
+                    }
+                },
+                {
+                    "name": "Repo",
+                    "trDisplayName": "Remote repository:",
+                    "trToolTip": "For example: https://[user[:pass]@]host[:port]/[path]",
+                    "type": "LineEdit",
+                    "enabled": "%{isCloneRepo}",
+                    "mandatory": false
+                },
+                {
+                    "name": "FossilName",
+                    "trDisplayName": "Local clone:",
+                    "trToolTip": "Base name of a new local fossil file to clone into.",
+                    "type": "LineEdit",
+                    "enabled": "%{isCloneRepo}",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trText": "%{defaultFossilName}"
+                    }
+                },
+                {
+                    "name": "LocalRepo",
+                    "trDisplayName": "Local repository:",
+                    "trToolTip": "Path of an existing local fossil file to check out from.",
+                    "type": "PathChooser",
+                    "enabled": "%{isLocalRepo}",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "kind": "file",
+                        "basePath": "%{defaultLocalRepoPath}"
+                    }
+                },
+                {
+                    "name": "Branch",
+                    "trDisplayName": "Branch:",
+                    "type": "LineEdit",
+                    "mandatory": false,
+                    "data":
+                    {
+                        "trPlaceholder": "<default branch>"
+                    }
+                },
+                {
+                    "name": "Sp1",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "Dir",
+                    "trDisplayName": "Checkout directory:",
+                    "type": "LineEdit",
+                    "isComplete": "%{JS: '%{Dir}' === '' || !Util.exists('%{TargetPath}')}",
+                    "trIncompleteMessage": "The checkout directory already exists in the filesystem.",
+                    "data":
+                    {
+                        "trText": "%{defaultDir}"
+                    }
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Create in:",
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                },
+                {
+                    "name": "Sp2",
+                    "type": "Spacer",
+                    "data": { "factor": 2 }
+                },
+                {
+                    "name": "AdminUser",
+                    "trDisplayName": "Admin user:",
+                    "trToolTip": "Privileged user added automatically to the created local repository.",
+                    "type": "LineEdit",
+                    "mandatory": false,
+                    "enabled": "%{isCloneRepo}",
+                    "data":
+                    {
+                        "trText": "%{JS: Fossil.defaultAdminUser()}"
+                    }
+                },
+                {
+                    "name": "SslIdentity",
+                    "trDisplayName": "SSL/TLS identity:",
+                    "trToolTip": "SSL/TLS client identity key to use if requested by the server.",
+                    "type": "PathChooser",
+                    "mandatory": false,
+                    "enabled": "%{isCloneRepo}",
+                    "data":
+                    {
+                        "kind": "file",
+                        "path": "%{defaultSslIdentityFile}"
+                    }
+                },
+                {
+                    "name": "IncludePrivate",
+                    "trDisplayName": "Include private branches",
+                    "trToolTip": "Allow transfer of private branches.",
+                    "type": "CheckBox",
+                    "enabled": "%{isCloneRepo}",
+                    "data":
+                    {
+                        "checkedValue": "true",
+                        "uncheckedValue": ""
+                    }
+                },
+                {
+                    "name": "DisableAutosync",
+                    "trDisplayName": "Disable auto-sync",
+                    "trToolTip": "Disable automatic pull prior to commit or update and automatic push after commit or tag or branch creation.",
+                    "type": "CheckBox",
+                    "enabled": "%{isCloneRepo}",
+                    "data":
+                    {
+                        "checkedValue": "off",
+                        "uncheckedValue": "",
+                        "checked": "%{defaultDisableAutosync}"
+                    }
+                }
+
+            ]
+        },
+        {
+            "trDisplayName": "Checkout",
+            "trShortTitle": "Checkout",
+            "typeId": "VcsCommand",
+            "data" :
+            {
+                "vcsId": "%{vcsId}",
+                "trRunMessage": "Running Fossil clone...",
+                "repository": "%{SourceRepo}",
+                "baseDirectory": "%{Path}",
+                "checkoutName": "%{Dir}",
+                "extraArguments":
+                [
+                    "%{argRepoType}",
+                    "%{argBranchTag}",
+                    "%{argAdminUser}",
+                    "%{argSslIdentity}",
+                    "%{argIncludePrivate}",
+                    "%{argDisableAutosync}",
+                    "%{argFossilFile}"
+                ],
+                "extraJobs" :
+                [
+                    {
+                        "command": "fossil",
+                        "arguments": [ "version" ]
+                    }
+                ]
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "Scanner",
+            "data": {
+                "subdirectoryPatterns": [ "^src$" ]
+            }
+        }
+    ]
+}
