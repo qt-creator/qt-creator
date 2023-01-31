@@ -597,11 +597,11 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     if (node.kind() == "UserDefinedLiteral")
         return;
     if (node.kind().endsWith("Literal")) {
-        const bool isKeyword = node.kind() == "CXXBoolLiteral"
-                || node.kind() == "CXXNullPtrLiteral";
-        if (!isKeyword && (node.kind().startsWith("String") || node.kind().startsWith("Character")))
+        if (node.kind() == "CXXBoolLiteral" || node.kind() == "CXXNullPtrLiteral")
             return;
-        insertResult(node, isKeyword ? C_KEYWORD : C_NUMBER);
+        if (node.kind().startsWith("String") || node.kind().startsWith("Character"))
+            return;
+        insertResult(node, C_NUMBER);
         return;
     }
     if (node.role() == "type" && node.kind() == "Builtin") {

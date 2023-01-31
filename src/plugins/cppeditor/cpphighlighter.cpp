@@ -496,6 +496,11 @@ void CppHighlighterTest::test_data()
     QTest::newRow("raw string suffix 3") << 6 << 51 << 6 << 52 << C_KEYWORD;
     QTest::newRow("semicolon") << 6 << 53 << 6 << 53 << C_PUNCTUATION;
     QTest::newRow("closing brace") << 7 << 1 << 7 << 1 << C_PUNCTUATION;
+    QTest::newRow("void") << 9 << 1 << 9 << 4 << C_PRIMITIVE_TYPE;
+    QTest::newRow("bool") << 11 << 5 << 11 << 8 << C_PRIMITIVE_TYPE;
+    QTest::newRow("true") << 11 << 15 << 11 << 18 << C_KEYWORD;
+    QTest::newRow("false") << 12 << 15 << 12 << 19 << C_KEYWORD;
+    QTest::newRow("nullptr") << 13 << 15 << 13 << 21 << C_KEYWORD;
 }
 
 void CppHighlighterTest::test()
