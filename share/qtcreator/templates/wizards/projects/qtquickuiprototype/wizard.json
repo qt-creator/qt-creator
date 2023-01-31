@@ -70,7 +70,7 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../qtquickapplication/main.qml.tpl",
+                    "source": "../qtquickapplication/Main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}",
                     "openInEditor": true
                 },
