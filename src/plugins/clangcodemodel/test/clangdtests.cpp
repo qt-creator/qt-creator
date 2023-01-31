@@ -712,8 +712,6 @@ void ClangdTestHighlighting::test_data()
     QTest::newRow("function call") << 64 << 5 << 64 << 13 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("type conversion function (struct)") << 68 << 14 << 68 << 17
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("type conversion function (built-in)") << 69 << 14 << 69 << 17
-        << QList<int>{C_PRIMITIVE_TYPE} << 0;
     QTest::newRow("type reference") << 74 << 5 << 74 << 8 << QList<int>{C_TYPE} << 0;
     QTest::newRow("local variable declaration") << 79 << 9 << 79 << 12
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;

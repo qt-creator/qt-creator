@@ -596,11 +596,8 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
 {
     if (node.kind().endsWith("Literal"))
         return;
-
-    if (node.role() == "type" && node.kind() == "Builtin") {
-        insertResult(node, C_PRIMITIVE_TYPE);
+    if (node.role() == "type" && node.kind() == "Builtin")
         return;
-    }
 
     if (m_clangdVersion < 16 && node.role() == "attribute"
             && (node.kind() == "Override" || node.kind() == "Final")) {

@@ -21,3 +21,7 @@ void numberLiterals()
 }
 
 template<int n = 5> class C;
+
+struct ConversionFunction {
+    operator int();
+};

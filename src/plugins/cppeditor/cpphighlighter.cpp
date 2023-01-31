@@ -510,6 +510,9 @@ void CppHighlighterTest::test_data()
     QTest::newRow("integer literal as non-type template parameter default value")
         << 23 << 18 << 23 << 18 << C_NUMBER;
     QTest::newRow("class keyword") << 23 << 21 << 23 << 25 << C_KEYWORD;
+    QTest::newRow("struct keyword") << 25 << 1 << 25 << 6 << C_KEYWORD;
+    QTest::newRow("operator keyword") << 26 << 5 << 26 << 12 << C_KEYWORD;
+    QTest::newRow("type in conversion operator") << 26 << 14 << 26 << 16 << C_PRIMITIVE_TYPE;
 }
 
 void CppHighlighterTest::test()
