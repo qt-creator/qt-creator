@@ -20,6 +20,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Source")
+            tooltip: qsTr("Sets a background image for the icon.")
             blockedByTemplate: !backendValues.icon_source.isAvailable
             enabled: !root.blockedByContext
         }
@@ -35,6 +36,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Color")
+            tooltip: qsTr("Sets the color for the icon.")
             blockedByTemplate: !backendValues.icon_color.isAvailable
             enabled: !root.blockedByContext
         }
@@ -47,6 +49,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Size")
+            tooltip: qsTr("Sets the height and width of the icon.")
             blockedByTemplate: !backendValues.icon_width.isAvailable
             enabled: !root.blockedByContext
         }
@@ -102,7 +105,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Cache")
-            tooltip: qsTr("Whether the icon should be cached.")
+            tooltip: qsTr("Toggles if the icon is saved to the cache memory.")
             blockedByTemplate: !backendValues.icon_cache.isAvailable
             enabled: !root.blockedByContext
         }
