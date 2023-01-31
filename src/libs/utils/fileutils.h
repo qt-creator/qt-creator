@@ -151,7 +151,6 @@ T withNtfsPermissions(const std::function<T()> &task)
 
 class QTCREATOR_UTILS_EXPORT FileReader
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     static QByteArray fetchQrc(const QString &fileName); // Only for internal resources
     bool fetch(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen); // QIODevice::ReadOnly is implicit
@@ -172,7 +171,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     FileSaverBase();
     virtual ~FileSaverBase();
@@ -207,7 +205,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT FileSaver : public FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     // QIODevice::WriteOnly is implicit
     explicit FileSaver(const FilePath &filePath, QIODevice::OpenMode mode = QIODevice::NotOpen);
@@ -221,7 +218,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT TempFileSaver : public FileSaverBase
 {
-    Q_DECLARE_TR_FUNCTIONS(Utils::FileUtils) // sic!
 public:
     explicit TempFileSaver(const QString &templ = QString());
     ~TempFileSaver() override;

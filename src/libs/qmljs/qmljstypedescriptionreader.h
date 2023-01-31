@@ -8,9 +8,6 @@
 
 #include <languageutils/fakemetaobject.h>
 
-// for Q_DECLARE_TR_FUNCTIONS
-#include <QCoreApplication>
-
 QT_BEGIN_NAMESPACE
 class QIODevice;
 class QBuffer;
@@ -28,8 +25,6 @@ class UiScriptBinding;
 
 class QMLJS_EXPORT TypeDescriptionReader
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::TypeDescriptionReader)
-
 public:
     explicit TypeDescriptionReader(const QString &fileName, const QString &data);
     ~TypeDescriptionReader();

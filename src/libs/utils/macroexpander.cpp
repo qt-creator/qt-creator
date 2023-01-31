@@ -8,6 +8,7 @@
 #include "environment.h"
 #include "qtcassert.h"
 #include "stringutils.h"
+#include "utilstr.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -138,7 +139,7 @@ using namespace Internal;
         [...]
         MacroExpander::registerVariable(
             "MyVariable",
-            tr("The current value of whatever I want."));
+            Tr::tr("The current value of whatever I want."));
             []() -> QString {
                 QString value;
                 // do whatever is necessary to retrieve the value
@@ -265,7 +266,7 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
     --d->m_lockDepth;
 
     if (d->m_lockDepth == 0 && d->m_aborted)
-        return tr("Infinite recursion error") + QLatin1String(": ") + stringWithVariables;
+        return Tr::tr("Infinite recursion error") + QLatin1String(": ") + stringWithVariables;
 
     return res;
 }
@@ -377,17 +378,17 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
     const QString &heading, const FileFunction &base, bool visibleInChooser)
 {
     registerVariable(prefix + kFilePathPostfix,
-         tr("%1: Full path including file name.").arg(heading),
+         Tr::tr("%1: Full path including file name.").arg(heading),
          [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).filePath(); },
          visibleInChooser);
 
     registerVariable(prefix + kPathPostfix,
-         tr("%1: Full path excluding file name.").arg(heading),
+         Tr::tr("%1: Full path excluding file name.").arg(heading),
          [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).path(); },
          visibleInChooser);
 
     registerVariable(prefix + kNativeFilePathPostfix,
-         tr("%1: Full path including file name, with native path separator (backslash on Windows).").arg(heading),
+         Tr::tr("%1: Full path including file name, with native path separator (backslash on Windows).").arg(heading),
          [base]() -> QString {
              QString tmp = base().toString();
              return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).filePath());
@@ -395,7 +396,7 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
          visibleInChooser);
 
     registerVariable(prefix + kNativePathPostfix,
-         tr("%1: Full path excluding file name, with native path separator (backslash on Windows).").arg(heading),
+         Tr::tr("%1: Full path excluding file name, with native path separator (backslash on Windows).").arg(heading),
          [base]() -> QString {
              QString tmp = base().toString();
              return tmp.isEmpty() ? QString() : QDir::toNativeSeparators(QFileInfo(tmp).path());
@@ -403,12 +404,12 @@ void MacroExpander::registerFileVariables(const QByteArray &prefix,
          visibleInChooser);
 
     registerVariable(prefix + kFileNamePostfix,
-         tr("%1: File name without path.").arg(heading),
+         Tr::tr("%1: File name without path.").arg(heading),
          [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : FilePath::fromString(tmp).fileName(); },
          visibleInChooser);
 
     registerVariable(prefix + kFileBaseNamePostfix,
-         tr("%1: File base name without path and suffix.").arg(heading),
+         Tr::tr("%1: File base name without path and suffix.").arg(heading),
          [base]() -> QString { QString tmp = base().toString(); return tmp.isEmpty() ? QString() : QFileInfo(tmp).baseName(); },
          visibleInChooser);
 }
@@ -477,9 +478,8 @@ class GlobalMacroExpander : public MacroExpander
 public:
     GlobalMacroExpander()
     {
-        setDisplayName(MacroExpander::tr("Global variables"));
-        registerPrefix("Env",
-                       MacroExpander::tr("Access environment variables."),
+        setDisplayName(Tr::tr("Global variables"));
+        registerPrefix("Env", Tr::tr("Access environment variables."),
                        [](const QString &value) { return qtcEnvironmentVariable(value); });
     }
 };

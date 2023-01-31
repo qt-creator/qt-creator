@@ -539,17 +539,13 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
         QDir dir(fileInfo.absoluteFilePath());
         dir.setPath(dir.canonicalPath());
         if (dir.isRoot()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Refusing to remove root directory.");
-            }
+            if (error)
+                *error = Tr::tr("Refusing to remove root directory.");
             return false;
         }
         if (dir.path() == QDir::home().canonicalPath()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Refusing to remove your home directory.");
-            }
+            if (error)
+                *error = Tr::tr("Refusing to remove your home directory.");
             return false;
         }
 
@@ -560,20 +556,14 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
                 return false;
         }
         if (!QDir::root().rmdir(dir.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Failed to remove directory \"%1\".")
-                             .arg(filePath.toUserOutput());
-            }
+            if (error)
+                *error = Tr::tr("Failed to remove directory \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
     } else {
         if (!QFile::remove(filePath.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Failed to remove file \"%1\".")
-                             .arg(filePath.toUserOutput());
-            }
+            if (error)
+                *error = Tr::tr("Failed to remove file \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
     }
@@ -1044,6 +1034,19 @@ QByteArray UnixDeviceFileAccess::fileId(const FilePath &filePath) const
 
 FilePathInfo UnixDeviceFileAccess::filePathInfo(const FilePath &filePath) const
 {
+    if (filePath.path() == "/") // TODO: Add FilePath::isRoot()
+    {
+        const FilePathInfo r{4096,
+                             FilePathInfo::FileFlags(
+                                 FilePathInfo::ReadOwnerPerm | FilePathInfo::WriteOwnerPerm
+                                 | FilePathInfo::ExeOwnerPerm | FilePathInfo::ReadGroupPerm
+                                 | FilePathInfo::ExeGroupPerm | FilePathInfo::ReadOtherPerm
+                                 | FilePathInfo::ExeOtherPerm | FilePathInfo::DirectoryType
+                                 | FilePathInfo::LocalDiskFlag | FilePathInfo::ExistsFlag),
+                             QDateTime::currentDateTime()};
+
+        return r;
+    }
     const RunResult stat = runInShell(
         {"stat", {"-L", "-c", "%f %Y %s", filePath.path()}, OsType::OsTypeLinux});
     return FileUtils::filePathInfoFromTriple(QString::fromLatin1(stat.stdOut));

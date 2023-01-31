@@ -106,6 +106,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 connect(runThisTestCase, &QAction::triggered, [suiteName, caseName] {
                     SquishFileHandler::instance()->runTestCase(suiteName, caseName);
                 });
+                connect(deleteTestCase, &QAction::triggered, [suiteName, caseName] {
+                    SquishFileHandler::instance()->deleteTestCase(suiteName, caseName);
+                });
                 break;
             }
             case SquishTestTreeItem::SquishSuite: {
@@ -117,8 +120,6 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 menu.addAction(addNewTestCase);
                 QAction *closeTestSuite = new QAction(Tr::tr("Close Test Suite"), &menu);
                 menu.addAction(closeTestSuite);
-                QAction *deleteTestSuite = new QAction(Tr::tr("Delete Test Suite"), &menu);
-                menu.addAction(deleteTestSuite);
                 menu.addSeparator();
 
                 connect(runThisTestSuite, &QAction::triggered, [suiteName] {

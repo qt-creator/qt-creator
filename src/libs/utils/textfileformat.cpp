@@ -5,6 +5,7 @@
 
 #include "fileutils.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QDebug>
 #include <QTextCodec>
@@ -190,7 +191,7 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
-        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "Out of memory.");
+        *errorString = Tr::tr("Out of memory.");
         return TextFileFormat::ReadMemoryAllocationError;
     }
 
@@ -201,7 +202,7 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
         format->codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
 
     if (!format->decode(data, target)) {
-        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "An encoding error was encountered.");
+        *errorString = Tr::tr("An encoding error was encountered.");
         if (decodingErrorSampleIn)
             *decodingErrorSampleIn = TextFileFormat::decodingErrorSample(data);
         return TextFileFormat::ReadEncodingError;
@@ -256,7 +257,7 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const FilePath &filePath
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
-        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "Out of memory.");
+        *errorString = Tr::tr("Out of memory.");
         return TextFileFormat::ReadMemoryAllocationError;
     }
 

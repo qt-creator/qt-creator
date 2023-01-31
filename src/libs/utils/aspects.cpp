@@ -1138,7 +1138,7 @@ void StringAspect::addToLayout(Layouting::LayoutBuilder &builder)
             }
         }
         if (d->m_useResetButton) {
-            auto resetButton = createSubWidget<QPushButton>(tr("Reset"));
+            auto resetButton = createSubWidget<QPushButton>(Tr::tr("Reset"));
             resetButton->setEnabled(d->m_lineEditDisplay->text() != defaultValue());
             connect(resetButton, &QPushButton::clicked, this, [this] {
                 d->m_lineEditDisplay->setText(defaultValue());

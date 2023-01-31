@@ -73,7 +73,7 @@
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -86,9 +86,6 @@
         <source>...</source>
         <translation>…</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Rastegni uspravno. Rasteže sliku, kako bi popunila područje.</translation>
@@ -113,9 +110,6 @@
         <source>10 x 10</source>
         <translation>10 × 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Slika se skalira kako bi popunila područje.</translation>
@@ -141,13 +135,6 @@
         <translation>Slika se skalira proporcionalno kako bi popunila područje i reže se po potrebi.</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 × 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
         <source>Gradient</source>
         <translation>Gradijent</translation>
     </message>
@@ -156,16 +143,9 @@
         <translation>Boja</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>…</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rub</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -449,7 +429,7 @@
     </message>
 </context>
 <context>
-    <name>Utils::WizardPage</name>
+    <name>::Utils</name>
     <message>
         <source>Choose the Location</source>
         <translation>Odaberi mjesto</translation>
@@ -462,9 +442,6 @@
         <source>Path:</source>
         <translation>Staza:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>Naziv &amp;klase:</translation>
@@ -537,16 +514,9 @@
         <source>Invalid form file name: &quot;%1&quot;</source>
         <translation>Nevaljani naziv datoteke obrasca: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and Project Location</source>
         <translation>Uvod i mjesto projekta</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Naziv:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -592,9 +562,6 @@
         <source>Invalid character &quot;%1&quot; found.</source>
         <translation>Nađen je nevaljani slovni znak &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProxyCredentialsDialog</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Korisnički podaci za poslužitelja</translation>
@@ -619,9 +586,6 @@
         <source>Password</source>
         <translation>Lozinka</translation>
     </message>
-</context>
-<context>
-    <name>Utils::RemoveFileDialog</name>
     <message>
         <source>Remove File</source>
         <translation>Ukloni datoteku</translation>
@@ -11462,7 +11426,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation type="unfinished"></translation>
@@ -11483,16 +11447,10 @@ will also disable the following plugins:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -11602,7 +11560,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation type="unfinished"></translation>
@@ -11611,9 +11569,6 @@ will also disable the following plugins:
         <source>package import requires a version number</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; ili &apos;real&apos;</translation>
@@ -11637,7 +11592,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -11792,9 +11747,6 @@ the QML editor know about a likely URI.</source>
         <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation type="unfinished"></translation>
@@ -11816,9 +11768,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::ModelManagerInterface</name>
     <message>
         <source>Parsing QML Files</source>
         <translation type="unfinished"></translation>
@@ -11827,9 +11776,6 @@ For CMake projects, make sure QML_IMPORT_PATH variable is in CMakeCache.txt.
         <source>Scanning QML Imports</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -11894,46 +11840,18 @@ Error: %2</source>
 Please build the qmldump application on the Qt version options page.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::QrcParser</name>
-    <message>
-        <source>XML error on line %1, col %2: %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The &lt;RCC&gt; root element is missing.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
     <message>
         <source>Cannot find file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -12417,7 +12335,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Ne pitaj ponovo</translation>
@@ -12430,9 +12348,6 @@ The trace data is lost.</source>
         <source>Do not &amp;show again</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation type="unfinished"></translation>
@@ -12445,9 +12360,6 @@ The trace data is lost.</source>
         <source>The class name contains invalid characters.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation type="unfinished"></translation>
@@ -12516,16 +12428,10 @@ The trace data is lost.</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Detalji</translation>
     </message>
-</context>
-<context>
-    <name>Diff</name>
     <message>
         <source>Delete</source>
         <translation>Ukloni</translation>
@@ -12538,9 +12444,6 @@ The trace data is lost.</source>
         <source>Equal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation type="unfinished"></translation>
@@ -12585,9 +12488,6 @@ The trace data is lost.</source>
         <source>section name %1 of %2 behind end of file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentDialog</name>
     <message>
         <source>Enter one environment variable per line.
 To set or change a variable, use VARIABLE=VALUE.
@@ -12599,9 +12499,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Edit Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation type="unfinished"></translation>
@@ -12624,9 +12521,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtar</translation>
@@ -12656,7 +12550,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Central Widget</source>
         <translation type="unfinished"></translation>
@@ -12668,13 +12562,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     <message>
         <source>Automatically Hide View Title Bars</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Naziv je prazan.</translation>
     </message>
     <message>
         <source>Name contains white space.</source>
@@ -12700,9 +12587,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>File extensions %1 are required:</source>
         <translation>Datotečni nastavci %1 su obavezni:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -12731,9 +12615,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation type="unfinished"></translation>
@@ -12767,10 +12648,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot write file %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12794,23 +12671,10 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Cannot create temporary file in %1: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardPage</name>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::HostOsInfo</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Nije moguće stvoriti kontekst za OpenGL.</translation>
     </message>
-</context>
-<context>
-    <name>JsonTreeModelItem</name>
     <message>
         <source>Null</source>
         <translation>Nula</translation>
@@ -12847,9 +12711,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
             <numerusform>%n stavaka</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation type="unfinished"></translation>
@@ -12944,7 +12805,7 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     </message>
 </context>
 <context>
-    <name>Utils::PathChooser</name>
+    <name>::Utils</name>
     <message>
         <source>Choose...</source>
         <translation type="unfinished">Odaberi …</translation>
@@ -13002,13 +12863,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Staza:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13020,23 +12874,14 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Clear</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSaverBase</name>
     <message>
         <source>File Error</source>
         <translation>Greška datoteke</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Greška u naredbenom retku.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Datoteka je promijenjena</translation>
@@ -13057,9 +12902,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>No to All &amp;&amp; &amp;Diff</source>
         <translation>Ne za sve i &amp;razlika</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File Has Been Removed</source>
         <translation>Datoteka je uklonjena</translation>
@@ -13067,10 +12909,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
     <message>
         <source>The file %1 has been removed from disk. Do you want to save it under a different name, or close the editor?</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Zatvori</translation>
     </message>
     <message>
         <source>C&amp;lose All</source>
@@ -13084,9 +12922,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&amp;Save</source>
         <translation>&amp;Spremi</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsAccessor</name>
     <message>
         <source>Failed to Read File</source>
         <translation type="unfinished"></translation>
@@ -13131,9 +12966,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&quot;%1&quot; is not supported by %2. Do you want to try loading it anyway?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentIdAccessor</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation type="unfinished"></translation>
@@ -13142,9 +12974,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>&lt;p&gt;No settings file created by this instance of %1 was found.&lt;/p&gt;&lt;p&gt;Did you work with this project on another machine or using a different settings path before?&lt;/p&gt;&lt;p&gt;Do you still want to load the settings file &quot;%2&quot;?&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -13169,9 +12998,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Rename...</source>
         <translation>Preimenuj …</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation>NEPOZNATO</translation>
@@ -13180,9 +13006,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Naredba je pokrenuta …</translation>
@@ -13203,9 +13026,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Failed.</source>
         <translation>Neuspjelo.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation type="unfinished"></translation>
@@ -13242,9 +13062,6 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>Would you like to terminate it?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation type="unfinished"></translation>
@@ -13253,16 +13070,10 @@ To clear a variable, put its name on a line with nothing else on it.</source>
         <source>An encoding error was encountered.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>…</translation>
@@ -20714,7 +20525,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>&amp;Views</source>
         <translation>Prika&amp;zi</translation>

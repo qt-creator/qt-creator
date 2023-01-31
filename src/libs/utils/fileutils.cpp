@@ -5,8 +5,9 @@
 #include "savefile.h"
 
 #include "algorithm.h"
-#include "qtcassert.h"
 #include "hostosinfo.h"
+#include "qtcassert.h"
+#include "utilstr.h"
 
 #include "fsengine/fileiconprovider.h"
 #include "fsengine/fsengine.h"
@@ -79,7 +80,7 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode, QWidg
     if (fetch(filePath, mode))
         return true;
     if (parent)
-        QMessageBox::critical(parent, tr("File Error"), m_errorString);
+        QMessageBox::critical(parent, Tr::tr("File Error"), m_errorString);
     return false;
 }
 #endif // QT_GUI_LIB
@@ -112,7 +113,7 @@ bool FileSaverBase::finalize(QWidget *parent)
 {
     if (finalize())
         return true;
-    QMessageBox::critical(parent, tr("File Error"), errorString());
+    QMessageBox::critical(parent, Tr::tr("File Error"), errorString());
     return false;
 }
 #endif // QT_GUI_LIB
@@ -135,10 +136,11 @@ bool FileSaverBase::setResult(bool ok)
 {
     if (!ok && !m_hasError) {
         if (!m_file->errorString().isEmpty()) {
-            m_errorString = tr("Cannot write file %1: %2")
+            m_errorString = Tr::tr("Cannot write file %1: %2")
                                 .arg(m_filePath.toUserOutput(), m_file->errorString());
         } else {
-            m_errorString = tr("Cannot write file %1. Disk full?").arg(m_filePath.toUserOutput());
+            m_errorString = Tr::tr("Cannot write file %1. Disk full?")
+                                .arg(m_filePath.toUserOutput());
         }
         m_hasError = true;
     }
@@ -175,7 +177,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
         const QString fn = filePath.baseName().toUpper();
         if (reservedNames.contains(fn)) {
-            m_errorString = tr("%1: Is a reserved filename on Windows. Cannot save.")
+            m_errorString = Tr::tr("%1: Is a reserved filename on Windows. Cannot save.")
                                 .arg(filePath.toUserOutput());
             m_hasError = true;
             return;
@@ -197,7 +199,7 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
     }
     if (!m_file->open(QIODevice::WriteOnly | mode)) {
         QString err = filePath.exists() ?
-                tr("Cannot overwrite file %1: %2") : tr("Cannot create file %1: %2");
+                Tr::tr("Cannot overwrite file %1: %2") : Tr::tr("Cannot create file %1: %2");
         m_errorString = err.arg(filePath.toUserOutput(), m_file->errorString());
         m_hasError = true;
     }
@@ -237,7 +239,7 @@ TempFileSaver::TempFileSaver(const QString &templ)
         tempFile->setFileTemplate(templ);
     tempFile->setAutoRemove(false);
     if (!tempFile->open()) {
-        m_errorString = tr("Cannot create temporary file in %1: %2").arg(
+        m_errorString = Tr::tr("Cannot create temporary file in %1: %2").arg(
                 QDir::toNativeSeparators(QFileInfo(tempFile->fileTemplate()).absolutePath()),
                 tempFile->errorString());
         m_hasError = true;
@@ -276,9 +278,8 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
         else if (!m_overwriteAll) {
             const int res = QMessageBox::question(
                 m_parent,
-                QCoreApplication::translate("Utils::FileUtils", "Overwrite File?"),
-                QCoreApplication::translate("Utils::FileUtils", "Overwrite existing file \"%1\"?")
-                    .arg(dest.toUserOutput()),
+                Tr::tr("Overwrite File?"),
+                Tr::tr("Overwrite existing file \"%1\"?").arg(dest.toUserOutput()),
                 QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::No | QMessageBox::NoToAll
                     | QMessageBox::Cancel);
             if (res == QMessageBox::Cancel) {
@@ -299,8 +300,7 @@ bool FileUtils::CopyAskingForOverwrite::operator()(const FilePath &src,
         dest.parentDir().ensureWritableDir();
         if (!src.copyFile(dest)) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Could not copy file \"%1\" to \"%2\".")
+                *error = Tr::tr("Could not copy file \"%1\" to \"%2\".")
                              .arg(src.toUserOutput(), dest.toUserOutput());
             }
             return false;
@@ -398,26 +398,30 @@ static FilePath qUrlToFilePath(const QUrl &url)
 
 static QUrl filePathToQUrl(const FilePath &filePath)
 {
-   return QUrl::fromLocalFile(filePath.toFSPathString());
+    return QUrl::fromLocalFile(filePath.toFSPathString());
 }
 
 void prepareNonNativeDialog(QFileDialog &dialog)
 {
+    const auto isValidSideBarPath = [](const FilePath &fp) {
+        return !fp.needsDevice() || fp.hasFileAccess();
+    };
+
     // Checking QFileDialog::itemDelegate() seems to be the only way to determine
     // whether the dialog is native or not.
     if (dialog.itemDelegate()) {
         FilePaths sideBarPaths;
 
-        // Check existing urls, remove paths that need a device and no longer exist.
+        // Check existing urls, remove paths that need a device and are no longer valid.
         for (const QUrl &url : dialog.sidebarUrls()) {
             FilePath path = qUrlToFilePath(url);
-            if (!path.needsDevice() || path.exists())
+            if (isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 
-        // Add all device roots that are not already in the sidebar and exist.
+        // Add all device roots that are not already in the sidebar and valid.
         for (const FilePath &path : FSEngine::registeredDeviceRoots()) {
-            if (!sideBarPaths.contains(path) && path.exists())
+            if (!sideBarPaths.contains(path) && isValidSideBarPath(path))
                 sideBarPaths.append(path);
         }
 
@@ -646,8 +650,7 @@ bool FileUtils::copyRecursively(
     if (srcFilePath.isDir()) {
         if (!tgtFilePath.ensureWritableDir()) {
             if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                                                     "Failed to create directory \"%1\".")
+                *error = Tr::tr("Failed to create directory \"%1\".")
                              .arg(tgtFilePath.toUserOutput());
             }
             return false;

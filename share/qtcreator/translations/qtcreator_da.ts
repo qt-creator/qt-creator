@@ -5498,7 +5498,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -5511,9 +5511,6 @@ p, li { white-space: pre-wrap; }
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Stretch vertically. Scales the image to fit to the available area.</source>
         <translation>Stræk lodret. Skalerer billedet så det passer til det tilgængelige område.</translation>
@@ -5538,9 +5535,6 @@ p, li { white-space: pre-wrap; }
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Billedet er skaleret til at passe.</translation>
@@ -5566,23 +5560,12 @@ p, li { white-space: pre-wrap; }
         <translation>Billedet er skaleret ensartet for at fylde, klipning hvis nødvendigt.</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
     </message>
     <message>
         <source>Color</source>
         <translation>Farve</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
     </message>
     <message>
         <source>Border</source>
@@ -13869,7 +13852,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Slet</translation>
@@ -14093,7 +14076,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>EasingContextPane</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -28667,7 +28650,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skjuler denne værktøjslinje.</translation>
@@ -28688,16 +28671,10 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skjuler denne værktøjslinje. Denne værktøjslinje kan deaktiveres permanent på valgmulighedssiden eller i genvejsmenuen.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Dobbeltklik for forhåndsvisning.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Åbn fil</translation>
@@ -28715,7 +28692,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>forventede to numre adskilt af et punktum</translation>
@@ -28724,16 +28701,10 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
         <source>package import requires a version number</source>
         <translation>pakkeimport kræver et versionsnummer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; eller &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Fil eller mappe ikke fundet.</translation>
@@ -28764,9 +28735,6 @@ Til CMake-projekter, sørg for at QML_IMPORT_PATH-variabler er i CMakeCache.txt.
         <source>QML module contains C++ plugins, currently reading type information...</source>
         <translation>QML-modul indeholder C++-plugins, læser aktuelt typeinformation...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::ModelManagerInterface</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Parser QML-filer</translation>
@@ -28775,9 +28743,6 @@ Til CMake-projekter, sørg for at QML_IMPORT_PATH-variabler er i CMakeCache.txt.
         <source>Scanning QML Imports</source>
         <translation>Skanner QML importer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -28856,7 +28821,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>XML-fejl på linje %1, kolonne %2: %3</translation>
@@ -28867,7 +28832,7 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Kan ikke finde filen %1.</translation>
@@ -28884,16 +28849,10 @@ Byg venligst qmldump-programmet på valgmulighedersiden Qt version.</translation
         <source>Expected expression statement after colon.</source>
         <translation>Ventede udsagnsudtryk efter kolon.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Egenskab er defineret to gange.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -29214,9 +29173,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>A State cannot have a child item (%1).</source>
         <translation>En tilstand kan ikke have en barne-post (%1).</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -29230,10 +29186,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
 %2</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Kunne ikke parse dokument.</translation>
-    </message>
-    <message>
         <source>Expected a single import.</source>
         <translation>Forventede en enkelt import.</translation>
     </message>
@@ -29244,10 +29196,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
     <message>
         <source>Major version different from 1 not supported.</source>
         <translation>Stor version som ikke er 1 understøttes ikke.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Forventede at dokument indeholder en enkel objekt-definition.</translation>
     </message>
     <message>
         <source>Expected document to contain a Module {} member.</source>
@@ -36305,7 +36253,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Spørg ikke igen</translation>
@@ -36318,9 +36266,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Do not &amp;show again</source>
         <translation>&amp;Vis ikke igen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Klassenavnet må ikke indeholde navnerum-afgrænsere.</translation>
@@ -36333,9 +36278,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Klassenavnet indeholder ugyldige tegn.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Kan ikke opsætte kommunikationskanal: %1</translation>
@@ -36404,9 +36346,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Kan ikke få fat i exit-status fra den laverestående: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DebuggerMainWindow</name>
     <message>
         <source>&amp;Views</source>
         <translation>&amp;Visninger</translation>
@@ -36431,16 +36370,10 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Detaljer</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; er et ugyldigt ELF-objekt (%2)</translation>
@@ -36484,9 +36417,6 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
         <source>section name %1 of %2 behind end of file</source>
         <translation>sektionsnavn %1 af %2 efter filens slutning</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentDialog</name>
     <message>
         <source>Enter one environment variable per line.
 To set or change a variable, use VARIABLE=VALUE.
@@ -36501,9 +36431,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Edit Environment</source>
         <translation>Rediger miljø</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;AFSÆT&gt;</translation>
@@ -36526,9 +36453,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;VÆRDI&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -36537,9 +36461,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Clear text</source>
         <translation>Ryd tekst</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyMainWindow</name>
     <message>
         <source>Central Widget</source>
         <translation>Central-widget</translation>
@@ -36552,9 +36473,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Automatically Hide View Title Bars</source>
         <translation>Skjul automatisk visningernes titellinjer</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>Navn er tomt.</translation>
@@ -36583,16 +36501,10 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>File extensions %1 are required:</source>
         <translation>Filendelser %1 er krævet:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSaverBase</name>
     <message>
         <source>File Error</source>
         <translation>Filfejl</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -36619,9 +36531,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation>Liste med kommasepareret jokertegnsfiltre. Filer med filnavn eller fuld filsti som matcher filter inkluderes.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Nægter at fjerne rodmappe.</translation>
@@ -36655,10 +36564,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <translation>Kan ikke læse %1: %2</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>Filfejl</translation>
-    </message>
-    <message>
         <source>Cannot write file %1: %2</source>
         <translation>Kan ikke skrive filen %1: %2</translation>
     </message>
@@ -36682,30 +36587,18 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Cannot create temporary file in %1: %2</source>
         <translation>Kan ikke oprette midlertidig fil i %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Placering</translation>
     </message>
-</context>
-<context>
-    <name>Utils::HostOsInfo</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Kan ikke oprette OpenGL-kontekst.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>Uendelig rekursiv fejl</translation>
@@ -36742,9 +36635,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Access environment variables.</source>
         <translation>Tilgå miljøvariabler.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>&amp;Klassenavn:</translation>
@@ -36817,9 +36707,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Invalid form file name: &quot;%1&quot;</source>
         <translation>Ugyldigt udformningsfilnavn: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Vælg...</translation>
@@ -36880,9 +36767,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Path:</source>
         <translation>Sti:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Indsæt...</translation>
@@ -36895,9 +36779,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Clear</source>
         <translation>Ryd</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and Project Location</source>
         <translation>Introduktion og projektplacering</translation>
@@ -36923,20 +36804,12 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <translation>Indtast projektnavn</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
         <source>The project already exists.</source>
         <translation>Projektet findes allerede.</translation>
     </message>
     <message>
         <source>A file with that name already exists.</source>
         <translation>En fil med det navn findes allerede.</translation>
-    </message>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Navn er tomt.</translation>
     </message>
     <message>
         <source>Name does not match &quot;%1&quot;.</source>
@@ -36950,9 +36823,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Invalid character &quot;%1&quot; found.</source>
         <translation>Ugyldigt tegn &quot;%1&quot; fundet.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProxyCredentialsDialog</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Proxy-legitimationsoplysninger</translation>
@@ -36977,16 +36847,10 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Password</source>
         <translation>Adgangskode</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Fejl i kommandolinje.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsAccessor</name>
     <message>
         <source>Failed to Read File</source>
         <translation>Kunne ikke læse fil</translation>
@@ -37031,9 +36895,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>&quot;%1&quot; is not supported by %1. Do you want to try loading it anyway?</source>
         <translation>&quot;%1&quot; understøttes ikke af %1. Vil du prøve at indlæse den alligevel?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -37058,9 +36919,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Rename...</source>
         <translation>Omdøb...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation>UKENDT</translation>
@@ -37069,9 +36927,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Kommando startet...</translation>
@@ -37092,9 +36947,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Failed.</source>
         <translation>Mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation>Kommandoen &quot;%1&quot; afsluttede med succes.</translation>
@@ -37131,9 +36983,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>Would you like to terminate it?</source>
         <translation>Vil du terminere den?</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Ikke mere ledig hukommelse.</translation>
@@ -37142,31 +36991,14 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>An encoding error was encountered.</source>
         <translation>Stødte på en kodningsfejl.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variabel&lt;/th&gt;&lt;th&gt;Udfolder til&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;mappe af aktuel fil&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;filnavn (med fuld sti)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;filnavn (uden sti)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the Location</source>
         <translation>Vælg placeringen</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>Navn:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Sti:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File Has Been Removed</source>
         <translation>Filen er blevet fjernet</translation>
@@ -37191,9 +37023,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
         <source>&amp;Save</source>
         <translation>&amp;Gem</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Fil ændret</translation>
@@ -37205,10 +37034,6 @@ Put dens navn på en linje for sig selv, for at rydde en variabel.</translation>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; has been changed on disk. Do you want to reload it?</source>
         <translation>Filen &lt;i&gt;%1&lt;/i&gt; er blevet ændret på disk. Vil du genindlæse den?</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Luk</translation>
     </message>
     <message>
         <source>No to All &amp;&amp; &amp;Diff</source>
@@ -39626,7 +39451,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Utils::RemoveFileDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Remove File</source>
         <translation>Fjern fil</translation>
@@ -39888,7 +39713,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentIdAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation>Indstillingsfil for &quot;%1&quot; fra et andet miljø?</translation>

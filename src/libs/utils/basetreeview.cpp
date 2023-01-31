@@ -8,6 +8,7 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "treemodel.h"
+#include "utilstr.h"
 
 #include <QDebug>
 #include <QFontMetrics>
@@ -542,7 +543,7 @@ void BaseTreeView::enableColumnHiding()
             shown += !isColumnHidden(i);
         for (int i = 0; i < columns; ++i) {
             QString columnName = model()->headerData(i, Qt::Horizontal).toString();
-            QAction *act = menu.addAction(tr("Show %1 Column").arg(columnName));
+            QAction *act = menu.addAction(Tr::tr("Show %1 Column").arg(columnName));
             act->setCheckable(true);
             act->setChecked(!isColumnHidden(i));
             // Prevent disabling the last visible column as there's no way back.

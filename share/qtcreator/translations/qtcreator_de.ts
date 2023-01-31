@@ -12105,7 +12105,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Nicht noch einmal nachfragen</translation>
@@ -12126,9 +12126,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Do not &amp;show again</source>
         <translation>Nicht noch einmal an&amp;zeigen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Der Klassenname darf keine Namensraum-Trenner enthalten.</translation>
@@ -12141,16 +12138,10 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>The class name contains invalid characters.</source>
         <translation>Der Klassennamen enthält ungültige Zeichen.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Details</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -12177,9 +12168,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation>Kommaseparierte Liste von Platzhalter-Filtern. Dateien werden eingeschlossen, wenn ihr Name oder vollständiger Pfad einem der Filter entspricht.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Auswählen...</translation>
@@ -12244,9 +12232,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Path:</source>
         <translation>Pfad:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Einfügen...</translation>
@@ -12259,16 +12244,9 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Clear</source>
         <translation>Löschen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Enter project name</source>
         <translation>Geben Sie einen Namen für das Projekt ein</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Pfad</translation>
     </message>
     <message>
         <source>The project already exists.</source>
@@ -12310,9 +12288,6 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
         <source>Introduction and Project Location</source>
         <translation>Einführung und Projektverzeichnis</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Datei geändert</translation>
@@ -13059,7 +13034,7 @@ Was möchten Sie tun?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::UnixTools</name>
+    <name>::Utils</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expandiert zu&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;Verzeichnis der aktuellen Datei&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;Dateiname mit vollständigem Pfad&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;Dateiname (ohne Pfad)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
@@ -14554,7 +14529,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; oder &apos;real&apos;</translation>
@@ -14827,7 +14802,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
 </context>
 <context>
-    <name>Utils::fileDeletedPrompt</name>
+    <name>::Utils</name>
     <message>
         <source>File Has Been Removed</source>
         <translation>Die Datei wurde gelöscht</translation>
@@ -14835,10 +14810,6 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     <message>
         <source>The file %1 has been removed from disk. Do you want to save it under a different name, or close the editor?</source>
         <translation>Die Datei %1 wurde vom Speichermedium gelöscht. Möchten Sie sie unter einem anderen Namen speichern oder den Editor schließen?</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <translation>&amp;Schließen</translation>
     </message>
     <message>
         <source>C&amp;lose All</source>
@@ -14982,7 +14953,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
 </context>
 <context>
-    <name>QmlJS::Link</name>
+    <name>::QmlJS</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Datei oder Verzeichnis nicht gefunden.</translation>
@@ -15052,7 +15023,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>Utils::LinearProgressWidget</name>
+    <name>::Utils</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -15149,7 +15120,7 @@ Für CMake-Projekte stellen Sie sicher, dass die Variable QML_IMPORT_PATH in CMa
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Central Widget</source>
         <translation>Zentrales Widget</translation>
@@ -15347,7 +15318,7 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -15360,9 +15331,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
@@ -15386,13 +15354,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Horizontal anpassen. Skaliert das Bild, so dass es die zur Verfügung stehende Fläche ausfüllt.</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
     </message>
     <message>
         <source>The image is scaled to fit.</source>
@@ -15418,9 +15379,6 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Das Bild ist gleichmäßig skaliert, Überstehendes wird abgeschnitten sofern nötig.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
     <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
@@ -15430,16 +15388,9 @@ IDs müssen außerdem mit einem Kleinbuchstaben beginnen.</translation>
         <translation>Farbe</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Rahmen</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -15695,7 +15646,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Schließt diese Werkzeugleiste.</translation>
@@ -15716,16 +15667,10 @@ Möchten Sie sie überschreiben?</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Schließt diese Werkzeugleiste. Sie kann in den Einstellung oder durch das Kontextmenü dauerhaft abgeschaltet werden.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Doppelklick zur Vorschau.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Datei öffnen</translation>
@@ -15928,11 +15873,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileNameValidatingLineEdit</name>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Der Dateiname ist leer.</translation>
-    </message>
+    <name>::Utils</name>
     <message>
         <source>Name contains white space.</source>
         <translation>Der Name enthält Leerzeichen.</translation>
@@ -15959,7 +15900,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>Hit maximal recursion depth in AST visit.</source>
         <translation type="unfinished"></translation>
@@ -16043,7 +15984,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -16170,14 +16111,7 @@ Möchten Sie sie überschreiben?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentModel</name>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <translation>&lt;Variable&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
+    <name>::Utils</name>
     <message>
         <source>Error in command line.</source>
         <translation>Fehler in Kommandozeile.</translation>
@@ -19728,7 +19662,7 @@ Speichern fehlgeschlagen.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Das Wurzelverzeichnis kann nicht entfernt werden.</translation>
@@ -20836,7 +20770,7 @@ When disabled, moves targets straight to the current mouse position.</source>
     </message>
 </context>
 <context>
-    <name>Utils::TextFileFormat</name>
+    <name>::Utils</name>
     <message>
         <source>Out of memory.</source>
         <translation>Es ist kein Speicher mehr verfügbar.</translation>
@@ -22534,7 +22468,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>::Utils</name>
     <message>
         <source>Add</source>
         <translation>Hinzufügen</translation>
@@ -25194,7 +25128,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ElfReader</name>
+    <name>::Utils</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; ist keine gültige ELF-Objektdatei (%2)</translation>
@@ -25981,26 +25915,15 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Die Datei &apos;%1&apos; kann nicht gefunden werden.</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Das Dokument konnte nicht ausgewertet werden.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Das Dokument sollte eine einzige Objektdefinition enthalten.</translation>
-    </message>
-    <message>
         <source>Expected expression statement after colon.</source>
         <translation>Nach dem Doppelpunkt wird ein Ausdruck erwartet.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice, previous definition at %1:%2</source>
         <translation>Eigenschaft ist doppelt definiert, vorherige Definition ist bei %1:%2</translation>
@@ -26603,7 +26526,7 @@ wirklich löschen?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -27727,7 +27650,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Löschen</translation>
@@ -28153,7 +28076,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>XML-Fehler in Zeile %1, Spalte %2: %3</translation>
@@ -30240,7 +30163,7 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Werte QML-Dateien aus</translation>
@@ -30249,9 +30172,6 @@ Um es abzurufen, tippen Sie das Kürzel im Locator, gefolgt von einem Leerzeiche
         <source>Scanning QML Imports</source>
         <translation>Durchsuche QML-Imports</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>Automatic type dump of QML module failed.
 Errors:
@@ -30327,7 +30247,7 @@ Bitte erstellen Sie die Anwendung qmldump auf der Einstellungsseite der Qt-Versi
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -30793,7 +30713,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ProxyCredentialsDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Proxy-Nutzerdaten</translation>
@@ -30892,7 +30812,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardPage</name>
+    <name>::Utils</name>
     <message>
         <source>Choose the Location</source>
         <translation>Pfadangabe</translation>
@@ -30900,10 +30820,6 @@ Möchten Sie es beenden?</translation>
     <message>
         <source>File name:</source>
         <translation>Dateiname:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Pfad:</translation>
     </message>
     <message>
         <source>Location</source>
@@ -31057,7 +30973,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::SettingsAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>Failed to Read File</source>
         <translation>Datei konnte nicht gelesen werden</translation>
@@ -31344,7 +31260,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::MacroExpander</name>
+    <name>::Utils</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>Fehler: Endlose Rekursion</translation>
@@ -34584,7 +34500,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>Utils::HostOsInfo</name>
+    <name>::Utils</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>OpenGL-Kontext kann nicht erzeugt werden.</translation>
@@ -37642,7 +37558,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Start</source>
         <translation>Starten</translation>
@@ -38207,7 +38123,7 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Edit Environment</source>
         <translation>Umgebung bearbeiten</translation>
@@ -39505,11 +39421,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>Utils::FileSaverBase</name>
-    <message>
-        <source>File Error</source>
-        <translation>Dateifehler</translation>
-    </message>
+    <name>::Utils</name>
 </context>
 <context>
     <name>::Core</name>
@@ -40730,7 +40642,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::RemoveFileDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Remove File</source>
         <translation>Datei entfernen</translation>
@@ -40772,7 +40684,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentIdAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>Settings File for &quot;%1&quot; from a Different Environment?</source>
         <translation>Einstellungsdatei für &quot;%1&quot; aus anderer Umgebung?</translation>
@@ -42932,7 +42844,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>JsonTreeModelItem</name>
+    <name>::Utils</name>
     <message>
         <source>Null</source>
         <translation>Null</translation>
@@ -44033,7 +43945,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::NameValueModel</name>
+    <name>::Utils</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;NICHT GESETZT&gt;</translation>
@@ -44056,9 +43968,6 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;VALUE&gt;</translation>
     </message>
-</context>
-<context>
-    <name>StringUtils</name>
     <message>
         <source>Elapsed time: %1.</source>
         <translation>Verstrichene Zeit: %1.</translation>
@@ -46428,7 +46337,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>Utils::InfoBarDisplay</name>
+    <name>::Utils</name>
     <message>
         <source>&amp;Show Details</source>
         <translation>&amp;Details anzeigen</translation>
@@ -50247,7 +50156,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal.</source>
         <translation type="unfinished">Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist.</translation>
@@ -50264,7 +50173,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>Utils::Archive</name>
+    <name>::Utils</name>
     <message>
         <source>File format not supported.</source>
         <translation>Dateiformat wird nicht unterstützt.</translation>
@@ -50288,16 +50197,10 @@ in &quot;%2&quot; aus.
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Utils::StringAspect</name>
     <message>
         <source>Reset</source>
         <translation>Zurücksetzen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TriStateAspect</name>
     <message>
         <source>Enable</source>
         <translation>Aktivieren</translation>
@@ -50310,16 +50213,10 @@ in &quot;%2&quot; aus.
         <source>Leave at Default</source>
         <translation>Vorgabe beibehalten</translation>
     </message>
-</context>
-<context>
-    <name>Utils::BaseTreeView</name>
     <message>
         <source>Show %1 Column</source>
         <translation>Spalte %1 anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSystemModel</name>
     <message>
         <source>My Computer</source>
         <translation>Mein Computer</translation>
@@ -50365,7 +50262,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Utils::LauncherSocket</name>
+    <name>::Utils</name>
     <message>
         <source>Failed to start process launcher at &quot;%1&quot;: %2</source>
         <translation>Prozess-Launcher &quot;%1&quot; konnte nicht gestartet werden: %2</translation>
@@ -50390,23 +50287,14 @@ in &quot;%2&quot; aus.
         <source>Launcher socket closed unexpectedly.</source>
         <translation>Launcher-Socket wurde unerwartet geschlossen.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LauncherHandle</name>
     <message>
         <source>Process launcher socket error.</source>
         <translation>Prozess-Launcher Socketfehler.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::MinimizableInfoBars</name>
     <message>
         <source>Minimize</source>
         <translation>Minimieren</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NameValuesDialog</name>
     <message>
         <source>&amp;OK</source>
         <translation>&amp;OK</translation>
@@ -50415,9 +50303,6 @@ in &quot;%2&quot; aus.
         <source>&amp;Cancel</source>
         <translation>&amp;Abbrechen</translation>
     </message>
-</context>
-<context>
-    <name>Utils::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>Variable einfügen</translation>

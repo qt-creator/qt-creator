@@ -3,6 +3,7 @@
 
 #include "filewizardpage.h"
 
+#include "utilstr.h"
 #include "wizard.h" // TODO: only because of SHORT_TITLE_PROPERTY
 
 /*!
@@ -43,7 +44,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     WizardPage(parent),
     d(new FileWizardPagePrivate)
 {
-    setTitle(tr("Choose the Location"));
+    setTitle(Tr::tr("Choose the Location"));
     resize(368, 102);
 
     d->m_defaultSuffixLabel = new QLabel;
@@ -54,8 +55,8 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_pathChooser = new PathChooser;
     d->m_pathChooser->setExpectedKind(PathChooser::Directory);
 
-    d->m_nameLabel->setText(tr("File name:"));
-    d->m_pathLabel->setText(tr("Path:"));
+    d->m_nameLabel->setText(Tr::tr("File name:"));
+    d->m_pathLabel->setText(Tr::tr("Path:"));
 
     using namespace Layouting;
 
@@ -75,7 +76,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     connect(d->m_nameLineEdit, &FancyLineEdit::validReturnPressed,
             this, &FileWizardPage::slotActivated);
 
-    setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
+    setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Location"));
 
     registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(textChanged(QString)));
     registerFieldWithName(QLatin1String("FileName"), d->m_nameLineEdit);
@@ -144,7 +145,7 @@ void FileWizardPage::setDefaultSuffix(const QString &suffix)
             layout->removeRow(0);
     } else {
         d->m_defaultSuffixLabel->setText(
-            tr("The default suffix if you do not explicitly specify a file extension is \".%1\".")
+            Tr::tr("The default suffix if you do not explicitly specify a file extension is \".%1\".")
                 .arg(suffix));
     }
 }

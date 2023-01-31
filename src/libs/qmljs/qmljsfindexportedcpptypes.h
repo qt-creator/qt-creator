@@ -14,7 +14,6 @@ namespace QmlJS {
 
 class QMLJS_EXPORT FindExportedCppTypes
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSTools::FindExportedCppTypes)
 public:
     FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot);
 

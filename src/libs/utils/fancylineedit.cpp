@@ -9,6 +9,7 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QKeyEvent>
 #include <QKeySequence>
@@ -418,8 +419,8 @@ void FancyLineEdit::setFiltering(bool on)
 
         setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
-        setPlaceholderText(tr("Filter"));
-        setButtonToolTip(Right, tr("Clear text"));
+        setPlaceholderText(Tr::tr("Filter"));
+        setButtonToolTip(Right, Tr::tr("Clear text"));
         setAutoHideButton(Right, true);
         connect(this, &FancyLineEdit::rightButtonClicked, this, &QLineEdit::clear);
     } else {

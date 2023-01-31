@@ -308,7 +308,7 @@ void PathChooser::insertButton(int index, const QString &text, QObject *context,
 
 QString PathChooser::browseButtonLabel()
 {
-    return HostOsInfo::isMacHost() ? tr("Choose...") : tr("Browse...");
+    return HostOsInfo::isMacHost() ? Tr::tr("Choose...") : Tr::tr("Browse...");
 }
 
 QAbstractButton *PathChooser::buttonAtIndex(int index) const
@@ -410,7 +410,7 @@ void PathChooser::slotBrowse(bool remote)
     case PathChooser::Directory:
     case PathChooser::ExistingDirectory:
         newPath = FileUtils::getExistingDirectory(this,
-                                                  makeDialogTitle(tr("Choose Directory")),
+                                                  makeDialogTitle(Tr::tr("Choose Directory")),
                                                   predefined,
                                                   {},
                                                   d->m_allowPathFromDevice,
@@ -419,7 +419,7 @@ void PathChooser::slotBrowse(bool remote)
     case PathChooser::ExistingCommand:
     case PathChooser::Command:
         newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose Executable")),
+                                             makeDialogTitle(Tr::tr("Choose Executable")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -430,7 +430,7 @@ void PathChooser::slotBrowse(bool remote)
         break;
     case PathChooser::File: // fall through
         newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
+                                             makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -441,7 +441,7 @@ void PathChooser::slotBrowse(bool remote)
         break;
     case PathChooser::SaveFile:
         newPath = FileUtils::getSaveFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
+                                             makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -450,7 +450,7 @@ void PathChooser::slotBrowse(bool remote)
         break;
     case PathChooser::Any: {
         newPath = FileUtils::getOpenFilePath(this,
-                                             makeDialogTitle(tr("Choose File")),
+                                             makeDialogTitle(Tr::tr("Choose File")),
                                              predefined,
                                              d->m_dialogFilter,
                                              nullptr,
@@ -551,7 +551,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
             input = d->m_defaultValue;
         } else {
             if (errorMessage)
-                *errorMessage = tr("The path must not be empty.");
+                *errorMessage = Tr::tr("The path must not be empty.");
             return false;
         }
     }
@@ -559,7 +559,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     const FilePath filePath = d->expandedPath(FilePath::fromUserInput(input));
     if (filePath.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("The path \"%1\" expanded to an empty string.").arg(input);
+            *errorMessage = Tr::tr("The path \"%1\" expanded to an empty string.").arg(input);
         return false;
     }
 
@@ -568,68 +568,68 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     case PathChooser::ExistingDirectory:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::File:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::SaveFile:
         if (!filePath.parentDir().exists()) {
             if (errorMessage)
-                *errorMessage = tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (filePath.exists() && filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::ExistingCommand:
         if (!filePath.exists()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
             return false;
         }
         if (!filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Directory:
         if (filePath.exists() && !filePath.isDir()) {
             if (errorMessage)
-                *errorMessage = tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
             return false;
         }
         if (HostOsInfo::isWindowsHost() && !filePath.startsWithDriveLetter()
                 && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
             if (errorMessage)
-                *errorMessage = tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
     case PathChooser::Command:
         if (filePath.exists() && !filePath.isExecutableFile()) {
             if (errorMessage)
-                *errorMessage = tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
+                *errorMessage = Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
             return false;
         }
         break;
@@ -639,7 +639,7 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
     }
 
     if (errorMessage)
-        *errorMessage = tr("Full path: \"%1\"").arg(filePath.toUserOutput());
+        *errorMessage = Tr::tr("Full path: \"%1\"").arg(filePath.toUserOutput());
     return true;
 }
 
@@ -650,7 +650,7 @@ void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction 
 
 QString PathChooser::label()
 {
-    return tr("Path:");
+    return Tr::tr("Path:");
 }
 
 FilePath PathChooser::homePath()

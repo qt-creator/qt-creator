@@ -17,7 +17,6 @@ class Document;
 class QMLJS_EXPORT Bind: protected AST::Visitor
 {
     Q_DISABLE_COPY(Bind)
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Bind)
 
 public:
     Bind(Document *doc, QList<DiagnosticMessage> *messages,

@@ -1,15 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "qmljsmodelmanagerinterface.h"
+
 #include "qmljsbind.h"
 #include "qmljsconstants.h"
+#include "qmljsdialect.h"
 #include "qmljsfindexportedcpptypes.h"
 #include "qmljsinterpreter.h"
-#include "qmljsmodelmanagerinterface.h"
 #include "qmljsplugindumper.h"
-#include "qmljsdialect.h"
-#include "qmljsviewercontext.h"
+#include "qmljstr.h"
 #include "qmljsutils.h"
+#include "qmljsviewercontext.h"
 
 #include <cplusplus/cppmodelmanagerbase.h>
 #include <utils/algorithm.h>
@@ -343,7 +345,7 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
     addFuture(result);
 
     if (sourceFiles.count() > 1)
-         addTaskInternal(result, tr("Parsing QML Files"), Constants::TASK_INDEX);
+         addTaskInternal(result, Tr::tr("Parsing QML Files"), Constants::TASK_INDEX);
 
     if (sourceFiles.count() > 1 && !m_shouldScanImports) {
         bool scan = false;
@@ -1209,7 +1211,7 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
         addFuture(result);
-        addTaskInternal(result, tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
+        addTaskInternal(result, Tr::tr("Scanning QML Imports"), Constants::TASK_IMPORT_SCAN);
     }
 }
 

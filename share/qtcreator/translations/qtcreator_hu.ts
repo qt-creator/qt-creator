@@ -16903,7 +16903,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -16916,9 +16916,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>CheckBox</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Az osztály neve nem tartalmazhat névtér határoló jeleket.</translation>
@@ -16931,9 +16928,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Az osztálynév érvénytelen karakter(eke)t tartalmaz.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Nem lehet beállítani a kommunikációs csatornát: %1</translation>
@@ -16982,16 +16976,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Nem sikerült megszerezni a kilépési státuszt alacsony rendből: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Show Details</source>
         <translation>Részletek megjelenítése</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation>A nevet nem szabad üresen hagyni</translation>
@@ -17008,9 +16996,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>The name must not match that of a MS Windows device. (%1).</source>
         <translation>A név nem egyezhet meg MS Windows eszközökkel. (%1).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message>
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>%1: mégse. %n előfordulása található %2 fájlokban.
@@ -17026,9 +17011,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>%1: %n előfordulása található %3 fájlok %2-ben.
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation>Osztály név:</translation>
@@ -17089,9 +17071,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>Invalid form file name: &apos;%1&apos;</source>
         <translation>Érvénytelen forma fájl név: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Kiválasztás...</translation>
@@ -17125,13 +17104,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <translation>A(z) &apos;%1&apos; útvonal nem egy fájl.</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Útvonal:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>Beszúrás...</translation>
     </message>
@@ -17151,9 +17123,6 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>From &quot;%1&quot;</source>
         <translation>&quot;%1&quot;-tól</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation>Bemutatás és projekt hely</translation>
@@ -17178,16 +17147,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>A file with that name already exists.</source>
         <translation>Egy ilyen nevű fájl már létezik.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation>A név nem tartalmazgat &apos;.&apos; karaktert.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion feltöltés</translation>
@@ -17200,24 +17163,10 @@ A következő kódolás valószínűleg erre illik:</translation>
         <source>F&amp;iles</source>
         <translation>&amp;Fájlok</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation>A hely kiválasztása</translation>
     </message>
-    <message>
-        <source>Name:</source>
-        <translation>Név:</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>Útvonal:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>File megváltoztatva</translation>

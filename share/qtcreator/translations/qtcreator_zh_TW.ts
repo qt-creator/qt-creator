@@ -1208,7 +1208,7 @@
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>類別名稱不能包含命名空間分隔符。</translation>
@@ -1221,9 +1221,6 @@
         <source>The class name contains invalid characters.</source>
         <translation>類別名稱中含有無效字元。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>無法設定通訊頻道：%1</translation>
@@ -1292,9 +1289,6 @@
         <source>Cannot create socket &apos;%1&apos;: %2</source>
         <translation>無法建立 socket &apos;%1&apos;：%2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>名稱是空的。</translation>
@@ -1323,9 +1317,6 @@
         <source>File extensions %1 are required:</source>
         <translation>需要副檔名 %1：</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -1344,9 +1335,6 @@
             <numerusform>%1：在 %3 個檔案中的 %2 個找到了 %n 個結果。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
         <translation>無效的基礎類別名稱</translation>
@@ -1415,9 +1403,6 @@
         <source>Inherits QDeclarativeItem</source>
         <translation>繼承自 QDeclarativeItem</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>選擇...</translation>
@@ -1478,9 +1463,6 @@
         <source>Path:</source>
         <translation>路徑：</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>插入...</translation>
@@ -1501,9 +1483,6 @@
         <source>From &quot;%1&quot;</source>
         <translation>從 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>&lt;Enter_Name&gt;</source>
         <translation>&lt;輸入名稱&gt;</translation>
@@ -1536,16 +1515,10 @@
         <source>Project:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>Invalid character &apos;.&apos;.</source>
         <translation>無效字元 &apos;.&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Subversion 提交</translation>
@@ -1582,24 +1555,10 @@
         <source>Check a&amp;ll</source>
         <translation>全部勾選(&amp;L)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
-    <message>
-        <source>Name:</source>
-        <translation>名稱：</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation>路徑：</translation>
-    </message>
     <message>
         <source>Choose the Location</source>
         <translation>選擇位置</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>檔案已變更</translation>
@@ -9594,7 +9553,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>不要再次詢問</translation>
@@ -10061,7 +10020,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>::Utils</name>
     <message>
         <source>Details</source>
         <translation>詳情</translation>
@@ -12074,14 +12033,11 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; 或 &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>file or directory not found</source>
         <translation>找不到檔案或路徑</translation>
@@ -12108,14 +12064,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>
@@ -12124,9 +12077,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Clear text</source>
         <translation>清除文字</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>檔案已經被移除</translation>
@@ -12151,16 +12101,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>&amp;Save</source>
         <translation>儲存(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;變數&lt;/th&gt;&lt;th&gt;展開為&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;目前檔案所在目錄&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;檔名 (包含完整路徑)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;檔名 (不含路徑)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -13866,7 +13810,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Locked</source>
         <translation>已鎖定</translation>
@@ -14243,7 +14187,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>文字</translation>
@@ -14747,7 +14691,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -14776,13 +14720,6 @@ Ids must begin with a lowercase letter.</source>
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation>圖像被縮放到合適大小</translation>
@@ -14808,17 +14745,6 @@ Ids must begin with a lowercase letter.</source>
         <translation>影像被一致地縮放到合適大小，如果需要會被裁剪</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
-    <message>
         <source>Gradient</source>
         <translation>漸層</translation>
     </message>
@@ -14827,16 +14753,9 @@ Ids must begin with a lowercase letter.</source>
         <translation>顏色</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>邊框</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -15062,7 +14981,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>隱藏此工具列。</translation>
@@ -15083,23 +15002,17 @@ Ids must begin with a lowercase letter.</source>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>隱藏此工具列。該工具列可在選項頁面或內文選單中永久停用。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>雙擊以預覽</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>兩個數字應該由點分隔</translation>
@@ -15159,7 +15072,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>Utils::SynchronousProcess</name>
+    <name>::Utils</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>指令 &apos;%1&apos; 已成功完成。</translation>
@@ -17571,7 +17484,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -17586,7 +17499,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentModel</name>
+    <name>::Utils</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;未設定&gt;</translation>
@@ -17609,23 +17522,14 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;值&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>不是一個合法的 IP 位址。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>命令列發生錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">伺服器無法啟動 sftp 子系統。</translation>
@@ -17706,16 +17610,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Error reading local file: %1</source>
         <translation type="obsolete">讀取本地檔案時發生錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshChannelManager</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">無效的頻道代碼 %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">SSH 協定錯誤：%1</translation>
@@ -17731,10 +17629,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">無效的伺服器代碼 &apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">未預期的封包型態 %1。</translation>
     </message>
     <message>
         <source>Password expired.</source>
@@ -20998,7 +20892,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>拒絕移除根目錄。</translation>
@@ -23614,7 +23508,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">需要密碼</translation>
@@ -23623,9 +23517,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">美請輸入您的私密金鑰的密碼。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>記憶體不足。</translation>
@@ -24042,7 +23933,7 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">此種類型名稱字串字面常數僅在 Qt Creator 中的 QML編輯器時可使用</translation>
@@ -26634,7 +26525,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Utils::SettingsSelector</name>
+    <name>::Utils</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -26659,9 +26550,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Rename...</source>
         <translation>重新命名...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">檔案型態</translation>
@@ -26678,9 +26566,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">列出目錄 &apos;%1&apos; 的內容時發生錯誤：%2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">行程被信號強行中止</translation>
@@ -28553,14 +28438,11 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation type="unfinished"></translation>

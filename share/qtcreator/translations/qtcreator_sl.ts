@@ -10019,7 +10019,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -10032,26 +10032,15 @@ p, li { white-space: pre-wrap; }
         <source>CheckBox</source>
         <translation type="obsolete">PotrditvenoPolje</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
     </message>
     <message>
         <location/>
-        <source>Path:</source>
-        <translation>Pot:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Choose the Location</source>
         <translation>Izberite mesto</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Inherits QObject</source>
         <translation>Podeduje QObject</translation>
@@ -10131,13 +10120,6 @@ p, li { white-space: pre-wrap; }
         <source>Inherits QDeclarativeItem</source>
         <translation>Podeduje od QDeclarativeItem</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
-    <message>
-        <source>Name:</source>
-        <translation>Ime:</translation>
-    </message>
     <message>
         <location/>
         <source>Create in:</source>
@@ -10168,9 +10150,6 @@ p, li { white-space: pre-wrap; }
         <source>Introduction and project location</source>
         <translation type="obsolete">Uvod in lokacija projekta</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Pošiljanje Subversion</translation>
@@ -11131,7 +11110,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Ime razreda ne sme vsebovati ločil imenskega prostora.</translation>
@@ -11144,9 +11123,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>The class name contains invalid characters.</source>
         <translation>Ime razreda vsebuje neveljavne znake.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Ni moč vzpostaviti komunikacijskega kanala: %1</translation>
@@ -11219,16 +11195,10 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Unexpected output from helper program.</source>
         <translation type="obsolete">Nepričakovan izhod od pomožnega programa.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -11256,9 +11226,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
             <numerusform>%1: najdenih %n pojavitev v %2 od %3 datotek.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Izbor …</translation>
@@ -11323,9 +11290,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>The path &apos;%1&apos; is not a file.</source>
         <translation type="obsolete">Pot »%1« ni datoteka.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Vstavi …</translation>
@@ -11346,16 +11310,10 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>From &quot;%1&quot;</source>
         <translation>Iz »%1«</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>Invalid character &apos;.&apos;.</source>
         <translation>Neveljaven znak ».«.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Datoteka spremenjena</translation>
@@ -13104,7 +13062,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Besedilo</translation>
@@ -14237,7 +14195,7 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation>neznana vrednost za oštevilčenje</translation>
@@ -14406,9 +14364,6 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>ids must be lower case</source>
         <translation type="obsolete">ID-ji morajo imeti same male črke</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>package not found</source>
         <translation>paket ni bil najden</translation>
@@ -14421,17 +14376,9 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>could not find file or directory</source>
         <translation type="obsolete">datoteke ali mape ni bilo moč najti</translation>
     </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">pričakovani sta bili dve števili ločeni s piko</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">uvažanje paketa zahteva številko različice</translation>
-    </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Zaklenjeno</translation>
@@ -14440,16 +14387,10 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>Reset to Default Layout</source>
         <translation>Ponastavi na privzeti razpored</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -14458,9 +14399,6 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>Clear text</source>
         <translation>Počisti besedilo</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Datoteka je bila odstranjena</translation>
@@ -14485,16 +14423,10 @@ okoljsko spremenljivko SSH_ASKPASS.</translation>
         <source>Save</source>
         <translation>Shrani</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Spremenljivka&lt;/th&gt;&lt;th&gt;Se razširi v&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;mapa trenutne datoteke&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;ime datoteke (s celotno potjo)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;ime datoteke (brez poti)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation> …</translation>
@@ -17038,7 +16970,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -17073,13 +17005,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <source>10 x 10</source>
         <translation>10 ⨯ 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
     <message>
         <location/>
         <source>The image is scaled to fit</source>
@@ -17112,18 +17037,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location/>
-        <source>10 x 10</source>
-        <translation>10 ⨯ 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-    <message>
-        <location/>
         <source>Gradient</source>
         <translation>Preliv</translation>
     </message>
@@ -17134,17 +17047,9 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
     <message>
         <location/>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <location/>
         <source>Border</source>
         <translation>Rob</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -20803,7 +20708,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skrij to orodjarno.</translation>
@@ -20824,23 +20729,17 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skrije to orodjarno. To orodjarno je mogoče trajno onemogočiti na strani z možnostmi ali na priročnem meniju.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>Dvokliknite za ogled</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>pričakovani sta bili dve števili ločeni s piko</translation>
@@ -20853,9 +20752,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>file or directory not found</source>
         <translation>datoteke ali mape ni bilo moč najti</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -20913,7 +20809,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerLanguageChooser</name>
+    <name>::Utils</name>
     <message>
         <source>C++</source>
         <translation>C++</translation>
@@ -20930,9 +20826,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Kaj je potrebno?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;ni nastavljena&gt;</translation>
@@ -20957,9 +20850,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
 </extracomment>
         <translation>&lt;vrednost&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>Name is empty.</source>
         <translation>Ime je prazno.</translation>
@@ -20980,9 +20870,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>Name matches MS Windows device. (%1).</source>
         <translation>Ime je enako napravi v Windows. (%1).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Failed to remove directory &apos;%1&apos;.</source>
         <translation>Odstranjevanje mape »%1« ni uspelo.</translation>
@@ -21027,23 +20914,14 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
         <source>Cannot create temporary file in %1: %2</source>
         <translation>Začasne datoteke v %1 ni moč ustvariti: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>Naslov IP ni veljaven.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Napaka v ukazni vrstici.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation>Strežnik ni mogel zagnati podsistema sftp.</translation>
@@ -21135,14 +21013,11 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::Internal::SshChannelManager</name>
+    <name>::Utils</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation>Neveljavna identifikacija kanala: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation>Napaka protokola SSH: %1</translation>
@@ -21158,10 +21033,6 @@ Seznam za strežnik je: %2.</translation>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation>Neveljavna identifikacija strežnika: »%1«.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation>Nepričakovan paket vrste %1.</translation>
     </message>
     <message>
         <source>Private key error: %1</source>
@@ -21195,9 +21066,6 @@ Seznam za strežnik je: %2.</translation>
         <source>Timeout waiting for reply from server.</source>
         <translation>Čas za čakanje na odgovor strežnika je potekel.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>Ukaz »%1« se je uspešno zaključil.</translation>
@@ -30439,7 +30307,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Datoteka ni datoteka modula.</translation>

@@ -7,6 +7,7 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "theme/theme.h"
+#include "utilstr.h"
 #include "wizardpage.h"
 
 #include <QDebug>
@@ -115,7 +116,7 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_mainLayout->addLayout(m_itemWidgetLayout);
     m_mainLayout->addSpacerItem(spacer);
 
-    m_dotsItemWidget = new ProgressItemWidget(m_indicatorPixmap, tr("..."), this);
+    m_dotsItemWidget = new ProgressItemWidget(m_indicatorPixmap, Tr::tr("..."), this);
     m_dotsItemWidget->setVisible(false);
     m_dotsItemWidget->setEnabled(false);
 

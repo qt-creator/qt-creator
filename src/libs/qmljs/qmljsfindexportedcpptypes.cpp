@@ -3,8 +3,10 @@
 
 #include "qmljsfindexportedcpptypes.h"
 
-#include <qmljs/qmljsinterpreter.h>
-#include <qmljs/qmljsdocument.h>
+#include "qmljsdocument.h"
+#include "qmljsinterpreter.h"
+#include "qmljstr.h"
+
 #include <cplusplus/Overview.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cplusplus/cppmodelmanagerbase.h>
@@ -250,7 +252,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "The type will only be available in the QML editors when the type name is a string literal."));
             return false;
         }
@@ -311,7 +313,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "The module URI cannot be determined by static analysis. The type will not be available\n"
                             "globally in the QML editor. You can add a \"// @uri My.Module.Uri\" annotation to let\n"
                             "the QML editor know about a likely URI."));
@@ -493,7 +495,7 @@ protected:
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
                         line, column,
-                        QmlJS::FindExportedCppTypes::tr(
+                        QmlJS::Tr::tr(
                             "must be a string literal to be available in the QML editor"));
             return false;
         }

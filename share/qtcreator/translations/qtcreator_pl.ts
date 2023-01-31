@@ -61,7 +61,7 @@
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>Nie pytaj ponownie</translation>
@@ -74,9 +74,6 @@
         <source>Do not &amp;show again</source>
         <translation>Nie po&amp;kazuj ponownie</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Name:</source>
         <translation>Nazwa:</translation>
@@ -89,9 +86,6 @@
         <source>Choose the Location</source>
         <translation>Wybierz położenie</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
         <translation>Niepoprawna nazwa klasy bazowej</translation>
@@ -163,13 +157,6 @@
     <message>
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Dziedziczy z QDeclarativeItem (wersja Qt Quick 2)</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
-    <message>
-        <source>Name:</source>
-        <translation>Nazwa:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -1658,7 +1645,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Nazwa klasy nie może zawierać separatorów przestrzeni nazw.</translation>
@@ -1671,9 +1658,6 @@ Przyczyna: %3</translation>
         <source>The class name contains invalid characters.</source>
         <translation>Nazwa klasy zawiera niepoprawne znaki.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Nie można ustawić kanału komunikacyjnego: %1</translation>
@@ -1742,19 +1726,9 @@ Przyczyna: %3</translation>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Nie otrzymano kodu wyjściowego podprocesu: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>Szczegóły</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
-    <message>
-        <source>Name is empty.</source>
-        <translation>Nazwa jest pusta.</translation>
     </message>
     <message>
         <source>Name contains white space.</source>
@@ -1780,9 +1754,6 @@ Przyczyna: %3</translation>
         <source>File extensions %1 are required:</source>
         <translation>Wymagane są rozszerzenia %1 plików:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -1811,9 +1782,6 @@ Przyczyna: %3</translation>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation>Lista filtrów z wykorzystaniem symboli wieloznacznych, oddzielona przecinkami. Pliki, których nazwy lub pełne ścieżki pasują do któregoś z filtrów, zostaną dołączone.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Wybierz...</translation>
@@ -1871,13 +1839,6 @@ Przyczyna: %3</translation>
         <translation>Ścieżka nie może być pusta.</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Ścieżka:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>Wstaw...</translation>
     </message>
@@ -1889,9 +1850,6 @@ Przyczyna: %3</translation>
         <source>Clear</source>
         <translation>Wyczyść</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Plik został zmieniony</translation>
@@ -10296,14 +10254,11 @@ wyłączy również następujące wtyczki:
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&quot;int&quot; lub &quot;real&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>Nie można odnaleźć pliku lub katalogu.</translation>
@@ -10336,7 +10291,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Utils::fileDeletedPrompt</name>
+    <name>::Utils</name>
     <message>
         <source>File has been removed</source>
         <translation>Plik został usunięty</translation>
@@ -10350,10 +10305,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <translation>Plik %1 został usunięty. Zachować go pod inną nazwą, czy zamknąć edytor?</translation>
     </message>
     <message>
-        <source>&amp;Close</source>
-        <translation>Za&amp;mknij</translation>
-    </message>
-    <message>
         <source>C&amp;lose All</source>
         <translation>Zamknij &amp;wszystko</translation>
     </message>
@@ -10365,16 +10316,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>&amp;Save</source>
         <translation>&amp;Zachowaj</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Zmienna&lt;/th&gt;&lt;th&gt;Rozwinięcie&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;katalog bieżącego pliku&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;nazwa pliku (z pełną ścieżką)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;nazwa pliku (bez ścieżki)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -11723,7 +11668,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Central Widget</source>
         <translation>Centralny Widżet</translation>
@@ -12143,7 +12088,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Tekst</translation>
@@ -12156,9 +12101,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -12187,17 +12129,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>Rozciągnięcie w poziomie. Dopasowuje rozmiar obrazu do dostępnej powierzchni.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
     <message>
         <source>The image is scaled to fit.</source>
         <translation>Dopasowuje obraz do dostępnej powierzchni.</translation>
@@ -12222,13 +12153,6 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Obraz jest skalowany jednolicie, może zostać przycięty.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Gradient</translation>
@@ -12238,16 +12162,9 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <translation>Kolor</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Brzeg</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -12450,7 +12367,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Ukrywa ten pasek narzędzi.</translation>
@@ -12471,23 +12388,17 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Ukrywa ten pasek narzędzi. Można go zablokować na stałe, na stronie z opcjami lub z podręcznego menu.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>Double click for preview.</source>
         <translation>Kliknij dwukrotnie aby wyświetlić podgląd.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>oczekiwano dwóch liczb oddzielonych kropką</translation>
@@ -12498,7 +12409,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::SynchronousProcess</name>
+    <name>::Utils</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation>Komenda &quot;%1&quot; poprawnie zakończona.</translation>
@@ -13739,7 +13650,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS::TypeDescriptionReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -13898,7 +13809,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentModel</name>
+    <name>::Utils</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;USUNIĘTO&gt;</translation>
@@ -13921,9 +13832,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;WARTOŚĆ&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Błąd w linii komend.</translation>
@@ -16304,7 +16212,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Utils::FileUtils</name>
+    <name>::Utils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Odmowa usunięcia katalogu głównego.</translation>
@@ -17587,7 +17495,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::TextFileFormat</name>
+    <name>::Utils</name>
     <message>
         <source>Out of memory.</source>
         <translation>Brak pamięci.</translation>
@@ -19990,7 +19898,7 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ElfReader</name>
+    <name>::Utils</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; nie jest poprawnym obiektem ELF (%2)</translation>
@@ -20035,9 +19943,6 @@ Sprawdź dokumentację SSH i zmienną środowiskową SSH_ASKPASS.</translation>
         <source>section name %1 of %2 behind end of file</source>
         <translation>nazwa sekcji %1 z %2 poza EOF</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -23281,7 +23186,7 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Błąd XML w linii %1, w kolumnie %2: %3</translation>
@@ -23292,33 +23197,19 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Brak pliku %1.</translation>
     </message>
     <message>
-        <source>Could not parse document.</source>
-        <translation>Błąd parsowania dokumentu.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Oczekiwano dokumentu zawierającego pojedynczą definicję obiektu.</translation>
-    </message>
-    <message>
         <source>Expected expression statement after colon.</source>
         <translation>Oczekiwano składnika wyrażenia po dwukropku.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Właściwość jest zdefiniowana dwukrotnie.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Invalid value for enum.</source>
         <translation>Niepoprawna wartość dla typu wyliczeniowego.</translation>
@@ -24198,7 +24089,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Usunięto</translation>
@@ -27039,7 +26930,7 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>Parsowanie plików QML</translation>
@@ -27048,9 +26939,6 @@ Aby uaktywnić ten filtr, wpisz w lokalizatorze powyższy skrót i po spacji pod
         <source>Scanning QML Imports</source>
         <translation>Skanowanie importów QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -27129,7 +27017,7 @@ Zbuduj aplikację qmldump na stronie z opcjami wersji Qt.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
@@ -27849,7 +27737,7 @@ Czy przerwać ją?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ProxyCredentialsDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>Pośrednie listy uwierzytelniające</translation>
@@ -28423,14 +28311,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardPage</name>
-    <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
+    <name>::Utils</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>Błąd: nieskończona pętla</translation>
@@ -31188,7 +31069,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Utils::SettingsAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>No Valid Settings Found</source>
         <translation>Brak poprawnych ustawień</translation>
@@ -31818,7 +31699,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>Utils::ShellCommand</name>
+    <name>::Utils</name>
     <message>
         <source>UNKNOWN</source>
         <translation>NIEZNANY</translation>
@@ -31827,9 +31708,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Unknown</source>
         <translation>Nieznany</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>Komenda uruchomiona...</translation>
@@ -34071,7 +33949,7 @@ itself takes time.</source>
     </message>
 </context>
 <context>
-    <name>Utils::HostOsInfo</name>
+    <name>::Utils</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>Nie można utworzyć kontekstu OpenGL.</translation>
@@ -35814,7 +35692,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>&amp;Views</source>
         <translation>&amp;Widoki</translation>
@@ -36495,7 +36373,7 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
         <translation>W każdej linii podaj jedną zmienną. Nazwa zmiennej powinna być oddzielona od wartości zmiennej przy użyciu &quot;=&quot;.&lt;br&gt;Wartość zmiennej może odwoływać się do innych zmiennych w następujący sposób: ${INNA_ZMIENNA}.</translation>
@@ -40047,14 +39925,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>Utils::FileSaverBase</name>
-    <message>
-        <source>File Error</source>
-        <translation>Błąd pliku</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::SaveFile</name>
+    <name>::Utils</name>
     <message>
         <source>File might be locked.</source>
         <translation>Plik może być zablokowany.</translation>

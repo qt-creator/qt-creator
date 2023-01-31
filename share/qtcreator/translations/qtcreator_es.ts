@@ -1691,7 +1691,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>El nombre de clase no debe contener delimitadores de namespaces.</translation>
@@ -1704,9 +1704,6 @@ Would you like to overwrite them?</source>
         <source>The class name contains invalid characters.</source>
         <translation>El nombre de clase contiene caracteres inválidos.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>No se pudo establecer canal de comunicación: %1</translation>
@@ -1755,9 +1752,6 @@ Would you like to overwrite them?</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>No se pudo obtener el estado de salida del inferior: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation>El nombre no puede dejarse vacío</translation>
@@ -1774,9 +1768,6 @@ Would you like to overwrite them?</source>
         <source>The name must not match that of a MS Windows device. (%1).</source>
         <translation>El nombre no debe coincidir con el nombre de dispositivo de MS Windows. (%1).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -1798,9 +1789,6 @@ Would you like to overwrite them?</source>
             <numerusform>%1: %n coincidencias encontradas en %2 de %3 archivos.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Invalid base class name</source>
         <translation>Nombre de clase base inválido</translation>
@@ -1851,9 +1839,6 @@ Would you like to overwrite them?</source>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Elegir...</translation>
@@ -1890,9 +1875,6 @@ Would you like to overwrite them?</source>
         <source>Path:</source>
         <translation>Ruta:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
     <message>
         <source>Insert...</source>
         <translation>Insertar...</translation>
@@ -1913,9 +1895,6 @@ Would you like to overwrite them?</source>
         <source>From &quot;%1&quot;</source>
         <translation>Desde &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>&lt;Enter_Name&gt;</source>
         <translation>&lt;Introduzca_nombre&gt;</translation>
@@ -1942,16 +1921,10 @@ Would you like to overwrite them?</source>
         <source>Create in:</source>
         <translation>Crear en:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation>El nombre no puede contener el caracter &apos;.&apos; (punto).</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation>Enviar a Subversion</translation>
@@ -1966,26 +1939,10 @@ Would you like to overwrite them?</source>
         <source>F&amp;iles</source>
         <translation>Arch&amp;ivos</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation>Seleccione ubicación</translation>
     </message>
-    <message>
-        <location/>
-        <source>Name:</source>
-        <translation>Nombre:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Path:</source>
-        <translation>Ruta:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>El archivo fue modificado</translation>
@@ -10504,7 +10461,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
@@ -11414,7 +11371,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::DetailsButton</name>
+    <name>::Utils</name>
     <message>
         <source>Show Details</source>
         <translation type="unfinished"></translation>

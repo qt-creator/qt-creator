@@ -5,6 +5,7 @@
 
 #include "expected.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QDir>
 #include <QtEndian>
@@ -126,7 +127,7 @@ ElfData ElfReader::readHeaders()
 
 static QString msgInvalidElfObject(const FilePath &binary, const QString &why)
 {
-    return ElfReader::tr("\"%1\" is an invalid ELF object (%2)")
+    return Tr::tr("\"%1\" is an invalid ELF object (%2)")
            .arg(binary.toUserOutput(), why);
 }
 
@@ -144,12 +145,12 @@ ElfReader::Result ElfReader::readIt()
     const quint64 fdlen = mapper.fdlen;
 
     if (fdlen < 64) {
-        m_errorString = tr("\"%1\" is not an ELF object (file too small)").arg(m_binary.toUserOutput());
+        m_errorString = Tr::tr("\"%1\" is not an ELF object (file too small)").arg(m_binary.toUserOutput());
         return NotElf;
     }
 
     if (strncmp(mapper.start, "\177ELF", 4) != 0) {
-        m_errorString = tr("\"%1\" is not an ELF object").arg(m_binary.toUserOutput());
+        m_errorString = Tr::tr("\"%1\" is not an ELF object").arg(m_binary.toUserOutput());
         return NotElf;
     }
 
@@ -157,7 +158,7 @@ ElfReader::Result ElfReader::readIt()
     m_elfData.elfclass = ElfClass(mapper.start[4]);
     const bool is64Bit = m_elfData.elfclass == Elf_ELFCLASS64;
     if (m_elfData.elfclass != Elf_ELFCLASS32 && m_elfData.elfclass != Elf_ELFCLASS64) {
-        m_errorString = msgInvalidElfObject(m_binary, tr("odd cpu architecture"));
+        m_errorString = msgInvalidElfObject(m_binary, Tr::tr("odd cpu architecture"));
         return Corrupt;
     }
 
@@ -168,7 +169,7 @@ ElfReader::Result ElfReader::readIt()
     // if ((sizeof(void*) == 4 && bits != 32)
     //     || (sizeof(void*) == 8 && bits != 64)) {
     //     if (errorString)
-    //         *errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
+    //         *errorString = QLibrary::Tr::tr("\"%1\" is an invalid ELF object (%2)")
     //         .arg(m_binary).arg(QLatin1String("wrong cpu architecture"));
     //     return Corrupt;
     // }
@@ -176,7 +177,7 @@ ElfReader::Result ElfReader::readIt()
     // Read Endianess.
     m_elfData.endian = ElfEndian(mapper.ustart[5]);
     if (m_elfData.endian != Elf_ELFDATA2LSB && m_elfData.endian != Elf_ELFDATA2MSB) {
-        m_errorString = msgInvalidElfObject(m_binary, tr("odd endianness"));
+        m_errorString = msgInvalidElfObject(m_binary, Tr::tr("odd endianness"));
         return Corrupt;
     }
 
@@ -193,7 +194,7 @@ ElfReader::Result ElfReader::readIt()
     quint32 e_shsize  = getHalfWord(data, m_elfData);
 
     if (e_shsize > fdlen) {
-        m_errorString = msgInvalidElfObject(m_binary, tr("unexpected e_shsize"));
+        m_errorString = msgInvalidElfObject(m_binary, Tr::tr("unexpected e_shsize"));
         return Corrupt;
     }
 
@@ -204,7 +205,7 @@ ElfReader::Result ElfReader::readIt()
     quint32 e_shentsize = getHalfWord(data, m_elfData);
 
     if (e_shentsize % 4) {
-        m_errorString = msgInvalidElfObject(m_binary, tr("unexpected e_shentsize"));
+        m_errorString = msgInvalidElfObject(m_binary, Tr::tr("unexpected e_shentsize"));
         return Corrupt;
     }
 
@@ -213,7 +214,7 @@ ElfReader::Result ElfReader::readIt()
     QTC_CHECK(data == mapper.ustart + (is64Bit ? 64 : 52));
 
     if (quint64(e_shnum) * e_shentsize > fdlen) {
-        const QString reason = tr("announced %n sections, each %1 bytes, exceed file size", nullptr, e_shnum)
+        const QString reason = Tr::tr("announced %n sections, each %1 bytes, exceed file size", nullptr, e_shnum)
                                .arg(e_shentsize);
         m_errorString = msgInvalidElfObject(m_binary, reason);
         return Corrupt;
@@ -222,7 +223,7 @@ ElfReader::Result ElfReader::readIt()
     quint64 soff = e_shoff + e_shentsize * e_shtrndx;
 
 //    if ((soff + e_shentsize) > fdlen || soff % 4 || soff == 0) {
-//        m_errorString = QLibrary::tr("\"%1\" is an invalid ELF object (%2)")
+//        m_errorString = QLibrary::Tr::tr("\"%1\" is an invalid ELF object (%2)")
 //           .arg(m_binary)
 //           .arg(QLatin1String("shstrtab section header seems to be at %1"))
 //           .arg(QString::number(soff, 16));
@@ -236,7 +237,7 @@ ElfReader::Result ElfReader::readIt()
 
         if (quint32(stringTableFileOffset + e_shentsize) >= fdlen
                 || stringTableFileOffset == 0) {
-            const QString reason = tr("string table seems to be at 0x%1").arg(soff, 0, 16);
+            const QString reason = Tr::tr("string table seems to be at 0x%1").arg(soff, 0, 16);
             m_errorString = msgInvalidElfObject(m_binary, reason);
             return Corrupt;
         }
@@ -247,7 +248,7 @@ ElfReader::Result ElfReader::readIt()
             parseSectionHeader(s, &sh, m_elfData);
 
             if (stringTableFileOffset + sh.index > fdlen) {
-                const QString reason = tr("section name %1 of %2 behind end of file")
+                const QString reason = Tr::tr("section name %1 of %2 behind end of file")
                                        .arg(i).arg(e_shnum);
                 m_errorString = msgInvalidElfObject(m_binary, reason);
                 return Corrupt;

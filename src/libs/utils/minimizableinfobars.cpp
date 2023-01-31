@@ -6,6 +6,7 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "utilsicons.h"
+#include "utilstr.h"
 
 #include <QAction>
 #include <QToolButton>
@@ -107,7 +108,7 @@ void MinimizableInfoBars::showInfoBar(const Id &id)
     // The minimizer() might delete the "Minimize" button immediately and as
     // result invalid reads will happen in QToolButton::mouseReleaseEvent().
     // Avoid this by running the minimizer in the next event loop iteration.
-    info.addCustomButton(MinimizableInfoBars::tr("Minimize"), [this, id] {
+    info.addCustomButton(Tr::tr("Minimize"), [this, id] {
         QMetaObject::invokeMethod(
             this,
             [id, this] {

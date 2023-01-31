@@ -15,8 +15,6 @@ class Environment;
 
 class QTCREATOR_UTILS_EXPORT BuildableHelperLibrary
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::DebuggingHelperLibrary)
-
 public:
     // returns the full path to the first qmake, qmake-qt4, qmake4 that has
     // at least version 2.0.0 and thus is a qt4 qmake

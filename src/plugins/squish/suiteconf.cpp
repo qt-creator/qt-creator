@@ -242,6 +242,17 @@ void SuiteConf::addTestCase(const QString &name)
     m_testcases = joinItems(current);
 }
 
+void SuiteConf::removeTestCase(const QString &name)
+{
+    QStringList current = testCases();
+    int position = current.indexOf(name);
+    if (position == -1) // it had been an unlisted test case
+        return;
+
+    current.remove(position);
+    m_testcases = joinItems(current);
+}
+
 void SuiteConf::setLanguage(const QString &language)
 {
     if (language == "Python")

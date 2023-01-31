@@ -12,6 +12,7 @@
 #include "suiteconf.h"
 #include "squishtr.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -290,12 +291,22 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suiteConfPath, bool
     ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
+static void closeOpenedEditorsFor(const Utils::FilePath &filePath, bool askAboutModifiedEditors)
+{
+    const QList<Core::IDocument *> openDocuments = Utils::filtered(
+                Core::DocumentModel::openedDocuments(), [filePath](Core::IDocument *doc) {
+            return doc->filePath().isChildOf(filePath);
+    });
+    // for now just ignore modifications - files will be removed completely
+    Core::EditorManager::closeDocuments(openDocuments, askAboutModifiedEditors);
+}
+
 void SquishFileHandler::closeTestSuite(const QString &suiteName)
 {
     if (!m_suites.contains(suiteName))
         return;
 
-    // TODO close respective editors if there are any
+    closeOpenedEditorsFor(m_suites.value(suiteName).parentDir(), true);
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
@@ -308,10 +319,42 @@ void SquishFileHandler::closeAllTestSuites()
     ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
 }
 
+void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &testCaseName)
+{
+    if (!m_suites.contains(suiteName))
+        return;
+
+    if (SquishMessages::simpleQuestion(Tr::tr("Confirm Delete"),
+                                       Tr::tr("Are you sure you want to delete Test Case \"%1\" "
+                                              "from the file system?").arg(testCaseName))
+            != QMessageBox::Yes) {
+        return;
+    }
+
+    const Utils::FilePath suiteConfPath = m_suites.value(suiteName);
+    SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
+    const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
+    closeOpenedEditorsFor(testCaseDirectory, false);
+    QString error;
+    if (!testCaseDirectory.removeRecursively(&error)) {
+        QString detail = Tr::tr("Deletion of Test Case failed.");
+        if (!error.isEmpty())
+            detail.append('\n').append(error);
+        SquishMessages::criticalMessage(detail);
+    } else {
+        Core::DocumentManager::expectFileChange(suiteConfPath);
+        suiteConf.removeTestCase(testCaseName);
+        bool ok = suiteConf.write();
+        QTC_CHECK(ok);
+        emit testCaseRemoved(suiteName, testCaseName);
+    }
+}
+
 void SquishFileHandler::closeAllInternal()
 {
-    // TODO close respective editors if there are any
     // TODO remove file watcher
+    for (auto suiteConfFilePath : m_suites)
+        closeOpenedEditorsFor(suiteConfFilePath.parentDir(), true);
     const QStringList &suiteNames = m_suites.keys();
     m_suites.clear();
     for (const QString &suiteName : suiteNames)

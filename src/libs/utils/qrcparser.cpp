@@ -3,9 +3,10 @@
 
 #include "qrcparser.h"
 
+#include "filepath.h"
 #include "qtcassert.h"
 
-#include <utils/filepath.h>
+#include <qmljs/qmljstr.h> // Yes, the translations are still there
 
 #include <QCoreApplication>
 #include <QDir>
@@ -26,7 +27,6 @@ namespace Internal {
 
 class QrcParserPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcParser)
 public:
     typedef QMap<QString,QStringList> SMap;
     QrcParserPrivate(QrcParser *q);
@@ -55,7 +55,6 @@ private:
 
 class QrcCachePrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::QrcCachePrivate)
 public:
     QrcCachePrivate(QrcCache *q);
     QrcParser::Ptr addPath(const QString &path, const QString &contents);
@@ -362,7 +361,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+            m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
                                    .arg(error_line).arg(error_col).arg(error_msg));
             return false;
         }
@@ -371,7 +370,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(contents, &error_msg, &error_line, &error_col)) {
-            m_errorMessages.append(tr("XML error on line %1, col %2: %3")
+            m_errorMessages.append(QmlJS::Tr::tr("XML error on line %1, col %2: %3")
                                    .arg(error_line).arg(error_col).arg(error_msg));
             return false;
         }
@@ -379,7 +378,7 @@ bool QrcParserPrivate::parseFile(const QString &path, const QString &contents)
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_errorMessages.append(tr("The <RCC> root element is missing."));
+        m_errorMessages.append(QmlJS::Tr::tr("The <RCC> root element is missing."));
         return false;
     }
 

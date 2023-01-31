@@ -8,6 +8,7 @@
 #include "infolabel.h"
 #include "macroexpander.h"
 #include "pathchooser.h"
+#include "utilstr.h"
 
 #include <functional>
 #include <memory>
@@ -499,9 +500,9 @@ class QTCREATOR_UTILS_EXPORT TriStateAspect : public SelectionAspect
     Q_OBJECT
 public:
     TriStateAspect(
-            const QString onString = tr("Enable"),
-            const QString &offString = tr("Disable"),
-            const QString &defaultString = tr("Leave at Default"));
+            const QString onString = Tr::tr("Enable"),
+            const QString &offString = Tr::tr("Disable"),
+            const QString &defaultString = Tr::tr("Leave at Default"));
 
     TriState value() const;
     void setValue(TriState setting);

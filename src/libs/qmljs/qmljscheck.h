@@ -18,8 +18,6 @@ class Imports;
 
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
-
     typedef QSet<QString> StringSet;
 
 public:

@@ -81,6 +81,7 @@ private:
     SquishTestTreeItem *findSuite(const QString &displayName) const;
     void onSuiteTreeItemRemoved(const QString &suiteName);
     void onSuiteTreeItemModified(SquishTestTreeItem *item, const QString &display);
+    void onTestCaseRemoved(const QString &suiteName, const QString &testCase);
     Utils::TreeItem *m_squishSharedFolders;
     Utils::TreeItem *m_squishSuitesRoot;
     SquishFileHandler *m_squishFileHandler;

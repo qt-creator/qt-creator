@@ -3,7 +3,7 @@
 
 #include "hostosinfo.h"
 
-#include <QCoreApplication>
+#include "utilstr.h"
 
 #if !defined(QT_NO_OPENGL) && defined(QT_GUI_LIB)
 #include <QOpenGLContext>
@@ -88,8 +88,7 @@ bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
 #else
     static const bool canCreate = QOpenGLContext().create();
     if (!canCreate)
-        *errorMessage = QCoreApplication::translate("Utils::HostOsInfo",
-                                                    "Cannot create OpenGL context.");
+        *errorMessage = Tr::tr("Cannot create OpenGL context.");
     return canCreate;
 #endif
 }

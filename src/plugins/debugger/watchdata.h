@@ -63,9 +63,9 @@ public:
     QString         editformat;            // Format of displayed value
     DebuggerEncoding editencoding;         // Encoding of displayed value
     QString         type;                  // Type for further processing
-    quint64         address;               // Displayed address of the actual object
-    quint64         origaddr;              // Address of the pointer referencing this item (gdb auto-deref)
-    uint            size;                  // Size
+    quint64         address = 0;           // Displayed address of the actual object
+    quint64         origaddr = 0;          // Address of the pointer referencing this item (gdb auto-deref)
+    uint            size = 0;              // Size
     uint            bitpos = 0;            // Position within bit fields
     uint            bitsize = 0;           // Size in case of bit fields
     uint            autoDerefCount = 0;    // number of levels of automatic dereferencing that has taken place (for pointer types)

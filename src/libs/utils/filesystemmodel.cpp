@@ -6,6 +6,7 @@
 #include "environment.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QDateTime>
 #include <QCollator>
@@ -746,8 +747,8 @@ public:
         // Vista == "Computer",
         // OS X == "Computer" (sometime user generated) "Benjamin's PowerBook G4"
         if (HostOsInfo::isWindowsHost())
-            return FileSystemModel::tr("My Computer");
-        return FileSystemModel::tr("Computer");
+            return Tr::tr("My Computer");
+        return Tr::tr("Computer");
     }
 
     inline void delayedSort() {
@@ -1505,19 +1506,19 @@ QVariant FileSystemModel::headerData(int section, Qt::Orientation orientation, i
 
     QString returnValue;
     switch (section) {
-    case 0: returnValue = tr("Name");
+    case 0: returnValue = Tr::tr("Name");
             break;
-    case 1: returnValue = tr("Size");
+    case 1: returnValue = Tr::tr("Size");
             break;
     case 2: returnValue = HostOsInfo::isMacHost()
-                    ? tr("Kind", "Match OS X Finder")
-                    :tr("Type", "All other platforms");
+                    ? Tr::tr("Kind", "Match OS X Finder")
+                    : Tr::tr("Type", "All other platforms");
            break;
     // Windows   - Type
     // OS X      - Kind
     // Konqueror - File Type
     // Nautilus  - Type
-    case 3: returnValue = tr("Date Modified");
+    case 3: returnValue = Tr::tr("Date Modified");
             break;
     default: return QVariant();
     }

@@ -11,11 +11,8 @@
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
-    class ContextPaneWidgetImage;
-    class ContextPaneWidgetBorderImage;
-}
 class QLabel;
+class QRadioButton;
 class QSlider;
 QT_END_NAMESPACE
 
@@ -60,7 +57,7 @@ private:
     bool m_dragging_bottom;
     QPoint m_startPos;
     int m_zoom;
-    bool m_borderImage;
+    bool m_isBorderImage;
     QLabel *m_hooverInfo;
 };
 
@@ -88,7 +85,7 @@ private:
     QLabel *m_zoomLabel;
     int m_zoom;
     QPixmap m_pixmap;
-    bool m_borderImage;
+    bool m_isBorderImage;
 };
 
 class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetImage : public QWidget
@@ -97,7 +94,6 @@ class QMLEDITORWIDGETS_EXPORT ContextPaneWidgetImage : public QWidget
 
 public:
     explicit ContextPaneWidgetImage(QWidget *parent = nullptr, bool borderImage = false);
-    ~ContextPaneWidgetImage();
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setPath(const QString& path);
     PreviewDialog* previewDialog();
@@ -120,19 +116,34 @@ public:
     void onRightMarginsChanged();
 
 protected:
-    void changeEvent(QEvent *e) override;
     void hideEvent(QHideEvent* event) override;
     void showEvent(QShowEvent* event) override;
 
 private:
-    Ui::ContextPaneWidgetImage *ui;
-    Ui::ContextPaneWidgetBorderImage *uiBorderImage;
+    FileWidget *m_fileWidget;
+    QLabel *m_previewLabel;
+    QLabel *m_sizeLabel;
+    struct {
+        QRadioButton *verticalTileRadioButton;
+        QRadioButton *verticalStretchRadioButton;
+        QRadioButton *verticalTileRadioButtonNoCrop;
+        QRadioButton *horizontalTileRadioButton;
+        QRadioButton *horizontalStretchRadioButton;
+        QRadioButton *horizontalTileRadioButtonNoCrop;
+    } m_borderImage;
+    struct {
+        QRadioButton *stretchRadioButton;
+        QRadioButton *tileRadioButton;
+        QRadioButton *horizontalStretchRadioButton;
+        QRadioButton *verticalStretchRadioButton;
+        QRadioButton *preserveAspectFitRadioButton;
+        QRadioButton *cropAspectFitRadioButton;
+    } m_image;
+
     QString m_path;
     QPointer<PreviewDialog> m_previewDialog;
-    FileWidget *m_fileWidget;
-    QLabel *m_sizeLabel;
-    bool m_borderImage;
-    bool previewWasVisible;
+    bool m_isBorderImage;
+    bool m_previewWasVisible = false;
 };
 
 class LabelFilter: public QObject {

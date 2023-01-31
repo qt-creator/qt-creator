@@ -6,8 +6,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-#include <QFutureWatcher>
-
 namespace Python::Internal {
 
 class PythonRunConfigurationPrivate;

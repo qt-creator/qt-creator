@@ -2,14 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "parser/qmljsast_p.h"
+
+#include "qmljsinterpreter.h"
+
 #include "qmljsconstants.h"
 #include "qmljscontext.h"
 #include "qmljsevaluate.h"
-#include "qmljsinterpreter.h"
 #include "qmljsmodelmanagerinterface.h"
 #include "qmljsscopeastpath.h"
 #include "qmljsscopebuilder.h"
 #include "qmljsscopechain.h"
+#include "qmljstr.h"
 #include "qmljstypedescriptionreader.h"
 #include "qmljsvalueowner.h"
 
@@ -1340,13 +1343,11 @@ CppQmlTypesLoader::BuiltinObjects CppQmlTypesLoader::loadQmlTypes(const QFileInf
             error = file.errorString();
         }
         if (!error.isEmpty()) {
-            errors->append(TypeDescriptionReader::tr(
-                               "Errors while loading qmltypes from %1:\n%2").arg(
+            errors->append(Tr::tr("Errors while loading qmltypes from %1:\n%2").arg(
                                qmlTypeFile.absoluteFilePath(), error));
         }
         if (!warning.isEmpty()) {
-            warnings->append(TypeDescriptionReader::tr(
-                                 "Warnings while loading qmltypes from %1:\n%2").arg(
+            warnings->append(Tr::tr("Warnings while loading qmltypes from %1:\n%2").arg(
                                  qmlTypeFile.absoluteFilePath(), warning));
         }
     }

@@ -3,18 +3,23 @@
 
 #pragma once
 
-#include "easinggraph.h"
-
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
+class QPushButton;
+class QComboBox;
+class QSpinBox;
+class QDoubleSpinBox;
+class QGraphicsView;
 class QVariant;
-namespace Ui { class EasingContextPane; }
 QT_END_NAMESPACE
+
+class EasingGraph;
 
 namespace QmlJS { class PropertyReader; }
 
 namespace QmlEditorWidgets {
+
 class EasingSimulation;
 
 class EasingContextPane : public QWidget
@@ -24,7 +29,6 @@ class EasingContextPane : public QWidget
     enum GraphDisplayMode { GraphMode, SimulationMode };
 public:
     explicit EasingContextPane(QWidget *parent = nullptr);
-    ~EasingContextPane() override;
 
     void setProperties(QmlJS::PropertyReader *propertyReader);
     void setGraphDisplayMode(GraphDisplayMode newMode);
@@ -45,7 +49,15 @@ protected:
     void setBounce();
 
 private:
-    Ui::EasingContextPane *ui;
+    QGraphicsView *m_graphicsView;
+    QPushButton *m_playButton;
+    QComboBox *m_easingShapeComboBox;
+    QSpinBox *m_durationSpinBox;
+    QDoubleSpinBox *m_periodSpinBox;
+    QComboBox *m_easingExtremesComboBox;
+    QDoubleSpinBox *m_amplitudeSpinBox;
+    QDoubleSpinBox *m_overshootSpinBox;
+
     GraphDisplayMode m_displayMode;
     EasingGraph *m_easingGraph;
     EasingSimulation *m_simulation;

@@ -8,7 +8,7 @@
 #include "fileinprojectfinder.h"
 #include "link.h"
 #include "qtcassert.h"
-#include "qtcprocess.h"
+#include "stringutils.h"
 #include "theme/theme.h"
 
 #include <QDir>
@@ -624,7 +624,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
         d->prependCarriageReturn = false;
         out.prepend('\r');
     }
-    out = QtcProcess::normalizeNewlines(out);
+    out = Utils::normalizeNewlines(out);
     if (out.endsWith('\r')) {
         d->prependCarriageReturn = true;
         out.chop(1);

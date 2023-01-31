@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>テキスト</translation>
@@ -90,9 +90,6 @@
         <source>...</source>
         <translation>...</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetBorderImage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -116,17 +113,6 @@
     <message>
         <source>Stretch horizontally. Scales the image to fit to the available area.</source>
         <translation>水平方向に引き伸ばします。画像は有効範囲に収まるように拡縮されます。</translation>
-    </message>
-    <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>10 x 10</source>
@@ -156,13 +142,6 @@
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>画像は枠の大きさ一杯になるように必要に応じてトリミングされながら縦横比を維持して拡縮されます。</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>グラデーション</translation>
@@ -172,16 +151,9 @@
         <translation>色</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>枠線</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -355,7 +327,7 @@
     </message>
 </context>
 <context>
-    <name>Utils::WizardPage</name>
+    <name>::Utils</name>
     <message>
         <source>Choose the Location</source>
         <translation>パスを選択してください</translation>
@@ -368,9 +340,6 @@
         <source>Path:</source>
         <translation>パス:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>クラス名(&amp;C):</translation>
@@ -443,16 +412,9 @@
         <source>Invalid form file name: &quot;%1&quot;</source>
         <translation>無効なフォームファイル名: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and Project Location</source>
         <translation>プロジェクト名とパス</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>名前:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -9166,7 +9128,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>ツールバーを隠します。</translation>
@@ -9187,9 +9149,6 @@ will also disable the following plugins:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>ツールバーを隠すと、オプションページや右クリックメニューでも恒久的に使用できなくなります。</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -9391,7 +9350,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>ドットで区切られた2つの数字がありません</translation>
@@ -9408,16 +9367,10 @@ will also disable the following plugins:
         <source>Nested inline components are not supported</source>
         <translation>インラインコンポーネントのネストはサポートされていません</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Check</name>
     <message>
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos;型か&apos;real&apos;型</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -9590,9 +9543,6 @@ will also disable the following plugins:
         <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
         <translation>Enum にはゲッターやセッターは含めずに、&apos;string: number&apos; のみのエレメントを使用してください。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>File or directory not found.</source>
         <translation>ファイルまたはディレクトリが見つかりません。</translation>
@@ -9673,7 +9623,7 @@ CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>XML の %1 行目 %2 文字目 に誤りがあります: %3</translation>
@@ -9684,18 +9634,10 @@ CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>ファイル %1 が見つかりません。</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>ドキュメントを解析できませんでした。</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>ドキュメントは一つのオブジェクト定義を持つ必要があります。</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -9705,16 +9647,10 @@ CMake プロジェクトでは、CMakeCache.txt 内で QML_IMPORT_PATH 変数を
         <source>Expected expression statement to be a literal.</source>
         <translation>式文はリテラルである必要があります。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>プロパティが二度定義されています。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &quot;%1&quot; as a constructor.
 
@@ -10395,7 +10331,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Do not ask again</source>
         <translation>今後このメッセージを表示しない</translation>
@@ -10416,9 +10352,6 @@ with a password, which you can enter below.</source>
         <source>Do not &amp;show again</source>
         <translation>今後このメッセージを表示しない(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>クラス名にはネームスペースの区切り文字を含めないでください。</translation>
@@ -10431,9 +10364,6 @@ with a password, which you can enter below.</source>
         <source>The class name contains invalid characters.</source>
         <translation>クラス名に不正な文字が含まれています。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>通信チャンネルを用意できません: %1</translation>
@@ -10502,16 +10432,10 @@ with a password, which you can enter below.</source>
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>プログラムの終了ステータスが取得できません: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Details</source>
         <translation>詳細</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ElfReader</name>
     <message>
         <source>&quot;%1&quot; is an invalid ELF object (%2)</source>
         <translation>&quot;%1&quot; は、不正な ELF オブジェクトです (%2)</translation>
@@ -10554,9 +10478,6 @@ with a password, which you can enter below.</source>
         <source>section name %1 of %2 behind end of file</source>
         <translation>%2 のセクション名 %1 がファイルの終端より後ろです</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;未定義&gt;</translation>
@@ -10579,9 +10500,6 @@ with a password, which you can enter below.</source>
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;値&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FancyMainWindow</name>
     <message>
         <source>Central Widget</source>
         <translation>中央のウィジェット</translation>
@@ -10593,13 +10511,6 @@ with a password, which you can enter below.</source>
     <message>
         <source>Automatically Hide View Title Bars</source>
         <translation>ビューのタイトルバーを自動的に隠す</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
-    <message>
-        <source>Name is empty.</source>
-        <translation>ファイル名が未入力です。</translation>
     </message>
     <message>
         <source>Name contains white space.</source>
@@ -10629,9 +10540,6 @@ with a password, which you can enter below.</source>
         <source>File extensions %1 are required:</source>
         <translation>拡張子 %1 が必要です:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -10656,9 +10564,6 @@ with a password, which you can enter below.</source>
         <source>List of comma separated wildcard filters. Files with file name or full file path matching any filter are included.</source>
         <translation>コンマで区切られたワイルドカードフィルターのリストです。ファイル名またはフルファイルパスがいずれかのフィルターに一致するファイルが含まれます。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>ルートディレクトリは削除できません。</translation>
@@ -10727,9 +10632,6 @@ with a password, which you can enter below.</source>
         <source>Overwrite existing file &quot;%1&quot;?</source>
         <translation>既存のファイル &quot;%1&quot; を上書きしますか？</translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>選択...</translation>
@@ -10799,13 +10701,6 @@ with a password, which you can enter below.</source>
         <translation>フルパス: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>パス:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>挿入...</translation>
     </message>
@@ -10817,16 +10712,10 @@ with a password, which you can enter below.</source>
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>コマンドラインにエラーがあります。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>ファイルは変更されています</translation>
@@ -10859,9 +10748,6 @@ with a password, which you can enter below.</source>
         <source>&amp;Close</source>
         <translation>閉じる(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>ファイルは既に削除されています</translation>
@@ -10883,10 +10769,6 @@ with a password, which you can enter below.</source>
         <translation>ファイル %1 は ディスクから削除されました。現在のファイルを別名で保存するかエディタを閉じますか？</translation>
     </message>
     <message>
-        <source>&amp;Close</source>
-        <translation>閉じる(&amp;C)</translation>
-    </message>
-    <message>
         <source>C&amp;lose All</source>
         <translation>すべて閉じる(&amp;L)</translation>
     </message>
@@ -10898,9 +10780,6 @@ with a password, which you can enter below.</source>
         <source>&amp;Save</source>
         <translation>保存(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -10925,9 +10804,6 @@ with a password, which you can enter below.</source>
         <source>Rename...</source>
         <translation>名前を変更...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &quot;%1&quot; finished successfully.</source>
         <translation>コマンド &quot;%1&quot; は正常に終了しました。</translation>
@@ -10964,9 +10840,6 @@ with a password, which you can enter below.</source>
         <source>Would you like to terminate it?</source>
         <translation>終了させますか？</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>メモリ不足です。</translation>
@@ -10975,16 +10848,10 @@ with a password, which you can enter below.</source>
         <source>An encoding error was encountered.</source>
         <translation>エンコーディングエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;変数&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;ディレクトリ&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;ファイル名(パス付き)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;ファイル名(パスなし)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -19325,7 +19192,7 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>削除</translation>
@@ -31753,14 +31620,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Double click for preview.</source>
         <translation>ダブルクリックでプレビューを表示します。</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Parsing QML Files</source>
         <translation>QML ファイルの解析中</translation>
@@ -31769,9 +31636,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Scanning QML Imports</source>
         <translation>QML import のスキャン中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -31850,7 +31714,7 @@ Qt バージョンオプションページで qmldump アプリケーション�
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>Filter</source>
         <translation>フィルタ</translation>
@@ -32682,7 +32546,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>Utils::ProxyCredentialsDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Proxy Credentials</source>
         <translation>プロキシの認証情報</translation>
@@ -32950,11 +32814,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>Utils::FileWizardPage</name>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
+    <name>::Utils</name>
 </context>
 <context>
     <name>::Android</name>
@@ -33329,7 +33189,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>Utils::SettingsAccessor</name>
+    <name>::Utils</name>
     <message>
         <source>No Valid Settings Found</source>
         <translation>有効な設定が見つかりません</translation>
@@ -35317,14 +35177,11 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>Utils::HostOsInfo</name>
+    <name>::Utils</name>
     <message>
         <source>Cannot create OpenGL context.</source>
         <translation>OpenGL コンテキストが作成できません。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::MacroExpander</name>
     <message>
         <source>Infinite recursion error</source>
         <translation>無限再帰エラー</translation>
@@ -35361,9 +35218,6 @@ the program.</source>
         <source>Access environment variables.</source>
         <translation>環境変数にアクセスします。</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommand</name>
     <message>
         <source>UNKNOWN</source>
         <translation>不明</translation>
@@ -35372,9 +35226,6 @@ the program.</source>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ShellCommandPage</name>
     <message>
         <source>Command started...</source>
         <translation>コマンドが起動されました...</translation>
@@ -37500,7 +37351,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Views</source>
         <translation>ビュー</translation>
@@ -41853,7 +41704,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>Utils::EnvironmentDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;Environment variables can be referenced with ${OTHER}.</source>
         <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;他の環境変数は ${OTHER} の形式で参照できます。</translation>
@@ -42612,7 +42463,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Utils::RemoveFileDialog</name>
+    <name>::Utils</name>
     <message>
         <source>Remove File</source>
         <translation>ファイルを削除する</translation>
@@ -43319,11 +43170,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Utils::FileSaverBase</name>
-    <message>
-        <source>File Error</source>
-        <translation>ファイルエラー</translation>
-    </message>
+    <name>::Utils</name>
 </context>
 <context>
     <name>ADS::DockWidgetTab</name>
@@ -43662,7 +43509,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>Utils::Archive</name>
+    <name>::Utils</name>
     <message>
         <source>File format not supported.</source>
         <translation>未対応のファイル形式です。</translation>
@@ -43693,9 +43540,6 @@ in &quot;%2&quot;.
 
 </translation>
     </message>
-</context>
-<context>
-    <name>Utils::TriStateAspect</name>
     <message>
         <source>Enable</source>
         <translation>有効</translation>
@@ -43708,16 +43552,10 @@ in &quot;%2&quot;.
         <source>Leave at Default</source>
         <translation>デフォルトのままで</translation>
     </message>
-</context>
-<context>
-    <name>Utils::BaseTreeView</name>
     <message>
         <source>Show %1 Column</source>
         <translation>%1 列を表示する</translation>
     </message>
-</context>
-<context>
-    <name>Utils::InfoBarDisplay</name>
     <message>
         <source>Do Not Show Again</source>
         <translation>今後このメッセージを表示しない</translation>
@@ -43726,9 +43564,6 @@ in &quot;%2&quot;.
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
-</context>
-<context>
-    <name>JsonTreeModelItem</name>
     <message>
         <source>String</source>
         <translation>文字列</translation>
@@ -43741,41 +43576,10 @@ in &quot;%2&quot;.
         <source>Undefined</source>
         <translation>未定義</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NameValueModel</name>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;未定義&gt;</translation>
-    </message>
-    <message>
-        <source>Variable</source>
-        <translation>変数</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-    <message>
-        <source>&lt;VARIABLE&gt;</source>
-        <extracomment>Name when inserting a new variable</extracomment>
-        <translation>&lt;変数&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;VALUE&gt;</source>
-        <extracomment>Value when inserting a new variable</extracomment>
-        <translation>&lt;値&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>StringUtils</name>
     <message>
         <source>Elapsed time: %1.</source>
         <translation>経過時間: %1.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::VariableChooser</name>
     <message>
         <source>Insert Variable</source>
         <translation>変数の挿入</translation>

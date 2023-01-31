@@ -14755,7 +14755,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Utils::CheckableMessageBox</name>
+    <name>::Utils</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -14776,9 +14776,6 @@ p, li { white-space: pre-wrap; }
         <source>Do not &amp;ask again</source>
         <translation>&amp;Neptat se znovu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::WizardPage</name>
     <message>
         <source>Choose the location</source>
         <translation type="obsolete">Vybrat umístění</translation>
@@ -14795,9 +14792,6 @@ p, li { white-space: pre-wrap; }
         <source>Choose the Location</source>
         <translation>Vybrat umístění</translation>
     </message>
-</context>
-<context>
-    <name>Utils::NewClassWidget</name>
     <message>
         <source>Class name:</source>
         <translation type="obsolete">Název třídy:</translation>
@@ -14902,16 +14896,9 @@ p, li { white-space: pre-wrap; }
         <source>Inherits QQuickItem - Qt Quick 2</source>
         <translation>Dědí ze třídy QQuickItem - Qt Quick 2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectIntroPage</name>
     <message>
         <source>Introduction and project location</source>
         <translation type="obsolete">Uvedení a umístění projektu</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation>Název:</translation>
     </message>
     <message>
         <source>Create in:</source>
@@ -14941,9 +14928,6 @@ p, li { white-space: pre-wrap; }
         <source>Project:</source>
         <translation>Projekt:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SubmitEditorWidget</name>
     <message>
         <source>Subversion Submit</source>
         <translation type="obsolete">Odeslání Subversion</translation>
@@ -16194,7 +16178,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Utils::ClassNameValidatingLineEdit</name>
+    <name>::Utils</name>
     <message>
         <source>The class name must not contain namespace delimiters.</source>
         <translation>Název třídy nesmí obsahovat znaky pro oddělení jmenného prostoru.</translation>
@@ -16207,9 +16191,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>The class name contains invalid characters.</source>
         <translation>Název třídy obsahuje neplatné znaky.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ConsoleProcess</name>
     <message>
         <source>Cannot set up communication channel: %1</source>
         <translation>Nepodařilo se zřídit spojovací kanál: %1</translation>
@@ -16286,9 +16267,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Cannot obtain exit status from inferior: %1</source>
         <translation>Nepodařilo se získat vrácenou hodnotu z podřízeného: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::DetailsButton</name>
     <message>
         <source>Show Details</source>
         <translation type="obsolete">Ukázat podrobnosti</translation>
@@ -16297,9 +16275,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileNameValidatingLineEdit</name>
     <message>
         <source>The name must not be empty</source>
         <translation type="obsolete">Název nesmí být prázdný</translation>
@@ -16344,9 +16319,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>File extensions %1 are required:</source>
         <translation>Je požadována jedna ze souborových přípon %1:</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileSearch</name>
     <message numerus="yes">
         <source>%1: canceled. %n occurrences found in %2 files.</source>
         <translation>
@@ -16371,9 +16343,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
             <numerusform>%1: %n výskyty ve %2 ze %3 souborů.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>Utils::PathChooser</name>
     <message>
         <source>Choose...</source>
         <translation>Vybrat...</translation>
@@ -16451,13 +16420,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation type="obsolete">Cesta &apos;%1&apos; neukazuje na soubor.</translation>
     </message>
     <message>
-        <source>Path:</source>
-        <translation>Cesta:</translation>
-    </message>
-</context>
-<context>
-    <name>Utils::PathListEditor</name>
-    <message>
         <source>Insert...</source>
         <translation>Vložit...</translation>
     </message>
@@ -16481,9 +16443,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>From &quot;%1&quot;</source>
         <translation>Z &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::ProjectNameValidatingLineEdit</name>
     <message>
         <source>The name must not contain the &apos;.&apos;-character.</source>
         <translation type="obsolete">Název nesmí obsahovat znak &apos;.&apos;.</translation>
@@ -16496,9 +16455,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Invalid character &apos;.&apos;.</source>
         <translation>Neplatný znak &apos;.&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::reloadPrompt</name>
     <message>
         <source>File Changed</source>
         <translation>Soubor byl změněn</translation>
@@ -21332,7 +21288,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlJS::Check</name>
+    <name>::QmlJS</name>
     <message>
         <source>unknown value for enum</source>
         <translation type="obsolete">Neznámá hodnota pro &apos;enum&apos;</translation>
@@ -21529,9 +21485,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&apos;int&apos; or &apos;real&apos;</source>
         <translation>&apos;int&apos; nebo &apos;real&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Interpreter::QmlXmlReader</name>
     <message>
         <source>The file is not module file.</source>
         <translation type="obsolete">Soubor není souborem modulu.</translation>
@@ -21552,20 +21505,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>%1: %2</source>
         <translation type="obsolete">%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::Link</name>
     <message>
         <source>could not find file or directory</source>
         <translation type="obsolete">Soubor nebo adresář se nepodařilo najít</translation>
-    </message>
-    <message>
-        <source>expected two numbers separated by a dot</source>
-        <translation type="obsolete">Byla očekávána dvě čísla oddělená čárkou</translation>
-    </message>
-    <message>
-        <source>package import requires a version number</source>
-        <translation type="obsolete">Zavedení balíčku vyžaduje číslo verze</translation>
     </message>
     <message>
         <source>package not found</source>
@@ -21600,7 +21542,7 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
     </message>
 </context>
 <context>
-    <name>Utils::FancyMainWindow</name>
+    <name>::Utils</name>
     <message>
         <source>Locked</source>
         <translation>Ukotveno</translation>
@@ -21609,16 +21551,10 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Reset to Default Layout</source>
         <translation>Nastavit znovu výchozí rozvržení</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FilterLineEdit</name>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
@@ -21627,9 +21563,6 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Clear text</source>
         <translation>Smazat text</translation>
     </message>
-</context>
-<context>
-    <name>Utils::fileDeletedPrompt</name>
     <message>
         <source>File has been removed</source>
         <translation>Soubor byl odstraněn</translation>
@@ -21670,16 +21603,10 @@ Pro projekty qmlproject použijte vlastnost importPaths pro přidání zaváděc
         <source>Save</source>
         <translation type="obsolete">Uložit</translation>
     </message>
-</context>
-<context>
-    <name>Utils::UnixTools</name>
     <message>
         <source>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Variable&lt;/th&gt;&lt;th&gt;Expands to&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;directory of current file&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;file name (with full path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;file name (without path)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
         <translation>&lt;table border=1 cellspacing=0 cellpadding=3&gt;&lt;tr&gt;&lt;th&gt;Proměnná&lt;/th&gt;&lt;th&gt;Roztáhne se k&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%d&lt;/td&gt;&lt;td&gt;adresáři současného souboru&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%f&lt;/td&gt;&lt;td&gt;souborový název (s úplnou cestou)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%n&lt;/td&gt;&lt;td&gt;souborový název (bez cesty)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;%%&lt;/td&gt;&lt;td&gt;%&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::LinearProgressWidget</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -29056,7 +28983,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlJS::Bind</name>
+    <name>::QmlJS</name>
     <message>
         <source>expected two numbers separated by a dot</source>
         <translation>Byla očekávána dvě čísla oddělená čárkou</translation>
@@ -29065,13 +28992,6 @@ With cache simulation, further event counters are enabled:
         <source>package import requires a version number</source>
         <translation>Importování balíčku vyžaduje číslo verze</translation>
     </message>
-    <message>
-        <source>file or directory not found</source>
-        <translation type="obsolete">Soubor nebo adresář nenalezen</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJS::TypeDescriptionReader</name>
     <message>
         <source>Errors while loading qmltypes from %1:
 %2</source>
@@ -29289,7 +29209,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Utils::DebuggerLanguageChooser</name>
+    <name>::Utils</name>
     <message>
         <source>C++</source>
         <translation type="obsolete">C++</translation>
@@ -29306,9 +29226,6 @@ With cache simulation, further event counters are enabled:
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;Jaké jsou předpoklady?&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::EnvironmentModel</name>
     <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;NENÍ NASTAVENO&gt;</translation>
@@ -29331,9 +29248,6 @@ With cache simulation, further event counters are enabled:
         <extracomment>Value when inserting a new variable</extracomment>
         <translation>&lt;HODNOTA&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Utils::FileUtils</name>
     <message>
         <source>Refusing to remove root directory.</source>
         <translation>Kořenový adresář nelze odstranit..</translation>
@@ -29386,23 +29300,14 @@ With cache simulation, further event counters are enabled:
         <source>Cannot create temporary file in %1: %2</source>
         <translation>Nepodařilo se vytvořit žádný dočasný soubor v %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::IpAddressLineEdit</name>
     <message>
         <source>The IP address is not valid.</source>
         <translation>IP adresa je neplatná.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::QtcProcess</name>
     <message>
         <source>Error in command line.</source>
         <translation>Chyba v příkazovém řádku.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SftpChannelPrivate</name>
     <message>
         <source>Server could not start sftp subsystem.</source>
         <translation type="obsolete">Server se nepodařilo spustit subsystém sftp.</translation>
@@ -29498,14 +29403,11 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::Internal::SshChannelManager</name>
+    <name>::Utils</name>
     <message>
         <source>Invalid channel id %1</source>
         <translation type="obsolete">Neplatný identifikátor kanálu %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshConnectionPrivate</name>
     <message>
         <source>SSH Protocol error: %1</source>
         <translation type="obsolete">Chyba v protokolu SSH: %1</translation>
@@ -29521,10 +29423,6 @@ Server: %2.</translation>
     <message>
         <source>Invalid server id &apos;%1&apos;.</source>
         <translation type="obsolete">Neplatný identifikátor serveru &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Unexpected packet of type %1.</source>
-        <translation type="obsolete">Neočekávaný paket typu %1.</translation>
     </message>
     <message>
         <source>Private key error: %1</source>
@@ -29566,9 +29464,6 @@ Server: %2.</translation>
         <source>Private key file error: %1</source>
         <translation type="obsolete">Chyba v soukromém klíči: %1</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SynchronousProcess</name>
     <message>
         <source>The command &apos;%1&apos; finished successfully.</source>
         <translation>Příkaz &apos;%1&apos; byl ukončen úspěšně.</translation>
@@ -38188,7 +38083,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::Ssh</name>
+    <name>::Utils</name>
     <message>
         <source>Password Required</source>
         <translation type="obsolete">Heslo vyžadováno</translation>
@@ -38197,9 +38092,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Please enter the password for your private key.</source>
         <translation type="obsolete">Zadejte, prosím, heslo pro svůj soukromý klíč.</translation>
     </message>
-</context>
-<context>
-    <name>Utils::TextFileFormat</name>
     <message>
         <source>Out of memory.</source>
         <translation>Není dostupná žádná další paměť.</translation>
@@ -38559,7 +38451,7 @@ Pokud zvolíte nepokračovat, Qt Creator se soubor .shared nahrát nepokusí.</t
     </message>
 </context>
 <context>
-    <name>FindExportedCppTypes</name>
+    <name>::QmlJS</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="obsolete">Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -39314,7 +39206,7 @@ Filtr: %2
     </message>
 </context>
 <context>
-    <name>Utils::SshKeyCreationDialog</name>
+    <name>::Utils</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">Nastavení klíče SSH</translation>
@@ -42413,14 +42305,11 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>Utils::BaseTreeView</name>
+    <name>::Utils</name>
     <message>
         <source>Adjust Column Widths to Contents</source>
         <translation>Přizpůsobit šířku sloupců obsahu</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SettingsSelector</name>
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
@@ -42445,9 +42334,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Rename...</source>
         <translation>Přejmenovat...</translation>
     </message>
-</context>
-<context>
-    <name>Utils::SftpFileSystemModel</name>
     <message>
         <source>File Type</source>
         <translation type="obsolete">Typ souboru</translation>
@@ -42464,9 +42350,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Error listing contents of directory &apos;%1&apos;: %2</source>
         <translation type="obsolete">Chyba při vypisování obsahu adresáře &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>Utils::Internal::SshRemoteProcessPrivate</name>
     <message>
         <source>Process killed by signal</source>
         <translation type="obsolete">Proces ukončen signálem</translation>
@@ -46027,7 +45910,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>Utils::ElfReader</name>
+    <name>::Utils</name>
     <message>
         <source>&apos;%1&apos; is an invalid ELF object (%2)</source>
         <translation>&apos;%1&apos; je neplatným objektem ELF (%2)</translation>
@@ -49414,18 +49297,10 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::SimpleAbstractStreamReader</name>
+    <name>::QmlJS</name>
     <message>
         <source>Cannot find file %1.</source>
         <translation>Nelze najít soubor %1.</translation>
-    </message>
-    <message>
-        <source>Could not parse document.</source>
-        <translation>Nepodařilo se zpracovat dokument.</translation>
-    </message>
-    <message>
-        <source>Expected document to contain a single object definition.</source>
-        <translation>Očekáván dokument obsahující definici jednoho objektu.</translation>
     </message>
     <message>
         <source>Expected expression statement after colon.</source>
@@ -49435,16 +49310,10 @@ nelze najít v cestě.</translation>
         <source>Expected expression statement to be a literal.</source>
         <translation>Očekáván výraz tvořený písmeny (literal).</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::SimpleReader</name>
     <message>
         <source>Property is defined twice.</source>
         <translation>Vlastnost je stanovena dvakrát.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::StaticAnalysisMessages</name>
     <message>
         <source>Do not use &apos;%1&apos; as a constructor.</source>
         <translation>&apos;%1&apos; se nesmí používat jako konstruktor.</translation>
@@ -51669,7 +51538,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::QrcParser</name>
+    <name>::Utils</name>
     <message>
         <source>XML error on line %1, col %2: %3</source>
         <translation>Chyba v XML na řádku %1, sloupec %2: %3</translation>
@@ -52329,7 +52198,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Diff</name>
+    <name>::Utils</name>
     <message>
         <source>Delete</source>
         <translation>Smazat</translation>
@@ -55517,7 +55386,7 @@ Opravdu chcete pokračovat?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS::ModelManagerInterface</name>
+    <name>::QmlJS</name>
     <message>
         <source>Indexing</source>
         <translation>Indexování</translation>
@@ -55526,9 +55395,6 @@ Opravdu chcete pokračovat?</translation>
         <source>QML import scan</source>
         <translation>Sken importování QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJS::PluginDumper</name>
     <message>
         <source>QML module does not contain information about components contained in plugins.
 
@@ -55608,15 +55474,7 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
     </message>
 </context>
 <context>
-    <name>Utils::FancyLineEdit</name>
-    <message>
-        <source>Filter</source>
-        <translation>Filtr</translation>
-    </message>
-    <message>
-        <source>Clear text</source>
-        <translation>Smazat text</translation>
-    </message>
+    <name>::Utils</name>
 </context>
 <context>
     <name>::Android</name>

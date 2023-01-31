@@ -4,6 +4,7 @@
 #include "classnamevalidatinglineedit.h"
 
 #include "qtcassert.h"
+#include "utilstr.h"
 
 #include <QRegularExpression>
 
@@ -78,15 +79,15 @@ bool ClassNameValidatingLineEdit::validateClassName(FancyLineEdit *edit, QString
     const QString value = edit->text();
     if (!d->m_namespacesEnabled && value.contains(d->m_namespaceDelimiter)) {
         if (errorMessage)
-            *errorMessage = tr("The class name must not contain namespace delimiters.");
+            *errorMessage = Tr::tr("The class name must not contain namespace delimiters.");
         return false;
     } else if (value.isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("Please enter a class name.");
+            *errorMessage = Tr::tr("Please enter a class name.");
         return false;
     } else if (!d->m_nameRegexp.match(value).hasMatch()) {
         if (errorMessage)
-            *errorMessage = tr("The class name contains invalid characters.");
+            *errorMessage = Tr::tr("The class name contains invalid characters.");
         return false;
     }
     return true;

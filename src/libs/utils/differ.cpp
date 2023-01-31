@@ -11,12 +11,13 @@ publication by Neil Fraser: http://neil.fraser.name/writing/diff/
 
 #include "differ.h"
 
+#include "utilstr.h"
+
 #include <QList>
 #include <QRegularExpression>
 #include <QStringList>
 #include <QMap>
 #include <QPair>
-#include <QCoreApplication>
 #include <QFutureInterfaceBase>
 
 namespace Utils {
@@ -920,10 +921,10 @@ bool Diff::operator!=(const Diff &other) const
 QString Diff::commandString(Command com)
 {
     if (com == Delete)
-        return QCoreApplication::translate("Diff", "Delete");
+        return ::Utils::Tr::tr("Delete");
     else if (com == Insert)
-        return QCoreApplication::translate("Diff", "Insert");
-    return QCoreApplication::translate("Diff", "Equal");
+        return ::Utils::Tr::tr("Insert");
+    return ::Utils::Tr::tr("Equal");
 }
 
 QString Diff::toString() const

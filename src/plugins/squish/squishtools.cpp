@@ -452,6 +452,10 @@ void SquishTools::onRunnerStopped()
         m_request = ServerStopRequested;
         qCInfo(LOG) << "Stopping server from RunnerStopped";
         stopSquishServer();
+        if (QTC_GUARD(m_primaryRunner) && m_primaryRunner->lastRunHadLicenseIssues()) {
+            SquishMessages::criticalMessage(Tr::tr("Could not get Squish license from server."));
+            return;
+        }
         QString error;
         SquishXmlOutputHandler::mergeResultFiles(m_reportFiles,
                                                  m_currentResultsDirectory,
@@ -461,6 +465,13 @@ void SquishTools::onRunnerStopped()
             SquishMessages::criticalMessage(error);
         logrotateTestResults();
     } else {
+        if (QTC_GUARD(m_primaryRunner) && m_primaryRunner->lastRunHadLicenseIssues()) {
+            m_request = ServerStopRequested;
+            qCInfo(LOG) << "Stopping server from RunnerStopped (multiple testcases, no license)";
+            stopSquishServer();
+            SquishMessages::criticalMessage(Tr::tr("Could not get Squish license from server."));
+            return;
+        }
         m_xmlOutputHandler->clearForNextRun();
         m_perspective.setPerspectiveMode(SquishPerspective::Running);
         logAndChangeRunnerState(RunnerState::Starting);

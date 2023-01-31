@@ -11,8 +11,8 @@
 
 namespace Utils {
 
+class StorageActivator;
 class TaskContainer;
-
 class TaskTreePrivate;
 
 namespace Tasking {
@@ -66,6 +66,7 @@ private:
     QSharedPointer<StorageData> m_storageData;
     friend TaskContainer;
     friend TaskTreePrivate;
+    friend StorageActivator;
 };
 
 template <typename StorageStruct>

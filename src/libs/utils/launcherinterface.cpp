@@ -7,8 +7,8 @@
 #include "launchersocket.h"
 #include "qtcassert.h"
 #include "temporarydirectory.h"
+#include "utilstr.h"
 
-#include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
 #include <QLocalServer>
@@ -123,16 +123,14 @@ void LauncherInterfacePrivate::handleProcessError()
     if (m_process->error() == QProcess::FailedToStart) {
         const QString launcherPathForUser
                 = QDir::toNativeSeparators(QDir::cleanPath(m_process->program()));
-        emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
-                           "Failed to start process launcher at \"%1\": %2")
+        emit errorOccurred(Tr::tr("Failed to start process launcher at \"%1\": %2")
                            .arg(launcherPathForUser, m_process->errorString()));
     }
 }
 
 void LauncherInterfacePrivate::handleProcessFinished()
 {
-    emit errorOccurred(QCoreApplication::translate("Utils::LauncherSocket",
-                       "Process launcher closed unexpectedly: %1")
+    emit errorOccurred(Tr::tr("Process launcher closed unexpectedly: %1")
                        .arg(m_process->errorString()));
 }
 

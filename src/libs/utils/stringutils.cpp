@@ -7,13 +7,13 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 #include "filepath.h"
+#include "utilstr.h"
 
 #ifdef QT_WIDGETS_LIB
 #include <QApplication>
 #include <QClipboard>
 #endif
 
-#include <QCoreApplication>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
@@ -338,7 +338,7 @@ QString formatElapsedTime(qint64 elapsed)
     elapsed += 500; // round up
     const QString format = QString::fromLatin1(elapsed >= 3600000 ? "h:mm:ss" : "mm:ss");
     const QString time = QTime(0, 0).addMSecs(elapsed).toString(format);
-    return QCoreApplication::translate("StringUtils", "Elapsed time: %1.").arg(time);
+    return Tr::tr("Elapsed time: %1.").arg(time);
 }
 
 /*
@@ -441,6 +441,17 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
         str.chop(1);
 
     return str;
+}
+
+QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
+{
+    QString res = text;
+    const auto newEnd = std::unique(res.begin(), res.end(), [](const QChar c1, const QChar c2) {
+        return c1 == '\r' && c2 == '\r'; // QTCREATORBUG-24556
+    });
+    res.chop(std::distance(newEnd, res.end()));
+    res.replace("\r\n", "\n");
+    return res;
 }
 
 QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
