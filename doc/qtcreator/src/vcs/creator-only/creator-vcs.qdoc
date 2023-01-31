@@ -37,14 +37,12 @@
             \li \l{http://www.nongnu.org/cvs/}
             \li
         \row
-            \li \l{https://doc.qt.io/qtcreator/creator-vcs-fossil.html}{Fossil}
+            \li \l{Using Fossil}{Fossil}
             \li \l{https://fossil-scm.org/index.html/doc/trunk/www/index.wiki}
-            \li To use Fossil, you need to build the Fossil plugin from
-                \l{https://code.qt.io/cgit/qt-creator/plugin-fossil-scm.git/}
-                {sources}, and install Fossil as described in
-                \l{https://doc.qt.io/qtcreator/creator-vcs-fossil.html}
-                {Qt Creator Fossil Plugin Manual}.
-        \row
+            \li Disabled by default. To enable the plugin, select
+                \uicontrol Help > \uicontrol {About Plugins} >
+                \uicontrol {Version Control} > \uicontrol Fossil.
+             \row
             \li \l{Using Git}{Git}
             \li \l{http://git-scm.com/}
             \li Git version 1.9.0, or later
@@ -66,8 +64,6 @@
                 Disabled by default. To enable the plugin, select
                 \uicontrol Help > \uicontrol {About Plugins} >
                 \uicontrol {Version Control} > \uicontrol Perforce.
-                Then select \uicontrol {Restart Now} to restart \QC
-                and load the plugin.
         \row
             \li \l{Using Subversion}{Subversion}
             \li \l{http://subversion.apache.org/}
@@ -103,8 +99,7 @@
         \li \l{Using Bazaar}
         \li \l{Using ClearCase}
         \li \l{Using CVS}
-        \li \l{https://doc.qt.io/qtcreator/creator-vcs-fossil.html}
-            {Qt Creator Fossil Plugin Manual}
+        \li \l{Using Fossil}
         \li \l{Using Git}
         \li \l{Using GitLab}
         \li \l{Using Mercurial}

@@ -1,38 +1,12 @@
-/****************************************************************************
-**
-** Copyright (c) 2018 Artur Shepilko
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
-
-// **********************************************************************
-// NOTE: the sections are not ordered by their logical order to avoid
-// reshuffling the file each time the index order changes (i.e., often).
-// Run the fixnavi.pl script to adjust the links to the index order.
-// **********************************************************************
+// Copyright (C) 2018 Artur Shepilko
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-vcs-fossil.html
+    \previouspage creator-vcs-cvs.html
+    \nextpage creator-vcs-git.html
 
-    \title Qt Creator Fossil Plugin Manual
+    \title Using Fossil
 
     Fossil is an open source distributed version control system, designed
     and developed by the creator of SQLite. A stand-alone Fossil executable
@@ -52,14 +26,17 @@
         \li Create or designate a directory to store local Fossil repositories
             and remote clones. For example: \c ~/fossils/qt.
 
-        \li Configure \uicontrol {Version Control Options} for the Fossil plugin
-            to use the designated directory as
-            \uicontrol {Local Repositories Default path}.
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol {Version Control} > \uicontrol Fossil, and set the
+            designated directory in the \uicontrol {Default path} field.
     \endlist
 
-    Now Fossil should become available as a VCS choice to create new local
-    repositories, as well as a choice in \uicontrol {New File or Project} to
-    clone a remote Fossil repository.
+    To create a local Fossil repository, select \uicontrol Tools >
+    \uicontrol Fossil > \uicontrol {Create Repository}.
+
+    To clone a remote Fossil repository, select \uicontrol File >
+    \uicontrol {New Project} > \uicontrol {Import Project} >
+    \uicontrol {Fossil Clone}.
 
     \section1 Additional Fossil Functions
 
@@ -85,5 +62,4 @@
             \li \uicontrol Settings
             \li Configure the settings of the local repository.
     \endtable
-
 */

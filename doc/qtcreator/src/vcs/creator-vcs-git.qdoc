@@ -13,7 +13,7 @@
     \previouspage studio-developer-topics.html
     \nextpage studio-porting-projects.html
     \else
-    \previouspage creator-vcs-cvs.html
+    \previouspage creator-vcs-fossil.html
     \nextpage creator-vcs-gitlab.html
     \endif
 
