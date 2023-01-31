@@ -197,13 +197,39 @@ void tst_TaskTree::processTree_data()
     };
 
     {
-        const Group root {
+        const Group root1 {
             Storage(storage),
-            OnGroupDone(groupDone(0))
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
         };
-        const Log log {{0, Handler::GroupDone}};
+        const Group root2 {
+            Storage(storage),
+            OnGroupSetup([] { return TaskAction::Continue; }),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
+        };
+        const Group root3 {
+            Storage(storage),
+            OnGroupSetup([] { return TaskAction::StopWithDone; }),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
+        };
+        const Group root4 {
+            Storage(storage),
+            OnGroupSetup([] { return TaskAction::StopWithError; }),
+            OnGroupDone(groupDone(0)),
+            OnGroupError(groupError(0))
+        };
+        const Log logDone {{0, Handler::GroupDone}};
+        const Log logError {{0, Handler::GroupError}};
         QTest::newRow("Empty")
-                << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+            << TestData{storage, root1, logDone, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("EmptyContinue")
+            << TestData{storage, root2, logDone, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("EmptyDone")
+            << TestData{storage, root3, logDone, 0, OnStart::NotRunning, OnDone::Success};
+        QTest::newRow("EmptyError")
+            << TestData{storage, root4, logError, 0, OnStart::NotRunning, OnDone::Failure};
     }
 
     {
