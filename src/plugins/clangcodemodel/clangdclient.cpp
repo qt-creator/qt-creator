@@ -1468,7 +1468,10 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
         data.highlighter->setHighlightingRunner(runner);
         data.highlighter->run();
     };
-    getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
+    if (q->versionNumber().majorVersion() >= 17)
+        astHandler({}, {});
+    else
+        getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const

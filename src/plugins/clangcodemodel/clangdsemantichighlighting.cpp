@@ -461,6 +461,7 @@ void ExtraHighlightingResultsCollector::collect()
 
     if (!m_ast.isValid())
         return;
+    QTC_ASSERT(m_clangdVersion < 17, return);
     visitNode(m_ast);
 }
 
@@ -656,126 +657,124 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
         return;
     }
 
-    if (m_clangdVersion < 17) {
-        if (isDeclaration && (node.kind() == "FunctionTemplate" || node.kind() == "ClassTemplate")) {
-            // The child nodes are the template parameters and and the function or class.
-            // The opening angle bracket is before the first child node, the closing angle
-            // bracket is before the function child node and after the last param node.
-            const QString classOrFunctionKind = QLatin1String(node.kind() == "FunctionTemplate"
-                                                              ? "Function" : "CXXRecord");
-            const auto functionOrClassIt = std::find_if(children.begin(), children.end(),
-                                                        [&classOrFunctionKind](const ClangdAstNode &n) {
-                return n.role() == "declaration" && n.kind() == classOrFunctionKind;
-            });
-            if (functionOrClassIt == children.end() || functionOrClassIt == children.begin())
-                return;
-            const int firstTemplateParamStartPos = posForNodeStart(children.first());
-            const int lastTemplateParamEndPos = posForNodeEnd(*(functionOrClassIt - 1));
-            const int functionOrClassStartPos = posForNodeStart(*functionOrClassIt);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, functionOrClassStartPos);
+    if (isDeclaration && (node.kind() == "FunctionTemplate" || node.kind() == "ClassTemplate")) {
+        // The child nodes are the template parameters and and the function or class.
+        // The opening angle bracket is before the first child node, the closing angle
+        // bracket is before the function child node and after the last param node.
+        const QString classOrFunctionKind = QLatin1String(node.kind() == "FunctionTemplate"
+                                                          ? "Function" : "CXXRecord");
+        const auto functionOrClassIt = std::find_if(children.begin(), children.end(),
+                                                    [&classOrFunctionKind](const ClangdAstNode &n) {
+            return n.role() == "declaration" && n.kind() == classOrFunctionKind;
+        });
+        if (functionOrClassIt == children.end() || functionOrClassIt == children.begin())
             return;
-        }
+        const int firstTemplateParamStartPos = posForNodeStart(children.first());
+        const int lastTemplateParamEndPos = posForNodeEnd(*(functionOrClassIt - 1));
+        const int functionOrClassStartPos = posForNodeStart(*functionOrClassIt);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, functionOrClassStartPos);
+        return;
+    }
 
-        const auto isTemplateParamDecl = [](const ClangdAstNode &node) {
-            return node.isTemplateParameterDeclaration();
-        };
-        if (isDeclaration && node.kind() == "TypeAliasTemplate") {
-            // Children are one node of type TypeAlias and the template parameters.
-            // The opening angle bracket is before the first parameter and the closing
-            // angle bracket is after the last parameter.
-            // The TypeAlias node seems to appear first in the AST, even though lexically
-            // is comes after the parameters. We don't rely on the order here.
-            // Note that there is a second pair of angle brackets. That one is part of
-            // a TemplateSpecialization, which is handled further below.
-            const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
-                                                         isTemplateParamDecl);
-            if (firstTemplateParam == children.end())
-                return;
-            const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
-                                                        isTemplateParamDecl);
-            QTC_ASSERT(lastTemplateParam != children.rend(), return);
-            const auto typeAlias = std::find_if(children.begin(), children.end(),
-                                                [](const ClangdAstNode &n) { return n.kind() == "TypeAlias"; });
-            if (typeAlias == children.end())
-                return;
-
-            const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
-            const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
-            const int searchEndPos = posForNodeStart(*typeAlias);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, searchEndPos);
+    const auto isTemplateParamDecl = [](const ClangdAstNode &node) {
+        return node.isTemplateParameterDeclaration();
+    };
+    if (isDeclaration && node.kind() == "TypeAliasTemplate") {
+        // Children are one node of type TypeAlias and the template parameters.
+        // The opening angle bracket is before the first parameter and the closing
+        // angle bracket is after the last parameter.
+        // The TypeAlias node seems to appear first in the AST, even though lexically
+        // is comes after the parameters. We don't rely on the order here.
+        // Note that there is a second pair of angle brackets. That one is part of
+        // a TemplateSpecialization, which is handled further below.
+        const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
+                                                     isTemplateParamDecl);
+        if (firstTemplateParam == children.end())
             return;
-        }
-
-        if (isDeclaration && node.kind() == "ClassTemplateSpecialization") {
-            // There is one child of kind TemplateSpecialization. The first pair
-            // of angle brackets comes before that.
-            if (children.size() == 1) {
-                const int childNodePos = posForNodeStart(children.first());
-                insertAngleBracketInfo(nodeStartPos, childNodePos, nodeStartPos, childNodePos);
-            }
+        const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
+                                                    isTemplateParamDecl);
+        QTC_ASSERT(lastTemplateParam != children.rend(), return);
+        const auto typeAlias = std::find_if(children.begin(), children.end(),
+                [](const ClangdAstNode &n) { return n.kind() == "TypeAlias"; });
+        if (typeAlias == children.end())
             return;
+
+        const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
+        const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
+        const int searchEndPos = posForNodeStart(*typeAlias);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, searchEndPos);
+        return;
+    }
+
+    if (isDeclaration && node.kind() == "ClassTemplateSpecialization") {
+        // There is one child of kind TemplateSpecialization. The first pair
+        // of angle brackets comes before that.
+        if (children.size() == 1) {
+            const int childNodePos = posForNodeStart(children.first());
+            insertAngleBracketInfo(nodeStartPos, childNodePos, nodeStartPos, childNodePos);
         }
+        return;
+    }
 
-        if (isDeclaration && node.kind() == "TemplateTemplateParm") {
-            // The child nodes are template arguments and template parameters.
-            // Arguments seem to appear before parameters in the AST, even though they
-            // come after them in the source code. We don't rely on the order here.
-            const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
-                                                         isTemplateParamDecl);
-            if (firstTemplateParam == children.end())
-                return;
-            const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
-                                                        isTemplateParamDecl);
-            QTC_ASSERT(lastTemplateParam != children.rend(), return);
-            const auto templateArg = std::find_if(children.begin(), children.end(),
-                                                  [](const ClangdAstNode &n) { return n.role() == "template argument"; });
-
-            const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
-            const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
-            const int searchEndPos = templateArg == children.end()
-                    ? nodeEndPos : posForNodeStart(*templateArg);
-            insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
-                                   lastTemplateParamEndPos, searchEndPos);
+    if (isDeclaration && node.kind() == "TemplateTemplateParm") {
+        // The child nodes are template arguments and template parameters.
+        // Arguments seem to appear before parameters in the AST, even though they
+        // come after them in the source code. We don't rely on the order here.
+        const auto firstTemplateParam = std::find_if(children.begin(), children.end(),
+                                                     isTemplateParamDecl);
+        if (firstTemplateParam == children.end())
             return;
-        }
+        const auto lastTemplateParam = std::find_if(children.rbegin(), children.rend(),
+                                                    isTemplateParamDecl);
+        QTC_ASSERT(lastTemplateParam != children.rend(), return);
+        const auto templateArg = std::find_if(children.begin(), children.end(),
+                [](const ClangdAstNode &n) { return n.role() == "template argument"; });
 
-        // {static,dynamic,reinterpret}_cast<>().
-        if (isExpression && node.kind().startsWith("CXX") && node.kind().endsWith("Cast")) {
-            // First child is type, second child is expression.
-            // The opening angle bracket is before the first child, the closing angle bracket
-            // is between the two children.
-            if (children.size() == 2) {
-                insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.first()),
-                                       posForNodeEnd(children.first()),
-                                       posForNodeStart(children.last()));
-            }
-            return;
-        }
+        const int firstTemplateParamStartPos = posForNodeStart(*firstTemplateParam);
+        const int lastTemplateParamEndPos = posForNodeEnd(*lastTemplateParam);
+        const int searchEndPos = templateArg == children.end()
+                ? nodeEndPos : posForNodeStart(*templateArg);
+        insertAngleBracketInfo(nodeStartPos, firstTemplateParamStartPos,
+                               lastTemplateParamEndPos, searchEndPos);
+        return;
+    }
 
-        if (node.kind() == "TemplateSpecialization") {
-            // First comes the template type, then the template arguments.
-            // The opening angle bracket is before the first template argument,
-            // the closing angle bracket is after the last template argument.
-            // The first child node has no range, so we start searching at the parent node.
-            if (children.size() >= 2) {
-                int searchStart2 = posForNodeEnd(children.last());
-                int searchEnd2 = nodeEndPos;
-
-                // There is a weird off-by-one error on the clang side: If there is a
-                // nested template instantiation *and* there is no space between
-                // the closing angle brackets, then the inner TemplateSpecialization node's range
-                // will extend one character too far, covering the outer's closing angle bracket.
-                // This is what we are correcting for here.
-                // This issue is tracked at https://github.com/clangd/clangd/issues/871.
-                if (searchStart2 == searchEnd2)
-                    --searchStart2;
-                insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.at(1)),
-                                       searchStart2, searchEnd2);
-            }
-            return;
+    // {static,dynamic,reinterpret}_cast<>().
+    if (isExpression && node.kind().startsWith("CXX") && node.kind().endsWith("Cast")) {
+        // First child is type, second child is expression.
+        // The opening angle bracket is before the first child, the closing angle bracket
+        // is between the two children.
+        if (children.size() == 2) {
+            insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.first()),
+                                   posForNodeEnd(children.first()),
+                                   posForNodeStart(children.last()));
         }
+        return;
+    }
+
+    if (node.kind() == "TemplateSpecialization") {
+        // First comes the template type, then the template arguments.
+        // The opening angle bracket is before the first template argument,
+        // the closing angle bracket is after the last template argument.
+        // The first child node has no range, so we start searching at the parent node.
+        if (children.size() >= 2) {
+            int searchStart2 = posForNodeEnd(children.last());
+            int searchEnd2 = nodeEndPos;
+
+            // There is a weird off-by-one error on the clang side: If there is a
+            // nested template instantiation *and* there is no space between
+            // the closing angle brackets, then the inner TemplateSpecialization node's range
+            // will extend one character too far, covering the outer's closing angle bracket.
+            // This is what we are correcting for here.
+            // This issue is tracked at https://github.com/clangd/clangd/issues/871.
+            if (searchStart2 == searchEnd2)
+                --searchStart2;
+            insertAngleBracketInfo(nodeStartPos, posForNodeStart(children.at(1)),
+                                   searchStart2, searchEnd2);
+        }
+        return;
     }
 
     if (!isExpression && !isDeclaration)
