@@ -1092,6 +1092,9 @@ Document::MutablePtr TextToModelMerger::createParsedDocument(const QUrl &url, co
 
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
+    QmlJS::ScopeChain::setSkipmakeComponentChain(true);
+    QScopeGuard unSkip([]() { QmlJS::ScopeChain::setSkipmakeComponentChain(false); });
+
     qCInfo(rewriterBenchmark) << Q_FUNC_INFO;
 
     const bool justSanityCheck = !differenceHandler.isAmender();

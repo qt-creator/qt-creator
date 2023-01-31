@@ -11,6 +11,8 @@
 
 using namespace QmlJS;
 
+bool ScopeChain::s_setSkipmakeComponentChain = false;
+
 /*!
     \class QmlJS::ScopeChain
     \brief The ScopeChain class describes the scopes used for global lookup in
@@ -210,6 +212,11 @@ QList<const ObjectValue *> ScopeChain::all() const
     return m_all;
 }
 
+void ScopeChain::setSkipmakeComponentChain(bool b)
+{
+    s_setSkipmakeComponentChain = b;
+}
+
 static void collectScopes(const QmlComponentChain *chain, QList<const ObjectValue *> *target)
 {
     foreach (const QmlComponentChain *parent, chain->instantiatingComponents())
@@ -351,6 +358,9 @@ void ScopeChain::makeComponentChain(
         const Snapshot &snapshot,
         QHash<const Document *, QmlComponentChain *> *components)
 {
+    if (s_setSkipmakeComponentChain)
+        return;
+
     Document::Ptr doc = target->document();
     if (!doc->qmlProgram())
         return;
