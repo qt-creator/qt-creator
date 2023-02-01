@@ -39,6 +39,83 @@ struct Tr {
     Q_DECLARE_TR_FUNCTIONS(::QmakeProjectManager)
 };
 
+// Locate a binary in a directory, applying all kinds of
+// extensions the operating system supports.
+static QString checkBinary(const QDir &dir, const QString &binary)
+{
+    // naive UNIX approach
+    const QFileInfo info(dir.filePath(binary));
+    if (info.isFile() && info.isExecutable())
+        return info.absoluteFilePath();
+
+    // Does the OS have some weird extension concept or does the
+    // binary have a 3 letter extension?
+    if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
+        return {};
+    const int dotIndex = binary.lastIndexOf(QLatin1Char('.'));
+    if (dotIndex != -1 && dotIndex == binary.size() - 4)
+        return {};
+
+    switch (HostOsInfo::hostOs()) {
+    case OsTypeLinux:
+    case OsTypeOtherUnix:
+    case OsTypeOther:
+        break;
+    case OsTypeWindows: {
+            static const char *windowsExtensions[] = {".cmd", ".bat", ".exe", ".com"};
+            // Check the Windows extensions using the order
+            const int windowsExtensionCount = sizeof(windowsExtensions)/sizeof(const char*);
+            for (int e = 0; e < windowsExtensionCount; e ++) {
+                const QFileInfo windowsBinary(dir.filePath(binary + QLatin1String(windowsExtensions[e])));
+                if (windowsBinary.isFile() && windowsBinary.isExecutable())
+                    return windowsBinary.absoluteFilePath();
+            }
+        }
+        break;
+    case OsTypeMac: {
+            // Check for Mac app folders
+            const QFileInfo appFolder(dir.filePath(binary + QLatin1String(".app")));
+            if (appFolder.isDir()) {
+                QString macBinaryPath = appFolder.absoluteFilePath();
+                macBinaryPath += QLatin1String("/Contents/MacOS/");
+                macBinaryPath += binary;
+                const QFileInfo macBinary(macBinaryPath);
+                if (macBinary.isFile() && macBinary.isExecutable())
+                    return macBinary.absoluteFilePath();
+            }
+        }
+        break;
+    }
+    return {};
+}
+
+static QString locateBinary(const QString &path, const QString &binary)
+{
+    // Absolute file?
+    const QFileInfo absInfo(binary);
+    if (absInfo.isAbsolute())
+        return checkBinary(absInfo.dir(), absInfo.fileName());
+
+    // Windows finds binaries  in the current directory
+    if (HostOsInfo::isWindowsHost()) {
+        const QString currentDirBinary = checkBinary(QDir::current(), binary);
+        if (!currentDirBinary.isEmpty())
+            return currentDirBinary;
+    }
+
+    const QStringList paths = path.split(HostOsInfo::pathListSeparator());
+    if (paths.empty())
+        return {};
+    const QStringList::const_iterator cend = paths.constEnd();
+    for (QStringList::const_iterator it = paths.constBegin(); it != cend; ++it) {
+        const QDir dir(*it);
+        const QString rc = checkBinary(dir, binary);
+        if (!rc.isEmpty())
+            return rc;
+    }
+    return {};
+}
+
 static QString msgStartFailed(const QString &binary, QStringList arguments)
 {
     arguments.push_front(binary);
@@ -122,7 +199,7 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     // fallback
     if (data->binary.isEmpty()) {
         const QString path = qtcEnvironmentVariable("PATH");
-        data->binary = QtcProcess::locateBinary(path, commandForQtVersion(nullptr));
+        data->binary = locateBinary(path, commandForQtVersion(nullptr));
     }
 
     if (data->binary.isEmpty()) {

@@ -9,17 +9,12 @@
     "icon": "qtquickuiprototype.png",
     "iconKind": "Themed",
     "enabled": "%{JS: value('Plugins').indexOf('QmlProjectManager') >= 0}",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQt" ],
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ],
 
     "options":
     [
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qmlproject')}" },
-        { "key": "IsQt6", "value": "%{JS: value('QtVersion').IsQt6}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName(value('ProjectName'), 'qml')}" },
-        { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
-        { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
-        { "key": "QtQuickVirtualKeyboardImport", "value": "%{JS: value('QtVersion').QtQuickVirtualKeyboardImport}" },
-        { "key": "QtQuickFeature", "value": "%{JS: (value('QtQuickVersion')=='') ? 'QtSupport.Wizards.FeatureQtQuick.6' : 'QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}'}" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" }
     ],
 
@@ -36,68 +31,6 @@
             "typeId": "Fields",
             "data":
             [
-                {
-                    "name": "QtVersion",
-                    "trDisplayName": "Minimum required Qt version:",
-                    "type": "ComboBox",
-                    "data":
-                    {
-                        "index": 1,
-                        "items":
-                        [
-                            {
-                                "trKey": "Qt 6",
-                                "value":
-                                {
-                                    "QtQuickVersion": "",
-                                    "QtQuickWindowVersion": "",
-                                    "QtQuickVirtualKeyboardImport": "",
-                                    "IsQt6": true
-                                }
-                            },
-                            {
-                                "trKey": "Qt 5.15",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.15",
-                                    "QtQuickWindowVersion": "2.15",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.15",
-                                    "IsQt6": false
-                                }
-                            },
-                            {
-                                "trKey": "Qt 5.14",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.14",
-                                    "QtQuickWindowVersion": "2.14",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.14",
-                                    "IsQt6": false
-                                }
-                            },
-                            {
-                                "trKey": "Qt 5.13",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.13",
-                                    "QtQuickWindowVersion": "2.13",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
-                                    "IsQt6": false
-                                }
-                            },
-                            {
-                                "trKey": "Qt 5.12",
-                                "value":
-                                {
-                                    "QtQuickVersion": "2.12",
-                                    "QtQuickWindowVersion": "2.12",
-                                    "QtQuickVirtualKeyboardImport": "QtQuick.VirtualKeyboard 2.4",
-                                    "IsQt6": false
-                                }
-                            }
-                        ]
-                    }
-                },
                 {
                     "name": "UseVirtualKeyboard",
                     "trDisplayName": "Use Qt Virtual Keyboard",
@@ -116,7 +49,7 @@
             "enabled": "%{JS: ! %{IsSubproject}}",
             "data": {
                 "projectFilePath": "%{QmlProjectFileName}",
-                "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "%{QtQuickFeature}" ]
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ]
             }
         },
         {
@@ -137,7 +70,7 @@
                     "openAsProject": true
                 },
                 {
-                    "source": "../qtquickapplication/empty/main.qml.tpl",
+                    "source": "../qtquickapplication/Main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}",
                     "openInEditor": true
                 },

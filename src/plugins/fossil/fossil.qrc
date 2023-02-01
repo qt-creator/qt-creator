@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/fossil">
+        <file>wizard/projects/vcs/icon.png</file>
+        <file>wizard/projects/vcs/icon@2x.png</file>
+        <file>wizard/projects/vcs/wizard.json</file>
+    </qresource>
+</RCC>

@@ -284,7 +284,6 @@ public:
     void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 
-    QTextCodec *encoding(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     bool readDataFromCommit(const Utils::FilePath &repoDirectory, const QString &commit,
                             CommitData &commitData, QString *errorMessage = nullptr,
                             QString *commitTemplate = nullptr);
@@ -345,6 +344,10 @@ public:
                                   const Utils::FilePath &path, ShowEditor showSetting = ShowEditor::Always);
 
     Author getAuthor(const Utils::FilePath &workingDirectory);
+
+    enum EncodingType { EncodingSource, EncodingLogOutput, EncodingCommit, EncodingDefault };
+    QTextCodec *encoding(EncodingType encodingType, const Utils::FilePath &source = {}) const;
+
 private:
     void finishSubmoduleUpdate();
     void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
@@ -353,9 +356,6 @@ private:
 
     void stage(DiffEditor::DiffEditorController *diffController,
                const QString &patch, bool revert) const;
-
-    enum CodecType { CodecSource, CodecLogOutput, CodecNone };
-    QTextCodec *codecFor(CodecType codecType, const Utils::FilePath &source = {}) const;
 
     void requestReload(const QString &documentId, const Utils::FilePath &source,
                        const QString &title, const Utils::FilePath &workingDirectory,

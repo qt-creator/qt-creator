@@ -1,0 +1,65 @@
+// Copyright (C) 2018 Artur Shepilko
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-vcs-fossil.html
+    \previouspage creator-vcs-cvs.html
+    \nextpage creator-vcs-git.html
+
+    \title Using Fossil
+
+    Fossil is an open source distributed version control system, designed
+    and developed by the creator of SQLite. A stand-alone Fossil executable
+    contains a source control management engine, web interface, issue tracker,
+    wiki, and built-in web server. Fossil is available for Linux, Windows,
+    and \macos.
+
+    To use Fossil from \QC, you must install and configure it, as described in
+    the following sections.
+
+    \section1 Configuring Fossil
+
+    \list 1
+        \li Download the \l{http://fossil-scm.org}{Fossil SCM client} and
+            install the \c fossil executable file in your \c PATH.
+
+        \li Create or designate a directory to store local Fossil repositories
+            and remote clones. For example: \c ~/fossils/qt.
+
+        \li Select \uicontrol Edit > \uicontrol Preferences >
+            \uicontrol {Version Control} > \uicontrol Fossil, and set the
+            designated directory in the \uicontrol {Default path} field.
+    \endlist
+
+    To create a local Fossil repository, select \uicontrol Tools >
+    \uicontrol Fossil > \uicontrol {Create Repository}.
+
+    To clone a remote Fossil repository, select \uicontrol File >
+    \uicontrol {New Project} > \uicontrol {Import Project} >
+    \uicontrol {Fossil Clone}.
+
+    \section1 Additional Fossil Functions
+
+    In addition to the standard version control system functions described in
+    \l {Using Version Control Systems}, the \uicontrol Fossil submenu contains
+    the following items:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \uicontrol Pull
+            \li Pull changes from the remote repository.
+        \row
+            \li \uicontrol Push
+            \li Push committed changes to the remote repository.
+        \row
+            \li \uicontrol Update
+            \li Change the version of the current checkout. Any uncommitted
+                changes are retained and applied to the new checkout.
+        \row
+            \li \uicontrol Settings
+            \li Configure the settings of the local repository.
+    \endtable
+*/

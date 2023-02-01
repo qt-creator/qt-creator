@@ -29,7 +29,6 @@
 #include <utils/mimeutils.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>

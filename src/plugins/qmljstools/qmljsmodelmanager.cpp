@@ -38,13 +38,12 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <utils/runextensions.h>
+#include <QLibraryInfo>
 #include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
 #include <QSet>
 #include <QString>
-#include <QLibraryInfo>
 #include <qglobal.h>
 
 using namespace Utils;

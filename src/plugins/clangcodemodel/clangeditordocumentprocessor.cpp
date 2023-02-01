@@ -25,7 +25,6 @@
 #include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 
 #include <QTextBlock>
 #include <QWidget>

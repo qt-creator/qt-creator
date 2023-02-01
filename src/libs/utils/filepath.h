@@ -283,6 +283,7 @@ public:
     std::function<Environment(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
+    std::function<void(const FilePath &, const Environment &)> openTerminal;
 };
 
 } // Utils

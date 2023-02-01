@@ -151,7 +151,11 @@ clang::format::FormatStyle qtcStyle()
 #else
     style.SortIncludes = true;
 #endif
+#if LLVM_VERSION_MAJOR >= 16
+    style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;
+#else
     style.SortUsingDeclarations = true;
+#endif
     style.SpaceAfterCStyleCast = true;
     style.SpaceAfterTemplateKeyword = false;
     style.SpaceBeforeAssignmentOperators = true;

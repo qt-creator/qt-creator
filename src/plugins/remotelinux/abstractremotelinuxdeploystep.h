@@ -83,8 +83,7 @@ public:
     ~AbstractRemoteLinuxDeployService() override;
 
     void setTarget(ProjectExplorer::Target *bc);
-    // Only use setDevice() as fallback if no target is available
-    void setDevice(const ProjectExplorer::IDeviceConstPtr &device);
+
     void start();
     void stop();
 

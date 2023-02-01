@@ -37,6 +37,7 @@ Project {
         "diffeditor/diffeditor.qbs",
         "docker/docker.qbs",
         "fakevim/fakevim.qbs",
+        "fossil/fossil.qbs",
         "emacskeys/emacskeys.qbs",
         "genericprojectmanager/genericprojectmanager.qbs",
         "git/git.qbs",

@@ -17,6 +17,7 @@
 #include <cplusplus/TranslationUnit.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/filepath.h>
 
 #include "utils.h"
 
@@ -425,7 +426,7 @@ static Document::Ptr parse(const QString &fileName, const QByteArray &source,
         if (verbose)
             std::cout << "Parsing as " << qPrintable(parseModeToString(parseMode)) << "...";
 
-        Document::Ptr doc = Document::create(fileName);
+        Document::Ptr doc = Document::create(Utils::FilePath::fromString(fileName));
         doc->control()->setDiagnosticClient(errorHandler);
         doc->setUtf8Source(source);
         const bool parsed = doc->parse(parseMode);

@@ -41,6 +41,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/environment.h>
 #include <utils/executeondestruction.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -2618,7 +2619,7 @@ void EditorManagerPrivate::openTerminal()
 {
     if (!d->m_contextMenuEntry || d->m_contextMenuEntry->filePath().isEmpty())
         return;
-    FileUtils::openTerminal(d->m_contextMenuEntry->filePath().parentDir());
+    FileUtils::openTerminal(d->m_contextMenuEntry->filePath().parentDir(), {});
 }
 
 void EditorManagerPrivate::findInDirectory()

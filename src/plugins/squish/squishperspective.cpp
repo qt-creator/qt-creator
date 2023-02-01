@@ -396,6 +396,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_stepOutAction->setEnabled(true);
         m_stopAction->setEnabled(true);
         break;
+    case Configuring:
     case Querying:
     case NoMode:
         m_pausePlayAction->setIcon(iconForType(IconType::Pause));

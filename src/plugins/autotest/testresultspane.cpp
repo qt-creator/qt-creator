@@ -609,7 +609,7 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     QAction *action = new QAction(Tr::tr("Copy"), &menu);
     action->setShortcut(QKeySequence(QKeySequence::Copy));
     action->setEnabled(resultsAvailable && clicked.isValid());
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
        onCopyItemTriggered(clicked);
     });
     menu.addAction(action);
@@ -627,14 +627,14 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
     const auto correlatingItem = (enabled && clicked.isValid()) ? clicked.findTestTreeItem() : nullptr;
     action = new QAction(Tr::tr("Run This Test"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::Run, clicked);
     });
     menu.addAction(action);
 
     action = new QAction(Tr::tr("Run This Test Without Deployment"), &menu);
     action->setEnabled(correlatingItem && correlatingItem->canProvideTestConfiguration());
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::RunWithoutDeploy, clicked);
     });
     menu.addAction(action);
@@ -648,14 +648,14 @@ void TestResultsPane::onCustomContextMenuRequested(const QPoint &pos)
         }
     }
     action->setEnabled(debugEnabled);
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::Debug, clicked);
     });
     menu.addAction(action);
 
     action = new QAction(Tr::tr("Debug This Test Without Deployment"), &menu);
     action->setEnabled(debugEnabled);
-    connect(action, &QAction::triggered, this, [this, clicked] {
+    connect(action, &QAction::triggered, this, [this, &clicked] {
         onRunThisTestTriggered(TestRunMode::DebugWithoutDeploy, clicked);
     });
     menu.addAction(action);

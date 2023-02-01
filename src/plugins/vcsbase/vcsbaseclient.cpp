@@ -157,10 +157,11 @@ void VcsBaseClientImpl::vcsExecWithHandler(const FilePath &workingDirectory,
                                            const QStringList &arguments,
                                            const QObject *context,
                                            const CommandHandler &handler,
-                                           RunFlags additionalFlags) const
+                                           RunFlags additionalFlags, QTextCodec *codec) const
 {
     VcsCommand *command = createCommand(workingDirectory);
     command->addFlags(additionalFlags);
+    command->setCodec(codec);
     command->addJob({vcsBinary(), arguments}, vcsTimeoutS());
     if (handler) {
         const QObject *actualContext = context ? context : this;

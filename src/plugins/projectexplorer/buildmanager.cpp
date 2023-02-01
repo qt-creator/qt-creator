@@ -31,7 +31,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/outputformatter.h>
-#include <utils/runextensions.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>

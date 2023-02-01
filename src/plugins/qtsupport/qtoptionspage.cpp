@@ -29,7 +29,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/runextensions.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>

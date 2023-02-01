@@ -347,19 +347,19 @@ void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QM
     QList<QAction*> actions = menu->actions();
     QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
 
-    if (QDir().exists(pathChooser->filePath().toString())) {
-        auto *showInGraphicalShell = new QAction(Core::FileUtils::msgGraphicalShellAction(), menu);
+    if (pathChooser->filePath().exists()) {
+        auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
         connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
             Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
         });
         menu->insertAction(firstAction, showInGraphicalShell);
 
-        auto *showInTerminal = new QAction(Core::FileUtils::msgTerminalHereAction(), menu);
+        auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
         connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
             if (pathChooser->openTerminalHandler())
                 pathChooser->openTerminalHandler()();
             else
-                FileUtils::openTerminal(pathChooser->filePath());
+                FileUtils::openTerminal(pathChooser->filePath(), {});
         });
         menu->insertAction(firstAction, showInTerminal);
 
