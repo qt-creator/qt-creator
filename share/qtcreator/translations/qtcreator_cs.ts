@@ -5404,7 +5404,7 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation type="obsolete">Hledání...</translation>
@@ -5442,10 +5442,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation type="obsolete">Používat regulární &amp;výrazy</translation>
     </message>
     <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Zrušit</translation>
-    </message>
-    <message>
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>Hledat a &amp;nahradit</translation>
     </message>
@@ -5469,24 +5465,10 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Sco&amp;pe:</source>
         <translation>&amp;Oblast:</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation type="obsolete">&amp;Hledat/Nahradit</translation>
-    </message>
     <message>
         <source>Find...</source>
         <translation type="obsolete">Hledat...</translation>
     </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="obsolete">Ctrl+Shift+F</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation type="obsolete">Nynější dokument</translation>
@@ -5575,9 +5557,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>Preserve Case when Replacing</source>
         <translation>Zachovat při nahrazování velikost</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Hledat</translation>
@@ -5599,25 +5578,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Pokročilé...</translation>
-    </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
-    <message>
         <source>Search Results</source>
         <translation>Výsledky hledání</translation>
     </message>
@@ -5636,22 +5596,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation type="obsolete">Nahradit:</translation>
-    </message>
-    <message>
-        <source>Replace all occurrences</source>
-        <translation type="obsolete">Nahradit všechny výskyty</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation type="obsolete">Nahradit</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation type="obsolete">Tuto změnu nelze vrátit zpět.</translation>
     </message>
     <message>
         <source>Do not warn again</source>
@@ -8505,17 +8449,6 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
-    <message>
-        <source>Open File With...</source>
-        <translation type="obsolete">Otevřít soubor s...</translation>
-    </message>
-    <message>
-        <source>Open file extension with:</source>
-        <translation type="obsolete">Otevřít souborovou příponu s:</translation>
-    </message>
-</context>
-<context>
     <name>::Perforce</name>
     <message>
         <source>Change Number</source>
@@ -9052,29 +8985,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>User:</source>
         <translation>Uživatel:</translation>
-    </message>
-</context>
-<context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Podrobnosti o chybě</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Nainstalované přídavné moduly</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Popis přídavného modulu %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Chyby přídavného modulu %1</translation>
     </message>
 </context>
 <context>
@@ -12545,21 +12455,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
-    <message>
-        <source>Save Changes</source>
-        <translation type="obsolete">Uložit změny</translation>
-    </message>
-    <message>
-        <source>The following files have unsaved changes:</source>
-        <translation type="obsolete">Následující soubory byly změněny:</translation>
-    </message>
-    <message>
-        <source>Automatically save all files before building</source>
-        <translation type="obsolete">Automaticky uložit všechny změněné soubory před sestavováním</translation>
-    </message>
-</context>
-<context>
     <name>SettingsDialog</name>
     <message>
         <source>Options</source>
@@ -12705,38 +12600,10 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="obsolete">Klávesové zkratky</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtr:</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Příkaz</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Popis</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <translation type="obsolete">Zkratka</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Defaults</source>
         <translation type="obsolete">Výchozí</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
     </message>
     <message>
         <source>Key Sequence</source>
@@ -12745,14 +12612,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Shortcut:</source>
         <translation type="obsolete">Klávesová zkratka:</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
     </message>
 </context>
 <context>
@@ -22337,7 +22196,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Hledat/Nahradit</translation>
@@ -28820,7 +28679,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>::Core</name>
     <message>
         <source>Tags:</source>
         <translation type="obsolete">Klíčová slova:</translation>
@@ -29941,9 +29800,6 @@ Would you like to overwrite them?</source>
 %1.
 Chcete je nechat přepsat?</translation>
     </message>
-</context>
-<context>
-    <name>EditorManager</name>
     <message>
         <source>Go Back</source>
         <translation>Jít zpět</translation>
@@ -29953,36 +29809,9 @@ Chcete je nechat přepsat?</translation>
         <translation>Jít vpřed</translation>
     </message>
     <message>
-        <source>Split</source>
-        <translation>Rozdělit</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>Rozdělit jedno vedle druhého</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Otevřít v novém okně</translation>
-    </message>
-    <message>
         <source>Close Document</source>
         <translation>Zavřít dokument</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Další otevřený dokument na seznamu</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Předchozí otevřený dokument na seznamu</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>
@@ -38245,7 +38074,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>Rozlišovat velká a malá písmena</translation>
@@ -38274,16 +38103,9 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>Hledání bylo zrušeno.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Zrušit</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -38294,28 +38116,12 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Hledat ještě jednou</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
         <source>Replace all occurrences</source>
         <translation>Nahradit všechny výskyty</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
-    </message>
-    <message>
         <source>This change cannot be undone.</source>
         <translation>Tuto změnu nelze vrátit zpět.</translation>
-    </message>
-    <message>
-        <source>Do not warn again</source>
-        <translation type="obsolete">Nevarovat znovu</translation>
     </message>
     <message numerus="yes">
         <source>The search resulted in more than %n items, do you still want to continue?</source>
@@ -55160,62 +54966,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
 </context>
 <context>
     <name>::Core</name>
-    <message>
-        <source>&amp;Search</source>
-        <translation>&amp;Hledat</translation>
-    </message>
-    <message>
-        <source>Search &amp;&amp; &amp;Replace</source>
-        <translation>Hledat a &amp;nahradit</translation>
-    </message>
-    <message>
-        <source>Sear&amp;ch for:</source>
-        <translation>&amp;Hledat:</translation>
-    </message>
-    <message>
-        <source>Case sensiti&amp;ve</source>
-        <translation>Rozlišující psaní &amp;velkých a malých písmen</translation>
-    </message>
-    <message>
-        <source>Whole words o&amp;nly</source>
-        <translation>Pouze celá &amp;slova</translation>
-    </message>
-    <message>
-        <source>Use re&amp;gular expressions</source>
-        <translation>Používat re&amp;gulární výrazy</translation>
-    </message>
-    <message>
-        <source>Sco&amp;pe:</source>
-        <translation>&amp;Oblast:</translation>
-    </message>
-    <message>
-        <source>Find</source>
-        <translation>Hledat</translation>
-    </message>
-    <message>
-        <source>Find:</source>
-        <translation>Hledat:</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Nahradit:</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Nahradit</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Nahradit a hledat</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Nahradit vše</translation>
-    </message>
 </context>
 <context>
     <name>::Qnx</name>
@@ -55601,184 +55351,12 @@ Vytvořte, prosím, aplikaci qmldump na stránce pro nastavení verze Qt.</trans
 <context>
     <name>::Core</name>
     <message>
-        <source>&amp;Find/Replace</source>
-        <translation>&amp;Hledat/Nahradit</translation>
-    </message>
-    <message>
-        <source>Advanced Find</source>
-        <translation>Rozšířené hledání</translation>
-    </message>
-    <message>
-        <source>Open Advanced Find...</source>
-        <translation>Otevřít rozšířené hledání...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>Rozšířené...</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation>Ctrl+Shift+F</translation>
-    </message>
-    <message>
-        <source>Shift+Enter</source>
-        <translation>Shift+Enter</translation>
-    </message>
-    <message>
-        <source>Shift+Return</source>
-        <translation>Shift+Return</translation>
-    </message>
-    <message>
-        <source>Find/Replace</source>
-        <translation>Hledat/Nahradit</translation>
-    </message>
-    <message>
-        <source>Enter Find String</source>
-        <translation>Zadat vzor hledání</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
-    </message>
-    <message>
-        <source>Find Next</source>
-        <translation>Najít další</translation>
-    </message>
-    <message>
-        <source>Find Previous</source>
-        <translation>Najít předchozí</translation>
-    </message>
-    <message>
-        <source>Find Next (Selected)</source>
-        <translation>Najít další (vybrané)</translation>
-    </message>
-    <message>
-        <source>Ctrl+F3</source>
-        <translation>Ctrl+F3</translation>
-    </message>
-    <message>
-        <source>Find Previous (Selected)</source>
-        <translation>Najít předchozí (vybrané)</translation>
-    </message>
-    <message>
-        <source>Ctrl+Shift+F3</source>
-        <translation>Ctrl+Shift+F3</translation>
-    </message>
-    <message>
-        <source>Ctrl+=</source>
-        <translation>Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find Previous</source>
-        <translation>Nahradit a najít předchozí</translation>
-    </message>
-    <message>
-        <source>Case Sensitive</source>
-        <translation>Rozlišující velká a malá písmena</translation>
-    </message>
-    <message>
-        <source>Whole Words Only</source>
-        <translation>Pouze celá slova</translation>
-    </message>
-    <message>
-        <source>Use Regular Expressions</source>
-        <translation>Používat regulární výrazy</translation>
-    </message>
-    <message>
-        <source>Preserve Case when Replacing</source>
-        <translation>Zachovat při nahrazování velikost</translation>
-    </message>
-    <message>
-        <source>Case sensitive</source>
-        <translation>Rozlišovat velká a malá písmena</translation>
-    </message>
-    <message>
-        <source>Whole words</source>
-        <translation>Celá slova</translation>
-    </message>
-    <message>
-        <source>Regular expressions</source>
-        <translation>Regulární výrazy</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Zachovat velikost písmen</translation>
-    </message>
-    <message>
-        <source>Flags: %1</source>
-        <translation>Příznaky: %1</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Žádné</translation>
-    </message>
-    <message>
-        <source>, </source>
-        <translation>, </translation>
-    </message>
-    <message>
-        <source>Search was canceled.</source>
-        <translation>Hledání bylo zrušeno.</translation>
-    </message>
-    <message>
         <source>Repeat the search with same parameters.</source>
         <translation>Opakovat hledání se stejnými parametry.</translation>
     </message>
     <message>
-        <source>Search again</source>
-        <translation>Hledat ještě jednou</translation>
-    </message>
-    <message>
         <source>Replace all occurrences.</source>
         <translation>Nahradit všechny výskyty.</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation>Tuto změnu nelze vrátit zpět.</translation>
-    </message>
-    <message numerus="yes">
-        <source>The search resulted in more than %n items, do you still want to continue?</source>
-        <translation>
-            <numerusform>Výsledkem hledání je více než %n položka. Stále ještě chcete pokračovat?</numerusform>
-            <numerusform>Výsledkem hledání je více než %n položky. Stále ještě chcete pokračovat?</numerusform>
-            <numerusform>Výsledkem hledání je více než %n položek. Stále ještě chcete pokračovat?</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Pokračovat</translation>
-    </message>
-    <message>
-        <source>No matches found.</source>
-        <translation>Nebyly nalezeny žádné odpovídající shody.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n matches found.</source>
-        <translation>
-            <numerusform>Nalezena %n shoda.</numerusform>
-            <numerusform>Nalezeny %n shody.</numerusform>
-            <numerusform>Nalezeno %n shod.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>New Search</source>
-        <translation>Nové hledání</translation>
-    </message>
-    <message>
-        <source>Expand All</source>
-        <translation>Rozbalit vše</translation>
-    </message>
-    <message>
-        <source>%1 %2</source>
-        <translation>%1 %2</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation>Složit vše</translation>
-    </message>
-    <message>
-        <source>Search Results</source>
-        <translation>Výsledky hledání</translation>
     </message>
     <message>
         <source>Could not find executable for &apos;%1&apos;.</source>

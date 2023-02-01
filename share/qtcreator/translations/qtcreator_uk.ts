@@ -7119,41 +7119,6 @@ Rebuilding the project might help.</source>
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation type="vanished">Наступний відкритий документ в історії</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation type="vanished">Попередній відкритий документ в історії</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation type="vanished">Йти назад</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation type="vanished">Йти вперед</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation type="vanished">Розбити</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation type="vanished">Розбити вертикально</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation type="vanished">Відкрити в новому вікні</translation>
-    </message>
-    <message>
-        <source>Close Document</source>
-        <translation type="vanished">Закрити документ</translation>
-    </message>
-</context>
-<context>
     <name>EditorSettingsPanel</name>
     <message>
         <source>Editor</source>
@@ -11963,27 +11928,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Деталі</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Деталі помилки</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Встановлені додатки</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Деталі додатку %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Помилки додатку %1</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>

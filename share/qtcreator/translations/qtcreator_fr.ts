@@ -881,10 +881,6 @@ Voulez vous les écraser ?</translation>
         <translation type="obsolete">Meta+E</translation>
     </message>
     <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
-    </message>
-    <message>
         <source>Close All Except Visible</source>
         <translation>Fermer tout sauf l&apos;éditeur visible</translation>
     </message>
@@ -6092,7 +6088,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation type="obsolete">Rechercher...</translation>
@@ -6110,10 +6106,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation type="obsolete">Rec&amp;herche :</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
         <source>&amp;Case sensitive</source>
         <translation type="obsolete">Sensible à la &amp;casse</translation>
     </message>
@@ -6128,10 +6120,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Use regular e&amp;xpressions</source>
         <translation type="obsolete">Utiliser des e&amp;xpressions régulières</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Annuler</translation>
     </message>
     <message>
         <source>Sco&amp;pe:</source>
@@ -6157,24 +6145,10 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>&amp;Remplacer &amp;&amp; Suivant</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
-    <message>
-        <source>&amp;Find/Replace</source>
-        <translation type="obsolete">&amp;Rechercher/Remplacer</translation>
-    </message>
     <message>
         <source>Find...</source>
         <translation type="obsolete">Rechercher dans...</translation>
     </message>
-    <message>
-        <source>Ctrl+Shift+F</source>
-        <translation type="obsolete">Ctrl+Maj+F</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation type="obsolete">Document courant</translation>
@@ -6263,9 +6237,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <source>Preserve Case when Replacing</source>
         <translation>Conserver la casse lors du remplacement</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Rechercher</translation>
@@ -6273,10 +6244,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>Find:</source>
         <translation>Rechercher :</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Remplacer par :</translation>
     </message>
     <message>
         <source>All</source>
@@ -6287,24 +6254,9 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Remplacer</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Remplacer &amp;&amp; chercher</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Remplacer tout</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>Avancé...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>No matches found!</source>
         <translation type="obsolete">Aucun résultat !</translation>
@@ -6320,22 +6272,6 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     <message>
         <source>%1 %2</source>
         <translation>%1 %2</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation type="obsolete">Remplacer avec :</translation>
-    </message>
-    <message>
-        <source>Replace all occurrences</source>
-        <translation type="obsolete">Remplacer toutes les occurrences</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation type="obsolete">Remplacer</translation>
-    </message>
-    <message>
-        <source>This change cannot be undone.</source>
-        <translation type="obsolete">Ce changement ne peut être annulé.</translation>
     </message>
     <message>
         <source>Do not warn again</source>
@@ -9054,17 +8990,6 @@ dans votre fichier .pro.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
-    <message>
-        <source>Open File With...</source>
-        <translation type="obsolete">Ouvrir le fichier avec...</translation>
-    </message>
-    <message>
-        <source>Open file extension with:</source>
-        <translation type="obsolete">Ouvrir ce type d&apos;extension avec :</translation>
-    </message>
-</context>
-<context>
     <name>::Perforce</name>
     <message>
         <source>Change Number</source>
@@ -9606,29 +9531,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>User:</source>
         <translation>Utilisateur :</translation>
-    </message>
-</context>
-<context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Détails de l&apos;erreur</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Plug-ins installés</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Détails sur le plug-in %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Erreurs du plug-in %1</translation>
     </message>
 </context>
 <context>
@@ -12762,21 +12664,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
-    <message>
-        <source>Save Changes</source>
-        <translation type="obsolete">Sauvegarder les changements</translation>
-    </message>
-    <message>
-        <source>The following files have unsaved changes:</source>
-        <translation type="obsolete">Les fichiers suivants contiennent des modifications non enregistrées :</translation>
-    </message>
-    <message>
-        <source>Automatically save all files before building</source>
-        <translation type="obsolete">Sauvegarder automatiquement tous les fichiers avant de compiler</translation>
-    </message>
-</context>
-<context>
     <name>SettingsDialog</name>
     <message>
         <source>Options</source>
@@ -12927,38 +12814,10 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
-    <message>
-        <source>Keyboard Shortcuts</source>
-        <translation type="obsolete">Raccourcis clavier</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation type="obsolete">Filtre :</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Libellé</translation>
-    </message>
-    <message>
-        <source>Shortcut</source>
-        <translation type="obsolete">Raccourci</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Defaults</source>
         <translation type="obsolete">Restaurer</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
     </message>
     <message>
         <source>Key Sequence</source>
@@ -12967,14 +12826,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>Shortcut:</source>
         <translation type="obsolete">Raccourci :</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
     </message>
 </context>
 <context>
@@ -18164,61 +18015,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>CommandMappings</name>
-    <message>
-        <source>Command Mappings</source>
-        <translation type="obsolete">Mappages de commandes</translation>
-    </message>
-    <message>
-        <source>Command</source>
-        <translation type="obsolete">Commande</translation>
-    </message>
-    <message>
-        <source>Label</source>
-        <translation type="obsolete">Libellé</translation>
-    </message>
-    <message>
-        <source>Target</source>
-        <translation type="obsolete">Cible</translation>
-    </message>
-    <message>
-        <source>Defaults</source>
-        <translation type="obsolete">Restaurer</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
-        <source>Target Identifier</source>
-        <translation type="obsolete">Identifiant de la cible</translation>
-    </message>
-    <message>
-        <source>Target:</source>
-        <translation type="obsolete">Cible :</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Reset all to default</source>
-        <translation type="obsolete">Restaurer tous les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset All</source>
-        <translation type="obsolete">Tout réinitialiser</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-</context>
-<context>
     <name>::Git</name>
     <message>
         <source>Stashes</source>
@@ -21431,7 +21227,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Rechercher/Remplacer</translation>
@@ -21443,11 +21239,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     <message>
         <source>Open Advanced Find...</source>
         <translation>Ouvrir la recherche avancée...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translatorcomment>c&apos;est surement la recherche donc je mettrais un e à la fin</translatorcomment>
-        <translation>Avancée... </translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
@@ -26097,42 +25888,10 @@ plutôt que dans le répertoire d&apos;installation lors d&apos;une exècution e
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Document ouvert suivant dans l&apos;historique</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Document ouvert précédent dans l&apos;historique</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation>Précédent</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Suivant</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>Scinder</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>Scinder verticalement</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>Ouvrir dans une nouvelle fenêtre</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Close Document</source>
         <translation>Fermer le document</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
     </message>
 </context>
 <context>
@@ -33442,7 +33201,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>::Core</name>
     <message>
         <source>Tags:</source>
         <translation type="obsolete">Tags :</translation>
@@ -36780,7 +36539,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>Sensible à la casse</translation>
@@ -36809,16 +36568,9 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation>La recherche a été annulée.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Annuler</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -36837,20 +36589,8 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
         <translation>Remplacer toutes les occurrences</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>Remplacer</translation>
-    </message>
-    <message>
-        <source>Preserve case</source>
-        <translation>Préserver la casse</translation>
-    </message>
-    <message>
         <source>This change cannot be undone.</source>
         <translation>Ce changement ne peut être annulé.</translation>
-    </message>
-    <message>
-        <source>Do not warn again</source>
-        <translation type="obsolete">Ne plus avertir</translation>
     </message>
     <message numerus="yes">
         <source>The search resulted in more than %n items, do you still want to continue?</source>

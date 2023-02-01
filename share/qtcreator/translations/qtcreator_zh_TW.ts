@@ -560,14 +560,6 @@
         <translation>&lt;b&gt;警告：&lt;/b&gt; 您正在變更一個唯讀檔。</translation>
     </message>
     <message>
-        <source>Next Open Document in History</source>
-        <translation>歷史紀錄中下一個開啟文件</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>歷史紀錄中前一個開啟文件</translation>
-    </message>
-    <message>
         <source>Go Back</source>
         <translation>返回</translation>
     </message>
@@ -578,10 +570,6 @@
     <message>
         <source>Meta+E</source>
         <translation type="obsolete">Meta+E</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation type="obsolete">Ctrl+E</translation>
     </message>
     <message>
         <source>%1,2</source>
@@ -1107,14 +1095,6 @@
     <message>
         <source>Installed Plugins</source>
         <translation>已安裝的外掛程式</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>%1 的外掛程式詳情</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>%1 的外掛程式錯誤</translation>
     </message>
     <message>
         <source>Processes</source>
@@ -4388,7 +4368,7 @@ Reason: %3</source>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Search</source>
         <translation>搜尋(&amp;S)</translation>
@@ -4417,9 +4397,6 @@ Reason: %3</source>
         <source>Search &amp;&amp; &amp;Replace</source>
         <translation>搜尋並取代(&amp;R)</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Find/Replace</source>
         <translation>搜尋/取代</translation>
@@ -4496,9 +4473,6 @@ Reason: %3</source>
         <source>Use Regular Expressions</source>
         <translation>使用正規表示式</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>尋找</translation>
@@ -4516,24 +4490,9 @@ Reason: %3</source>
         <translation>...</translation>
     </message>
     <message>
-        <source>Replace</source>
-        <translation>取代</translation>
-    </message>
-    <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>取代並搜尋</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>全部取代</translation>
-    </message>
-    <message>
         <source>Advanced...</source>
         <translation>進階...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>搜尋結果</translation>
@@ -6223,19 +6182,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>詳情</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>錯誤詳情</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>已安裝的外掛程式</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Plugin Details of %1</source>
         <translation>外掛程式 %1 的詳情</translation>
@@ -12456,7 +12403,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>搜尋/取代(&amp;F)</translation>
@@ -12468,10 +12415,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Open Advanced Find...</source>
         <translation>開啟進階搜尋...</translation>
-    </message>
-    <message>
-        <source>Advanced...</source>
-        <translation>進階...</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F</source>
@@ -15942,7 +15885,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>EditorManager</name>
+    <name>::Core</name>
     <message>
         <source>Next Open Document in History</source>
         <translation>歷史紀錄中下一個開啟的檔案</translation>
@@ -15950,22 +15893,6 @@ instead of its installation directory when run outside git bash.</source>
     <message>
         <source>Previous Open Document in History</source>
         <translation>歷史紀錄中前一個開啟的檔案</translation>
-    </message>
-    <message>
-        <source>Go Back</source>
-        <translation>返回</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>前進</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>分割</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>左右分割</translation>
     </message>
     <message>
         <source>Close Document</source>
@@ -23702,7 +23629,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Find::IFindFilter</name>
+    <name>::Core</name>
     <message>
         <source>Case sensitive</source>
         <translation>區分大小寫</translation>
@@ -23727,16 +23654,9 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>, </source>
         <translation>, </translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::SearchResultWidget</name>
     <message>
         <source>Search was canceled.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>取消</translation>
     </message>
     <message>
         <source>Repeat the search with same parameters</source>
@@ -23747,16 +23667,8 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>再次搜尋</translation>
     </message>
     <message>
-        <source>Replace with:</source>
-        <translation>取代為：</translation>
-    </message>
-    <message>
         <source>Replace all occurrences</source>
         <translation>取代所有出現位置</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>取代</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>

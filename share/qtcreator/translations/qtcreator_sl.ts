@@ -933,14 +933,6 @@ Ali jih želite nadomestiti?</translation>
         <translation>Predhodni odprti dokument v zgodovini</translation>
     </message>
     <message>
-        <source>Go Back</source>
-        <translation>Pojdi nazaj</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>Pojdi naprej</translation>
-    </message>
-    <message>
         <source>Meta+E</source>
         <translation>Meta+E</translation>
     </message>
@@ -1174,10 +1166,6 @@ Ali jih želite nadomestiti?</translation>
         <extracomment>unit for minutes
 </extracomment>
         <translation> min</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Ponastavi na privzeto</translation>
     </message>
     <message>
         <source>R</source>
@@ -4401,7 +4389,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Poišči …</translation>
@@ -4420,11 +4408,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <location/>
         <source>Search &amp;for:</source>
         <translation>Poi&amp;šči:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Close</source>
-        <translation>Zapri</translation>
     </message>
     <message>
         <location/>
@@ -4447,24 +4430,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Uporabi r&amp;egularne izraze</translation>
     </message>
     <message>
-        <location/>
-        <source>Cancel</source>
-        <translation>Prekliči</translation>
-    </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
-    <message>
         <source>Find/Replace</source>
         <translation>Najdi in zamenjaj</translation>
     </message>
     <message>
         <source>Enter Find String</source>
         <translation>Vnesite iskani niz</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
     </message>
     <message>
         <source>Find Next</source>
@@ -4479,20 +4450,12 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Zamenjaj</translation>
     </message>
     <message>
-        <source>Replace &amp;&amp; Find</source>
-        <translation>Zamenjaj in najdi</translation>
-    </message>
-    <message>
         <source>Ctrl+=</source>
         <translation>Ctrl+=</translation>
     </message>
     <message>
         <source>Replace &amp;&amp; Find Previous</source>
         <translation>Zamenjaj in najdi prejšnje</translation>
-    </message>
-    <message>
-        <source>Replace All</source>
-        <translation>Zamenjaj vse</translation>
     </message>
     <message>
         <source>Case Sensitive</source>
@@ -4510,9 +4473,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Replace &amp;&amp; Find Next</source>
         <translation type="obsolete">Zamenjaj in najdi naslednje</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Najdi</translation>
@@ -4524,18 +4484,8 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
     <message>
         <location/>
-        <source>Replace with:</source>
-        <translation>Zamenjaj z:</translation>
-    </message>
-    <message>
-        <location/>
         <source>...</source>
         <translation>...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Replace</source>
-        <translation>Zamenjaj</translation>
     </message>
     <message>
         <location/>
@@ -4548,17 +4498,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Zamenjaj vse</translation>
     </message>
     <message>
-        <location/>
-        <source>Advanced...</source>
-        <translation>Napredno ...</translation>
-    </message>
-    <message>
         <source>All</source>
         <translation type="obsolete">Vse</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>Rezultati iskanja</translation>
@@ -4578,10 +4520,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Replace all occurrences</source>
         <translation>Zamenjaj vse pojavitve</translation>
-    </message>
-    <message>
-        <source>Replace</source>
-        <translation>Zamenjaj</translation>
     </message>
     <message>
         <source>This change cannot be undone.</source>
@@ -6249,7 +6187,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Odpri datoteko v …</translation>
@@ -6725,29 +6663,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <location/>
         <source>User:</source>
         <translation>Uporabnik:</translation>
-    </message>
-</context>
-<context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Podrobnosti napake</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Nameščeni vstavki</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Podrobnosti vstavka %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Napake vstavka %1</translation>
     </message>
 </context>
 <context>
@@ -8456,7 +8371,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Shrani spremembe</translation>
@@ -12603,20 +12518,10 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CommandMappings</name>
+    <name>::Core</name>
     <message>
         <source>Command Mappings</source>
         <translation>Preslikava ukazov</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Command</source>
-        <translation>Ukaz</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Label</source>
-        <translation>Oznaka</translation>
     </message>
     <message>
         <location/>
@@ -12642,11 +12547,6 @@ Razlog: %2</translation>
         <location/>
         <source>Target:</source>
         <translation>Cilj:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Reset</source>
-        <translation>Ponastavi</translation>
     </message>
     <message>
         <location/>
@@ -15007,7 +14907,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Find::FindPlugin</name>
+    <name>::Core</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Najdi in zamenjaj</translation>
@@ -17612,9 +17512,6 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <source>Add Category</source>
         <translation>Dodaj kategorijo</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeMagicDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -17664,13 +17561,6 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <source>&lt;i&gt;Note: Wide range values might impact Qt Creator&apos;s performance when opening files.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Opomba: dolgi obsegi lahko pri odpiranju datotek vplivajo na hitrost delovanja Qt Creator-ja.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>MimeTypeSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
     <message>
         <location/>
         <source>Registered MIME Types</source>
@@ -17683,28 +17573,8 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
     <message>
         <location/>
-        <source>Reset All</source>
-        <translation>Ponastavi vse</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
-        <location/>
         <source>Patterns:</source>
         <translation>Vzorci:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Magic Header</source>
-        <translation>Rokovalnik z značilkami</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Type</source>
-        <translation>Vrsta</translation>
     </message>
     <message>
         <location/>
@@ -17716,24 +17586,6 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <source>Priority</source>
         <translation>Prednost</translation>
     </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj ...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Edit</source>
-        <translation>Uredi ...</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <location/>
         <source>Select a variable to insert.</source>
@@ -20631,7 +20483,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>ExampleDelegate</name>
+    <name>::Core</name>
     <message>
         <source>Tags:</source>
         <translation>Oznake:</translation>
@@ -21531,9 +21383,6 @@ Would you like to overwrite them?</source>
 %1.
 Ali jih želite nadomestiti?</translation>
     </message>
-</context>
-<context>
-    <name>EditorManager</name>
     <message>
         <source>Go Back</source>
         <translation>Vrni se</translation>
@@ -21542,21 +21391,6 @@ Ali jih želite nadomestiti?</translation>
         <source>Go Forward</source>
         <translation>Nadaljuj</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Zapri</translation>
-    </message>
-    <message>
-        <source>Next Open Document in History</source>
-        <translation>Naslednji odprti dokument v zgodovini</translation>
-    </message>
-    <message>
-        <source>Previous Open Document in History</source>
-        <translation>Predhodni odprti dokument v zgodovini</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
 </source>

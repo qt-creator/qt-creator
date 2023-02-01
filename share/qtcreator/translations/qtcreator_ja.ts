@@ -44772,54 +44772,10 @@ Output:
         <source>Save with Encoding</source>
         <translation>指定された文字コードで保存</translation>
     </message>
-</context>
-<context>
-    <name>ExternalTool</name>
     <message>
         <source>System Environment</source>
         <translation>システム環境変数</translation>
     </message>
-</context>
-<context>
-    <name>::Core</name>
-</context>
-<context>
-    <name>EditorManager</name>
-    <message>
-        <source>Go Back</source>
-        <translation>戻る</translation>
-    </message>
-    <message>
-        <source>Go Forward</source>
-        <translation>進む</translation>
-    </message>
-    <message>
-        <source>&amp;Save</source>
-        <translation>保存(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Save &amp;As...</source>
-        <translation>名前を付けて保存(&amp;A)...</translation>
-    </message>
-    <message>
-        <source>Split</source>
-        <translation>上下に分割</translation>
-    </message>
-    <message>
-        <source>Split Side by Side</source>
-        <translation>左右に分割</translation>
-    </message>
-    <message>
-        <source>Open in New Window</source>
-        <translation>新規ウィンドウで開く</translation>
-    </message>
-    <message>
-        <source>Close Document</source>
-        <translation>ドキュメントを閉じる</translation>
-    </message>
-</context>
-<context>
-    <name>::Core</name>
     <message>
         <source>%1 %2%3</source>
         <translation>%1 %2%3</translation>

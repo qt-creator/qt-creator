@@ -4563,7 +4563,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Cerca...</translation>
@@ -4598,9 +4598,6 @@ Causa: %3</translation>
         <source>&amp;Whole words only</source>
         <translation>&amp;Parole intere</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Cerca/Sostituisci</translation>
@@ -4617,9 +4614,6 @@ Causa: %3</translation>
         <source>Ctrl+Shift+F</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation>Documento Corrente</translation>
@@ -4668,9 +4662,6 @@ Causa: %3</translation>
         <source>Use Regular Expressions</source>
         <translation>Usa Espressioni Regolari</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Trova</translation>
@@ -4695,9 +4686,6 @@ Causa: %3</translation>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>No matches found!</source>
         <translation>Nessuna corrispondenza trovata!</translation>
@@ -5874,7 +5862,7 @@ nel tuo file .pro.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Apri il file con...</translation>
@@ -6317,27 +6305,7 @@ nel tuo file .pro.</translation>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Dettagli</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Dettagli Errore</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Plugin Installati</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Dettagli Plugin di %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Errore Plugin di %1</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>
@@ -8874,7 +8842,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Salva le Modifiche</translation>
@@ -9013,15 +8981,10 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
+    <name>::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Scorciatoie della Tastiera</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Filtro:</translation>
     </message>
     <message>
         <location/>
@@ -9067,11 +9030,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <location/>
         <source>Reset</source>
         <translation>Ripristina</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Rimuovi</translation>
     </message>
 </context>
 <context>

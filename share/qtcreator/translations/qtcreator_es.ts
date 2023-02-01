@@ -4659,7 +4659,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Buscar...</translation>
@@ -4694,9 +4694,6 @@ Razón: %3</translation>
         <source>&amp;Whole words only</source>
         <translation>Palabras &amp;completas solamente</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Buscar/Reemplazar</translation>
@@ -4713,9 +4710,6 @@ Razón: %3</translation>
         <source>Ctrl+Shift+F</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation>Documento actual</translation>
@@ -4764,9 +4758,6 @@ Razón: %3</translation>
         <source>Use Regular Expressions</source>
         <translation>Usar expresiones regulares</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Buscar</translation>
@@ -4791,9 +4782,6 @@ Razón: %3</translation>
         <source>...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>Search Results</source>
         <translation>Resultados de búsqueda</translation>
@@ -5979,7 +5967,7 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Abrir archivo con...</translation>
@@ -6417,26 +6405,10 @@ en su archivo .pro.</translation>
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Detalles</translation>
-    </message>
+    <name>::Core</name>
     <message>
         <source>Error Details</source>
         <translation>Detalles de errores</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Plugins instalados</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>Detalles del plugin %1</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>Errores del plugin %1</translation>
     </message>
 </context>
 <context>
@@ -8999,7 +8971,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Guardar cambios</translation>
@@ -9138,15 +9110,10 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
+    <name>::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Atajos de teclado</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Filter:</source>
-        <translation>Filtro:</translation>
     </message>
     <message>
         <location/>
@@ -9192,11 +9159,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <location/>
         <source>Reset</source>
         <translation>Restablecer</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
     </message>
 </context>
 <context>

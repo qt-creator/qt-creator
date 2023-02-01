@@ -6373,7 +6373,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>Find::Internal::FindDialog</name>
+    <name>::Core</name>
     <message>
         <source>Search for...</source>
         <translation>Keresés...</translation>
@@ -6391,10 +6391,6 @@ Ok: %3</translation>
         <translation>&amp;Rákeresés:</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Bezárás</translation>
-    </message>
-    <message>
         <source>&amp;Case sensitive</source>
         <translation>&amp;Kis és nagybetűérzékeny</translation>
     </message>
@@ -6402,9 +6398,6 @@ Ok: %3</translation>
         <source>&amp;Whole words only</source>
         <translation>Kizárólag &amp;egész szavakat</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindPlugin</name>
     <message>
         <source>&amp;Find/Replace</source>
         <translation>&amp;Keresés/Kicserélés</translation>
@@ -6417,9 +6410,6 @@ Ok: %3</translation>
         <source>Ctrl+Shift+F</source>
         <translation>Ctrl+Shift+F</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindToolBar</name>
     <message>
         <source>Current Document</source>
         <translation>Aktuális dokumentum</translation>
@@ -6427,10 +6417,6 @@ Ok: %3</translation>
     <message>
         <source>Enter Find String</source>
         <translation>A keresett szó bevitele</translation>
-    </message>
-    <message>
-        <source>Ctrl+E</source>
-        <translation>Ctrl+E</translation>
     </message>
     <message>
         <source>Find Next</source>
@@ -6468,9 +6454,6 @@ Ok: %3</translation>
         <source>Use Regular Expressions</source>
         <translation>Reguláris kifejezése használata</translation>
     </message>
-</context>
-<context>
-    <name>Find::Internal::FindWidget</name>
     <message>
         <source>Find</source>
         <translation>Keresés</translation>
@@ -6491,9 +6474,6 @@ Ok: %3</translation>
         <source>All</source>
         <translation>Az összes</translation>
     </message>
-</context>
-<context>
-    <name>Find::SearchResultWindow</name>
     <message>
         <source>No matches found!</source>
         <translation>Egyezés nem található!</translation>
@@ -6501,10 +6481,6 @@ Ok: %3</translation>
     <message>
         <source>Expand All</source>
         <translation>Az összes kiterjesztése</translation>
-    </message>
-    <message>
-        <source>Replace with:</source>
-        <translation>Kicserélés ezzel:</translation>
     </message>
     <message>
         <source>Replace all occurrences</source>
@@ -9061,7 +9037,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>OpenWithDialog</name>
+    <name>::Core</name>
     <message>
         <source>Open File With...</source>
         <translation>Fájl megnyitása ezzel...</translation>
@@ -9906,27 +9882,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PluginDialog</name>
-    <message>
-        <source>Details</source>
-        <translation>Részletek</translation>
-    </message>
-    <message>
-        <source>Error Details</source>
-        <translation>Hiba részletek</translation>
-    </message>
-    <message>
-        <source>Installed Plugins</source>
-        <translation>Telepített beépülő modulok</translation>
-    </message>
-    <message>
-        <source>Plugin Details of %1</source>
-        <translation>%1 beépülő modul részletek</translation>
-    </message>
-    <message>
-        <source>Plugin Errors of %1</source>
-        <translation>%1 beépülő modul hibák</translation>
-    </message>
+    <name>::Core</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>
@@ -14747,7 +14703,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>SaveItemsDialog</name>
+    <name>::Core</name>
     <message>
         <source>Save Changes</source>
         <translation>Változtatások elmentése</translation>
@@ -14990,14 +14946,10 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ShortcutSettings</name>
+    <name>::Core</name>
     <message>
         <source>Keyboard Shortcuts</source>
         <translation>Gyorsbillentyű</translation>
-    </message>
-    <message>
-        <source>Filter:</source>
-        <translation>Szűrő:</translation>
     </message>
     <message>
         <source>Command</source>
@@ -15034,10 +14986,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     <message>
         <source>Reset</source>
         <translation>Újraindítás</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
     </message>
 </context>
 <context>
