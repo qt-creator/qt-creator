@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
+import QtQuickDesignerTheme 1.0
 
 T.ComboBox {
     id: control
@@ -70,10 +71,12 @@ T.ComboBox {
         id: comboBoxPopup
         width: 0
         height: 0
-        closePolicy: T.Popup.CloseOnEscape | T.Popup.CloseOnPressOutsideParent
+        closePolicy: T.Popup.CloseOnEscape
         onAboutToShow: {
             control.menuDelegate.parent = window.contentItem
             control.menuDelegate.visible = true
+
+            window.transientParent = Theme.mainWindowHandle()
 
             window.show()
             window.requestActivate()
@@ -105,13 +108,13 @@ T.ComboBox {
         width: control.menuDelegate.implicitWidth
         height: control.menuDelegate.implicitHeight
         visible: false
-        flags: Qt.Popup | Qt.NoDropShadowWindowHint
+        flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint
         modality: Qt.NonModal
-        transientParent: control.Window.window
+        transientParent: null
         color: "transparent"
 
-        onActiveChanged: {
-            if (!window.active)
+        onActiveFocusItemChanged: {
+            if (window.activeFocusItem === null && !comboBoxInput.hover && !popupIndicator.hover)
                 comboBoxPopup.close()
         }
     }

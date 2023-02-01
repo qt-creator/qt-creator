@@ -11,12 +11,13 @@
 #include <utils/stylehelper.h>
 
 #include <QApplication>
+#include <QMainWindow>
+#include <QPointer>
+#include <QQmlComponent>
+#include <QQmlEngine>
+#include <QQmlProperty>
 #include <QRegularExpression>
 #include <QScreen>
-#include <QPointer>
-#include <QQmlEngine>
-#include <QQmlComponent>
-#include <QQmlProperty>
 #include <qqml.h>
 
 static Q_LOGGING_CATEGORY(themeLog, "qtc.qmldesigner.theme", QtWarningMsg)
@@ -135,6 +136,11 @@ int Theme::captionFontPixelSize() const
 bool Theme::highPixelDensity() const
 {
     return qApp->primaryScreen()->logicalDotsPerInch() > 100;
+}
+
+QWindow *Theme::mainWindowHandle() const
+{
+    return Core::ICore::mainWindow()->windowHandle();
 }
 
 QPixmap Theme::getPixmap(const QString &id)

@@ -361,6 +361,8 @@ public:
     Q_INVOKABLE int captionFontPixelSize() const;
     Q_INVOKABLE bool highPixelDensity() const;
 
+    Q_INVOKABLE QWindow *mainWindowHandle() const;
+
 private:
     Theme(Utils::Theme *originTheme, QObject *parent);
     QColor evaluateColorAtThemeInstance(const QString &themeColorName);
