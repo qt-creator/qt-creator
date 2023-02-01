@@ -238,7 +238,7 @@
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="vanished">Компілятор &apos;%1&apos; (%2) не може генерувати код для Qt версії &apos;%3&apos; (%4).</translation>
@@ -16581,7 +16581,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QtSuppport</name>
+    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -16827,16 +16827,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Compiler:</source>
         <translation type="vanished">Компілятор:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation type="vanished">Починаючи роботу</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;вкажіть назву&gt;</translation>
@@ -16860,10 +16854,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Наступні ABI наразі не підтримуються:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="vanished">Збірка помічників</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
@@ -16950,9 +16940,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>&lt;i&gt;Cannot be compiled.&lt;/i&gt;</source>
         <translation type="vanished">&lt;i&gt;Неможливо скомпілювати.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Назва версії:</translation>
@@ -16965,9 +16952,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Редагувати</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation type="vanished">Назва</translation>
@@ -16992,9 +16976,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Clean Up</source>
         <translation>Підчистити</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;невідома&gt;</translation>
@@ -22243,11 +22224,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>examples</name>
-    <message>
-        <source>Examples</source>
-        <translation type="vanished">Приклади</translation>
-    </message>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Examples...</source>
         <translation>Шукати в прикладах...</translation>
@@ -22305,11 +22282,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>tutorials</name>
-    <message>
-        <source>Tutorials</source>
-        <translation type="vanished">Посібники</translation>
-    </message>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Tutorials...</source>
         <translation>Шукати в посібниках...</translation>
@@ -23283,9 +23256,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed to Open Project</source>
         <translation type="vanished">Збій відкриття проекту</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation type="vanished">MeeGo/Harmattan</translation>
@@ -27895,16 +27865,10 @@ cannot be found in the path.</source>
         <source>Run %1</source>
         <translation>Запустити %1</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Custom Executable</source>
         <translation>Користувацький виконуваний модуль</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Бібліотека Qt, що буде вживатись усіма проектами, що використовують цей комплект.&lt;br&gt;Версія Qt необхідна для проектів на базі qmake та опціональна для інших систем збірки.</translation>
@@ -27921,9 +27885,6 @@ cannot be found in the path.</source>
         <source>%1 (invalid)</source>
         <translation>%1 (неправильний)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The version string of the current Qt version.</source>
         <translation>Рядок версії поточної Qt.</translation>
@@ -30441,9 +30402,6 @@ Remote: %4</source>
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation type="vanished">Повний шлях до target-теки bin версії Qt поточного проекту. Мабуть вам потрібен %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation type="vanished">Не знайдено фабрику для qmake: &apos;%1&apos;</translation>
@@ -33715,13 +33673,6 @@ Please close all running instances of your application before starting a build.<
     <message>
         <source>Cannot show slog2info output. Error: %1</source>
         <translation>Неможливо показати виведення slog2info: Помилка: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qt4ProjectManager</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="vanished">Версії Qt</translation>
     </message>
 </context>
 <context>

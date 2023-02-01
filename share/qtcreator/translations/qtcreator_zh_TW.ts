@@ -20451,9 +20451,6 @@ if (a &amp;&amp;
         <source>Compiler:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>版本名稱：</translation>
@@ -20466,9 +20463,6 @@ if (a &amp;&amp;
         <source>Edit</source>
         <translation>編輯</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -21624,7 +21618,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation type="unfinished"></translation>
@@ -21661,16 +21655,10 @@ Do you want to retry?</source>
         <source>Version:</source>
         <translation>版本：</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>入門</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;指定一個名稱&gt;</translation>
@@ -21784,9 +21772,6 @@ Do you want to retry?</source>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">SBS v2 目錄：</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW 從 %1</translation>
@@ -25834,7 +25819,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>範例</translation>
@@ -25908,7 +25893,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>教學</translation>
@@ -26979,14 +26964,6 @@ references to elements in other files, loops, etc.)</source>
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>Examples</source>
-        <translation>範例</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>教學</translation>
-    </message>
-    <message>
         <source>Copy Project to writable Location?</source>
         <translation>是否要複製專案到可寫入的位置？</translation>
     </message>
@@ -27026,9 +27003,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Failed to open project</source>
         <translation type="obsolete">開啟專案失敗</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation>MeeGo/Harmattan</translation>

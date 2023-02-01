@@ -45537,7 +45537,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>ProMessageHandler</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>

@@ -5632,9 +5632,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Edit</source>
         <translation>編集</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>追加...</translation>
@@ -5655,9 +5652,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Link with Qt...</source>
         <translation>Qt にリンクする...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>デバッグヘルパのビルドログ</translation>
@@ -8675,14 +8669,11 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Search in Examples...</source>
         <translation>サンプルを検索...</translation>
     </message>
-</context>
-<context>
-    <name>tutorials</name>
     <message>
         <source>Search in Tutorials...</source>
         <translation>チュートリアルを検索...</translation>
@@ -27931,9 +27922,6 @@ Do you want to save the data first?</source>
         <comment>Qt version is used for Boot2Qt development</comment>
         <translation>Boot2Qt</translation>
     </message>
-</context>
-<context>
-    <name>BaseQtVersion</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Qt がサポートしていないデバイスの種類です。</translation>
@@ -27998,9 +27986,6 @@ Do you want to save the data first?</source>
         <source>Requires Qt 5.0.0 or newer.</source>
         <translation>Qt 5.0.0 以降が必要です。</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -28093,17 +28078,6 @@ cannot be found in the path.</source>
         <translation>プロジェクトをコピーできません</translation>
     </message>
     <message>
-        <source>Search in Examples...</source>
-        <translation>サンプルを検索...</translation>
-    </message>
-    <message>
-        <source>Search in Tutorials...</source>
-        <translation>チュートリアルを検索...</translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
         <source>Qt version:</source>
         <translation>Qt バージョン:</translation>
     </message>
@@ -28111,9 +28085,6 @@ cannot be found in the path.</source>
         <source>%1 (invalid)</source>
         <translation>%1 (無効)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;名前を入力&gt;</translation>
@@ -28222,9 +28193,6 @@ cannot be found in the path.</source>
         <source>qmake Location</source>
         <translation>qmake のパス</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>現在のプロジェクトの Qt のホスト上の bin ディレクトリのフルパスです。</translation>
@@ -28233,9 +28201,6 @@ cannot be found in the path.</source>
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>現在のプロジェクトの Qt のターゲット上の bin ディレクトリのフルパスです。%1 が使用できるかもしれません。</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>qmake 用ファクトリが見つかりません: &quot;%1&quot;</translation>
@@ -40537,13 +40502,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>[Inexact] </source>
-        <translation>[不完全] </translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
         <source>Qt Versions</source>
         <translation>Qt バージョン</translation>
     </message>
@@ -47018,21 +46976,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>Device type is not supported by Qt version.</source>
-        <translation>Qt がサポートしていないデバイスの種類です。</translation>
-    </message>
-    <message>
-        <source>The compiler &quot;%1&quot; (%2) cannot produce code for the Qt version &quot;%3&quot; (%4).</source>
-        <translation>コンパイラ &quot;%1&quot; (%2) は、Qt バージョン &quot;%3&quot; (%4) 用のコードを生成できません。</translation>
-    </message>
-    <message>
-        <source>The compiler &quot;%1&quot; (%2) may not produce code compatible with the Qt version &quot;%3&quot; (%4).</source>
-        <translation>コンパイラ &quot;%1&quot; (%2) は Qt バージョン &quot;%3&quot; (%4) と互換性のあるコードを生成しない可能性があります。</translation>
-    </message>
-</context>
-<context>
-    <name>::QtSupport</name>
-    <message>
         <source>Qt version</source>
         <translation>Qt バージョン</translation>
     </message>
@@ -47120,17 +47063,11 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Path to the qmake executable</source>
         <translation>qmake 実行ファイルのパス</translation>
     </message>
-</context>
-<context>
-    <name>ProMessageHandler</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
         <translation>[不完全] </translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>

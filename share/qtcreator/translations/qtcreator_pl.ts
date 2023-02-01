@@ -15574,9 +15574,6 @@ if (a &amp;&amp;
         <source>Edit</source>
         <translation>Modyfikuj</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
@@ -16700,7 +16697,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Typ urządzenia nie jest obsługiwany przez wersję Qt.</translation>
@@ -16765,9 +16762,6 @@ Do you want to save the data first?</source>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
         <translation>Ta wersja Qt nie zawiera kompilatora Qt Quick.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Podaj nazwę&gt;</translation>
@@ -21227,9 +21221,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Tags:</source>
         <translation>Tagi:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Wersje Qt</translation>
@@ -22349,9 +22340,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>%1 (invalid)</source>
         <translation>%1 (niepoprawna)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Wersja Qt</translation>
@@ -24867,9 +24855,6 @@ Zdalny: %4</translation>
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Pełna ścieżka docelowego podkatalogu &quot;bin&quot; w katalogu instalacji bieżącej wersji Qt. Prawdopodobnie powinno być: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Brak fabryki dla qmake: &quot;%1&quot;</translation>

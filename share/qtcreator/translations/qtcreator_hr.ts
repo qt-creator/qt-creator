@@ -7356,9 +7356,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Add Qt version #ifdef for module names</source>
         <translation>Dodaj Qt verziju #ifdef za nazive modula</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Naziv verzije:</translation>
@@ -7371,9 +7368,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Dodaj …</translation>
@@ -7386,9 +7380,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Clean Up</source>
         <translation>Izbriši</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Zapis gradnje pomoćnika za uklanjanje grešaka</translation>
@@ -31940,9 +31931,6 @@ Saving failed.</source>
         <comment>Qt Version is used for embedded Linux development</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>BaseQtVersion</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Vrsta uređaja nije podržana Qt verzijom.</translation>
@@ -32007,9 +31995,6 @@ Saving failed.</source>
         <source>This Qt Version does not contain Qt Quick Compiler.</source>
         <translation>Ova Qt verzija ne sadrži Qt Quick Compiler.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>unknown</source>
         <translation>nepoznato</translation>

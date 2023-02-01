@@ -4009,7 +4009,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Name:</source>
         <translation>Название:</translation>
@@ -27028,7 +27028,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ProMessageHandler</name>
+    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
@@ -39310,9 +39310,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Qt Class Generation</source>
         <translation>Создание класса Qt</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Устройства этого типа не поддерживается профилем Qt.</translation>
@@ -39329,9 +39326,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>The kit has a Qt version, but no C++ compiler.</source>
         <translation>У комплекта задан профиль Qt, но нет компилятора C++.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Встраивание класса UI</translation>
@@ -39364,9 +39358,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Add Qt version #ifdef for module names</source>
         <translation>Добавлять #ifdef по версии Qt для имён модулей</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Примеры</translation>
@@ -39415,9 +39406,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Search in Tutorials...</source>
         <translation>Поиск по учебникам...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>%1 (invalid)</source>
         <translation>%1 (неверный)</translation>
@@ -39558,9 +39546,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Incompatible Qt Versions</source>
         <translation>Несовместимые профили Qt</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Options &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
         <translation>Связать с Qt для автоматической регистрации профилей Qt и комплектов? Это можно сделать позже в меню Параметры &gt; Комплекты &gt; Профили Qt &gt; Связать с Qt.</translation>
@@ -39573,9 +39558,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Полный путь каталогу bin профиля Qt, используемого в текущем проекте.&lt;br&gt;Возможно, нужен %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Название профиля:</translation>
@@ -39588,9 +39570,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Изменить</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -39607,16 +39586,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Register documentation:</source>
         <translation>Регистрация документации:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал сборки помощника отладчика</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, please select a language here. A corresponding translation (.ts) file will be generated for you.</source>
         <translation>Укажите здесь язык, если планируете обеспечить проект переводами интерфейса утилитой Qt Linguist. Будет создан соответствующий файл перевода (.ts).</translation>
@@ -39633,9 +39606,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Translation file:</source>
         <translation>Файл перевода:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>QML debugging and profiling:</source>
         <translation>Отладка и профилирование QML:</translation>
@@ -39644,9 +39614,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Might make your application vulnerable.&lt;br/&gt;Only use in a safe environment.</source>
         <translation>Может сделать приложение уязвимым.&lt;br/&gt;Используйте только в безопасной среде.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Профиль Qt</translation>
@@ -39747,9 +39714,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Path to the qmake executable</source>
         <translation>Путь к программе qmake</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Quick Compiler:</source>
         <translation>Компилятор Qt Quick:</translation>
@@ -39758,9 +39722,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Отключает отладку QML. Профилирование QML продолжит работать.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt Version</source>
         <translation>Профиль Qt</translation>
@@ -39769,9 +39730,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Location of qmake</source>
         <translation>Размещение qmake</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Не удалось найти фабрику для qmake: «%1»</translation>

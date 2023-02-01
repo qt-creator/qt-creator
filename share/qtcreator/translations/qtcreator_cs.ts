@@ -27021,9 +27021,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
         <source>Compiler:</source>
         <translation>Překladač:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Název verze:</translation>
@@ -27036,9 +27033,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
         <source>Edit</source>
         <translation>Upravit</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -34188,7 +34182,7 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation>Překladač &apos;%1&apos; (%2) nemůže vytvořit kód pro Qt ve verzi &apos;%3&apos; (%4).</translation>
@@ -34253,9 +34247,6 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
         <source>Building helpers</source>
         <translation>Pomocné knihovny pro sestavení</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>Jak začít</translation>
@@ -34381,10 +34372,6 @@ Důvod: %2</translation>
         <translation>Následující ABIs nejsou v současnosti podporovány: &lt;ul&gt;&lt;li&gt;%1&lt;/ul&gt;</translation>
     </message>
     <message>
-        <source>Building helpers</source>
-        <translation>Pomocné knihovny pro výstup dat</translation>
-    </message>
-    <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
         <translation>Záznam o sestavení pomocného ladicího programu pro &apos;%1&apos;</translation>
     </message>
@@ -34477,9 +34464,6 @@ Důvod: %2</translation>
         <source>SBS v2 directory:</source>
         <translation type="obsolete">Adresář SBS-v2:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW z %1</translation>
@@ -41201,7 +41185,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Příklady</translation>
@@ -41275,7 +41259,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>Návody</translation>
@@ -44291,14 +44275,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
 </context>
 <context>
     <name>::QtSupport</name>
-    <message>
-        <source>Examples</source>
-        <translation>Příklady</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>Návody</translation>
-    </message>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Má se projekt zkopírovat do zapisovatelného umístění?</translation>
@@ -47357,9 +47333,6 @@ nelze najít v cestě.</translation>
         <source>Run %1</source>
         <translation>Spustit %1</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Knihovna Qt k použití pro všechny projekty používající tuto sadu.&lt;br&gt;Je požadována verze Qt pro projekty založené na qmake a jako volitelná při použití jiných sestavovacích systémů.</translation>
@@ -47376,9 +47349,6 @@ nelze najít v cestě.</translation>
         <source>%1 (invalid)</source>
         <translation>%1 (neplatný)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Verze Qt</translation>
@@ -50221,9 +50191,6 @@ Vzdálený: %4</translation>
         <source>All Versions</source>
         <translation>Všechny verze</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Úplná cesta k adresáři bin hostitele verze Qt nynějšího projektu.</translation>
@@ -50232,9 +50199,6 @@ Vzdálený: %4</translation>
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation>Úplná cesta k adresáři bin cíle verze Qt nynějšího projektu. Pravděpodobně místo toho chcete %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Pro QMake nebyla nalezena žádná továrna: &apos;%1&apos;</translation>
@@ -54023,7 +53987,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Verze Qt</translation>

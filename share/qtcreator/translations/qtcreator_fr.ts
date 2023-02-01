@@ -32006,9 +32006,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Compiler:</source>
         <translation>Compilateur :</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Nom de version :</translation>
@@ -32021,9 +32018,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Edit</source>
         <translation>Éditer</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -33959,7 +33953,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>The compiler &apos;%1&apos; (%2) cannot produce code for the Qt version &apos;%3&apos; (%4).</source>
         <translation>Le compilateur &quot;%1&quot; (%2) ne peut produire du code pour la version de Qt &quot;%3&quot; (%4).</translation>
@@ -34024,9 +34018,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Building helpers</source>
         <translation>Aide à la compilation</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;spécifier un nom&gt;</translation>
@@ -34062,10 +34053,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>The following ABIs are currently not supported:&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Les ABI suivantes ne sont pas supportées : &lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation>Aide à la compilation</translation>
     </message>
     <message>
         <source>Debugging Helper Build Log for &apos;%1&apos;</source>
@@ -34160,9 +34147,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>SBS v2 directory:</source>
         <translation type="obsolete">Répertoire SBS v2 : </translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW depuis %1</translation>
@@ -38349,7 +38333,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>examples</name>
+    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Exemples</translation>
@@ -38423,7 +38407,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>tutorials</name>
+    <name>::QtSupport</name>
     <message>
         <source>Tutorials</source>
         <translation>Tutoriels</translation>
@@ -39724,14 +39708,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
 <context>
     <name>::QtSupport</name>
     <message>
-        <source>Examples</source>
-        <translation>Exemples</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation>Tutoriels</translation>
-    </message>
-    <message>
         <source>Copy Project to writable Location?</source>
         <translation>Copier le projet à un emplacement accessible en écriture ?</translation>
     </message>
@@ -39767,9 +39743,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Failed to Open Project</source>
         <translation>Échec d&apos;ouverture du projet</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MeeGo/Harmattan</source>
         <translation>MeeGo/Harmattan</translation>
@@ -44304,9 +44277,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Run %1</source>
         <translation>Exécuter %1</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>La bibliothèque Qt à utiliser pour tous les projets utilisant ce kit.&lt;br&gt;Une version de Qt est nécesaire pour les projets basés sur qmake et est optionnelle pour les autres systèmes de compilation.</translation>
@@ -44323,9 +44293,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>%1 (invalid)</source>
         <translation>%1 (invalide)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Version de Qt</translation>
@@ -48587,9 +48554,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>All Versions</source>
         <translation>Toutes les versions</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Chemin complet vers le répertoire bin d&apos;origine de la version Qt actuelle du projet.</translation>
@@ -48598,9 +48562,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Full path to the target bin directory of the current project&apos;s Qt version. You probably want %1 instead.</source>
         <translation>Chemin complet vers le répertoire bin de destination de la version Qt actuelle du projet. Vous vouliez probablement dire %1 à la place.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Aucune fabrique trouvée pour qmake : &quot;%1&quot;</translation>
@@ -50540,7 +50501,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>::QtSupport</name>
     <message>
         <source>Qt Versions</source>
         <translation>Versions de Qt</translation>

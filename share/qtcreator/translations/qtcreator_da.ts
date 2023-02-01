@@ -2530,7 +2530,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Enhedstypen understøttes ikke af Qt versionen.</translation>
@@ -30541,9 +30541,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Qt Class Generation</source>
         <translation>Qt-klassegenerering</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Indlejring af brugerflade-klassen</translation>
@@ -30576,9 +30573,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Add Qt version #ifdef for module names</source>
         <translation>Tilføj Qt version #ifdef for modulnavne</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Eksempler</translation>
@@ -30631,9 +30625,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Search in Tutorials...</source>
         <translation>Søg i vejledninger...</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version:</source>
         <translation>Qt version:</translation>
@@ -30646,9 +30637,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>%1 (invalid)</source>
         <translation>%1 (ugyldig)</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;angiv et navn&gt;</translation>
@@ -30729,9 +30717,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>The Qt version selected must match the device type.</source>
         <translation>Den valgte Qt version skal matche enhedstypen.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Fuld sti til værtens bin-mappe af det aktuelle projekts Qt version.</translation>
@@ -30740,9 +30725,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
         <translation>Fuld sti til værtens mål-mappe af det aktuelle projekts Qt version.&lt;br&gt;Du vil formodentligt hellere have %1.</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Versionsnavn:</translation>
@@ -30755,9 +30737,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Edit</source>
         <translation>Rediger</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
@@ -30770,23 +30749,14 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Clean Up</source>
         <translation>Ryd op</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Fejlretningshjælper byglog</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[ineksakt] </translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt version</translation>
@@ -30883,9 +30853,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Path to the qmake executable</source>
         <translation>Sti til qmake-eksekverbaren</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Ingen fabrik fundet for qmake: &quot;%1&quot;</translation>

@@ -18651,9 +18651,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <source>Build All</source>
         <translation>Zgradi vse</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Ime različice:</translation>
@@ -18668,9 +18665,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -24927,7 +24921,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>BaseQtVersion</name>
+    <name>::QtSupport</name>
     <message>
         <source>Name:</source>
         <translation>Ime:</translation>
@@ -24960,9 +24954,6 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
         <source>Version:</source>
         <translation>Različica:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Ali želite skopirati projekt na zapisljivo mesto?</translation>
@@ -25165,9 +25156,6 @@ Razlog: %2</translation>
         <source>SBS v2 directory:</source>
         <translation>Mapa za SBS 2:</translation>
     </message>
-</context>
-<context>
-    <name>::QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation>MinGW iz %1</translation>
