@@ -10022,9 +10022,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Pause Animation</source>
         <translation>Призупинити анімацію</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Show Background</source>
         <translation>Показувати тло</translation>
@@ -44224,9 +44221,6 @@ Would you like to overwrite it?</source>
         <translation>%1 вже існує
 Бажаєте перезаписати його?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Експортувати %1</translation>
@@ -44243,9 +44237,6 @@ Would you like to overwrite it?</source>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Не вдалось записати файл &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Збільшити</translation>

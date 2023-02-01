@@ -31366,9 +31366,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Pause Animation</source>
         <translation>Pozastavit animaci</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Zoom In</source>
         <translation>Přiblížit</translation>

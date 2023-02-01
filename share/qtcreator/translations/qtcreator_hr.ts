@@ -24321,9 +24321,6 @@ Would you like to overwrite it?</source>
         <translation>%1: već postoji.
 Želiš li je prepisati?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Exported &quot;%1&quot;, %2x%3, %4 bytes</source>
         <translation>Izvezeno &quot;%1&quot;, %2x%3, %4 bajta</translation>
@@ -24348,9 +24345,6 @@ Would you like to overwrite it?</source>
         <source>Play Animation</source>
         <translation>Pokreni animaciju</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Slikovni format nije podržan.</translation>

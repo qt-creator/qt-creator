@@ -35616,9 +35616,6 @@ Would you like to overwrite it?</source>
         <translation>%1 już istnieje.
 Czy nadpisać go?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Wyeksportuj %1</translation>

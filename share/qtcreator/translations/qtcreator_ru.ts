@@ -22207,9 +22207,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Open Image Viewer</source>
         <translation>Открыть просмотр изображений</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
@@ -22229,9 +22226,6 @@ Would you like to overwrite it?</source>
         <translation>%1 уже существует.
 Перезаписать его?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Экспорт %1</translation>
@@ -22252,9 +22246,6 @@ Would you like to overwrite it?</source>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Не удалось записать файл «%1».</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Play Animation</source>
         <translation>Воспроизвести анимацию</translation>
@@ -22263,9 +22254,6 @@ Would you like to overwrite it?</source>
         <source>Pause Animation</source>
         <translation>Приостановить анимацию</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Формат изображения не поддерживается.</translation>

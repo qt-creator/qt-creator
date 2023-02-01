@@ -39050,9 +39050,6 @@ Would you like to overwrite it?</source>
         <translation>%1 は既に存在しています。
 上書きしますか？</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>%1 のエクスポート</translation>
@@ -45202,37 +45199,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>
-    </message>
-</context>
-<context>
-    <name>Imageviewer</name>
-    <message>
-        <source>Ctrl+=</source>
-        <translation>Ctrl+=</translation>
-    </message>
-    <message>
-        <source>Switch Background</source>
-        <translation>バックグラウンド切替</translation>
-    </message>
-    <message>
-        <source>Ctrl+[</source>
-        <translation>Ctrl+[</translation>
-    </message>
-    <message>
-        <source>Switch Outline</source>
-        <translation>外枠表示切替</translation>
-    </message>
-    <message>
-        <source>Ctrl+]</source>
-        <translation>Ctrl+]</translation>
-    </message>
-    <message>
-        <source>Toggle Animation</source>
-        <translation>アニメーションの切替</translation>
-    </message>
-    <message>
-        <source>Export Image</source>
-        <translation>画像のエクスポート</translation>
     </message>
 </context>
 <context>

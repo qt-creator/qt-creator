@@ -17843,9 +17843,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
         <source>Size: %1x%2, %3 byte, format: %4, depth: %5</source>
         <translation>Størrelse: %1x%2, %3 byte, format: %4, dybde: %5</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>File:</source>
         <translation>Fil:</translation>
@@ -17865,9 +17862,6 @@ Would you like to overwrite it?</source>
         <translation>%1 findes allerede.
 Vil du overskrive den?</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Export %1</source>
         <translation>Eksportér %1</translation>
@@ -17888,9 +17882,6 @@ Vil du overskrive den?</translation>
         <source>Could not write file &quot;%1&quot;.</source>
         <translation>Kunne ikke skrive filen &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Pause Animation</source>
         <translation>Pause animation</translation>
@@ -17899,9 +17890,6 @@ Vil du overskrive den?</translation>
         <source>Play Animation</source>
         <translation>Afspil animation</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Image format not supported.</source>
         <translation>Billedformat understøttes ikke.</translation>
@@ -17914,9 +17902,6 @@ Vil du overskrive den?</translation>
         <source>Failed to read image.</source>
         <translation>Kunne ikke læse billede.</translation>
     </message>
-</context>
-<context>
-    <name>::ImageViewer</name>
     <message>
         <source>Fit to Screen</source>
         <translation>Tilpas til skærm</translation>
