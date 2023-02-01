@@ -345,7 +345,7 @@ void TextBlockUserData::setCodeFormatterData(CodeFormatterData *data)
     m_codeFormatterData = data;
 }
 
-void TextBlockUserData::setReplacement(const QString replacement)
+void TextBlockUserData::setReplacement(const QString &replacement)
 {
     m_replacement.reset(new QTextDocument(replacement));
     m_replacement->setDocumentLayout(new TextDocumentLayout(m_replacement.get()));
@@ -528,28 +528,30 @@ QByteArray TextDocumentLayout::expectedRawStringSuffix(const QTextBlock &block)
 void TextDocumentLayout::updateReplacmentFormats(const QTextBlock &block,
                                                  const FontSettings &fontSettings)
 {
-    if (TextBlockUserData *userData = textUserData(block)) {
-        if (QTextDocument *replacement = userData->replacement()) {
-            const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
-                TextStyles{C_TEXT, {C_DISABLED_CODE}});
-            QTextCursor cursor(replacement);
-            cursor.select(QTextCursor::Document);
-            cursor.setCharFormat(fontSettings.toTextCharFormat(C_TEXT));
-            cursor.setPosition(block.length() - 1);
-            cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-            cursor.setCharFormat(replacementFormat);
-            replacement->firstBlock().layout()->setFormats(block.layout()->formats());
-        }
+    if (QTextDocument *replacement = replacementDocument(block)) {
+        const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
+            TextStyles{C_TEXT, {C_DISABLED_CODE}});
+        QTextCursor cursor(replacement);
+        cursor.select(QTextCursor::Document);
+        cursor.setCharFormat(fontSettings.toTextCharFormat(C_TEXT));
+        cursor.setPosition(block.length() - 1);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(replacementFormat);
+        replacement->firstBlock().layout()->setFormats(block.layout()->formats());
     }
 }
 
 QString TextDocumentLayout::replacement(const QTextBlock &block)
 {
-    if (TextBlockUserData *userData = textUserData(block)) {
-        if (QTextDocument *replacement = userData->replacement())
-            return replacement->toPlainText().mid(block.length() - 1);
-    }
+    if (QTextDocument *replacement = replacementDocument(block))
+        return replacement->toPlainText().mid(block.length() - 1);
     return {};
+}
+
+QTextDocument *TextDocumentLayout::replacementDocument(const QTextBlock &block)
+{
+    TextBlockUserData *userData = textUserData(block);
+    return userData ? userData->replacement() : nullptr;
 }
 
 void TextDocumentLayout::requestExtraAreaUpdate()
@@ -682,10 +684,8 @@ static QRectF replacementBoundingRect(const QTextDocument *replacement)
 
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
-    if (TextBlockUserData *userData = textUserData(block)) {
-        if (auto replacement = userData->replacement())
-            return replacementBoundingRect(replacement);
-    }
+    if (QTextDocument *replacement = replacementDocument(block))
+        return replacementBoundingRect(replacement);
 
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
 

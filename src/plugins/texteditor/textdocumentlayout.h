@@ -126,7 +126,7 @@ public:
     QByteArray expectedRawStringSuffix() { return m_expectedRawStringSuffix; }
     void setExpectedRawStringSuffix(const QByteArray &suffix) { m_expectedRawStringSuffix = suffix; }
 
-    void setReplacement(const QString replacement);
+    void setReplacement(const QString &replacement);
     void clearReplacement() { m_replacement.reset(); }
     QTextDocument *replacement() const { return m_replacement.get(); }
 
@@ -179,6 +179,7 @@ public:
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
     static void updateReplacmentFormats(const QTextBlock &block, const FontSettings &fontSettings);
     static QString replacement(const QTextBlock &block);
+    static QTextDocument *replacementDocument(const QTextBlock &block);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {

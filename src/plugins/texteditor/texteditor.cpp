@@ -1853,13 +1853,13 @@ TextEditorWidget *TextEditorWidget::fromEditor(const IEditor *editor)
 void TextEditorWidgetPrivate::editorContentsChange(int position, int charsRemoved, int charsAdded)
 {
     if (m_suggestionBlock.isValid()) {
-        if (TextBlockUserData *data = TextDocumentLayout::textUserData(m_suggestionBlock)) {
-            if (auto replacementDocument = data->replacement()) {
-                if (replacementDocument->firstBlock().text().startsWith(m_suggestionBlock.text()))
-                    TextDocumentLayout::updateReplacmentFormats(m_suggestionBlock, m_document->fontSettings());
-                else
-                    clearCurrentSuggestion();
-            }
+        if (QTextDocument *replacementDocument = TextDocumentLayout::replacementDocument(
+                m_suggestionBlock)) {
+            if (replacementDocument->firstBlock().text().startsWith(m_suggestionBlock.text()))
+                TextDocumentLayout::updateReplacmentFormats(m_suggestionBlock,
+                                                            m_document->fontSettings());
+            else
+                clearCurrentSuggestion();
         }
     }
 
@@ -2994,8 +2994,6 @@ void TextEditorWidgetPrivate::universalHelper()
 {
     // Test function for development. Place your new fangled experiment here to
     // give it proper scrutiny before pushing it onto others.
-
-    insertSuggestion("Teste\nWeste\nBeste", q->textCursor().block());
 }
 
 void TextEditorWidget::doSetTextCursor(const QTextCursor &cursor, bool keepMultiSelection)
@@ -4449,18 +4447,16 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
         }
         if (!nextBlockIsValid) { // paint EOF symbol
             if (m_suggestionBlock.isValid() && data.block == m_suggestionBlock) {
-                if (TextBlockUserData *userData = TextDocumentLayout::textUserData(
+                if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(
                         m_suggestionBlock)) {
-                    if (QTextDocument *replacement = userData->replacement()) {
-                        const QTextBlock lastReplacementBlock = replacement->lastBlock();
-                        for (QTextBlock block = replacement->firstBlock();
-                             block != lastReplacementBlock && block.isValid();
-                             block = block.next()) {
-                            top += replacement->documentLayout()->blockBoundingRect(block).height();
-                        }
-                        layout = lastReplacementBlock.layout();
-                        lineCount = layout->lineCount();
+                    const QTextBlock lastReplacementBlock = replacement->lastBlock();
+                    for (QTextBlock block = replacement->firstBlock();
+                         block != lastReplacementBlock && block.isValid();
+                         block = block.next()) {
+                        top += replacement->documentLayout()->blockBoundingRect(block).height();
                     }
+                    layout = lastReplacementBlock.layout();
+                    lineCount = layout->lineCount();
                 }
             }
             QTextLine line = layout->lineAt(lineCount - 1);
@@ -4468,10 +4464,10 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
             int h = 4;
             lineRect.adjust(0, 0, -1, -1);
             QPainterPath path;
-            QPointF pos(lineRect.topRight() + QPointF(h+4, line.ascent()));
+            QPointF pos(lineRect.topRight() + QPointF(h + 4, line.ascent()));
             path.moveTo(pos);
             path.lineTo(pos + QPointF(-h, -h));
-            path.lineTo(pos + QPointF(0, -2*h));
+            path.lineTo(pos + QPointF(0, -2 * h));
             path.lineTo(pos + QPointF(h, -h));
             path.closeSubpath();
             painter.setBrush(painter.pen().color());
@@ -4937,19 +4933,17 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QVector<QTextLayout::FormatRange> &selections,
                                   const QRect &clipRect) const
 {
-    if (TextBlockUserData *userData = TextDocumentLayout::textUserData(block)) {
-        if (QTextDocument *replacement = userData->replacement()) {
-            QTextBlock replacementBlock = replacement->firstBlock();
-            QPointF replacementOffset = offset;
-            replacementOffset.rx() += document()->documentMargin();
-            while (replacementBlock.isValid()) {
-                replacementBlock.layout()->draw(painter, replacementOffset, selections, clipRect);
-                replacementOffset.ry()
-                    += replacement->documentLayout()->blockBoundingRect(replacementBlock).height();
-                replacementBlock = replacementBlock.next();
-            }
-            return;
+    if (QTextDocument *replacement = TextDocumentLayout::replacementDocument(block)) {
+        QTextBlock replacementBlock = replacement->firstBlock();
+        QPointF replacementOffset = offset;
+        replacementOffset.rx() += document()->documentMargin();
+        while (replacementBlock.isValid()) {
+            replacementBlock.layout()->draw(painter, replacementOffset, selections, clipRect);
+            replacementOffset.ry()
+                += replacement->documentLayout()->blockBoundingRect(replacementBlock).height();
+            replacementBlock = replacementBlock.next();
         }
+        return;
     }
 
     block.layout()->draw(painter, offset, selections, clipRect);

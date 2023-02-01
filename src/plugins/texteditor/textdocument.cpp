@@ -373,7 +373,7 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
     return diffAction;
 }
 
-void TextDocument::insertSuggestion(const QString text, const QTextBlock &block)
+void TextDocument::insertSuggestion(const QString &text, const QTextBlock &block)
 {
     TextDocumentLayout::userData(block)->setReplacement(block.text() + text);
     TextDocumentLayout::updateReplacmentFormats(block, fontSettings());
