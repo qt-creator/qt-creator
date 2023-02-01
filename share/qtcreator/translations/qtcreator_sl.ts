@@ -13277,9 +13277,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Cleaning %1</source>
         <translation>Čiščenje %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
     <message>
         <source>Wrap submit message at:</source>
         <translation>Sporočilo pošiljanja prelomi pri:</translation>

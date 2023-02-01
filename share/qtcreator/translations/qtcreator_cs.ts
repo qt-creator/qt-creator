@@ -20010,68 +20010,17 @@ a předpokladem je, že vzdálený spustitelný soubor bude v adresáři zmiňov
         <source>Cleaning %1</source>
         <translation>Uklízí se %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Zalomit popis předložení na:</translation>
-    </message>
-    <message>
-        <source> characters</source>
-        <translation type="obsolete"> znacích</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Spustitelný soubor, který je zavolán s popisem předložení v dočasném souboru jako první argument příkazového řádku. Při neúspěchu by měl vrátit zpět hodnotu rozdílnou od nuly (!= 0) a odpovídající zprávu o obvyklé chybě kvůli poukázání na selhání.</translation>
-    </message>
     <message>
         <source>Submit message check script:</source>
         <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Soubor, který obsahuje jména uživatelů a e-mailové adresy ve čtyřsloupcovém formátu (mailmap):
-Jméno &lt;E-mail&gt; Přezdívka &lt;E-mail&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
         <translation type="obsolete">Soubor s nastavením uživatele/přezdívky:</translation>
     </message>
     <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Soubor, který obsahuje řádky s názvy polí (například &quot;Reviewed-By:&quot;), který bude bude přidán pod okno editoru předložení.</translation>
-    </message>
-    <message>
         <source>User fields configuration file:</source>
         <translation type="obsolete">Soubor s nastavením polí uživatele:</translation>
-    </message>
-    <message>
-        <source>Submit message &amp;check script:</source>
-        <translation type="obsolete">Skript k ověření popisu předložení:</translation>
-    </message>
-    <message>
-        <source>User/&amp;alias configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením uživatele/&amp;přezdívky:</translation>
-    </message>
-    <message>
-        <source>User &amp;fields configuration file:</source>
-        <translation type="obsolete">Soubor s nastavením p&amp;olí uživatele:</translation>
-    </message>
-    <message>
-        <source>&amp;Patch command:</source>
-        <translation type="obsolete">&amp;Příkaz pro opravný soubor:</translation>
-    </message>
-    <message>
-        <source>Specifies a command that is executed to graphically prompt for a password, 
-should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="obsolete">Určuje příkaz, který je spuštěn, aby graficky vyzval k zadání hesla, které je požadováno při ověření pravosti SSH skladiště
-(podívejte se na dokumentaci k SSH k proměnné prostředí SSH-ASKPASS).</translation>
-    </message>
-    <message>
-        <source>&amp;SSH prompt command:</source>
-        <translation type="obsolete">&amp;Příkaz pro výzvu o heslo k SSH:</translation>
     </message>
 </context>
 <context>

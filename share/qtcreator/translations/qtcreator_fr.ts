@@ -19134,72 +19134,21 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Cleaning %1</source>
         <translation>Nettoyage de %1</translation>
     </message>
-</context>
-<context>
-    <name>CommonSettingsPage</name>
-    <message>
-        <source>Wrap submit message at:</source>
-        <translation type="obsolete">Limiter la largeur du message à :</translation>
-    </message>
-    <message>
-        <source> characters</source>
-        <translation type="obsolete"> caractères</translation>
-    </message>
-    <message>
-        <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
-        <translation type="obsolete">Un fichier exécutable qui est appelé avec comme premier argument le message dans un fichier temporaire. Pour indiquer une erreur, il doit se terminer avec un code différent de 0 et un message sur la sortie d&apos;erreur standard.</translation>
-    </message>
     <message>
         <source>Submit message check script:</source>
         <translation type="obsolete">Script de vérification du message :</translation>
-    </message>
-    <message>
-        <source>A file listing user names and email addresses in a 4-column mailmap format:
-name &lt;email&gt; alias &lt;email&gt;</source>
-        <translation type="obsolete">Un fichier listant les noms d&apos;utilisateur et leurs adresses email dans le format 4 colonnes de mailmap :
-nom &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
         <source>User/alias configuration file:</source>
         <translation type="obsolete">Fichier de configuration des alias utilisateur :</translation>
     </message>
     <message>
-        <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
-        <translation type="obsolete">Un fichier texte contenant des lignes telles que &quot;Reviewed-By:&quot;, qui seront ajoutées à la fin dans l&apos;éditeur de message.</translation>
-    </message>
-    <message>
         <source>User fields configuration file:</source>
         <translation type="obsolete">Fichier de configuration des champs utilisateurs :</translation>
     </message>
     <message>
-        <source>Specifies a command that is executed to graphically prompt for a password, 
-should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation type="obsolete">Spéficie une commande qui est exécutée pour demander graphiquement un mot de passe 
-si un dépôt requiert une authentification SSH (voir la documentation sur SSH et la variable d&apos;environnement SSH_ASKPASS). </translation>
-    </message>
-    <message>
         <source>SSH prompt command:</source>
         <translation type="obsolete">Invite de commande SSH : </translation>
-    </message>
-    <message>
-        <source>Submit message &amp;check script:</source>
-        <translation type="obsolete">Script de vérifi&amp;cation du message :</translation>
-    </message>
-    <message>
-        <source>User/&amp;alias configuration file:</source>
-        <translation type="obsolete">Fichier de configuration des &amp;alias utilisateur :</translation>
-    </message>
-    <message>
-        <source>User &amp;fields configuration file:</source>
-        <translation type="obsolete">&amp;Fichier de configuration des champs utilisateurs :</translation>
-    </message>
-    <message>
-        <source>&amp;Patch command:</source>
-        <translation type="obsolete">Commande &amp;Patch :</translation>
-    </message>
-    <message>
-        <source>&amp;SSH prompt command:</source>
-        <translation type="obsolete">Invite de commande &amp;SSH : </translation>
     </message>
 </context>
 <context>
