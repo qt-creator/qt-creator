@@ -3,6 +3,7 @@
 
 #include "edit3dwidget.h"
 #include "designdocument.h"
+#include "designericons.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
@@ -13,6 +14,7 @@
 #include "nodehints.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
+#include "qmleditormenu.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
 
@@ -36,6 +38,32 @@
 #include <QVBoxLayout>
 
 namespace QmlDesigner {
+
+static inline QIcon contextIcon(const DesignerIcons::IconId &iconId) {
+    return DesignerActionManager::instance().contextIcon(iconId);
+};
+
+static QIcon getEntryIcon(const ItemLibraryEntry &entry)
+{
+    static const QMap<QString, DesignerIcons::IconId> itemLibraryDesignerIconId = {
+        {"QtQuick3D.OrthographicCamera__Camera Orthographic", DesignerIcons::CameraOrthographicIcon},
+        {"QtQuick3D.PerspectiveCamera__Camera Perspective", DesignerIcons::CameraPerspectiveIcon},
+        {"QtQuick3D.DirectionalLight__Light Directional", DesignerIcons::LightDirectionalIcon},
+        {"QtQuick3D.PointLight__Light Point", DesignerIcons::LightPointIcon},
+        {"QtQuick3D.SpotLight__Light Spot", DesignerIcons::LightSpotIcon},
+        {"QtQuick3D.Model__Cone", DesignerIcons::ModelConeIcon},
+        {"QtQuick3D.Model__Cube", DesignerIcons::ModelCubeIcon},
+        {"QtQuick3D.Model__Cylinder", DesignerIcons::ModelCylinderIcon},
+        {"QtQuick3D.Model__Plane", DesignerIcons::ModelPlaneIcon},
+        {"QtQuick3D.Model__Sphere", DesignerIcons::ModelSphereIcon},
+    };
+
+    QString entryKey = entry.typeName() + "__" + entry.name();
+    if (itemLibraryDesignerIconId.contains(entryKey)) {
+        return contextIcon(itemLibraryDesignerIconId.value(entryKey));
+    }
+    return QIcon(entry.libraryEntryIconPath());
+}
 
 Edit3DWidget::Edit3DWidget(Edit3DView *view)
     : m_view(view)
@@ -172,13 +200,17 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
 void Edit3DWidget::createContextMenu()
 {
-    m_contextMenu = new QMenu(this);
+    m_contextMenu = new QmlEditorMenu(this);
 
-    m_editComponentAction = m_contextMenu->addAction(tr("Edit Component"), [&] {
+    m_editComponentAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::EditComponentIcon),
+                tr("Edit Component"), [&] {
         DocumentManager::goIntoComponent(m_view->singleSelectedModelNode());
     });
 
-    m_editMaterialAction = m_contextMenu->addAction(tr("Edit Material"), [&] {
+    m_editMaterialAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::MaterialIcon),
+                tr("Edit Material"), [&] {
         SelectionContext selCtx(m_view);
         selCtx.setTargetNode(m_contextMenuTarget);
         ModelNodeOperations::editMaterial(selCtx);
@@ -186,42 +218,58 @@ void Edit3DWidget::createContextMenu()
 
     m_contextMenu->addSeparator();
 
-    m_duplicateAction = m_contextMenu->addAction(tr("Duplicate"), [&] {
-        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
-    });
-
-    m_copyAction = m_contextMenu->addAction(tr("Copy"), [&] {
+    m_copyAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::CopyIcon),
+                tr("Copy"), [&] {
         QmlDesignerPlugin::instance()->currentDesignDocument()->copySelected();
     });
 
-    m_pasteAction = m_contextMenu->addAction(tr("Paste"), [&] {
+    m_pasteAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::PasteIcon),
+                tr("Paste"), [&] {
         QmlDesignerPlugin::instance()->currentDesignDocument()->pasteToPosition(m_contextMenuPos3d);
     });
 
-    m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
+    m_deleteAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::DeleteIcon),
+                tr("Delete"), [&] {
         view()->executeInTransaction("Edit3DWidget::createContextMenu", [&] {
             for (ModelNode &node : m_view->selectedModelNodes())
                 node.destroy();
         });
     });
 
+    m_duplicateAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::DuplicateIcon),
+                tr("Duplicate"), [&] {
+        QmlDesignerPlugin::instance()->currentDesignDocument()->duplicateSelected();
+    });
+
     m_contextMenu->addSeparator();
 
-    m_fitSelectedAction = m_contextMenu->addAction(tr("Fit Selected Items to View"), [&] {
+    m_fitSelectedAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::FitSelectedIcon),
+                tr("Fit Selected Items to View"), [&] {
         view()->emitView3DAction(View3DActionType::FitToView, true);
     });
 
-    m_alignCameraAction = m_contextMenu->addAction(tr("Align Camera to View"), [&] {
+    m_alignCameraAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::AlignCameraToViewIcon),
+                tr("Align Camera to View"), [&] {
         view()->emitView3DAction(View3DActionType::AlignCamerasToView, true);
     });
 
-    m_alignViewAction = m_contextMenu->addAction(tr("Align View to Camera"), [&] {
+    m_alignViewAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::AlignViewToCameraIcon),
+                tr("Align View to Camera"), [&] {
         view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
     });
 
     m_contextMenu->addSeparator();
 
-    m_selectParentAction = m_contextMenu->addAction(tr("Select Parent"), [&] {
+    m_selectParentAction = m_contextMenu->addAction(
+                contextIcon(DesignerIcons::ParentIcon),
+                tr("Select Parent"), [&] {
         ModelNode parentNode = ModelNode::lowestCommonAncestor(view()->selectedModelNodes());
         if (!parentNode.isValid())
             return;
@@ -233,7 +281,9 @@ void Edit3DWidget::createContextMenu()
     });
 
     QAction *defaultToggleGroupAction = view()->edit3DAction(View3DActionType::SelectionModeToggle)->action();
-    m_toggleGroupAction = m_contextMenu->addAction(tr("Group Selection Mode"), [&]() {
+    m_toggleGroupAction = m_contextMenu->addAction(
+                defaultToggleGroupAction->icon(),
+                tr("Group Selection Mode"), [&]() {
         view()->edit3DAction(View3DActionType::SelectionModeToggle)->action()->trigger();
     });
     connect(defaultToggleGroupAction, &QAction::toggled, m_toggleGroupAction, &QAction::setChecked);
@@ -259,8 +309,7 @@ bool Edit3DWidget::isSceneLocked() const
 }
 
 // Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
-void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
-                                       const QHash<QString, QList<ItemLibraryEntry>> &entriesMap)
+void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList)
 {
     if (!m_contextMenu)
         return;
@@ -271,7 +320,10 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
     }
 
     m_nameToEntry.clear();
-    m_createSubMenu = m_contextMenu->addMenu(tr("Create"));
+
+    m_createSubMenu = new QmlEditorMenu(tr("Create"), m_contextMenu);
+    m_createSubMenu->setIcon(contextIcon(DesignerIcons::CreateIcon));
+    m_contextMenu->addMenu(m_createSubMenu);
 
     const QString docPath = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().toString();
 
@@ -281,8 +333,8 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
         return path.isEmpty() || docPath != path;
     };
 
-    for (const QString &cat : keys) {
-        QList<ItemLibraryEntry> entries = entriesMap.value(cat);
+    for (const auto &details : entriesList) {
+        QList<ItemLibraryEntry> entries = details.entryList;
         if (entries.isEmpty())
             continue;
 
@@ -295,9 +347,18 @@ void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
         for (const ItemLibraryEntry &entry : std::as_const(entries)) {
             if (!isEntryValid(entry))
                 continue;
-            if (!catMenu)
-                catMenu = m_createSubMenu->addMenu(cat);
-            QAction *action = catMenu->addAction(entry.name(), this, &Edit3DWidget::onCreateAction);
+
+            if (!catMenu) {
+                catMenu = new QmlEditorMenu(details.name, m_createSubMenu);
+                catMenu->setIcon(details.icon);
+                m_createSubMenu->addMenu(catMenu);
+            }
+
+            QAction *action = catMenu->addAction(
+                        getEntryIcon(entry),
+                        entry.name(),
+                        this,
+                        &Edit3DWidget::onCreateAction);
             action->setData(entry.name());
             m_nameToEntry.insert(entry.name(), entry);
         }

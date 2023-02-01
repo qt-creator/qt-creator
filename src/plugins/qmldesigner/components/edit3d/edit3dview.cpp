@@ -4,6 +4,8 @@
 #include "edit3dview.h"
 
 #include "backgroundcolorselection.h"
+#include "designeractionmanager.h"
+#include "designericons.h"
 #include "designersettings.h"
 #include "designmodecontext.h"
 #include "edit3dactions.h"
@@ -14,7 +16,6 @@
 #include "nodehints.h"
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
-#include "qmldesignericons.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
 #include "seekerslider.h"
@@ -31,6 +32,10 @@
 #include <QToolButton>
 
 namespace QmlDesigner {
+
+static inline QIcon contextIcon (const DesignerIcons::IconId &iconId) {
+    return DesignerActionManager::instance().contextIcon(iconId);
+};
 
 Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
@@ -214,37 +219,42 @@ void Edit3DView::handleEntriesChanged()
     if (!model())
         return;
 
-    const QString cameras = tr("Cameras");
-    const QString lights = tr("Lights");
-    const QString primitives = tr("Primitives");
-    const QString importedModels = tr("Imported Models");
-    const QStringList keys {cameras, lights, primitives, importedModels}; // used to maintain order
+    enum ItemLibraryEntryKeys : int { // used to maintain order
+        EK_cameras,
+        EK_lights,
+        EK_primitives,
+        EK_importedModels
+    };
 
-    QHash<QString, QList<ItemLibraryEntry>> entriesMap {
-        {cameras, {}},
-        {lights, {}},
-        {primitives, {}},
-        {importedModels, {}}
+    QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap {
+        {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
+        {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
+        {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
+        {EK_importedModels, {tr("Imported Models"), {}}}
     };
 
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
+        ItemLibraryEntryKeys entryKey;
         if (entry.typeName() == "QtQuick3D.Model" && entry.name() != "Empty") {
-            entriesMap[primitives].append(entry);
+            entryKey = EK_primitives;
         } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
                 || entry.typeName() == "QtQuick3D.PointLight"
                 || entry.typeName() == "QtQuick3D.SpotLight") {
-            entriesMap[lights].append(entry);
+            entryKey = EK_lights;
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                 || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
-            entriesMap[cameras].append(entry);
+            entryKey = EK_cameras;
         } else if (entry.typeName().startsWith("Quick3DAssets.")
                    && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
-            entriesMap[importedModels].append(entry);
+            entryKey = EK_importedModels;
+        } else {
+            continue;
         }
+        entriesMap[entryKey].entryList.append(entry);
     }
 
-    m_edit3DWidget->updateCreateSubMenu(keys, entriesMap);
+    m_edit3DWidget->updateCreateSubMenu(entriesMap.values());
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)

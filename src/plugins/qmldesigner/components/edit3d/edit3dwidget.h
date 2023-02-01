@@ -18,6 +18,19 @@ class Edit3DView;
 class Edit3DCanvas;
 class ToolBox;
 
+struct ItemLibraryDetails {
+    QString name;
+    QIcon icon;
+    QList<ItemLibraryEntry> entryList;
+
+    ItemLibraryDetails(
+            const QString &name = QString(),
+            const QIcon &icon = QIcon())
+        : name (name)
+        , icon(icon)
+    {}
+};
+
 class Edit3DWidget : public QWidget
 {
     Q_OBJECT
@@ -37,8 +50,7 @@ public:
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
     void showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d);
-    void updateCreateSubMenu(const QStringList &keys,
-                             const QHash<QString, QList<ItemLibraryEntry>> &entriesMap);
+    void updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList);
 
 private slots:
     void onCreateAction();
