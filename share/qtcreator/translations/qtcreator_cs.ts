@@ -698,7 +698,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation type="obsolete">Doplnění kódu</translation>
@@ -728,20 +728,12 @@
         <translation type="obsolete">&amp;Automaticky vložit závorky</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Chování</translation>
-    </message>
-    <message>
         <source>&amp;Case-sensitivity:</source>
         <translation type="obsolete">&amp;Rozlišování velkých a malých písmen:</translation>
     </message>
     <message>
         <source>Full</source>
         <translation type="obsolete">Plné</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Žádné</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -762,10 +754,6 @@
     <message>
         <source>When Triggered</source>
         <translation type="obsolete">Na žádost</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Vždy</translation>
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>

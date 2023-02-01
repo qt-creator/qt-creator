@@ -1057,7 +1057,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Kód kiegészítés</translation>

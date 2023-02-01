@@ -692,7 +692,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation>Completamento del Codice</translation>

@@ -642,7 +642,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Vstavi skupni začetek razpoložljivih možnosti za dokončanje.</translation>
@@ -656,11 +656,6 @@
         <location/>
         <source>&amp;Automatically insert brackets</source>
         <translation>&amp;Samodejno vstavi oklepaje</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Behavior</source>
-        <translation>Obnašanje</translation>
     </message>
     <message>
         <location/>
@@ -19567,11 +19562,6 @@ Vpliva na zamik nadaljevalnih vrstic.
         <location/>
         <source>Never</source>
         <translation>Nikoli</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Always</source>
-        <translation>Vedno</translation>
     </message>
     <message>
         <location/>

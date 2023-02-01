@@ -623,7 +623,7 @@
     </message>
 </context>
 <context>
-    <name>CompletionSettingsPage</name>
+    <name>::TextEditor</name>
     <message>
         <source>Code Completion</source>
         <translation type="obsolete">Complétion du code</translation>
@@ -653,20 +653,12 @@
         <translation type="obsolete">Autocomplétion du &amp;préfixe commun</translation>
     </message>
     <message>
-        <source>Behavior</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
         <source>&amp;Case-sensitivity:</source>
         <translation type="obsolete">Sensibilité à la &amp;casse :</translation>
     </message>
     <message>
         <source>Full</source>
         <translation type="obsolete">Totale</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="obsolete">Aucune</translation>
     </message>
     <message>
         <source>First Letter</source>
@@ -687,10 +679,6 @@
     <message>
         <source>When Triggered</source>
         <translation type="obsolete">À la demande</translation>
-    </message>
-    <message>
-        <source>Always</source>
-        <translation type="obsolete">Toujours</translation>
     </message>
     <message>
         <source>Automatically insert brackets and semicolons when appropriate.</source>
