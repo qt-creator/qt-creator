@@ -32044,45 +32044,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="obsolete">Le nom pour identifier cette configuration : </translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="obsolete">Le nom d&apos;hôte du périphérique ou son adresse IP : </translation>
-    </message>
-    <message>
-        <source>The user name to log into the device:</source>
-        <translation type="obsolete">Le nom d&apos;utilisateur pour se connecter sur le périphérique : </translation>
-    </message>
-    <message>
-        <source>The authentication type:</source>
-        <translation type="obsolete">Le type d&apos;authentification : </translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Mot de passe</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Clé</translation>
-    </message>
-    <message>
-        <source>The user&apos;s password:</source>
-        <translation type="obsolete">Le mot de passe de l&apos;utilisateur : </translation>
-    </message>
-    <message>
-        <source>The file containing the user&apos;s private key:</source>
-        <translation type="obsolete">Le fichier contenant la clé privée de l&apos;utilisateur : </translation>
-    </message>
-</context>
-<context>
     <name>::Valgrind</name>
     <message>
         <source>Dialog</source>
@@ -34193,16 +34154,10 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Deployment finished.</source>
         <translation type="obsolete">Déploiement fini.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Configuration d&apos;un nouveau périphérique Linux générique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Données de connexion</translation>
@@ -34219,9 +34174,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Generic Linux Device</source>
         <translation>Périphérique Linux générique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Fin de l&apos;installation</translation>
@@ -34235,16 +34187,10 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
 In addition, device connectivity will be tested.</source>
         <translation>La configuration du nouveau périphérique va maintenant être créée. En plus, la connectivité du périphérique sera testée. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(paramètre par défaut pour %1)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Démarrer l&apos;assistant</translation>
@@ -34257,9 +34203,6 @@ In addition, device connectivity will be tested.</source>
         <source>Available device types:</source>
         <translation type="obsolete">Types de périphérique disponibles : </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Tous les fichiers ont été copiés.</translation>
@@ -34268,9 +34211,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deploy files via UTFS mount</source>
         <translation type="obsolete">Déployer les fichiers par montage UTFS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Choisir une icône (elle sera remise à l&apos;échelle à %1x%1 pixels si nécessaire)</translation>
@@ -34291,9 +34231,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible d&apos;enregistrer l&apos;icône dans &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Informations générales</translation>
@@ -34302,16 +34239,10 @@ In addition, device connectivity will be tested.</source>
         <source>Device Status Check</source>
         <translation type="obsolete">Vérification de l&apos;état du périphérique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Vérification des clés existantes</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Création de clé</translation>
@@ -34340,9 +34271,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Impossible de sauver le fichier de la clé</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Déploiement de la clé</translation>
@@ -34367,30 +34295,18 @@ In addition, device connectivity will be tested.</source>
         <source>Done.</source>
         <translation type="obsolete">Fait. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">La configuration du nouveau périphérique va maintenant être créée. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Configuration du nouveau périphérique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Impossible de déployer à la racine système : pas d&apos;étape de paquetage trouvée. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible d&apos;installer à la racine système sans configuration de la compilation. </translation>
@@ -34411,23 +34327,14 @@ In addition, device connectivity will be tested.</source>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation type="obsolete">Échec lors de l&apos;installation à la racine système, l&apos;installation continue néanmoins.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Installer le paquet Debian à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Installer le paquet RMP à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible de copier les fichiers à la racine système sans configuration de la compilation. </translation>
@@ -34449,9 +34356,6 @@ In addition, device connectivity will be tested.</source>
         <source>Copy files to sysroot</source>
         <translation type="obsolete">Copie des fichiers à la racine système</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation type="obsolete">Erreur de clé publique : %1</translation>
@@ -34460,9 +34364,6 @@ In addition, device connectivity will be tested.</source>
         <source>Key deployment failed: %1.</source>
         <translation type="obsolete">Échec lors du déploiement de la clé : %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>Créer un paquet Debian</translation>
@@ -34471,9 +34372,6 @@ In addition, device connectivity will be tested.</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">Créer un paquet RPM</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Paquet à jour.</translation>
@@ -34510,9 +34408,6 @@ In addition, device connectivity will be tested.</source>
         <source>Exit code: %1</source>
         <translation type="obsolete">Code de sortie : %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">La taille devrait être de %1x%2 pixels</translation>
@@ -34561,9 +34456,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could Not Set Version Number</source>
         <translation type="obsolete">Impossible de définir le numéro de la version</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="obsolete">Échec de la connexion : %1</translation>
@@ -34572,16 +34464,10 @@ In addition, device connectivity will be tested.</source>
         <source>Installing package failed.</source>
         <translation type="obsolete">Échec lors de l&apos;installation du paquet.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation type="obsolete">Échec de l&apos;installation. Vous avez essayé d&apos;installer une version plus ancienne d&apos;un paquet, ce qui n&apos;est pas permis.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Sélectionner un répertoire à monter</translation>
@@ -34616,16 +34502,10 @@ In addition, device connectivity will be tested.</source>
             <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais seulement %n ports seront disponibles en mode debug. &lt;br&gt;Vous n&apos;êtes pas en mesure de déboguervotre application avec cette configuration.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Exécuter sur le périphérique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Erreur de Qemu</translation>
@@ -34646,23 +34526,14 @@ In addition, device connectivity will be tested.</source>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation type="obsolete">Qemu est actuellement configuré pour autodétecter le mode OpenGL, qui est connu pour ne pas toujours fonctionner. Vous pourrize vouloir utiliser le rendu logiciel à la place. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Configurations de périphériques</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Paramètres de Qemu pour MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
@@ -34671,9 +34542,6 @@ In addition, device connectivity will be tested.</source>
         <source>Save Private Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé privée</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Qemu n&apos;était pas en cours d&apos;exécution. Il a maintenant été lancé mais pourrait prendre un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
@@ -34694,9 +34562,6 @@ In addition, device connectivity will be tested.</source>
         <source>Unmounting host directories...</source>
         <translation type="obsolete">Démontage des répertoires hôtes...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">GCC pour Maemo</translation>
@@ -34709,37 +34574,22 @@ In addition, device connectivity will be tested.</source>
         <source>%1 GCC (%2)</source>
         <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Pas d&apos;étape de paquetage correspondante trouvée. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet Debian par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet RPM par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Impossible de démarrer le processus distant : %1</translation>
@@ -34757,9 +34607,6 @@ In addition, device connectivity will be tested.</source>
 Remote error output was: %1</source>
         <translation type="obsolete">La sortie du processus distant était : %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Attente du nom de fichier... </translation>
@@ -34780,9 +34627,6 @@ Remote error output was: %1</source>
         <source>Deployment finished successfully.</source>
         <translation>Le déploiement s&apos;est déroulé avec succès. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
@@ -34815,9 +34659,6 @@ Remote error output was: %1</source>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible de déplacer le nouveau répertoire Debian dans &quot;%1&quot;. </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translatorcomment>bancal... </translatorcomment>
@@ -34837,9 +34678,6 @@ Remote error output was: %1</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Lancer sur un périphérique distant</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation>(sur hôte distant Linux générique)</translation>
@@ -34848,9 +34686,6 @@ Remote error output was: %1</source>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(sur un hôte distant Linux générique)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Gérer les configurations des périphériques&lt;/a&gt;</translation>
@@ -34896,9 +34731,6 @@ Remote error output was: %1</source>
         <source>Remote path not set</source>
         <translation>Chemin distant indéfini</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -34913,9 +34745,6 @@ Remote error output was: %1</source>
         <source>Remote Execution Failure</source>
         <translation type="obsolete">Échec lors de l&apos;exécution à distance</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Exécuter sur périphérique Linux distant</translation>
@@ -36348,9 +36177,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Connection error: %1</source>
         <translation>Erreur de connexion : %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Échec du déploiement : %1</translation>
@@ -36371,9 +36197,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Deploy step finished.</source>
         <translation>Étape de déploiment effectuée.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Fichier de paquet envoyé avec succès. </translation>
@@ -36386,9 +36209,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Package installed.</source>
         <translation>Paquet installé.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Échec de l&apos;initialisation de SFTP : %1</translation>
@@ -36425,9 +36245,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
         <translation>Attention: Aucun chemin distant de défini pour le fichier local &apos;%1&apos;. Continuation de l&apos;envoie.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Déploiement incrémental</translation>
@@ -36436,16 +36253,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Command line:</source>
         <translation>Ligne de commande : </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Envoi de fichiers par SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">Linux générique</translation>
@@ -36470,9 +36281,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Deploy Public Key</source>
         <translation type="obsolete">Déployer la clé publique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation type="obsolete">Configurations des périphériques Linux</translation>
@@ -36517,9 +36325,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">&amp;Générer une clé SSH...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
@@ -36532,9 +36337,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Device test failed.</source>
         <translation>Le test du périphérique a échoué.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Connexion à l&apos;hôte...</translation>
@@ -36606,9 +36408,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <translation>Les ports suivant sont actuellement en cours d&apos;utilisation : %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Préparation de la connexion SFTP...</translation>
@@ -36629,9 +36428,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Failed to upload package: %2</source>
         <translation>Échec de l&apos;envoi du paquet : %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Fichiers de projet pouvant être mis à jour</translation>
@@ -36652,16 +36448,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Décocher to&amp;ut</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Exécuter une commande distante personnalisée</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Aucune ligne de commande donnée.</translation>
@@ -36686,9 +36476,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>Remote command finished successfully.</source>
         <translation>Processus distant terminé avec succès.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Déploiement sur une hôte Linux distante</translation>
@@ -36705,16 +36492,10 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>(No device)</source>
         <translation type="obsolete">(Pas de périphérique)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 utilisant le périphérique&lt;/b&gt; : %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Erreur lors de l&apos;exécution du processus à distance : %1</translation>
@@ -36736,9 +36517,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
 Remote stderr was: &apos;%1&apos;</source>
         <translation>Le stderr distant était : &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Sélectionner la racine système</translation>
@@ -36796,9 +36574,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation type="obsolete">Exécute la commande : %1
  {1?}</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Paquetage terminé avec succès.</translation>
@@ -36847,9 +36622,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Create tarball</source>
         <translation>Créer un tarball</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(par défaut)</translation>
@@ -36858,9 +36630,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>%1 (default)</source>
         <translation>%1 (par défaut)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Aucune étape de création d&apos;archive tarball trouvée.</translation>
@@ -37680,9 +37449,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Leave empty to look up executable in $PATH</source>
         <translation>Laisser vide pour rechercher un exécutable dans le $PATH</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -37715,16 +37481,10 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>The file containing the user&apos;s private key:</source>
         <translation>Le fichier contenant la clé privée de l&apos;utilisateur : </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Test de périphérique</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device configuration:</source>
         <translation type="obsolete">Configuration du périphérique :</translation>
@@ -39783,9 +39543,6 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
         <source>Embedded Linux</source>
         <translation type="obsolete">Linux embarqué</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Double-cliquez pour modifier le fichier de projet</translation>
@@ -44331,23 +44088,14 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation>Impossible de vérifier l&apos;espace libre du disque : &quot;%1&quot; n&apos;est pas un chemin absolu.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Mo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Vérification de l&apos;espace disque disponible</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Le débogage a échoué.</translation>
@@ -48573,9 +48321,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Not enough free ports on device for debugging.</source>
         <translation>Pas assez de ports disponibles sur le périphérique pour le débogage.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -48594,9 +48339,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Initial setup failed: %1</source>
         <translation>Échec lors de la configuration initiale : %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Local File Path</source>
         <translation>Chemin du fichier local</translation>
@@ -48605,9 +48347,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>Remote Directory</source>
         <translation>Répertoire distant</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Environnement vierge</translation>
@@ -48616,9 +48355,6 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
         <source>System Environment</source>
         <translation>Environnement du système</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Récupérer l&apos;environnement du périphérique</translation>

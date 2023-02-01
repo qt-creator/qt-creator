@@ -7467,9 +7467,6 @@ Sigurno želiš nastaviti?</translation>
         <source>You will need at least one port.</source>
         <translation>Trebat ćeš barem jedan prikljjučak.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranica čarobnjaka</translation>
@@ -32046,9 +32043,6 @@ Saving failed.</source>
         <source>Close</source>
         <translation>Zatvori</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process failed: %1</source>
         <translation>Udaljeni proces neuspjeo: %1</translation>

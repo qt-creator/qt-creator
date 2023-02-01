@@ -27059,45 +27059,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">Stránka průvodce</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation type="obsolete">Název nastavení:</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation type="obsolete">Název hostitelského počítače nebo IP adresa zařízení:</translation>
-    </message>
-    <message>
-        <source>The user name to log into the device:</source>
-        <translation type="obsolete">Uživatelské jméno pro přihlášení se k zařízení:</translation>
-    </message>
-    <message>
-        <source>The authentication type:</source>
-        <translation type="obsolete">Druh ověření pravosti:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation type="obsolete">Heslo</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation type="obsolete">Klíč</translation>
-    </message>
-    <message>
-        <source>The user&apos;s password:</source>
-        <translation type="obsolete">Heslo uživatele:</translation>
-    </message>
-    <message>
-        <source>The file containing the user&apos;s private key:</source>
-        <translation type="obsolete">Soubor se soukromým klíčem uživatele:</translation>
-    </message>
-</context>
-<context>
     <name>LinuxDeviceFactorySelectionDialog</name>
     <message>
         <source>Device Configuration Wizard Selection</source>
@@ -34522,9 +34483,6 @@ Důvod: %2</translation>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení pro obecný Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Data připojení</translation>
@@ -34541,9 +34499,6 @@ Důvod: %2</translation>
         <source>Generic Linux Device</source>
         <translation>Obecné linuxové zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavení dokončeno</translation>
@@ -34558,16 +34513,10 @@ In addition, device connectivity will be tested.</source>
         <translation>Bude vytvořeno nové nastavení zařízení.
 Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(výchozí pro %1)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Spustit průvodce</translation>
@@ -34580,9 +34529,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Available device types:</source>
         <translation type="obsolete">Dostupné typy zařízení:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation type="obsolete">Zařízení s podporou pro MADDE-(Fremantle, Harmattan, MeeGo)</translation>
@@ -34599,9 +34545,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Other MeeGo OS</source>
         <translation type="obsolete">Jiné MeeGo OS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation type="obsolete">Zkouší se nastavení. Může to nějakou dobu trvat.</translation>
@@ -34668,16 +34611,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>List of installed Qt packages:</source>
         <translation type="obsolete">Seznam nainstalových balíčků Qt:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation type="obsolete">Instaluje se balíček na zařízení...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Nepodařilo se najít žádný odpovídající krok balíčkování.</translation>
@@ -34690,9 +34627,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Deploy package via UTFS mount</source>
         <translation type="obsolete">Nasazení prostřednictvím UTFS mount</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Všechny soubory zkopírovány.</translation>
@@ -34701,9 +34635,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Deploy files via UTFS mount</source>
         <translation type="obsolete">Nasazení souborů prostřednictvím UTFS mount</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Vyberte ikonu (její velikost bude změněna na %1x%1 pixelů, pokud to bude potřeba)</translation>
@@ -34724,9 +34655,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation type="obsolete">Ikonu se nepodařilo uložit pod &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Obecné informace</translation>
@@ -34735,16 +34663,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Device Status Check</source>
         <translation type="obsolete">Přezkoušení stavu zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Přezkoušení již existujících klíčů</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Vytvoření klíče</translation>
@@ -34773,9 +34695,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Nasazení klíče</translation>
@@ -34796,23 +34715,14 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
         <translation type="obsolete">Klíč byl úspěšně poslán. Nyní můžete program &quot;%1&quot; zavřít a pokračovat.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">Nyní bude vytvořeno nové nastavení zařízení.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Zřízení nového nastavení zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>Propojitelnost SDK</translation>
@@ -34825,16 +34735,10 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Unknown OS</source>
         <translation type="obsolete">Neznámý operační systém</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Nelze provést žádné nasazení do sysroot: Nenalezen žádný balíčkovací krok.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze provést žádnou instalaci na sysroot.</translation>
@@ -34855,23 +34759,14 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation type="obsolete">Instalace balíčku na sysroot se nezdařila, ale pokračuje se.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Instalovat balíček Debian na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Instalovat balíček RPM na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze na sysroot kopírovat.</translation>
@@ -34894,9 +34789,6 @@ ale přesto se pokračuje dál.</translation>
         <source>Copy files to sysroot</source>
         <translation type="obsolete">Kopírovat soubory na sysroot</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Balíček je nejnovější.</translation>
@@ -34933,9 +34825,6 @@ ale přesto se pokračuje dál.</translation>
         <source>Exit code: %1</source>
         <translation type="obsolete">Kód ukončení: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku Debian</translation>
@@ -34976,9 +34865,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation type="obsolete">Chyba: Soubor &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create RPM Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku RPM</translation>
@@ -34987,9 +34873,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Could not move package file from %1 to %2.</source>
         <translation type="obsolete">Soubor s balíčkem se nepodařilo přesunout z %1 do %2.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Nevšímat si chybějících souborů</translation>
@@ -35002,9 +34885,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Create tarball:</source>
         <translation>Vytvořit Tarovu kouli (tarball):</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">Požadovaná velikost: %1x%2 pixelů</translation>
@@ -35053,9 +34933,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Could Not Set Version Number</source>
         <translation type="obsolete">Nepodařilo se nastavit číslo verze</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">Zrušeno.</translation>
@@ -35198,9 +35075,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
         <translation type="obsolete">Nezadal jste ikonu pro správce balíčků. Je potřeba ji nastavit v Projekty -&gt; Spuštění -&gt; Vytvoření balíčku -&gt; Podrobnosti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -35213,9 +35087,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Choose a private key file</source>
         <translation type="obsolete">Vyberte soubor se soukromým klíčem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -35224,9 +35095,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
         <translation type="obsolete">Tento průvodce vytvoří zdrojový archiv a volitelně jej nahraje na sestavovací server, kde bude projekt sestaven, zabalen a potom přesunut do skladiště &quot;Extras-devel free&quot;, odkud jej mohou uživatelé instalovat na svá zařízení N900. Pro funkci nahrávání je potřeba přihlášení k garage.maemo.org.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -35243,9 +35111,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Result</source>
         <translation type="obsolete">Výsledek</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: Copy command failed.</source>
         <translation type="obsolete">Chyba: Příkaz ke kopírování selhal.</translation>
@@ -35254,9 +35119,6 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
         <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
         <translation type="obsolete">Kopíruje se soubor &apos;%1&apos; do adresáře &apos;%2&apos; na zařízení...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No directories to mount</source>
         <translation type="obsolete">Žádné adresáře k připojení</translation>
@@ -35317,9 +35179,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Timeout waiting for UTFS servers to connect.</source>
         <translation type="obsolete">Překročení časového omezení při čekání na spojení se serverem UTFS.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation type="obsolete">Místní adresář</translation>
@@ -35328,16 +35187,10 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Remote mount point</source>
         <translation type="obsolete">Vzdálený přípojný bod</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation type="obsolete">Na zařízení není dostatek volných přípojek.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Vyberte, prosím, adresář, který se má připojit</translation>
@@ -35375,16 +35228,10 @@ Chybový výstup byl: &apos;%1&apos;</translation>
             <numerusform>Varování: Chcete připojit %1 adresářů, ale vaše zařízení má v režimu ladění dostupných jen %n přípojek.&lt;br&gt;S tímto nastavením nebudete moci provést ladění vašeho programu.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Spustit na zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Chyba v Qemu</translation>
@@ -35405,23 +35252,14 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation type="obsolete">V současnosti je Qemu nastaveno tak, aby byl režim OpenGL určen automaticky, což, jak je známo, ne vždy pracuje. Místo toho byste mohl použít softwarový rendering.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Nastavení zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Nastavení Meego QEmu</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Uložit soubor s veřejným klíčem</translation>
@@ -35430,9 +35268,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Save Private Key File</source>
         <translation type="obsolete">Uložit soubor se soukromým klíčem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
@@ -35453,9 +35288,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Unmounting host directories...</source>
         <translation type="obsolete">Odpojují se hostitelské adresáře...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">Maemo GCC</translation>
@@ -35468,37 +35300,22 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>%1 GCC (%2)</source>
         <translation type="obsolete">%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Cesta k MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Cesta k cíli MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ladič:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation type="obsolete">Soubor s balíčkem byl nahrán.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku Debian prostřednictvím nahrání SFTS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku RPM prostřednictvím nahrání SFTS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Čeká se na název souboru...</translation>
@@ -35523,9 +35340,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Close</source>
         <translation>Zavřít</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation type="obsolete">Kopírovat soubory na zařízení Maemo5</translation>
@@ -35546,9 +35360,6 @@ Chybový výstup byl: &apos;%1&apos;</translation>
         <source>Build Tarball and Install to Linux Host</source>
         <translation type="obsolete">Vytvořit archiv tar a nainstalovat na linuxové zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation type="obsolete">Soubor &apos;%1&apos; nelze otevřít: %2</translation>
@@ -35581,9 +35392,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Error creating MeeGo templates</source>
         <translation type="obsolete">Chyba při vytváření předloh MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unable to create Debian templates: No Qt version set</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné předlohy pro Debian. Není nastavena žádná verze Qt</translation>
@@ -35596,9 +35404,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file &apos;%1&apos; is being parsed.</source>
         <translation type="obsolete">Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
@@ -35625,9 +35430,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Spustit na vzdáleném zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (na vzdáleném, obecném linuxovém zařízení)</translation>
@@ -35636,9 +35438,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(na vzdáleném, obecném linuxovém zařízení)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation type="obsolete">Natáhnout prostředí zařízení</translation>
@@ -35735,9 +35534,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Fetching environment failed: %1</source>
         <translation type="obsolete">Natažení prostředí se nezdařilo: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -35756,9 +35552,6 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <translation type="obsolete">Vzdálený proces byl ukončen. Vrácená hodnota %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Spustit na vzdáleném linuxovém zařízení</translation>
@@ -37859,9 +37652,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Connection error: %1</source>
         <translation>Chyba ve spojení: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Nasazení se nezdařilo: %1</translation>
@@ -37882,9 +37672,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Deploy step finished.</source>
         <translation>Nasazení hotovo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Spuštění SFTP se nezdařilo: %1</translation>
@@ -37925,9 +37712,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation>Nahrává se soubor &apos;%1&apos;...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Přírůstkové nasazení</translation>
@@ -38022,9 +37806,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <translation>Následující zadané porty se na zařízení používají: %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Připravuje se spojení SFTP...</translation>
@@ -38049,9 +37830,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Failed to upload package: %2</source>
         <translation>Chyba při nahrávání balíčku: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Aktualizovatelné projektové soubory</translation>
@@ -38072,9 +37850,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Odstranit označení u vš&amp;eho</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Spustit uživatelskystanovený vzdálený příkaz</translation>
@@ -38103,9 +37878,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Remote command finished successfully.</source>
         <translation>Vzdálený příkaz byl úspěšně vykonán.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>Nasadit na vzdáleném linuxovém zařízení</translation>
@@ -38118,16 +37890,10 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>(No device)</source>
         <translation type="obsolete">(Žádné zařízení)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 za použití zařízení&lt;/b&gt;: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
@@ -38154,9 +37920,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Chyba při vytváření spojení: %1</translation>
@@ -38199,9 +37962,6 @@ Remote stderr was: %1</source>
         <translation type="obsolete">
 Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Vzdálený proces se nepodařilo spustit: %1</translation>
@@ -38216,9 +37976,6 @@ Remote error output was: %1</source>
         <translation type="obsolete">
 Vzdálený chybový výstup byl: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">Nastavení klíče SSH</translation>
@@ -38267,9 +38024,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="obsolete">Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Chyba ve veřejném klíči: %1</translation>
@@ -38278,9 +38032,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Nasazení klíče se nezdařilo: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Vybrat Sysroot</translation>
@@ -38329,9 +38080,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Running command: %1</source>
         <translation type="obsolete">Provádí se příkaz: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Vytvoření balíčku úspěšně dokončeno.</translation>
@@ -38381,9 +38129,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>Create tarball</source>
         <translation>Vytvořit Tarovu kouli (archiv tar)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(výchozí)</translation>
@@ -38392,9 +38137,6 @@ Vzdálený chybový výstup byl: %1</translation>
         <source>%1 (default)</source>
         <translation>%1 (výchozí)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Nepodařilo se najít žádný odpovídající krok k vytvoření archivu tar.</translation>
@@ -40440,9 +40182,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>You can enter lists and ranges like this: &apos;1024,1026-1028,1030&apos;.</source>
         <translation>Můžete zadat seznamy a oblasti jako jsou tyto: 1024,1026-1028,1030.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -40475,16 +40214,10 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>The file containing the user&apos;s private key:</source>
         <translation>Soubor se soukromým klíčem uživatele:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Zkouška zařízení</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -40505,9 +40238,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <source>Files to deploy:</source>
         <translation>Soubory pro nasazení:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">Seznam vzdálených procesů</translation>
@@ -44326,9 +44056,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>Embedded Linux</source>
         <translation type="obsolete">Vložený Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Dvojité klepnutí pro úpravu souboru s projektem</translation>
@@ -47372,9 +47099,6 @@ nelze najít v cestě.</translation>
         <source>Deploy Public Key...</source>
         <translation>Poslat veřejný klíč...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Vzdálený proces spadl.</translation>
@@ -47403,23 +47127,14 @@ nelze najít v cestě.</translation>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation>Nelze ověřit volné místo na disku: &apos;%1&apos; není absolutní cesta.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MiB</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Ověřit volné místo na disku</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Ladění se nezdařilo.</translation>
@@ -52006,9 +51721,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>

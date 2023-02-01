@@ -31047,9 +31047,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Deploy to Remote Linux Host</source>
         <translation>Udsend til fjern-Linux-vært</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Ingen udsendelseshandling nødvendig. Springer over.</translation>
@@ -31078,9 +31075,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Connection error: %1</source>
         <translation>Forbindelsesfejl: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Kan ikke udsende: %1</translation>
@@ -31097,9 +31091,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Deploy step finished.</source>
         <translation>Udsendelsestrin fuldført.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Oprettelse af forbindelse mislykkedes: %1</translation>
@@ -31108,9 +31099,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Installing package failed.</source>
         <translation>Installation af pakke mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Uploadede pakkefil med succes.</translation>
@@ -31123,9 +31111,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Package installed.</source>
         <translation>Pakke installeret.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Package modified files only</source>
         <translation>Pak kun ændrede filer</translation>
@@ -31138,9 +31123,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Create tarball:</source>
         <translation>Opret tarball:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP-initialisering mislykkedes: %1</translation>
@@ -31177,9 +31159,6 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Uploading file &quot;%1&quot;...</source>
         <translation>Uploader filen &quot;%1&quot;...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Upload filer via SFTP</translation>
@@ -31272,16 +31251,10 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
         <source>Key via ssh-agent</source>
         <translation>Nøgle via ssh-agent</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Ny generisk Linux-enhed konfigurationsopsætning</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -31292,9 +31265,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Den nye enhedskonfiguration vil nu blive oprettet.
 Derudover testes enhedens forbindelse.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Forbindelse</translation>
@@ -31307,9 +31277,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Generic Linux Device</source>
         <translation>Generisk Linux-enhed</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Opretter forbindelse til vært...</translation>
@@ -31346,16 +31313,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>The following specified ports are currently in use: %1</source>
         <translation>Følgende porte er aktuelt i brug: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Kør brugerdefineret fjern-kommando</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Trinvis udsendelse</translation>
@@ -31368,9 +31329,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Command line:</source>
         <translation>Kommandolinje:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Assistent side</translation>
@@ -31411,9 +31369,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Agent</source>
         <translation>Agent</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Generisk Linux</translation>
@@ -31422,9 +31377,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Deploy Public Key...</source>
         <translation>Udsend offentlig nøgle...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Forbereder SFTP-forbindelse...</translation>
@@ -31445,16 +31397,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Failed to upload package: %2</source>
         <translation>Kunne ikke uploade pakke: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Fjern-eksekverbar:</translation>
@@ -31475,9 +31421,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Run &quot;%1&quot;</source>
         <translation>Kør &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Fejl: ingen enhed</translation>
@@ -31498,16 +31441,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>Fjern-stderr var: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (standard)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Vælg offentlig nøgle-fil</translation>
@@ -31528,9 +31465,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Close</source>
         <translation>Luk</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Fjern-proces holdt op med at virke.</translation>
@@ -31557,16 +31491,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Cannot check for free disk space: &quot;%1&quot; is not an absolute path.</source>
         <translation>Kan ikke tjekke for ledig diskplads: &quot;%1&quot; er ikke en absolut sti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Tjek for ledig diskplads</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Ingen kommandolinje givet.</translation>
@@ -31591,9 +31519,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Remote command finished successfully.</source>
         <translation>Fjern-kommando fuldført med succes.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Rensmiljø</translation>
@@ -31602,9 +31527,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>System Environment</source>
         <translation>Systemmiljø</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Hent enhedsmiljø</translation>
@@ -31621,9 +31543,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Fetching environment failed: %1</source>
         <translation>Hentning af miljø mislykkedes: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Eksekverbar på enhed:</translation>
@@ -31636,16 +31555,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Executable on host:</source>
         <translation>Eksekverbar på vært:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Afslutningskode er %1. stderr:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Fejl ved offentlig nøgle: %1</translation>
@@ -31658,9 +31571,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Udsendelse af nøgle mislykkedes: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Pakning afsluttede med succes.</translation>
@@ -31709,9 +31619,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Create tarball</source>
         <translation>Opret tarball</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Intet tarball oprettelsestrin fundet.</translation>

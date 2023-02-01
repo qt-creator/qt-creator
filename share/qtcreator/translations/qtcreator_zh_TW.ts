@@ -13373,16 +13373,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
 </source>
         <translation type="obsolete">正在啟動：&quot;%1&quot; %2 於 %3</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create SIS Package</source>
         <translation type="obsolete">建立 SIS 套件</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">自行簽署</translation>
@@ -16419,9 +16413,6 @@ Reason: %2</source>
         <source>Queries the device for information</source>
         <translation type="obsolete">查詢裝置資訊</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation type="obsolete">現有檔案 &apos;%1&apos; 無法被移除：%2</translation>
@@ -19442,9 +19433,6 @@ Valid from: %2.</source>
             <numerusform>支援 %n 個裝置：</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -19458,9 +19446,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation type="obsolete">無法建立自動安裝包因為自動安裝器檔案丟失。請檢查檔案存在於SDK下。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation type="obsolete">清除</translation>
@@ -19511,9 +19496,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <translation type="obsolete">已建立 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">開啟包含的資料夾</translation>
@@ -19598,9 +19580,6 @@ Use a developer certificate or any other signing option to prevent this patching
         <source>Global vendor name:</source>
         <translation type="obsolete">全域供應商名稱：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publish Qt Symbian Applications to Nokia Store</source>
         <translation type="obsolete">發佈 Qt Symbian 應用程式到 Nokia Store</translation>
@@ -19627,9 +19606,6 @@ Your application will also be rejected by Nokia Store QA if you choose an unrele
 
 你的應用程式同樣會因為你採用了未發佈的 Qt 版本而被 Nokia Store 駁回。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Nokia Store</source>
         <translation type="obsolete">發佈到 Nokia Store</translation>
@@ -21530,9 +21506,6 @@ Do you want to retry?</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">正在執行 %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">沒有偵測到有效的 Qt 版本。&lt;br&gt;請在「選項」─「Qt4」中定義一個有效的 Qt 版本</translation>
@@ -21791,16 +21764,10 @@ Do you want to retry?</source>
         <source>Remote Directory</source>
         <translation>遠端目錄</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>新的通用型 Linux 裝置設定</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>連線資料</translation>
@@ -21809,9 +21776,6 @@ Do you want to retry?</source>
         <source>Generic Linux Device</source>
         <translation>通用 Linux 裝置</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>設定完成</translation>
@@ -21822,9 +21786,6 @@ In addition, device connectivity will be tested.</source>
         <translation>將建立新的裝置設置。
 此外，也會測試裝置的連線。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">啟動精靈</translation>
@@ -21837,9 +21798,6 @@ In addition, device connectivity will be tested.</source>
         <source>Available device types:</source>
         <translation type="obsolete">可用的裝置型態：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>SDK 連接性</translation>
@@ -21848,9 +21806,6 @@ In addition, device connectivity will be tested.</source>
         <source>Mad Developer</source>
         <translation>Mad 開發者</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>建立 Debian 套件</translation>
@@ -21859,9 +21814,6 @@ In addition, device connectivity will be tested.</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">建立 RPM 套件</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>選擇公開金鑰檔</translation>
@@ -21878,9 +21830,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deployment finished successfully.</source>
         <translation>佈署成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing remote side...
 </source>
@@ -21903,9 +21852,6 @@ In addition, device connectivity will be tested.</source>
         <source>Not enough free ports on device for debugging.</source>
         <translation type="obsolete">裝置上可用於除錯的連接埠不夠。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation type="obsolete">正在剖析 .pro 檔案。</translation>
@@ -21949,16 +21895,10 @@ In addition, device connectivity will be tested.</source>
         <source>System Environment</source>
         <translation>系統環境變數</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (在遠端通用Linux主機)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>抓取裝置環境</translation>
@@ -22015,9 +21955,6 @@ In addition, device connectivity will be tested.</source>
         <source>Fetching environment failed: %1</source>
         <translation>抓取環境失敗：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -22030,9 +21967,6 @@ In addition, device connectivity will be tested.</source>
         <translation type="obsolete">遠端行程執行結束。返回值為 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>在遠端 Linux 裝置上執行</translation>
@@ -23769,9 +23703,6 @@ Is the device connected and set up for network access?</source>
         <source>Connection error: %1</source>
         <translation>連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>無法佈署：%1</translation>
@@ -23788,9 +23719,6 @@ Is the device connected and set up for network access?</source>
         <source>Deploy step finished.</source>
         <translation>佈署步驟完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>上傳套件檔成功。</translation>
@@ -23803,9 +23731,6 @@ Is the device connected and set up for network access?</source>
         <source>Package installed.</source>
         <translation>套件已安裝。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初始化失敗：%1</translation>
@@ -23842,9 +23767,6 @@ Is the device connected and set up for network access?</source>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation>上傳檔案 &apos;%1&apos; 中...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>遞增佈署</translation>
@@ -23853,16 +23775,10 @@ Is the device connected and set up for network access?</source>
         <source>Command line:</source>
         <translation>命令列：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>通過 SFTP 上傳檔案</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">通用 Linux</translation>
@@ -23879,16 +23795,10 @@ Is the device connected and set up for network access?</source>
         <source>Deploy Public Key...</source>
         <translation type="obsolete">佈署公開金鑰...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(%1 的預設)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation type="obsolete">Linux 裝置設置</translation>
@@ -23937,9 +23847,6 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Generate SSH Key...</source>
         <translation type="obsolete">產生 SSH 金鑰(&amp;G)...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>關閉</translation>
@@ -23952,9 +23859,6 @@ Is the device connected and set up for network access?</source>
         <source>Device test failed.</source>
         <translation>裝置測試失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>連線到主機...</translation>
@@ -23991,9 +23895,6 @@ Is the device connected and set up for network access?</source>
         <translation>以下指定連接埠現正使用中：%1
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>準備建立 SFTP 連線...</translation>
@@ -24010,9 +23911,6 @@ Is the device connected and set up for network access?</source>
         <source>Failed to upload package: %2</source>
         <translation>上傳套件失敗：%2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>可更新的專案檔</translation>
@@ -24033,16 +23931,10 @@ Is the device connected and set up for network access?</source>
         <source>&amp;Uncheck All</source>
         <translation>全部取消勾選(&amp;U)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>執行自訂的遠端指令</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>沒有指定命令列。</translation>
@@ -24067,9 +23959,6 @@ Is the device connected and set up for network access?</source>
         <source>Remote command finished successfully.</source>
         <translation>遠端指令成功完成。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>佈署到遠端 Linux 主機</translation>
@@ -24086,9 +23975,6 @@ Is the device connected and set up for network access?</source>
         <source>(No device)</source>
         <translation type="obsolete">(沒有裝置)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>執行遠端行程時發生錯誤：%1</translation>
@@ -24099,9 +23985,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>連線失敗：%1</translation>
@@ -24110,9 +23993,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Installing package failed.</source>
         <translation>安裝套件失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>PID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -24139,16 +24019,10 @@ Remote stderr was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">裝置設置</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">無法啟動遠端行程：%1</translation>
@@ -24167,9 +24041,6 @@ Remote error output was: %1</source>
         <translation type="obsolete">
 遠端的標準錯誤輸出為：&apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">SSH 金鑰設置</translation>
@@ -24218,9 +24089,6 @@ Remote error output was: %1</source>
         <source>Failed to create directory: &apos;%1&apos;.</source>
         <translation type="obsolete">建立目錄失敗：&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開金鑰錯誤：%1</translation>
@@ -24233,9 +24101,6 @@ Remote error output was: %1</source>
         <source>Key deployment failed: %1.</source>
         <translation>佈署金鑰失敗：%1。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">選擇 Sysroot</translation>
@@ -24280,9 +24145,6 @@ Remote error output was: %1</source>
         <source>Running command: %1</source>
         <translation type="obsolete">執行指令：%1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>打包已順利完成。</translation>
@@ -24331,9 +24193,6 @@ Remote error output was: %1</source>
         <source>Create tarball</source>
         <translation>建立 tarball 歸檔</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(預設)</translation>
@@ -24342,9 +24201,6 @@ Remote error output was: %1</source>
         <source>%1 (default)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>找不到 tarball 建立步驟。</translation>
@@ -25165,9 +25021,6 @@ p, li { white-space: pre-wrap; }
         <source>Machine type:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>精靈頁面</translation>
@@ -25200,16 +25053,10 @@ p, li { white-space: pre-wrap; }
         <source>The file containing the user&apos;s private key:</source>
         <translation>包含使用者私密金鑰的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>裝置測試</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -25230,9 +25077,6 @@ p, li { white-space: pre-wrap; }
         <source>Files to install for subproject:</source>
         <translation>為子專案安裝的檔案：</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">遠端行程列表</translation>
@@ -30049,9 +29893,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="unfinished">無法將新的 debian 目錄移動到&apos;%1&apos;。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="unfinished"></translation>
@@ -30072,9 +29913,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="unfinished">新增打包檔到專案中</translation>

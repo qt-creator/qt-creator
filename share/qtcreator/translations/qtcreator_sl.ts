@@ -12143,9 +12143,6 @@ Razlog: %2</translation>
         <source>The .pro file could not be parsed.</source>
         <translation>Datoteke *.pro ni bilo moč razčleniti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
@@ -12172,9 +12169,6 @@ Razlog: %2</translation>
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 je končal s kodo %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run in Emulator</source>
         <translation>Zaženi v posnemovalniku</translation>
@@ -18310,9 +18304,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Details of Certificate</source>
         <translation>Podrobnosti potrdila</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <location/>
         <source>Choose a build configuration:</source>
@@ -18330,9 +18321,6 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation>V tem čarovniku so na voljo samo različice Qt, ki so novejše kot 4.6.3.
 Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <location/>
         <source>Localised Vendor Names</source>
@@ -18691,7 +18679,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
@@ -18720,11 +18708,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
         <location/>
         <source>Password</source>
         <translation>Geslo</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Key</source>
-        <translation>Ključ</translation>
     </message>
     <message>
         <location/>
@@ -24214,9 +24197,6 @@ Veljavno od: %2.</translation>
             <numerusform>Podpira %n naprav: </numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -24231,9 +24211,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation>Paketa Smart Installer ni moč ustvariti, ker manjka osnovna datoteka namestilnika Smart Installer. Prepričajte se, da se nahaja v SDK-ju.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation>Razmesti %1 na napravo Symbian</translation>
@@ -24242,9 +24219,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Deploy to Symbian device</source>
         <translation>Razmesti na napravo Symbian</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation>Naprava:</translation>
@@ -24365,9 +24339,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Screen size:</source>
         <translation>Velikost zaslona:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation>Obstoječe datoteke »%1« ni moč odstraniti: %2</translation>
@@ -24490,9 +24461,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device.</source>
         <translation>Med razmeščanjem je potekel čas. CODA se morda ne odziva. Poskusite znova povezati napravo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation>Čiščenje</translation>
@@ -24543,18 +24511,12 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <translation>Ustvaril %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step
 </extracomment>
         <translation>Zaganjanje %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation>Zaznane ni bilo nobene veljavne različice Qt.&lt;br&gt; Različico Qt lahko določite v Orodja → Možnosti → Qt 4.</translation>
@@ -24563,9 +24525,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
         <translation>Zaznanega ni bilo nobenega veljavnega zaporedja orodij.&lt;br&gt;Zaporedje orodij lahko določite v Orodja → Možnosti → Zaporedja orodij.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation>Odpri vsebujočo mapo</translation>
@@ -25202,9 +25161,6 @@ Razlog: %2</translation>
         <source>Deployment finished.</source>
         <translation>Razmestitev je zaključena.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation>&lt;ciljna pot ni nastavljena&gt;</translation>
@@ -25217,9 +25173,6 @@ Razlog: %2</translation>
         <source>Remote Directory</source>
         <translation>Oddaljena mapa</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Naprava z običajnim Linux-om</translation>
@@ -25240,23 +25193,14 @@ Razlog: %2</translation>
         <source>Deploy Public Key</source>
         <translation>Razmesti javni ključ ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nastavitev nove naprave z običajnim Linux-om</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Podatki o povezavi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavitev zaključena</translation>
@@ -25267,23 +25211,14 @@ In addition, device connectivity will be tested.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.
 Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation>(privzeto za %1)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation>Zaženi čarovnika</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation>Naprava s podporo za MADDE (Fremantle, Harmattan, MeeGo)</translation>
@@ -25300,9 +25235,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Other MeeGo OS</source>
         <translation>Drug MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation>Preizkušanje nastavitve. To lahko traja dalj časa.</translation>
@@ -25377,16 +25309,10 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>List of installed Qt packages:</source>
         <translation>Seznam nameščenih paketov Qt:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation>Nameščanje paketa na napravo ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation>Najdenega ni bilo nobenega ustreznega koraka za pakiranje.</translation>
@@ -25399,9 +25325,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Deploy package via UTFS mount</source>
         <translation>Razmesti paket prek priklopa UTFS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation>Vse datoteke so bile skopirane.</translation>
@@ -25410,9 +25333,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Deploy files via UTFS mount</source>
         <translation>Razmesti datoteke prek priklopa UTFS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation>Izberite ikono (po potrebi bo velikost prilagojena na %1 ⨯ %1 pik)</translation>
@@ -25433,9 +25353,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Could not save icon to &apos;%1&apos;.</source>
         <translation>Ikone ni bilo moč shraniti v »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Ni moč razmestiti: %1</translation>
@@ -25444,9 +25361,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation>&lt;b&gt;%1 uporablja napravo&lt;/b&gt;: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Physical Device</source>
         <translation>Fizična naprava</translation>
@@ -25459,30 +25373,18 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>You will need at least one port.</source>
         <translation>Potrebovali boste vsaj ena vrata.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Status Check</source>
         <translation>Preverjanje stanja naprave</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation>Preverjanje obstoječih ključev</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation>Ustvarjanje ključev</translation>
@@ -25535,16 +25437,10 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Done.</source>
         <translation>Opravljeno.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation>Nova nastavitev naprave </translation>
@@ -25581,9 +25477,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
         <source>Upload files via SFTP</source>
         <translation>Pošlji datoteke prek SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation>Ni se bilo moč povezati z gostiteljem: %1</translation>
@@ -25616,16 +25509,10 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
         <source>Unknown OS</source>
         <translation>Neznan OS</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation>Ni moč razmestiti v vrhnjo mapo sistema: najdenega ni nobenega koraka pakiranja.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč nameščati v vrhnjo mapo sistema.</translation>
@@ -25646,23 +25533,14 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
         <source>Installation to sysroot failed, continuing anyway.</source>
         <translation>Namestitev v vrhnjo mapo sistema ni uspela, kljub temu nadaljujem.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation>Paket Debian namesti v vrhnjo mapo sistema</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation>Paket RPM namesti v vrhnjo mapo sistema</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč kopirati v vrhnjo mapo sistema.</translation>
@@ -25777,9 +25655,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Error: Could not create file &apos;%1&apos;.</source>
         <translation>Napaka: datoteke »%1« ni bilo moč ustvariti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Could not move package file from %1 to %2.</source>
         <translation>Datoteke paketa ni bilo moč premakniti iz %1 v %2.</translation>
@@ -25788,9 +25663,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Create tarball:</source>
         <translation>Ustvari arhiv tar:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Create tarball</source>
         <translation>Ustvari arhiv tar</translation>
@@ -25815,9 +25687,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Error writing tar file &apos;%1&apos;: %2</source>
         <translation>Napaka pri zapisovanju datoteke tar »%1«: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No Version Available.</source>
         <translation>Na voljo ni nobene različice.</translation>
@@ -25862,23 +25731,14 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Could Not Set Version Number</source>
         <translation>Številke različice ni bilo moč nastaviti</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installing package failed.</source>
         <translation>Nameščanje paketa ni uspelo.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation>Nameščanje ni uspelo: paket ste poskušali nadomestiti s starejšo različico, kar ni dovoljeno.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Pripravljanje povezave SFTP ...</translation>
@@ -25895,23 +25755,14 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Failed to upload package: %2</source>
         <translation>Paketa ni bilo moč poslati: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation>(privzeto)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>Posodobljive datoteke projekta</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Include in package</source>
         <translation>Vključi v paket</translation>
@@ -25924,9 +25775,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Do not include</source>
         <translation>Ne vključi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation>Preklicano.</translation>
@@ -26065,9 +25913,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
         <translation>Ikone za upravljalnika paketov še niste izbrali. Ikono lahko nastavite v Projekti → Zagon → Ustvarjanje paketa → Podrobnosti.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel/free«</translation>
@@ -26080,9 +25925,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Choose a private key file</source>
         <translation>Izberite datoteko z zasebnim ključem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation>Objavi v skladišče »Fremantle Extras-devel free«</translation>
@@ -26091,9 +25933,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
         <translation>Ta čarovnik bo ustvaril izvorni arhiv in ga po želji poslal na strežnik za gradnjo, kjer bo projekt preveden in zapakiran ter nato premaknjen v skladišče »Extras-devel free«. Iz tega skladišča ga uporabniki lahko namestijo na svoje naprave Nokia N900. Za pošiljanje je potreben račun pri garage.maemo.org.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel free«</translation>
@@ -26110,9 +25949,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Result</source>
         <translation>Rezultat</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start MeeGo Emulator</source>
         <translation>Zaženi posnemovalnika za MeeGo</translation>
@@ -26201,9 +26037,6 @@ Standardni izhod za napake je bil: %1</translation>
         <source>Timeout waiting for UTFS servers to connect.</source>
         <translation>Med čakanjem na povezavo s strežniki UTFS je potekel čas.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation>Krajevna mapa</translation>
@@ -26212,16 +26045,10 @@ Standardni izhod za napake je bil: %1</translation>
         <source>Remote mount point</source>
         <translation>Oddaljena priklopna točka</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote Error</source>
         <translation>Oddaljena napaka</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Napaka povezave: %1</translation>
@@ -26248,16 +26075,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Command Line</source>
         <translation>Ukazna vrstica</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation>Na napravi ni dovolj prostih vrat.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation>Izberite mapo za priklop.</translation>
@@ -26299,16 +26120,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
             <numerusform>OPOZORILO: Priklopiti želite %1 map, a v razhroščevalnem načinu bo na napravi na voljo le %n vrat.&lt;br&gt;S to nastavitvijo ne boste mogli razhroščevati programa.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation>Zaženi na napravi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation>Napaka Qemu</translation>
@@ -26329,23 +26144,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
         <translation>Qemu je nastavljen na samodejno zaznavo načina OpenGL, ki v določenih primerih ne deluje. Poskusite lahko uporabiti programsko izrisovanje.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation>Nastavitve naprav</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation>Nastavitve Qemu za MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation>Shrani datoteko z javnim ključem</translation>
@@ -26354,9 +26160,6 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Save Private Key File</source>
         <translation>Shrani datoteko z zasebnim ključem</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation>Qemu ni tekel. Bil je zagnan, a bo potrebno nekaj časa, da bo pripravljen. Poskusite znova malce kasneje.</translation>
@@ -26377,9 +26180,6 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>Unmounting host directories...</source>
         <translation>Odklapljanje map gostitelja ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation>Maemo GCC</translation>
@@ -26392,16 +26192,10 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
         <source>%1 GCC (%2)</source>
         <translation>%1 GCC (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Pot do MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Pot do cilja MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Datoteka paketa je bila uspešno poslana.</translation>
@@ -26456,9 +26250,6 @@ Oddaljeni izhod za napake je bil: %1</translation>
         <source>Deployment finished successfully.</source>
         <translation>Razmestitev se je uspešno zaključila.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation>Skopiraj datoteke na napravo z Maemo-m 5</translation>
@@ -26479,9 +26270,6 @@ Oddaljeni izhod za napake je bil: %1</translation>
         <source>Build Tarball and Install to Linux Host</source>
         <translation>Zgradi arhiv in ga namesti na gostitelja z Linux-om</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation>Ni moč odpreti datoteke »%1«: %2</translation>
@@ -26514,9 +26302,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Error creating MeeGo templates</source>
         <translation>Napaka pri ustvarjanju predlog za MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation>Datoteka »%1« z dnevnikom sprememb za Debian ima nepričakovan format.</translation>
@@ -26573,9 +26358,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Error running remote process: %1</source>
         <translation>Napaka pri zagonu oddaljenega procesa: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing remote side ...
 </source>
@@ -26598,9 +26380,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na napravi ni dovolj prostih vrat za razhroščevanje.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation>Datoteko *.pro se razčlenjuje.</translation>
@@ -26691,9 +26470,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Fetching environment failed: %1</source>
         <translation>Pridobivanje okolja ni uspelo: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -26710,9 +26486,6 @@ Ali jih želite dodati v projekt?</translation>
         <source>Remote Execution Failure</source>
         <translation>Napaka pri oddaljeni izvedbi</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>Zaženi na oddaljeni napravi z Linux-om</translation>
@@ -29012,9 +28785,6 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <source>Could not install from package %1 on device: %2</source>
         <translation type="obsolete">Ni bilo moč namestiti iz paketa %1 na napravi: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Zaključeno.</translation>
@@ -29031,9 +28801,6 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <source>Could not start application: %1</source>
         <translation type="obsolete">Ni bilo moč zagnati programa: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
@@ -30812,16 +30579,10 @@ Preverite nastavitve projekta.</translation>
         <source>Choose Qt folder</source>
         <translation type="obsolete">Izberite mapo s Qt</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Nameščen ni noben Qt</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Korak 1 od 2: izberite mapo z GnuPoc</translation>

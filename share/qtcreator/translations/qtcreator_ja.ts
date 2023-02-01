@@ -5755,9 +5755,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Specific &amp;key</source>
         <translation>特定のキー(&amp;K)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -28236,9 +28233,6 @@ cannot be found in the path.</source>
         <source>Connection error: %1</source>
         <translation>接続エラー: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>デプロイエラー: %1</translation>
@@ -28255,9 +28249,6 @@ cannot be found in the path.</source>
         <source>Deploy step finished.</source>
         <translation>デプロイステップが完了しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>パッケージファイルのアップロードが成功しました。</translation>
@@ -28270,9 +28261,6 @@ cannot be found in the path.</source>
         <source>Package installed.</source>
         <translation>パッケージをインストールしました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP 初期化失敗: %1</translation>
@@ -28309,9 +28297,6 @@ cannot be found in the path.</source>
         <source>All files successfully deployed.</source>
         <translation>すべてのファイルのデプロイが成功しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>増分デプロイ</translation>
@@ -28324,16 +28309,10 @@ cannot be found in the path.</source>
         <source>Upload files via SFTP</source>
         <translation>SFTP 経由でファイルをアップロード</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>新しい一般的な Linux デバイスの設定</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>接続</translation>
@@ -28342,9 +28321,6 @@ cannot be found in the path.</source>
         <source>Choose a Private Key File</source>
         <translation>秘密鍵ファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -28355,9 +28331,6 @@ In addition, device connectivity will be tested.</source>
         <translation>新しいデバイス設定が作成されます。
 あわせてデバイスの接続確認も実行されます。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>一般的な Linux</translation>
@@ -28370,9 +28343,6 @@ In addition, device connectivity will be tested.</source>
         <source>Deploy Public Key...</source>
         <translation>公開鍵をデプロイ...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>ホストに接続中...</translation>
@@ -28409,9 +28379,6 @@ In addition, device connectivity will be tested.</source>
         <source>The following specified ports are currently in use: %1</source>
         <translation>以下の指定されたポートは既に使用中です: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>SFTP 接続の準備中...</translation>
@@ -28436,9 +28403,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failed to upload package: %2</source>
         <translation>パッケージアップロード失敗: %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>公開鍵ファイルを選択してください</translation>
@@ -28459,9 +28423,6 @@ In addition, device connectivity will be tested.</source>
         <source>Close</source>
         <translation>閉じる</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Creating remote socket ...</source>
         <translation>リモートソケットを作成しています ...</translation>
@@ -28478,9 +28439,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failure running remote process.</source>
         <translation>リモートプロセスの実行に失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>リモートプロセスがクラッシュしました。</translation>
@@ -28505,9 +28463,6 @@ In addition, device connectivity will be tested.</source>
             <numerusform>リモートのファイルシステムは %n MBytes の空き容量がありますので、続行します。</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>空き容量を確認するリモートのパス:</translation>
@@ -28524,9 +28479,6 @@ In addition, device connectivity will be tested.</source>
         <source>Check for free disk space</source>
         <translation>ディスクの空き容量チェック</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>コマンドラインが設定されていません。</translation>
@@ -28555,9 +28507,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote command finished successfully.</source>
         <translation>リモートコマンドは正常に終了しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...</source>
         <translation>使用可能なポートを確認中...</translation>
@@ -28578,16 +28527,10 @@ In addition, device connectivity will be tested.</source>
         <source>Initial setup failed: %1</source>
         <translation>初回セットアップ失敗: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Deploy to Remote Linux Host</source>
         <translation>リモート Linux ホストにデプロイ</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>環境変数なし</translation>
@@ -28596,9 +28539,6 @@ In addition, device connectivity will be tested.</source>
         <source>System Environment</source>
         <translation>システム環境変数</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>デバイス環境の取得</translation>
@@ -28615,9 +28555,6 @@ In addition, device connectivity will be tested.</source>
         <source>Fetching environment failed: %1</source>
         <translation>環境の取得に失敗: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>エラー: デバイスなし</translation>
@@ -28638,9 +28575,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote stderr was: &quot;%1&quot;</source>
         <translation>リモート側の標準エラー出力: &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>接続エラー: %1</translation>
@@ -28649,9 +28583,6 @@ In addition, device connectivity will be tested.</source>
         <source>Installing package failed.</source>
         <translation>パッケージのインストールに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (on Remote Device)</source>
         <translation>%1 (リモートデバイス上)</translation>
@@ -28661,16 +28592,10 @@ In addition, device connectivity will be tested.</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>リモートデバイスで実行</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(リモートの一般的な Linux ホスト上)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>ホスト上の実行可能ファイル:</translation>
@@ -28703,9 +28628,6 @@ In addition, device connectivity will be tested.</source>
         <source>Remote path not set</source>
         <translation>リモートのパスが設定されていません</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>デバッグエラー: キットにデバイスがありません。</translation>
@@ -28718,16 +28640,10 @@ In addition, device connectivity will be tested.</source>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>デバッグエラー: ローカル実行ファイルが設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>終了コードは %1 です。 標準エラー出力:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公開鍵エラー: %1</translation>
@@ -28736,9 +28652,6 @@ In addition, device connectivity will be tested.</source>
         <source>Key deployment failed: %1.</source>
         <translation>鍵ファイルの転送に失敗: %1。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>パッケージ化が成功しました。</translation>
@@ -28799,16 +28712,10 @@ In addition, device connectivity will be tested.</source>
         <source>Create tarball</source>
         <translation>tar ファイルの作成</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (既定)</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>tarball 作成ステップが見つかりません。</translation>
@@ -47087,9 +46994,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Install root:</source>
         <translation>インストールルート:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>コマンドライン:</translation>
@@ -47098,9 +47002,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Run custom remote command</source>
         <translation>カスタムリモートコマンド実行</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>リモート・デバイス上の &quot;%1&quot; を終了中です...</translation>
@@ -47117,9 +47018,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Kill current application instance</source>
         <translation>現在のアプリケーションのインスタンスを強制終了</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>X11 フォワーディング</translation>
@@ -47128,9 +47026,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Forward to local display</source>
         <translation>ローカルディスプレイに転送する</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>リモート・ディレクトリの作成に失敗しました: %1</translation>
@@ -47147,9 +47042,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>rsync failed with exit code %1.</source>
         <translation>rsync は終了コード %1 で失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>フラグ:</translation>

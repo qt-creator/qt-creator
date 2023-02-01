@@ -17163,9 +17163,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Deploy to Remote Linux Host</source>
         <translation>Розгорнути на віддалений вузол Linux</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Жодної дії для розгортання не потрібно. Пропускаємо.</translation>
@@ -17206,9 +17203,6 @@ Is the device connected and set up for network access?</source>
         <source>Connection error: %1</source>
         <translation>Помилка з&apos;єднання: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Неможливо розгорнути: %1</translation>
@@ -17225,9 +17219,6 @@ Is the device connected and set up for network access?</source>
         <source>Deploy step finished.</source>
         <translation>Крок розгортання завершено.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Збій з&apos;єднання: %1</translation>
@@ -17236,9 +17227,6 @@ Is the device connected and set up for network access?</source>
         <source>Installing package failed.</source>
         <translation>Збій встановлення пакунка.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Успішно завантажено файл пакунка.</translation>
@@ -17251,9 +17239,6 @@ Is the device connected and set up for network access?</source>
         <source>Package installed.</source>
         <translation>Пакунок встановлено.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Ігнорувати відсутні файли</translation>
@@ -17266,9 +17251,6 @@ Is the device connected and set up for network access?</source>
         <source>Create tarball:</source>
         <translation>Створити архів tar:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Збій ініціалізації SFTP: %1</translation>
@@ -17329,23 +17311,14 @@ Is the device connected and set up for network access?</source>
         <source>Uploading file &apos;%1&apos;...</source>
         <translation type="vanished">Завантаження файлу &apos;%1&apos;...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Завантажити файли через SFTP</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Налаштування нової конфігурації звичайного Linux-пристрою</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation type="vanished">Налаштування завершено</translation>
@@ -17360,9 +17333,6 @@ In addition, device connectivity will be tested.</source>
         <translation>Зараз буде створено нова конфігурація пристрою.
 Окрім того буде перевірено зв&apos;язок з пристроєм.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation type="vanished">Дані підключення</translation>
@@ -17379,9 +17349,6 @@ In addition, device connectivity will be tested.</source>
         <source>Generic Linux Device</source>
         <translation>Звичайний Linux-пристрій</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Підключення до вузла...</translation>
@@ -17452,16 +17419,10 @@ In addition, device connectivity will be tested.</source>
 </source>
         <translation type="vanished">Наступні вказані порти вже використовуються: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Виконати віддалену користувацьку команду</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Інкрементальне розгортання</translation>
@@ -17470,9 +17431,6 @@ In addition, device connectivity will be tested.</source>
         <source>Command line:</source>
         <translation>Рядок команди:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Підготовка підключення SFTP...</translation>
@@ -17497,9 +17455,6 @@ In addition, device connectivity will be tested.</source>
         <source>Failed to upload package: %2</source>
         <translation>Збій завантаження пакунка %2</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation type="vanished">Помилка запуску віддаленого процесу: %1</translation>
@@ -17530,9 +17485,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation type="vanished">
 Віддалений stderr: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(на віддаленому звичайному вузлі Linux)</translation>
@@ -17553,9 +17505,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>No analyzer tool selected.</source>
         <translation type="vanished">Інструмент для аналізу не обрано.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device test finished successfully.</source>
         <translation type="vanished">Тест пристрою завершено вдало.</translation>
@@ -17584,9 +17533,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Close</source>
         <translation>Закрити</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Командний рядок не задано.</translation>
@@ -17615,9 +17561,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Remote command finished successfully.</source>
         <translation>Віддалена команда завершилась успішно.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translation type="vanished">Не знаю, що запускати.</translation>
@@ -17631,9 +17574,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation>Запустити на віддаленому пристрої</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>Виконуваний модуль на вузлі:</translation>
@@ -17670,9 +17610,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Remote path not set</source>
         <translation>Віддалений шлях не задано</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Помилка публічного ключа: %1</translation>
@@ -17681,9 +17618,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Key deployment failed: %1.</source>
         <translation>Збій розгортання ключа: %1.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Створення пакунка завершено вдало.</translation>
@@ -17756,9 +17690,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Create tarball</source>
         <translation>Створити архів tar</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Відсутній крок для створення архіву tar.</translation>
@@ -21518,9 +21449,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>&amp;Check host key</source>
         <translation>П&amp;еревірити ключ вузла</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Назва для цієї конфігурації:</translation>
@@ -21557,16 +21485,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>The username to log into the device:</source>
         <translation>Ім&apos;я користувача для входу на пристрій:</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation type="vanished">Тест пристрою</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -27088,9 +27010,6 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо пересунути нову теку debian до &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="vanished">Перевірка чи потрібно запустити Qemu...</translation>
@@ -27111,16 +27030,10 @@ were not verified among remotes in %3. Select different folder?</source>
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation type="vanished">Неможливо розгорнути: Ви бажаєте розгорнути до Qemu, але він не увімкнений для цієї версії Qt.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Start Qemu, if necessary</source>
         <translation type="vanished">Запуск Qemu, якщо необхідно</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="vanished">Додати файли пакування до проекту</translation>
@@ -27984,9 +27897,6 @@ cannot be found in the path.</source>
         <source>Deploy Public Key...</source>
         <translation>Розгорнути файл публічного ключа...</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Віддалений процес завершився аварійно.</translation>
@@ -28023,16 +27933,10 @@ cannot be found in the path.</source>
         <source>Cannot check for free disk space: &apos;%1&apos; is not an absolute path.</source>
         <translation type="vanished">Неможливо перевірити вільний дисковий простір: &apos;%1&apos; не є абсолютним шляхом.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Мб</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Перевірити вільний простір на диску</translation>
@@ -28047,9 +27951,6 @@ cannot be found in the path.</source>
         <source>Initial setup failed: %1</source>
         <translation>Збій початкового налаштування: %1</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (типово)</translation>
@@ -31495,9 +31396,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>Not enough free ports on device for debugging.</source>
         <translation>Недостатньо вільних портів для зневадження в пристрої.</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -31512,13 +31410,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <translation>Збій запуску віддаленого процесу.</translation>
     </message>
     <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Збій початкового налаштування: %1</translation>
-    </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
-    <message>
         <source>Clean Environment</source>
         <translation>Чисте середовище</translation>
     </message>
@@ -31526,9 +31417,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>System Environment</source>
         <translation>Системне середовище</translation>
     </message>
-</context>
-<context>
-    <name>::RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Отримати середовище пристрою</translation>
