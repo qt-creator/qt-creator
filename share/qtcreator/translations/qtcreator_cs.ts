@@ -20973,10 +20973,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="obsolete">Bloky neuvádějí novou oblast, a mělo by se jich z toho důvodu vyvarovat</translation>
     </message>
     <message>
-        <source>unintentional empty block, use ({}) for empty object literal</source>
-        <translation type="obsolete">nezamýšlený prázdný blok, použijte ({}) jako prázdný objekt tvořený písmeny</translation>
-    </message>
-    <message>
         <source>use of the with statement is not recommended, use a var instead</source>
         <translation type="obsolete">od použití s-příkazem se zrazuje, místo toho by se mělo použít var</translation>
     </message>
@@ -20989,16 +20985,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation type="obsolete">od použití výrazů s čárkou se zrazuje</translation>
     </message>
     <message>
-        <source>expression statements should be assignments, calls or delete expressions only</source>
-        <translation type="obsolete">Příkazy s výrazy by měly být jen přiřazení, volání funkcí nebo výrazy delete</translation>
-    </message>
-    <message>
         <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
         <translation type="obsolete">&apos;new&apos; by se měl používat jen s funkcemi, které začínají velkým písmenem</translation>
-    </message>
-    <message>
-        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation type="obsolete">Funkce, které začínají velkým písmenem, by se měly volat s &apos;new&apos;</translation>
     </message>
     <message>
         <source>avoid assignments in conditions</source>
@@ -41410,7 +41398,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation type="obsolete">&apos;%1&apos; se nesmí používat jako konstruktor</translation>
@@ -41428,20 +41416,8 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <translation type="obsolete">Očekávána číselná hodnota</translation>
     </message>
     <message>
-        <source>boolean value expected</source>
-        <translation type="obsolete">Očekávána logická hodnota</translation>
-    </message>
-    <message>
-        <source>string value expected</source>
-        <translation type="obsolete">Očekáván řetězec</translation>
-    </message>
-    <message>
         <source>invalid URL</source>
         <translation type="obsolete">Neplatná adresa (URL)</translation>
-    </message>
-    <message>
-        <source>file or directory does not exist</source>
-        <translation type="obsolete">Soubor nebo adresář neexistuje</translation>
     </message>
     <message>
         <source>invalid color</source>
@@ -41472,14 +41448,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <translation type="obsolete">Neplatný název vlastnosti &apos;%1&apos;</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; does not have members</source>
-        <translation type="obsolete">&apos; %1&apos; nemá členy</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation type="obsolete">&apos; %1&apos; nepatří k &apos;%2&apos;</translation>
-    </message>
-    <message>
         <source>assignment in condition</source>
         <translation type="obsolete">Přiřazení v podmínce</translation>
     </message>
@@ -41490,10 +41458,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     <message>
         <source>do not use &apos;eval&apos;</source>
         <translation type="obsolete">Nepoužívat &apos;eval&apos;</translation>
-    </message>
-    <message>
-        <source>unreachable</source>
-        <translation type="obsolete">Nedosažitelná</translation>
     </message>
     <message>
         <source>do not use &apos;with&apos;</source>
@@ -41602,10 +41566,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     <message>
         <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
         <translation type="obsolete">Funkce začínající velkým písmenem by se měly volat s &apos;new&apos;</translation>
-    </message>
-    <message>
-        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation type="obsolete">&apos;new&apos; by se měl používat jen s funkcemi, které začínají velkým písmenem</translation>
     </message>
     <message>
         <source>use spaces around binary operators</source>
@@ -50891,7 +50851,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation>%1 není kódován v UTF8, nebo nemá BOM.</translation>

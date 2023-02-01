@@ -25989,7 +25989,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation>不要用 &apos;%1&apos; 做為建構子</translation>

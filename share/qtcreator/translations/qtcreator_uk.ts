@@ -30759,7 +30759,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation type="vanished">Схоже, що %1 не в кодуванні UTF8 або має BOM.</translation>

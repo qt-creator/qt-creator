@@ -20019,10 +20019,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
         <translation type="obsolete">Ancre de ligne attendue</translation>
     </message>
     <message>
-        <source>unreachable</source>
-        <translation type="obsolete">inattingible</translation>
-    </message>
-    <message>
         <source>declarations should be at the start of a function</source>
         <translation type="obsolete">les déclarations devraient être au début d&apos;une fonction</translation>
     </message>
@@ -20133,14 +20129,6 @@ francis : ouai assez d&apos;accord.</translatorcomment>
     <message>
         <source>expression statements should be assignments, calls or delete expressions only</source>
         <translation type="obsolete">les définitions d&apos;expression devraient être des expression d&apos;assignation, d&apos;appel ou de suppression uniquement</translation>
-    </message>
-    <message>
-        <source>&apos;new&apos; should only be used with functions that start with an uppercase letter</source>
-        <translation type="obsolete">&apos;new&apos; ne devrait être utilisé qu&apos;avec des fonctions qui commence par une lettre majuscule</translation>
-    </message>
-    <message>
-        <source>calls of functions that start with an uppercase letter should use &apos;new&apos;</source>
-        <translation type="obsolete">les appels de fonctions qui commence par une lettre majuscule devrait utiliser &apos;new&apos;</translation>
     </message>
     <message>
         <source>avoid assignments in conditions</source>
@@ -38550,7 +38538,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>StaticAnalysisMessages</name>
+    <name>::QmlJS</name>
     <message>
         <source>do not use &apos;%1&apos; as a constructor</source>
         <translation type="obsolete">ne pas utiliser &apos;%1&apos; comme un constructeur</translation>
@@ -38568,20 +38556,8 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">valeur numérique attendue</translation>
     </message>
     <message>
-        <source>boolean value expected</source>
-        <translation type="obsolete">Valeur binaire attendue</translation>
-    </message>
-    <message>
-        <source>string value expected</source>
-        <translation type="obsolete">Chaîne de caractères attendue</translation>
-    </message>
-    <message>
         <source>invalid URL</source>
         <translation type="obsolete">URL invalide</translation>
-    </message>
-    <message>
-        <source>file or directory does not exist</source>
-        <translation type="obsolete">le fichier ou le répertoire n&apos;existe pas</translation>
     </message>
     <message>
         <source>invalid color</source>
@@ -38611,14 +38587,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>invalid property name &apos;%1&apos;</source>
         <translation type="obsolete">nom de propriété &apos;%1&apos; invalide</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; does not have members</source>
-        <translation type="obsolete">&quot;%1&quot; n&apos;a pas de membres</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; is not a member of &apos;%2&apos;</source>
-        <translation type="obsolete">&quot;%1&quot; n&apos;est pas un membre de &quot;%2&quot;</translation>
     </message>
     <message>
         <source>assignment in condition</source>
@@ -38705,10 +38673,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translation type="obsolete">== et != peuvent provoquer une coercition de type, utilisez === ou !== pour l&apos;éviter</translation>
     </message>
     <message>
-        <source>expression statements should be assignments, calls or delete expressions only</source>
-        <translation type="obsolete">les définitions d&apos;expression devraient être des expression d&apos;assignation, d&apos;appel ou de suppression uniquement</translation>
-    </message>
-    <message>
         <source>var declarations should be at the start of a function</source>
         <translation type="obsolete">la déclaration de variables doit être au début de la fonction</translation>
     </message>
@@ -38751,10 +38715,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>use spaces around binary operators</source>
         <translation type="obsolete">utilisez des espaces autour des opérateurs binaires</translation>
-    </message>
-    <message>
-        <source>unintentional empty block, use ({}) for empty object literal</source>
-        <translation type="obsolete">bloc vide involontaire, utilisez ({}) pour les objets vides</translation>
     </message>
     <message>
         <source>use %1 instead of &apos;var&apos; or &apos;variant&apos; to improve performance</source>
@@ -45979,7 +45939,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>CppQmlTypesLoader</name>
+    <name>::QmlJS</name>
     <message>
         <source>%1 seems not to be encoded in UTF8 or has a BOM.</source>
         <translation>%1 ne semble pas être encodé en UTF8 ou possède un BOM.</translation>
