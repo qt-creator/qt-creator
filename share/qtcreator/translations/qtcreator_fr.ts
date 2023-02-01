@@ -2900,9 +2900,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Override &amp;start script:</source>
         <translation>Surcharger le &amp;script de démarrage :</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="obsolete">Sélectionner l&apos;adresse de départ</translation>
@@ -2919,9 +2916,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Enter an address: </source>
         <translation>Entrer une adresse :</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translatorcomment>Alternative &quot;Fichier ayant le marqueur&quot;</translatorcomment>
@@ -3174,9 +3168,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Le point d&apos;arrêt ne sera rencontré que dans le(s) thread(s) spécifié(s).</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Points d&apos;arrêt</translation>
@@ -3226,9 +3217,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation type="obsolete">Recherche de collecteur pour &apos;%1&apos;/&quot;%2&quot; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation type="obsolete">Cdb</translation>
@@ -3290,9 +3278,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Ignore first chance access violations</source>
         <translation>Ignorer les violations d&apos;accès à la première tentative</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Serveur de symboles...</translation>
@@ -3589,9 +3574,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Execute line</source>
         <translation type="obsolete">Exécuter la ligne</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation type="obsolete">Assistance au débogage</translation>
@@ -3645,9 +3627,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>Show Qt&apos;s namespace for types</source>
         <translation>Afficher l&apos;espace de noms de Qt pour les types</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation type="obsolete">Échec du démarrage du processus Gdb. Soit le programme &quot;%1&quot; est manquant, soit les droits sont insuffisants pour exécuter le programme.</translation>
@@ -4311,9 +4290,6 @@ Ceci pourrait amener à des résultats incorrects.</translation>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;aucune information&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB timeout:</source>
         <translation>Délai GDB :</translation>
@@ -4553,9 +4529,6 @@ at debugger startup.</source>
         <source>Choose Location of Startup Script File</source>
         <translation type="obsolete">Choisir l&apos;emplacement du fichier contenant le script de démarrage</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modules</translation>
@@ -4658,9 +4631,6 @@ at debugger startup.</source>
         <source>Level</source>
         <translation>Niveau</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread id:</source>
         <translation>ID du thread : </translation>
@@ -8687,13 +8657,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     <message>
         <source>Open Link in New Tab</source>
         <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
-    </message>
-</context>
-<context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
 </context>
 <context>
@@ -21120,9 +21083,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>Le dossier &quot;%1&apos; n&quot;a pas pu être créé. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Running requested...</source>
         <translation>Exécution demandée…</translation>
@@ -25364,9 +25324,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>&amp;Message:</source>
         <translation>&amp;Message :</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation>Le processus de la console &quot;%1&apos; n&quot;a pas pu être démarré. </translation>
@@ -25443,9 +25400,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>Ignoring initial breakpoint...</source>
         <translation type="obsolete">Point d&apos;arrêt initial ignoré…</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>Tentative d&apos;interruption.</translation>
@@ -25454,9 +25408,6 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <source>Debugger Test</source>
         <translation>Test du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Lancement</translation>
@@ -25638,13 +25589,6 @@ Section %1 : %2</translation>
         <source>Jump to Line %1</source>
         <translation>Sauter à la ligne %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
-    <message>
-        <source>Debug</source>
-        <translation>Débogage</translation>
-    </message>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>Option &quot;%1&quot; : le paramètre est manquant.</translation>
@@ -25762,9 +25706,6 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>Fermer la session de débogage</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connection could not be established.</source>
         <translation type="obsolete">La connexion ne peut être établie.</translation>
@@ -25817,16 +25758,10 @@ Details: %3</source>
         <source>Unable to write log contents to &apos;%1&apos;: %2</source>
         <translation type="obsolete">Impossible d&apos;écrire le contenu du journal d&apos;événements dans &quot;%1&quot; : %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Taper Ctrl-&lt;Retour&gt; pour exécuter une ligne.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Journal de débogage</translation>
@@ -30083,9 +30018,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>Qt Sources</source>
         <translation>Sources de Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -30094,9 +30026,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI :&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported under Windows</source>
         <translation type="obsolete">Débogueur des lignes de commande complexes n&apos;est pas actuellement supporté sous Windows</translation>
@@ -30105,9 +30034,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Débogueur des lignes de commande complexes n&apos;est pas actuellement supporté sous Windows. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Arrêt fatal du moteur. Erreur de compatibilité des binaires ou &apos;IPC.</translation>
@@ -30124,16 +30050,10 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>SSH connection error: %1</source>
         <translation>Erreur de connexion SSH : %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory $</source>
         <translation type="obsolete">Mémoire $</translation>
@@ -30154,9 +30074,6 @@ Qt Creator ne peut pas s&apos;y attacher. </translation>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Le contenu de la mémoire ne peut pas être affiché car aucun éditeur pour des données binaires n&apos;a pu être chargé.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Le moteur de débogage esclave requis pour le débogage combiné QML/C++ n&apos;a pas pu être créé : %1</translation>
@@ -30183,9 +30100,6 @@ Suggestions: Move the breakpoint after QmlApplicationViewer instantiation or swi
         <translation type="obsolete">Impossible d&apos;arrêter l&apos;exécution avant que le moteur QML est démarré. Le point d&apos;arrêt est ignoré. 
 Suggestions : déplacer le point d&apos;arrêt après l&apos;instanciation de QmlApplicationViewer ou passer au débogage du code C++ exclusivement. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation type="obsolete">Débogueur QML connecté. </translation>
@@ -33537,9 +33451,6 @@ Would you like to overwrite them?</source>
         <source>Previous</source>
         <translation>Précédent</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Mémoire au registre &quot;%1&quot; (0x%2)</translation>
@@ -39715,9 +39626,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Misc Types</source>
         <translation>Types divers</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Paramètres du débogueur</translation>
@@ -39742,9 +39650,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Enable Debugging of Subprocesses</source>
         <translation>Activer le débogage des sous-processus</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Fonction anonyme</translation>
@@ -42652,9 +42557,6 @@ Oui :)</translatorcomment>
         <source>Add Breakpoint</source>
         <translation>Ajouter un point d&apos;arrêt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Sélectionner l&apos;exécutable</translation>
@@ -42723,9 +42625,6 @@ Oui :)</translatorcomment>
         <source>&amp;Recent:</source>
         <translation>&amp;Récent :</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -42750,9 +42649,6 @@ Oui :)</translatorcomment>
         <source>Debugger for &quot;%1&quot;</source>
         <translation>Débogueur pour &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation>&amp;Moteur :</translation>
@@ -42766,9 +42662,6 @@ Oui :)</translatorcomment>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Spécifier le chemin à &lt;a href=&quot;%1&quot;&gt;l&apos;exécutable du débogueur en console de Windows&lt;/a&gt; (%2) ici.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Aucun débogueur n&apos;a été configuré.</translation>
@@ -42935,9 +42828,6 @@ Oui :)</translatorcomment>
         <source>Interrupting not possible</source>
         <translation>Interruption impossible</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Erreur distante</translation>
@@ -42990,16 +42880,10 @@ Oui :)</translatorcomment>
         <source>Process gdbserver finished. Status: %1</source>
         <translation>Processus gbdserver terminé. Statut : %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Téléchargement du fichier distant réussi.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Nom du module</translation>
@@ -43084,9 +42968,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;inconnue&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>Mettre à jour la liste des modules</translation>
@@ -43143,9 +43024,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Montrer les dépendances de &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>Connexion au serveur de débogage %1:%2</translation>
@@ -43189,9 +43067,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Closing.</source>
         <translation>Fermeture.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success: </source>
         <translation>Réussite :</translation>
@@ -43204,9 +43079,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Properties</source>
         <translation>Propriétés</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation>L&apos;attribut %1 à la ligne %2, colonne %3 ne peut pas être modifié sans redémarrer l&apos;application QML.</translation>
@@ -43231,9 +43103,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Reload QML</source>
         <translation>Recharger le QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Recharger la liste des registres</translation>
@@ -43282,9 +43151,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Binary</source>
         <translation>Binaire</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Snapshots</translation>
@@ -43297,9 +43163,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Remove Snapshot</source>
         <translation>Supprimer un snapshot</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>Recharger les données</translation>
@@ -43312,9 +43175,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Ouvrir le fichier &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -43347,9 +43207,6 @@ Le pas à pas dans le module ou la définition de points d&apos;arrêt par fichi
         <source>Frame #%1 (%2)</source>
         <translation>Frame #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -47276,16 +47133,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Source Paths</source>
         <translation>Chemin des sources</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Chemins CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Comportement</translation>
@@ -47374,16 +47225,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Maximum string length:</source>
         <translation>Longueur maximum de la chaîne de caractères :</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Paramètres du débogueur</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>GDB étendu</translation>
@@ -50338,9 +50183,6 @@ réinitialisation du moniteur</translation>
         <source>Type</source>
         <translation>Type</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Path:</source>
         <translation>Chemin :</translation>
@@ -50381,9 +50223,6 @@ réinitialisation du moniteur</translation>
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation>L&apos;assistant au débogage est utilisé pour formater correctement les valeurs selon les types de données fournit par Qt et les bibliothèques standards. Il doit être compilé pour chaque versions de Qt séparément. Dans la page de préférences Compiler et Exécuter de Qt Creator, sélectionnez une version de Qt, développez la section Détails et cliquez sur Tout Construire.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>Échec du lancement de l&apos;exécutable :</translation>
@@ -51084,7 +50923,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation>

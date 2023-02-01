@@ -2491,9 +2491,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Second chance exceptions</source>
         <translation>セカンドチャンスの例外</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The debugger is not configured to use the public Microsoft Symbol Server.&lt;br/&gt;This is recommended for retrieval of the symbols of the operating system libraries.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Note:&lt;/span&gt; It is recommended, that if you use the Microsoft Symbol Server, to also use a local symbol cache.&lt;br/&gt;A fast internet connection is required for this to work smoothly,&lt;br/&gt;and a delay might occur when connecting for the first time and caching the symbols.&lt;/p&gt;&lt;p&gt;What would you like to set up?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;このデバッガは Microsoft の公開シンボルサーバーを利用する設定ではありません。&lt;br/&gt;オペレーティングシステムのライブラリのシンボルはサーバーから取得することが推奨されています。&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;注意:&lt;/span&gt; Microsoft のシンボルサーバーを用いる場合、ローカルにシンボルキャッシュを持つことも推奨されています。&lt;br/&gt;快適な作業には高速なインターネット回線が必要です。&lt;br/&gt;また、初めて接続しシンボルをキャッシュする際には遅延が生じるでしょう。&lt;/p&gt;&lt;p&gt;どのように設定しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -15720,9 +15717,6 @@ Flags: %3</source>
         <source>Add Breakpoint</source>
         <translation>ブレークポイントを追加</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The console process &quot;%1&quot; could not be started.</source>
         <translation>コンソールプロセス &quot;%1&quot; を起動できませんでした。</translation>
@@ -15811,9 +15805,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
         <translation>&quot;監視対象のウィジェットの選択&quot;: 先にアプリケーションを停止してください。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++ 例外</translation>
@@ -15838,9 +15829,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>Output:</source>
         <translation>出力:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>シンボルのパス</translation>
@@ -15853,9 +15841,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>CDB Paths</source>
         <translation>CDB のパス</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>動作</translation>
@@ -16233,9 +16218,6 @@ Maintenance Tool で %2 を更新した場合は、Maintenance Tool を再実行
         <source>Display thread names</source>
         <translation>スレッド名を表示する</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>デバッガ起動</translation>
@@ -16355,9 +16337,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Attach to %1</source>
         <translation>%1 にアタッチ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Kit:</source>
         <translation>キット:</translation>
@@ -16366,9 +16345,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Port:</source>
         <translation>ポート(&amp;P):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;リモート CDB には対応する Qt Creator CDB エクステンション(&lt;code&gt;%1&lt;/code&gt; か &lt;code&gt;%2&lt;/code&gt;)が必要です。&lt;/p&gt;&lt;p&gt;エクステンションをリモートマシンにコピーして、環境変数 &lt;code&gt;%3&lt;/code&gt; にそのフォルダを設定してください。&lt;/p&gt;&lt;p&gt;リモート CDB は TCP/IP を接続プロトコルとして使用するように &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; と実行してください。&lt;/p&gt;&lt;p&gt;接続パラメータには以下を使用してください:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -16385,9 +16361,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Connection:</source>
         <translation>接続(&amp;C):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>開始アドレスの選択</translation>
@@ -16396,9 +16369,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Enter an address:</source>
         <translation>アドレスを入力:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>リモートエンジン開始</translation>
@@ -16423,9 +16393,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>&amp;Inferior path:</source>
         <translation>対象プログラムのパス(&amp;I):</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>型の表示形式</translation>
@@ -17798,9 +17765,6 @@ markers in the source code editor.</source>
         <source>Interrupting not possible</source>
         <translation>割り込み不可</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>リモートエラー</translation>
@@ -17919,16 +17883,10 @@ markers in the source code editor.</source>
         <source>An unknown error in the LLDB process occurred.</source>
         <translation>LLDB プロセスにて未知のエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>リモートファイルのダウンロードが成功しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>コアファイルを読み込み</translation>
@@ -17981,9 +17939,6 @@ markers in the source code editor.</source>
         <source>Select Remote Core File</source>
         <translation>リモートコアファイルの選択</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>内容をクリア</translation>
@@ -17996,16 +17951,10 @@ markers in the source code editor.</source>
         <source>Reload Debugging Helpers</source>
         <translation>デバッグヘルパを再読込する</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>1行だけ実行するには、Ctrl+&lt;リターン&gt;キーを押してください。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>デバッガログ</translation>
@@ -18050,9 +17999,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Log File</source>
         <translation>ログファイル</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>レジスタ &quot;%1&quot; (0x%2) の指すメモリ</translation>
@@ -18097,9 +18043,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>None</source>
         <translation>シンボルなし</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>一時ファイルを作成できません: %1</translation>
@@ -18112,9 +18055,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>Cannot open FiFo %1: %2</source>
         <translation>FiFo %1 を開けません: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Adapter start failed</source>
         <translation>アダプタの開始に失敗しました</translation>
@@ -18151,9 +18091,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>An unknown error in the Pdb process occurred.</source>
         <translation>Pdb プロセスにて未知のエラーが発生しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>QML と C++ の同時デバッグに必要なスレーブ側のデバッグエンジンが作成できませんでした: %1</translation>
@@ -18166,9 +18103,6 @@ You may be asked to share the contents of this log when reporting bugs related t
         <source>QML debugger activated</source>
         <translation>QML デバッガがアクティブになりました</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>時間内にアプリケーション出力を受信できません</translation>
@@ -18186,10 +18120,6 @@ Do you want to retry?</source>
     <message>
         <source>QML Debugger: Remote host closed connection.</source>
         <translation>QML デバッガ: リモートホストが接続を閉じました。</translation>
-    </message>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>%1 の JavaScript ソース</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML debugger. %1</source>
@@ -18239,9 +18169,6 @@ Do you want to retry?</source>
         <source>QML Debugger: Connection failed.</source>
         <translation>QML デバッガの接続に失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>成功:</translation>
@@ -18254,9 +18181,6 @@ Do you want to retry?</source>
         <source>Properties</source>
         <translation>プロパティ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>ASCII 文字列としての値</translation>
@@ -18345,9 +18269,6 @@ Do you want to retry?</source>
         <source>Cannot Create</source>
         <translation>作成不可</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>シンボルサーバーの挿入...</translation>
@@ -18384,9 +18305,6 @@ Do you want to retry?</source>
         <source>Remove Snapshot</source>
         <translation>スナップショットを削除</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>内部名</translation>
@@ -37261,9 +37179,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Jump to Line %1</source>
         <translation>%1 行目にジャンプ</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>不明</translation>
@@ -37441,9 +37356,6 @@ Affected are breakpoints %1</source>
         <source>Tries to install missing debug information.</source>
         <translation>不足するデバッグ情報のインストールを試みます。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot start %1 without a project. Please open the project and try again.</source>
         <translation>プロジェクト無しでは %1 を開始できません。プロジェクトを開いた後に再度試してください。</translation>
@@ -37476,9 +37388,6 @@ Affected are breakpoints %1</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%2モードのアプリケーションに対してツール &quot;%1&quot; を実行しようとしています。このツールは%3モードでの利用を想定しています。&lt;/p&gt;&lt;p&gt;バイナリが最適化済みかどうかによって実行時の特性は大きく異なります。あるモードでの解析結果が別のモードには当てはまらない場合もあります。&lt;/p&gt;&lt;p&gt;デバッグシンボルが含まれないバイナリに対してデバッグシンボルが必要なツールを実行する場合には関数名が取得できなかったり結果が不十分なものになることもあります。&lt;/p&gt;&lt;p&gt;%2モードでのツールの実行を継続しますか？&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>デバッガ設定</translation>
@@ -37499,9 +37408,6 @@ Affected are breakpoints %1</source>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html&quot;&gt;前提条件は？&lt;/a&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (直前)</translation>
@@ -37526,9 +37432,6 @@ Affected are breakpoints %1</source>
         <source>Expression too complex</source>
         <translation>複雑すぎる式</translation>
     </message>
-</context>
-<context>
-    <name>QmlEngine</name>
     <message>
         <source>JS Source for %1</source>
         <translation>%1 の JS ソース</translation>
@@ -37537,9 +37440,6 @@ Affected are breakpoints %1</source>
         <source>Anonymous Function</source>
         <translation>無名関数</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>ターミナル: /dev/ptmx を開けません: %1</translation>
@@ -37568,9 +37468,6 @@ Affected are breakpoints %1</source>
         <source>Terminal: Read failed: %1</source>
         <translation>ターミナル: 読み込みに失敗しました: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -45154,9 +45051,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Show Sections</source>
         <translation>セクションを表示</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>N/A</source>
         <translation>N/A</translation>

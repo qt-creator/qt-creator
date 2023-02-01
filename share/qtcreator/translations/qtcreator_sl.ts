@@ -37,7 +37,7 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Zaženi razhroščevalnik</translation>
@@ -1763,9 +1763,6 @@ Qt Creator cannot attach to it.</source>
         <translation>Proces %1 je že pod nadzorom razhroščevalnika.
 Qt Creator se nanj ne more priklopiti.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Izberite začetni naslov</translation>
@@ -1778,9 +1775,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Select start address</source>
         <translation type="obsolete">Izberite začetni naslov</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Datoteka oznake:</translation>
@@ -2007,9 +2001,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Thread Specification:</source>
         <translation>Določitev niti:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Prekinitvene točke</translation>
@@ -2102,9 +2093,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Conditions on Breakpoint %1</source>
         <translation type="obsolete">Pogoji pri prekinitveni točki %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder
@@ -2178,9 +2166,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Autodetection</source>
         <translation type="obsolete">Samodejna zaznava</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Strežnik za simbole …</translation>
@@ -2205,9 +2190,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Pick a local cache directory</source>
         <translation type="obsolete">Izberite mapo s krajevnim medpomnilnikom</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>To preklopi razhroščevalnik v način delovanja po ukazih. V tem načinu korakanje deluje po posameznih ukazih, prikaz mesta v izvorni kodi pa prikazuje ukaze v zbirniku.</translation>
@@ -2416,9 +2398,6 @@ Qt Creator se nanj ne more priklopiti.</translation>
         <source>Changes the debugger language according to the currently opened file.</source>
         <translation type="obsolete">Spremeni jezik razhroščevalnika glede na trenutno odprto datoteko.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Branje %1 …</translation>
@@ -2828,9 +2807,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Izberite mesto datoteke zagonskega skripta</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>yes</source>
         <translation>da</translation>
@@ -2882,9 +2858,6 @@ To lahko privede do napačnih rezultatov.</translation>
 </extracomment>
         <translation>&lt;neznan&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -2937,9 +2910,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Prikaži odvisnosti za »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Ni moč ustvariti začasne datoteke: %1</translation>
@@ -2952,9 +2922,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Ni moč odpreti FIFO %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -2963,9 +2930,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Value (base %1)</source>
         <translation>Vrednost (osnova %1)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registri</translation>
@@ -3010,9 +2974,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Odpri datoteko »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>…</translation>
@@ -3109,9 +3070,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Open Disassembler</source>
         <translation>Odpri razstavljalnik</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Izberite izvršljivo datoteko</translation>
@@ -3119,10 +3077,6 @@ To lahko privede do napačnih rezultatov.</translation>
     <message>
         <source>Select Working Directory</source>
         <translation>Izberite delovno mapo</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Izvršljiva datoteka:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -3148,16 +3102,10 @@ To lahko privede do napačnih rezultatov.</translation>
         <source>Select Start Script</source>
         <translation type="obsolete">Izberite zagonski skript</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Nit</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).
@@ -4535,7 +4483,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>This is the slowest but safest option.</source>
         <translation>To je najpočasnejša in najvarnejša možnost.</translation>
@@ -4574,11 +4522,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <location/>
         <source>Behavior of Breakpoint Setting in Plugins</source>
         <translation>Obnašanje nastavljanja prekinitvenih točk v vstavkih</translation>
-    </message>
-    <message>
-        <location/>
-        <source>GDB</source>
-        <translation>GDB</translation>
     </message>
     <message>
         <location/>
@@ -8525,16 +8468,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Zaženi razhroščevalnik</translation>
-    </message>
-    <message>
-        <location/>
-        <source>&amp;Executable:</source>
-        <translation>&amp;Izvršljiva datoteka:</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <location/>
         <source>&amp;Arguments:</source>
@@ -8552,32 +8486,12 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
     <message>
         <location/>
-        <source>&amp;Tool chain:</source>
-        <translation>&amp;Zaporedje orodij:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation>Prekini pri »&amp;main()«:</translation>
     </message>
     <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Izvršljiva datoteka:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenti:</translation>
-    </message>
-    <message>
         <source>Break at &apos;main&apos;:</source>
         <translation type="obsolete">Prekini pri »main()«:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Zaženi razhroščevalnik</translation>
     </message>
     <message>
         <location/>
@@ -14805,9 +14719,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Cdb</source>
         <translation type="obsolete">CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation>Ni moč zagnati PDB-ja »%1«: %2</translation>
@@ -14848,9 +14759,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>An unknown error in the Pdb process occurred. </source>
         <translation>Prišlo je do neznane napake v procesu PDB. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>Posnetki</translation>
@@ -17990,7 +17898,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>StartRemoteEngineDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Zaženi oddaljen pogon</translation>
@@ -21701,9 +21609,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>»Izberite gradnik za opazovanje«: v stanju »%1« ni podprto.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Izjema C++</translation>
@@ -21732,9 +21637,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Console</source>
         <translation>Konzola</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt;  to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Oddaljeni CDB mora naložiti ustrezno razširitev CDB za Qt Creator (&lt;code&gt;%1&lt;/code&gt; ali &lt;code&gt;%2&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Skopirajte jo na oddaljeni računalnik in okoljsko spremenljivko &lt;code&gt;%3&lt;/code&gt; nastavite tako, da kaže na njeno mapo.&lt;/p&gt;&lt;p&gt;Oddaljeni CDB zaženite kot &lt;code&gt;%4 &amp;lt;program&amp;gt;&lt;/code&gt;, da bo za komunikacijo uporabljal protokol TCP/IP.&lt;/p&gt;&lt;p&gt;Za komunikacijske parametre vnesite:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -21747,9 +21649,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>&amp;Connection:</source>
         <translation>&amp;Povezava:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>Zaganjanje</translation>
@@ -21864,9 +21763,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>Jump to Line %1</source>
         <translation>Skoči v vrstico %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>Pomnilnik ...</translation>
@@ -21919,9 +21815,6 @@ Details: %3</source>
 Zasilno bo uporabljen razhroščevalni pogon »%2«.
 Podrobnosti: %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.
@@ -22250,9 +22143,6 @@ Podrobnosti: %3</translation>
         <source>Close Debugging Session</source>
         <translation>Zapri razhroščevalno sejo</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Razhrošči</translation>
@@ -22265,9 +22155,6 @@ Podrobnosti: %3</translation>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Ni moč ustvariti razhroščevalnega pogona vrste »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nov izvor&gt;</translation>
@@ -22328,9 +22215,6 @@ Podrobnosti: %3</translation>
         <source>Qt Sources</source>
         <translation>Izvorna koda Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation>%1 (%2)</translation>
@@ -22339,39 +22223,24 @@ Podrobnosti: %3</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Previous</source>
         <translation>Predhodno</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Razhroščevanje kompleksnih ukaznih vrstic trenutno v Windows ni podprto.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation>Zaganjanje izvršljive datoteke ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Priklopljen na proces %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The name of the binary file cannot be extracted from this core file.</source>
         <translation>Imena izvršljive datoteke iz tega posnetka ni moč izvleči.</translation>
@@ -22414,9 +22283,6 @@ Podrobnosti: %3</translation>
         <translation>Priklop na posnetek »%1« ni uspel:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Ni moč vzpostaviti komunikacije s podprocesom: %1</translation>
@@ -22427,9 +22293,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation>To najverjetneje ni gradnja za razhroščevanje.
 Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne bo uspelo.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>Napaka glede povezave: %1.</translation>
@@ -22450,9 +22313,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Remote GDB crashed.</source>
         <translation>Oddaljeni GDB se je sesul.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Proces pošiljanja se ni uspel zagnati. Morda manjka lupina?</translation>
@@ -22491,16 +22351,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <translation>Branje razhroščevalnih podatkov ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>Usodna zaustavitev pogona. Nezdružljiv program ali napaka pri medprocesni komunikaciji.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>Zagon qtcreator-lldb ni uspel: %1</translation>
@@ -22513,16 +22367,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>SSH connection error: %1</source>
         <translation>Napaka glede povezave SSH: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Počisti vsebino</translation>
@@ -22531,16 +22379,10 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Save Contents</source>
         <translation>Shrani vsebino</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Da izvršite vrstico, pritisnite Ctrl+Vnašalka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>Dnevnik razhroščevalnika</translation>
@@ -22549,9 +22391,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Log File</source>
         <translation>Dnevniška datoteka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pomnilnik na 0x%1</translation>
@@ -22564,9 +22403,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Vsebine pomnilnika ni moč prikazati, saj ni bil naložen noben vstavek za dvojiške podatke.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>Pomnilnik na naslovu registra »%1« (0x%2)</translation>
@@ -22575,9 +22411,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Register &apos;%1&apos;</source>
         <translation>Register »%1«</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server on %1</source>
         <translation>Povezovanje z razhroščevalnim strežnikom na %1</translation>
@@ -22629,9 +22462,6 @@ Nastavljanje prekinitvenih točk z imenom datoteke in številko vrstice morda ne
         <source>Not connected to debug service &apos;%1&apos;.</source>
         <translation>Brez povezave z razhroščevalno storitvijo »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Podrejenega razhroščevalnega pogona, ki je potreben za razhroščevanje kombinacije QML in C++, ni bilo moč ustvariti: %1</translation>
@@ -22650,9 +22480,6 @@ Suggestions: Move the breakpoint after QmlViewer initialization or switch to C++
         <translation>Izvajanja pred zagonom pogona QML ni moč ustaviti. Preskakujem prekinitveno točko.
 Predlogi: prestavite prelomno točko za inicializacijo QmlViewerja ali pa preklopite na razhroščevanje samo za C++.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>QML Debugger connected.</source>
         <translation>Razhroščevalnik QML je povezan.</translation>
@@ -22719,9 +22546,6 @@ Ali želite poskusiti znova?</translation>
         <source>QML Debugger disconnected.</source>
         <translation>Razhroščevalnik QML je prekinil povezavo.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;Type expression to evaluate&gt;</source>
         <translation>&lt;vnesite izraz za ovrednotiti&gt;</translation>
@@ -22736,9 +22560,6 @@ Ali želite poskusiti znova?</translation>
         <translation>Skriptna konzola
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Izberite mapo krajevnega predpomnilnika</translation>
@@ -28169,9 +27990,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Breakpoint: %1</source>
         <translation type="obsolete">Prekinitvena točka: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation type="obsolete">vstavek</translation>
@@ -28283,13 +28101,6 @@ Preverite pravice za dostop do mape.</translation>
     <message>
         <source>Hello, world!</source>
         <translation type="obsolete">Pozdravljen, Svet!</translation>
-    </message>
-</context>
-<context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Da izvršite vrstico, vtipkajte Ctrl+Vnašalka</translation>
     </message>
 </context>
 <context>

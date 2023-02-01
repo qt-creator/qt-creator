@@ -3494,9 +3494,6 @@ Kontynuować?</translation>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Program przerwie działanie w pułapce tylko we wskazanych wątkach.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -3542,9 +3539,6 @@ Kontynuować?</translation>
         <source>Use Python dumper</source>
         <translation>Używaj Python dumpera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Dodaj serwer z symbolami...</translation>
@@ -3569,9 +3563,6 @@ Kontynuować?</translation>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Alternating Row Colors</source>
         <translation>Używaj naprzemiennych kolorów wierszy</translation>
@@ -3789,9 +3780,6 @@ Kontynuować?</translation>
         <source>Show Address Data in Stack View when Debugging</source>
         <translation>Pokazuj adresy w widoku stosu podczas debugowania</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Locals &amp;&amp; Expressions</source>
         <extracomment>&apos;&amp;&amp;&apos; will appear as one (one is marking keyboard shortcut)</extracomment>
@@ -3801,9 +3789,6 @@ Kontynuować?</translation>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Błąd kodowania&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Załaduj plik zrzutu</translation>
@@ -3836,9 +3821,6 @@ Kontynuować?</translation>
         <source>Select Startup Script</source>
         <translation>Wybierz startowy skrypt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Wybierz adres startowy</translation>
@@ -3847,9 +3829,6 @@ Kontynuować?</translation>
         <source>Enter an address:</source>
         <translation>Podaj adres:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reading %1...</source>
         <translation>Wczytywanie %1...</translation>
@@ -4138,9 +4117,6 @@ Spróbuj: %2</translation>
         <source>Adapter crashed</source>
         <translation>Adapter przerwał pracę</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -4304,9 +4280,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nie można utworzyć tymczasowego pliku: %1</translation>
@@ -4319,9 +4292,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Nie można otworzyć FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Zawartość jako znaki ASCII</translation>
@@ -4394,9 +4364,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>Edytuj bity %1...%2 rejestru %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -4533,9 +4500,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Note that most distributions ship debug information in separate packages.</source>
         <translation>Zwróć uwagę, że niektóre dystrybucje dostarczają źródła debugowe w oddzielnych pakietach.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Identyfikator&amp;nbsp;wątku:</translation>
@@ -12639,9 +12603,6 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>&quot;Select Widget to Watch&quot;: Please stop the application first.</source>
         <translation>&quot;Wybierz widżet do obserwowania&quot;: Najpierw zatrzymaj aplikację.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Wybierz katalog z lokalnym cache&apos;em</translation>
@@ -12662,9 +12623,6 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>Cannot Create</source>
         <translation>Nie można utworzyć</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Wyczyść zawartość</translation>
@@ -12677,16 +12635,10 @@ you will need to build a separate CDB extension with the same bitness as the CDB
         <source>Reload Debugging Helpers</source>
         <translation>Przeładuj programy pomocnicze debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Naciśnij Ctrl-&lt;Return&gt; aby wykonać linię.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>&amp;Log debuggera</translation>
@@ -12713,9 +12665,6 @@ Możesz zostać poproszony o podzielenie się zawartością tego loga podczas tw
         <source>Log File</source>
         <translation>Plik logu</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Wewnętrzna nazwa</translation>
@@ -14407,9 +14356,6 @@ do systemu kontroli wersji (%2)
         <source>&amp;Connection:</source>
         <translation>&amp;Połączenie:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>Nie wybrano żadnej funkcji.</translation>
@@ -14819,9 +14765,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Threads:</source>
         <translation>Wątki:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;nowe źródło&gt;</translation>
@@ -14878,9 +14821,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Qt Sources</source>
         <translation>Źródła Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Pamięć pod rejestrem &quot;%1&quot; (0x%2)</translation>
@@ -14893,9 +14833,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>Memory at 0x%1</source>
         <translation>Pamięć w 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ debugger activated</source>
         <translation>Uaktywniono debugger C++</translation>
@@ -14904,9 +14841,6 @@ Qt Creator nie może się do niego podłączyć.</translation>
         <source>QML debugger activated</source>
         <translation>Uaktywniono debugger QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Nie otrzymano o czasie żadnego wyjściowego komunikatu aplikacji</translation>
@@ -20391,9 +20325,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Misc Types</source>
         <translation>Inne typy</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attaching to process %1.</source>
         <translation>Dołączanie do procesu %1.</translation>
@@ -20450,9 +20381,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Continuing nevertheless.</source>
         <translation>Mimo to praca jest kontynuowana.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
         <translation>Nie można rozpocząć procesu przesyłania. Brak powłoki?</translation>
@@ -20513,9 +20441,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Interrupting not possible</source>
         <translation>Przerwanie nie jest możliwe</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Zdalny błąd</translation>
@@ -20592,9 +20517,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>End Address</source>
         <translation>Adres końcowy</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Zakończono poprawnie:</translation>
@@ -20615,16 +20537,10 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Remove Snapshot</source>
         <translation>Usuń zrzut</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stos</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Locals and Expressions</source>
         <translation>Zmienne lokalne i wyrażenia</translation>
@@ -22178,9 +22094,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Debugger:</source>
         <translation>Debugger:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Brak ustawionego debuggera.</translation>
@@ -23949,23 +23862,14 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
         <source>Source Paths</source>
         <translation>Ścieżki ze źródłami</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Ścieżki CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Ustawienia debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>Rozszerzony GDB</translation>
@@ -26004,9 +25908,6 @@ Czy odinstalować istniejący pakiet?</translation>
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Podaj ścieżkę do &lt;a href=&quot;%1&quot;&gt;pliku wykonywalnego Windows Console Debugger&lt;/a&gt; (%2).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:</source>
         <translation>Nie można uruchomić programu:</translation>
@@ -28997,9 +28898,6 @@ Do you want to check them out now?</source>
         <source>Display string length:</source>
         <translation>Wyświetlaj długości ciągów tekstowych:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
@@ -29131,9 +29029,6 @@ Dotyczy to następujących pułapek: %1</translation>
         <source>Tries to install missing debug information.</source>
         <translation>Próbuje zainstalować brakujące informacje debugowe.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (poprzedni)</translation>
@@ -32135,9 +32030,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Attempting to interrupt.</source>
         <translation>Próba przerwania.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No Memory Viewer Available</source>
         <translation>Brak dostępnej przeglądarki pamięci</translation>
@@ -32298,9 +32190,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Jump to Line %1</source>
         <translation>Skocz do linii %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clone</source>
         <translation>Sklonuj</translation>
@@ -32325,9 +32214,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Debuggers</source>
         <translation>Debuggery</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Ustawienia debuggera</translation>
@@ -32352,9 +32238,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Odblokuj debugowanie podprocesów</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Terminal: Nie można otworzyć /dev/ptmx: %1</translation>
@@ -33186,11 +33069,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>Źródło JS dla %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonimowa funkcja</translation>
@@ -35607,16 +35486,10 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Use Global Settings</source>
         <translation>Użyj globalnych ustawień</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Skopiuj</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Rozpocznij zdalną analizę</translation>
@@ -35637,9 +35510,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Working directory:</source>
         <translation>Katalog roboczy:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Pokazuj komunikaty debugowe, log i informacje.</translation>
@@ -35660,9 +35530,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Debugger Console</source>
         <translation>Konsola debuggera</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>S&amp;kopiuj</translation>
@@ -37555,11 +37422,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>Debuggger::Internal::ModulesHandler</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nieznany</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>No</source>
         <translation>Nie</translation>
@@ -37567,10 +37430,6 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     <message>
         <source>Yes</source>
         <translation>Tak</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Brak</translation>
     </message>
     <message>
         <source>Plain</source>
@@ -39348,9 +39207,6 @@ Błąd: %2</translation>
         <source>Manual</source>
         <translation>Ustawione ręcznie</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Auto-detected CDB at %1</source>
         <translation>Automatycznie wykryty CDB w %1</translation>
@@ -39946,14 +39802,11 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Pułapka</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No executable specified.</source>
         <translation>Nie podano pliku wykonywalnego.</translation>
@@ -39986,9 +39839,6 @@ Błąd: %5</translation>
         <source>Debugged executable</source>
         <translation>Debugowany program</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Checking available ports...</source>
         <translation>Sprawdzanie dostępnych portów...</translation>

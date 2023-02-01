@@ -34545,11 +34545,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>JS-Quelle für %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonyme Funktion</translation>

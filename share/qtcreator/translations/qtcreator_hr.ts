@@ -20250,9 +20250,6 @@ Oznake: %3</translation>
         <source>Property</source>
         <translation type="unfinished">Svojstvo</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Output:</source>
         <translation>Izrada:</translation>
@@ -20403,9 +20400,6 @@ Oznake: %3</translation>
         <source>Extracted from Kit %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Location</source>
         <translation>Mjesto</translation>
@@ -20450,9 +20444,6 @@ Oznake: %3</translation>
         <source>Debuggers</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Program za uklanjanje grešaka korišten za ovaj komplet.</translation>

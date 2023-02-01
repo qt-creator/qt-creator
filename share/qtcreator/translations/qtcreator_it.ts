@@ -25,7 +25,7 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Avvia il Debug</translation>
@@ -253,7 +253,7 @@
     </message>
 </context>
 <context>
-    <name>BreakCondition</name>
+    <name>::Debugger</name>
     <message>
         <source>Condition:</source>
         <translation>Condizione:</translation>
@@ -2200,9 +2200,6 @@ Vuoi sovrascriverli?</translation>
         <source>Select Core File</source>
         <translation>Scegli il File Core</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>ID di Processo</translation>
@@ -2219,9 +2216,6 @@ Vuoi sovrascriverli?</translation>
         <source>Refresh</source>
         <translation>Aggiorna</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select start address</source>
         <translation type="unfinished"></translation>
@@ -2230,16 +2224,10 @@ Vuoi sovrascriverli?</translation>
         <source>Enter an address: </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Settings...</source>
         <translation type="unfinished">Impostazioni...</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>File Marker:</translation>
@@ -2285,10 +2273,6 @@ Vuoi sovrascriverli?</translation>
         <translation>Numero Riga:</translation>
     </message>
     <message>
-        <source>Condition:</source>
-        <translation>Condizione:</translation>
-    </message>
-    <message>
         <source>Ignore Count:</source>
         <translation>Numero di Scarti:</translation>
     </message>
@@ -2312,9 +2296,6 @@ Vuoi sovrascriverli?</translation>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
         <translation>L&apos;interruzione avverrà dopo essere stata ignorata per queste volte.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Punti di Interruzione</translation>
@@ -2367,9 +2348,6 @@ Vuoi sovrascriverli?</translation>
         <source>Conditions on Breakpoint %1</source>
         <translation>Condizioni sul punto di interruzione %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Impossibile caricare la libreria del debugger &apos;%1&apos;: %2</translation>
@@ -2483,9 +2461,6 @@ Vuoi sovrascriverli?</translation>
         <source>Thread %1: No debug information available (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation>iniezione</translation>
@@ -2530,9 +2505,6 @@ Vuoi sovrascriverli?</translation>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Interrogazione dei dumper per &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -2555,9 +2527,6 @@ Vuoi sovrascriverli?</translation>
         <source>Autodetection</source>
         <translation>Autorilevamento</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Server dei Simboli...</translation>
@@ -2570,9 +2539,6 @@ Vuoi sovrascriverli?</translation>
         <source>Pick a local cache directory</source>
         <translation>Scegli una cartella di cache locale</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Continua</translation>
@@ -2701,9 +2667,6 @@ Vuoi sovrascriverli?</translation>
         <source>The debugging helper is used to nicely format the values of Qt data types and some STL data types. It must be compiled for each Qt version which you can do in the Qt preferences page by selecting a Qt installation and clicking on &apos;Rebuild&apos; for the debugging helper.</source>
         <translation type="obsolete">La libreria helper per il debug serve a presentare i valori dei tipi di dati Qt e di alcuni tipi STL. Deve essere compilata per ogni versione di Qt e per farlo è necessario aprire le preferenze Qt, selezionare una versione di Qt e fare clic su &apos;Ricompila&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start and Debug External Application...</source>
         <translation>Avvio e Debug di Applicazione Esterna...</translation>
@@ -2796,16 +2759,10 @@ Vuoi sovrascriverli?</translation>
         <source>Attaching to core %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Debug</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Proprietà del Debugger...</translation>
@@ -2966,9 +2923,6 @@ Vuoi sovrascriverli?</translation>
         <source>Execute line</source>
         <translation>Esegui riga</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Helper del Debug</translation>
@@ -2981,9 +2935,6 @@ Vuoi sovrascriverli?</translation>
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Il progesso Gdb non è partito. Può essere che manchi il programma &apos;%1&apos; o che i permessi siano insufficienti.</translation>
@@ -3355,9 +3306,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Retrieving data for tooltip...</source>
         <translation type="obsolete">Recupero dei dati per il suggerimento...</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -3370,9 +3318,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Scegli la posizione dello Script di Avvio</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Nome del Modulo</translation>
@@ -3389,9 +3334,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>End address</source>
         <translation>Indirizzo di fine</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -3456,9 +3398,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Simboli in &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %2</source>
         <translation type="obsolete">Impossibile creare il file temporaneo: %2</translation>
@@ -3475,16 +3414,10 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Impossibile aprire la FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registri</translation>
@@ -3497,9 +3430,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Always reload register listing</source>
         <translation type="obsolete">Ricarica sempre i registri</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; non contiene identificatori</translation>
@@ -3550,9 +3480,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Open file &quot;%1&quot;&apos;</source>
         <translation>Apri file &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation>...</translation>
@@ -3605,9 +3532,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Thread ID</source>
         <translation>ID del Thread</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stack</translation>
@@ -3616,9 +3540,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Copy contents to clipboard</source>
         <translation>Copia il contenuto negli appunti</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Executable:</source>
         <translation>Eseguibile:</translation>
@@ -3711,9 +3632,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Insert new watch item</source>
         <translation>Inserisci una nuova osservazione</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Cancella il contenuto</translation>
@@ -4712,7 +4630,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Interazione con gdb</translation>
@@ -5693,7 +5611,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>InputPane</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Premi Ctrl-&lt;Invio&gt; per eseguire la riga.</translation>
@@ -9047,16 +8965,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Avvia il Debug</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Executable:</source>
-        <translation>Eseguibile:</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <location/>
         <source>Arguments:</source>
@@ -9066,13 +8975,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <location/>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrompi su &apos;main&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Avvia il Debug</translation>
     </message>
     <message>
         <location/>

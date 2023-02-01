@@ -1910,9 +1910,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Override &amp;start script:</source>
         <translation>覆寫啟動腳本(&amp;S)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation type="obsolete">行程代碼</translation>
@@ -1921,9 +1918,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Refresh</source>
         <translation type="obsolete">刷新</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>選擇開始位址</translation>
@@ -1932,9 +1926,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Enter an address: </source>
         <translation>輸入位址：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>標記檔案：</translation>
@@ -2213,9 +2204,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>This is useful to catch runtime error messages, for example caused by assert().</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>符號伺服器...</translation>
@@ -2240,9 +2228,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Do not ask again</source>
         <translation>不要再問我</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This switches the debugger to instruction-wise operation mode. In this mode, stepping operates on single instructions and the source location view also shows the disassembled instructions.</source>
         <translation>將除錯工具切換至 「聰明指令操作」（instruction wise operation）模式。它會在單步執行時在源碼檢視中同時顯示反組譯指令。</translation>
@@ -2439,9 +2424,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Checking this will show a column with address information in the stack view during debugging.</source>
         <translation>勾選此選項會在除錯時於堆疊檢視中顯示一個位址資訊的欄位。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 &lt;p&gt;The debugging helper is only used to produce a nice display of objects of certain types like QString or std::map in the &amp;quot;Locals and Expressions&amp;quot; view. It is not strictly necessary for debugging with Qt Creator. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -2484,9 +2466,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>Show Qt&apos;s namespace for types</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>An exception was triggered.</source>
         <translation>觸發了一個例外情形。</translation>
@@ -2928,9 +2907,6 @@ This might yield incorrect results.</source>
         <extracomment>About variable&apos;s value</extracomment>
         <translation>&lt;沒有資訊&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -3108,9 +3084,6 @@ at debugger startup.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>yes</source>
         <translation type="obsolete">是</translation>
@@ -3155,9 +3128,6 @@ at debugger startup.</source>
         <source>fast</source>
         <translation type="obsolete">快速</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>模組</translation>
@@ -3174,9 +3144,6 @@ at debugger startup.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>無法開啟 Fifo %1：%2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -3185,16 +3152,10 @@ at debugger startup.</source>
         <source>Value (Base %1)</source>
         <translation>值 (%1進位)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>暫存器</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error:</source>
         <translation>錯誤：</translation>
@@ -3223,9 +3184,6 @@ at debugger startup.</source>
         <source>Stopped.</source>
         <translation>已停止。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>源碼檔</translation>
@@ -3290,9 +3248,6 @@ at debugger startup.</source>
         <source>Binary debug information is accessible for this frame. However, matching sources have not been found. Note that some distributions ship debug sources in separate packages.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>執行緒&amp;nbsp;代碼：</translation>
@@ -3349,9 +3304,6 @@ at debugger startup.</source>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation type="obsolete">在 main 函式處中斷(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select GDB Start Script</source>
         <translation type="obsolete">選擇 GDB 啟動腳本</translation>
@@ -15370,9 +15322,6 @@ This feature is only available for GDB.</source>
         <source>&amp;Message:</source>
         <translation>訊息(&amp;M)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>There is no CDB binary available for binaries in format &apos;%1&apos;</source>
         <translation type="obsolete">執行檔格式 &apos;%1&apos; 沒有可用的 CDB 執行檔</translation>
@@ -15453,9 +15402,6 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation>「選擇要監看的元件」：在狀態 &apos;%1&apos; 時不支援。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>選擇本地快取資料夾</translation>
@@ -15480,9 +15426,6 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation>資料夾 &apos;%1&apos; 無法被建立。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attempting to interrupt.</source>
         <translation>嘗試中斷中。</translation>
@@ -15495,9 +15438,6 @@ This feature is only available for GDB.</source>
         <source>Debugger Test</source>
         <translation>除錯工具測試</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching</source>
         <translation>正在啟動</translation>
@@ -15628,9 +15568,6 @@ This feature is only available for GDB.</source>
         <source>Jump to Line %1</source>
         <translation>跳到行 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>除錯</translation>
@@ -15687,9 +15624,6 @@ Details: %3</source>
         <source>Tries to install missing debug information.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger</source>
         <translation>除錯工具</translation>
@@ -15726,18 +15660,12 @@ Details: %3</source>
         <source>Close Debugging Session</source>
         <translation>關閉除錯工作階段</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
         <translation type="obsolete">這似乎不是個 &quot;Debug&quot; 的建置。
 依檔名與行號來設定中斷點可能會失敗。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connection failure: %1.</source>
         <translation>連線失敗：%1。</translation>
@@ -15758,9 +15686,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Remote GDB crashed.</source>
         <translation>遠端 gdb 已崩潰。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>清除內容</translation>
@@ -15769,16 +15694,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Save Contents</source>
         <translation>儲存內容</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>按下 Ctrl-&lt;Return&gt; 執行一行。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Log</source>
         <translation>除錯工具紀錄</translation>
@@ -15825,9 +15744,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Status of &apos;%1&apos; changed to &apos;not connected&apos;.</source>
         <translation type="obsolete">&apos;%1&apos; 的狀態變更為「未連線」。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">內部名稱</translation>
@@ -18328,9 +18244,6 @@ to version control (%2)
         <source>&amp;Connection:</source>
         <translation>連線(&amp;C)：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory...</source>
         <translation>記憶體...</translation>
@@ -18339,9 +18252,6 @@ to version control (%2)
         <source>Debugger Toolbar</source>
         <translation>除錯器工具列</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>沒有選擇函式。</translation>
@@ -18793,9 +18703,6 @@ Qt Creator cannot attach to it.</source>
         <source>Qt Sources</source>
         <translation>Qt 源碼</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (%2)</source>
         <translation type="obsolete">%1 (%2)</translation>
@@ -18804,16 +18711,10 @@ Qt Creator cannot attach to it.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI:&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;ABI：&lt;/td&gt;&lt;td&gt;&lt;i&gt;%1&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;除錯工具：&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>目前不支援在 Windows 中對複雜的命令列除錯。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process started, PID: 0x%1, thread id: 0x%2, code segment: 0x%3, data segment: 0x%4.</source>
         <translation type="obsolete">行程已啟動，行程代碼：0x%1，執行緒代碼：0x%2，代碼段：0x%3，資料段：0x%4。</translation>
@@ -18828,16 +18729,10 @@ Qt Creator cannot attach to it.</source>
         <source>Could not obtain device.</source>
         <translation type="obsolete">無法獲得裝置。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation>嚴重的引擎錯誤關閉。不相容的二進位檔或 IPC 錯誤。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation>qtcreator-lldb 無法啟動：%1</translation>
@@ -18850,16 +18745,10 @@ Qt Creator cannot attach to it.</source>
         <source>SSH connection error: %1</source>
         <translation>SSH 連線錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>LLDB</source>
         <translation>LLDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>記憶體在 0x%1</translation>
@@ -18872,9 +18761,6 @@ Qt Creator cannot attach to it.</source>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>因為沒有載入二進制資料檢視器外掛程式，因此無法顯示記憶體內容。</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation type="unfinished">從屬除錯引擎需要整合QML/C++-除錯無法被建立: %1</translation>
@@ -18887,9 +18773,6 @@ Qt Creator cannot attach to it.</source>
         <source>QML debugger activated</source>
         <translation>已啟用 QML 除錯工具</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -21001,9 +20884,6 @@ Would you like to overwrite them?</source>
         <source>Previous</source>
         <translation>前一個</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation>在暫存器 &apos;%1&apos; 的記憶體 (0x%2)</translation>
@@ -23605,9 +23485,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Output:</source>
         <translation>輸出：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation>&lt;p&gt;發生了一個未被捕捉到的例外狀況：&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -25038,9 +24915,6 @@ p, li { white-space: pre-wrap; }
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Enable LLDB</source>
         <translation>開啟 LLDB</translation>
@@ -25049,9 +24923,6 @@ p, li { white-space: pre-wrap; }
         <source>Use GDB Python dumpers</source>
         <translation>使用 GDB python dumpers</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>啟動遠端引擎</translation>
@@ -26804,9 +26675,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Misc Types</source>
         <translation>其他型態</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>除錯工具設定</translation>
@@ -26831,9 +26699,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Enable Debugging of Subprocesses</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished"></translation>
@@ -29384,9 +29249,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Add Breakpoint</source>
         <translation>新增中斷點</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Server port:</source>
         <translation type="unfinished"></translation>
@@ -29467,9 +29329,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Debugger for &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation type="unfinished"></translation>
@@ -29491,9 +29350,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <extracomment>Label text for path configuration. %2 is &quot;x-bit version&quot;.</extracomment>
         <translation type="unfinished">&lt;html&gt;&lt;body&gt;&lt;p&gt;請在此指定 &lt;a href=&quot;%1&quot;&gt;Windows 主控台除錯器執行檔&lt;/a&gt; (%2) 的路徑。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation type="unfinished"></translation>
@@ -29582,9 +29438,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation type="unfinished"></translation>
@@ -29626,9 +29479,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
 </source>
         <translation type="unfinished">附加到 core 檔 &quot;%1&quot; 失敗：</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>無法與子行程建立通訊：%1</translation>
@@ -29666,9 +29516,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Interrupting not possible</source>
         <translation>無法中斷</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation type="unfinished">遠端錯誤</translation>
@@ -29717,16 +29564,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Process gdbserver finished. Status: %1</source>
         <translation type="unfinished">gdbserver 行程已完成。狀態：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation type="unfinished"></translation>
@@ -29808,9 +29649,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <extracomment>End address of loaded module</extracomment>
         <translation>&lt;未知&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation type="unfinished">更新模組列表</translation>
@@ -29859,9 +29697,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation type="unfinished">顯示 &quot;%1&quot; 的相依性</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation>正在連線到除錯伺服器 %1:%2</translation>
@@ -29895,9 +29730,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Closing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success: </source>
         <translation type="unfinished"></translation>
@@ -29906,9 +29738,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Properties</source>
         <translation type="unfinished">屬性</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation type="unfinished">第 %2 行第 %3 欄的 %1 屬性必須要重新載入 QML 應用程式才能更改。</translation>
@@ -29933,9 +29762,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Reload QML</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>重新載入暫存器列表</translation>
@@ -29984,9 +29810,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Binary</source>
         <translation>二進位</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Snapshots</source>
         <translation>快照</translation>
@@ -30035,9 +29858,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Frame #%1 (%2)</source>
         <translation type="unfinished">框架 #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>

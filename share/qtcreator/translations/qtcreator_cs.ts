@@ -234,11 +234,7 @@
     </message>
 </context>
 <context>
-    <name>BreakCondition</name>
-    <message>
-        <source>Condition:</source>
-        <translation type="obsolete">Podmínka:</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Ignore count:</source>
         <translation type="obsolete">Zastavit teprve po:</translation>
@@ -5607,7 +5603,7 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation type="obsolete">Výměna informací Gdb</translation>
@@ -5686,29 +5682,13 @@ kdy na pomalých strojích nahrávání velkých knihoven nebo výpis zdrojovýc
 více času, než je nastaveno. V takovém případě by se měla hodnota zvýšit.</translation>
     </message>
     <message>
-        <source>Gdb</source>
-        <translation type="obsolete">Gdb</translation>
-    </message>
-    <message>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
         <translation type="obsolete">Tato volba má za následek, že v určitých situacích sloučí &apos;Jednotlivý krok do&apos; více kroků do jednoho, čímž se ladění uspíší. Například se přeskočí kód počítání atomárních odkazů; a jednotlivý &apos;Krok do&apos; pro vyslání signálu skončí přímo v otvoru s ním spojeném.</translation>
     </message>
     <message>
-        <source>Skip known frames when stepping</source>
-        <translation type="obsolete">Přeskočit při provádění jednotlivého kroku známá místa</translation>
-    </message>
-    <message>
-        <source>Show a message box when receiving a signal</source>
-        <translation type="obsolete">Při obdržení signálu ukázat okno se zprávami</translation>
-    </message>
-    <message>
         <source>Behavior of Breakpoint Setting in Plugins</source>
         <translation type="obsolete">Chování nastavení bodu přerušení v přídavných modulech</translation>
-    </message>
-    <message>
-        <source>GDB</source>
-        <translation type="obsolete">GDB</translation>
     </message>
     <message>
         <source>This is either empty or points to a file containing GDB commands that will be executed immediately after GDB starts up.</source>
@@ -5717,21 +5697,6 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     <message>
         <source>GDB startup script:</source>
         <translation type="obsolete">Skript pro spuštění GDB:</translation>
-    </message>
-    <message>
-        <source>This is the number of seconds Qt Creator will wait before
-it terminates a non-responsive GDB process. The default value of 20 seconds
-should be sufficient for most applications, but there are situations when
-loading big libraries or listing source files takes much longer than that
-on slow machines. In this case, the value should be increased.</source>
-        <translation type="obsolete">Toto je počet sekund, po které bude Qt Creator čekat, předtím než ukončí neodpovídající procesy GDB.
-Výchozí hodnota, jíž je 20 sekund, by měla postačovat v případě většiny programů. Ale jsou situace,
-kdy na pomalých strojích nahrávání velkých knihoven nebo výpis zdrojových souborů zabere mnohem
-více času, než je nastaveno. V takovém případě by se měla hodnota zvýšit.</translation>
-    </message>
-    <message>
-        <source>GDB timeout:</source>
-        <translation type="obsolete">Překročení času u GDB:</translation>
     </message>
     <message>
         <source>Allows &apos;Step Into&apos; to compress several steps into one step for less noisy debugging. For example, the atomic reference
@@ -5747,28 +5712,8 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;/body&gt;&lt;p&gt;Ne všechny řádky zdrojového kódu způsobují vytvoření spustitelného kódu. GDB však dovoluje, aby byl takových situacích pro takové řádky, pro něž nebyl vytvořen žádný kód, nastaven bod přerušení. Tento bod přerušení je pak posunut na další řádek se zdrojovým kódem, pro který byl kód skutečně vytvořen. Toto nastavení odráží takovou dočasnou změnu a způsobuje, že značky pro body přerušení jsou odpovídajícím způsobem posunuty v editoru zdrojového kódu.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>Adjust breakpoint locations</source>
-        <translation type="obsolete">Upravit umístění bodů přerušení</translation>
-    </message>
-    <message>
         <source>This allows or inhibits reading the user&apos;s default .gdbinit file on debugger startup.</source>
         <translation type="obsolete">Dovolí nebo potlačí čtení výchozího uživatelského souboru-.gdbinit při spuštění ladiče.</translation>
-    </message>
-    <message>
-        <source>Load .gdbinit file on startup</source>
-        <translation type="obsolete">Nahrát soubor .gdbinit na začátku</translation>
-    </message>
-    <message>
-        <source>Use asynchronous mode to control the inferior</source>
-        <translation type="obsolete">Použít asynchronní režim k ovládání laděného procesu</translation>
-    </message>
-    <message>
-        <source>Stop when a qWarning is issued</source>
-        <translation type="obsolete">Zastavit při qWarning</translation>
-    </message>
-    <message>
-        <source>Stop when a qFatal is issued</source>
-        <translation type="obsolete">Zastavit při qFatal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this enables reverse debugging.&lt;/p&gt;&lt;.p&gt;&lt;b&gt;Note:&lt;/b&gt;This feature is very slow and unstable on the GDB side. It exhibits unpredictable behaviour when going backwards over system calls and is very likely to destroy your debugging session.&lt;/p&gt;&lt;body&gt;&lt;/html&gt;</source>
@@ -8146,13 +8091,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>Open Link in New Tab</source>
         <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
-    </message>
-</context>
-<context>
-    <name>InputPane</name>
-    <message>
-        <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
-        <translation type="obsolete">Řádek můžete provést pomocí &lt;Ctrl-Return&gt;.</translation>
     </message>
 </context>
 <context>
@@ -12622,11 +12560,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Executable:</source>
         <translation type="obsolete">Spustitelný soubor:</translation>
@@ -12648,27 +12582,12 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">&amp;Argumenty:</translation>
     </message>
     <message>
-        <source>Run in &amp;terminal:</source>
-        <translation type="obsolete">Spustit v &amp;terminálu:</translation>
-    </message>
-    <message>
-        <source>&amp;Working directory:</source>
-        <translation type="obsolete">&amp;Pracovní adresář:</translation>
-    </message>
-    <message>
         <source>&amp;Tool chain:</source>
         <translation type="obsolete">Sada &amp;nástrojů:</translation>
     </message>
     <message>
         <source>Break at &apos;&amp;main&apos;:</source>
         <translation type="obsolete">Bod přerušení při &apos;main&apos;:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation type="obsolete">Spustit ladicí program</translation>
     </message>
     <message>
         <source>Architecture:</source>
@@ -12687,10 +12606,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation type="obsolete">Spouštěcí skript k serveru:</translation>
     </message>
     <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Ladič:</translation>
-    </message>
-    <message>
         <source>Local executable:</source>
         <translation type="obsolete">Místní spustitelný soubor:</translation>
     </message>
@@ -12701,10 +12616,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>&amp;Debugger:</source>
         <translation type="obsolete">&amp;Ladič:</translation>
-    </message>
-    <message>
-        <source>Local &amp;executable:</source>
-        <translation type="obsolete">&amp;Místní spustitelný soubor:</translation>
     </message>
     <message>
         <source>&amp;Host and port:</source>
@@ -12729,10 +12640,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>&amp;Use server start script:</source>
         <translation type="obsolete">&amp;Použít spouštěcí skript k serveru:</translation>
-    </message>
-    <message>
-        <source>&amp;Server start script:</source>
-        <translation type="obsolete">Spouštěcí skript k &amp;serveru:</translation>
     </message>
     <message>
         <source>Location of debugging information:</source>
@@ -26601,33 +26508,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     <message>
         <source>Use GDB Python dumpers</source>
         <translation type="obsolete">Použít pomocné knihovny pro výstup dat Python GDB</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteEngineDialog</name>
-    <message>
-        <source>Start Remote Engine</source>
-        <translation type="obsolete">Spustit vzdálený stroj</translation>
-    </message>
-    <message>
-        <source>&amp;Host:</source>
-        <translation type="obsolete">&amp;Hostitel:</translation>
-    </message>
-    <message>
-        <source>&amp;Username:</source>
-        <translation type="obsolete">&amp;Uživatelské jméno:</translation>
-    </message>
-    <message>
-        <source>&amp;Password:</source>
-        <translation type="obsolete">He&amp;slo:</translation>
-    </message>
-    <message>
-        <source>&amp;Engine path:</source>
-        <translation type="obsolete">Cesta ke &amp;stroji:</translation>
-    </message>
-    <message>
-        <source>&amp;Inferior path:</source>
-        <translation type="obsolete">&amp;Podřízená cesta:</translation>
     </message>
 </context>
 <context>
@@ -54546,7 +54426,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation>
@@ -54570,10 +54450,6 @@ se vyskytla chyba</translation>
     <message>
         <source>Log file processed, no issues were found.</source>
         <translation>Soubor se záznamem byl zpracován; nebyly nalezeny žádné problémy.</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Ladění</translation>
     </message>
     <message>
         <source>Release</source>

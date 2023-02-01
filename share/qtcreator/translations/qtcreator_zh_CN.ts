@@ -35816,11 +35816,7 @@ Locked components cannot be modified or selected.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation type="unfinished">%1的JS源码</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation type="unfinished">匿名函数</translation>

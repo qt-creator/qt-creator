@@ -3834,9 +3834,6 @@ Flags: %3</source>
         <source>Close Debugging Session</source>
         <translation>Закрити сеанс зневадження</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Start Address</source>
         <translation>Виберіть початкову адресу</translation>
@@ -3849,9 +3846,6 @@ Flags: %3</source>
         <source>Enter an address: </source>
         <translation type="vanished">Введіть адресу:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Завантажити файл Core</translation>
@@ -3896,9 +3890,6 @@ Flags: %3</source>
         <source>Override &amp;start script:</source>
         <translation>Інший скрипт &amp;запуску:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Позначений файл:</translation>
@@ -4152,9 +4143,6 @@ Flags: %3</source>
         <source>Breakpoint will only be hit in the specified thread(s).</source>
         <translation>Точка перепину спрацює лише у вказаних нитках.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>File name and line number</source>
         <translation>Файл та номер рядка</translation>
@@ -4325,9 +4313,6 @@ This feature is only available for GDB.</source>
         <source>&amp;Message:</source>
         <translation>&amp;Повідомлення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Вибір теки для локального кешу</translation>
@@ -4360,9 +4345,6 @@ This feature is only available for GDB.</source>
         <source>The folder &apos;%1&apos; could not be created.</source>
         <translation type="vanished">Не вдалось створити теку &apos;%1&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>Виключна ситуація C++</translation>
@@ -4387,9 +4369,6 @@ This feature is only available for GDB.</source>
         <source>Output:</source>
         <translation>Виведення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The console process &apos;%1&apos; could not be started.</source>
         <translation type="vanished">Не вдалось запустити консольний процес &apos;%1&apos;.</translation>
@@ -4482,16 +4461,10 @@ This feature is only available for GDB.</source>
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &apos;%1&apos;.</source>
         <translation type="vanished">&quot;Оберіть віджет для нагляду&quot;: Стан  &apos;%1&apos; не підтримується.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -4541,9 +4514,6 @@ This feature is only available for GDB.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Attempts to correct the location of a breakpoint based on file and line number should it be in a comment or in a line for which no code is generated. The correction is based on the code model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Намагатись підправляти розташування точки перепину, що основана на файлі та номері рядка, який є коментарем або для якого код не генерується. Виправлення основане на моделі коду.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation type="vanished">Сервер символів...</translation>
@@ -4584,9 +4554,6 @@ This feature is only available for GDB.</source>
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>Налаштування шляхів символів, які використовуються для знаходження файлів із символами зневадження.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Очистити зміст</translation>
@@ -4599,9 +4566,6 @@ This feature is only available for GDB.</source>
         <source>Reload Debugging Helpers</source>
         <translation>Перезавантажити помічники зневадження</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No function selected.</source>
         <translation>Функцію не обрано.</translation>
@@ -5046,9 +5010,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Symbols in &quot;%1&quot;</source>
         <translation type="vanished">Символи в &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Properties...</source>
         <translation type="vanished">Властивості зневаджувача...</translation>
@@ -5349,9 +5310,6 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Create Full Backtrace</source>
         <translation>Створити повний стек викликів</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;новий шлях джерела&gt;</translation>
@@ -5424,16 +5382,10 @@ Qt Creator не може під&apos;єднатись до нього.</translat
         <source>Qt Sources</source>
         <translation>Код Qt</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Previous</source>
         <translation type="vanished">Назад</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message numerus="yes">
         <source>Retrieving data for watch view (%n requests pending)...</source>
         <translation type="vanished">
@@ -5868,9 +5820,6 @@ You can choose between waiting longer or aborting debugging.</source>
         <translation>Збій підключення до віддаленого сервера:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -6084,23 +6033,14 @@ markers in the source code editor.</source>
         <source>GDB</source>
         <translation>GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Fatal engine shutdown. Incompatible binary or IPC error.</source>
         <translation type="vanished">Фатальне завершення рушія. Несумісний виконуваний модуль або помилка IPC.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Натисніть Ctrl-&lt;Return&gt;, щоб виконати рядок.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>qtcreator-lldb failed to start: %1</source>
         <translation type="vanished">збій запуску qtcreator-lldb: %1</translation>
@@ -6133,9 +6073,6 @@ markers in the source code editor.</source>
         <source>Log File</source>
         <translation>Файл журналу</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Неможливо відобразити зміст пам&apos;яті, оскільки не встановлено додатку для перегляду двійкових даних.</translation>
@@ -6148,9 +6085,6 @@ markers in the source code editor.</source>
         <source>No Memory Viewer Available</source>
         <translation>Переглядач пам&apos;яті не доступний</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Condition:</source>
         <translation>&amp;Умова:</translation>
@@ -6167,9 +6101,6 @@ markers in the source code editor.</source>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Неможливо відкрити FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start pdb &apos;%1&apos;: %2</source>
         <translation type="vanished">Неможливо запустити pdb &apos;%1&apos;: %2</translation>
@@ -6234,9 +6165,6 @@ markers in the source code editor.</source>
         <source>An unknown error in the Pdb process occurred. </source>
         <translation type="vanished">З процесом Pdb сталась невідома помилка. </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;p&gt;An uncaught exception occurred:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</source>
         <translation type="vanished">&lt;p&gt;Сталася не оброблена виключна ситуація:&lt;/p&gt;&lt;p&gt;%1&lt;/p&gt;</translation>
@@ -6257,9 +6185,6 @@ markers in the source code editor.</source>
         <source>Uncaught Exception</source>
         <translation type="vanished">Необроблена виключна ситуація</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The slave debugging engine required for combined QML/C++-Debugging could not be created: %1</source>
         <translation>Не вдалось створити підлеглий рушій зневадження, що необхідний для комбінованого зневадження QML/C++: %1</translation>
@@ -6272,9 +6197,6 @@ markers in the source code editor.</source>
         <source>QML debugger activated</source>
         <translation>Зневаджувач QML активовано</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Не отримано вчасно жодного виведення з програми</translation>
@@ -6343,9 +6265,6 @@ Do you want to retry?</source>
         <source>QML Debugger disconnected.</source>
         <translation>Зневаджувач QML відключено.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Зміст як символи ASCII</translation>
@@ -6390,9 +6309,6 @@ Do you want to retry?</source>
         <source>Value (Base %1)</source>
         <translation type="vanished">Значення (основа %1)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &apos;%1&apos; (0x%2)</source>
         <translation type="vanished">Пам&apos;ять з регістру &apos;%1&apos; (0x%2)</translation>
@@ -6481,9 +6397,6 @@ Do you want to retry?</source>
         <source>Note that most distributions ship debug information in separate packages.</source>
         <translation>Майте на увазі, що більшість дистрибутивів постачають зневаджувальну інформацію в окремих пакунках.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching Qt Creator CDB extension (&lt;code&gt;%1&lt;/code&gt; or &lt;code&gt;%2&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%3&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%4 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Віддалений CDB має завантажити відповідне розширення Qt Creator для CDB (&lt;code&gt;%1&lt;/code&gt; або &lt;code&gt;%2&lt;/code&gt;, відповідно).&lt;/p&gt;&lt;p&gt;Скопіюйте його на віддалену машину та встановіть в змінній середовища &lt;code&gt;%3&lt;/code&gt; шлях до теки з ним.&lt;/p&gt;&lt;p&gt;Запустіть віддалений CDB так: &lt;code&gt;%4 &amp;lt;виконуваний модуль&amp;gt;&lt;/code&gt;, щоб використати TCP/IP в якості комунікаційного протоколу.&lt;/p&gt;&lt;p&gt;Введіть параметри підключення так:&lt;/p&gt;&lt;pre&gt;%5&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -6496,9 +6409,6 @@ Do you want to retry?</source>
         <source>&amp;Connection:</source>
         <translation>&amp;Підключення:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Id&amp;nbsp;нитки:</translation>
@@ -6547,9 +6457,6 @@ Do you want to retry?</source>
         <source>Details</source>
         <translation>Деталі</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <extracomment>Value of variable in Debugger Locals display for variables out of scope (stopped above initialization).</extracomment>
@@ -6847,9 +6754,6 @@ Do you want to retry?</source>
         <source>%1 Object at Unknown Address</source>
         <translation>Об&apos;єкт %1 за невідомою адресою</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
         <translation>Зневадження складних командних рядків під Windows наразі не підтримується.</translation>
@@ -21415,9 +21319,6 @@ These prefixes are used in addition to current file name on Switch Header/Source
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation type="vanished">Завжди додавати точку перепину на функції &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Запустити віддалений рушій</translation>
@@ -23204,13 +23105,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Misc Types</source>
         <translation>Інші типи</translation>
-    </message>
-</context>
-<context>
-    <name>::Debugger</name>
-    <message>
-        <source>Anonymous Function</source>
-        <translation type="vanished">Анонімна функція</translation>
     </message>
 </context>
 <context>
@@ -25989,9 +25883,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Add Breakpoint</source>
         <translation>Додати точку перепину</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Запустити зневаджувач</translation>
@@ -26060,9 +25951,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Recent:</source>
         <translation>&amp;Нещодавні:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Manage...</source>
         <translation type="vanished">Управління...</translation>
@@ -26087,9 +25975,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Debugger for &quot;%1&quot;</source>
         <translation type="vanished">Зневаджувач для &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Engine:</source>
         <translation type="vanished">&amp;Рушій:</translation>
@@ -26098,9 +25983,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Binary:</source>
         <translation type="vanished">&amp;Виконуваний модуль:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No debugger set up.</source>
         <translation>Зневаджувач не задано.</translation>
@@ -26189,18 +26071,12 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>No kit found.</source>
         <translation type="vanished">Комплект не знайдено.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Starting executable failed:
 </source>
         <translation type="vanished">Збій запуску виконуваного модуля:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attached to process %1.</source>
         <translation>Під&apos;єднано до процесу %1.</translation>
@@ -26213,9 +26089,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Failed to attach to application: %1</source>
         <translation>Збій підключення до програми: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Open Qt Options</source>
         <translation type="vanished">Відкрити опції Qt</translation>
@@ -26240,9 +26113,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
         <translation type="vanished">Помічник зневадження застосовується для зручного форматування деяких типів даних Qt та стандартної бібліотеки. Він має бути скомпільований окремо для кожної версії Qt. На сторінці налаштувань &quot;Збірка та запуск&quot;, оберіть версію Qt, розгорніть розділ &quot;Детально&quot; та клацніть &quot;Зібрати все&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error Loading Core File</source>
         <translation>Помилка завантаження файлу Core</translation>
@@ -26339,9 +26209,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Interrupting not possible</source>
         <translation>Переривання не можливе</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Remote Error</source>
         <translation>Віддалена помилка</translation>
@@ -26484,9 +26351,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>&lt;unknown&gt;</source>
         <translation type="vanished">&lt;невідомий&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Update Module List</source>
         <translation>Оновити список модулів</translation>
@@ -26543,9 +26407,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Show Dependencies of &quot;%1&quot;</source>
         <translation>Показати залежності &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Connecting to debug server %1:%2</source>
         <translation type="vanished">Підключення до сервера зневадження на %1: %2</translation>
@@ -26593,9 +26454,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Error: (%1) %2</source>
         <translation type="vanished">Помилка: (%1) %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success: </source>
         <translation type="vanished">Успішно:</translation>
@@ -26608,9 +26466,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Properties</source>
         <translation>Властивості</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The %1 attribute at line %2, column %3 cannot be changed without reloading the QML application. </source>
         <translation type="vanished">Неможливо змінити атрибут %1 в рядку %2, стовпець %3 без перезавантаження програми QML. </translation>
@@ -26635,9 +26490,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Reload QML</source>
         <translation type="vanished">Перезавантажити QML</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Register Listing</source>
         <translation>Перезавантажити список регістрів</translation>
@@ -26658,9 +26510,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Open Disassembler</source>
         <translation>Відкрити дизасемблер</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Create Snapshot</source>
         <translation>Створити знімок</translation>
@@ -26669,9 +26518,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Remove Snapshot</source>
         <translation>Видалити знімок</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Reload Data</source>
         <translation>Перезавантажити дані</translation>
@@ -26684,9 +26530,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Open File &quot;%1&quot;&apos;</source>
         <translation>Відкрити файл &quot;%1&quot;&apos;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Function:</source>
         <translation>Функція:</translation>
@@ -26739,9 +26582,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <source>Frame #%1 (%2)</source>
         <translation>Кадр #%1 (%2)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;i&gt;%1&lt;/i&gt; %2 at #%3</source>
         <extracomment>HTML tooltip of a variable in the memory editor</extracomment>
@@ -31438,30 +31278,18 @@ Partial names can be used if they are unambiguous.</source>
         <source>Source Paths</source>
         <translation>Шляхи джерела</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>Шляхи CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger settings</source>
         <translation>Налаштування зневаджувача</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>Розширені опції GDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to start lldb &apos;%1&apos;: %2</source>
         <translation type="vanished">Неможливо запустити lldb &apos;%1&apos;: %2</translation>
@@ -33999,7 +33827,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>AnalyzerManager</name>
+    <name>::Debugger</name>
     <message numerus="yes">
         <source>Memory Analyzer Tool finished, %n issues were found.</source>
         <translation type="vanished">
@@ -34025,20 +33853,8 @@ Please close all running instances of your application before starting a build.<
         <translation type="vanished">Файл журналу оброблено, проблем не знайдено.</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation type="vanished">Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="vanished">Release</translation>
-    </message>
-    <message>
         <source>Tool</source>
         <translation type="vanished">Інструмент</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation type="vanished">Запусти %1 в режимі %2?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -36249,9 +36065,6 @@ Install an SDK of at least API version %1.</source>
         <source>Display string length:</source>
         <translation>Довжина рядка, що показується:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 (Previous)</source>
         <translation>%1 (попереднє)</translation>
@@ -39805,9 +39618,6 @@ Affected are breakpoints %1</source>
         <source>Tries to install missing debug information.</source>
         <translation>Спробувати встановити відсутню зневаджувальну інформацію.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Restored</source>
         <translation type="vanished">Відновлено</translation>
@@ -40283,9 +40093,6 @@ Affected are breakpoints %1</source>
         <source>Attempting to interrupt.</source>
         <translation>Намагаємось перервати.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Launching Debugger</source>
         <translation>Запуск зневаджувача</translation>
@@ -40430,9 +40237,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Jump to Line %1</source>
         <translation>Перейти до рядка %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Not recognized</source>
         <translation>Не розпізнано</translation>
@@ -40544,9 +40348,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Увімкнути зневадження підпроцесів</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Термінал: неможливо відкрити /dev/ptmx: %1</translation>
@@ -41502,11 +41303,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>Код JS для %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Анонімна функція</translation>
@@ -44272,16 +44069,10 @@ Please set a real Clang executable.</source>
         <source>Use Global Settings</source>
         <translation>Вживати глобальні налаштування</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Copy</source>
         <translation>Копіювати</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Почати віддалений аналіз</translation>
@@ -44298,9 +44089,6 @@ Please set a real Clang executable.</source>
         <source>Working directory:</source>
         <translation>Робоча тека:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Показувати зневаджувальні, журналу та інформаційні повідомлення.</translation>
@@ -44321,9 +44109,6 @@ Please set a real Clang executable.</source>
         <source>Debugger Console</source>
         <translation>Консоль зневаджувача</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Копіювати</translation>
@@ -44402,9 +44187,6 @@ Please set a real Clang executable.</source>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ви намагаєтесь запустити інструмент &quot;%1&quot; для програми в режимі %2. Цей інструмент призначено для використання %3.&lt;/p&gt;&lt;p&gt;Характеристики часу виконання між оптимізованими та неоптимізованими двійковими модулями суттєво відрізняються. Аналітичні дані для одного режиму можуть бути не відповідними для іншого.&lt;/p&gt;&lt;p&gt;Запуск інструментів, що потребують символів зневадження на двійковий модулях, що їх не мають, може призвести до відсутніх назв функцій або іншого неповного результату.&lt;/p&gt;&lt;p&gt;Бажаєте продовжити і запустити інструмент в режимі %2?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>%1 &lt;shadowed %2&gt;</source>
         <extracomment>Display of variables shadowed by variables of the same name in nested scopes: Variable %1 is the variable name, %2 is a simple count.</extracomment>

@@ -21,7 +21,7 @@
     </message>
 </context>
 <context>
-    <name>AttachCoreDialog</name>
+    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Debugger elindítása</translation>
@@ -227,7 +227,7 @@
     </message>
 </context>
 <context>
-    <name>BreakCondition</name>
+    <name>::Debugger</name>
     <message>
         <source>Condition:</source>
         <translation>Feltétel:</translation>
@@ -3453,9 +3453,6 @@ p {
         <source>Stop Debugger</source>
         <translation>Debugger leállítása</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The Gdb process could not be stopped:
 %1</source>
@@ -3486,9 +3483,6 @@ p {
         <translation>A távoli szerverhez történő csatlakozás nem sikerült:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select start address</source>
         <translation>Start cím kiválasztása</translation>
@@ -3497,9 +3491,6 @@ p {
         <source>Enter an address: </source>
         <translation>Egy cím bevitele:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Futtatható fájl kiválasztása</translation>
@@ -3508,9 +3499,6 @@ p {
         <source>Select Core File</source>
         <translation>Mag fájlok kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Process ID</source>
         <translation>Folyamat azonosító</translation>
@@ -3527,9 +3515,6 @@ p {
         <source>Refresh</source>
         <translation>Felfrissítés</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Marker File:</source>
         <translation>Megjelölt fájl:</translation>
@@ -3575,10 +3560,6 @@ p {
         <translation>Sor szám:</translation>
     </message>
     <message>
-        <source>Condition:</source>
-        <translation>Feltétel:</translation>
-    </message>
-    <message>
         <source>Ignore Count:</source>
         <translation>Mellőzés számlálás:</translation>
     </message>
@@ -3602,9 +3583,6 @@ p {
         <source>Breakpoint will only be hit after being ignored so many times.</source>
         <translation>A töréspont sok alkalommal való mellőzés után lesz csak leütve.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Töréspontok</translation>
@@ -3669,9 +3647,6 @@ p {
         <source>Conditions on Breakpoint %1</source>
         <translation>Feltételek a(z) %1 törésponton</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Nem lehet betölteni a debugger engine könytárat &apos;%1&apos; nicht geladen werden: %2</translation>
@@ -3800,9 +3775,6 @@ p {
         <source>Thread %1: No debug information available (%2).</source>
         <translation>%1 Szál: Nincsen elérhető debugg információ (%2).</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation>Injekció</translation>
@@ -3847,9 +3819,6 @@ p {
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Dömperek kérése &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -3872,9 +3841,6 @@ p {
         <source>Autodetection</source>
         <translation>Automatikus észlelés</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Szimbólum szerver...</translation>
@@ -3887,9 +3853,6 @@ p {
         <source>Pick a local cache directory</source>
         <translation>Egy helyi gyorsítótár könyvtárra szedés</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Error Loading Symbols</source>
         <translation>Hiba történt a szimbólumok betöltésekor</translation>
@@ -3924,9 +3887,6 @@ p {
 </source>
         <translation>Nem sikerült hozzácsatolni a(z) &quot;%1&quot; maghoz:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Close Debugging Session</source>
         <translation>Debug szakasz bezárása</translation>
@@ -3939,9 +3899,6 @@ p {
         <source>A debugging session is still in progress. Terminating the session in the current state (%1) can leave the target in an inconsistent state. Would you still like to terminate it?</source>
         <translation>A debuggolási szakasz még mindig folyamatban van. A szakasz befejezése az aktuális helyzetben (%1) ellentmondó állapotban hagyhatja a célt. Mégis be szeretné fejezni?</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Option &apos;%1&apos; is missing the parameter.</source>
         <translation>%1 opció egy hiányzó paraméter.</translation>
@@ -4030,16 +3987,10 @@ p {
         <source>Attaching to core %1.</source>
         <translation>Hozzácsatolás a(z) %1 maghoz.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Debuggolás</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger properties...</source>
         <translation>Debugger beállítások...</translation>
@@ -4168,9 +4119,6 @@ p {
         <source>Execute line</source>
         <translation>Sor végrehajtása</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Debuggolást segítő</translation>
@@ -4183,9 +4131,6 @@ p {
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>Nem sikerült elindítani a Gdb folyamatot. Vagy a(z) &apos;%1&apos; felhasznált program hiányzik, vagy nincsenek meg a megfelelő jogai a program felhasználására.</translation>
@@ -4507,9 +4452,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Adapter crashed</source>
         <translation>Összeomlott az adapter</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Gdb</source>
         <translation>Gdb</translation>
@@ -4522,9 +4464,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Betöltési szkript fájl helyének kiválasztása</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory $</source>
         <translation>Memória $</translation>
@@ -4537,9 +4476,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>The memory contents cannot be shown as no viewer plugin for binary data has been loaded.</source>
         <translation>Nem lehet megjeleníteni a memória tartalmat, mivel nem lett megjelenítő beépülő  modul betöltve bináris adatra.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Modul név</translation>
@@ -4556,9 +4492,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>End address</source>
         <translation>Vég cím</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Modules</source>
         <translation>Modul</translation>
@@ -4611,9 +4544,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Szimbólum &quot;%1&quot;-ben</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Nem lehet átmeneti fájlt létrehozni: %1</translation>
@@ -4626,9 +4556,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>Nem sikerült a(z) FiFo megnyitása: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot set up communication with child process: %1</source>
         <translation>Nem sikerült beállítani a kommunikációs a gyermek folyamattal: %1</translation>
@@ -4639,16 +4566,10 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <translation>A futtatható elindítása nem sikerült:
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Value (base %1)</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Regiszterek</translation>
@@ -4714,9 +4635,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
 </source>
         <translation>Nem sikerült elindítani a távoli futtatható fájlt:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&apos;%1&apos; contains no identifier</source>
         <translation>&apos;%1&apos; nem tartalmaz azonosítót</translation>
@@ -4737,9 +4655,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Full name</source>
         <translation>Teljes név</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Source Files</source>
         <translation>Forrás fájlok</translation>
@@ -4756,9 +4671,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Open file &quot;%1&quot;&apos;</source>
         <translation>A(z) &apos;&quot;%1&quot; fájl megnyitása</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Cím:</translation>
@@ -4811,20 +4723,10 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Open disassembler at %1</source>
         <translation>Disassembler megnyitása %1-nél</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Futtatható:</translation>
-    </message>
     <message>
         <source>Arguments:</source>
         <translation>Argumentumok:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Szál: %1</translation>
@@ -4857,9 +4759,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Address</source>
         <translation>Cím</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread</source>
         <translation>Szál</translation>
@@ -4873,9 +4772,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
 </source>
         <translation>Nem sikerült a TRK szerver adapterhez való csatlakozás:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -4904,9 +4800,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Device:</source>
         <translation>Eszköz:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;not in scope&gt;</source>
         <translation>&lt;nem a hatókörben&gt;</translation>
@@ -5027,9 +4920,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Refresh code model snapshot</source>
         <translation>Kód modell fénykép felfrissítése</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Tartalom kitisztítása</translation>
@@ -5038,9 +4928,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>Save contents</source>
         <translation>Tartalom mentése</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging helper</source>
         <translation>Debuggolást segítő</translation>
@@ -6496,7 +6383,7 @@ Ok: %3</translation>
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Gdb kölcsönhatás</translation>
@@ -8475,7 +8362,7 @@ Fájl kihagyása.</translation>
     </message>
 </context>
 <context>
-    <name>InputPane</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Nyomja meg a Ctrl-&lt;Return&gt; gombokat a sor végrehajtásához.</translation>
@@ -15007,29 +14894,10 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger elindítása</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Futtatható:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumentumok:</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Töréspont a &apos;main&apos;-re:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Debugger elindítása</translation>
     </message>
     <message>
         <source>Host and port:</source>

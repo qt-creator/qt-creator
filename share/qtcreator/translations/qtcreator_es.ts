@@ -2297,9 +2297,6 @@ Would you like to overwrite them?</source>
         <source>Breakpoint will only be hit after being ignored so many times.</source>
         <translation>El punto de ruptura se alcanzará luego de ser ignorado ésta cantidad de veces.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Breakpoints</source>
         <translation>Puntos de ruptura</translation>
@@ -2356,9 +2353,6 @@ Would you like to overwrite them?</source>
         <source>Conditions on Breakpoint %1</source>
         <translation>Condiciones en punto de ruptura %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Unable to load the debugger engine library &apos;%1&apos;: %2</source>
         <translation>Imposible cargar librería del depurador &apos;%1&apos;: %2</translation>
@@ -2473,9 +2467,6 @@ Would you like to overwrite them?</source>
         <source>Thread %1: No debug information available (%2).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>injection</source>
         <translation>inyección</translation>
@@ -2520,9 +2511,6 @@ Would you like to overwrite them?</source>
         <source>Querying dumpers for &apos;%1&apos;/&apos;%2&apos; (%3)</source>
         <translation>Solicitando volcado de &apos;%1&apos;/&apos;%2&apos; (%3)</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cdb</source>
         <translation>Cdb</translation>
@@ -2544,9 +2532,6 @@ Would you like to overwrite them?</source>
         <source>Autodetection</source>
         <translation>Autodetección</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Server...</source>
         <translation>Servidor de símbolos...</translation>
@@ -2559,16 +2544,10 @@ Would you like to overwrite them?</source>
         <source>Pick a local cache directory</source>
         <translation>Seleccione un directorio local para el caché</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Depuración</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Continue</source>
         <translation>Continuar</translation>
@@ -2937,9 +2916,6 @@ Would you like to overwrite them?</source>
         <source>Execute line</source>
         <translation>Ejecutar línea</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging Helper</source>
         <translation>Asistende de depuración</translation>
@@ -2952,9 +2928,6 @@ Would you like to overwrite them?</source>
         <source>Ctrl+Shift+F11</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Disassembler</source>
         <translation type="obsolete">Desensamblador</translation>
@@ -2967,9 +2940,6 @@ Would you like to overwrite them?</source>
         <source>Always reload disassembler listing</source>
         <translation type="obsolete">Siempre recargar desensamblado</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The Gdb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
         <translation>El inicio del proceso Gdb ha fallado. Puede que el programa invocado &apos;%1&apos; no exista o que no tenga suficientes permisos para invocarlo.</translation>
@@ -3381,9 +3351,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Loading dumpers via debugger call (%1)...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Choose Gdb Location</source>
         <translation>Seleccione ubicación de Gdb</translation>
@@ -3392,9 +3359,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Choose Location of Startup Script File</source>
         <translation>Seleccione ubicación del script de inicio</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module name</source>
         <translation>Nombre del módulo</translation>
@@ -3471,9 +3435,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Symbols in &quot;%1&quot;</source>
         <translation>Símbolos en &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %2</source>
         <translation type="obsolete">No se pudo crear archivo temporal: %2</translation>
@@ -3490,9 +3451,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Cannot open FiFo %1: %2</source>
         <translation>No se pudo abrir FIFO %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Name</source>
         <translation>Nombre</translation>
@@ -3501,9 +3459,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Value (base %1)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Registers</source>
         <translation>Registros</translation>
@@ -3552,9 +3507,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects</source>
         <translation>Rehusando cobardemente a evaluar expresión &apos;%1&apos; con posibles efectos colaterales</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal name</source>
         <translation type="obsolete">Nombre interno</translation>
@@ -3593,9 +3545,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Open file &quot;%1&quot;&apos;</source>
         <translation>Abrir archivo &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>...</source>
         <translation></translation>
@@ -3644,9 +3593,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Address</source>
         <translation>Dirección</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread: %1</source>
         <translation>Hilo: %1</translation>
@@ -3804,9 +3750,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>&lt;Edit&gt;</source>
         <translation type="obsolete">&lt;Editar&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear contents</source>
         <translation>Limpiar contenido</translation>
@@ -4808,7 +4751,7 @@ Razón: %3</translation>
     </message>
 </context>
 <context>
-    <name>GdbOptionsPage</name>
+    <name>::Debugger</name>
     <message>
         <source>Gdb interaction</source>
         <translation>Interacción con Gdb</translation>
@@ -5798,7 +5741,7 @@ Skipping file.</source>
     </message>
 </context>
 <context>
-    <name>InputPane</name>
+    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Teclee Ctrl-&lt;Intro&gt; para ejecutar una línea.</translation>
@@ -9177,11 +9120,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>StartExternalDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Iniciar depurador</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <location/>
         <source>Executable:</source>
@@ -9196,13 +9135,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
         <location/>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrumpir en &apos;main&apos;:</translation>
-    </message>
-</context>
-<context>
-    <name>StartRemoteDialog</name>
-    <message>
-        <source>Start Debugger</source>
-        <translation>Iniciar depurador</translation>
     </message>
     <message>
         <location/>
@@ -11716,9 +11648,6 @@ p, li { white-space: pre-wrap; }
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attached to core temporarily.</source>
         <translation type="unfinished"></translation>

@@ -3652,7 +3652,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BreakHandler</name>
+    <name>::Debugger</name>
     <message>
         <source>Breakpoint</source>
         <translation>Brudpunkt</translation>
@@ -9716,9 +9716,6 @@ Flag: %3</translation>
         <source>&amp;Port:</source>
         <translation>&amp;Port:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>New</source>
         <translation>Ny</translation>
@@ -10216,9 +10213,6 @@ Flag: %3</translation>
         <source>Stopped at internal breakpoint %1 in thread %2.</source>
         <translation>Stoppet ved internt brudpunkt %1 i tråd %2.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Local Cache Folder</source>
         <translation>Vælg lokal mellemlager-mappe</translation>
@@ -10243,9 +10237,6 @@ Flag: %3</translation>
         <source>The folder &quot;%1&quot; could not be created.</source>
         <translation>Mappen &quot;%1&quot; kunne ikke oprettes.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ exception</source>
         <translation>C++-undtagelse</translation>
@@ -10270,9 +10261,6 @@ Flag: %3</translation>
         <source>Output:</source>
         <translation>Output:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Failed to Start the Debugger</source>
         <translation>Kunne ikke starte fejlretteren</translation>
@@ -10333,16 +10321,10 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>&quot;Select Widget to Watch&quot;: Not supported in state &quot;%1&quot;.</source>
         <translation>&quot;Vælg widget som skal overvåges&quot;: Understøttes ikke i tilstanden &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB</source>
         <translation>CDB</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Startup</source>
         <extracomment>Placeholder</extracomment>
@@ -10388,16 +10370,10 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Uses CDB&apos;s native console for console applications. This overrides the setting in Environment &gt; System. The native console does not prompt on application exit. It is suitable for diagnosing cases in which the application does not start up properly in the configured console and the subsequent attach fails.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Bruger CDB&apos;s egen konsol til konsolprogrammer. Det tilsidesætter indstillingen i Miljø &gt; System. Egen konsol spørger ikke ved afslutning af program. Det er egnet til diagnosticering af sager hvor programmer ikke starter ordentligt i den konfigureret konsol og de efterfølgende mislykkede tilkoblinger.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>CDB Paths</source>
         <translation>CDB-stier</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Symbol Paths</source>
         <translation>Symbolstier</translation>
@@ -10406,9 +10382,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Source Paths</source>
         <translation>Kildestier</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Insert Symbol Server...</source>
         <translation>Indsæt symbol-server...</translation>
@@ -10433,9 +10406,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Configure Symbol paths that are used to locate debug symbol files.</source>
         <translation>Konfigurer symbol-sti som bruges til at lokalisere fejlret-symbol-filer.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Behavior</source>
         <translation>Adfærd</translation>
@@ -10536,9 +10506,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Always adds a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
         <translation>Tilføj altid et brudpunkt på &lt;i&gt;%1()&lt;/i&gt;-funktionen.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Vis fejlretnings-, log- og infomeddelelser.</translation>
@@ -10559,9 +10526,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>Debugger Console</source>
         <translation>Fejlretterkonsol</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&amp;Copy</source>
         <translation>&amp;Kopiér</translation>
@@ -10574,9 +10538,6 @@ Hvis du byggede %2 fra kilder og vil bruge en CDB-eksekverbar med anden bitness 
         <source>C&amp;lear</source>
         <translation>&amp;Ryd</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No Memory Viewer Available</source>
         <translation>Ingen hukommelsesfremviser tilgængelig</translation>
@@ -10737,16 +10698,10 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>Jump to Line %1</source>
         <translation>Hop til linje %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugging has finished</source>
         <translation>Fejlretning er fuldført</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Fejlretteren som bruges til dette kit.</translation>
@@ -10759,9 +10714,6 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>None</source>
         <translation>Ingen</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Clear Contents</source>
         <translation>Ryd indhold</translation>
@@ -10774,9 +10726,6 @@ Sætning af brudpunkter efter filnavn og linjenummer kan mislykkes.</translation
         <source>Reload Debugging Helpers</source>
         <translation>Genindlæs fejlretningshjælpere</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debug</source>
         <translation>Fejlret</translation>
@@ -10904,9 +10853,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Tries to install missing debug information.</source>
         <translation>Prøver at installere manglende fejlretinformation.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>0x%1 hit</source>
         <extracomment>Message tracepoint: Address hit.</extracomment>
@@ -11315,9 +11261,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Debugger finished.</source>
         <translation>Fejlretter afsluttet.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Configure Debugger...</source>
         <translation>Konfigurer fejlretter...</translation>
@@ -11538,9 +11481,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Create Full Backtrace</source>
         <translation>Opret fuld backtrace</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;new source&gt;</source>
         <translation>&lt;ny kilde&gt;</translation>
@@ -11597,9 +11537,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Qt Sources</source>
         <translation>Qt-kilder</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Expression %1 in function %2 from line %3 to %4</source>
         <translation>Udtryk %1 i funktion %2 fra linje %3 til %4</translation>
@@ -11620,9 +11557,6 @@ Påvirket brudpunkter er %1</translation>
         <source>Expression too complex</source>
         <translation>Udtryk for kompleks</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The gdb process failed to start.</source>
         <translation>Gdp-processen kunne ikke starte.</translation>
@@ -11993,9 +11927,6 @@ Du kan vælge mellem at vente længere tid eller afbryde fejlretning.</numerusfo
         <translation>Oprettelse af forbindelse til fjern-server mislykkedes:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -12166,23 +12097,14 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Keeps debugging all children after a fork.&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Fortsætter fejlretning af alle børn efter en fork.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>GDB Extended</source>
         <translation>GDB udvidet</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Ctrl-&lt;Return&gt; to execute a line.</source>
         <translation>Skriv Ctrl-&lt;Retur&gt; for at eksekvere en linje.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stopping temporarily</source>
         <translation>Stopper midlertidigt</translation>
@@ -12255,9 +12177,6 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>Error</source>
         <translation>Fejl</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Use Debugging Helper</source>
         <translation>Brug fejlretningshjælper</translation>
@@ -12294,9 +12213,6 @@ længere på lansomme maskiner. Værdien bør i dette tilfælde øges.</translat
         <source>Display string length:</source>
         <translation>Vis strenglængde:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger &amp;Log</source>
         <translation>Fejlretter&amp;log</translation>
@@ -12327,9 +12243,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Log File</source>
         <translation>Logfil</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Memory at Register &quot;%1&quot; (0x%2)</source>
         <translation>Hukommelse ved register &quot;%1&quot; (0x%2)</translation>
@@ -12342,9 +12255,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Memory at 0x%1</source>
         <translation>Hukommelse ved 0x%1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Module Name</source>
         <translation>Modulnavn</translation>
@@ -12369,9 +12279,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>End Address</source>
         <translation>Slutadresse</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Cannot create temporary file: %1</source>
         <translation>Kan ikke oprette midlertidig fil: %1</translation>
@@ -12384,9 +12291,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>Cannot open FiFo %1: %2</source>
         <translation>Kan ikke åbne FiFo %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Python Error</source>
         <translation>Python-fejl</translation>
@@ -12427,9 +12331,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>An unknown error in the Pdb process occurred.</source>
         <translation>Der opstod en ukendt fejl i Pdb-processen.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>C++ debugger activated</source>
         <translation>C++-fejlretter aktiveret</translation>
@@ -12438,9 +12339,6 @@ Du kan blive spurgt om at dele indholdet af denne log ved rapportering af fejl r
         <source>QML debugger activated</source>
         <translation>QML-fejlretter aktiveret</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>No application output received in time</source>
         <translation>Ingen program-ouput modtaget i tide</translation>
@@ -12491,9 +12389,6 @@ Vil du prøve igen?</translation>
         <source>QML Debugger disconnected.</source>
         <translation>QML-fejlretter forbindelse afbrudt.</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Success:</source>
         <translation>Succes:</translation>
@@ -12506,9 +12401,6 @@ Vil du prøve igen?</translation>
         <source>Properties</source>
         <translation>Egenskaber</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Content as ASCII Characters</source>
         <translation>Indhold som ASCII-tegn</translation>
@@ -12589,9 +12481,6 @@ Vil du prøve igen?</translation>
         <source>Edit bits %1...%2 of register %3</source>
         <translation>Rediger bit %1...%2 af register %3</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Fejlretterindstillinger</translation>
@@ -12616,9 +12505,6 @@ Vil du prøve igen?</translation>
         <source>Enable Debugging of Subprocesses</source>
         <translation>Aktivér fejlretning af underprocesser</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Download of remote file succeeded.</source>
         <translation>Download af fjern-fil lykkedes.</translation>
@@ -12631,9 +12517,6 @@ Vil du prøve igen?</translation>
         <source>Remove Snapshot</source>
         <translation>Fjern øjebliksbillede</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Internal Name</source>
         <translation>Internt navn</translation>
@@ -12654,9 +12537,6 @@ Vil du prøve igen?</translation>
         <source>Open File &quot;%1&quot;</source>
         <translation>Åbn filen &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Address:</source>
         <translation>Adresse:</translation>
@@ -12769,16 +12649,10 @@ Vil du prøve igen?</translation>
         <source>Try to Load Unknown Symbols</source>
         <translation>Prøv at indlæse ukendte symboler</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Stack</source>
         <translation>Stak</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Debugger</source>
         <translation>Start fejlretter</translation>
@@ -12862,9 +12736,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Recent:</source>
         <translation>&amp;Nylige:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;p&gt;The remote CDB needs to load the matching %1 CDB extension (&lt;code&gt;%2&lt;/code&gt; or &lt;code&gt;%3&lt;/code&gt;, respectively).&lt;/p&gt;&lt;p&gt;Copy it onto the remote machine and set the environment variable &lt;code&gt;%4&lt;/code&gt; to point to its folder.&lt;/p&gt;&lt;p&gt;Launch the remote CDB as &lt;code&gt;%5 &amp;lt;executable&amp;gt;&lt;/code&gt; to use TCP/IP as communication protocol.&lt;/p&gt;&lt;p&gt;Enter the connection parameters as:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body&gt;&lt;p&gt;Fjern-CDB&apos;en skal indlæse den matchende %1 CDB-udvidelse (henholdvis &lt;code&gt;%2&lt;/code&gt; eller &lt;code&gt;%3&lt;/code&gt;).&lt;/p&gt;&lt;p&gt;Kopiér den til fjern-maskingen og sæt miljøvariablen &lt;code&gt;%4&lt;/code&gt; til at pege til dens mappe.&lt;/p&gt;&lt;p&gt;Start fjern-CDB&apos;en som &lt;code&gt;%5 &amp;lt;eksekverbar&amp;gt;&lt;/code&gt; for at bruge TCP/IP som kommunikationsprotokol.&lt;/p&gt;&lt;p&gt;Indtast forbindelsesparameterne som:&lt;/p&gt;&lt;pre&gt;%6&lt;/pre&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -12877,9 +12748,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Connection:</source>
         <translation>&amp;Forbindelse:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Engine</source>
         <translation>Start fjern-motor</translation>
@@ -12904,9 +12772,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>&amp;Inferior path:</source>
         <translation>&amp;Laverestående sti:</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Set up Symbol Paths</source>
         <translation>Opsæt symbol-stier</translation>
@@ -12923,9 +12788,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Use Microsoft Symbol Server</source>
         <translation>Brug Microsoft symbol-server</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Terminal: Cannot open /dev/ptmx: %1</source>
         <translation>Terminal: kan ikke åbne /dev/ptmx: %1</translation>
@@ -12954,9 +12816,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Terminal: Read failed: %1</source>
         <translation>Terminal: læsning mislykkedes: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Thread&amp;nbsp;id:</source>
         <translation>Tråd-id:</translation>
@@ -13005,9 +12864,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Core</source>
         <translation>Kerne</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Type Formats</source>
         <translation>Typeformater</translation>
@@ -13024,9 +12880,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Misc Types</source>
         <translation>Diverse typer</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Attach to Process Not Yet Started</source>
         <translation>Tilkobl til proces endnu ikke startet</translation>
@@ -13075,9 +12928,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Attach</source>
         <translation>Tilkobl</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>&lt;empty&gt;</source>
         <translation>&lt;tom&gt;</translation>
@@ -13550,9 +13400,6 @@ Du kan vælge andre kommunikationskanaler her, såsom en seriel linje eller brug
         <source>Locals and Expressions</source>
         <translation>Locals og expressions</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Start Remote Analysis</source>
         <translation>Start fjern-analyse</translation>
@@ -28633,11 +28480,7 @@ Dette er uafhængigt af visibility-egenskaben i QML.</translation>
     </message>
 </context>
 <context>
-    <name>QmlEngine</name>
-    <message>
-        <source>JS Source for %1</source>
-        <translation>JS-kilde for %1</translation>
-    </message>
+    <name>::Debugger</name>
     <message>
         <source>Anonymous Function</source>
         <translation>Anonym funktion</translation>
