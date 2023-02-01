@@ -2381,14 +2381,11 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Тестирование</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Run Test Under Cursor</source>
         <translation>&amp;Запустить тест под курсором</translation>
@@ -2396,13 +2393,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
     <message>
         <source>&amp;Debug Test Under Cursor</source>
         <translation>&amp;Отладить тест под курсором</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
-    <message>
-        <source>Testing</source>
-        <translation>Тестирование</translation>
     </message>
     <message>
         <source>&amp;Tests</source>
@@ -2472,9 +2462,6 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <source>Selected test was not found (%1).</source>
         <translation>Не удалось найти выбранный тест (%1).</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test suite execution took %1</source>
         <translation>Выполнение набора тестов заняло %1</translation>
@@ -2519,9 +2506,6 @@ Executable: %2</source>
         <source>Running tests without output.</source>
         <translation>Тестирование выполнялось без вывода.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>Выполнение %1 «%2»</translation>
@@ -2542,9 +2526,6 @@ Executable: %2</source>
         <source>Finished executing %1 &quot;%2&quot;</source>
         <translation>Завершено выполнение %1 «%2»</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -2577,9 +2558,6 @@ Executable: %2</source>
         <source>Execution took %1.</source>
         <translation>Выполнение заняло %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Break on failure while debugging</source>
         <translation>Останавливаться при ошибках</translation>
@@ -2658,9 +2636,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Задайте фильтр GTest для группировки.
 Информацию о GTest фильтрах смотрите в документации Google Test.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Global</source>
         <translation>Общие</translation>
@@ -2689,9 +2664,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <source>Selected</source>
         <translation>Выбранных</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 за итерацию (всего: %3, итераций: %4)</translation>
@@ -2740,9 +2712,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <source>Test execution took %1 ms.</source>
         <translation>Выполнение теста заняло %1 мс.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Включение прерывания тестов на утверждениях.</translation>
@@ -2819,9 +2788,6 @@ Warning: Plain text misses some information, such as duration.</source>
 
 Предупреждение: простой текст не содержит некоторую информацию, например, длительность.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Выбор конфигурации запуска</translation>
@@ -2850,16 +2816,10 @@ Warning: Plain text misses some information, such as duration.</source>
         <source>Working Directory:</source>
         <translation>Рабочий каталог:</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Поиск тестов</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Run Without Deployment</source>
         <translation>Запустить без развёртывания</translation>
@@ -2904,16 +2864,10 @@ Warning: Plain text misses some information, such as duration.</source>
         <source>Show Data Functions</source>
         <translation>Показывать функции Data</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тесты</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Expand All</source>
         <translation>Развернуть всё</translation>
@@ -3046,16 +3000,10 @@ Warning: Plain text misses some information, such as duration.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>Отладка автотеста</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Тест прерван пользователем.</translation>
@@ -3162,9 +3110,6 @@ This might cause trouble during execution.
         <source>Build failed. Canceling test run.</source>
         <translation>Сборка не удалась. Выполнение теста отменяется.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -3291,9 +3236,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Runs chosen tests automatically if a build succeeded.</source>
         <translation>Автоматически запускать выбранные тесты после успешной сборки.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Нет активных сред тестирования.</translation>
@@ -3310,9 +3252,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Enable or disable grouping of test cases by folder.</source>
         <translation>Включение/отключение объединения тестов по каталогам.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>Сбой программы тестирования.</translation>
@@ -5173,14 +5112,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BoostTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Boost Test</source>
         <translation>Тест Boost</translation>
     </message>
-</context>
-<context>
-    <name>BoostTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>параметрический</translation>
@@ -6137,14 +6073,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CatchFramework</name>
-    <message>
-        <source>Catch Test</source>
-        <translation>Тест Catch</translation>
-    </message>
-</context>
-<context>
-    <name>CatchTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Catch Test</source>
         <translation>Тест Catch</translation>
@@ -6251,15 +6180,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CatchTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>параметрический</translation>
-    </message>
-    <message>
-        <source>fixture</source>
-        <translation>фиксированный</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::Tracing</name>
@@ -19023,7 +18944,7 @@ when they are not required, which will improve performance in most cases.</sourc
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google Test</translation>
@@ -19034,9 +18955,6 @@ See also Google Test settings.</source>
         <translation>Включение или выключение группировки тестов по каталогу или фильтру GTest.
 Смотрите также настройки Google Test.</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation>&lt;совпадает&gt;</translation>
@@ -19048,10 +18966,6 @@ See also Google Test settings.</source>
     <message>
         <source>Change GTest filter in use inside the settings.</source>
         <translation>Изменить используемый в настройках фильтр GTest.</translation>
-    </message>
-    <message>
-        <source>parameterized</source>
-        <translation>параметрический</translation>
     </message>
     <message>
         <source>typed</source>
@@ -40080,14 +39994,11 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>наследовано</translation>
@@ -40199,14 +40110,11 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation>Тест Quick</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;безымянный&gt;</translation>
@@ -41355,11 +41263,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>Запустить без развёртывания</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ScxmlEditor</name>
@@ -42983,7 +42887,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>TestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (нет)</translation>

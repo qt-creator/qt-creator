@@ -43648,9 +43648,6 @@ the program.</source>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;без назви&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Тести</translation>
@@ -43679,16 +43676,10 @@ the program.</source>
         <source>Alt+Shift+T,Alt+S</source>
         <translation>Alt+Shift+T,Alt+S</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Scanning for Tests</source>
         <translation>Пошук тестів</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Тести</translation>
@@ -43733,9 +43724,6 @@ the program.</source>
         <source>Show Data Functions</source>
         <translation>Показувати функції Data</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Входження до тестової функції %1::%2</translation>
@@ -43764,9 +43752,6 @@ the program.</source>
         <source>Test execution took %1 ms.</source>
         <translation>Виконання тесту тривало %1 мс.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message numerus="yes">
         <source>You have %n disabled test(s).</source>
         <translation>
@@ -43795,9 +43780,6 @@ the program.</source>
         <source>Execution took %1.</source>
         <translation>Виконання тривало %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Run All Tests</source>
         <translation>Виконати усі тести</translation>
@@ -43914,9 +43896,6 @@ the program.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Project&apos;s run configuration was guessed for &quot;%1&quot;.
 This might cause trouble during execution.</source>
@@ -43945,9 +43924,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Build failed. Canceling test run.</source>
         <translation>Збірка не вдалась. Запуск тестів скасовано.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Auto Tests</source>
         <translation>Автотести</translation>

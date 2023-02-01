@@ -34801,9 +34801,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Alt+Shift+T,Alt+S</source>
         <translation>Alt+Shift+T,Alt+S</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>Ostrzeżenie wtyczki AutoTest: Brak plików po przeskanowaniu przefiltrowanych katalogów z testami. Sprawdź ustawienia filtra testów.</translation>
@@ -34812,9 +34809,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Scanning for Tests</source>
         <translation>Odświeżanie zbioru testów</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Testy</translation>
@@ -34871,9 +34865,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Show Data Functions</source>
         <translation>Pokaż funkcje z danymi</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation>%1 %2 na iterację (w sumie: %3, ilość iteracji: %4)</translation>
@@ -34918,9 +34909,6 @@ Te pliki są zabezpieczone.</numerusform>
         <source>Test execution took %1 ms.</source>
         <translation>Wykonanie testu zajęło %1 ms.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>(iteration %1)</source>
         <translation>(iteracja %1)</translation>
@@ -35070,9 +35058,6 @@ Te pliki są zabezpieczone.</numerusform>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Wykonywanie testów anulowane przez użytkownika.</translation>
@@ -36388,14 +36373,11 @@ po naciśnięciu klawisza backspace</translation>
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google Test</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>sparametryzowany</translation>
@@ -36404,23 +36386,14 @@ po naciśnięciu klawisza backspace</translation>
         <source>typed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QtTestFramework</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestFramework</name>
     <message>
         <source>Quick Tests</source>
         <translation>Testy Quick</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;nienazwany&gt;</translation>
@@ -36429,16 +36402,10 @@ po naciśnięciu klawisza backspace</translation>
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Nadanie nazw wszystkim wariantom testu zapewnia poprawne zachowanie podczas wykonywania wariantów testu i daje możliwość wyboru poszczególnych z nich.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Brak aktywnych frameworków testowych.</translation>
@@ -36463,9 +36430,6 @@ po naciśnięciu klawisza backspace</translation>
         <source>&lt;p&gt;Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.&lt;/p&gt;</source>
         <translation>&lt;p&gt;Podaj wyrażenie określające filtr, który zastąpi &quot;%1&quot;.&lt;br/&gt;Brak obsługi symboli wieloznacznych.&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (brak)</translation>
@@ -37080,9 +37044,6 @@ w ścieżce.</translation>
         <source>Shuffles tests automatically on every iteration by the given seed.</source>
         <translation>Automatycznie miesza testy przy każdej iteracji na podstawie podanego ziarna.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -37454,7 +37415,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Test Settings</source>
         <translation>Ustawienia testu</translation>
@@ -39015,7 +38976,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtTestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>inherited</source>
         <translation>dziedziczony</translation>

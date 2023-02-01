@@ -39773,13 +39773,6 @@ Control process failed to start.</source>
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation type="unfinished">忽略部署直接运行</translation>
-    </message>
-</context>
-<context>
     <name>ScaleToolAction</name>
     <message>
         <source>Activate Scale Tool</source>

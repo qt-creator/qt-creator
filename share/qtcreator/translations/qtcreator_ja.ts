@@ -35365,9 +35365,6 @@ the program.</source>
         <source>Show Data Functions</source>
         <translation>データ関数を表示する</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>テスト</translation>
@@ -35426,9 +35423,6 @@ the program.</source>
         <source>Execution took %1.</source>
         <translation>実行時間は %1 でした。</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>テスト実行の停止</translation>
@@ -35545,9 +35539,6 @@ the program.</source>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>テスト実行はユーザーによってキャンセルされました。</translation>
@@ -41719,18 +41710,11 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Tests</source>
         <translation>Google Tests</translation>
     </message>
-    <message>
-        <source>Google Test</source>
-        <translation>Google Test</translation>
-    </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>parameterized</source>
         <translation>パラメータ化</translation>
@@ -41739,9 +41723,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>typed</source>
         <translation>型付け</translation>
     </message>
-</context>
-<context>
-    <name>QtTestFramework</name>
     <message>
         <source>Qt Tests</source>
         <translation>Qt テスト</translation>
@@ -41750,16 +41731,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Qt Test</source>
         <translation>Qt Test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestFramework</name>
     <message>
         <source>Quick Tests</source>
         <translation>Quick テスト</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;無名&gt;</translation>
@@ -41768,23 +41743,14 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation>&lt;p&gt;テストケースの実行や選択が正常に動作するようにすべてのテストケースに名前を付けてください。&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>自動テストのデバッグ</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>You will not be able to use the AutoTest plugin without having at least one active test framework.</source>
         <translation>有効なテストフレームワークが存在しないため、AutoTest プラグインを使用できません。</translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source> (none)</source>
         <translation> (なし)</translation>
@@ -42510,9 +42476,6 @@ Output:
         <source>Directory</source>
         <translation>ディレクトリ</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Walltime</source>
         <translation>総経過時間</translation>
@@ -43649,13 +43612,6 @@ in &quot;%2&quot;.
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
-    <message>
-        <source>Testing</source>
-        <translation>自動テスト</translation>
-    </message>
-</context>
-<context>
     <name>::Autotest</name>
     <message>
         <source>Testing</source>
@@ -43745,26 +43701,13 @@ in &quot;%2&quot;.
         <source>Selected test was not found (%1).</source>
         <translation>選択したテストが見つかりませんでした (%1)。</translation>
     </message>
-</context>
-<context>
-    <name>BoostTestFramework</name>
     <message>
         <source>Boost Test</source>
         <translation>Boost Test</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test execution took %1</source>
         <translation>テストの実行時間: %1</translation>
-    </message>
-</context>
-<context>
-    <name>BoostTestTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>パラメータ化</translation>
     </message>
     <message>
         <source>fixture</source>
@@ -43774,16 +43717,6 @@ in &quot;%2&quot;.
         <source>templated</source>
         <translation>テンプレ化</translation>
     </message>
-</context>
-<context>
-    <name>CatchFramework</name>
-    <message>
-        <source>Catch Test</source>
-        <translation>Catch Test</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Executing %1 &quot;%2&quot;</source>
         <translation>実行中: %1 &quot;%2&quot;</translation>
@@ -43804,41 +43737,18 @@ in &quot;%2&quot;.
         <source>Finished executing %1 &quot;%2&quot;</source>
         <translation>%1 &quot;%2&quot; の実行を終了しました</translation>
     </message>
-</context>
-<context>
-    <name>CatchTestFramework</name>
     <message>
         <source>Catch Test</source>
         <translation>キャッチテスト</translation>
     </message>
-</context>
-<context>
-    <name>CatchTreeItem</name>
-    <message>
-        <source>parameterized</source>
-        <translation>パラメータ化</translation>
-    </message>
-    <message>
-        <source>fixture</source>
-        <translation>フィクスチャ</translation>
-    </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests for %1</source>
         <translation>%1のテストを実行中</translation>
     </message>
-</context>
-<context>
-    <name>CTestTool</name>
     <message>
         <source>CTest</source>
         <translation>CTest</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Global</source>
         <translation>グローバル</translation>
@@ -43859,23 +43769,14 @@ in &quot;%2&quot;.
         <source>None</source>
         <translation>なし</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>継承</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test executable crashed.</source>
         <translation>テストの実行ファイルがクラッシュしました。</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>実行構成を選択する</translation>
@@ -46023,11 +45924,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>デプロイせずに実行</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ProjectExplorer</name>

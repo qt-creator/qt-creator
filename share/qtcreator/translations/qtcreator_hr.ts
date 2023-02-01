@@ -1130,9 +1130,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Postavi GTest filtar koji će se koristiti za grupiranje.
 Dodatne dokumente o GTest filtrima potraži u Google Test dokumentaciji.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Omogućuje prekid testova kod potvrda.</translation>
@@ -1209,9 +1206,6 @@ Upozorenje: Običan tekst propušta neke informacije, kao što je trajanje.</tra
         <source>Perf</source>
         <translation>Perf</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
@@ -14021,14 +14015,11 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Testiranje</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation type="unfinished"></translation>
@@ -14105,9 +14096,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Selected test was not found (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GTestFramework</name>
     <message>
         <source>Google Test</source>
         <translation>Google test</translation>
@@ -14117,9 +14105,6 @@ The files in the Android package source directory are copied to the build direct
 See also Google Test settings.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -14146,9 +14131,6 @@ Executable: %2</source>
         <source>Repeating test case %1 (iteration %2)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation type="unfinished"></translation>
@@ -14169,16 +14151,10 @@ Executable: %2</source>
         <source>typed</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt test</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>%1 %2 per iteration (total: %3, iterations: %4)</source>
         <translation type="unfinished"></translation>
@@ -14227,23 +14203,14 @@ Executable: %2</source>
         <source>Test finished.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>inherited</source>
         <translation>naslijeđeno</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation type="unfinished"></translation>
@@ -14252,9 +14219,6 @@ Executable: %2</source>
         <source>&lt;p&gt;Give all test cases a name to ensure correct behavior when running test cases and to be able to select them.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation type="unfinished"></translation>
@@ -14263,9 +14227,6 @@ Executable: %2</source>
         <source>Scanning for Tests</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select All</source>
         <translation>Odaberi sve</translation>
@@ -14372,16 +14333,10 @@ Executable: %2</source>
 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation type="unfinished"></translation>
@@ -14486,9 +14441,6 @@ Check the test environment.</source>
         <source>Build failed. Canceling test run.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation type="unfinished"></translation>
@@ -14517,9 +14469,6 @@ Check the test environment.</source>
         <source>Working Directory:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation type="unfinished"></translation>
@@ -14552,9 +14501,6 @@ Check the test environment.</source>
         <source>Specify a filter expression that will replace &quot;%1&quot;.&lt;br/&gt;Wildcards are not supported.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>TestTreeItem</name>
     <message>
         <source>%1 (none)</source>
         <translation type="unfinished"></translation>

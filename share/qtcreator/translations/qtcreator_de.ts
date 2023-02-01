@@ -45004,11 +45004,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>RunConfigSelector</name>
-    <message>
-        <source>Run Without Deployment</source>
-        <translation>Ausführung ohne Deployment</translation>
-    </message>
+    <name>::Autotest</name>
 </context>
 <context>
     <name>::ProjectExplorer</name>

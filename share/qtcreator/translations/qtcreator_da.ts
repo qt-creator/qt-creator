@@ -1434,14 +1434,11 @@ Installer en SDK af mindst API version %1.</translation>
     </message>
 </context>
 <context>
-    <name>AutoTest</name>
+    <name>::Autotest</name>
     <message>
         <source>Testing</source>
         <translation>Tester</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>&amp;Tests</source>
         <translation>&amp;Tests</translation>
@@ -1502,9 +1499,6 @@ Installer en SDK af mindst API version %1.</translation>
         <source>Selected test was not found (%1).</source>
         <translation>Valgte test blev ikke fundet (%1).</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Running tests failed.
  %1
@@ -1544,9 +1538,6 @@ Eksekverbar: %2</translation>
         <source>Execution took %1.</source>
         <translation>Eksekvering tog %1.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Turns failures into debugger breakpoints.</source>
         <translation>Omdanner fejl til fejlretter-brudpunkter.</translation>
@@ -1625,9 +1616,6 @@ See Google Test documentation for further information on GTest filters.</source>
         <translation>Sæt GTest-filteret til at blive brugt til gruppering.
 Se Google Test-dokumentation for yderligere information om GTest-filtre.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Entering test function %1::%2</source>
         <translation>Træder ind i testfunktion %1::%2</translation>
@@ -1672,9 +1660,6 @@ Se Google Test-dokumentation for yderligere information om GTest-filtre.</transl
         <source>Test execution took %1 ms.</source>
         <translation>Testeksekvering tog %1 ms.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Enables interrupting tests on assertions.</source>
         <translation>Aktiverer afbrydning af tests ved påstande.</translation>
@@ -1751,9 +1736,6 @@ Warning: Plain text misses some information, such as duration.</source>
 
 Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Select Run Configuration</source>
         <translation>Vælg kør-konfiguration</translation>
@@ -1778,9 +1760,6 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
         <source>Working Directory:</source>
         <translation>Arbejdsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Plugin WARNING: No files left after filtering test scan folders. Check test filter settings.</source>
         <translation>ADVARSEL for AutoTest-plugin: Ingen filer tilbage efter filtrering af testskanmapper. Tjek testfilterindstillinger.</translation>
@@ -1833,16 +1812,10 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
         <source>Show Data Functions</source>
         <translation>Vis data-funktioner</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Tests</source>
         <translation>Tests</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Stop Test Run</source>
         <translation>Stop testkørsel</translation>
@@ -1963,16 +1936,10 @@ Advarsel: Ren tekst mangle nogle informationer, såsom varighed.</translation>
 
 %2</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>AutoTest Debug</source>
         <translation>AutoTest-fejlret</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>Test run canceled by user.</source>
         <translation>Testkørsel annulleret af bruger.</translation>
@@ -2077,9 +2044,6 @@ Kun desktop kits understøttes. Sørg for at det aktuelt aktive kit er et deskto
         <source>Build failed. Canceling test run.</source>
         <translation>Byg mislykkedes. Annullerer testkørsel.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>
@@ -2182,9 +2146,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Enables grouping of test cases.</source>
         <translation>Aktivér gruppering af testsager.</translation>
     </message>
-</context>
-<context>
-    <name>::Autotest</name>
     <message>
         <source>No active test frameworks.</source>
         <translation>Ingen aktive test-frameworks.</translation>
@@ -15232,7 +15193,7 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>GTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Google Test</source>
         <translation>Google-test</translation>
@@ -15243,9 +15204,6 @@ See also Google Test settings.</source>
         <translation>Aktivér eller deaktivér gruppering af testsager efter mappe eller gtest-filter.
 Se også Google-test-indstillinger.</translation>
     </message>
-</context>
-<context>
-    <name>GTestTreeItem</name>
     <message>
         <source>&lt;matching&gt;</source>
         <translation>&lt;matcher&gt;</translation>
@@ -31123,14 +31081,11 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Qt Test</source>
         <translation>Qt-test</translation>
     </message>
-</context>
-<context>
-    <name>QtTestTreeItem</name>
     <message>
         <source>inherited</source>
         <translation>nedarvet</translation>
@@ -31237,14 +31192,11 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QuickTestFramework</name>
+    <name>::Autotest</name>
     <message>
         <source>Quick Test</source>
         <translation>Quick-test</translation>
     </message>
-</context>
-<context>
-    <name>QuickTestTreeItem</name>
     <message>
         <source>&lt;unnamed&gt;</source>
         <translation>&lt;unavngivet&gt;</translation>
@@ -33567,7 +33519,7 @@ med en adgangskode, som du kan indtaste herunder.</translation>
     </message>
 </context>
 <context>
-    <name>TestTreeItem</name>
+    <name>::Autotest</name>
     <message>
         <source>%1 (none)</source>
         <translation>%1 (ingen)</translation>
