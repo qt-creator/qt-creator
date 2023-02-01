@@ -89,6 +89,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     for (const CPlusPlus::Macro &macro : doc->definedMacros()) {
         int line, column;
         convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
+        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath() << macro.toString();
+                   continue);
 
         Result use(line, column, macro.nameToQString().size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
@@ -114,6 +116,8 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
 
         int line, column;
         convertPosition(textDocument, macro.utf16charsBegin(), &line, &column);
+        QTC_ASSERT(line >= 0 && column >= 0, qDebug() << doc->filePath()
+                                                      << macro.macro().toString(); continue);
 
         Result use(line, column, name.size(), SemanticHighlighter::MacroUse);
         macroUses.append(use);
