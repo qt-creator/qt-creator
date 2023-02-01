@@ -31,6 +31,13 @@ def __checkKits__():
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     # check compilers
     expectedCompilers = __getExpectedCompilers__()
+    llvmForBuild = os.getenv("SYSTEST_LLVM_FROM_BUILD", None)
+    if llvmForBuild is not None:
+        internalClangExe = os.path.join(llvmForBuild, "bin", "clang")
+        if platform.system() in ("Microsoft", "Windows"):
+            internalClangExe.append(".exe")
+        if os.path.exists(internalClangExe):
+            expectedCompilers.append(internalClangExe)
     foundCompilers = []
     foundCompilerNames = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Compilers")
