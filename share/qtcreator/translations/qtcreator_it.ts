@@ -4692,7 +4692,7 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Ridefinisci %1:</translation>
@@ -5724,16 +5724,7 @@ nel tuo file .pro.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Ridefinisci %1:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Make arguments:</source>
-        <translation>Parametri make:</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>

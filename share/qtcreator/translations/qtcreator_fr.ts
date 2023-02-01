@@ -6234,7 +6234,7 @@ Ajouter, modifier et supprimer des filtres de documents, qui détermine l&apos;e
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation type="obsolete">Écraser %1 :</translation>
@@ -8866,15 +8866,7 @@ dans votre fichier .pro.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation type="obsolete">Écraser %1 :</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation type="obsolete">Arguments de Make :</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -9756,10 +9748,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <source>Rename</source>
-        <translation type="obsolete">Renommer</translation>
-    </message>
-    <message>
         <source>Remove Build Configuration</source>
         <translation type="obsolete">Supprimer la configuration de la compilation</translation>
     </message>
@@ -10244,10 +10232,6 @@ au projet &apos;%2&apos;.</translation>
     <message>
         <source>Show containing folder...</source>
         <translation type="obsolete">Afficher le dossier parent...</translation>
-    </message>
-    <message>
-        <source>Recent Projects</source>
-        <translation type="obsolete">Projets récents</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -22123,34 +22107,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Qt Application</source>
         <translation type="obsolete">Application Qt</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">Cibles</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Compiler et exécuter</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Paramètres d&apos;exécution</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Entrez le nom de la session :</translation>
@@ -27603,21 +27563,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>ToolChainOptionsPage</name>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="obsolete">Cloner</translation>
-    </message>
-</context>
-<context>
     <name>::QmakeProjectManager</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
@@ -32900,26 +32845,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Manage Sessions...</source>
         <translation type="obsolete">Gestion des sessions...</translation>
     </message>
     <message>
-        <source>Develop</source>
-        <translation>Developper</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>Sessions</translation>
-    </message>
-    <message>
         <source>Recent Projects</source>
         <translation>Projets récents</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Nouveau projet</translation>
     </message>
     <message>
         <source>Open Project</source>
@@ -32998,25 +32931,14 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation type="obsolete">Projets récemment édités</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation type="obsolete">Sessions récemment utilisées</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (dernière session)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (session courante)</translation>
     </message>
 </context>
 <context>
@@ -38616,11 +38538,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Cloner</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Renommer</translation>
@@ -38629,9 +38547,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (dernière session)</translation>
@@ -42563,7 +42478,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Attacher au processus</translation>
@@ -43662,10 +43577,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>&amp;Filter:</source>
         <translation>&amp;Filtre :</translation>
-    </message>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation>&amp;Attacher au processus</translation>
     </message>
     <message>
         <source>Remote Error</source>

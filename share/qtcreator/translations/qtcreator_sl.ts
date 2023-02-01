@@ -4659,7 +4659,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation>Povozi %1:</translation>
@@ -6081,16 +6081,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Povozi %1:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Make arguments:</source>
-        <translation>Argumenti za Make:</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -7198,11 +7189,6 @@ v projekt »%2« ni uspelo.</translation>
         <location/>
         <source>Deployment:</source>
         <translation>Razmestitev:</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj</translation>
     </message>
     <message>
         <location/>
@@ -15478,30 +15464,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Clone of %1</source>
         <translation>Klon od %1</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation>Cilji:</translation>
     </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
     <message>
         <source>Run Settings</source>
         <translation>Nastavitve za zagon</translation>
     </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation>Nastavitve za zagon</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Vnesite ime seje:</translation>
@@ -18098,9 +18068,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
         <translation>Objavljanje za projekt »%1« trenutno ni možno.</translation>
     </message>
-</context>
-<context>
-    <name>ToolChainOptionsPage</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -18109,11 +18076,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <location/>
         <source>Clone</source>
         <translation>Podvoji</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
 </context>
 <context>
@@ -20332,7 +20294,7 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Manage Sessions...</source>
         <translation>Upravljanje s sejami ...</translation>
@@ -20402,14 +20364,11 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation>Nazadnje urejeni projekti</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation>Nazadnje uporabljene seje</translation>
@@ -28612,18 +28571,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     <message>
         <source>Form</source>
         <translation type="obsolete">Obrazec</translation>
-    </message>
-    <message>
-        <source>Manage Sessions...</source>
-        <translation type="obsolete">Upravljanje s sejami …</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (zadnja seja)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (trenutna seja)</translation>
     </message>
     <message>
         <source>New Project</source>

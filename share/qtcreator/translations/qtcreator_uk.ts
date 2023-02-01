@@ -13515,10 +13515,6 @@ to project &quot;%2&quot;.</source>
         <translation>Нещодавні п&amp;роекти</translation>
     </message>
     <message>
-        <source>Sessions</source>
-        <translation type="vanished">Сесії</translation>
-    </message>
-    <message>
         <source>Close Project</source>
         <translation>Закрити проект</translation>
     </message>
@@ -14078,10 +14074,6 @@ Do you want to ignore them?</source>
     <message>
         <source>Delete %1 from file system?</source>
         <translation>Видалити %1 з файлової системи?</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="vanished">Новий проект</translation>
     </message>
     <message>
         <source>New Subproject</source>
@@ -18304,13 +18296,6 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Збірка та запуск</translation>
-    </message>
-</context>
-<context>
     <name>::ProjectExplorer</name>
     <message>
         <source>Stop Monitoring</source>
@@ -22238,7 +22223,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Develop</source>
         <translation type="vanished">Розробка</translation>
@@ -22360,11 +22345,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Перейменувати</translation>
@@ -22373,9 +22354,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (остання сесія)</translation>
@@ -40290,13 +40268,6 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation type="vanished">&amp;Під&apos;єднатись до процесу</translation>
-    </message>
-</context>
-<context>
     <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
@@ -43234,11 +43205,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>SessionActionLabel</name>
-    <message>
-        <source>Clone</source>
-        <translation>Клонувати</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>qmt::ClassItem</name>

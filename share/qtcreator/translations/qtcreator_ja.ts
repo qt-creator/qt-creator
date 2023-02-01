@@ -8656,7 +8656,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>develop</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Sessions</source>
         <translation>セッション</translation>
@@ -8711,7 +8711,7 @@ preferShaping プロパティを false に設定すると、このような機�
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -8724,9 +8724,6 @@ preferShaping プロパティを false に設定すると、このような機�
         <source>Delete</source>
         <translation>削除</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (最後のセッション)</translation>
@@ -23247,10 +23244,6 @@ Excluding: %2
         <translation>名前</translation>
     </message>
     <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
-    <message>
         <source>Make Default</source>
         <translation>既定にする</translation>
     </message>
@@ -24223,10 +24216,6 @@ to project &quot;%2&quot;.</source>
         <translation>名前変更して開く(&amp;O)</translation>
     </message>
     <message>
-        <source>New Project</source>
-        <translation>新しいプロジェクト</translation>
-    </message>
-    <message>
         <source>Open Session #%1</source>
         <translation>セッション #%1 を開く</translation>
     </message>
@@ -24260,22 +24249,6 @@ to project &quot;%2&quot;.</source>
         <translation>セッション</translation>
     </message>
     <message>
-        <source>%1 (last session)</source>
-        <translation>%1 (最後のセッション)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation>%1 (現在のセッション)</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation>名前を変更</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-    <message>
         <source>project</source>
         <comment>Appears in &quot;Open project &lt;name&gt;&quot;</comment>
         <translation>プロジェクト</translation>
@@ -24300,20 +24273,6 @@ to project &quot;%2&quot;.</source>
         <source>Open</source>
         <translation>開く</translation>
     </message>
-    <message>
-        <source>Sessions</source>
-        <translation>セッション</translation>
-    </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>ビルドと実行</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Summary</source>
         <translation>概要</translation>
@@ -34387,11 +34346,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>SessionActionLabel</name>
-    <message>
-        <source>Clone</source>
-        <translation>複製</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>::ExtensionSystem</name>
@@ -44018,18 +43973,10 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>RunControl</name>
-    <message>
-        <source>%1 crashed.</source>
-        <translation>%1 がクラッシュしました。</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>%2 exited with code %1</source>
         <translation>%2 はコード %1 で終了しました</translation>
-    </message>
-    <message>
-        <source>Starting %1 %2...</source>
-        <translation>起動中 %1 %2...</translation>
     </message>
 </context>
 <context>
@@ -44902,11 +44849,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation>プロセスにアタッチ(&amp;A)</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>::Debugger</name>
@@ -45761,10 +45704,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Run as root user</source>
         <translation>管理者として実行する</translation>
-    </message>
-    <message>
-        <source>%2 exited with code %1</source>
-        <translation>%2 はコード %1 で終了しました</translation>
     </message>
     <message>
         <source>Files</source>

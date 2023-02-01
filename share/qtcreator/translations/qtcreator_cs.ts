@@ -5710,7 +5710,7 @@ více času, než je nastaveno. V takovém případě by se měla hodnota zvýš
     </message>
 </context>
 <context>
-    <name>GenericMakeStep</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Override %1:</source>
         <translation type="obsolete">Přepsat %1:</translation>
@@ -8300,15 +8300,7 @@ ve svém .pro souboru.</translation>
     </message>
 </context>
 <context>
-    <name>MakeStep</name>
-    <message>
-        <source>Override %1:</source>
-        <translation type="obsolete">Přepsat %1:</translation>
-    </message>
-    <message>
-        <source>Make arguments:</source>
-        <translation type="obsolete">Argumenty příkazového řádku pro &apos;make&apos;:</translation>
-    </message>
+    <name>::ProjectExplorer</name>
 </context>
 <context>
     <name>MyMain</name>
@@ -9320,10 +9312,6 @@ ve svém .pro souboru.</translation>
     <message>
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
         <translation>Opravdu chcete smazat nastavení sestavování &lt;b&gt;%1&lt;/b&gt;?</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Přejmenovat</translation>
     </message>
     <message>
         <source>Remove Build Configuration</source>
@@ -15208,14 +15196,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Resume Session</source>
         <translation type="obsolete">Pokračování v sezení</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (poslední sezení)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (nynější sezení)</translation>
     </message>
     <message>
         <source>Open Project...</source>
@@ -23055,34 +23035,10 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Qt Application</source>
         <translation type="obsolete">Program Qt</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">Cíle</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation>Sestavení a spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanelFactory</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>RunSettingsPanel</name>
-    <message>
-        <source>Run Settings</source>
-        <translation type="obsolete">Nastavení spuštění</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>Enter the name of the session:</source>
         <translation>Zadejte název sezení:</translation>
@@ -28453,25 +28409,14 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>RecentProjects</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recently Edited Projects</source>
         <translation type="obsolete">Naposledy upravované projekty</translation>
     </message>
-</context>
-<context>
-    <name>RecentSessions</name>
     <message>
         <source>Recently Used Sessions</source>
         <translation type="obsolete">Naposledy používaná sezení</translation>
-    </message>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (poslední sezení)</translation>
-    </message>
-    <message>
-        <source>%1 (current session)</source>
-        <translation type="obsolete">%1 (nynější sezení)</translation>
     </message>
 </context>
 <context>
@@ -41342,22 +41287,10 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>develop</name>
-    <message>
-        <source>Develop</source>
-        <translation>Vývoj</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>Sezení</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>Naposledy otevřené projekty</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Nový projekt</translation>
     </message>
     <message>
         <source>Open Project</source>
@@ -41480,11 +41413,7 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
-    <message>
-        <source>Clone</source>
-        <translation>Klonovat</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Rename</source>
         <translation>Přejmenovat</translation>
@@ -41493,9 +41422,6 @@ Jméno &lt;E-mail&gt; alias &lt;E-mail&gt;.</translation>
         <source>Delete</source>
         <translation>Smazat</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (poslední sezení)</translation>
@@ -46142,7 +46068,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation>&amp;Připojit k procesu</translation>
@@ -46699,10 +46625,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     <message>
         <source>&amp;Filter:</source>
         <translation>&amp;Filtr:</translation>
-    </message>
-    <message>
-        <source>&amp;Attach to Process</source>
-        <translation>&amp;Připojit k procesu</translation>
     </message>
     <message>
         <source>Remote Error</source>

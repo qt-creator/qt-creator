@@ -12726,20 +12726,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured&lt;br/&gt;&lt;br/&gt;You can configure it in the &lt;a href=&quot;projectmode&quot;&gt;Projects mode&lt;/a&gt;&lt;br/&gt;</source>
         <translation>&lt;style type=text/css&gt;a:link {color: rgb(128, 128, 255, 240);}&lt;/style&gt;專案 &lt;b&gt;%1&lt;/b&gt; 尚未設置。&lt;br/&gt;&lt;br/&gt;您可以在&lt;a href=&quot;projectmode&quot;&gt;專案模式&lt;/a&gt;中設置。&lt;br/&gt;</translation>
     </message>
-</context>
-<context>
-    <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Targets</source>
         <translation type="obsolete">目標</translation>
     </message>
-    <message>
-        <source>Build &amp; Run</source>
-        <translation type="unfinished">建置並執行</translation>
-    </message>
-</context>
-<context>
-    <name>::ProjectExplorer</name>
     <message>
         <source>No target defined.</source>
         <translation type="obsolete">沒有定義目標。</translation>
@@ -25858,15 +25848,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>develop</name>
-    <message>
-        <source>Develop</source>
-        <translation>開發</translation>
-    </message>
-    <message>
-        <source>Sessions</source>
-        <translation>工作階段</translation>
-    </message>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Recent Projects</source>
         <translation>最近使用的專案</translation>
@@ -25988,7 +25970,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>SessionItem</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>Clone</source>
         <translation>複製</translation>
@@ -26001,9 +25983,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Delete</source>
         <translation>刪除</translation>
     </message>
-</context>
-<context>
-    <name>Sessions</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (上次的工作階段)</translation>
@@ -29373,7 +29352,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>DeviceProcessesDialog</name>
+    <name>::ProjectExplorer</name>
     <message>
         <source>&amp;Attach to Process</source>
         <translation type="unfinished"></translation>
@@ -30440,10 +30419,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Add</source>
         <translation type="unfinished">新增</translation>
-    </message>
-    <message>
-        <source>Clone</source>
-        <translation type="unfinished">複製</translation>
     </message>
     <message>
         <source>Remove</source>
