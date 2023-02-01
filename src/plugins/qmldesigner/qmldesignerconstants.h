@@ -124,6 +124,18 @@ const char EVENT_DESIGNMODE_TIME[] = "designMode";
 const char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 const char EVENT_INSIGHT_TIME[] = "insight";
+const char EVENT_TOOLBAR_MODE_CHANGE[] = "ToolBarTriggerModeChange";
+const char EVENT_TOOLBAR_PROJECT_SETTINGS[] = "ToolBarTriggerProjectSettings";
+const char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";
+const char EVENT_TOOLBAR_GO_FORWARD[] = "ToolBarGoForward";
+const char EVENT_TOOLBAR_GO_BACKWARD[] = "ToolBarGoBackward";
+const char EVENT_TOOLBAR_OPEN_FILE[] = "ToolBarOpenFile";
+const char EVENT_TOOLBAR_CLOSE_DOCUMENT[] = "ToolBarCloseCurrentDocument";
+const char EVENT_TOOLBAR_SHARE_APPLICATION[] = "ToolBarShareApplication";
+const char EVENT_TOOLBAR_SET_CURRENT_WORKSPACE[] = "ToolBarSetCurrentWorkspace";
+const char EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION[] = "ToolBarEditGlobalAnnotation";
+const char EVENT_STATUSBAR_SHOW_ZOOM[] = "StatusBarShowZoomMenu";
+const char EVENT_STATUSBAR_SET_STYLE[] = "StatusBarSetCurrentStyle";
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
