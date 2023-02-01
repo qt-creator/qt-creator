@@ -22533,13 +22533,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation>Ouvrir un fichier</translation>
-    </message>
-</context>
-<context>
     <name>QmlDesigner::PropertyEditor</name>
     <message>
         <source>Properties</source>

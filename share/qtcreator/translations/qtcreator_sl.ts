@@ -15706,7 +15706,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>Odpri datoteko</translation>
@@ -20418,10 +20418,6 @@ S simulacijo predpomnilnika so omogočeni dodatni števci dogodkov:
     <message>
         <source>double click for preview</source>
         <translation>Dvokliknite za ogled</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation>Odpri datoteko</translation>
     </message>
 </context>
 <context>

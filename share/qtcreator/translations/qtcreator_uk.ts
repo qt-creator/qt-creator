@@ -7570,13 +7570,6 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation type="vanished">Відкрити файл</translation>
-    </message>
-</context>
-<context>
     <name>FilterNameDialogClass</name>
     <message>
         <source>Add Filter Name</source>

@@ -12957,7 +12957,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>開啟檔案</translation>
@@ -14871,10 +14871,6 @@ Ids must begin with a lowercase letter.</source>
     <message>
         <source>double click for preview</source>
         <translation>雙擊以預覽</translation>
-    </message>
-    <message>
-        <source>Open File</source>
-        <translation>開啟檔案</translation>
     </message>
 </context>
 <context>

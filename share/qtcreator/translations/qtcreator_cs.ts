@@ -23513,7 +23513,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>FileWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Open File</source>
         <translation>Otevřít soubor</translation>
@@ -25119,7 +25119,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>ContextPaneTextWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Text</source>
         <translation>Text</translation>
@@ -25157,7 +25157,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>ContextPaneWidgetBorderImage</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -25186,13 +25186,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <source>10 x 10</source>
         <translation>10 x 10</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetImage</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>The image is scaled to fit</source>
         <translation>Velikost obrázku je změněna tak, že vyplní plochu</translation>
@@ -25218,10 +25211,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>Velikost obrázku je změněna rovnoměrně, ořezání, pokud je potřeba</translation>
     </message>
     <message>
-        <source>10 x 10</source>
-        <translation>10 x 10</translation>
-    </message>
-    <message>
         <source>The image is scaled to fit.</source>
         <translation>Velikost obrázku je změněna tak, že vyplní plochu.</translation>
     </message>
@@ -25245,13 +25234,6 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <source>The image is scaled uniformly to fill, cropping if necessary.</source>
         <translation>Velikost obrázku je změněna rovnoměrně, ořezání, pokud je potřeba.</translation>
     </message>
-</context>
-<context>
-    <name>ContextPaneWidgetRectangle</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>Gradient</source>
         <translation>Přechod</translation>
@@ -25261,16 +25243,9 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>Barva</translation>
     </message>
     <message>
-        <source>...</source>
-        <translation>...</translation>
-    </message>
-    <message>
         <source>Border</source>
         <translation>Okraj</translation>
     </message>
-</context>
-<context>
-    <name>EasingContextPane</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -28427,7 +28402,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlEditorWidgets::ContextPaneWidget</name>
+    <name>::QmlEditorWidgets</name>
     <message>
         <source>Hides this toolbar.</source>
         <translation>Skryje tento panel nástrojů.</translation>
@@ -28448,9 +28423,6 @@ With cache simulation, further event counters are enabled:
         <source>Hides this toolbar. This toolbar can be permanently disabled in the options page or in the context menu.</source>
         <translation>Skryje tento panel nástrojů. Tento panel může být v nastavení nebo v kontextové nabídce trvale zakázán.</translation>
     </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::ContextPaneWidgetImage</name>
     <message>
         <source>double click for preview</source>
         <translation>Dvojité klepnutí pro náhled</translation>
@@ -28458,13 +28430,6 @@ With cache simulation, further event counters are enabled:
     <message>
         <source>Double click for preview.</source>
         <translation>Dvojité klepnutí pro náhled.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlEditorWidgets::FileWidget</name>
-    <message>
-        <source>Open File</source>
-        <translation>Otevřít soubor</translation>
     </message>
 </context>
 <context>
