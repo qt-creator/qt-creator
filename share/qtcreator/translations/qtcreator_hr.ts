@@ -15647,9 +15647,6 @@ Check the test environment.</source>
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;Odaberi simbol&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projekt: %1 (osnovan na %2)</translation>
@@ -15658,9 +15655,6 @@ Check the test environment.</source>
         <source>Changes applied in Projects Mode &gt; Clang Code Model</source>
         <translation type="unfinished">Primijenjene promjene u Projects Mode &gt; Clang Code Model</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Code Model upozorenje</translation>

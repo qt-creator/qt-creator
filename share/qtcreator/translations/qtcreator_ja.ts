@@ -44574,9 +44574,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>&lt;Select Symbol&gt;</source>
         <translation>&lt;シンボルの選択&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>プロジェクト: %1 (%2 を使用)</translation>
@@ -44585,9 +44582,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Changes applied in Projects Mode &gt; Clang Code Model</source>
         <translation>Projects Mode &gt; Clang コードモデルで適用される変更点</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Warning</source>
         <translation>コードモデルの警告</translation>
@@ -44604,9 +44598,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Disable Diagnostic in Current Project</source>
         <translation>現在のプロジェクトの診断を無効化する</translation>
     </message>
-</context>
-<context>
-    <name>ClangUtils</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>ビルドディレクトリを取得できませんでした。</translation>
@@ -44615,9 +44606,6 @@ The name of the release build configuration created by default for a qmake proje
         <source>Could not create &quot;%1&quot;: %2</source>
         <translation>ファイル %1 を作成できませんでした: %2</translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Clazy Issue</source>
         <translation>Clazy の問題</translation>

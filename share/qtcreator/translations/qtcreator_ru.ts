@@ -6323,9 +6323,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <extracomment>Display name</extracomment>
         <translation>Clang</translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Проект: %1 (на основе %2)</translation>
@@ -7031,7 +7028,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClangUtils</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>Не удалось получить каталог сборки.</translation>

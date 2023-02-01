@@ -6920,9 +6920,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
 %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangDiagnosticConfig</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation type="unfinished"></translation>
@@ -7607,7 +7604,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClangUtils</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation type="unfinished"></translation>
@@ -7616,9 +7613,6 @@ Set a valid executable first.</source>
         <source>Could not create &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ClangCodeModel</name>
     <message>
         <source>Code Model Error</source>
         <translation type="unfinished"></translation>

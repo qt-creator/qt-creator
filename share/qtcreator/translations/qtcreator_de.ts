@@ -42882,7 +42882,7 @@ You might find further explanations in the Application Output view.</source>
     </message>
 </context>
 <context>
-    <name>ClangDiagnosticConfig</name>
+    <name>::ClangCodeModel</name>
     <message>
         <source>Project: %1 (based on %2)</source>
         <translation>Projekt: %1 (basierend auf %2)</translation>
@@ -50572,9 +50572,6 @@ in &quot;%2&quot; aus.
         <source>Disable Diagnostic in Current Project</source>
         <translation>Meldung für aktuelles Projekt deaktivieren</translation>
     </message>
-</context>
-<context>
-    <name>ClangUtils</name>
     <message>
         <source>Could not retrieve build directory.</source>
         <translation>Build-Verzeichnis konnte nicht abgefragt werden.</translation>
