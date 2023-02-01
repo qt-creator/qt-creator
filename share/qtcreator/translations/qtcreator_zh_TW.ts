@@ -9507,7 +9507,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -10094,7 +10094,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -12362,7 +12362,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
@@ -20985,7 +20985,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

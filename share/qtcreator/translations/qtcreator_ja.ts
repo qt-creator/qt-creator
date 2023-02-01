@@ -2378,7 +2378,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -14847,7 +14847,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
@@ -36966,7 +36966,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>

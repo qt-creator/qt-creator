@@ -313,7 +313,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -2725,7 +2725,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -23929,7 +23929,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Edycja</translation>
@@ -28957,7 +28957,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>
@@ -39316,7 +39316,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>

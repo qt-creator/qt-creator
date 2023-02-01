@@ -512,7 +512,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>

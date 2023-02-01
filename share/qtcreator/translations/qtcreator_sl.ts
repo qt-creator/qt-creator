@@ -10145,7 +10145,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -11433,7 +11433,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
@@ -14789,7 +14789,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
@@ -21613,7 +21613,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>

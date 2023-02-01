@@ -12245,7 +12245,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Аннотация ревизии «%1»</translation>

@@ -21351,7 +21351,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -22853,7 +22853,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -31418,7 +31418,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Редагувати</translation>
@@ -37823,7 +37823,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

@@ -10462,7 +10462,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
@@ -11442,7 +11442,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="unfinished"></translation>

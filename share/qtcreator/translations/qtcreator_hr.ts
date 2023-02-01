@@ -3298,7 +3298,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -19874,7 +19874,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished"></translation>

@@ -9078,7 +9078,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Rediger</translation>

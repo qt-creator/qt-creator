@@ -14911,7 +14911,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -16026,7 +16026,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Obtient un projet à partir d&apos;un dépôt CVS.</translation>
@@ -21088,7 +21088,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
@@ -33513,7 +33513,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -47260,7 +47260,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>

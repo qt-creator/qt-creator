@@ -14864,7 +14864,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Potvrdit předložení</translation>
@@ -16540,7 +16540,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Odhlásí projekt ze skladiště CVS.</translation>
@@ -22031,7 +22031,7 @@ heslem, jež můžete zadat níže.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Opatřit anotacemi revizi &quot;%1&quot;</translation>
@@ -30210,7 +30210,7 @@ Příznaky: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -51809,7 +51809,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs</name>
+    <name>::CVS</name>
     <message>
         <source>&amp;Edit</source>
         <translation>Ú&amp;pravy</translation>
