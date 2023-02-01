@@ -31,12 +31,10 @@
         <translation>Avvia il Debug</translation>
     </message>
     <message>
-        <location/>
         <source>Executable:</source>
         <translation>Eseguibile:</translation>
     </message>
     <message>
-        <location/>
         <source>Core File:</source>
         <translation>File Core:</translation>
     </message>
@@ -48,17 +46,14 @@
         <translation>Avvia il Debug</translation>
     </message>
     <message>
-        <location/>
         <source>Attach to Process ID:</source>
         <translation>Collegati all&apos;ID di Processo:</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>Clear</source>
         <translation>Cancella</translation>
     </message>
@@ -104,22 +99,18 @@
         <translation>Aggiungi un Segnalibro</translation>
     </message>
     <message>
-        <location/>
         <source>Bookmark:</source>
         <translation>Segnalibro:</translation>
     </message>
     <message>
-        <location/>
         <source>Add in Folder:</source>
         <translation>Inserisci nella Cartella:</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location/>
         <source>New Folder</source>
         <translation>Nuova Cartella</translation>
     </message>
@@ -247,7 +238,6 @@
         <translation>Imposta l&apos;Interruzione alla Funzione</translation>
     </message>
     <message>
-        <location/>
         <source>Function to break on:</source>
         <translation>Funzione dove interrompere:</translation>
     </message>
@@ -259,7 +249,6 @@
         <translation>Condizione:</translation>
     </message>
     <message>
-        <location/>
         <source>Ignore count:</source>
         <translation>Numero di scarti:</translation>
     </message>
@@ -457,23 +446,19 @@
         <translation>Queste opzioni saranno effettive dal prossimo riavvio di Qt Creator.</translation>
     </message>
     <message>
-        <location/>
         <source>Cdb</source>
         <extracomment>Placeholder</extracomment>
         <translation>Cdb</translation>
     </message>
     <message>
-        <location/>
         <source>Debugger Paths</source>
         <translation>Percorsi del Debugger</translation>
     </message>
     <message>
-        <location/>
         <source>Symbol paths:</source>
         <translation>Percorsi dei Simboli:</translation>
     </message>
     <message>
-        <location/>
         <source>Source paths:</source>
         <translation>Percorso dei sorgenti:</translation>
     </message>
@@ -486,7 +471,6 @@
         </translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation>Percorso:</translation>
     </message>
@@ -508,7 +492,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Verbose Symbol Loading</source>
         <translation type="unfinished"></translation>
     </message>
@@ -520,12 +503,10 @@
         <translation>Posizione del deposito:</translation>
     </message>
     <message>
-        <location/>
         <source>Select</source>
         <translation>Seleziona</translation>
     </message>
     <message>
-        <location/>
         <source>Change:</source>
         <translation>Cambia:</translation>
     </message>
@@ -577,7 +558,6 @@
         <translation>Incolla:</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -590,37 +570,30 @@
         <translation>Nome utente:</translation>
     </message>
     <message>
-        <location/>
         <source>Copy Paste URL to clipboard</source>
         <translation>Copia l&apos;URL negli appunti</translation>
     </message>
     <message>
-        <location/>
         <source>Display Output Pane after sending a post</source>
         <translation>Mostra la Finestra di Output dopo una spedizione</translation>
     </message>
     <message>
-        <location/>
         <source>General</source>
         <translation>Generale</translation>
     </message>
     <message>
-        <location/>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
     </message>
     <message>
-        <location/>
         <source>Default Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Pastebin.ca</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Pastebin.com</source>
         <translation type="unfinished"></translation>
     </message>
@@ -632,23 +605,19 @@
         <translation>Interfaccia utente</translation>
     </message>
     <message>
-        <location/>
         <source>Checking this will populate the source file view automatically but might slow down debugger startup considerably.</source>
         <translation>Marcando questa casella la vista dei file sorgente sarà riempita automaticamente, ma l&apos;avvio del debugger risulterà rallentato.</translation>
     </message>
     <message>
-        <location/>
         <source>Populate source file view automatically</source>
         <translation>Riempimento automatico della vista dei file sorgente</translation>
     </message>
     <message>
-        <location/>
         <source>When this option is checked, &apos;Step Into&apos; compresses several steps into one in certain situations, leading to &apos;less noisy&apos; debugging. So will, e.g., the atomic
  reference counting code be skipped, and a single &apos;Step Into&apos; for a signal emission will end up directly in the slot connected to it.</source>
         <translation>Quando questa casella è marcata &apos;Entra in&apos; comprime più passi in uno in certe situazioni, rendendo il debug &apos;meno rumoroso&apos;. Ad esempio il reference counting atomico sarà saltato, e un &quot;Entra in&quot; relativo all&apos;emissione di un segnale porterà direttamente allo slot connesso al segnale.</translation>
     </message>
     <message>
-        <location/>
         <source>Skip known frames when stepping</source>
         <translation>Semplifica le sequenze note</translation>
     </message>
@@ -657,17 +626,14 @@
         <translation type="obsolete">Usa i suggerimenti durante il debug</translation>
     </message>
     <message>
-        <location/>
         <source>Maximal stack depth:</source>
         <translation>Dimesione massima dello stack:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;unlimited&gt;</source>
         <translation>&lt;illimitata&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Use alternating row colors in debug views</source>
         <translation>Alterna i colori delle righe nelle finestre di debug</translation>
     </message>
@@ -676,17 +642,14 @@
         <translation type="obsolete">Marcando questa casella si abiliteranno i suggerimenti dei valori delle variabili durante il debug. Dato che questo può rallentare il debug e non fornisce informazioni affidabili dato che non usa informazioni di contesto, questa opzione è normalmente disattivata.</translation>
     </message>
     <message>
-        <location/>
         <source>Enable reverse debugging</source>
         <translation>Abilita il debug all&apos;indietro</translation>
     </message>
     <message>
-        <location/>
         <source>Show a message box when receiving a signal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use tooltips in main editor while debugging</source>
         <translation type="unfinished"></translation>
     </message>
@@ -698,32 +661,26 @@
         <translation>Completamento del Codice</translation>
     </message>
     <message>
-        <location/>
         <source>Do a case-sensitive match for completion items.</source>
         <translation>Distingui le maiuscole negli elementi del completamento.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Case-sensitive completion</source>
         <translation>Distingui le &amp;Maiuscole</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically insert (, ) and ; when appropriate.</source>
         <translation>Inserisci automaticamente (, ) e ; dove appropriato.</translation>
     </message>
     <message>
-        <location/>
         <source>Insert the common prefix of available completion items.</source>
         <translation>Inserisci il prefisso comune dei completamenti disponibili.</translation>
     </message>
     <message>
-        <location/>
         <source>Autocomplete common &amp;prefix</source>
         <translation>Autocompleta il prefisso &amp;comune</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Automatically insert brackets</source>
         <translation>&amp;Parentesi automatiche</translation>
     </message>
@@ -1136,52 +1093,42 @@ Vuoi sovrascriverli?</translation>
         <translation>Impostazioni Generali</translation>
     </message>
     <message>
-        <location/>
         <source>User &amp;interface color:</source>
         <translation>Colore &amp;interfaccia utente:</translation>
     </message>
     <message>
-        <location/>
         <source>Reset to default</source>
         <translation>Ripristina predefinito</translation>
     </message>
     <message>
-        <location/>
         <source>R</source>
         <translation>R</translation>
     </message>
     <message>
-        <location/>
         <source>Terminal:</source>
         <translation>Terminale:</translation>
     </message>
     <message>
-        <location/>
         <source>External editor:</source>
         <translation>Editor esterno:</translation>
     </message>
     <message>
-        <location/>
         <source>?</source>
         <translation>?</translation>
     </message>
     <message>
-        <location/>
         <source>When files are externally modified:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always ask</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Reload all modified files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Ignore modifications</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1347,7 +1294,6 @@ Vuoi sovrascriverli?</translation>
         <translation>Nuovo Progetto</translation>
     </message>
     <message>
-        <location/>
         <source>1</source>
         <translation>1</translation>
     </message>
@@ -1813,32 +1759,26 @@ Vuoi sovrascriverli?</translation>
         <translation>Nome classe:</translation>
     </message>
     <message>
-        <location/>
         <source>Base class:</source>
         <translation>Classe Base:</translation>
     </message>
     <message>
-        <location/>
         <source>Header file:</source>
         <translation>File Header:</translation>
     </message>
     <message>
-        <location/>
         <source>Source file:</source>
         <translation>File Sorgente:</translation>
     </message>
     <message>
-        <location/>
         <source>Generate form:</source>
         <translation>Genera form:</translation>
     </message>
     <message>
-        <location/>
         <source>Form file:</source>
         <translation>File form:</translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation>Percorso:</translation>
     </message>
@@ -1919,12 +1859,10 @@ Vuoi sovrascriverli?</translation>
         <translation>Introduzione e posizione del progetto</translation>
     </message>
     <message>
-        <location/>
         <source>Name:</source>
         <translation>Nome:</translation>
     </message>
     <message>
-        <location/>
         <source>Create in:</source>
         <translation>Crea in:</translation>
     </message>
@@ -1949,12 +1887,10 @@ Vuoi sovrascriverli?</translation>
         <translation>Invio Subversion</translation>
     </message>
     <message>
-        <location/>
         <source>Des&amp;cription</source>
         <translation>Des&amp;crizione</translation>
     </message>
     <message>
-        <location/>
         <source>F&amp;iles</source>
         <translation>F&amp;ile</translation>
     </message>
@@ -2066,22 +2002,18 @@ Vuoi sovrascriverli?</translation>
         <translation>Estensione header:</translation>
     </message>
     <message>
-        <location/>
         <source>Source suffix:</source>
         <translation>Estensione sorgente:</translation>
     </message>
     <message>
-        <location/>
         <source>File Naming Conventions</source>
         <translation>Convenzioni sui Nomi dei File</translation>
     </message>
     <message>
-        <location/>
         <source>Lower case file names</source>
         <translation>Nomi dei file in minuscolo</translation>
     </message>
     <message>
-        <location/>
         <source>License Template:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3648,32 +3580,26 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation>Marcando questa casella si abilita la visualizzazione dei tipi Qt e STL nella vista Variabili Locali &amp; Osservazione</translation>
     </message>
     <message>
-        <location/>
         <source>Use debugging helper</source>
         <translation>Usa l&apos;helper del debug</translation>
     </message>
     <message>
-        <location/>
         <source>This will load a dumper library</source>
         <translation>Marcando questa casella si caricherà una libreria di dumper</translation>
     </message>
     <message>
-        <location/>
         <source>Use debugging helper from custom location</source>
         <translation>Usa un helper del debug personale</translation>
     </message>
     <message>
-        <location/>
         <source>Location: </source>
         <translation>Posizione: </translation>
     </message>
     <message>
-        <location/>
         <source>Debug debugging helper</source>
         <translation>Debug dell&apos;helper di debug</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging helper</source>
         <translation>Helper del Debug</translation>
     </message>
@@ -3748,12 +3674,10 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation>Scegli il nome della classe</translation>
     </message>
     <message>
-        <location/>
         <source>Class</source>
         <translation>Classe</translation>
     </message>
     <message>
-        <location/>
         <source>Configure...</source>
         <translation>Configura...</translation>
     </message>
@@ -3979,12 +3903,10 @@ La ricompilazione del progetto potrebbe aiutare.</translation>
         <translation>Documentazione Registrata</translation>
     </message>
     <message>
-        <location/>
         <source>Add...</source>
         <translation>Aggiungi...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
@@ -4030,7 +3952,6 @@ La ricompilazione del progetto potrebbe aiutare.</translation>
         <translation>Tema:</translation>
     </message>
     <message>
-        <location/>
         <source>Use Virtual Box
 Note: This adds the toolchain to the build environment and runs the program inside a virtual machine.
 It also automatically sets the correct Qt version.</source>
@@ -4046,47 +3967,38 @@ Imposta automaticamente la Versione di Qt corretta.</translation>
         <translation>Nome:</translation>
     </message>
     <message>
-        <location/>
         <source>Version:</source>
         <translation>Versione:</translation>
     </message>
     <message>
-        <location/>
         <source>Compatibility Version:</source>
         <translation>Versione di Compatibilità:</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor:</source>
         <translation>Produttore:</translation>
     </message>
     <message>
-        <location/>
         <source>Url:</source>
         <translation>Url:</translation>
     </message>
     <message>
-        <location/>
         <source>Location:</source>
         <translation>Posizione:</translation>
     </message>
     <message>
-        <location/>
         <source>Description:</source>
         <translation>Descrizione:</translation>
     </message>
     <message>
-        <location/>
         <source>Copyright:</source>
         <translation>Copyright:</translation>
     </message>
     <message>
-        <location/>
         <source>License:</source>
         <translation>Licenza:</translation>
     </message>
     <message>
-        <location/>
         <source>Dependencies:</source>
         <translation>Dipendenze:</translation>
     </message>
@@ -4095,7 +4007,6 @@ Imposta automaticamente la Versione di Qt corretta.</translation>
         <translation>Stato:</translation>
     </message>
     <message>
-        <location/>
         <source>Error Message:</source>
         <translation>Messaggio d&apos;Errore:</translation>
     </message>
@@ -4116,22 +4027,18 @@ Imposta automaticamente la Versione di Qt corretta.</translation>
         <translation>Stato</translation>
     </message>
     <message>
-        <location/>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
     <message>
-        <location/>
         <source>Version</source>
         <translation>Versione</translation>
     </message>
     <message>
-        <location/>
         <source>Vendor</source>
         <translation>Produttore</translation>
     </message>
     <message>
-        <location/>
         <source>Location</source>
         <translation>Posizione</translation>
     </message>
@@ -4361,82 +4268,66 @@ Causa: %3</translation>
         <translation>Usa FakeVim</translation>
     </message>
     <message>
-        <location/>
         <source>Vim style settings</source>
         <translation>Impostazioni dello stile Vim</translation>
     </message>
     <message>
-        <location/>
         <source>vim&apos;s &quot;expandtab&quot; option</source>
         <translation>opzione &quot;expandtab&quot; di vim</translation>
     </message>
     <message>
-        <location/>
         <source>Expand tabulators:</source>
         <translation>Espandi le tabulazioni:</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight search results:</source>
         <translation>Evidenzia i risultati della ricerca:</translation>
     </message>
     <message>
-        <location/>
         <source>Shift width:</source>
         <translation>Larghezza spostamento:</translation>
     </message>
     <message>
-        <location/>
         <source>Smart tabulators:</source>
         <translation>Tabulazioni intelligenti:</translation>
     </message>
     <message>
-        <location/>
         <source>Start of line:</source>
         <translation>Inizio della riga:</translation>
     </message>
     <message>
-        <location/>
         <source>vim&apos;s &quot;tabstop&quot; option</source>
         <translation>opzione &quot;tabstop&quot; di vim</translation>
     </message>
     <message>
-        <location/>
         <source>Tabulator size:</source>
         <translation>Larghezza della tabulazione:</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace:</source>
         <translation>Backspace:</translation>
     </message>
     <message>
-        <location/>
         <source>VIM&apos;s &quot;autoindent&quot; option</source>
         <translation>opzione &quot;autoindent&quot; di vim</translation>
     </message>
     <message>
-        <location/>
         <source>Automatic indentation:</source>
         <translation>Indentazione automatica:</translation>
     </message>
     <message>
-        <location/>
         <source>Copy text editor settings</source>
         <translation>Copia stile dall&apos;editor di testo</translation>
     </message>
     <message>
-        <location/>
         <source>Set Qt style</source>
         <translation>Stile Qt</translation>
     </message>
     <message>
-        <location/>
         <source>Set plain style</source>
         <translation>Stile semplice</translation>
     </message>
     <message>
-        <location/>
         <source>Incremental search:</source>
         <translation>Ricerca incrementale:</translation>
     </message>
@@ -4448,7 +4339,6 @@ Causa: %3</translation>
         <translation>Aggiungi Nome Filtrato</translation>
     </message>
     <message>
-        <location/>
         <source>Filter Name:</source>
         <translation>Filtra il Nome:</translation>
     </message>
@@ -4460,22 +4350,18 @@ Causa: %3</translation>
         <translation>Filtri</translation>
     </message>
     <message>
-        <location/>
         <source>1</source>
         <translation>1</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Aggiungi</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location/>
         <source>Attributes</source>
         <translation>Attributi</translation>
     </message>
@@ -4487,32 +4373,26 @@ Causa: %3</translation>
         <translation>Cerca...</translation>
     </message>
     <message>
-        <location/>
         <source>Sc&amp;ope:</source>
         <translation>Ambit&amp;o:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Search</source>
         <translation>&amp;Cerca</translation>
     </message>
     <message>
-        <location/>
         <source>Search &amp;for:</source>
         <translation>Co&amp;sa:</translation>
     </message>
     <message>
-        <location/>
         <source>Close</source>
         <translation>Chiudi</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Case sensitive</source>
         <translation>Distingui le &amp;Maiuscole</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Whole words only</source>
         <translation>&amp;Parole intere</translation>
     </message>
@@ -4585,22 +4465,18 @@ Causa: %3</translation>
         <translation>Trova</translation>
     </message>
     <message>
-        <location/>
         <source>Find:</source>
         <translation>Trova:</translation>
     </message>
     <message>
-        <location/>
         <source>Replace with:</source>
         <translation>Sostituisci con:</translation>
     </message>
     <message>
-        <location/>
         <source>All</source>
         <translation>Tutti</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
@@ -4636,57 +4512,46 @@ Causa: %3</translation>
         <translation>Interazione con gdb</translation>
     </message>
     <message>
-        <location/>
         <source>Gdb location:</source>
         <translation>Posizione gdb:</translation>
     </message>
     <message>
-        <location/>
         <source>Environment:</source>
         <translation>Ambiente:</translation>
     </message>
     <message>
-        <location/>
         <source>This is either empty or points to a file containing gdb commands that will be executed immediately after gdb starts up.</source>
         <translation>Questo può essere vuoto, o puntare ad un file contenente comandi gdb che saranno eseguiti all&apos;avvio di gdb.</translation>
     </message>
     <message>
-        <location/>
         <source>Gdb startup script:</source>
         <translation>Script di avvio gdb:</translation>
     </message>
     <message>
-        <location/>
         <source>Behaviour of breakpoint setting in plugins</source>
         <translation>Impostazione di punti di interruzione nei plugin</translation>
     </message>
     <message>
-        <location/>
         <source>This is the slowest but safest option.</source>
         <translation>Questa è l&apos;impostazione più lenta e più sicura.</translation>
     </message>
     <message>
-        <location/>
         <source>Try to set breakpoints in plugins always automatically.</source>
         <translation>Imposta i punti di interruzione nei plugin automaticamente.</translation>
     </message>
     <message>
-        <location/>
         <source>Try to set breakpoints in selected plugins</source>
         <translation>Imposta i punti di interruzione nei plugin selezionati</translation>
     </message>
     <message>
-        <location/>
         <source>Matching regular expression: </source>
         <translation>Secondo l&apos;espressione regolare:</translation>
     </message>
     <message>
-        <location/>
         <source>Never set breakpoints in plugins automatically</source>
         <translation>Non impostare mai i punti di interruzione automaticamente</translation>
     </message>
     <message>
-        <location/>
         <source>This is either a full absolute path leading to the gdb binary you intend to use or the name of a gdb binary that will be searched in your PATH.</source>
         <translation>Questo può essere il percorso assoluto completo dell&apos;eseguibile gdb che vuoi usare, oppure il nome di un eseguibile che sarà cercato nel tuo PATH.</translation>
     </message>
@@ -4698,12 +4563,10 @@ Causa: %3</translation>
         <translation>Ridefinisci %1:</translation>
     </message>
     <message>
-        <location/>
         <source>Make arguments:</source>
         <translation>Parametri make:</translation>
     </message>
     <message>
-        <location/>
         <source>Targets:</source>
         <translation>Destinazioni:</translation>
     </message>
@@ -4790,17 +4653,14 @@ Causa: %3</translation>
         <translation>Rami</translation>
     </message>
     <message>
-        <location/>
         <source>General information</source>
         <translation>Informazioni Generali</translation>
     </message>
     <message>
-        <location/>
         <source>Repository:</source>
         <translation>Deposito:</translation>
     </message>
     <message>
-        <location/>
         <source>Remote branches</source>
         <translation>Rami remoti</translation>
     </message>
@@ -5235,32 +5095,26 @@ Causa: %3</translation>
         <translation>Informazioni Generali</translation>
     </message>
     <message>
-        <location/>
         <source>repository</source>
         <translation>deposito</translation>
     </message>
     <message>
-        <location/>
         <source>Branch:</source>
         <translation>Ramo:</translation>
     </message>
     <message>
-        <location/>
         <source>branch</source>
         <translation>ramo</translation>
     </message>
     <message>
-        <location/>
         <source>Commit Information</source>
         <translation>Informazioni del Commit</translation>
     </message>
     <message>
-        <location/>
         <source>Author:</source>
         <translation>Autore:</translation>
     </message>
     <message>
-        <location/>
         <source>Email:</source>
         <translation>Email:</translation>
     </message>
@@ -5277,37 +5131,30 @@ Causa: %3</translation>
         <translation>Variabili d&apos;ambiente</translation>
     </message>
     <message>
-        <location/>
         <source>PATH:</source>
         <translation>PATH:</translation>
     </message>
     <message>
-        <location/>
         <source>From system</source>
         <translation>Dal sistema</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;b&gt;Note:&lt;/b&gt;</source>
         <translation>&lt;b&gt;Nota:&lt;/b&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>Git needs to find Perl in the environment as well.</source>
         <translation>Git necessita di tovare anche Perl nell&apos;ambiente.</translation>
     </message>
     <message>
-        <location/>
         <source>Log commit display count:</source>
         <translation>Numero di revisioni da mostrare per un Log:</translation>
     </message>
     <message>
-        <location/>
         <source>Note that huge amount of commits might take some time.</source>
         <translation>Un numero elevato di revisioni può richiedere parecchio tempo.</translation>
     </message>
     <message>
-        <location/>
         <source>Timeout (seconds):</source>
         <translation>Timeout (secondi):</translation>
     </message>
@@ -5324,7 +5171,6 @@ Causa: %3</translation>
         <translation type="unfinished">Prompt del submit</translation>
     </message>
     <message>
-        <location/>
         <source>Omit date from annotation output</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5740,12 +5586,10 @@ nel tuo file .pro.</translation>
         <translation>Nick Name</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>Clear</source>
         <translation>Cancella</translation>
     </message>
@@ -5757,7 +5601,6 @@ nel tuo file .pro.</translation>
         <translation>Apri il file con...</translation>
     </message>
     <message>
-        <location/>
         <source>Open file extension with:</source>
         <translation>Apri l&apos;estensione del file con:</translation>
     </message>
@@ -5793,7 +5636,6 @@ nel tuo file .pro.</translation>
         <translation>Numero della Modifica</translation>
     </message>
     <message>
-        <location/>
         <source>Change Number:</source>
         <translation>Numero della Modifica:</translation>
     </message>
@@ -5802,12 +5644,10 @@ nel tuo file .pro.</translation>
         <translation>P4 Modifiche in Sospeso</translation>
     </message>
     <message>
-        <location/>
         <source>Submit</source>
         <translation>Invio</translation>
     </message>
     <message>
-        <location/>
         <source>Cancel</source>
         <translation>Annulla</translation>
     </message>
@@ -6119,7 +5959,6 @@ nel tuo file .pro.</translation>
         <translation>Richiesta Perforce</translation>
     </message>
     <message>
-        <location/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
@@ -6128,27 +5967,22 @@ nel tuo file .pro.</translation>
         <translation>Comando P4:</translation>
     </message>
     <message>
-        <location/>
         <source>Use default P4 environment variables</source>
         <translation>Usa le variabili d&apos;ambiente predefinite di P4</translation>
     </message>
     <message>
-        <location/>
         <source>Environment variables</source>
         <translation>Variabili d&apos;ambiente</translation>
     </message>
     <message>
-        <location/>
         <source>P4 Client:</source>
         <translation>Client P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 User:</source>
         <translation>Utente P4:</translation>
     </message>
     <message>
-        <location/>
         <source>P4 Port:</source>
         <translation>Porta P4:</translation>
     </message>
@@ -6161,7 +5995,6 @@ nel tuo file .pro.</translation>
         <translation>Prova</translation>
     </message>
     <message>
-        <location/>
         <source>Prompt to submit</source>
         <translation type="unfinished">Prompt del submit</translation>
     </message>
@@ -6178,17 +6011,14 @@ nel tuo file .pro.</translation>
         <translation>Comando Perforce</translation>
     </message>
     <message>
-        <location/>
         <source>Change:</source>
         <translation>Cambia:</translation>
     </message>
     <message>
-        <location/>
         <source>Client:</source>
         <translation>Client:</translation>
     </message>
     <message>
-        <location/>
         <source>User:</source>
         <translation>Utente:</translation>
     </message>
@@ -6675,22 +6505,18 @@ Nome di base della libreria: %1</translation>
         <translation>Gestione della Sessione</translation>
     </message>
     <message>
-        <location/>
         <source>Create New Session</source>
         <translation>Crea Nuova</translation>
     </message>
     <message>
-        <location/>
         <source>Clone Session</source>
         <translation>Clona</translation>
     </message>
     <message>
-        <location/>
         <source>Delete Session</source>
         <translation>Elimina</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;What is a Session?&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html#session-management-in-qt-creator&quot;&gt;Cos&apos;è una Sessione?&lt;/a&gt;</translation>
     </message>
@@ -6744,22 +6570,18 @@ Nome di base della libreria: %1</translation>
         <translation type="obsolete">Abilita fase speciale</translation>
     </message>
     <message>
-        <location/>
         <source>Command:</source>
         <translation>Comando:</translation>
     </message>
     <message>
-        <location/>
         <source>Working Directory:</source>
         <translation>Directory di Lavoro:</translation>
     </message>
     <message>
-        <location/>
         <source>Command Arguments:</source>
         <translation>Parametri del Comando:</translation>
     </message>
     <message>
-        <location/>
         <source>Enable Custom Process Step</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6858,17 +6680,14 @@ Nome di base della libreria: %1</translation>
         <translation>Rimozione del File</translation>
     </message>
     <message>
-        <location/>
         <source>File to remove:</source>
         <translation>File da rimuovere:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Delete file permanently</source>
         <translation>&amp;Cancella il file in modo permanente</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Remove from Version Control</source>
         <translation>&amp;Rimuovi dal sistema di revisione</translation>
     </message>
@@ -6885,7 +6704,6 @@ Nome di base della libreria: %1</translation>
         <translation>+</translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
         <translation>-</translation>
     </message>
@@ -6894,7 +6712,6 @@ Nome di base della libreria: %1</translation>
         <translation type="obsolete">Impostazioni</translation>
     </message>
     <message>
-        <location/>
         <source>Edit run configuration:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6936,22 +6753,18 @@ Nome di base della libreria: %1</translation>
         <translation>Gestione progetto</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Add to Project</source>
         <translation>&amp;Aggiungi al Progetto</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Project</source>
         <translation>&amp;Progetto</translation>
     </message>
     <message>
-        <location/>
         <source>Add to &amp;version control</source>
         <translation>Aggiungi al &amp;VCS</translation>
     </message>
     <message>
-        <location/>
         <source>The following files will be added:
 
 
@@ -7308,22 +7121,18 @@ al VCS (%2)?</translation>
         <translation>Configurazione di QMake:</translation>
     </message>
     <message>
-        <location/>
         <source>debug</source>
         <translation>debug</translation>
     </message>
     <message>
-        <location/>
         <source>release</source>
         <translation>release</translation>
     </message>
     <message>
-        <location/>
         <source>Additional arguments:</source>
         <translation>Parametri aggiuntivi:</translation>
     </message>
     <message>
-        <location/>
         <source>Effective qmake call:</source>
         <translation>Chiamata effettiva a qmake:</translation>
     </message>
@@ -7479,27 +7288,22 @@ al VCS (%2)?</translation>
         <translation>Aggiungi</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location/>
         <source>Properties</source>
         <translation>Proprietà</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Prefisso:</translation>
     </message>
     <message>
-        <location/>
         <source>Language:</source>
         <translation>Lingua:</translation>
     </message>
     <message>
-        <location/>
         <source>Alias:</source>
         <translation>Alias:</translation>
     </message>
@@ -7615,17 +7419,14 @@ al VCS (%2)?</translation>
         <translation>Nuovo</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location/>
         <source>Up</source>
         <translation>Su</translation>
     </message>
     <message>
-        <location/>
         <source>Down</source>
         <translation>Giu</translation>
     </message>
@@ -7786,7 +7587,6 @@ al VCS (%2)?</translation>
         <translation>Nome della Configurazione:</translation>
     </message>
     <message>
-        <location/>
         <source>Qt Version:</source>
         <translation>Versione Qt:</translation>
     </message>
@@ -7795,22 +7595,18 @@ al VCS (%2)?</translation>
         <translation type="obsolete">Gestione Versioni Qt</translation>
     </message>
     <message>
-        <location/>
         <source>This Qt-Version is invalid.</source>
         <translation>Questa Versione Qt non è valida.</translation>
     </message>
     <message>
-        <location/>
         <source>Shadow Build:</source>
         <translation>Compila in cartella separata:</translation>
     </message>
     <message>
-        <location/>
         <source>Build Directory:</source>
         <translation>Cartella di Compilazione:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Importa compilazione esistente&lt;/a&gt;</translation>
     </message>
@@ -7843,7 +7639,6 @@ al VCS (%2)?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Tool Chain:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8001,17 +7796,14 @@ al VCS (%2)?</translation>
         <translation>Versioni Qt</translation>
     </message>
     <message>
-        <location/>
         <source>+</source>
         <translation>+</translation>
     </message>
     <message>
-        <location/>
         <source>-</source>
         <translation>-</translation>
     </message>
     <message>
-        <location/>
         <source>Name</source>
         <translation>Nome</translation>
     </message>
@@ -8020,12 +7812,10 @@ al VCS (%2)?</translation>
         <translation type="obsolete">Percorso</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging Helper</source>
         <translation>Helper del Debug</translation>
     </message>
     <message>
-        <location/>
         <source>Version Name:</source>
         <translation>Nome della Versione:</translation>
     </message>
@@ -8034,37 +7824,30 @@ al VCS (%2)?</translation>
         <translation type="obsolete">Percorso:</translation>
     </message>
     <message>
-        <location/>
         <source>MinGW Directory:</source>
         <translation>Cartella MinGW:</translation>
     </message>
     <message>
-        <location/>
         <source>Debugging Helper:</source>
         <translation>Helper del Debug:</translation>
     </message>
     <message>
-        <location/>
         <source>Show &amp;Log</source>
         <translation>Mostra &amp;Log</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Rebuild</source>
         <translation>&amp;Ricompila</translation>
     </message>
     <message>
-        <location/>
         <source>Default Qt Version:</source>
         <translation>Versione Qt Predefinita:</translation>
     </message>
     <message>
-        <location/>
         <source>MSVC Version:</source>
         <translation>Versione MSVC:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -8077,17 +7860,14 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Impossibile rilevare la versione di MSVC.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>QMake Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>QMake Location:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>MWC Directory:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8100,67 +7880,54 @@ p, li { white-space: pre-wrap; }
         <translation>Modifica Variabile</translation>
     </message>
     <message>
-        <location/>
         <source>Variable Name:</source>
         <translation>Nome Variabile:</translation>
     </message>
     <message>
-        <location/>
         <source>Assignment Operator:</source>
         <translation>Operatore di Assegnazione:</translation>
     </message>
     <message>
-        <location/>
         <source>Variable:</source>
         <translation>Variabile:</translation>
     </message>
     <message>
-        <location/>
         <source>Append (+=)</source>
         <translation>Aggiungi (+=)</translation>
     </message>
     <message>
-        <location/>
         <source>Remove (-=)</source>
         <translation>Rimuovi (-=)</translation>
     </message>
     <message>
-        <location/>
         <source>Replace (~=)</source>
         <translation>Sostituisci (~=)</translation>
     </message>
     <message>
-        <location/>
         <source>Set (=)</source>
         <translation>Imposta (=)</translation>
     </message>
     <message>
-        <location/>
         <source>Unique (*=)</source>
         <translation>Unica (*=)</translation>
     </message>
     <message>
-        <location/>
         <source>Select Item</source>
         <translation>Scegli Elemento</translation>
     </message>
     <message>
-        <location/>
         <source>Edit Item</source>
         <translation>Modifica Elemento</translation>
     </message>
     <message>
-        <location/>
         <source>Select Items</source>
         <translation>Scegli Elementi</translation>
     </message>
     <message>
-        <location/>
         <source>Edit Items</source>
         <translation>Modifica Elementi</translation>
     </message>
     <message>
-        <location/>
         <source>New</source>
         <translation>Nuovo</translation>
     </message>
@@ -8487,47 +8254,38 @@ p, li { white-space: pre-wrap; }
         <translation>Nome:</translation>
     </message>
     <message>
-        <location/>
         <source>File Types:</source>
         <translation>Tipi di File:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify file name filters, separated by comma. Filters may contain wildcards.</source>
         <translation>Specifica filtri sul nome, separati da una virgola. I filtri possono contenere wildcard.</translation>
     </message>
     <message>
-        <location/>
         <source>Prefix:</source>
         <translation>Prefisso:</translation>
     </message>
     <message>
-        <location/>
         <source>Limit to prefix</source>
         <translation>Limita al prefisso</translation>
     </message>
     <message>
-        <location/>
         <source>Add...</source>
         <translation>Aggiungi...</translation>
     </message>
     <message>
-        <location/>
         <source>Edit...</source>
         <translation>Modifica...</translation>
     </message>
     <message>
-        <location/>
         <source>Remove</source>
         <translation>Rimuovi</translation>
     </message>
     <message>
-        <location/>
         <source>Directories:</source>
         <translation>Cartelle:</translation>
     </message>
     <message>
-        <location/>
         <source>Specify a short word/abbreviation that can be used to restrict completions to files from this directory tree.
 To do this, you type this shortcut and a space in the Locator entry field, and then the word to search for.</source>
         <translation>Specifica la parola breve/abbreviazione che sarà usata per restringere il completamento ai file di queste cartelle.
@@ -8542,12 +8300,10 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Configurazione del filtro</translation>
     </message>
     <message>
-        <location/>
         <source>Include hidden files</source>
         <translation>Includi i file nascosti</translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation>Filtro:</translation>
     </message>
@@ -8588,22 +8344,18 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Configura i Filtri</translation>
     </message>
     <message>
-        <location/>
         <source>Add</source>
         <translation>Aggiungi</translation>
     </message>
     <message>
-        <location/>
         <source> min</source>
         <translation> min</translation>
     </message>
     <message>
-        <location/>
         <source>Refresh now!</source>
         <translation>Aggiorna adesso!</translation>
     </message>
     <message>
-        <location/>
         <source>Refresh Interval:</source>
         <translation>Intervallo di aggiornamento:</translation>
     </message>
@@ -8612,7 +8364,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>%1 (Prefisso: %2)</translation>
     </message>
     <message>
-        <location/>
         <source>Edit</source>
         <translation>Modifica</translation>
     </message>
@@ -8734,12 +8485,10 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Salva le Modifiche</translation>
     </message>
     <message>
-        <location/>
         <source>The following files have unsaved changes:</source>
         <translation>Questi file hanno delle modifiche non salvate:</translation>
     </message>
     <message>
-        <location/>
         <source>Automatically save all files before building</source>
         <translation>Salva i file automaticamente prima di </translation>
     </message>
@@ -8751,7 +8500,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Opzioni</translation>
     </message>
     <message>
-        <location/>
         <source>0</source>
         <translation>0</translation>
     </message>
@@ -8862,47 +8610,38 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Scorciatoie della Tastiera</translation>
     </message>
     <message>
-        <location/>
         <source>Command</source>
         <translation>Comando</translation>
     </message>
     <message>
-        <location/>
         <source>Label</source>
         <translation>Etichetta</translation>
     </message>
     <message>
-        <location/>
         <source>Shortcut</source>
         <translation>Scorciatoia</translation>
     </message>
     <message>
-        <location/>
         <source>Defaults</source>
         <translation>Predefiniti</translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation>Importa...</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation>Esporta...</translation>
     </message>
     <message>
-        <location/>
         <source>Key Sequence</source>
         <translation>Sequenza di Tasti</translation>
     </message>
     <message>
-        <location/>
         <source>Shortcut:</source>
         <translation>Scorciatoia:</translation>
     </message>
     <message>
-        <location/>
         <source>Reset</source>
         <translation>Ripristina</translation>
     </message>
@@ -8924,32 +8663,26 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
 <context>
     <name>::Debugger</name>
     <message>
-        <location/>
         <source>Arguments:</source>
         <translation>Parametri:</translation>
     </message>
     <message>
-        <location/>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrompi su &apos;main&apos;</translation>
     </message>
     <message>
-        <location/>
         <source>Host and port:</source>
         <translation>Host e porta:</translation>
     </message>
     <message>
-        <location/>
         <source>Architecture:</source>
         <translation>Architettura:</translation>
     </message>
     <message>
-        <location/>
         <source>Use server start script:</source>
         <translation>Usa script di avvio del server:</translation>
     </message>
     <message>
-        <location/>
         <source>Server start script:</source>
         <translation>Script di avvio del server:</translation>
     </message>
@@ -8961,17 +8694,14 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Comando Subversion:</translation>
     </message>
     <message>
-        <location/>
         <source>Authentication</source>
         <translation>Autenticazione</translation>
     </message>
     <message>
-        <location/>
         <source>User name:</source>
         <translation>Nome utente:</translation>
     </message>
     <message>
-        <location/>
         <source>Password:</source>
         <translation>Password:</translation>
     </message>
@@ -9232,92 +8962,74 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Salvataggio</translation>
     </message>
     <message>
-        <location/>
         <source>Removes trailing whitespace on saving.</source>
         <translation>Rimuove gli spazi in coda al salvataggio.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Clean whitespace</source>
         <translation>&amp;Pulizia spaziature</translation>
     </message>
     <message>
-        <location/>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
         <translation>Pulisce gli spazi in tutto il documento, non solo nelle parti modificate.</translation>
     </message>
     <message>
-        <location/>
         <source>In entire &amp;document</source>
         <translation>In tutto il &amp;documento</translation>
     </message>
     <message>
-        <location/>
         <source>Correct leading whitespace according to tab settings.</source>
         <translation>Correggi le tabulazioni del documento.</translation>
     </message>
     <message>
-        <location/>
         <source>Clean indentation</source>
         <translation>Pulizia indentazione</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Ensure newline at end of file</source>
         <translation>&amp;Garantisci una riga vuota alla fine del file</translation>
     </message>
     <message>
-        <location/>
         <source>Tabs and Indentation</source>
         <translation>Tab ed Indentazione</translation>
     </message>
     <message>
-        <location/>
         <source>Ta&amp;b size:</source>
         <translation>Ta&amp;b:</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Indent size:</source>
         <translation>&amp;Indentazione:</translation>
     </message>
     <message>
-        <location/>
         <source>Backspace will go back one indentation level instead of one space.</source>
         <translation>Backspace cancellerà un livello di indentazione al posto di uno spazio.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Backspace follows indentation</source>
         <translation>&amp;Backspace segue l&apos;indentazione</translation>
     </message>
     <message>
-        <location/>
         <source>Insert &amp;spaces instead of tabs</source>
         <translation>Inserisci &amp;spazi invece che tab</translation>
     </message>
     <message>
-        <location/>
         <source>Enable automatic &amp;indentation</source>
         <translation>Abilita l&apos;&amp;indentazione automatica</translation>
     </message>
     <message>
-        <location/>
         <source>Tab key performs auto-indent:</source>
         <translation>Il tasto Tab auto-indenta:</translation>
     </message>
     <message>
-        <location/>
         <source>Never</source>
         <translation>Mai</translation>
     </message>
     <message>
-        <location/>
         <source>Always</source>
         <translation>Sempre</translation>
     </message>
     <message>
-        <location/>
         <source>In leading white space</source>
         <translation>Sugli spazi all&apos;inizio</translation>
     </message>
@@ -9326,67 +9038,54 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Visualizzazione</translation>
     </message>
     <message>
-        <location/>
         <source>Display line &amp;numbers</source>
         <translation>Mostra il &amp;numero della righe</translation>
     </message>
     <message>
-        <location/>
         <source>Display &amp;folding markers</source>
         <translation>Mostra i segni di &amp;raggruppamento del codice</translation>
     </message>
     <message>
-        <location/>
         <source>Show tabs and spaces.</source>
         <translation>Mostra i tab e gli spazi.</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Visualize whitespace</source>
         <translation>&amp;Mostra spaziature</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight current &amp;line</source>
         <translation>Evidenzia la r&amp;iga corrente</translation>
     </message>
     <message>
-        <location/>
         <source>Highlight &amp;blocks</source>
         <translation>Evidenzia i &amp;blocchi</translation>
     </message>
     <message>
-        <location/>
         <source>Text Wrapping</source>
         <translation>Ritorno a capo</translation>
     </message>
     <message>
-        <location/>
         <source>Enable text &amp;wrapping</source>
         <translation>Abilita il ri&amp;torno a capo</translation>
     </message>
     <message>
-        <location/>
         <source>Display right &amp;margin at column:</source>
         <translation>Mostra il &amp;margine destro alla colonna:</translation>
     </message>
     <message>
-        <location/>
         <source>Animate matching parentheses</source>
         <translation>Mostra l&apos;animazione sulle parentesi</translation>
     </message>
     <message>
-        <location/>
         <source>Navigation</source>
         <translation>Navigazione</translation>
     </message>
     <message>
-        <location/>
         <source>Enable &amp;mouse navigation</source>
         <translation>Abitila la navigazione con il &amp;mouse</translation>
     </message>
     <message>
-        <location/>
         <source>Mark text changes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -9487,17 +9186,14 @@ Queste codifiche dovrebbero andare bene:</translation>
         <translation>Tipo di carattere</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation>Famiglia:</translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation>Dimensione:</translation>
     </message>
     <message>
-        <location/>
         <source>Color Scheme</source>
         <translation>Schema dei Colori</translation>
     </message>
@@ -9530,17 +9226,14 @@ Queste codifiche dovrebbero andare bene:</translation>
         <translation type="obsolete">Anteprima:</translation>
     </message>
     <message>
-        <location/>
         <source>Antialias</source>
         <translation>Antialiasing</translation>
     </message>
     <message>
-        <location/>
         <source>Copy...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Delete</source>
         <translation type="unfinished">Elimina</translation>
     </message>
@@ -9896,17 +9589,14 @@ Queste codifiche dovrebbero andare bene:</translation>
         <translation>Scelta Argomento</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Topics</source>
         <translation>&amp;Argomenti</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Display</source>
         <translation>&amp;Visualizza</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Close</source>
         <translation>&amp;Chiudi</translation>
     </message>
@@ -9994,39 +9684,32 @@ Queste codifiche dovrebbero andare bene:</translation>
         <translation type="obsolete">Prompt del submit</translation>
     </message>
     <message>
-        <location/>
         <source>Wrap submit message at:</source>
         <translation>Ritorno a capo del messaggio alla colonna:</translation>
     </message>
     <message>
-        <location/>
         <source>An executable which is called with the submit message in a temporary file as first argument. It should return with an exit != 0 and a message on standard error to indicate failure.</source>
         <translation>Un eseguibile che sia chiamato con il file temporaneo contenente il messaggio di submit come primo parametro. Deve uscire con un valore != 0 e scrivere un messaggio sullo standard error per indicare un problema.</translation>
     </message>
     <message>
-        <location/>
         <source>Submit message check script:</source>
         <translation>Script di controllo del messaggio:</translation>
     </message>
     <message>
-        <location/>
         <source>A file listing user names and email addresses in a 4-column mailmap format:
 name &lt;email&gt; alias &lt;email&gt;</source>
         <translation>Un file contenente nomi utenti e mail nel formato mailmap a 4 colonne:
 nome &lt;email&gt; alias &lt;email&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>User/alias configuration file:</source>
         <translation>File di configurazione utenti/alias:</translation>
     </message>
     <message>
-        <location/>
         <source>A simple file containing lines with field names like &quot;Reviewed-By:&quot; which will be added below the submit editor.</source>
         <translation>Un file semplice che contiene righe con nomi dei campi tipo &quot;Reviewed-By:&quot; che saranno aggiunti sotto l&apos;editor del submit.</translation>
     </message>
     <message>
-        <location/>
         <source>User fields configuration file:</source>
         <translation>File di configurazione dei campi utente:</translation>
     </message>
@@ -10063,22 +9746,18 @@ Nota: questa operazione potrebbe cancellare il file locale.</translation>
         <translation>Invia a Codepaster</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Username:</source>
         <translation>Nome &amp;utente:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Username&gt;</source>
         <translation>&lt;Nome utente&gt;</translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description:</source>
         <translation>&amp;Descrizione:</translation>
     </message>
     <message>
-        <location/>
         <source>&lt;Description&gt;</source>
         <translation>&lt;Descrizione&gt;</translation>
     </message>
@@ -10097,22 +9776,18 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Parti da inviare a codepaster</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 1</source>
         <translation>Patch 1</translation>
     </message>
     <message>
-        <location/>
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
     <message>
-        <location/>
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10121,7 +9796,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Parts to send to server</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10133,22 +9807,18 @@ p, li { white-space: pre-wrap; }
         <translation>main</translation>
     </message>
     <message>
-        <location/>
         <source>Text1:</source>
         <translation>Testo1:</translation>
     </message>
     <message>
-        <location/>
         <source>N/A</source>
         <translation>N/D</translation>
     </message>
     <message>
-        <location/>
         <source>Text2:</source>
         <translation>Testo2:</translation>
     </message>
     <message>
-        <location/>
         <source>Text3:</source>
         <translation>Testo3:</translation>
     </message>
@@ -10160,12 +9830,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CheckBox</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10177,12 +9845,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Server Prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -10199,27 +9865,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Prompt del submit</translation>
     </message>
     <message>
-        <location/>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit id). Otherwise, only the respective file will be displayed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Describe all files matching commit id:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CVS Command:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>CVS Root:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Diff Options:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10235,37 +9896,30 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Embedding of the UI Class</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation as a pointer member</source>
         <translation type="unfinished">Aggregazione come membro puntatore</translation>
     </message>
     <message>
-        <location/>
         <source>Aggregation</source>
         <translation type="unfinished">Aggregazione</translation>
     </message>
     <message>
-        <location/>
         <source>Multiple Inheritance</source>
         <translation type="unfinished">Eredità Multipla</translation>
     </message>
     <message>
-        <location/>
         <source>Code Generation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Support for changing languages at runtime</source>
         <translation type="unfinished">Supporta il cambio della lingua durante l&apos;esecuzione</translation>
     </message>
     <message>
-        <location/>
         <source>Use Qt module name in #include-directive</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10300,17 +9954,14 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation type="unfinished">Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
     <message>
-        <location/>
         <source>Keep updating</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10330,12 +9981,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Filter:</source>
         <translation type="unfinished">Filtro:</translation>
     </message>
     <message>
-        <location/>
         <source>...</source>
         <translation type="unfinished">...</translation>
     </message>
@@ -10383,102 +10032,82 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Font</source>
         <translation type="unfinished">Tipo di carattere</translation>
     </message>
     <message>
-        <location/>
         <source>Family:</source>
         <translation type="unfinished">Famiglia:</translation>
     </message>
     <message>
-        <location/>
         <source>Style:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Size:</source>
         <translation type="unfinished">Dimensione:</translation>
     </message>
     <message>
-        <location/>
         <source>Startup</source>
         <translation type="unfinished">Avvio</translation>
     </message>
     <message>
-        <location/>
         <source>On context help:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show side-by-side if possible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always show side-by-side</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Always start full help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>On help start:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show my home page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show a blank page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Show my tabs from last session</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Home Page:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Current Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use &amp;Blank Page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Restore to Default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Help Bookmarks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Import...</source>
         <translation type="unfinished">Importa...</translation>
     </message>
     <message>
-        <location/>
         <source>Export...</source>
         <translation type="unfinished">Esporta...</translation>
     </message>
@@ -10490,27 +10119,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Compila ed Esegui</translation>
     </message>
     <message>
-        <location/>
         <source>Save all files before Build</source>
         <translation type="unfinished">Salva tutti i file prima della Compilazione</translation>
     </message>
     <message>
-        <location/>
         <source>Always build Project before Running</source>
         <translation type="unfinished">Compila sempre il Progetto prima dell&apos;Esecuzione</translation>
     </message>
     <message>
-        <location/>
         <source>Show Compiler Output on building</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Use jom instead of nmake</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&lt;i&gt;jom&lt;/i&gt; is a drop-in replacement for &lt;i&gt;nmake&lt;/i&gt; which distributes the compilation process to multiple CPU cores. For more details, see the &lt;a href=&quot;http://qt.gitorious.org/qt-labs/jom/&quot;&gt;jom Homepage&lt;/a&gt;. Disable it if you experience problems with your builds.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10519,12 +10143,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Manage Sessions...</source>
         <translation type="unfinished">Gestisci le Sessioni...</translation>
     </message>
     <message>
-        <location/>
         <source>Create New Project...</source>
         <translation type="unfinished">Crea un Nuovo Progetto...</translation>
     </message>
@@ -10559,117 +10181,94 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>The header file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Sources</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget librar&amp;y:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget project &amp;file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget h&amp;eader file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>The header file has to be specified in source code.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widge&amp;t source file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;base class:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>QWidget</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin class &amp;name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin &amp;header file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin sou&amp;rce file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Icon file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Link library</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Create s&amp;keleton</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Include pro&amp;ject</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>G&amp;roup:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>&amp;Tooltip:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>W&amp;hat&apos;s this:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>The widget is a &amp;container</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Property defa&amp;ults</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>dom&amp;XML:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10686,42 +10285,34 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin and Collection Class Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Specify the properties of the plugin library and the collection class.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection class:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection header file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Collection source file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Plugin name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Resource file:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>icons.qrc</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10730,17 +10321,14 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Custom Widget List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Widget &amp;Classes:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Specify the list of custom widgets and their properties.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10748,12 +10336,10 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>::Welcome</name>
     <message>
-        <location/>
         <source>Examples not installed</source>
         <translation type="unfinished">Gli esempi non sono installati</translation>
     </message>
     <message>
-        <location/>
         <source>Open</source>
         <translation type="unfinished">Apri</translation>
     </message>
@@ -10878,22 +10464,18 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>::QmakeProjectManager</name>
     <message>
-        <location/>
         <source>Installed S60 SDKs:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>SDK Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Qt Location</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Refresh</source>
         <translation type="unfinished">Aggiorna</translation>
     </message>
@@ -10909,27 +10491,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished">Grassetto</translation>
     </message>
     <message>
-        <location/>
         <source>Italic</source>
         <translation type="unfinished">Corsivo</translation>
     </message>
     <message>
-        <location/>
         <source>Background:</source>
         <translation type="unfinished">Sfondo:</translation>
     </message>
     <message>
-        <location/>
         <source>Foreground:</source>
         <translation type="unfinished">Primo piano:</translation>
     </message>
     <message>
-        <location/>
         <source>Erase background</source>
         <translation type="unfinished">Cancella sfondo</translation>
     </message>
     <message>
-        <location/>
         <source>x</source>
         <translation type="unfinished">x</translation>
     </message>
@@ -10941,12 +10518,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Checkout Directory:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Path:</source>
         <translation type="unfinished">Percorso:</translation>
     </message>
@@ -10995,7 +10570,6 @@ p, li { white-space: pre-wrap; }
 }</translation>
     </message>
     <message>
-        <location/>
         <source>#headerFrame {
     border-image: url(:/welcome/images/center_frame_header.png) 0;
     border-width: 0;
@@ -11004,12 +10578,10 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location/>
         <source>Help us make Qt Creator even better</source>
         <translation type="unfinished">Aiutaci a migliorare Qt Creator</translation>
     </message>
     <message>
-        <location/>
         <source>Feedback</source>
         <translation type="unfinished">Commenti</translation>
     </message>
