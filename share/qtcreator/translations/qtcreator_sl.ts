@@ -10200,7 +10200,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -12670,10 +12670,6 @@ Razlog: %2</translation>
 </context>
 <context>
     <name>::CodePaster</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
     <message>
         <location/>
         <source>&amp;Path:</source>

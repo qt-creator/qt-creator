@@ -10354,7 +10354,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11252,27 +11252,14 @@ p, li { white-space: pre-wrap; }
         <source>Server:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="unfinished">CodePaster</translation>
-    </message>
-</context>
-<context>
-    <name>PasteView</name>
     <message>
         <source>Paste</source>
         <translation type="unfinished">Incolla</translation>

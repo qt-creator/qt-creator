@@ -9072,7 +9072,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp(new line)
     </message>
 </context>
 <context>
-    <name>PasteBinComSettingsWidget</name>
+    <name>::CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -9090,27 +9090,10 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the plugin will use this for posting as well as fetching.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComProtocol</name>
     <message>
         <source>Error during paste</source>
         <translation>Hiba történt beillesztés közben</translation>
     </message>
-</context>
-<context>
-    <name>PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation>Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation>Kód beillesztés</translation>
-    </message>
-</context>
-<context>
-    <name>PasteView</name>
     <message>
         <source>Paste</source>
         <translation>Beillesztés</translation>
