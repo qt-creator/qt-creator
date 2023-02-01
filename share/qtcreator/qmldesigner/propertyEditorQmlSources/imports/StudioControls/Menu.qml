@@ -39,8 +39,8 @@ T.Menu {
     background: Rectangle {
         implicitWidth: contentItem.childrenRect.width
         implicitHeight: contentItem.childrenRect.height
-        color: control.style.background.idle
-        border.color: control.style.border.idle
+        color: control.style.popup.background
+        border.color: control.style.popup.background
         border.width: control.style.borderWidth
 
         MouseArea {
