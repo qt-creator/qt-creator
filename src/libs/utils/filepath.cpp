@@ -981,7 +981,7 @@ void FilePath::setFromString(QStringView fileNameView)
     setParts({}, {}, fileNameView);
 }
 
-expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
+static expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
 {
     if (!filePath.needsDevice())
         return DesktopDeviceFileAccess::instance();
