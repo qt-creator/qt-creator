@@ -714,7 +714,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Ouvrir le lien</translation>
@@ -5286,29 +5286,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
-    <message>
-        <source>Registered Documentation</source>
-        <translation type="obsolete">Documentation enregistrée</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Ajouter...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
-        <source>Add and remove compressed help files, .qch.</source>
-        <translation type="obsolete">Ajouter et supprimer des fichiers d&apos;aide compressés, .qch.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Ajouter</translation>
-    </message>
-</context>
-<context>
     <name>EmbeddedPropertiesPage</name>
     <message>
         <source>Use Virtual Box
@@ -8555,10 +8532,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translation type="obsolete">Copier l&apos;adresse du &amp;lien</translation>
     </message>
     <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation type="obsolete">Tout sélectionner</translation>
     </message>
@@ -8569,14 +8542,6 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
     <message>
         <source>Indexing Documentation...</source>
         <translation>Indexation de la documentation…</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Ouvrir le lien</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Ouvrir le lien en tant que nouvelle page</translation>
     </message>
     <message>
         <source>Copy Link</source>
@@ -8639,24 +8604,9 @@ Ajouter, modifier et supprimer des filtres de documents, lesquels déterminent l
         <translatorcomment>proxy -&gt; serveur mandataire ? -&gt; en théorie, oui</translatorcomment>
         <translation>&lt;li&gt;Si votre ordinateur ou votre réseau est protégé par un pare-feu ou un serveur mandataire, assurez-vous que l&apos;application est autorisée à accéder au réseau.&lt;/li&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Rechercher :</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Ouvrir le lien</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Ouvrir le lien en tant que nouvelle page</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Ouvrir le lien dans un nouvel onglet</translation>
     </message>
 </context>
 <context>
@@ -14580,7 +14530,7 @@ Ne sera pas appliquée aux espaces dans les commentaires et les chaînes.</trans
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translatorcomment>thème ?</translatorcomment>
@@ -15124,35 +15074,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="obsolete">Police</translation>
-    </message>
-    <message>
-        <source>Family:</source>
-        <translation type="obsolete">Famille :</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation type="obsolete">Style :</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Taille :</translation>
-    </message>
-    <message>
-        <source>Startup</source>
-        <translation type="obsolete">Démarrage</translation>
-    </message>
-    <message>
-        <source>On context help:</source>
-        <translation type="obsolete">Pour l&apos;aide contextuelle :</translation>
-    </message>
+    <name>::Help</name>
     <message>
         <source>Show side-by-side if possible</source>
         <translation type="obsolete">Afficher côte à côte si possible</translation>
@@ -15164,10 +15086,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Always start full help</source>
         <translation type="obsolete">Toujours afficher l&apos;aide complète</translation>
-    </message>
-    <message>
-        <source>On help start:</source>
-        <translation type="obsolete">Au démarrage de l&apos;aide :</translation>
     </message>
     <message>
         <source>Show my home page</source>
@@ -15186,14 +15104,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Page d&apos;accueil :</translation>
     </message>
     <message>
-        <source>Use &amp;Current Page</source>
-        <translation type="obsolete">Utiliser la page &amp;courante</translation>
-    </message>
-    <message>
-        <source>Use &amp;Blank Page</source>
-        <translation type="obsolete">Utiliser une page &amp;blanche</translation>
-    </message>
-    <message>
         <source>Restore to Default</source>
         <translation type="obsolete">Restaurer les paramètres par défaut</translation>
     </message>
@@ -15208,58 +15118,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Export...</source>
         <translation type="obsolete">Exporter...</translation>
-    </message>
-    <message>
-        <source>Show Side-by-Side if Possible</source>
-        <translation type="obsolete">Afficher côte à côte si possible</translation>
-    </message>
-    <message>
-        <source>Always Show Side-by-Side</source>
-        <translation type="obsolete">Toujours afficher côte à côte</translation>
-    </message>
-    <message>
-        <source>Always Start Full Help</source>
-        <translation type="obsolete">Toujours afficher l&apos;aide complète</translation>
-    </message>
-    <message>
-        <source>Show My Home Page</source>
-        <translation type="obsolete">Afficher ma page d&apos;accueil</translation>
-    </message>
-    <message>
-        <source>Show a Blank Page</source>
-        <translation type="obsolete">Afficher une page blanche</translation>
-    </message>
-    <message>
-        <source>Show My Tabs from Last Session</source>
-        <translation type="obsolete">Afficher mes onglets de la dernière session</translation>
-    </message>
-    <message>
-        <source>Home page:</source>
-        <translation type="obsolete">Page d&apos;accueil :</translation>
-    </message>
-    <message>
-        <source>Always Show Help in External Window</source>
-        <translation type="obsolete">Toujours afficher l&apos;aide dans une fenêtre externe</translation>
-    </message>
-    <message>
-        <source>Behaviour</source>
-        <translation type="obsolete">Comportement</translation>
-    </message>
-    <message>
-        <source>Switch to editor context after last help page is closed.</source>
-        <translation type="obsolete">Basculer vers l&apos;éditeur de contexte après que la dernière page d&apos;aide soit fermée. </translation>
-    </message>
-    <message>
-        <source>Return to editor on closing the last page</source>
-        <translation type="obsolete">Retourner à l&apos;éditeur lors de la fermeture de la dernière page</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Réinitialiser</translation>
     </message>
 </context>
 <context>
@@ -16715,18 +16573,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Reset</source>
         <translation>Réinitialiser</translation>
-    </message>
-    <message>
-        <source>Help Bookmarks</source>
-        <translation type="obsolete">Signet de l&apos;aide</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Importer...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Exporter...</translation>
     </message>
     <message>
         <source>Behaviour</source>

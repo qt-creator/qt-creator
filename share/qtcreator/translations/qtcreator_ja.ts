@@ -7151,7 +7151,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>トピックの選択</translation>
@@ -31020,15 +31020,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>リンクを開く</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>リンクを新しいページで開く</translation>
-    </message>
+    <name>::Help</name>
 </context>
 <context>
     <name>MimeType</name>

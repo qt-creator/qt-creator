@@ -711,7 +711,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Abrir vínculo</translation>
@@ -4100,7 +4100,7 @@ Reconstruir el proyecto puede ayudar.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Documentación registrada</translation>
@@ -5558,16 +5558,8 @@ Razón: %3</translation>
         <translation>Filtros</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Ayuda</translation>
-    </message>
-    <message>
         <source>Help index</source>
         <translation>Índice de la ayuda</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Ayuda</translation>
     </message>
     <message>
         <source>Contents</source>
@@ -5726,18 +5718,10 @@ Skipping file.</source>
     </message>
 </context>
 <context>
-    <name>IndexWindow</name>
+    <name>::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Buscar:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Abrir vínculo</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation>Abrir vínculo en nueva pestaña</translation>
     </message>
 </context>
 <context>
@@ -10091,7 +10075,7 @@ The following encodings are likely to fit:</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Elija un tópico para &lt;b&gt;%1&lt;/b&gt;:</translation>
@@ -10625,7 +10609,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>

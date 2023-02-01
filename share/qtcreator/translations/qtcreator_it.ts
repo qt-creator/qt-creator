@@ -729,7 +729,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Apri il Collegamento</translation>
@@ -3973,7 +3973,7 @@ La ricompilazione del progetto potrebbe aiutare.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Documentazione Registrata</translation>
@@ -5442,16 +5442,8 @@ Causa: %3</translation>
         <translation>Filtri</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Guida</translation>
-    </message>
-    <message>
         <source>Help index</source>
         <translation>Indice della guida</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Guida</translation>
     </message>
     <message>
         <source>Contents</source>
@@ -5554,10 +5546,6 @@ Causa: %3</translation>
         <translation>Copia il &amp;Collegamento</translation>
     </message>
     <message>
-        <source>Open Link in New Tab</source>
-        <translation>Apri il Collegamento in una Nuova Scheda</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation>Seleziona Tutto</translation>
     </message>
@@ -5596,18 +5584,10 @@ Causa: %3</translation>
     </message>
 </context>
 <context>
-    <name>IndexWindow</name>
+    <name>::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Cerca:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Apri il Collegamento</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation>Apri il Collegamento in una Nuova Scheda</translation>
     </message>
 </context>
 <context>
@@ -9933,7 +9913,7 @@ Queste codifiche dovrebbero andare bene:</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Scelta Argomento</translation>
@@ -10420,7 +10400,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11637,9 +11617,6 @@ p, li { white-space: pre-wrap; }
         <source>Save File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Help</name>
     <message>
         <source>The file is not an XBEL version 1.0 file.</source>
         <translation type="unfinished"></translation>

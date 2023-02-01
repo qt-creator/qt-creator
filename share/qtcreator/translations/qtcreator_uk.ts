@@ -1486,7 +1486,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Відкрити посилання</translation>
@@ -9941,14 +9941,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>Індексування документації</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Відкрити посилання в новій сторінці</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Копіювати посилання</translation>
     </message>
@@ -10044,21 +10036,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Export as Image</source>
         <translation>Експортувати як зображення</translation>
-    </message>
-</context>
-<context>
-    <name>IndexWindow</name>
-    <message>
-        <source>&amp;Look for:</source>
-        <translation type="vanished">&amp;Шукати:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation type="vanished">Відкрити посилання</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation type="vanished">Відкрити посилання в новій сторінці</translation>
     </message>
 </context>
 <context>
@@ -19451,7 +19428,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Оберіть тему</translation>

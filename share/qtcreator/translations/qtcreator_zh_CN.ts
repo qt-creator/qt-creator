@@ -8396,7 +8396,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>打开链接</translation>
@@ -21936,14 +21936,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
     <message>
         <source>No documentation available.</source>
         <translation>没有可用文档。</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>打开链接</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新页面打开连接</translation>
     </message>
     <message>
         <source>Copy Link</source>
@@ -44898,7 +44890,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>为&lt;b&gt;%1&lt;/b&gt;选择一个标题:</translation>

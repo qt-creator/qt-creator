@@ -7935,7 +7935,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Открыть ссылку</translation>
@@ -21816,14 +21816,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Искать:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Открыть ссылку</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Открыть ссылку в новой странице</translation>
     </message>
     <message>
         <source>Copy Link</source>
@@ -45535,7 +45527,7 @@ The trace data is lost.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>Фильтр</translation>

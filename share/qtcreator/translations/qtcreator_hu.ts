@@ -1088,7 +1088,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Link megnyitása</translation>
@@ -5422,7 +5422,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Registered Documentation</source>
         <translation>Nyilvántartott dokumentum</translation>
@@ -6457,7 +6457,7 @@ on slow machines. In this case, the value should be increased.</source>
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -8158,16 +8158,8 @@ Fájl kihagyása.</translation>
         <translation>Szűrők</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
-    </message>
-    <message>
         <source>General settings</source>
         <translation>Általános beállítások</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
     </message>
     <message>
         <source>Open Image</source>
@@ -8188,10 +8180,6 @@ Fájl kihagyása.</translation>
     <message>
         <source>Help index</source>
         <translation>Segítség - Index</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation>Segítség</translation>
     </message>
     <message>
         <source>Contents</source>
@@ -8298,10 +8286,6 @@ Fájl kihagyása.</translation>
         <translation>&amp;Link címének másolása</translation>
     </message>
     <message>
-        <source>Open Link in New Tab</source>
-        <translation>Link megnyitása új lapon</translation>
-    </message>
-    <message>
         <source>Select All</source>
         <translation>Az összes kijelőlése</translation>
     </message>
@@ -8347,18 +8331,10 @@ Fájl kihagyása.</translation>
     </message>
 </context>
 <context>
-    <name>IndexWindow</name>
+    <name>::Help</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Rákeresés:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Link megnyitása</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation>Link megnyitása új lapon</translation>
     </message>
 </context>
 <context>
@@ -16668,7 +16644,7 @@ A következő kódolás valószínűleg erre illik:</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Topik kiválasztása</translation>

@@ -5442,7 +5442,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Åbn link</translation>
@@ -17724,14 +17724,6 @@ Tilføj, ændr, og fjern dokumentfiltre, som beslutter hvilke dokumentationssæt
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Led efter:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Åbn link</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Åbn link som ny side</translation>
     </message>
     <message>
         <source>Copy Full Path to Clipboard</source>
@@ -35932,7 +35924,7 @@ Vil blive anvendt på blanktegn i kommentarer og strenge.</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Vælg emne</translation>

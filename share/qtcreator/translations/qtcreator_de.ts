@@ -1284,11 +1284,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Adresse öffnen</translation>
-    </message>
+    <name>::Help</name>
     <message>
         <source>Open Link as New Page</source>
         <translation>Verweis in neuer Seite öffnen</translation>
@@ -9216,10 +9212,6 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
         <translation>Verweis öffnen</translation>
     </message>
     <message>
-        <source>Open Link as New Page</source>
-        <translation>Verweis in neuer Seite öffnen</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Verweis kopieren</translation>
     </message>
@@ -12094,7 +12086,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose a topic for &lt;b&gt;%1&lt;/b&gt;:</source>
         <translation>Wählen Sie ein Thema für &lt;b&gt;%1&lt;/b&gt;:</translation>

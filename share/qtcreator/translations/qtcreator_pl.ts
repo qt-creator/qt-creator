@@ -1349,7 +1349,7 @@
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Wybierz temat</translation>
@@ -9476,17 +9476,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     <message>
         <source>Bookmark</source>
         <translation>Zakładka</translation>
-    </message>
-</context>
-<context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otwórz odsyłacz</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otwórz odsyłacz na nowej stronie</translation>
     </message>
 </context>
 <context>

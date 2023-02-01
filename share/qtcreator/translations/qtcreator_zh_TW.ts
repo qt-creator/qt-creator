@@ -389,7 +389,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>開啟連結</translation>
@@ -5597,14 +5597,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>正在建立文件索引中...</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>複製連結</translation>
     </message>
@@ -5648,20 +5640,9 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>尋找(&amp;L)：</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>開啟連結</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>在新頁面開啟連結</translation>
     </message>
 </context>
 <context>
@@ -9342,7 +9323,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>過濾器</translation>

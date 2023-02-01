@@ -8863,7 +8863,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Choose Topic</source>
         <translation>Odaberi temu</translation>
@@ -36536,17 +36536,6 @@ What do you want to do?</source>
     <message>
         <source>Rename Bookmark</source>
         <translation>Preimenuj knjižnu oznaku</translation>
-    </message>
-</context>
-<context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otvori poveznicu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otvori poveznicu kao novu stranicu</translation>
     </message>
 </context>
 <context>

@@ -789,11 +789,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
-    <message>
-        <source>Open Link</source>
-        <translation>Otevřít adresu odkazu</translation>
-    </message>
+    <name>::Help</name>
     <message>
         <source>Open Link as New Page</source>
         <translation>Otevřít odkaz jako novou stránku</translation>
@@ -4563,29 +4559,6 @@ Pokuste se projekt sestavit znovu.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
-    <message>
-        <source>Registered Documentation</source>
-        <translation type="obsolete">Zapsaná dokumentace</translation>
-    </message>
-    <message>
-        <source>Add...</source>
-        <translation type="obsolete">Přidat...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Odstranit</translation>
-    </message>
-    <message>
-        <source>Add and remove compressed help files, .qch.</source>
-        <translation type="obsolete">Přidat a odstranit stlačené soubory s nápovědou, .qch.</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="obsolete">Přidat</translation>
-    </message>
-</context>
-<context>
     <name>EmbeddedPropertiesPage</name>
     <message>
         <source>Skin:</source>
@@ -8004,10 +7977,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <translation>Otevřít odkaz</translation>
     </message>
     <message>
-        <source>Open Link as New Page</source>
-        <translation>Otevřít odkaz jako novou stránku</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Kopírovat odkaz</translation>
     </message>
@@ -8018,10 +7987,6 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
     <message>
         <source>Reload</source>
         <translation>Nahrát znovu</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
     </message>
     <message>
         <source>&lt;title&gt;about:blank&lt;/title&gt;</source>
@@ -8073,24 +8038,9 @@ Přidat, upravit a odstranit dokumentové filtry, které v režimu nápovědy ur
         <source>&lt;li&gt;If your computer or network is protected by a firewall or proxy, make sure the application is permitted to access the network.&lt;/li&gt;</source>
         <translation>&lt;li&gt;Pokud je váš počítač nebo síť chráněn firewallem nebo proxy, ujistěte se, že programu je povoleno přistupovat k síti.&lt;/li&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Hledat:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Otevřít adresu odkazu</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Otevřít odkaz jako novou stránku</translation>
-    </message>
-    <message>
-        <source>Open Link in New Tab</source>
-        <translation type="obsolete">Otevřít odkaz v nové kartě</translation>
     </message>
 </context>
 <context>
@@ -14283,7 +14233,7 @@ Nepoužije se na mezeru v poznámkách a řetězcích.</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>Filtr</translation>
@@ -14986,35 +14936,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Font</source>
-        <translation type="obsolete">Písmo</translation>
-    </message>
-    <message>
-        <source>Family:</source>
-        <translation type="obsolete">Písmová rodina:</translation>
-    </message>
-    <message>
-        <source>Style:</source>
-        <translation type="obsolete">Styl:</translation>
-    </message>
-    <message>
-        <source>Size:</source>
-        <translation type="obsolete">Velikost:</translation>
-    </message>
-    <message>
-        <source>Startup</source>
-        <translation type="obsolete">Spuštění</translation>
-    </message>
-    <message>
-        <source>On context help:</source>
-        <translation type="obsolete">Související nápověda:</translation>
-    </message>
+    <name>::Help</name>
     <message>
         <source>Show side-by-side if possible</source>
         <translation type="obsolete">Ukázat, je-li to možné, vedle sebe</translation>
@@ -15026,10 +14948,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Always start full help</source>
         <translation type="obsolete">Vždy spustit plnou nápovědu</translation>
-    </message>
-    <message>
-        <source>On help start:</source>
-        <translation type="obsolete">Na začátek nápovědy:</translation>
     </message>
     <message>
         <source>Show my home page</source>
@@ -15048,80 +14966,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Domovská stránka:</translation>
     </message>
     <message>
-        <source>Use &amp;Current Page</source>
-        <translation type="obsolete">Použít &amp;nynější stranu</translation>
-    </message>
-    <message>
-        <source>Use &amp;Blank Page</source>
-        <translation type="obsolete">Použít &amp;prázdnou stranu</translation>
-    </message>
-    <message>
         <source>Restore to Default</source>
         <translation type="obsolete">Obnovit výchozí nastavení</translation>
     </message>
     <message>
         <source>Help Bookmarks</source>
         <translation type="obsolete">Záložky v nápovědě</translation>
-    </message>
-    <message>
-        <source>Import...</source>
-        <translation type="obsolete">Zavést...</translation>
-    </message>
-    <message>
-        <source>Export...</source>
-        <translation type="obsolete">Vyvést...</translation>
-    </message>
-    <message>
-        <source>Show Side-by-Side if Possible</source>
-        <translation type="obsolete">Ukázat, je-li to možné, vedle sebe</translation>
-    </message>
-    <message>
-        <source>Always Show Side-by-Side</source>
-        <translation type="obsolete">Ukázat vždy vedle sebe</translation>
-    </message>
-    <message>
-        <source>Always Start Full Help</source>
-        <translation type="obsolete">Vždy spustit plnou nápovědu</translation>
-    </message>
-    <message>
-        <source>Show My Home Page</source>
-        <translation type="obsolete">Ukázat moji domovskou stránku</translation>
-    </message>
-    <message>
-        <source>Show a Blank Page</source>
-        <translation type="obsolete">Ukázat prázdnou stránku</translation>
-    </message>
-    <message>
-        <source>Show My Tabs from Last Session</source>
-        <translation type="obsolete">Ukázat mé karty z posledního sezení</translation>
-    </message>
-    <message>
-        <source>Home page:</source>
-        <translation type="obsolete">Domovská stránka:</translation>
-    </message>
-    <message>
-        <source>Always Show Help in External Window</source>
-        <translation type="obsolete">Vždy ukazovat nápovědu v odděleném okně</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation type="obsolete">Nastavit znovu výchozí</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="obsolete">Nastavit znovu</translation>
-    </message>
-    <message>
-        <source>Behaviour</source>
-        <translation type="obsolete">Chování</translation>
-    </message>
-    <message>
-        <source>Switch to editor context after last help page is closed.</source>
-        <translation type="obsolete">Přepnout do editoru po zavření poslední stránky s nápovědou.</translation>
-    </message>
-    <message>
-        <source>Return to editor on closing the last page</source>
-        <translation type="obsolete">Vrátit se do editoru po zavření poslední stránky s nápovědou</translation>
     </message>
 </context>
 <context>
@@ -17182,16 +17032,12 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <translation>Nastavit znovu</translation>
     </message>
     <message>
-        <source>Help Bookmarks</source>
-        <translation type="obsolete">Záložky v nápovědě</translation>
-    </message>
-    <message>
         <source>Import...</source>
-        <translation type="obsolete">Importovat...</translation>
+        <translation>Importovat...</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="obsolete">Exportovat...</translation>
+        <translation>Exportovat...</translation>
     </message>
     <message>
         <source>Behaviour</source>

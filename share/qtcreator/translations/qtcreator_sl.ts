@@ -718,7 +718,7 @@
     </message>
 </context>
 <context>
-    <name>ContentWindow</name>
+    <name>::Help</name>
     <message>
         <source>Open Link</source>
         <translation>Odpri povezavo</translation>
@@ -3810,7 +3810,7 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
     </message>
 </context>
 <context>
-    <name>DocSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Remove</source>
         <translation>Odstrani</translation>
@@ -6041,14 +6041,6 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Indeksiranje dokumentacije …</translation>
     </message>
     <message>
-        <source>Open Link</source>
-        <translation>Odpri povezavo</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Odpri povezavo kot novo stran</translation>
-    </message>
-    <message>
         <source>Copy Link</source>
         <translation>Skopiraj povezavo</translation>
     </message>
@@ -6072,20 +6064,9 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <source>&lt;title&gt;Error 404...&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;The page could not be found&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;&apos;%1&apos;&lt;/h3&gt;&lt;/div&gt;</source>
         <translation type="obsolete">&lt;title&gt;Napaka 404&lt;/title&gt;&lt;div align=&quot;center&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;h1&gt;Strani ni bilo moč najti&lt;/h1&gt;&lt;br&gt;&lt;h3&gt;»%1«&lt;/h3&gt;&lt;/div&gt;</translation>
     </message>
-</context>
-<context>
-    <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
         <translation>&amp;Išči:</translation>
-    </message>
-    <message>
-        <source>Open Link</source>
-        <translation>Odpri povezavo</translation>
-    </message>
-    <message>
-        <source>Open Link as New Page</source>
-        <translation>Odpri povezavo kot novo stran</translation>
     </message>
 </context>
 <context>
@@ -9655,7 +9636,7 @@ Naslednji nabori znakov so verjetno ustrezni:</translation>
     </message>
 </context>
 <context>
-    <name>TopicChooser</name>
+    <name>::Help</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -10252,7 +10233,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>GeneralSettingsPage</name>
+    <name>::Help</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -18000,16 +17981,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <location/>
         <source>Limit to prefix</source>
         <translation>Omeji na predpono</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Double-click to edit item.</source>
