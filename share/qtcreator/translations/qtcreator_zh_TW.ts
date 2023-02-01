@@ -22713,25 +22713,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">沒有錄製 QML 事件</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">效能分析應用程式</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">載入資料中</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">載入所有資料前應用程式已停止</translation>
-    </message>
-</context>
-<context>
     <name>FlickableGroupBox</name>
     <message>
         <source>Flickable</source>

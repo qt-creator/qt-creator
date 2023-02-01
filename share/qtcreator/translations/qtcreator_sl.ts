@@ -18150,7 +18150,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
+    <name>::QmlProfiler</name>
     <message>
         <source>No QML events recorded</source>
         <translation>Zabeleženega ni nobenega dogodka QML</translation>

@@ -26527,25 +26527,6 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">Nebyly nahrány žádné události QML</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">Profiluje se aplikace</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">Nahrávají se data</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">Program zastaven před nahráním všech dat</translation>
-    </message>
-</context>
-<context>
     <name>TimeDisplay</name>
     <message>
         <source>length: %1</source>

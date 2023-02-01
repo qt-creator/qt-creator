@@ -31844,25 +31844,6 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>StatusDisplay</name>
-    <message>
-        <source>No QML events recorded</source>
-        <translation type="obsolete">Pas d&apos;événement QML enregistré</translation>
-    </message>
-    <message>
-        <source>Profiling application</source>
-        <translation type="obsolete">Profilage de l&apos;application</translation>
-    </message>
-    <message>
-        <source>Loading data</source>
-        <translation type="obsolete">Chargement des données</translation>
-    </message>
-    <message>
-        <source>Application stopped before loading all data</source>
-        <translation type="obsolete">L&apos;application a stoppé avant le chargement de toutes les données</translation>
-    </message>
-</context>
-<context>
     <name>TimeDisplay</name>
     <message>
         <source>length: %1</source>
