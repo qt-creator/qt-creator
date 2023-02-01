@@ -23284,7 +23284,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>JsonRpcMessageHandler</name>
+    <name>::LanguageServerProtocol</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>Не удалось разобрать сообщение JSON «%1».</translation>

@@ -43177,9 +43177,6 @@ Output:
         <source>None of the following variants could be correctly parsed:</source>
         <translation>以下のデータのいずれも正しく解析できませんでした:</translation>
     </message>
-</context>
-<context>
-    <name>JsonRpcMessageHandler</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>JSON メッセージ &quot;%1&quot; を解析できませんでした。</translation>
@@ -43188,9 +43185,6 @@ Output:
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>
         <translation>読み込まれた JSON &quot;%1&quot; は JSON オブジェクトではありませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にはパラメータがありません。</translation>

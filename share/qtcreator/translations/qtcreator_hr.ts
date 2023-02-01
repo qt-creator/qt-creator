@@ -10716,9 +10716,6 @@ will also disable the following plugins:
         <source>Expected type %1 but value contained %2</source>
         <translation>Očekivana vrsta %1, ali vrijednost je sadržavala %2</translation>
     </message>
-</context>
-<context>
-    <name>JsonRpcMessageHandler</name>
     <message>
         <source>Could not parse JSON message &quot;%1&quot;.</source>
         <translation>Nije moguće obraditi JSON poruku &quot;%1&quot;.</translation>
@@ -10727,9 +10724,6 @@ will also disable the following plugins:
         <source>Expected a JSON object, but got a JSON &quot;%1&quot;.</source>
         <translation>Očekivan JSON objekt, ali je dobiven JSON &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>::LanguageServerProtocol</name>
     <message>
         <source>No parameters in &quot;%1&quot;.</source>
         <translation>Nema parametara u &quot;%1&quot;.</translation>
