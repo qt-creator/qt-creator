@@ -35,6 +35,8 @@ public:
     void requestExpanded(const QString &variableName);
     Utils::Links setBreakpoints(const QString &scriptExtension);
 
+    bool lastRunHadLicenseIssues() const { return m_licenseIssues; }
+
 signals:
     void queryDone(const QString &output, const QString &error);
     void recorderDone();
