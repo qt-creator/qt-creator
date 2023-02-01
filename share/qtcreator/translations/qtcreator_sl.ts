@@ -18100,7 +18100,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -18120,9 +18120,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <source>Choose...</source>
         <translation>Izbor ...</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -23388,16 +23385,6 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Rename id &apos;%1&apos;...</source>
         <translation>Preimenuj ID »%1« ...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Searching</source>
         <translation>Iskanje</translation>

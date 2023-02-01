@@ -24348,26 +24348,15 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
     </message>
     <message>
-        <source>Component name:</source>
-        <translation type="obsolete">Nom du composant :</translation>
-    </message>
-    <message>
-        <source>Path:</source>
-        <translation type="obsolete">Chemin :</translation>
-    </message>
-    <message>
         <source>Choose...</source>
         <translation type="obsolete">Choisir...</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -25913,10 +25902,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <translation>Chemin invalide</translation>
     </message>
     <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Boîte de dialogue</translation>
-    </message>
-    <message>
         <source>Component name:</source>
         <translation>Nom du composant :</translation>
     </message>
@@ -25924,20 +25909,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <source>Path:</source>
         <translation>Chemin :</translation>
     </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="obsolete">Choisir...</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Utilisations QML/JS :</translation>

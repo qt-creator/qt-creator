@@ -191,7 +191,7 @@
     </message>
 </context>
 <context>
-    <name>AddAnalysisMessageSuppressionComment</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Добавьте комментарий для подавления этого сообщения</translation>
@@ -37921,9 +37921,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Split Initializer</source>
         <translation>Разделить инициализатор</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Библиотека в %1</translation>

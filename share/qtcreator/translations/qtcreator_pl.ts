@@ -39981,7 +39981,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSHoverHandler</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Library at %1</source>
         <translation>Biblioteka w %1</translation>

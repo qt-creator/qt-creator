@@ -46960,28 +46960,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlJSHoverHandler</name>
-    <message>
-        <source>Library at %1</source>
-        <translation>%1 のライブラリ</translation>
-    </message>
-    <message>
-        <source>Dumped plugins successfully.</source>
-        <translation>プラグインのダンプに成功しました。</translation>
-    </message>
-    <message>
-        <source>Read typeinfo files successfully.</source>
-        <translation>typeinfo ファイルの読み込みに成功しました。</translation>
-    </message>
-</context>
-<context>
-    <name>AddAnalysisMessageSuppressionComment</name>
-    <message>
-        <source>Add a Comment to Suppress This Message</source>
-        <translation>このメッセージを抑止する為のコメントを追加します</translation>
-    </message>
-</context>
-<context>
     <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>

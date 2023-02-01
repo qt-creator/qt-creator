@@ -29303,9 +29303,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Split Initializer</source>
         <translation>Opdel initialiserer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Bibliotek ved %1</translation>
@@ -40140,14 +40137,11 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>AddAnalysisMessageSuppressionComment</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Tilføj en kommentar for at undertrykke denne meddelelse</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Kodemodel advarsel</translation>

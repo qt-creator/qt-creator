@@ -26492,22 +26492,15 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>ComponentNameDialog</name>
+    <name>::QmlJSEditor</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
     </message>
     <message>
-        <source>Component name:</source>
-        <translation type="obsolete">Název součástky:</translation>
-    </message>
-    <message>
         <source>Choose...</source>
         <translation type="obsolete">Vybrat...</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -32142,14 +32135,6 @@ a vlastností součástek QML přímo.</translation>
         <translation>Název součástky:</translation>
     </message>
     <message>
-        <source>Dialog</source>
-        <translation type="obsolete">Dialog</translation>
-    </message>
-    <message>
-        <source>Choose...</source>
-        <translation type="obsolete">Vybrat...</translation>
-    </message>
-    <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Ukázat nástrojový pruh Qt Quick</translation>
     </message>
@@ -32161,16 +32146,6 @@ a vlastností součástek QML přímo.</translation>
         <source>Refactoring</source>
         <translation>Refactoring</translation>
     </message>
-</context>
-<context>
-    <name>QmlJsEditor</name>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Použití QML/JS:</translation>

@@ -31019,9 +31019,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Searching for Usages</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation type="unfinished"></translation>
@@ -31034,9 +31031,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Read typeinfo files successfully.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation type="unfinished"></translation>
@@ -31053,16 +31047,10 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Split Initializer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AddAnalysisMessageSuppressionComment</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Dodaj komentar kako se ova poruka ne bi prikazivala</translation>
     </message>
-</context>
-<context>
-    <name>::QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished"></translation>
