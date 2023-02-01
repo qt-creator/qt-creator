@@ -685,7 +685,11 @@ public:
         return value;
     }
 
-    QVariant convertToEnum(AST::Statement *rhs, const QString &propertyPrefix, AST::UiQualifiedId *propertyId, const QString &astValue)
+    QVariant convertToEnum(AST::Statement *rhs,
+                           const NodeMetaInfo &metaInfo,
+                           const QString &propertyPrefix,
+                           AST::UiQualifiedId *propertyId,
+                           const QString &astValue)
     {
         QStringList astValueList = astValue.split(QStringLiteral("."));
 
@@ -704,42 +708,12 @@ public:
         if (!eStmt || !eStmt->expression)
             return QVariant();
 
-        const ObjectValue *containingObject = nullptr;
-        QString name;
-        if (!lookupProperty(propertyPrefix, propertyId, nullptr, &containingObject, &name))
-            return QVariant();
+        const QString propertyName = propertyPrefix.isEmpty() ? propertyId->name.toString()
+                                                              : propertyPrefix;
 
-        if (containingObject)
-            containingObject->lookupMember(name, m_context, &containingObject);
-        const CppComponentValue * lhsCppComponent = value_cast<CppComponentValue>(containingObject);
-        if (!lhsCppComponent)
-            return QVariant();
-        const QString lhsPropertyTypeName = lhsCppComponent->propertyType(name);
+        const PropertyMetaInfo pInfo = metaInfo.property(propertyName.toUtf8());
 
-        const ObjectValue *rhsValueObject = nullptr;
-        QString rhsValueName;
-        if (auto idExp = AST::cast<AST::IdentifierExpression *>(eStmt->expression)) {
-            if (!m_scopeChain.qmlScopeObjects().isEmpty())
-                rhsValueObject = m_scopeChain.qmlScopeObjects().constLast();
-            if (!idExp->name.isEmpty())
-                rhsValueName = idExp->name.toString();
-        } else if (auto memberExp = AST::cast<AST::FieldMemberExpression *>(eStmt->expression)) {
-            Evaluate evaluate(&m_scopeChain);
-            const Value *result = evaluate(memberExp->base);
-            rhsValueObject = result->asObjectValue();
-
-            if (!memberExp->name.isEmpty())
-                rhsValueName = memberExp->name.toString();
-        }
-
-        if (rhsValueObject)
-            rhsValueObject->lookupMember(rhsValueName, m_context, &rhsValueObject);
-
-        const CppComponentValue *rhsCppComponentValue = value_cast<CppComponentValue>(rhsValueObject);
-        if (!rhsCppComponentValue)
-            return QVariant();
-
-        if (rhsCppComponentValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
+        if (pInfo.isEnumType())
             return QVariant::fromValue(Enumeration(astValue));
         else
             return QVariant();
@@ -1539,7 +1513,11 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         }
     }
 
-    const QVariant enumValue = context->convertToEnum(script->statement, prefix, script->qualifiedId, astValue);
+    const QVariant enumValue = context->convertToEnum(script->statement,
+                                                      modelNode.metaInfo(),
+                                                      prefix,
+                                                      script->qualifiedId,
+                                                      astValue);
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
