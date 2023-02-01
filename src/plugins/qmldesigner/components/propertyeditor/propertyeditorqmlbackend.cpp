@@ -661,7 +661,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
                                             || vectorFound != separateSectionProperties.end();
 
                         if (!exists)
-                            propertyMapFound->second.push_back(property);
+                            propertyMap[parentProperty].push_back(property);
                     } else {
                         propertyMap[property];
                     }
