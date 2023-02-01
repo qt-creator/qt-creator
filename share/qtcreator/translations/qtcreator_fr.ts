@@ -11002,10 +11002,6 @@ au système de gestion de version (%2) ?</translation>
         <translation type="obsolete">Emplacement :</translation>
     </message>
     <message>
-        <source>&lt;Current File&gt;</source>
-        <translation type="obsolete">&lt;Fichier courant&gt;</translation>
-    </message>
-    <message>
         <source>QML Viewer arguments:</source>
         <translation type="obsolete">Arguments du visualisateur QML :</translation>
     </message>
@@ -23571,16 +23567,10 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>Debugging Port:</source>
         <translation type="obsolete">Port du débogueur :</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Fichier courant&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Executer le script QML</translation>

@@ -29369,7 +29369,7 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;aktuel fil&gt;</translation>

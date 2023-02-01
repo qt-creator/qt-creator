@@ -11364,16 +11364,10 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML Viewer</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Bieżący plik&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>QML Viewer</source>
         <translation>QML Viewer</translation>

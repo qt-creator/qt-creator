@@ -14938,7 +14938,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Aktuelle Datei&gt;</translation>

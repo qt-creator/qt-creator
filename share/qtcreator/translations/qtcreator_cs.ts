@@ -10706,10 +10706,6 @@ přidat do správy verzí (%2)?</translation>
         <translation type="obsolete">Umístění:</translation>
     </message>
     <message>
-        <source>&lt;Current File&gt;</source>
-        <translation type="obsolete">&lt;Nynější soubor&gt;</translation>
-    </message>
-    <message>
         <source>QML Viewer arguments:</source>
         <translation type="obsolete">Argumenty pro prohlížeč QML:</translation>
     </message>
@@ -24482,16 +24478,10 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <source>Debugging Port:</source>
         <translation type="obsolete">Přípojka pro ladění:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Nynější soubor&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">Spustit skript QML</translation>

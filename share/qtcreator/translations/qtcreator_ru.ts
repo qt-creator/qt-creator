@@ -37987,7 +37987,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Текущий файл&gt;</translation>

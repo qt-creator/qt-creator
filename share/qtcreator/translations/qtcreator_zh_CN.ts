@@ -36732,7 +36732,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;当前文件&gt;</translation>

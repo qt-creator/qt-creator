@@ -27670,9 +27670,6 @@ Do you want to save the data first?</source>
         <source>Main QML file:</source>
         <translation>メイン QML ファイル:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;現在のファイル&gt;</translation>

@@ -16141,16 +16141,10 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <source>Debugging Port:</source>
         <translation type="obsolete">Vrata za razhroščevanje:</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;trenutna datoteka&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation>Zaženi skript QML</translation>

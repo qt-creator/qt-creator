@@ -15146,7 +15146,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlManager</name>
+    <name>::QmlProjectManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Поточний файл&gt;</translation>

@@ -13285,16 +13285,10 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <comment>QMLRunConfiguration display name.</comment>
         <translation>QML 檢視器</translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;目前檔案&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Run QML Script</source>
         <translation type="obsolete">執行 QML 腳本</translation>

@@ -31826,16 +31826,10 @@ Saving failed.</source>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlManager</name>
     <message>
         <source>&lt;Current File&gt;</source>
         <translation>&lt;Trenutačna datoteka&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::QmlProjectManager</name>
     <message>
         <source>Main QML file:</source>
         <translation type="unfinished"></translation>
