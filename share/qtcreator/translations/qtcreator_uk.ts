@@ -20198,9 +20198,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Calls</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Попередня команда ще не завершилась.</translation>
@@ -20237,16 +20234,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Downloading remote profile data...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>Розбір даних профілювання...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Файл:</translation>
@@ -20311,9 +20302,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Incl. Cost: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -20322,9 +20310,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 в %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation type="unfinished"></translation>
@@ -20337,23 +20322,14 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Cache</source>
         <translation>Кеш</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>в %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Filter...</source>
         <translation type="vanished">Фільтр...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation type="vanished">Копіювати обране</translation>
@@ -20362,9 +20338,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Suppress Error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation type="unfinished"></translation>
@@ -20486,9 +20459,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>XML Files (*.xml);;All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppression File:</source>
         <translation type="unfinished"></translation>
@@ -20657,16 +20627,10 @@ With cache simulation, further event counters are enabled:
         <source>Collects information for system call times.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Instruction pointer:</source>
         <translation type="unfinished"></translation>
@@ -20675,9 +20639,6 @@ With cache simulation, further event counters are enabled:
         <source>Object:</source>
         <translation>Об&apos;єкт:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation type="unfinished"></translation>
@@ -20690,9 +20651,6 @@ With cache simulation, further event counters are enabled:
         <source>Thread ID</source>
         <translation type="vanished">ID нитки</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -20745,9 +20703,6 @@ With cache simulation, further event counters are enabled:
         <source>Unexpected exception caught during parsing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Опис</translation>
@@ -33574,9 +33529,6 @@ Please close all running instances of your application before starting a build.<
         <source>Profiling %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlServer на %1:</translation>
@@ -33585,9 +33537,6 @@ Please close all running instances of your application before starting a build.<
         <source>LogServer on %1:</source>
         <translation>LogServer на %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Аналіз пам&apos;яті</translation>
@@ -33638,16 +33587,10 @@ Please close all running instances of your application before starting a build.<
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Не вдалось визначити віддалений PID.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Налаштування Valgrind</translation>

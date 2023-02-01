@@ -17428,9 +17428,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Helgrind Thread ID</source>
         <translation>Helgrind 執行緒代碼</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>位置：</translation>
@@ -17439,9 +17436,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Instruction pointer:</source>
         <translation>指令指標：</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>無法剖析從&quot;%1&quot; (%2) 來的十六進位數</translation>
@@ -17494,9 +17488,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Unexpected exception caught during parsing.</source>
         <translation>剖析時抓取到未預期的例外狀況。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>描述</translation>
@@ -20413,9 +20404,6 @@ if (a &amp;&amp;
         <source>Save Suppression</source>
         <translation type="unfinished">儲存Suppression</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>一般設定</translation>
@@ -21937,9 +21925,6 @@ In addition, device connectivity will be tested.</source>
         <translation>分析 %1 的效能中
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Valgrind 函式效能分析器</translation>
@@ -21952,9 +21937,6 @@ In addition, device connectivity will be tested.</source>
         <source>Profile Costs of this Function and its Callees</source>
         <translation type="unfinished">分析此項功能和被調用者的花銷</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>呼叫者</translation>
@@ -22071,16 +22053,10 @@ In addition, device connectivity will be tested.</source>
         <source>Populating...</source>
         <translation type="unfinished">填充...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation type="unfinished">所有功能包含一個成本比%1高的 (%2 被隱藏)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>記憶體分析中</translation>
@@ -22091,16 +22067,10 @@ In addition, device connectivity will be tested.</source>
         <translation>%1 的記憶體分析中
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>於 %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>複製選擇</translation>
@@ -22109,9 +22079,6 @@ In addition, device connectivity will be tested.</source>
         <source>Suppress Error</source>
         <translation type="unfinished">防止錯誤</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>外部錯誤</translation>
@@ -22176,9 +22143,6 @@ In addition, device connectivity will be tested.</source>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>剖析 valgrind 輸出時發生錯誤：%1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>被呼叫者</translation>
@@ -22195,9 +22159,6 @@ In addition, device connectivity will be tested.</source>
         <source>Calls</source>
         <translation>呼叫</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation type="unfinished">之前的命令還沒有完成.</translation>
@@ -22230,9 +22191,6 @@ In addition, device connectivity will be tested.</source>
         <source>Downloading remote profile data...</source>
         <translation type="unfinished">下載遠端設置數據...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>函式：</translation>
@@ -22307,9 +22265,6 @@ In addition, device connectivity will be tested.</source>
         <source>Incl. Cost: %1</source>
         <translation type="unfinished">其中花費: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>於 %2 中的 %1</translation>
@@ -22318,9 +22273,6 @@ In addition, device connectivity will be tested.</source>
         <source>%1:%2 in %3</source>
         <translation>於 %3 中的 %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>最後等級</translation>
@@ -22377,16 +22329,10 @@ In addition, device connectivity will be tested.</source>
         <source>Position:</source>
         <translation>位置：</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Parsing Profile Data...</source>
         <translation>正在剖析效能分析資料...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation type="obsolete">找不到用於遠端分析的網路介面。</translation>
@@ -22403,16 +22349,10 @@ In addition, device connectivity will be tested.</source>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">尚未選擇遠端分析使用的網路介面</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>無法決定遠端的行程代碼。</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind 選項：%1</translation>

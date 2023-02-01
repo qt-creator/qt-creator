@@ -41499,7 +41499,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>HeobDialog</name>
+    <name>::Valgrind</name>
     <message>
         <source>New</source>
         <translation>Neu</translation>
@@ -41621,10 +41621,6 @@ Was soll %1 tun?</translation>
         <translation>Vorgabe</translation>
     </message>
     <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-    <message>
         <source>New Heob Profile</source>
         <translation>Neues Heob-Profil</translation>
     </message>
@@ -41644,9 +41640,6 @@ Was soll %1 tun?</translation>
         <source>Are you sure you want to delete this profile permanently?</source>
         <translation>Möchten Sie dieses Profil endgültig löschen?</translation>
     </message>
-</context>
-<context>
-    <name>HeobData</name>
     <message>
         <source>Process %1</source>
         <translation>Prozess %1</translation>

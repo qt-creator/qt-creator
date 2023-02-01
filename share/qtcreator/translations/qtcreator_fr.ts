@@ -28299,9 +28299,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Helgrind Thread ID</source>
         <translation>ID du thread Helgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Emplacement :</translation>
@@ -28310,9 +28307,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Instruction pointer:</source>
         <translation>Pointeur d&apos;instruction : </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Impossible de parser le nombre hexadécimal depuis &quot;%1&quot; (%2)</translation>
@@ -28365,9 +28359,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Unexpected exception caught during parsing.</source>
         <translation>Exception inattendue lors du parsage. </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Description</translation>
@@ -31982,9 +31973,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
         <source>Save Suppression</source>
         <translation>Sauvegarder la suppression</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Paramètres génériques</translation>
@@ -34729,9 +34717,6 @@ Remote error output was: %1</source>
 </source>
         <translation>Profilage de %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profiler</source>
         <translation>Profileur de fonction de Valgrind</translation>
@@ -34744,9 +34729,6 @@ Remote error output was: %1</source>
         <source>Profile Costs of this Function and its Callees</source>
         <translation>Profiler les coûts de cette fonction et de ses appelés</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translatorcomment>ou -ants ?</translatorcomment>
@@ -34881,32 +34863,20 @@ Remote error output was: %1</source>
         <source>Populating...</source>
         <translation>Remplissage... </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Toutes les fonctions avec un ratio de coût inclusif supérieur à %1 (%2 sont cachés)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing memory of %1
 </source>
         <translation>Analyse de la mémoire de %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>in %1</source>
         <translation>dans %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Copy Selection</source>
         <translation>Copier la sélection</translation>
@@ -34915,9 +34885,6 @@ Remote error output was: %1</source>
         <source>Suppress Error</source>
         <translation>Cacher les erreurs</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>External Errors</source>
         <translation>Erreurs externe</translation>
@@ -34990,9 +34957,6 @@ Remote error output was: %1</source>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Erreur d&apos;analyse de la sortie de Valgring : %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Appelé</translation>
@@ -35009,9 +34973,6 @@ Remote error output was: %1</source>
         <source>Calls</source>
         <translation>Appels</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>La commande précédente n&apos;a pas fini. </translation>
@@ -35048,9 +35009,6 @@ Remote error output was: %1</source>
         <source>Downloading remote profile data...</source>
         <translation>Téléchargement des données de profilage distante...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Fonction :</translation>
@@ -35120,9 +35078,6 @@ Remote error output was: %1</source>
         <source>Incl. Cost: %1</source>
         <translation>Dont coût : %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 dans %2</translation>
@@ -35131,9 +35086,6 @@ Remote error output was: %1</source>
         <source>%1:%2 in %3</source>
         <translation>%1 : %2 dans %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Dernier niveau</translation>
@@ -35190,9 +35142,6 @@ Remote error output was: %1</source>
         <source>Position:</source>
         <translation>Position :</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Pas d&apos;interface réseau trouvée pour l&apos;analyse à distance.</translation>
@@ -35225,9 +35174,6 @@ Remote error output was: %1</source>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">Aucune interface réseau n&apos;a été choisie pour l&apos;analyse distante</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Options de Valgrind : %1</translation>
@@ -35268,9 +35214,6 @@ Remote error output was: %1</source>
         <source>Application Output</source>
         <translation type="obsolete">Sortie de l&apos;application</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyseur</translation>
@@ -50170,9 +50113,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Profiling %1</source>
         <translation>Profilage de %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analyse de la mémoire</translation>
@@ -50249,16 +50189,10 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Process terminated.</source>
         <translation>Le processus s&apos;est terminé.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Le profileur Valgrind utilise l&apos;outil &quot;callgrind&quot; pour enregistrer les appels de fonction quand un programme est lancé. </translation>
@@ -50283,16 +50217,10 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <source>Profile Costs of This Function and Its Callees</source>
         <translation>Estimer les coûts de cette fonction et de fonctions qu&apos;elle appelle</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Impossible de déterminer le PID distant.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Paramètres de Valgrind</translation>

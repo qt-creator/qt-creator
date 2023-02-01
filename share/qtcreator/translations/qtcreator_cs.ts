@@ -27371,9 +27371,6 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
         <source>Save Suppression</source>
         <translation>Uložit soubor vyloučení</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Generic Settings</source>
         <translation>Obecná nastavení</translation>
@@ -35759,9 +35756,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <translation>Profilování %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -35770,9 +35764,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Profile Costs of this Function and its Callees</source>
         <translation>Náklady na profilování u této funkce a jí volaných funkcí</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callers</source>
         <translation>Volající</translation>
@@ -35917,9 +35908,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Populating...</source>
         <translation>Vytváří se pohled...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Všechny funkce s poměrem zahrnutým nákladů větším než %1 (%2 jsou skryty)</translation>
@@ -36018,9 +36006,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Error occurred parsing valgrind output: %1</source>
         <translation>Chyba při vyhodnocování výstupu Valgrind %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callee</source>
         <translation>Volaná funkce</translation>
@@ -36037,9 +36022,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Calls</source>
         <translation>Volání</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Předchozí příkaz ještě není ukončen.</translation>
@@ -36076,9 +36058,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Downloading remote profile data...</source>
         <translation>Stahují se vzdálená data profilování...</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkce:</translation>
@@ -36147,9 +36126,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Incl. Cost: %1</source>
         <translation>Zahrnuté náklady: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
@@ -36158,9 +36134,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>%1:%2 in %3</source>
         <translation>%1:%2 v %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Poslední úroveň</translation>
@@ -36217,9 +36190,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Position:</source>
         <translation>Poloha:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No network interface found for remote analysis.</source>
         <translation>Nebylo nalezeno žádné síťové rozhraní pro vzdálenou analýzu.</translation>
@@ -36252,9 +36222,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>No Network Interface was chosen for remote analysis</source>
         <translation type="obsolete">Nebylo vybráno žádné síťové rozhraní pro dálkově řízený rozbor</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>No errors found</source>
         <translation>Nenalezeny žádné chyby</translation>
@@ -36295,9 +36262,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Helgrind Thread ID</source>
         <translation>ID vlákna Helgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Location:</source>
         <translation>Umístění:</translation>
@@ -36310,9 +36274,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation>Nepodařilo se zpracovat šestnáctkové číslo (hexadecimální) z &quot;%1&quot; (%2); není platné</translation>
@@ -36365,9 +36326,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Unexpected exception caught during parsing.</source>
         <translation>Při zpracování se vyskytla neočekávaná výjimka.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Popis</translation>
@@ -36388,9 +36346,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>File</source>
         <translation>Soubor</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Command-line arguments: %1</source>
         <translation type="obsolete">Argumenty příkazového řádku: %1</translation>
@@ -36427,9 +36382,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
         <source>Application Output</source>
         <translation type="obsolete">Výstup programu</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzer</source>
         <translation type="obsolete">Analyzátor</translation>
@@ -53633,9 +53585,6 @@ se vyskytla chyba</translation>
         <source>Profiling %1</source>
         <translation>Profilování %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Provádí se rozbor paměti</translation>
@@ -53718,16 +53667,10 @@ se vyskytla chyba</translation>
         <source>Process terminated.</source>
         <translation>Proces ukončen.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
         <translation>Profilování funkcí s Valgrind používá nástroj &quot;callgrind&quot; pro záznam volání funkcí během spuštění programu.</translation>
@@ -53752,16 +53695,10 @@ se vyskytla chyba</translation>
         <source>Profile Costs of This Function and Its Callees</source>
         <translation>Náklady na profilování u této funkce a jí volaných funkcí</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Nepodařilo se určit PID vzdáleného procesu.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Nastavení Valgrind</translation>

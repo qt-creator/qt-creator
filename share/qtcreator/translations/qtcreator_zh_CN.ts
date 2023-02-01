@@ -22276,7 +22276,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>HeobData</name>
+    <name>::Valgrind</name>
     <message>
         <source>Process %1</source>
         <translation type="unfinished">进程%1</translation>
@@ -22337,9 +22337,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>New</source>
         <translation type="unfinished">新建</translation>
@@ -46788,10 +46785,6 @@ To disable a variable, prefix the line with &quot;#&quot;.</source>
     <message>
         <source>Valgrind Analyze Memory with GDB uses the Memcheck tool to find memory leaks.
 When a problem is detected, the application is interrupted and can be debugged.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Heob</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

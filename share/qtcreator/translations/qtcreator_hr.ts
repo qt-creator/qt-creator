@@ -34836,9 +34836,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Calls</source>
         <translation>Pozivi</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Previous command has not yet finished.</source>
         <translation>Prethodna naredba još nije gotova.</translation>
@@ -34871,9 +34868,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Callgrind unpaused.</source>
         <translation>Callgrind je ponovo pokrenut.</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>File:</source>
         <translation>Datoteka:</translation>
@@ -34934,9 +34928,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Incl. Cost: %1</source>
         <translation>Uklj. trošak: %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 u %2</translation>
@@ -34945,9 +34936,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>%1:%2 in %3</source>
         <translation>%1:%2 u %3</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Last-level</source>
         <translation>Zadnja-razina</translation>
@@ -35004,9 +34992,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Position:</source>
         <translation>Položaj:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Profiling</source>
         <translation>Profiliranje</translation>
@@ -35015,9 +35000,6 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Profiling %1</source>
         <translation>Profiliranje %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Callgrind</source>
         <translation>Callgrind</translation>
@@ -35186,30 +35168,18 @@ Neće se primijeniti na bjeline u komentarima i znakovnim nizovima.</translation
         <source>Parsing Profile Data...</source>
         <translation>Obrada podataka profila …</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>All functions with an inclusive cost ratio higher than %1 (%2 are hidden)</source>
         <translation>Sve funkcije s uključenim omjerom troškova većim od %1 (%2 su skrivene)</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Suppress Error</source>
         <translation>Potisni grešku</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Analyzing Memory</source>
         <translation>Analiziranje memorije</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Memcheck</source>
         <translation type="unfinished"></translation>
@@ -35367,9 +35337,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
             <numerusform>Datoteka dnevnika je obrađena. Nađeno je %1 problema.</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>HeobDialog</name>
     <message>
         <source>XML output file:</source>
         <translation>Izlazna XML datoteka:</translation>
@@ -35479,13 +35446,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>U redu</translation>
     </message>
     <message>
-        <source>Heob</source>
-        <translation>Heob</translation>
-    </message>
-</context>
-<context>
-    <name>HeobData</name>
-    <message>
         <source>Process %1</source>
         <translation>Proces %1</translation>
     </message>
@@ -35545,9 +35505,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Heob: Failure in process attach handshake (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Save Suppression</source>
         <translation>Spremi potiskivanje</translation>
@@ -35564,9 +35521,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Select Suppression File</source>
         <translation>Odaberi datoteku potiskivanja</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Valgrind opcije: %1</translation>
@@ -35601,23 +35555,14 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <translation>Proces je izašao s povratnom vrijednošću %1
 </translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind</source>
         <translation>Valgrind</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Valgrind Settings</source>
         <translation>Valgrind postavke</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>XmlServer on %1:</source>
         <translation>XmlPoslužitelj na %1:</translation>
@@ -35626,9 +35571,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>LogServer on %1:</source>
         <translation>LogPoslužitelj na %1:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Issue</source>
         <translation>Problem</translation>
@@ -35641,9 +35583,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>%1 in function %2</source>
         <translation>%1 u funkciji %2</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>%1%2</source>
         <translation>%1%2</translation>
@@ -35652,9 +35591,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>in %1</source>
         <translation>u %1</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Function:</source>
         <translation>Funkcija:</translation>
@@ -35671,9 +35607,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Object:</source>
         <translation>Objekt:</translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2)</source>
         <translation type="unfinished"></translation>
@@ -35726,9 +35659,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Unexpected exception caught during parsing.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Valgrind</name>
     <message>
         <source>Description</source>
         <translation>Opis</translation>
