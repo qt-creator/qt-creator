@@ -216,6 +216,17 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                             tr("Material Browser view"));
 }
 
+void MaterialBrowserView::createTextures(const QStringList &assetPaths)
+{
+    auto *create = new CreateTextures(this, false);
+
+    executeInTransaction("MaterialBrowserView::createTextures", [&]() {
+        create->execute(assetPaths, AddTextureMode::Texture, m_sceneId);
+    });
+
+    create->deleteLater();
+}
+
 void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);

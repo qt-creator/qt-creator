@@ -72,8 +72,16 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 10) {
                 QMimeData *mimeData = new QMimeData;
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
-                m_model->startDrag(mimeData,
-                                   m_assetsIconProvider->requestPixmap(m_assetsToDrag[0], nullptr, {128, 128}));
+
+                QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, [](const QString &path) {
+                    return QUrl::fromLocalFile(path);
+                });
+
+                mimeData->setUrls(urlsToDrag);
+
+                m_model->startDrag(mimeData, m_assetsIconProvider->requestPixmap(m_assetsToDrag[0],
+                                                                                 nullptr, {128, 128}));
+
                 m_assetsToDrag.clear();
             }
         }

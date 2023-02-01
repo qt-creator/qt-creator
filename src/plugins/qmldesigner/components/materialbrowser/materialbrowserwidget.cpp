@@ -278,6 +278,12 @@ void MaterialBrowserWidget::acceptBundleTextureDrop()
         m_materialBrowserView->model()->endDrag();
 }
 
+void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
+{
+    QStringList assetPaths = Utils::transform(urls, [](const QUrl &url) { return url.toLocalFile(); });
+    m_materialBrowserView->createTextures(assetPaths);
+}
+
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)
 {
     ModelNode mat = m_materialBrowserModel->materialAt(matIndex);

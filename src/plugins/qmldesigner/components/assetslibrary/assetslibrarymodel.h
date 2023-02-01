@@ -39,6 +39,7 @@ public:
 
     Q_INVOKABLE QList<QModelIndex> parentIndices(const QModelIndex &index) const;
     Q_INVOKABLE bool indexIsValid(const QModelIndex &index) const;
+    Q_INVOKABLE bool urlPathExistsInModel(const QUrl &url) const;
     Q_INVOKABLE QString currentProjectDirPath() const;
     Q_INVOKABLE QString contentDirPath() const;
     Q_INVOKABLE bool requestDeleteFiles(const QStringList &filePaths);

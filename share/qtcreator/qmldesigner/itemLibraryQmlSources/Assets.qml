@@ -34,6 +34,9 @@ Item {
         var complexSuffixes = rootView.supportedAssetSuffixes(true)
         for (const u of drag.urls) {
             var url = u.toString()
+            if (assetsModel.urlPathExistsInModel(url))
+                continue;
+
             var ext = '*.' + url.slice(url.lastIndexOf('.') + 1).toLowerCase()
             if (simpleSuffixes.includes(ext))
                 root.dropSimpleExtFiles.push(url)

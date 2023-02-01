@@ -716,6 +716,8 @@ Item {
 
                         onDropEnter: (drag) => {
                             drag.accepted = drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture"
+                                         || drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+
                             highlight = drag.accepted
                         }
 
@@ -726,7 +728,10 @@ Item {
                         onDrop: (drag) => {
                             drag.accept()
                             highlight = false
-                            rootView.acceptBundleTextureDrop()
+                            if (drag.formats[0] === "application/vnd.qtdesignstudio.bundletexture")
+                                rootView.acceptBundleTextureDrop()
+                            else if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+                                rootView.acceptAssetsDrop(drag.urls)
                         }
 
                         onExpandedChanged: {

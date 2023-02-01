@@ -150,6 +150,12 @@ bool AssetsLibraryModel::addNewFolder(const QString &folderPath)
     return dir.mkpath(iterPath);
 }
 
+bool AssetsLibraryModel::urlPathExistsInModel(const QUrl &url) const
+{
+    QModelIndex index = indexForPath(url.toLocalFile());
+    return index.isValid();
+}
+
 bool AssetsLibraryModel::deleteFolderRecursively(const QModelIndex &folderIndex)
 {
     auto idx = mapToSource(folderIndex);

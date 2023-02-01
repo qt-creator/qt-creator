@@ -235,7 +235,7 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
 
 bool DesignerActionManager::externalDragHasSupportedAssets(const QMimeData *mimeData) const
 {
-    if (!mimeData->hasUrls())
+    if (!mimeData->hasUrls() || mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
         return false;
 
     QSet<QString> filtersSet;

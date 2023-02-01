@@ -55,6 +55,7 @@ public:
     void applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture = {});
     void applyTextureToMaterial(const QList<ModelNode> &materials, const ModelNode &texture);
 
+    void createTextures(const QStringList &assetPaths);
 
     Q_INVOKABLE void updatePropsModel(const QString &matId);
     Q_INVOKABLE void applyTextureToProperty(const QString &matId, const QString &propName);
