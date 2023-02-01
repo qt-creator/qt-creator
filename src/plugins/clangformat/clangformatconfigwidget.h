@@ -5,30 +5,12 @@
 
 #include <cppeditor/cppcodestylesettingspage.h>
 
-#include <clang/Format/Format.h>
-
-#include <utils/guard.h>
-
-#include <QScrollArea>
-
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QCheckBox;
-class QComboBox;
-class QLabel;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer { class Project; }
-namespace TextEditor { class SnippetEditorWidget; }
 namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
-
-namespace Ui { class ClangFormatChecksWidget; }
-
-class ClangFormatFile;
-class ClangFormatChecks;
 
 class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
 {
@@ -62,16 +44,8 @@ private:
     void updatePreview();
     void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
 
-    ProjectExplorer::Project *m_project;
-    QWidget *m_checksWidget;
-    QScrollArea *m_checksScrollArea;
-    TextEditor::SnippetEditorWidget *m_preview;
-    std::unique_ptr<ClangFormatFile> m_config;
-    clang::format::FormatStyle m_style;
-
-    Utils::Guard m_ignoreChanges;
-
-    QLabel *m_fallbackConfig;
+    class Private;
+    Private * const d;
 };
 
 } // ClangFormat
