@@ -43776,7 +43776,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>::Tracing</name>
     <message>
         <source>Jump to previous event</source>
         <translation>Jít na předchozí událost</translation>
