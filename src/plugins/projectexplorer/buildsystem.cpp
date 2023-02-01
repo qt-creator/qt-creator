@@ -248,6 +248,13 @@ ExtraCompiler *BuildSystem::extraCompilerForSource(const Utils::FilePath &source
     return findExtraCompiler([source](const ExtraCompiler *ec) { return ec->source() == source; });
 }
 
+ExtraCompiler *BuildSystem::extraCompilerForTarget(const Utils::FilePath &target) const
+{
+    return findExtraCompiler([target](const ExtraCompiler *ec) {
+        return ec->targets().contains(target);
+    });
+}
+
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     QTC_ASSERT(target()->project()->hasMakeInstallEquivalent(), return {});

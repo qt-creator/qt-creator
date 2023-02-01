@@ -6,7 +6,10 @@
 #include "nimblebuildsystem.h"
 
 #include <coreplugin/icontext.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -45,6 +48,13 @@ QStringList NimbleProject::excludedFiles() const
 void NimbleProject::setExcludedFiles(const QStringList &excludedFiles)
 {
     m_excludedFiles = excludedFiles;
+}
+
+// Factory
+
+NimbleProjectFactory::NimbleProjectFactory()
+{
+    ProjectManager::registerProjectType<NimbleProject>(Constants::C_NIMBLE_MIMETYPE);
 }
 
 } // Nim

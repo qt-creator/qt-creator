@@ -131,7 +131,8 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
                 replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
-    d->search->makeNonInteractive(callback);
+    if (callback)
+        d->search->makeNonInteractive(callback);
     if (categorize)
         d->search->setFilter(new CppSearchResultFilter);
     if (d->replacementData) {

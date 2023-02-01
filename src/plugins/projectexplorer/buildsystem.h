@@ -85,6 +85,7 @@ public:
 
     // Owned by the build system. Use only in main thread. Can go away at any time.
     ExtraCompiler *extraCompilerForSource(const Utils::FilePath &source) const;
+    ExtraCompiler *extraCompilerForTarget(const Utils::FilePath &target) const;
 
     virtual MakeInstallCommand makeInstallCommand(const Utils::FilePath &installRoot) const;
 

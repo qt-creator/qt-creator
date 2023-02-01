@@ -219,6 +219,7 @@ QString Utils::toString(CPlusPlus::Kind kind)
     TOKEN(T_LBRACKET);
     TOKEN(T_LESS);
     TOKEN(T_LESS_EQUAL);
+    TOKEN(T_LESS_EQUAL_GREATER);
     TOKEN(T_LESS_LESS);
     TOKEN(T_LESS_LESS_EQUAL);
     TOKEN(T_LPAREN);

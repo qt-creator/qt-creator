@@ -28,4 +28,10 @@ protected:
     QStringList m_excludedFiles;
 };
 
+class NimbleProjectFactory
+{
+public:
+    NimbleProjectFactory();
+};
+
 } // Nim

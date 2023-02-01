@@ -202,6 +202,24 @@ struct Value
     inline bool is_zero () const
     { return l == 0; }
 
+    template<typename T> static bool cmpImpl(T v1, T v2)
+    {
+        if (v1 < v2)
+            return -1;
+        if (v1 > v2)
+            return 1;
+        return 0;
+    }
+    Value cmp(const Value &other) const
+    {
+        Value v = *this;
+        if (v.is_ulong() || other.is_ulong())
+            v.set_long(cmpImpl(v.ul, other.ul));
+        else
+            v.set_long(cmpImpl(v.l, other.l));
+        return v;
+    }
+
 #define PP_DEFINE_BIN_OP(name, op) \
     inline Value operator op(const Value &other) const \
     { \
@@ -488,24 +506,25 @@ private:
     inline int precedence(int tokenKind) const
     {
         switch (tokenKind) {
-        case T_PIPE_PIPE:       return 0;
-        case T_AMPER_AMPER:     return 1;
-        case T_PIPE:            return 2;
-        case T_CARET:           return 3;
-        case T_AMPER:           return 4;
+        case T_PIPE_PIPE:           return 0;
+        case T_AMPER_AMPER:         return 1;
+        case T_PIPE:                return 2;
+        case T_CARET:               return 3;
+        case T_AMPER:               return 4;
         case T_EQUAL_EQUAL:
-        case T_EXCLAIM_EQUAL:   return 5;
+        case T_EXCLAIM_EQUAL:       return 5;
         case T_GREATER:
         case T_LESS:
         case T_LESS_EQUAL:
-        case T_GREATER_EQUAL:   return 6;
+        case T_GREATER_EQUAL:       return 6;
+        case T_LESS_EQUAL_GREATER:  return 7;
         case T_LESS_LESS:
-        case T_GREATER_GREATER: return 7;
+        case T_GREATER_GREATER:     return 8;
         case T_PLUS:
-        case T_MINUS:           return 8;
+        case T_MINUS:               return 9;
         case T_STAR:
         case T_SLASH:
-        case T_PERCENT:         return 9;
+        case T_PERCENT:             return 10;
 
         default:
             return -1;
@@ -525,6 +544,7 @@ private:
         case T_GREATER:
         case T_LESS:
         case T_LESS_EQUAL:
+        case T_LESS_EQUAL_GREATER:
         case T_GREATER_EQUAL:
         case T_LESS_LESS:
         case T_GREATER_GREATER:
@@ -543,24 +563,25 @@ private:
     static inline Value evaluate_expression(int tokenKind, const Value &lhs, const Value &rhs)
     {
         switch (tokenKind) {
-        case T_PIPE_PIPE:       return lhs || rhs;
-        case T_AMPER_AMPER:     return lhs && rhs;
-        case T_PIPE:            return lhs | rhs;
-        case T_CARET:           return lhs ^ rhs;
-        case T_AMPER:           return lhs & rhs;
-        case T_EQUAL_EQUAL:     return lhs == rhs;
-        case T_EXCLAIM_EQUAL:   return lhs != rhs;
-        case T_GREATER:         return lhs > rhs;
-        case T_LESS:            return lhs < rhs;
-        case T_LESS_EQUAL:      return lhs <= rhs;
-        case T_GREATER_EQUAL:   return lhs >= rhs;
-        case T_LESS_LESS:       return lhs << rhs;
-        case T_GREATER_GREATER: return lhs >> rhs;
-        case T_PLUS:            return lhs + rhs;
-        case T_MINUS:           return lhs - rhs;
-        case T_STAR:            return lhs * rhs;
-        case T_SLASH:           return rhs.is_zero() ? Value() : lhs / rhs;
-        case T_PERCENT:         return rhs.is_zero() ? Value() : lhs % rhs;
+        case T_PIPE_PIPE:            return lhs || rhs;
+        case T_AMPER_AMPER:          return lhs && rhs;
+        case T_PIPE:                 return lhs | rhs;
+        case T_CARET:                return lhs ^ rhs;
+        case T_AMPER:                return lhs & rhs;
+        case T_EQUAL_EQUAL:          return lhs == rhs;
+        case T_EXCLAIM_EQUAL:        return lhs != rhs;
+        case T_GREATER:              return lhs > rhs;
+        case T_LESS:                 return lhs < rhs;
+        case T_LESS_EQUAL:           return lhs <= rhs;
+        case T_LESS_EQUAL_GREATER:   return lhs.cmp(rhs);
+        case T_GREATER_EQUAL:        return lhs >= rhs;
+        case T_LESS_LESS:            return lhs << rhs;
+        case T_GREATER_GREATER:      return lhs >> rhs;
+        case T_PLUS:                 return lhs + rhs;
+        case T_MINUS:                return lhs - rhs;
+        case T_STAR:                 return lhs * rhs;
+        case T_SLASH:                return rhs.is_zero() ? Value() : lhs / rhs;
+        case T_PERCENT:              return rhs.is_zero() ? Value() : lhs % rhs;
 
         default:
             return Value();

@@ -23,7 +23,6 @@
 #include "suggest/nimsuggestcache.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -66,6 +65,9 @@ public:
     NimToolsSettingsPage toolsSettingsPage{&settings};
     NimCodeStylePreferencesFactory codeStylePreferencesPage;
     NimToolChainFactory toolChainFactory;
+
+    NimProjectFactory nimProjectFactory;
+    NimbleProjectFactory nimbleProjectFactory;
 };
 
 NimPlugin::~NimPlugin()
@@ -82,9 +84,6 @@ void NimPlugin::initialize()
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
                                                Tr::tr("Nim", "SnippetProvider"),
                                                &NimEditorFactory::decorateEditor);
-
-    ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
-    ProjectManager::registerProjectType<NimbleProject>(Constants::C_NIMBLE_MIMETYPE);
 }
 
 void NimPlugin::extensionsInitialized()

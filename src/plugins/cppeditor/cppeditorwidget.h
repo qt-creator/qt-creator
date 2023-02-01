@@ -136,6 +136,7 @@ private:
     const ProjectPart *projectPart() const;
 
     void handleOutlineChanged(const QWidget* newOutline);
+    void showRenameWarningIfFileIsGenerated(const Utils::FilePath &filePath);
 
 private:
     QScopedPointer<Internal::CppEditorWidgetPrivate> d;

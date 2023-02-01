@@ -157,11 +157,8 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
 
 static FilePath jsonObjectFilePath(const QJsonObject &object)
 {
-    const QString workingDir = QDir::cleanPath(object["directory"].toString());
-    FilePath fileName = FilePath::fromString(QDir::cleanPath(object["file"].toString()));
-    if (fileName.toFileInfo().isRelative())
-        fileName = FilePath::fromString(QDir::cleanPath(workingDir + "/" + fileName.toString()));
-    return fileName;
+    const FilePath workingDir = FilePath::fromUserInput(object["directory"].toString());
+    return workingDir.resolvePath(object["file"].toString());
 }
 
 std::vector<DbEntry> CompilationDbParser::readJsonObjects() const

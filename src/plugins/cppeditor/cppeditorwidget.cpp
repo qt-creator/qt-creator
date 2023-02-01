@@ -26,10 +26,14 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
+#include <coreplugin/icore.h>
 
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <texteditor/basefilefind.h>
 #include <texteditor/behaviorsettings.h>
@@ -614,9 +618,19 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
 {
     if (cursor.isNull())
         cursor = textCursor();
-    CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
-    QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->globalRename(cursorInEditor, replacement);
+
+    // First check if the symbol to be renamed comes from a generated file.
+    LinkHandler continuation = [=, self = QPointer(this)](const Link &link) {
+        if (!self)
+            return;
+        showRenameWarningIfFileIsGenerated(link.targetFilePath);
+        CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
+        QPointer<CppEditorWidget> cppEditorWidget = this;
+        d->m_modelManager->globalRename(cursorInEditor, replacement);
+    };
+    CppModelManager::followSymbol(
+                CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
+                continuation, true, false);
 }
 
 void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QString &replacement,
@@ -734,6 +748,45 @@ void CppEditorWidget::handleOutlineChanged(const QWidget *newOutline)
             d->m_cppEditorOutline = new CppEditorOutline(this);
         d->m_cppEditorOutline->updateIndex();
         setToolbarOutline(d->m_cppEditorOutline->widget());
+    }
+}
+
+void CppEditorWidget::showRenameWarningIfFileIsGenerated(const Utils::FilePath &filePath)
+{
+    if (filePath.isEmpty())
+        return;
+    for (const Project * const project : SessionManager::projects()) {
+        const Node * const node = project->nodeForFilePath(filePath);
+        if (!node)
+            continue;
+        if (!node->isGenerated())
+            return;
+        ExtraCompiler *ec = nullptr;
+        QString warning = CppEditor::Tr::tr(
+                    "You are trying to rename a symbol declared in the generated file \"%1\".\n"
+                    "This is normally not a good idea, as the file will likely get "
+                    "overwritten during the build process.")
+                .arg(filePath.toUserOutput());
+        if (const Target * const target = project->activeTarget()) {
+            if (const BuildSystem * const bs = target->buildSystem())
+                ec = bs->extraCompilerForTarget(filePath);
+        }
+        if (ec) {
+            warning.append('\n').append(CppEditor::Tr::tr(
+                                            "Do you want to edit \"%1\" instead?")
+                                        .arg(ec->source().toUserOutput()));
+        }
+        static const Id infoId("cppeditor.renameWarning");
+        InfoBarEntry info(infoId, warning);
+        if (ec) {
+            info.addCustomButton(CppEditor::Tr::tr("Open %1").arg(ec->source().fileName()),
+                [source = ec->source()] {
+                EditorManager::openEditor(source);
+                ICore::infoBar()->removeInfo(infoId);
+            });
+        }
+        ICore::infoBar()->addInfo(info);
+        return;
     }
 }
 

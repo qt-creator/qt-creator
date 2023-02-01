@@ -250,7 +250,9 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
     }
 }
 
-bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const Utils::FilePath &mainFilePath, const QString &oldFile)
+bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting,
+                                                 const FilePath &mainFilePath,
+                                                 const FilePath &oldFile)
 {
     // make sure to change it also in the qmlproject file
     const Utils::FilePath qmlProjectFilePath = project()->projectFilePath();
@@ -283,7 +285,7 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const U
         auto index = fileContent.lastIndexOf("}");
         fileContent.insert(index, addedText);
     } else {
-        QString originalFileName = oldFile;
+        QString originalFileName = oldFile.path();
         originalFileName.replace(".", "\\.");
         const QRegularExpression expression(QString("%1\\s*\"(%2)\"").arg(settingQmlCode).arg(originalFileName));
 
@@ -328,43 +330,42 @@ void QmlBuildSystem::refresh(RefreshOptions options)
     emit projectChanged();
 }
 
-QString QmlBuildSystem::mainFile() const
+FilePath QmlBuildSystem::mainFile() const
 {
     if (m_projectItem)
-        return m_projectItem->mainFile();
-    return QString();
+        return FilePath::fromString(m_projectItem->mainFile());
+    return {};
 }
 
-QString QmlBuildSystem::mainUiFile() const
+FilePath QmlBuildSystem::mainUiFile() const
 {
     if (m_projectItem)
-        return m_projectItem->mainUiFile();
-    return QString();
+        return FilePath::fromString(m_projectItem->mainUiFile());
+    return {};
 }
 
-Utils::FilePath QmlBuildSystem::mainFilePath() const
+FilePath QmlBuildSystem::mainFilePath() const
 {
-    return projectDirectory().pathAppended(mainFile());
+    return projectDirectory().resolvePath(mainFile());
 }
 
-Utils::FilePath QmlBuildSystem::mainUiFilePath() const
+FilePath QmlBuildSystem::mainUiFilePath() const
 {
-    return projectDirectory().pathAppended(mainUiFile());
+    return projectDirectory().resolvePath(mainUiFile());
 }
 
-bool QmlBuildSystem::setMainFileInProjectFile(const Utils::FilePath &newMainFilePath)
+bool QmlBuildSystem::setMainFileInProjectFile(const FilePath &newMainFilePath)
 {
-
     return setFileSettingInProjectFile("mainFile", newMainFilePath, mainFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInProjectFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInProjectFile(const FilePath &newMainUiFilePath)
 {
     return setMainUiFileInMainFile(newMainUiFilePath)
            && setFileSettingInProjectFile("mainUiFile", newMainUiFilePath, mainUiFile());
 }
 
-bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFilePath)
+bool QmlBuildSystem::setMainUiFileInMainFile(const FilePath &newMainUiFilePath)
 {
     Core::FileChangeBlocker fileChangeBlocker(mainFilePath());
     const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForFilePath(mainFilePath());
@@ -793,9 +794,9 @@ bool QmlBuildSystem::deleteFiles(Node *context, const FilePaths &filePaths)
 bool QmlBuildSystem::renameFile(Node * context, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (dynamic_cast<QmlProjectNode *>(context)) {
-        if (oldFilePath.endsWith(mainFile()))
+        if (oldFilePath.endsWith(mainFile().path()))
             return setMainFileInProjectFile(newFilePath);
-        if (oldFilePath.endsWith(mainUiFile()))
+        if (oldFilePath.endsWith(mainUiFile().path()))
             return setMainUiFileInProjectFile(newFilePath);
 
         return true;

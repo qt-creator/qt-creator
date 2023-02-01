@@ -71,6 +71,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     m_okButton = buttons->button(QDialogButtonBox::Ok);
     m_switchToButton = new QPushButton;
+    m_switchToButton->setDefault(true);
     buttons->addButton(m_switchToButton, QDialogButtonBox::AcceptRole);
     connect(m_switchToButton, &QPushButton::clicked, this, [this] {
         m_usedSwitchTo = true;
@@ -82,6 +83,13 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
         m_newSessionLineEdit,
         buttons,
     }.attachTo(this);
+
+    connect(m_newSessionLineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+        m_okButton->setEnabled(!text.isEmpty());
+        m_switchToButton->setEnabled(!text.isEmpty());
+    });
+    m_okButton->setEnabled(false);
+    m_switchToButton->setEnabled(false);
 
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
