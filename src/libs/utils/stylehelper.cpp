@@ -636,7 +636,7 @@ QLinearGradient StyleHelper::statusBarGradient(const QRect &statusBarRect)
 
 bool StyleHelper::isQDSTheme()
 {
-    return creatorTheme()->flag(Theme::QDSTheme);
+    return creatorTheme() ? creatorTheme()->flag(Theme::QDSTheme) : false;
 }
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
