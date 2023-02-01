@@ -15112,14 +15112,11 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>預期應為命名空間名稱</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
         <translation>新增 %1 宣告</translation>

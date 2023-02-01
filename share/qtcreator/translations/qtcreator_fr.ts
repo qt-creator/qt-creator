@@ -25055,13 +25055,6 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
-    <message>
-        <source>Expected a namespace-name</source>
-        <translation type="obsolete">Un nom de namespace est attendu</translation>
-    </message>
-</context>
-<context>
     <name>::CppEditor</name>
     <message>
         <source>Add %1 Declaration</source>
@@ -29542,10 +29535,6 @@ au gestionnaire de version (%2)</translation>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
         <translation type="obsolete">Générer les membre Q_PROPERTY manquant... </translation>
-    </message>
-    <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
-        <translation type="obsolete">Générer les membre Q_PROPERTY manquants...</translation>
     </message>
     <message>
         <source>Expand All</source>
@@ -47201,9 +47190,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Update Code Model</source>
         <translation>Mettre à jour le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>QuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Créer des fonctions membres accesseurs et mutateurs</translation>
@@ -47212,9 +47198,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation>Générer les membres Q_PROPERTY manquants...</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Déplacer la définition en dehors de la classe</translation>

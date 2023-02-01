@@ -30057,13 +30057,6 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
-    <message>
-        <source>Expected a namespace-name</source>
-        <translation type="obsolete">Požadováno zadání jmenného prostoru</translation>
-    </message>
-</context>
-<context>
     <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
@@ -30099,10 +30092,6 @@ správy verzí (%2)</translation>
     </message>
     <message>
         <source>Generate missing Q_PROPERTY members...</source>
-        <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
-    </message>
-    <message>
-        <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="obsolete">Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
     <message>
@@ -51754,9 +51743,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Update Code Model</source>
         <translation>Obnovit model kódu</translation>
     </message>
-</context>
-<context>
-    <name>QuickFixFactory</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation>Vytvořit funkce Getter a Setter</translation>
@@ -51765,9 +51751,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation>Doplnit chybějící prvky Q_PROPERTY...</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Move Definition Outside Class</source>
         <translation>Přesunout definice vně třídy</translation>

@@ -21529,14 +21529,11 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CheckUndefinedSymbols</name>
+    <name>::CppEditor</name>
     <message>
         <source>Expected a namespace-name</source>
         <translation>Pričakovano ime imenskega prostora</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Razvrsti po abecedi</translation>

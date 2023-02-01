@@ -40239,7 +40239,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>QuickFixFactory</name>
+    <name>::CppEditor</name>
     <message>
         <source>Create Getter and Setter Member Functions</source>
         <translation type="vanished">Створити функції-члени для отримання та встановлення значення</translation>
@@ -40264,9 +40264,6 @@ Affected are breakpoints %1</source>
         <source>Generate Missing Q_PROPERTY Members...</source>
         <translation type="vanished">Згенерувати відсутні члени Q_PROPERTY...</translation>
     </message>
-</context>
-<context>
-    <name>::CppEditor</name>
     <message>
         <source>Sort Alphabetically</source>
         <translation>Сортувати за абеткою</translation>
