@@ -35,6 +35,7 @@ public:
     QString scriptExtension() const;
     QStringList testCases() const;
     void addTestCase(const QString &testCase);
+    void removeTestCase(const QString &testCase);
 
     QStringList usedTestCases() const;
 

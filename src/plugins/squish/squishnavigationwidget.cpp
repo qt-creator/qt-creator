@@ -106,6 +106,9 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 connect(runThisTestCase, &QAction::triggered, [suiteName, caseName] {
                     SquishFileHandler::instance()->runTestCase(suiteName, caseName);
                 });
+                connect(deleteTestCase, &QAction::triggered, [suiteName, caseName] {
+                    SquishFileHandler::instance()->deleteTestCase(suiteName, caseName);
+                });
                 break;
             }
             case SquishTestTreeItem::SquishSuite: {

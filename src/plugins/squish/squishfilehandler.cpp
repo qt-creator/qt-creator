@@ -12,6 +12,7 @@
 #include "suiteconf.h"
 #include "squishtr.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorer.h>
@@ -306,6 +307,47 @@ void SquishFileHandler::closeAllTestSuites()
 {
     closeAllInternal();
     ProjectExplorer::SessionManager::setValue(SK_OpenSuites, suitePathsAsStringList());
+}
+
+static void closeOpenedEditorsFor(const Utils::FilePath &filePath)
+{
+    const QList<Core::IDocument *> openDocuments = Utils::filtered(
+                Core::DocumentModel::openedDocuments(), [filePath](Core::IDocument *doc) {
+            return doc->filePath().isChildOf(filePath);
+    });
+    // for now just ignore modifications - files will be removed completely
+    Core::EditorManager::closeDocuments(openDocuments, false);
+}
+
+void SquishFileHandler::deleteTestCase(const QString &suiteName, const QString &testCaseName)
+{
+    if (!m_suites.contains(suiteName))
+        return;
+
+    if (SquishMessages::simpleQuestion(Tr::tr("Confirm Delete"),
+                                       Tr::tr("Are you sure you want to delete Test Case \"%1\" "
+                                              "from the file system?").arg(testCaseName))
+            != QMessageBox::Yes) {
+        return;
+    }
+
+    const Utils::FilePath suiteConfPath = m_suites.value(suiteName);
+    SuiteConf suiteConf = SuiteConf::readSuiteConf(suiteConfPath);
+    const Utils::FilePath testCaseDirectory = suiteConfPath.parentDir().pathAppended(testCaseName);
+    closeOpenedEditorsFor(testCaseDirectory);
+    QString error;
+    if (!testCaseDirectory.removeRecursively(&error)) {
+        QString detail = Tr::tr("Deletion of Test Case failed.");
+        if (!error.isEmpty())
+            detail.append('\n').append(error);
+        SquishMessages::criticalMessage(detail);
+    } else {
+        Core::DocumentManager::expectFileChange(suiteConfPath);
+        suiteConf.removeTestCase(testCaseName);
+        bool ok = suiteConf.write();
+        QTC_CHECK(ok);
+        emit testCaseRemoved(suiteName, testCaseName);
+    }
 }
 
 void SquishFileHandler::closeAllInternal()

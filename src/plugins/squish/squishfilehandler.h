@@ -25,6 +25,7 @@ public:
     void openTestSuite(const Utils::FilePath &suiteConfPath, bool isReopen = false);
     void closeTestSuite(const QString &suiteName);
     void closeAllTestSuites();
+    void deleteTestCase(const QString &suiteName, const QString &testCaseName);
     void runTestCase(const QString &suiteName, const QString &testCaseName);
     void runTestSuite(const QString &suiteName);
     void recordTestCase(const QString &suiteName, const QString &testCaseName);
@@ -39,6 +40,7 @@ signals:
     void testTreeItemCreated(SquishTestTreeItem *item);
     void suiteTreeItemRemoved(const QString &suiteName);
     void suiteTreeItemModified(SquishTestTreeItem *item, const QString &displayName);
+    void testCaseRemoved(const QString &suiteName, const QString &testCaseName);
     void suitesOpened();
 
 private:

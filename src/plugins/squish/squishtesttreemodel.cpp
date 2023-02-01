@@ -180,6 +180,8 @@ SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
             this, &SquishTestTreeModel::onSuiteTreeItemModified);
     connect(m_squishFileHandler, &SquishFileHandler::suiteTreeItemRemoved,
             this, &SquishTestTreeModel::onSuiteTreeItemRemoved);
+    connect(m_squishFileHandler, &SquishFileHandler::testCaseRemoved,
+            this, &SquishTestTreeModel::onTestCaseRemoved);
     connect(m_squishFileHandler, &SquishFileHandler::clearedSharedFolders,
             this, [this] { m_squishSharedFolders->removeChildren(); });
 
@@ -448,6 +450,18 @@ void SquishTestTreeModel::onSuiteTreeItemModified(SquishTestTreeItem *item, cons
     }
     // avoid leaking item even when it cannot be found
     delete item;
+}
+
+void SquishTestTreeModel::onTestCaseRemoved(const QString &suiteName, const QString &testCase)
+{
+    if (SquishTestTreeItem *suite = findSuite(suiteName)) {
+        auto item = suite->findChildAtLevel(1, [this, testCase](const Utils::TreeItem *it) {
+            return data(it->index(), Qt::DisplayRole).toString() == testCase;
+        });
+        QTC_ASSERT(item, return);
+        const QModelIndex idx = item->index();
+        removeTreeItem(idx.row(), idx.parent());
+    }
 }
 
 /************************************** SquishTestTreeSortModel **********************************/
