@@ -1376,7 +1376,7 @@
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -8394,10 +8394,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Usuń przedrostek...</translation>
     </message>
     <message>
-        <source>Remove Missing Files</source>
-        <translation>Usuń brakujące pliki</translation>
-    </message>
-    <message>
         <source>Rename...</source>
         <translation>Zmień nazwę...</translation>
     </message>
@@ -8445,9 +8441,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Rename Prefix</source>
         <translation>Zmień nazwę przedrostka</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Otwórz przy pomocy</translation>
@@ -21259,9 +21252,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>Nie można skopiować pliku do %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
@@ -31158,14 +31148,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Przedrostek:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Język:</translation>
-    </message>
 </context>
 <context>
     <name>::Subversion</name>
@@ -32371,7 +32353,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Przedrostek: %2</translation>

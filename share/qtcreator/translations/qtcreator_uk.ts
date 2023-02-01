@@ -15395,7 +15395,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Додати</translation>
@@ -17734,10 +17734,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>Видалити префікс...</translation>
     </message>
     <message>
-        <source>Remove Missing Files</source>
-        <translation>Видалити відсутні файли</translation>
-    </message>
-    <message>
         <source>Rename...</source>
         <translation>Перейменувати...</translation>
     </message>
@@ -17789,9 +17785,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Recheck existence of referenced files</source>
         <translation type="vanished">Повторно перевірити існування файлів, на які посилаємось</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Перейменувати файл...</translation>
@@ -28006,9 +27999,6 @@ cannot be found in the path.</source>
         <source>Could not copy the file to %1.</source>
         <translation>Не вдалось скопіювати файл до %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Порожнє ім&apos;я файлу.</translation>
@@ -28025,9 +28015,6 @@ cannot be found in the path.</source>
         <source>Cannot write file. Disk full?</source>
         <translation type="vanished">Неможливо записати файл. Диск заповнено?</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Відкрити файл</translation>
@@ -35084,24 +35071,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>PrefixLangDialog</name>
-    <message>
-        <source>Prefix:</source>
-        <translation type="vanished">Префікс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation type="vanished">Мова:</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
-        <source>%1 Prefix: %2</source>
-        <translation type="vanished">%1 Префікс: %2</translation>
-    </message>
-</context>
-<context>
     <name>::TextEditor</name>
     <message>
         <source>Unused variable</source>
@@ -39229,14 +39198,6 @@ The files in the Android package source directory are copied to the build direct
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>Префікс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Мова:</translation>
-    </message>
 </context>
 <context>
     <name>::Subversion</name>
@@ -40365,7 +40326,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Префікс: %2</translation>

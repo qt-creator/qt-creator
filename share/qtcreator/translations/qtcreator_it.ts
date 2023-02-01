@@ -7473,7 +7473,7 @@ al VCS (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Aggiungi</translation>
@@ -8722,9 +8722,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>&amp;Redo</source>
         <translation>&amp;Ripeti</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>senza titolo</translation>
@@ -8760,7 +8757,7 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Aggiungi File</translation>
@@ -8809,9 +8806,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <source>Could not copy the file to %1.</source>
         <translation>Impossibile copiare il file su %1.</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Aggiungi File...</translation>
@@ -8857,16 +8851,8 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
         <translation>Cambia Lingua</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Lingua:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Cambia l&apos;Alias del file</translation>
-    </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Alias:</translation>
     </message>
 </context>
 <context>

@@ -7701,7 +7701,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -8272,9 +8272,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt C++ project.</source>
         <translation type="obsolete">Ustvari datoteko z viri za Qt (*.qrc), katero lahko dodate v projekt Qt C++.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>neimenovana</translation>
@@ -8298,7 +8295,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Dodaj datoteke</translation>
@@ -8359,9 +8356,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Copying failed</source>
         <translation type="obsolete">Kopiranje ni uspelo</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Dodaj datoteke …</translation>
@@ -8407,16 +8401,8 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Spremeni jezik</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Jezik:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Spremeni drugo ime datoteke</translation>
-    </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Drugo ime:</translation>
     </message>
     <message>
         <source>Open file</source>

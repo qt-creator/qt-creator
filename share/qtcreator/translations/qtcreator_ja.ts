@@ -5808,7 +5808,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -5840,10 +5840,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Add Prefix</source>
         <translation>プレフィックスの追加</translation>
-    </message>
-    <message>
-        <source>Add Files</source>
-        <translation>ファイルの追加</translation>
     </message>
 </context>
 <context>
@@ -28732,10 +28728,6 @@ In addition, device connectivity will be tested.</source>
         <translation>ファイルを追加</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>プレフィックスを追加</translation>
-    </message>
-    <message>
         <source>Invalid file location</source>
         <translation>不正なファイルパス</translation>
     </message>
@@ -28775,9 +28767,6 @@ In addition, device connectivity will be tested.</source>
         <source>Could not copy the file to %1.</source>
         <translation>ファイル %1 をコピーできませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>ファイル名が未入力です。</translation>
@@ -28790,16 +28779,10 @@ In addition, device connectivity will be tested.</source>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation>&lt;RCC&gt; にルート要素がありません。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>すべてのファイル (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -28823,10 +28806,6 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Remove Prefix...</source>
         <translation>プレフィックスを削除する...</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>存在しないファイルを削除する</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -28868,9 +28847,6 @@ In addition, device connectivity will be tested.</source>
         <source>Rename Prefix</source>
         <translation>プレフィックス名の変更</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -40419,17 +40395,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
 </context>
 <context>
     <name>::ResourceEditor</name>
-    <message>
-        <source>Prefix:</source>
-        <translation>プレフィックス:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>言語:</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 プレフィックス: %2</translation>

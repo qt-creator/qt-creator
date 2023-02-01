@@ -7233,7 +7233,7 @@ to version control (%2)?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>新增</translation>
@@ -7970,9 +7970,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Recheck existence of referenced files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation type="unfinished">開啟檔案</translation>
@@ -7992,68 +7989,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">新增檔案</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">新增前置字串</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">選擇複製位置</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">覆寫失敗</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">複製失敗</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="obsolete">複製</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translation type="obsolete">跳過</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">終止</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">無效的檔案位置</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">檔案 %1 沒有在資源檔所在的子目錄中。您可以選擇複製此檔案到一個有效的位置。</translation>
-    </message>
-    <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">無法覆寫檔案 %1。</translation>
-    </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">無法複製檔案到 %1。</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation type="obsolete">開啟檔案</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">所有檔案 (*)</translation>
     </message>
 </context>
 <context>
@@ -30485,9 +30420,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Could not copy the file to %1.</source>
         <translation type="unfinished">無法複製檔案到 %1。</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished">檔名為空。</translation>
@@ -30504,9 +30436,6 @@ Qt Creator 知道一個相似的URI.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation type="unfinished">無法寫入檔案。磁碟空間是否已滿？</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation type="unfinished">所有檔案 (*)</translation>

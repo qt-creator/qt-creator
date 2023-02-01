@@ -11011,7 +11011,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
@@ -12536,9 +12536,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <source>Recheck existence of referenced files</source>
         <translation>Vérifiez à nouveau l&apos;existence des fichiers référencés</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Ouvrir avec</translation>
@@ -12568,55 +12565,14 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
-    <message>
-        <source>Add Files</source>
-        <translation type="obsolete">Ajouter des fichiers</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="obsolete">Ajouter un préfixe</translation>
-    </message>
-    <message>
-        <source>Choose Copy Location</source>
-        <translation type="obsolete">Choisir l&apos;emplacement de copie</translation>
-    </message>
-    <message>
-        <source>Overwriting Failed</source>
-        <translation type="obsolete">Echec de l&apos;écrasement</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation type="obsolete">Échec de la copie</translation>
-    </message>
+    <name>::ResourceEditor</name>
     <message>
         <source>Invalid file</source>
         <translation type="obsolete">Fichier invalide</translation>
     </message>
     <message>
-        <source>Copy</source>
-        <translation type="obsolete">Copier</translation>
-    </message>
-    <message>
-        <source>Skip</source>
-        <translatorcomment>ignorer ?</translatorcomment>
-        <translation type="obsolete">Passer</translation>
-    </message>
-    <message>
-        <source>Abort</source>
-        <translation type="obsolete">Abandonner</translation>
-    </message>
-    <message>
         <source>The file %1 is not in a subdirectory of the resource file. Continuing will result in an invalid resource file.</source>
         <translation type="obsolete">Le fichier %1 n&apos;est pas dans un sous-dossier du fichier de ressource. Continuer résulterait en un fichier de ressource invalide.</translation>
-    </message>
-    <message>
-        <source>Invalid file location</source>
-        <translation type="obsolete">Emplacement de fichier invalide</translation>
-    </message>
-    <message>
-        <source>The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.</source>
-        <translation type="obsolete">Le fichier %1 n&apos;est pas dans un sous-dossier du fichier de ressource. Vous avez maintenant la possibilité de le copier vers un emplacement valide.</translation>
     </message>
     <message>
         <source>Choose copy location</source>
@@ -12627,20 +12583,9 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">L&apos;écrasement a échoué</translation>
     </message>
     <message>
-        <source>Could not overwrite file %1.</source>
-        <translation type="obsolete">L&apos;écrasement du fichier %1 a échoué.</translation>
-    </message>
-    <message>
         <source>Copying failed</source>
         <translation type="obsolete">Échec de la copie</translation>
     </message>
-    <message>
-        <source>Could not copy the file to %1.</source>
-        <translation type="obsolete">La copie du fichier dans &quot;%1&quot; a échoué.</translation>
-    </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation type="obsolete">Ajouter des fichiers...</translation>
@@ -12666,20 +12611,12 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">Supprimer l&apos;élément</translation>
     </message>
     <message>
-        <source>Open File</source>
-        <translation type="obsolete">Ouvrir le fichier</translation>
-    </message>
-    <message>
         <source>Input prefix:</source>
         <translation type="obsolete">Préfixe d&apos;entrée : </translation>
     </message>
     <message>
         <source>Open file</source>
         <translation type="obsolete">Ouvrir le fichier</translation>
-    </message>
-    <message>
-        <source>All files (*)</source>
-        <translation type="obsolete">Tous les fichiers (*)</translation>
     </message>
     <message>
         <source>Change Prefix</source>
@@ -12694,16 +12631,8 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation type="obsolete">Changer la langue</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation type="obsolete">Langue :</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation type="obsolete">Changer l&apos;alias du fichier</translation>
-    </message>
-    <message>
-        <source>Alias:</source>
-        <translation type="obsolete">Alias :</translation>
     </message>
 </context>
 <context>
@@ -44151,9 +44080,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Could not copy the file to %1.</source>
         <translation>La copie du fichier dans &quot;%1&quot; a échoué.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Le nom de fichier est vide.</translation>
@@ -44170,9 +44096,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
         <source>Cannot write file. Disk full?</source>
         <translation>Impossible d&apos;écrire le fichier. Disque plein ?</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Ouvrir le fichier</translation>

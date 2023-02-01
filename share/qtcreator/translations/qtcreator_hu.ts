@@ -11972,7 +11972,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add</source>
         <translation>Hozzáadás</translation>
@@ -14526,9 +14526,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>untitled</source>
         <translation type="obsolete">cím nélküli</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Egy Qt forrásfájl létrehozása (.qrc).</translation>
@@ -14549,9 +14546,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>&amp;Redo</source>
         <translation>&amp;Helyreállít</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
@@ -14691,7 +14685,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>SharedTools::QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Fájlok hozzáadása</translation>
@@ -14740,9 +14734,6 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <source>Could not copy the file to %1.</source>
         <translation>A fájl %1-be másolása nem sikerült.</translation>
     </message>
-</context>
-<context>
-    <name>SharedTools::ResourceView</name>
     <message>
         <source>Add Files...</source>
         <translation>Fájl hozzáadása...</translation>
@@ -14788,16 +14779,8 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
         <translation>Nyelv megváltoztatása</translation>
     </message>
     <message>
-        <source>Language:</source>
-        <translation>Nyelv:</translation>
-    </message>
-    <message>
         <source>Change File Alias</source>
         <translation>Fájl álnevek megváltoztatása</translation>
-    </message>
-    <message>
-        <source>Alias:</source>
-        <translation>Álnév:</translation>
     </message>
 </context>
 <context>

@@ -35183,7 +35183,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>ResourceTopLevelNode</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Präfix: %2</translation>

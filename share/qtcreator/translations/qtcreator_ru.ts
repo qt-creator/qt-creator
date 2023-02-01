@@ -39205,7 +39205,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QrcEditor</name>
+    <name>::ResourceEditor</name>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -40680,17 +40680,6 @@ If you do not have a private key yet, you can also create one here.</source>
 <context>
     <name>::ResourceEditor</name>
     <message>
-        <source>Prefix:</source>
-        <translation>Префикс:</translation>
-    </message>
-    <message>
-        <source>Language:</source>
-        <translation>Язык:</translation>
-    </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
-    <message>
         <source>Invalid file location</source>
         <translation>Неверное размещение файла</translation>
     </message>
@@ -40730,9 +40719,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Could not copy the file to %1.</source>
         <translation>Не удалось скопировать файл в %1.</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
@@ -40756,10 +40742,6 @@ If you do not have a private key yet, you can also create one here.</source>
     <message>
         <source>Recheck Existence of Referenced Files</source>
         <translation>Перепроверить наличие необходимых файлов</translation>
-    </message>
-    <message>
-        <source>Remove Missing Files</source>
-        <translation>Удалить отсутствующие файлы</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -40794,10 +40776,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <translation>Скопировать URL «%1»</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>Добавление префикса</translation>
-    </message>
-    <message>
         <source>Remove Prefix</source>
         <translation>Удаление префикса</translation>
     </message>
@@ -40817,9 +40795,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Rename Prefix</source>
         <translation>Переименование префикса</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Переименовать файл...</translation>
@@ -40832,9 +40807,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Sort Alphabetically</source>
         <translation>Сортировать по алфавиту</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Открытие файла</translation>
@@ -40843,9 +40815,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>All files (*)</source>
         <translation>Все файлы (*)</translation>
     </message>
-</context>
-<context>
-    <name>::ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Пустое имя файла.</translation>
@@ -40862,9 +40831,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Cannot save file.</source>
         <translation>Не удалось сохранить файл.</translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>Префикс %1: %2</translation>

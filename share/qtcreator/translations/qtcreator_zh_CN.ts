@@ -39739,9 +39739,6 @@ Control process failed to start.</source>
         <source>Sort Alphabetically</source>
         <translation type="unfinished">按字母排序</translation>
     </message>
-</context>
-<context>
-    <name>ResourceTopLevelNode</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation type="unfinished"></translation>
