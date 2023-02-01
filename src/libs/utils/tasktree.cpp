@@ -589,46 +589,715 @@ void TaskNode::invokeEndHandler(bool success)
 
 /*!
     \class Utils::TaskTree
-
-    \brief The TaskTree class is responsible for running async task tree structure defined in a
+    \inheaderfile utils/tasktree.h
+    \inmodule QtCreator
+    \ingroup mainclasses
+    \brief The TaskTree class runs an async task tree structure defined in a
            declarative way.
 
-    The Tasking namespace (similar to Layouting) is designer for building declarative task
-    tree structure. The examples of tasks that can be used inside TaskTree are e.g. QtcProcess,
-    FileTransfer, AsyncTask<>. It's extensible, so any possible asynchronous task may be
-    integrated and used inside TaskTree. TaskTree enables to form sophisticated mixtures of
-    parallel or sequential flow of tasks in tree form.
+    Use the Tasking namespace to build extensible, declarative task tree
+    structures that contain possibly asynchronous tasks, such as QtcProcess,
+    FileTransfer, or AsyncTask<ReturnType>. TaskTree structures enable you
+    to create a sophisticated mixture of a parallel or sequential flow of tasks
+    in the form of a tree and to run it any time later.
 
-    The TaskTree consist of Group root element. The Group can have nested Group elements.
-    The Group may also contain any number of tasks, e.g. Process, FileTransfer,
-    AsyncTask<ReturnType>.
+    \section1 Root Element and Tasks
 
-    Each Group can contain various other elements describing the processing flow.
+    The TaskTree has a mandatory Group root element, which may contain
+    any number of tasks of various types, such as Process, FileTransfer,
+    or AsyncTask<ReturnType>:
 
-    The execute mode elements of a Group specify how direct children of a Group will be executed.
-    The "sequential" element of a Group means all tasks in a group will be executed in chain,
-    so after the previous task finished, the next will be started. This is the default Group
-    behavior. The "parallel" element of a Group means that all tasks in a Group will be started
-    simultaneously. When having nested Groups hierarchy, we may mix execute modes freely
-    and each Group will be executed according to its own execute mode.
-    The "sequential" mode may be very useful in cases when result data from one task is need to
-    be passed as an input data to the other task - sequential mode guarantees that the next
-    task will be started only after the previous task has already finished.
+    \code
+        using namespace Utils;
+        using namespace Tasking;
 
-    There are many possible "workflow" behaviors for the Group. E.g. "stopOnError",
-    the default Group workflow behavior, means that whenever any direct child of a Group
-    finished with error, we immediately stop processing other tasks in this group
-    (in parallel case) by canceling them and immediately finish the Group with error.
+        const Group root {
+            Process(...),
+            Async<int>(...),
+            Transfer(...)
+        };
 
-    The user of TaskTree specifies how to setup his tasks (by providing TaskSetupHandlers)
-    and how to collect output data from the finished tasks (by providing TaskEndHandlers).
-    The user don't need to create tasks manually - TaskTree will create them when it's needed
-    and destroy when they are not used anymore.
+        TaskTree *taskTree = new TaskTree(root);
+        connect(taskTree, &TaskTree::done, ...);          // a successfully finished handler
+        connect(taskTree, &TaskTree::errorOccurred, ...); // an erroneously finished handler
+        taskTree->start();
+    \endcode
 
-    Whenever a Group elemenent is being started, the Group's OnGroupSetup handler is being called.
-    Just after the handler finishes, all Group's children are executed (either in parallel or
-    in sequence). When all Group's children finished, one of Group's OnGroupDone or OnGroupError
-    is being executed, depending on results of children execution and Group's workflow policy.
+    The task tree above has a top level element of the Group type that contains
+    tasks of the type QtcProcess, FileTransfer, and AsyncTask<int>.
+    After taskTree->start() is called, the tasks are run in a chain, starting
+    with Process. When Process finishes successfully, the Async<int> task is
+    started. Finally, when the asynchronous task finishes successfully, the
+    FileTransfer task is started.
+
+    When the last running task finishes with success, the task tree is considered
+    to have run successfully and the TaskTree::done() signal is emitted.
+    When a task finishes with an error, the execution of the task tree is stopped
+    and the remaining tasks are skipped. The task tree finishes with an error and
+    sends the TaskTree::errorOccurred() signal.
+
+    \section1 Groups
+
+    The parent of the Group sees it as a single task. Like other tasks,
+    the group can be started and it can finish with success or an error.
+    The Group elements can be nested to create a tree structure:
+
+    \code
+        const Group root {
+            Group {
+                parallel,
+                Process(...),
+                Async<int>(...)
+            },
+            Transfer(...)
+        };
+    \endcode
+
+    The example above differs from the first example in that the root element has
+    a subgroup that contains the Process and Async<int> tasks. The subgroup is a
+    sibling element of the Transfer task in the root. The subgroup contains an
+    additional \e parallel element that instructs its Group to execute its tasks
+    in parallel.
+
+    So, when the tree above is started, the Process and Async<int> tasks start
+    immediately and run in parallel. Since the root group doesn't contain a
+    \e parallel element, its direct child tasks are run in sequence. Thus, the
+    Transfer task starts when the whole subgroup finishes. The group is
+    considered as finished when all its tasks have finished. The order in which
+    the tasks finish is not relevant.
+
+    So, depending on which task lasts longer (Process or Async<int>), the
+    following scenarios can take place:
+
+    \table
+    \header
+        \li Scenario 1
+        \li Scenario 2
+    \row
+        \li Root Group starts
+        \li Root Group starts
+    \row
+        \li Sub Group starts
+        \li Sub Group starts
+    \row
+        \li Process starts
+        \li Process starts
+    \row
+        \li Async<int> starts
+        \li Async<int> starts
+    \row
+        \li ...
+        \li ...
+    \row
+        \li \b {Process finishes}
+        \li \b {Async<int> finishes}
+    \row
+        \li ...
+        \li ...
+    \row
+        \li \b {Async<int> finishes}
+        \li \b {Process finishes}
+    \row
+        \li Sub Group finishes
+        \li Sub Group finishes
+    \row
+        \li Transfer starts
+        \li Transfer starts
+    \row
+        \li ...
+        \li ...
+    \row
+        \li Transfer finishes
+        \li Transfer finishes
+    \row
+        \li Root Group finishes
+        \li Root Group finishes
+    \endtable
+
+    The differences between the scenarios are marked with bold. Three dots mean
+    that an unspecified amount of time passes between previous and next events
+    (a task or tasks continue to run). No dots between events
+    means that they occur synchronously.
+
+    The presented scenarios assume that all tasks run successfully. If a task
+    fails during execution, the task tree finishes with an error. In particular,
+    when Process finishes with an error while Async<int> is still being executed,
+    Async<int> is automatically stopped, the subgroup finishes with an error,
+    Transfer is skipped, and the tree finishes with an error.
+
+    \section1 Task Types
+
+    Each task type is associated with its corresponding task class that executes
+    the task. For example, a Process task inside a task tree is associated with
+    the QtcProcess class that executes the process. The associated objects are
+    automatically created, started, and destructed exclusively by the task tree
+    at the appropriate time.
+
+    If a root group consists of five sequential Process tasks, and the task tree
+    executes the group, it creates an instance of QtcProcess for the first
+    Process task and starts it. If the QtcProcess instance finishes successfully,
+    the task tree destructs it and creates a new QtcProcess instance for the
+    second Process, and so on. If the first task finishes with an error, the task
+    tree stops creating QtcProcess instances, and the root group finishes with an
+    error.
+
+    The following table shows examples of task types and their corresponding task
+    classes:
+
+    \table
+    \header
+        \li Task Type (Tasking Namespace)
+        \li Associated Task Class
+        \li Brief Description
+    \row
+        \li Process
+        \li Utils::QtcProcess
+        \li Starts processes.
+    \row
+        \li Async<ReturnType>
+        \li Utils::AsyncTask<ReturnType>
+        \li Starts asynchronous tasks; run in separate thread.
+    \row
+        \li Tree
+        \li Utils::TaskTree
+        \li Starts a nested task tree.
+    \row
+        \li Transfer
+        \li ProjectExplorer::FileTransfer
+        \li Starts file transfer between different devices.
+    \endtable
+
+    \section1 Task Handlers
+
+    Use Task handlers to set up a task for execution and to enable reading
+    the output data from the task when it finishes with success or an error.
+
+    \section2 Task Start Handler
+
+    When a corresponding task class object is created and before it's started,
+    the task tree invokes a mandatory user-provided setup handler. The setup
+    handler should always take a \e reference to the associated task class object:
+
+    \code
+        const auto onSetup = [](QtcProcess &process) {
+            process.setCommand({"sleep", {"3"}});
+        };
+        const Group root {
+            Process(onSetup)
+        };
+    \endcode
+
+    You can modify the passed QtcProcess in the setup handler, so that the task
+    tree can start the process according to your configuration.
+    You do not need to call \e {process.start();} in the setup handler,
+    as the task tree calls it when needed. The setup handler is mandatory
+    and must be the first argument of the task's constructor.
+
+    Optionally, the setup handler may return a TaskAction. The returned
+    TaskAction influences the further start behavior of a given task. The
+    possible values are:
+
+    \table
+    \header
+        \li TaskAction Value
+        \li Brief Description
+    \row
+        \li Continue
+        \li The task is started normally. This is the default behavior when the
+            setup handler doesn't return TaskAction (that is, its return type is
+            void).
+    \row
+        \li StopWithDone
+        \li The task won't be started and it will report success to its parent.
+    \row
+        \li StopWithError
+        \li The task won't be started and it will report an error to its parent.
+    \endtable
+
+    This is useful for running a task only when a condition is met and the data
+    needed to evaluate this condition is not known until previously started tasks
+    finish. This way, the setup handler dynamically decides whether to start the
+    corresponding task normally or skip it and report success or an error.
+    For more information about inter-task data exchange, see \l Storage.
+
+    \section2 Task's Done and Error Handlers
+
+    When a running task finishes, the task tree invokes an optionally provided
+    done or error handler. Both handlers should always take a \e {const reference}
+    to the associated task class object:
+
+    \code
+        const auto onSetup = [](QtcProcess &process) {
+            process.setCommand({"sleep", {"3"}});
+        };
+        const auto onDone = [](const QtcProcess &process) {
+            qDebug() << "Success" << process.cleanedStdOut();
+        };
+        const auto onError = [](const QtcProcess &process) {
+            qDebug() << "Failure" << process.cleanedStdErr();
+        };
+        const Group root {
+            Process(onSetup, onDone, onError)
+        };
+    \endcode
+
+    The done and error handlers may collect output data from QtcProcess, and store it
+    for further processing or perform additional actions. The done handler is optional.
+    When used, it must be the second argument of the task constructor.
+    The error handler must always be the third argument.
+    You can omit the handlers or substitute the ones that you do not need with curly braces ({}).
+
+    \note If the task setup handler returns StopWithDone or StopWithError,
+    neither the done nor error handler is invoked.
+
+    \section1 Group Handlers
+
+    Similarly to task handlers, group handlers enable you to set up a group to
+    execute and to apply more actions when the whole group finishes with
+    success or an error.
+
+    \section2 Group's Start Handler
+
+    The task tree invokes the group start handler before it starts the child
+    tasks. The group handler doesn't take any arguments:
+
+    \code
+        const auto onGroupSetup = [] {
+            qDebug() << "Entering the group";
+        };
+        const Group root {
+            OnGroupSetup(onGroupSetup),
+            Process(...)
+        };
+    \endcode
+
+    The group setup handler is optional. To define a group setup handler, add an
+    OnGroupSetup element to a group. The argument of OnGroupSetup is a user
+    handler. If you add more than one OnGroupSetup element to a group, an assert
+    is triggered at runtime that includes an error message.
+
+    Like the task start handler, the group start handler may return TaskAction.
+    The returned TaskAction value affects the start behavior of the
+    whole group. If you do not specify a group start handler or its return type
+    is void, the default group's action is TaskAction::Continue, so that all
+    tasks are started normally. Otherwise, when the start handler returns
+    TaskAction::StopWithDone or TaskAction::StopWithError, the tasks are not
+    started (they are skipped) and the group itself reports success or failure,
+    depending on the returned value, respectively.
+
+    \code
+        const Group root {
+            OnGroupSetup([] { qDebug() << "Root setup"; }),
+            Group {
+                OnGroupSetup([] { qDebug() << "Group 1 setup"; return TaskAction::Continue; }),
+                Process(...) // Process 1
+            },
+            Group {
+                OnGroupSetup([] { qDebug() << "Group 2 setup"; return TaskAction::StopWithDone; }),
+                Process(...) // Process 2
+            },
+            Group {
+                OnGroupSetup([] { qDebug() << "Group 3 setup"; return TaskAction::StopWithError; }),
+                Process(...) // Process 3
+            },
+            Process(...) // Process 4
+        };
+    \endcode
+
+    In the above example, all subgroups of a root group define their setup handlers.
+    The following scenario assumes that all started processes finish with success:
+
+    \table
+    \header
+        \li Scenario
+        \li Comment
+    \row
+        \li Root Group starts
+        \li Doesn't return TaskAction, so its tasks are executed.
+    \row
+        \li Group 1 starts
+        \li Returns Continue, so its tasks are executed.
+    \row
+        \li Process 1 starts
+        \li
+    \row
+        \li ...
+        \li ...
+    \row
+        \li Process 1 finishes (success)
+        \li
+    \row
+        \li Group 1 finishes (success)
+        \li
+    \row
+        \li Group 2 starts
+        \li Returns StopWithDone, so Process 2 is skipped and Group 2 reports
+            success.
+    \row
+        \li Group 2 finishes (success)
+        \li
+    \row
+        \li Group 3 starts
+        \li Returns StopWithError, so Process 3 is skipped and Group 3 reports
+            an error.
+    \row
+        \li Group 3 finishes (error)
+        \li
+    \row
+        \li Root Group finishes (error)
+        \li Group 3, which is a direct child of the root group, finished with an
+            error, so the root group stops executing, skips Process 4, which has
+            not started yet, and reports an error.
+    \endtable
+
+    \section2 Groups's Done and Error Handlers
+
+    A Group's done or error handler is executed after the successful or failed
+    execution of its tasks, respectively. The final value reported by the
+    group depends on its \l {Workflow Policy}. The handlers can apply other
+    necessary actions. The done and error handlers are defined inside the
+    OnGroupDone and OnGroupError elements of a group, respectively. They do not
+    take arguments:
+
+    \code
+        const Group root {
+            OnGroupSetup([] { qDebug() << "Root setup"; }),
+            Process(...),
+            OnGroupDone([] { qDebug() << "Root finished with success"; }),
+            OnGroupError([] { qDebug() << "Root finished with error"; })
+        };
+    \endcode
+
+    The group done and error handlers are optional. If you add more than one
+    OnGroupDone or OnGroupError each to a group, an assert is triggered at
+    runtime that includes an error message.
+
+    \note Even if the group setup handler returns StopWithDone or StopWithError,
+    one of the task's done or error handlers is invoked. This behavior differs
+    from that of task handlers and might change in the future.
+
+    \section1 Other Group Elements
+
+    A group can contain other elements that describe the processing flow, such as
+    the execution mode or workflow policy. It can also contain storage elements
+    that are responsible for collecting and sharing custom common data gathered
+    during group execution.
+
+    \section2 Execution Mode
+
+    The execution mode element in a Group specifies how the direct child tasks of
+    the Group are started.
+
+    \table
+    \header
+        \li Execution Mode
+        \li Description
+    \row
+        \li sequential
+        \li Default. When a Group has no execution mode, it runs in the
+            sequential mode. All the direct child tasks of a group are started
+            in a chain, so that when one task finishes, the next one starts.
+            This enables you to pass the results from the previous task
+            as input to the next task before it starts. This mode guarantees
+            that the next task is started only after the previous task finishes.
+    \row
+        \li parallel
+        \li All the direct child tasks of a group are started after the group is
+            started, without waiting for the previous tasks to finish. In this
+            mode, all tasks run simultaneously.
+    \row
+        \li ParallelLimit(int limit)
+        \li In this mode, a limited number of direct child tasks run simultaneously.
+            The \e limit defines the maximum number of tasks running in parallel
+            in a group. When the group is started, the first batch tasks is
+            started (the number of tasks in batch equals to passed limit, at most),
+            while the others are kept waiting. When a running task finishes,
+            the group starts the next remaining one, so that the \e limit
+            of simultaneously running tasks inside a group isn't exceeded.
+            This repeats on every child task's finish until all child tasks are started.
+            This enables you to limit the maximum number of tasks that
+            run simultaneously, for example if running too many processes might
+            block the machine for a long time. The value 1 means \e sequential
+            execution. The value 0 means unlimited and equals \e parallel.
+    \endtable
+
+    In all execution modes, a group starts tasks in the oder in which they appear.
+
+    If a child of a group is also a group (in a nested tree), the child group
+    runs its tasks according to its own execution mode.
+
+    \section2 Workflow Policy
+
+    The workflow policy element in a Group specifies how the group should behave
+    when its direct child tasks finish:
+
+    \table
+    \header
+        \li Workflow Policy
+        \li Description
+    \row
+        \li stopOnError
+        \li Default. If a task finishes with an error, the group:
+        \list 1
+            \li Stops the running tasks (if any - for example, in parallel
+                mode).
+            \li Skips executing tasks it has not started (for example, in the
+                sequential mode).
+            \li Immediately finishes with an error.
+        \endlist
+        If all child tasks finish successfully or the group is empty, the group
+        finishes with success.
+    \row
+        \li continueOnError
+        \li Similar to stopOnError, but in case any child finishes with
+            an error, the execution continues until all tasks finish,
+            and the group reports an error afterwards, even when some other
+            tasks in group finished with success.
+            If a task finishes with an error, the group:
+        \list 1
+            \li Continues executing the tasks that are running or have not
+                started yet.
+            \li Finishes with an error when all tasks finish.
+        \endlist
+        If all tasks finish successfully or the group is empty, the group
+        finishes with success.
+    \row
+        \li stopOnDone
+        \li If a task finishes with success, the group:
+        \list 1
+            \li Stops running tasks and skips those that it has not started.
+            \li Immediately finishes with success.
+        \endlist
+        If all tasks finish with an error or the group is empty, the group
+        finishes with an error.
+    \row
+        \li continueOnDone
+        \li Similar to stopOnDone, but in case any child finishes
+            successfully, the execution continues until all tasks finish,
+            and the group reports success afterwards, even when some other
+            tasks in group finished with an error.
+            If a task finishes with success, the group:
+        \list 1
+            \li Continues executing the tasks that are running or have not
+                started yet.
+            \li Finishes with success when all tasks finish.
+        \endlist
+        If all tasks finish with an error or the group is empty, the group
+        finishes with an error.
+    \row
+        \li optional
+        \li The group executes all tasks and ignores their return state. If all
+            tasks finish or the group is empty, the group finishes with success.
+    \endtable
+
+    If a child of a group is also a group (in a nested tree), the child group
+    runs its tasks according to its own workflow policy.
+
+    \section2 Storage
+
+    Use the Storage element to exchange information between tasks. Especially,
+    in the sequential execution mode, when a task needs data from another task
+    before it can start. For example, a task tree that copies data by reading
+    it from a source and writing it to a destination might look as follows:
+
+    \code
+        static QByteArray load(const FilePath &fileName) { ... }
+        static void save(const FilePath &fileName, const QByteArray &array) { ... }
+
+        static TaskItem diffRecipe(const FilePath &source, const FilePath &destination)
+        {
+            struct CopyStorage { // [1] custom inter-task struct
+                QByteArray content; // [2] custom inter-task data
+            };
+
+            // [3] instance of custom inter-task struct manageable by task tree
+            const TreeStorage<CopyStorage> storage;
+
+            const auto onLoaderSetup = [source](Async<QByteArray> &async) {
+                async.setAsyncCallData(&load, source);
+            };
+            // [4] runtime: task tree activates the instance from [5] before invoking handler
+            const auto onLoaderDone = [storage](const Async<QByteArray> &async) {
+                storage->content = async.result();
+            };
+
+            // [4] runtime: task tree activates the instance from [5] before invoking handler
+            const auto onSaverSetup = [storage, destination](Async<void> &async) {
+                async.setAsyncCallData(&save, destination, storage->content);
+            };
+            const auto onSaverDone = [](const Async<void> &async) {
+                qDebug() << "Save done successfully";
+            };
+
+            const Group root {
+                // [5] runtime: task tree creates an instance of CopyStorage when root is entered
+                Storage(storage),
+                Async<QByteArray>(onLoaderSetup, onLoaderDone),
+                Async<void>(onSaverSetup, onSaverDone)
+            };
+            return root;
+        }
+    \endcode
+
+    In the example above, the inter-task data consists of a QByteArray content
+    variable [2] enclosed in a CopyStorage custom struct [1]. If the loader
+    finishes successfully, it stores the data in a CopyStorage::content
+    variable. The saver then uses the variable to configure the saving task.
+
+    To enable a task tree to manage the CopyStorage struct, an instance of
+    TreeStorage<CopyStorage> is created [3]. If a copy of this object is
+    inserted as group's child task [5], an instance of CopyStorage struct is
+    created dynamically when the task tree enters this group. When the task
+    tree leaves this group, the existing instance of CopyStorage struct is
+    destructed as it's no longer needed.
+
+    If several task trees that hold a copy of the common TreeStorage<CopyStorage>
+    instance run simultaneously, each task tree contains its own copy of the
+    CopyStorage struct.
+
+    You can access CopyStorage from any handler in the group with a storage object.
+    This includes all handlers of all descendant tasks of the group with
+    a storage object. To access the custom struct in a handler, pass the
+    copy of the TreeStorage<CopyStorage> object to the handler (for example, in
+    a lambda capture) [4].
+
+    When the task tree invokes a handler in a subtree containing the storage [5],
+    the task tree activates its own CopyStorage instance inside the
+    TreeStorage<CopyStorage> object. Therefore, the CopyStorage struct may be
+    accessed only from within the handler body. To access the currently active
+    CopyStorage from within TreeStorage<CopyStorage>, use the TreeStorage::operator->()
+    or TreeStorage::activeStorage() method.
+
+    The following list summarizes how to employ a Storage object into the task
+    tree:
+    \list 1
+        \li Define the custom structure MyStorage with custom data [1], [2]
+        \li Create an instance of TreeStorage<MyStorage> storage [3]
+        \li Pass the TreeStorage<MyStorage> instance to handlers [4]
+        \li Insert the TreeStorage<MyStorage> instance into a group [5]
+    \endlist
+
+    \note The current implementation assumes that all running task trees
+    containing copies of the same TreeStorage run in the same thread. Otherwise,
+    the behavior is undefined.
+
+    \section1 TaskTree
+
+    TaskTree executes the tree structure of asynchronous tasks according to the
+    recipe described by the Group root element.
+
+    As TaskTree is also an asynchronous task, it can be a part of another TaskTree.
+    To place a nested TaskTree inside another TaskTree, insert the Tasking::Tree
+    element into other tree's Group element.
+
+    TaskTree reports progress of completed tasks when running. The progress value
+    is increased when a task finishes or is skipped or stopped.
+    When TaskTree is finished and the TaskTree::done() or TaskTree::errorOccurred()
+    signal is emitted, the current value of the progress equals the maximum
+    progress value. Maximum progress equals the total number of tasks in a tree.
+    A nested TaskTree is counted as a single task, and its child tasks are not
+    counted in the top level tree. Groups themselves are not counted as tasks,
+    but their tasks are counted.
+
+    To set additional initial data for the running tree, modify the storage
+    instances in a tree when it creates them by installing a storage setup
+    handler:
+
+    \code
+        TreeStorage<CopyStorage> storage;
+        Group root = ...; // storage placed inside root's group and inside handlers
+        TaskTree taskTree(root);
+        auto initStorage = [](CopyStorage *storage){
+            storage->content = "initial content";
+        };
+        taskTree.onStorageSetup(storage, initStorage);
+        taskTree.start();
+    \endcode
+
+    When the running task tree creates a CopyStorage instance, and before any
+    handler inside a tree is called, the task tree calls the initStorage handler,
+    to enable setting up initial data of the storage, unique to this particular
+    run of taskTree.
+
+    Similarly, to collect some additional result data from the running tree,
+    read it from storage instances in the tree when they are about to be
+    destroyed. To do this, install a storage done handler:
+
+    \code
+        TreeStorage<CopyStorage> storage;
+        Group root = ...; // storage placed inside root's group and inside handlers
+        TaskTree taskTree(root);
+        auto collectStorage = [](CopyStorage *storage){
+            qDebug() << "final content" << storage->content;
+        };
+        taskTree.onStorageDone(storage, collectStorage);
+        taskTree.start();
+    \endcode
+
+    When the running task tree is about to destroy a CopyStorage instance, the
+    task tree calls the collectStorage handler, to enable reading the final data
+    from the storage, unique to this particular run of taskTree.
+
+    \section1 Task Adapters
+
+    To extend a TaskTree with new a task type, implement a simple adapter class
+    derived from the TaskAdapter class template. The following class is an
+    adapter for a single shot timer, which may be considered as a new
+    asynchronous task:
+
+    \code
+        class TimeoutAdapter : public Utils::Tasking::TaskAdapter<QTimer>
+        {
+        public:
+            TimeoutAdapter() {
+                task()->setSingleShot(true);
+                task()->setInterval(1000);
+                connect(task(), &QTimer::timeout, this, [this] { emit done(true); });
+            }
+            void start() final { task()->start(); }
+        };
+
+        QTC_DECLARE_CUSTOM_TASK(Timeout, TimeoutAdapter);
+    \endcode
+
+    You must derive the custom adapter from the TaskAdapter class template
+    instantiated with a template parameter of the class implementing a running
+    task. The code above uses QTimer to run the task. This class appears
+    later as an argument to the task's handlers. The instance of this class
+    parameter automatically becomes a member of the TaskAdapter template, and is
+    accessible through the TaskAdapter::task() method. The constructor
+    of TimeoutAdapter initially configures the QTimer object and connects
+    to the QTimer::timeout signal. When the signal is triggered, TimeoutAdapter
+    emits the done(true) signal to inform the task tree that the task finished
+    successfully. If it emits done(false), the task finished with an error.
+    The TaskAdapter::start() method starts the timer.
+
+    To make QTimer accessible inside TaskTree under the \e Timeout name,
+    register it with QTC_DECLARE_CUSTOM_TASK(Timeout, TimeoutAdapter). Timeout
+    becomes a new task type inside Utils::Tasking namespace, using TimeoutAdapter.
+
+    The new task type is now registered, and you can use it in TaskTree:
+
+    \code
+        const auto onTimeoutSetup = [](QTimer &task) {
+            task.setInterval(2000);
+        };
+        const auto onTimeoutDone = [](const QTimer &task) {
+            qDebug() << "timeout triggered";
+        };
+
+        const Group root {
+            Timeout(onTimeoutSetup, onTimeoutDone)
+        };
+    \endcode
+
+    When a task tree containing the root from the above example is started, it
+    prints a debug message within two seconds and then finishes successfully.
+
+    \note The class implementing the running task should have a default constructor,
+    and objects of this class should be freely destructible. It should be allowed
+    to destroy a running object, preferably without waiting for the running task
+    to finish (that is, safe non-blocking destructor of a running task).
 */
 
 TaskTree::TaskTree()
