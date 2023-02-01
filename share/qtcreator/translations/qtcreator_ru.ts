@@ -5317,14 +5317,11 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>Модули CMake</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Текущий CMake: %1</translation>
@@ -6030,9 +6027,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>&lt;Headers&gt;</source>
         <translation>&lt;Заголовки&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Тип цели: </translation>

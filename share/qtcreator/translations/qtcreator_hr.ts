@@ -16750,14 +16750,11 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake moduli</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Vrsta odredišta:</translation>
@@ -16770,9 +16767,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Build artifacts:</source>
         <translation>Artefakti gradnje:</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>

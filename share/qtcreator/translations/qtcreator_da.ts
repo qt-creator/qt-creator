@@ -3760,14 +3760,11 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>CMakeFilesProjectNode</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake Modules</source>
         <translation>CMake-moduler</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Aktuelle CMake: %1</translation>
@@ -4458,9 +4455,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>*** cmake process exited with exit code %1.</source>
         <translation>*** cmake proces afsluttede med afslutningskode %1.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Måltype: </translation>

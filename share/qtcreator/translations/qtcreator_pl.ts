@@ -39066,15 +39066,11 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CMakeBuildConfigurationFactory</name>
+    <name>::CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
         <translation>Domyślna</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Wersja</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -39092,23 +39088,14 @@ Błąd: %2</translation>
         <source>Release with Debug Information</source>
         <translation>Wersja z informacją debugową</translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Błąd otwierania %1 do odczytu.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeFilesProjectNode</name>
     <message>
         <source>CMake Modules</source>
         <translation>Moduły CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeTargetNode</name>
     <message>
         <source>Target type: </source>
         <translation>Typ docelowy: </translation>
@@ -39121,9 +39108,6 @@ Błąd: %2</translation>
         <source>Build artifacts:&lt;br&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
