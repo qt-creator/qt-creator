@@ -13628,7 +13628,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Ledig provisioneringsteam : %2</translation>

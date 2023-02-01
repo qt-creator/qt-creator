@@ -39493,7 +39493,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>DevelopmentTeam</name>
+    <name>::Ios</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation>%1 - Free Provisioning-Team : %2</translation>

@@ -24431,9 +24431,6 @@ Would you like to overwrite them?</source>
         <source>%1 Simulator</source>
         <translation>%1 simulator</translation>
     </message>
-</context>
-<context>
-    <name>DevelopmentTeam</name>
     <message>
         <source>%1 - Free Provisioning Team : %2</source>
         <translation type="unfinished"></translation>

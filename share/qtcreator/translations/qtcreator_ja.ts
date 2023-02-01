@@ -45010,16 +45010,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Provisioning profile expired. Expiration date: %1</source>
         <translation>プロビジョニング・プロファイルの有効期限が切れています。有効期限: %1</translation>
     </message>
-</context>
-<context>
-    <name>DevelopmentTeam</name>
     <message>
         <source>Yes</source>
         <translation>はい</translation>
     </message>
-</context>
-<context>
-    <name>::Ios</name>
 </context>
 <context>
     <name>::LanguageClient</name>
