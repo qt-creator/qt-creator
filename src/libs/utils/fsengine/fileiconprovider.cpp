@@ -27,7 +27,7 @@ using namespace Utils;
 Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
 
 /*!
-  \namespace Utils::FileIconProvider
+  \class Utils::FileIconProvider
   \inmodule QtCreator
   \brief Provides functions for registering custom overlay icons for system
   icons.
