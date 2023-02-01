@@ -117,8 +117,6 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
                 menu.addAction(addNewTestCase);
                 QAction *closeTestSuite = new QAction(Tr::tr("Close Test Suite"), &menu);
                 menu.addAction(closeTestSuite);
-                QAction *deleteTestSuite = new QAction(Tr::tr("Delete Test Suite"), &menu);
-                menu.addAction(deleteTestSuite);
                 menu.addSeparator();
 
                 connect(runThisTestSuite, &QAction::triggered, [suiteName] {
