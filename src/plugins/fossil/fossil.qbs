@@ -26,7 +26,6 @@ QtcPlugin {
         "revisioninfo.h",
         "fossil.qrc",
         "revertdialog.ui",
-        "fossilcommitpanel.ui",
     ]
 
     Group {

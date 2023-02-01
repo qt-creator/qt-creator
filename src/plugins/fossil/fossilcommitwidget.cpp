@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fossilcommitwidget.h"
+
 #include "branchinfo.h"
 
 #include <texteditor/texteditorsettings.h>
@@ -10,11 +11,17 @@
 
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>
+#include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QCheckBox>
 #include <QDir>
+#include <QLineEdit>
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
+
+using namespace Utils;
 
 namespace Fossil {
 namespace Internal {
@@ -31,7 +38,7 @@ static QTextCharFormat commentFormat()
 class FossilSubmitHighlighter : QSyntaxHighlighter
 {
 public:
-    explicit FossilSubmitHighlighter(Utils::CompletingTextEdit *parent);
+    explicit FossilSubmitHighlighter(CompletingTextEdit *parent);
     void highlightBlock(const QString &text) final;
 
 private:
@@ -39,7 +46,7 @@ private:
     const QRegularExpression m_keywordPattern;
 };
 
-FossilSubmitHighlighter::FossilSubmitHighlighter(Utils::CompletingTextEdit *parent) : QSyntaxHighlighter(parent),
+FossilSubmitHighlighter::FossilSubmitHighlighter(CompletingTextEdit *parent) : QSyntaxHighlighter(parent),
     m_commentFormat(commentFormat()),
     m_keywordPattern("\\[([0-9a-f]{5,40})\\]")
 {
@@ -65,35 +72,83 @@ void FossilSubmitHighlighter::highlightBlock(const QString &text)
 
 FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
 {
-    m_commitPanelUi.setupUi(m_commitPanel);
+    m_localRootLineEdit = new QLineEdit;
+    m_localRootLineEdit->setFocusPolicy(Qt::NoFocus);
+    m_localRootLineEdit->setReadOnly(true);
+
+    m_currentBranchLineEdit = new QLineEdit;
+    m_currentBranchLineEdit->setFocusPolicy(Qt::NoFocus);
+    m_currentBranchLineEdit->setReadOnly(true);
+
+    m_currentTagsLineEdit = new QLineEdit;
+    m_currentTagsLineEdit->setFocusPolicy(Qt::NoFocus);
+    m_currentTagsLineEdit->setReadOnly(true);
+
+    m_branchLineEdit = new QLineEdit;
+
+    m_invalidBranchLabel = new InfoLabel;
+    m_invalidBranchLabel->setMinimumSize(QSize(50, 20));
+    m_invalidBranchLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    m_invalidBranchLabel->setType(InfoLabel::Error);
+
+    m_isPrivateCheckBox = new QCheckBox(tr("Private"));
+    m_isPrivateCheckBox->setToolTip(tr("Create a private check-in that is never synced.\n"
+                                       "Children of private check-ins are automatically private.\n"
+                                       "Private check-ins are not pushed to the remote repository by default."));
+
+    m_tagsLineEdit = new QLineEdit;
+    m_tagsLineEdit->setToolTip(tr("Tag names to apply; comma-separated."));
+
+    m_authorLineEdit = new QLineEdit;
+
+    using namespace Layouting;
+
+    Column {
+        Group {
+            title(tr("Current Information")),
+            Form {
+                tr("Local root:"), m_localRootLineEdit,
+                tr("Branch:"), m_currentBranchLineEdit,
+                tr("Tags:"), m_currentTagsLineEdit
+            }
+        },
+        Group {
+            title(tr("Commit Information")),
+            Grid {
+                tr("New branch:"), m_branchLineEdit,  m_invalidBranchLabel, m_isPrivateCheckBox, br,
+                tr("Tags:"), m_tagsLineEdit, br,
+                tr("Author:"),  m_authorLineEdit, st,
+            }
+        }
+    }.attachTo(m_commitPanel, WithoutMargins);
+
     insertTopWidget(m_commitPanel);
     new FossilSubmitHighlighter(descriptionEdit());
     m_branchValidator = new QRegularExpressionValidator(QRegularExpression("[^\\n]*"), this);
 
-    connect(m_commitPanelUi.branchLineEdit, &QLineEdit::textChanged,
+    connect(m_branchLineEdit, &QLineEdit::textChanged,
             this, &FossilCommitWidget::branchChanged);
 }
 
-void FossilCommitWidget::setFields(const Utils::FilePath &repoPath, const BranchInfo &branch,
+void FossilCommitWidget::setFields(const FilePath &repoPath, const BranchInfo &branch,
                                    const QStringList &tags, const QString &userName)
 {
-    m_commitPanelUi.localRootLineEdit->setText(repoPath.toUserOutput());
-    m_commitPanelUi.currentBranchLineEdit->setText(branch.name);
-    const QString tagsText = tags.join(", ");
-    m_commitPanelUi.currentTagsLineEdit->setText(tagsText);
-    m_commitPanelUi.authorLineEdit->setText(userName);
+    m_localRootLineEdit->setText(repoPath.toUserOutput());
+    m_currentBranchLineEdit->setText(branch.name);
+    m_currentTagsLineEdit->setText(tags.join(", "));
+    m_authorLineEdit->setText(userName);
 
     branchChanged();
 }
 
 QString FossilCommitWidget::newBranch() const
 {
-    return m_commitPanelUi.branchLineEdit->text().trimmed();
+    return m_branchLineEdit->text().trimmed();
 }
 
 QStringList FossilCommitWidget::tags() const
 {
-    QString tagsText = m_commitPanelUi.tagsLineEdit->text().trimmed();
+    QString tagsText = m_tagsLineEdit->text().trimmed();
     if (tagsText.isEmpty())
         return {};
 
@@ -102,19 +157,19 @@ QStringList FossilCommitWidget::tags() const
 
 QString FossilCommitWidget::committer() const
 {
-    return m_commitPanelUi.authorLineEdit->text();
+    return m_authorLineEdit->text();
 }
 
 bool FossilCommitWidget::isPrivateOptionEnabled() const
 {
-    return m_commitPanelUi.isPrivateCheckBox->isChecked();
+    return m_isPrivateCheckBox->isChecked();
 }
 
 bool FossilCommitWidget::canSubmit(QString *whyNot) const
 {
     QString message = cleanupDescription(descriptionText()).trimmed();
 
-    if (m_commitPanelUi.invalidBranchLabel->isVisible() || message.isEmpty()) {
+    if (m_invalidBranchLabel->isVisible() || message.isEmpty()) {
         if (whyNot)
             *whyNot = tr("Message check failed.");
         return false;
@@ -125,15 +180,15 @@ bool FossilCommitWidget::canSubmit(QString *whyNot) const
 
 void FossilCommitWidget::branchChanged()
 {
-    m_commitPanelUi.invalidBranchLabel->setVisible(!isValidBranch());
+    m_invalidBranchLabel->setVisible(!isValidBranch());
 
     updateSubmitAction();
 }
 
 bool FossilCommitWidget::isValidBranch() const
 {
-    int pos = m_commitPanelUi.branchLineEdit->cursorPosition();
-    QString text = m_commitPanelUi.branchLineEdit->text();
+    int pos = m_branchLineEdit->cursorPosition();
+    QString text = m_branchLineEdit->text();
     return m_branchValidator->validate(text, pos) == QValidator::Acceptable;
 }
 

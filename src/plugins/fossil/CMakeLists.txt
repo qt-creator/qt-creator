@@ -10,7 +10,6 @@ add_qtc_plugin(Fossil
     constants.h
     fossil.qrc
     fossilclient.cpp fossilclient.h
-    fossilcommitpanel.ui
     fossilcommitwidget.cpp fossilcommitwidget.h
     fossileditor.cpp fossileditor.h
     fossilplugin.cpp fossilplugin.h

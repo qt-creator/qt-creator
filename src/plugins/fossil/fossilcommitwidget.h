@@ -3,15 +3,19 @@
 
 #pragma once
 
-#include "ui_fossilcommitpanel.h"
-
 #include <vcsbase/submiteditorwidget.h>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLabel;
+class QLineEdit;
 class QValidator;
 QT_END_NAMESPACE
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class InfoLabel;
+}
 
 namespace Fossil {
 namespace Internal {
@@ -22,7 +26,7 @@ class BranchInfo;
   Some extra fields have been added to the standard SubmitEditorWidget,
   to help to conform to the commit style that is used by both git and Fossil*/
 
-class FossilCommitWidget : public VcsBase::SubmitEditorWidget
+class FossilCommitWidget final : public VcsBase::SubmitEditorWidget
 {
     Q_OBJECT
 
@@ -37,18 +41,23 @@ public:
     QString committer() const;
     bool isPrivateOptionEnabled() const;
 
-protected:
-    bool canSubmit(QString *whyNot = nullptr) const;
-
-private slots:
-    void branchChanged();
-
 private:
+    bool canSubmit(QString *whyNot = nullptr) const final;
+
+    void branchChanged();
     bool isValidBranch() const;
 
     QWidget *m_commitPanel;
-    Ui::FossilCommitPanel m_commitPanelUi;
     QValidator *m_branchValidator;
+
+    QLineEdit *m_localRootLineEdit;
+    QLineEdit *m_currentBranchLineEdit;
+    QLineEdit *m_currentTagsLineEdit;
+    QLineEdit *m_branchLineEdit;
+    Utils::InfoLabel *m_invalidBranchLabel;
+    QCheckBox *m_isPrivateCheckBox;
+    QLineEdit *m_tagsLineEdit;
+    QLineEdit *m_authorLineEdit;
 };
 
 } // namespace Internal
