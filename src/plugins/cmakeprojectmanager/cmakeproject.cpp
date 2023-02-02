@@ -98,10 +98,8 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
 
         auto resolveInherits = [](auto &presetsHash, auto &presetsList) {
             Utils::sort(presetsList, [](const auto &left, const auto &right) {
-                if (left.inherits) {
-                    if (left.inherits.value().contains(right.name))
-                        return false;
-                }
+                if (!left.inherits || left.inherits.value().contains(right.name))
+                    return false;
                 return true;
             });
             for (auto &p : presetsList) {
