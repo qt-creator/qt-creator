@@ -10,7 +10,7 @@ import ToolBar 1.0
 
 Rectangle {
     id: toolbarContainer
-    color: "#2d2d2d"
+    color: StudioTheme.Values.themeToolbarBackground
     border.color: "#00000000"
 
     height: 56
@@ -31,10 +31,20 @@ Rectangle {
             anchors.left: parent.left
             anchors.leftMargin: 10
             enabled: backend.isDesignModeEnabled
-            tooltip: qsTr("Switch to Design Mode.")
-            buttonIcon: StudioTheme.Constants.topToolbar_designMode
 
+            tooltip: qsTr("Switch to Design Mode.")
+            buttonIcon: StudioTheme.Constants.designMode_large
             onClicked: backend.triggerModeChange()
+        }
+
+        Text {
+            id: backTo
+            visible: backend.isDesignModeEnabled
+            anchors.verticalCenter: parent.verticalCenter
+            text: qsTr("Return to Design")
+            anchors.left: homeOther.right
+            anchors.leftMargin: 10
+            color: StudioTheme.Values.themeTextColor
         }
     }
 
@@ -48,9 +58,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 10
-            buttonIcon: StudioTheme.Constants.topToolbar_home
-            tooltip: qsTr("Switch to Welcome Mode.")
-
+            buttonIcon: StudioTheme.Constants.home_large
             onClicked: backend.triggerModeChange()
         }
 
@@ -59,10 +67,29 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: home.right
             anchors.leftMargin: 10
-            buttonIcon: StudioTheme.Constants.topToolbar_runProject
+            buttonIcon: StudioTheme.Constants.runProjOutline_large
             style: StudioTheme.ToolbarStyle {
+                radius: StudioTheme.Values.smallRadius
+
                 icon: StudioTheme.ControlStyle.IconColors {
-                    idle: "#649a5d"
+                    idle: StudioTheme.Values.themeIdleGreen
+                    hover: StudioTheme.Values.themeRunningGreen
+                    interaction: "#ffffff"
+                    disabled: "#636363"
+                }
+
+                background: StudioTheme.ControlStyle.BackgroundColors {
+                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
+                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
+                    interaction: StudioTheme.Values.themeInteraction
+                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
+                }
+
+                border: StudioTheme.ControlStyle.BorderColors {
+                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
+                    hover: StudioTheme.Values.themeControlBackground_toolbarHover
+                    interaction: StudioTheme.Values.themeInteraction
+                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
                 }
             }
 
@@ -121,7 +148,7 @@ Rectangle {
             anchors.leftMargin: 10
             enabled: backend.canGoBack
             tooltip: qsTr("Go Back")
-            buttonIcon: StudioTheme.Constants.topToolbar_navFile
+            buttonIcon: StudioTheme.Constants.previousFile_large
             iconRotation: 0
 
             onClicked: backend.goBackward()
@@ -134,8 +161,7 @@ Rectangle {
             anchors.leftMargin: 10
             enabled: backend.canGoForward
             tooltip: qsTr("Go Forward")
-            buttonIcon: StudioTheme.Constants.topToolbar_navFile
-            iconRotation: 180
+            buttonIcon: StudioTheme.Constants.nextFile_large
 
             onClicked: backend.goForward()
         }
@@ -146,7 +172,7 @@ Rectangle {
             anchors.left: forwardButton.right
             anchors.leftMargin: 10
             tooltip: qsTr("Close")
-            buttonIcon: StudioTheme.Constants.topToolbar_closeFile
+            buttonIcon: StudioTheme.Constants.closeFile_large
 
             onClicked: backend.closeCurrentDocument()
         }
@@ -173,7 +199,7 @@ Rectangle {
             anchors.rightMargin: 10
             enabled: moveToComponentBackend.available
             tooltip: moveToComponentBackend.tooltip
-            buttonIcon: StudioTheme.Constants.topToolbar_makeComponent
+            buttonIcon: StudioTheme.Constants.createComponent_large
 
             onClicked: moveToComponentBackend.trigger()
 
@@ -190,7 +216,7 @@ Rectangle {
             anchors.rightMargin: 10
             enabled: goIntoComponentBackend.available
             tooltip: goIntoComponentBackend.tooltip
-            buttonIcon: StudioTheme.Constants.topToolbar_enterComponent
+            buttonIcon: StudioTheme.Constants.editComponent_large
 
             onClicked: goIntoComponentBackend.trigger()
 
@@ -219,7 +245,7 @@ Rectangle {
             anchors.right: shareButton.left
             anchors.rightMargin: 10
             tooltip: qsTr("Edit Annotations")
-            buttonIcon: StudioTheme.Constants.topToolbar_annotations
+            buttonIcon: StudioTheme.Constants.annotations_large
 
             onClicked: backend.editGlobalAnnoation()
         }
@@ -229,12 +255,24 @@ Rectangle {
             style: StudioTheme.Values.primaryToolbarStyle
             width: 96
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
+            anchors.right: moreItems.left
             anchors.rightMargin: 8
             iconFont: StudioTheme.Constants.font
             buttonIcon: qsTr("Share")
 
             onClicked: backend.shareApplicationOnline()
+        }
+
+        ToolbarButton {
+            // this needs a pop-up panel where overflow toolbar content goes when toolbar is not wide enough
+            id: moreItems
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            tooltip: qsTr("More Items")
+            buttonIcon: StudioTheme.Constants.more_medium
+            enabled: false
+            //onClicked: backend.editGlobalAnnoation()
         }
     }
 }

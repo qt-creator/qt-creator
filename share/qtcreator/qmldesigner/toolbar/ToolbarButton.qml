@@ -11,7 +11,7 @@ StudioControls.AbstractButton {
 
     property alias tooltip: toolTipArea.tooltip
 
-    style: StudioTheme.Values.toolbarStyle
+    style: StudioTheme.Values.toolbarButtonStyle
     hover: toolTipArea.containsMouse
 
     ToolTipArea {
