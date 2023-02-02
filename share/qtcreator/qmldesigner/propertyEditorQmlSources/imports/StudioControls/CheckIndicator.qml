@@ -111,7 +111,7 @@ Rectangle {
             when: control.checked
             PropertyChanges {
                 target: icon
-                color: control.style.icon.idle
+                color: control.style.icon.interaction
             }
             PropertyChanges {
                 target: control
@@ -137,7 +137,7 @@ Rectangle {
                   && !control.__parentControl.drag && control.pressed
             PropertyChanges {
                 target: icon
-                color: control.style.icon.idle
+                color: control.style.icon.interaction
             }
             PropertyChanges {
                 target: control
