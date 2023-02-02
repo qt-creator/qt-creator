@@ -1406,7 +1406,7 @@ expected_str<void> FilePath::copyRecursively(const FilePath &target) const
 
 expected_str<void> FilePath::copyFile(const FilePath &target) const
 {
-    if (host() != target.host()) {
+    if (!isSameDevice(target)) {
         // FIXME: This does not scale.
         const expected_str<QByteArray> contents = fileContents();
         if (!contents) {
