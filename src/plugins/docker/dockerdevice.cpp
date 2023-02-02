@@ -290,7 +290,9 @@ void DockerProcessImpl::start()
     if (m_setup.m_lowPriority)
         m_process.setLowPriority();
 
-    const bool interactive = m_setup.m_processMode == ProcessMode::Writer;
+    const bool interactive = m_setup.m_processMode == ProcessMode::Writer
+                             || !m_setup.m_writeData.isEmpty();
+
     const CommandLine fullCommandLine = m_devicePrivate
                                             ->withDockerExecCmd(m_setup.m_commandLine,
                                                                 &m_setup.m_environment,
