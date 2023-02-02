@@ -4,9 +4,8 @@
 #pragma once
 
 #include "nonlockingmutex.h"
+#include "projectstoragefwd.h"
 #include "qmldocumentparserinterface.h"
-
-#include <projectstoragefwd.h>
 
 namespace QmlDesigner {
 
