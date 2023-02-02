@@ -211,7 +211,6 @@ Project {
                 "desktopdevicefactory.cpp", "desktopdevicefactory.h",
                 "devicecheckbuildstep.cpp", "devicecheckbuildstep.h",
                 "devicefactoryselectiondialog.cpp", "devicefactoryselectiondialog.h",
-                "devicefilesystemmodel.cpp", "devicefilesystemmodel.h",
                 "devicemanager.cpp", "devicemanager.h",
                 "devicemanagermodel.cpp", "devicemanagermodel.h",
                 "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",
