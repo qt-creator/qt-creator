@@ -953,7 +953,7 @@ expected_str<QByteArray> UnixDeviceFileAccess::fileContents(const FilePath &file
                                                             qint64 limit,
                                                             qint64 offset) const
 {
-    QStringList args = {"if=" + filePath.path(), "status=none"};
+    QStringList args = {"if=" + filePath.path()};
     if (limit > 0 || offset > 0) {
         const qint64 gcd = std::gcd(limit, offset);
         args += QString("bs=%1").arg(gcd);
