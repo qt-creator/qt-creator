@@ -458,7 +458,7 @@ void UnifiedDiffEditorWidget::showDiff()
     m_asyncTask->setFutureSynchronizer(DiffEditorPlugin::futureSynchronizer());
     m_controller.setBusyShowing(true);
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
-        if (m_asyncTask->isCanceled()) {
+        if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             setPlainText(Tr::tr("Retrieving data failed."));
         } else {
             const ShowResult result = m_asyncTask->result();
