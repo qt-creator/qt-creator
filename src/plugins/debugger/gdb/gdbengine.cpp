@@ -4439,12 +4439,11 @@ void GdbEngine::setupInferior()
         }
 
         // Do that first, otherwise no symbols are loaded.
-        QFileInfo fi = executable.toFileInfo();
-        QString path = fi.absoluteFilePath();
+        const QString localExecutablePath = executable.absoluteFilePath().path();
         // This is *not* equivalent to -file-exec-and-symbols. If the file is not executable
         // (contains only debugging symbols), this should still work.
-        runCommand({"-file-exec-file \"" + path + '"'});
-        runCommand({"-file-symbol-file \"" + path + '"',
+        runCommand({"-file-exec-file \"" + localExecutablePath + '"'});
+        runCommand({"-file-symbol-file \"" + localExecutablePath + '"',
                     CB(handleFileExecAndSymbols)});
 
     } else if (isTermEngine()) {
