@@ -87,9 +87,7 @@ RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray &stdInData)
         qCDebug(deviceShellLog) << "Running fallback:" << fallbackCmd;
         proc.setCommand(fallbackCmd);
         proc.setWriteData(stdInData);
-
-        proc.start();
-        proc.waitForFinished();
+        proc.runBlocking();
 
         return RunResult{
             proc.exitCode(),
