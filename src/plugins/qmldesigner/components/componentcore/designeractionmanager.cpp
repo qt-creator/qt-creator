@@ -114,12 +114,14 @@ void DesignerActionManager::polishActions() const
     Core::Context qmlDesignerEditor3DContext(Constants::C_QMLEDITOR3D);
     Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
     Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
+    Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
 
     Core::Context qmlDesignerUIContext;
     qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
     qmlDesignerUIContext.add(qmlDesignerEditor3DContext);
     qmlDesignerUIContext.add(qmlDesignerNavigatorContext);
     qmlDesignerUIContext.add(qmlDesignerMaterialBrowserContext);
+    qmlDesignerUIContext.add(qmlDesignerAssetsLibraryContext);
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {

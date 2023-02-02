@@ -171,11 +171,16 @@ TreeViewDelegate {
         onReleased: (mouse) => {
             mouseArea.allowTooltip = true
 
+            if (root.__isDirectory)
+                return
+
             if (mouse.button === Qt.LeftButton) {
                 if (!(mouse.modifiers & Qt.ControlModifier))
                     root.assetsView.selectedAssets = {}
                 root.assetsView.selectedAssets[root.__itemPath] = root.currFileSelected
                 root.assetsView.selectedAssetsChanged()
+
+                root.assetsView.currentFilePath = root.__itemPath
             }
         }
 

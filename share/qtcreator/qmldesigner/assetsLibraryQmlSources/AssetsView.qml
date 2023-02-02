@@ -24,6 +24,8 @@ TreeView {
     property alias verticalScrollBar: verticalScrollBar
 
     property var selectedAssets: ({})
+    // the latest file that was clicked, or changed to via Up or Down keys
+    property string currentFilePath: ""
 
     // used to see if the op requested is to expand or to collapse.
     property int lastRowCount: -1
@@ -34,6 +36,7 @@ TreeView {
     property int rootPathRow: 0
     // i.e. first child of the root path
     readonly property int firstRow: root.rootPathRow + 1
+    readonly property int lastRow: root.rows - 1
     property var __createdDirectories: []
 
     rowHeightProvider: (row) => {
@@ -77,6 +80,19 @@ TreeView {
             root.__createdDirectories.push(path)
 
             updateRowsTimer.restart()
+        }
+
+        function onDeleteSelectedAssetsRequested()
+        {
+            let selectedPaths = root.selectedPathsAsList()
+            if (!selectedPaths.length)
+                return
+
+            let deleted = assetsModel.requestDeleteFiles(selectedPaths)
+            if (!deleted) {
+                confirmDeleteFiles.files = selectedPaths
+                confirmDeleteFiles.open()
+            }
         }
     }
 
@@ -317,6 +333,73 @@ TreeView {
             return root.modelIndex(0, row)
         else
             return root.modelIndex(row, 0)
+    }
+
+    function __selectRow(row: int)
+    {
+        let index = root.__modelIndex(row)
+        if (assetsModel.isDirectory(index))
+            return
+
+        let filePath = assetsModel.filePath(index)
+
+        root.clearSelectedAssets()
+        root.setAssetSelected(filePath, true)
+        root.currentFilePath = filePath
+    }
+
+    Keys.enabled: true
+
+    Keys.onUpPressed: {
+        if (!root.currentFilePath)
+            return
+
+        let index = assetsModel.indexForPath(root.currentFilePath)
+        let row = root.rowAtIndex(index)
+        let nextRow = row
+        let nextIndex = index
+
+        do {
+            if (nextRow <= root.firstRow)
+                return // don't select hidden rows
+
+            nextRow--
+            nextIndex = root.__modelIndex(nextRow)
+        } while (assetsModel.isDirectory(nextIndex))
+
+        root.__selectRow(nextRow)
+        root.positionViewAtRow(nextRow, TableView.Contain)
+    }
+
+    Keys.onDownPressed: {
+        if (!root.currentFilePath)
+            return
+
+        let index = assetsModel.indexForPath(root.currentFilePath)
+        let row = root.rowAtIndex(index)
+
+        let nextRow = row
+        let nextIndex = index
+
+        do {
+            if (nextRow >= root.lastRow)
+                return // don't select hidden rows
+
+            nextRow++
+            nextIndex = root.__modelIndex(nextRow)
+        } while (assetsModel.isDirectory(nextIndex))
+
+        root.__selectRow(nextRow)
+        root.positionViewAtRow(nextRow, TableView.Contain)
+    }
+
+    ConfirmDeleteFilesDialog {
+        id: confirmDeleteFiles
+        parent: root
+        files: []
+
+        onAccepted: root.clearSelectedAssets()
+        onClosed: confirmDeleteFiles.files = []
     }
 
     DropArea {

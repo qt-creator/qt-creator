@@ -37,6 +37,9 @@ private:
     class ImageCacheData;
     ImageCacheData *imageCacheData();
 
+    void customNotification(const AbstractView *view, const QString &identifier,
+                            const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+
     std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     QPointer<AssetsLibraryWidget> m_widget;

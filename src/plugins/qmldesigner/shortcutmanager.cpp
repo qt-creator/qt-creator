@@ -61,11 +61,8 @@ ShortCutManager::ShortCutManager()
 void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
                                       const Core::Context &qmlDesignerFormEditorContext,
                                       const Core::Context &qmlDesignerEditor3DContext,
-                                      const Core::Context &qmlDesignerNavigatorContext,
-                                      const Core::Context &qmlDesignerMaterialBrowserContext)
+                                      const Core::Context &qmlDesignerNavigatorContext)
 {
-    Q_UNUSED(qmlDesignerMaterialBrowserContext)
-
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
 
     connect(&m_undoAction, &QAction::triggered, this, &ShortCutManager::undo);
@@ -205,10 +202,11 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
 
     connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&](const Core::Context &context) {
         isMatBrowserActive = context.contains(Constants::C_QMLMATERIALBROWSER);
+        isAssetsLibraryActive = context.contains(Constants::C_QMLASSETSLIBRARY);
 
         if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLEDITOR3D)
          && !context.contains(Constants::C_QMLNAVIGATOR)) {
-            m_deleteAction.setEnabled(isMatBrowserActive);
+            m_deleteAction.setEnabled(isMatBrowserActive || isAssetsLibraryActive);
             m_cutAction.setEnabled(false);
             m_copyAction.setEnabled(false);
             m_pasteAction.setEnabled(false);
@@ -263,6 +261,9 @@ void ShortCutManager::deleteSelected()
    if (isMatBrowserActive) {
        DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->viewManager().designerActionManager();
        designerActionManager.view()->emitCustomNotification("delete_selected_material");
+   } else if (isAssetsLibraryActive) {
+       DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->viewManager().designerActionManager();
+       designerActionManager.view()->emitCustomNotification("delete_selected_assets");
    } else if (currentDesignDocument()) {
         currentDesignDocument()->deleteSelected();
    }

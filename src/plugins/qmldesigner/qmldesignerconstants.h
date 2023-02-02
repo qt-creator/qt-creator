@@ -17,6 +17,7 @@ const char C_QMLEDITOR3D[]        = "QmlDesigner::Editor3D";
 const char C_QMLNAVIGATOR[]       = "QmlDesigner::Navigator";
 const char C_QMLTEXTEDITOR[]      = "QmlDesigner::TextEditor";
 const char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
+const char C_QMLASSETSLIBRARY[]   = "QmlDesigner::AssetsLibrary";
 
 // Special context for preview menu, shared b/w designer and text editor
 const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";

@@ -5,6 +5,7 @@
 
 #include "assetslibrarywidget.h"
 #include "createtexture.h"
+#include "designmodecontext.h"
 #include "qmldesignerplugin.h"
 
 #include <asynchronousimagecache.h>
@@ -61,7 +62,11 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache};
+                                           imageCacheData()->synchronousFontImageCache,
+                                           this};
+
+        auto context = new Internal::AssetsLibraryContext(m_widget.data());
+        Core::ICore::addContextObject(context);
 
         connect(m_widget, &AssetsLibraryWidget::addTexturesRequested, this,
         [&] (const QStringList &filePaths, AddTextureMode mode) {
@@ -82,6 +87,15 @@ WidgetInfo AssetsLibraryView::widgetInfo()
     }
 
     return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
+}
+
+void AssetsLibraryView::customNotification(const AbstractView *view,
+                                           const QString &identifier,
+                                           const QList<ModelNode> &nodeList,
+                                           const QList<QVariant> &data)
+{
+    if (identifier == "delete_selected_assets")
+        m_widget->deleteSelectedAssets();
 }
 
 void AssetsLibraryView::modelAttached(Model *model)
@@ -113,7 +127,8 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
     if (m_widget.isNull()) {
         m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache};
+                                           imageCacheData()->synchronousFontImageCache,
+                                           this};
     }
 
     m_widget->setResourcePath(resourcePath);

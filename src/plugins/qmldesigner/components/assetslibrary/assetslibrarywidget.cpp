@@ -7,7 +7,8 @@
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
 #include "designeractionmanager.h"
-#include "model.h"
+#include "assetslibraryview.h"
+
 #include "modelnodeoperations.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -84,11 +85,13 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
-                                         SynchronousImageCache &synchronousFontImageCache)
+                                         SynchronousImageCache &synchronousFontImageCache,
+                                         AssetsLibraryView *view)
     : m_itemIconSize{24, 24}
     , m_fontImageCache{synchronousFontImageCache}
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
+    , m_assetsView{view}
     , m_assetsWidget{new StudioQuickWidget(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
@@ -148,6 +151,19 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 
     // init the first load of the QML UI elements
     reloadQmlSource();
+}
+
+void AssetsLibraryWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
+{
+    if (m_assetsView)
+        QmlDesignerPlugin::contextHelp(callback, m_assetsView->contextHelpId());
+    else
+        callback({});
+}
+
+void AssetsLibraryWidget::deleteSelectedAssets()
+{
+    emit deleteSelectedAssetsRequested();
 }
 
 QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)

@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include <coreplugin/icontext.h>
+#include <previewtooltip/previewtooltipbackend.h>
+
 #include "createtexture.h"
-#include "previewtooltipbackend.h"
 
 #include <QFrame>
 #include <QQmlPropertyMap>
@@ -31,6 +33,7 @@ class Model;
 
 class AssetsLibraryIconProvider;
 class AssetsLibraryModel;
+class AssetsLibraryView;
 class SynchronousImageCache;
 class AsynchronousImageCache;
 class ImageCacheCollector;
@@ -46,10 +49,11 @@ class AssetsLibraryWidget : public QFrame
 
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
-                        SynchronousImageCache &synchronousFontImageCache);
+                        SynchronousImageCache &synchronousFontImageCache, AssetsLibraryView *view);
     ~AssetsLibraryWidget() = default;
 
     QList<QToolButton *> createToolBarWidgets();
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     static QString qmlSourcesPath();
     void clearSearchFilter();
@@ -63,6 +67,8 @@ public:
 
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool enable);
+
+    void deleteSelectedAssets();
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
@@ -107,6 +113,7 @@ signals:
     void hasMaterialLibraryChanged();
     void isDraggingChanged();
     void endDrag();
+    void deleteSelectedAssetsRequested();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -124,6 +131,7 @@ private:
 
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
     AssetsLibraryModel *m_assetsModel = nullptr;
+    AssetsLibraryView *m_assetsView = nullptr;
 
     QScopedPointer<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;
