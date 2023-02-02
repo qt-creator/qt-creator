@@ -228,7 +228,6 @@ void TestResultsPane::addTestResult(const TestResult &result)
     m_atEnd = scrollBar ? scrollBar->value() == scrollBar->maximum() : true;
 
     m_model->addTestResult(result, m_expandCollapse->isChecked());
-    m_filterModel->invalidate();
     setIconBadgeNumber(m_model->resultTypeCount(ResultType::Fail)
                        + m_model->resultTypeCount(ResultType::MessageFatal)
                        + m_model->resultTypeCount(ResultType::UnexpectedPass));

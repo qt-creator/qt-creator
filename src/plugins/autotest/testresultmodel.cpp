@@ -426,6 +426,10 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 {
     setSourceModel(sourceModel);
     enableAllResultTypes(true);
+
+    // instead of using invalidate() from results pane when adding a new result ( QTBUG-103952 )
+    connect(sourceModel, &QAbstractItemModel::rowsInserted,
+            this, &TestResultFilterModel::invalidateFilter);
 }
 
 void TestResultFilterModel::enableAllResultTypes(bool enabled)
