@@ -657,11 +657,7 @@ void DockerDevicePrivate::startContainer()
     if (!createContainer())
         return;
 
-    m_shell = std::make_unique<ContainerShell>(m_settings,
-                                               m_container,
-                                               FilePath::fromString(
-                                                   QString("device://%1/")
-                                                       .arg(this->q->id().toString())));
+    m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
         if (resultData.m_error != QProcess::UnknownError
