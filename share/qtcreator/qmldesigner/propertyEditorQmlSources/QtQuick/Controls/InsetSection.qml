@@ -12,7 +12,10 @@ Section {
     width: parent.width
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Vertical") }
+        PropertyLabel {
+            text: qsTr("Vertical")
+            tooltip: qsTr("Sets the space from the top and bottom of the area to the background top and bottom.")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -59,7 +62,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Horizontal") }
+        PropertyLabel {
+            text: qsTr("Horizontal")
+            tooltip: qsTr("Sets the space from the left and right of the area to the background left and right.")
+        }
 
         SecondColumnLayout {
             SpinBox {
