@@ -13,6 +13,7 @@
 #include <cplusplus/Lexer.h>
 
 #include <QFile>
+#include <QTextCharFormat>
 #include <QTextDocument>
 #include <QTextLayout>
 
@@ -460,6 +461,7 @@ void CppHighlighter::highlightDoxygenComment(const QString &text, int position, 
     setFormatWithSpaces(text, initial, it - uc - initial, format);
 }
 
+#ifdef WITH_TESTS
 namespace Internal {
 CppHighlighterTest::CppHighlighterTest()
 {
@@ -541,6 +543,7 @@ void CppHighlighterTest::test()
         QCOMPARE(actualFormat, expectedFormat);
     }
 }
-
 } // namespace Internal
+#endif // WITH_TESTS
+
 } // namespace CppEditor

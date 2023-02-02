@@ -9,7 +9,9 @@
 
 #include <cplusplus/Token.h>
 
-#include <QTextCharFormat>
+#ifdef WITH_TESTS
+#include <QTextDocument>
+#endif
 
 namespace CppEditor {
 
@@ -37,6 +39,7 @@ private:
     CPlusPlus::LanguageFeatures m_languageFeatures = CPlusPlus::LanguageFeatures::defaultFeatures();
 };
 
+#ifdef WITH_TESTS
 namespace Internal {
 class CppHighlighterTest : public CppHighlighter
 {
@@ -53,5 +56,6 @@ private:
     QTextDocument m_doc;
 };
 } // namespace Internal
+#endif // WITH_TESTS
 
 } // namespace CppEditor
