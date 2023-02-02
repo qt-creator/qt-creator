@@ -15,7 +15,10 @@ Section {
     anchors.right: parent.right
 
     SectionLayout {
-        PropertyLabel { text: qsTr("Content size") }
+        PropertyLabel {
+            text: qsTr("Content size")
+            tooltip: qsTr("Sets the size of the content (the surface controlled by the flickable).")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -60,7 +63,10 @@ Section {
             ExpandingSpacer {}
         }
 
-        PropertyLabel { text: qsTr("Content") }
+        PropertyLabel {
+            text: qsTr("Content")
+            tooltip: qsTr("Sets the current position of the component.")
+        }
 
         SecondColumnLayout {
             SpinBox {
@@ -73,7 +79,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "X" }
+            ControlLabel {
+                text: "X"
+                tooltip: qsTr("Horizontal position.")
+            }
 
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
@@ -87,7 +96,10 @@ Section {
 
             Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
 
-            ControlLabel { text: "Y" }
+            ControlLabel {
+                text: "Y"
+                tooltip: qsTr("Vertical position.")
+            }
 /*
             TODO QDS-4836
             Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -99,6 +111,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Origin")
+            tooltip: qsTr("Sets the origin point of the content.")
             blockedByTemplate: !backendValues.originX.isAvailable
                                && !backendValues.originY.isAvailable
         }
@@ -117,6 +130,7 @@ Section {
 
             ControlLabel {
                 text: "X"
+                tooltip: qsTr("Horizontal position.")
                 enabled: backendValues.originX.isAvailable
             }
 
@@ -135,6 +149,7 @@ Section {
 
             ControlLabel {
                 text: "Y"
+                tooltip: qsTr("Vertical position.")
                 enabled: backendValues.originY.isAvailable
             }
 /*
@@ -148,6 +163,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Left margin")
+            tooltip: qsTr("Sets an additional left margin in the flickable area.")
             blockedByTemplate: !backendValues.leftMargin.isAvailable
         }
 
@@ -167,6 +183,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Right margin")
+            tooltip: qsTr("Sets an additional right margin in the flickable area.")
             blockedByTemplate: !backendValues.rightMargin.isAvailable
         }
 
@@ -186,6 +203,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Top margin")
+            tooltip: qsTr("Sets an additional top margin in the flickable area.")
             blockedByTemplate: !backendValues.topMargin.isAvailable
         }
 
@@ -205,6 +223,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Bottom margin")
+            tooltip: qsTr("Sets an additional bottom margin in the flickable area.")
             blockedByTemplate: !backendValues.bottomMargin.isAvailable
         }
 
