@@ -40,7 +40,7 @@ Rectangle {
 
     property bool isLandscape: true
 
-    color: StudioTheme.Values.themeStatePanelBackground
+    color: StudioTheme.Values.themePanelBackground
 
     onWidthChanged: root.responsiveResize(root.width, root.height)
     onHeightChanged: root.responsiveResize(root.width, root.height)
@@ -374,7 +374,7 @@ Rectangle {
             }
         }
 
-        color: StudioTheme.Values.themeSectionHeadBackground
+        color: StudioTheme.Values.themeToolbarBackground
         width: root.width
         height: (toolBar.doubleRow ? 2 : 1) * StudioTheme.Values.toolbarHeight
 
@@ -403,6 +403,7 @@ Rectangle {
                 }
 
                 StudioControls.ComboBox {
+                    style: StudioTheme.Values.viewBarControlStyle
                     id: stateGroupComboBox
                     actionIndicatorVisible: false
                     model: statesEditorModel.stateGroups
@@ -458,14 +459,16 @@ Rectangle {
                     leftPadding: toolBar.doubleRow ? root.padding : 0
 
                     HelperWidgets.AbstractButton {
-                        buttonIcon: StudioTheme.Constants.plus
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.add_medium
                         anchors.verticalCenter: parent.verticalCenter
                         tooltip: qsTr("Create State Group")
                         onClicked: statesEditorModel.addStateGroup("stateGroup")
                     }
 
                     HelperWidgets.AbstractButton {
-                        buttonIcon: StudioTheme.Constants.minus
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.remove_medium
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
                         tooltip: qsTr("Remove State Group")
@@ -474,7 +477,8 @@ Rectangle {
 
                     HelperWidgets.AbstractButton {
                         id: editButton
-                        buttonIcon: StudioTheme.Constants.edit
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.edit_medium
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
                         checked: editDialog.visible
@@ -502,7 +506,8 @@ Rectangle {
                     rightPadding: root.padding
 
                     HelperWidgets.AbstractButton {
-                        buttonIcon: StudioTheme.Constants.gridView
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.grid_medium
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
                         tooltip: qsTr("Show thumbnails")
@@ -513,7 +518,8 @@ Rectangle {
                     }
 
                     HelperWidgets.AbstractButton {
-                        buttonIcon: StudioTheme.Constants.textFullJustification
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.list_medium
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
                         tooltip: qsTr("Show property changes")

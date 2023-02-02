@@ -52,25 +52,15 @@ Item {
 
         property color iconColor: StudioTheme.Values.themeTextColor
 
-        Rectangle {
-            id: rectangle
-            width: 19
-            height: 3
-            color: menuIcon.iconColor
-        }
-
-        Rectangle {
-            id: rectangle1
-            width: 19
-            height: 3
-            color: menuIcon.iconColor
-        }
-
-        Rectangle {
-            id: rectangle2
-            width: 19
-            height: 3
-            color: menuIcon.iconColor
+        Label {
+            id: moreMenu
+            anchors.fill: parent
+            text: StudioTheme.Constants.more_medium
+            color: StudioTheme.Values.themeTextColor
+            font.family: StudioTheme.Constants.iconFont.family
+            font.pixelSize: 16 //StudioTheme.Values.myIconFontSize
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
         }
     }
 
@@ -123,7 +113,7 @@ Item {
 
             PropertyChanges {
                 target: background
-                color: StudioTheme.Values.themeControlBackgroundHover
+                color: StudioTheme.Values.themeControlBackground_topToolbarHover
             }
             PropertyChanges {
                 target: menuIcon
