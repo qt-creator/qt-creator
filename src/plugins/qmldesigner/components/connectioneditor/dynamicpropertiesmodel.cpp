@@ -557,7 +557,8 @@ void DynamicPropertiesModel::addProperty(const QVariant &propertyValue,
     idItem = new QStandardItem(idOrTypeNameForNode(abstractProperty.parentModelNode()));
     updateCustomData(idItem, abstractProperty);
 
-    propertyNameItem = new QStandardItem(QString::fromUtf8(abstractProperty.name()));
+    const QString propName = QString::fromUtf8(abstractProperty.name());
+    propertyNameItem = new QStandardItem(propName);
 
     items.append(idItem);
     items.append(propertyNameItem);
@@ -568,6 +569,13 @@ void DynamicPropertiesModel::addProperty(const QVariant &propertyValue,
     propertyValueItem = new QStandardItem();
     propertyValueItem->setData(propertyValue, Qt::DisplayRole);
     items.append(propertyValueItem);
+
+    for (int i =0; i < rowCount(); i++) {
+        if (data(index(i, PropertyNameRow)).toString() > propName) {
+            insertRow(i, items);
+            return;
+        }
+    }
 
     appendRow(items);
 }
