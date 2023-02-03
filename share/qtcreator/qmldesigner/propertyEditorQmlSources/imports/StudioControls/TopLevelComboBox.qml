@@ -76,7 +76,8 @@ T.ComboBox {
             control.menuDelegate.parent = window.contentItem
             control.menuDelegate.visible = true
 
-            window.transientParent = Theme.mainWindowHandle()
+            if (Qt.platform.os !== "osx")
+                window.transientParent = Theme.mainWindowHandle()
 
             window.show()
             window.requestActivate()
