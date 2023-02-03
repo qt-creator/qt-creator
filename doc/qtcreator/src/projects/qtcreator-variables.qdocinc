@@ -34,7 +34,7 @@
     %{variable//pattern/replacement}
     \endcode
 
-    The pattern can be a regular expression and the replacement can contain
+    The pattern can be a regular expression and the replacement can have
     backreferences. For example, if \c %{variable} is \c my123var, then
     \c %{variable/(..)(\d+)/\2\1} is expanded to \c {123myvar}.
 

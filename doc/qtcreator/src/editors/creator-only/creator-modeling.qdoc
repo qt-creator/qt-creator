@@ -52,7 +52,7 @@
 
     \section1 Using the Model Editor
 
-    You can create models that contain several different structural or
+    You can create models that have several different structural or
     behavioral diagrams.
     You can add elements to the diagrams and specify properties for them. You
     can either use standard model elements or add your own elements with custom

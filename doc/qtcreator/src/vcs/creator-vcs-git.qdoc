@@ -50,7 +50,7 @@
 
     To work with the current file, select the commands in \uicontrol Tools >
     \uicontrol Git > \uicontrol {Current File}. Some of the commands are also
-    available for the project or local repository that contains the file.
+    available for the project or local repository that has the file.
 
     \section2 Viewing Git Diff
 
@@ -72,7 +72,7 @@
     \section2 Viewing Git Log
 
     To display the versioning history of a file, select \uicontrol{Log of}.
-    The log output contains the date, the commit message, and a commit
+    The log output has the date, the commit message, and a commit
     identifier. Click on the commit identifier to view commit details.
 
     \image qtcreator-git-log.png "Commit details in Git log"
@@ -187,7 +187,7 @@
     \section2 Viewing Git Status
 
     To view the status of the repository in \uicontrol {Version Control},
-    select \uicontrol Status. The context menu contains additional
+    select \uicontrol Status. The context menu has additional
     actions, such as selecting and clearing all entries, copying
     text, and opening files.
 
@@ -299,7 +299,7 @@
     To refresh the list of branches, select \inlineimage icons/reload_gray.png
     (\uicontrol Refresh).
 
-    The context menu for a branch contains the following functions:
+    The context menu for a branch has the following functions:
 
     \table
         \header
@@ -357,7 +357,7 @@
             \li Push the committed changes to the selected remote branch.
     \endtable
 
-    The context menu for a remote branch contains the following additional
+    The context menu for a remote branch has the following additional
     functions. To open it, select \uicontrol{Remote Branches} or a remote
     repository.
 
@@ -454,7 +454,7 @@
     To start controlling a project directory that is currently not under
     version control, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Create Repository}. \QC creates a new subdirectory named .git
-    that contains all the necessary repository files. However, Git does not track
+    that has all the necessary repository files. However, Git does not track
     anything in the project yet, so you will need to create an initial commit to
     start tracking the project files.
 
@@ -572,16 +572,16 @@
     To start a graphical interface to Git, select \uicontrol Tools >
     \uicontrol Git > \uicontrol {Git Tools} > \uicontrol {Git Gui}.
 
-    \note On \macos, the default Git installation does not contain Git Gui. To
+    \note On \macos, the default Git installation does not have Git Gui. To
     use Git Gui, install it separately. To start Git Gui from \QC, select
     \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Git, and
-    set the path to the environment that contains Git Gui in the
+    set the path to the environment that has Git Gui in the
     \uicontrol {Prepend to PATH} field.
 
     To start the commit viewer for Git, select \uicontrol Tools >
     \uicontrol Git > \uicontrol {Git Tools} > \uicontrol Gitk. You can also
     start the tool to view commits in the current document or in the folder that
-    contains the current document. To specify arguments for running Gitk, select
+    has the current document. To specify arguments for running Gitk, select
     \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
     \uicontrol Git.
 

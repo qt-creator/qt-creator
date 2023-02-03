@@ -17,10 +17,10 @@
     To develop for Android, you must have a tool chain for building applications
     for Android devices installed on the development PC. \QC can automatically
     download and install the tool chain and create a suitable build and run
-    \l{glossary-buildandrun-kit}{kit} that contains the tool chain and the Qt
+    \l{glossary-buildandrun-kit}{kit} that has the tool chain and the Qt
     version for Android for the device's architecture.
 
-    Starting from Qt 5.14.0, the Qt for Android package contains all the
+    Starting from Qt 5.14.0, the Qt for Android package has all the
     architectures (ABIs) installed as one.
 
     To enable helpful code editing features for Java, such as code completion,

@@ -74,7 +74,7 @@
 
     \list
 
-        \li  Paths or file names containing spaces or special characters
+        \li  Paths or file names that have spaces or special characters
             (such as colons, dollar signs, and hash marks) may cause problems.
             This is because some of the tools \QC uses in the background have
             restrictions on the characters allowed in file and directory names.
@@ -82,7 +82,7 @@
             items with names consisting of plain characters, numbers,
             underscores, and hyphens.
 
-        \li  If error messages displayed in \l {Compile Output} contain
+        \li  If error messages displayed in \l {Compile Output} have
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
             \l{Troubleshooting MinGW Compilation Errors}.
@@ -113,7 +113,7 @@
             using the \c {--bind mount} option.
 
         \li  Setting breakpoints in files will fail when using LLDB if the file path
-            contains symbolic links.
+            has symbolic links.
 
         \li  A regression in GCC 4.5.0 causes return value optimization to
             produce inaccurate debug info that GCC applies also to

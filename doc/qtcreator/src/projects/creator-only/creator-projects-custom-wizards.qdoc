@@ -19,9 +19,9 @@
     files.
 
     You can create custom wizards in JSON format. They are stored in wizard
-    template directories that contain a JSON configuration file called
+    template directories that have a JSON configuration file called
     \c {wizard.json} and any template files needed. The configuration file
-    contains sections that specify information about the wizard, variables
+    has sections that specify information about the wizard, variables
     that you can use, wizard pages, and generators for creating files.
 
     To create a customized wizard, copy a template directory to the shared
@@ -49,7 +49,7 @@
     You can add wizard pages to allow developers to specify settings for the
     project.
 
-    A file wizard is similar, but does not contain any project file.
+    A file wizard is similar, but does not have any project file.
 
     \section1 Locating Wizards
 
@@ -130,7 +130,7 @@
     \c wizard.json file. If it does not find the file, it does not show
     the message.
 
-    If the file contains errors, such as an invalid icon path, you receive the
+    If the file has errors, such as an invalid icon path, you receive the
     following types of messages:
 
     \code

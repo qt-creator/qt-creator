@@ -95,32 +95,32 @@
             \li Uses a single main.cpp file.
         \row
             \li Qt Quick Application
-            \li Creates a Qt Quick 2 application project that can contain both
+            \li Creates a Qt Quick 2 application project that can have both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
         \row
             \li {1,4} Application (Qt for Python)
             \li Empty Application
             \li Creates a \l{https://doc.qt.io/qtforpython/index.html}
-                {Qt for Python} application that contains only the main
+                {Qt for Python} application that has only the main
                 code for a QApplication.
         \row
             \li Empty Window
-            \li Creates a Qt for Python application that contains an empty
+            \li Creates a Qt for Python application that has an empty
                 window.
         \row
             \li Window UI
-            \li Creates a Qt for Python application that contains an empty
+            \li Creates a Qt for Python application that has an empty
                 window with a widget-based UI. Preferred approach that requires
                 you to generate a Python file from the .ui file, to import
                 it directly into your application.
         \row
             \li Window UI - Dynamic load
-            \li Creates a Qt for Python application that contains an empty
+            \li Creates a Qt for Python application that has an empty
                 window with a widget-based UI.
         \row
             \li Qt Quick Application - Empty
-            \li Creates a Python project that contains an empty Qt Quick
+            \li Creates a Python project that has an empty Qt Quick
                 Application.
         \row
             \li {1,3} Library
@@ -141,10 +141,10 @@
         \row
             \li Qt Quick UI Prototype
             \li Creates a \l{Creating Qt Quick UI Projects}{Qt Quick UI project}
-                with a single QML file that contains the main view. You can
+                with a single QML file that has the main view. You can
                 preview Qt Quick 2 UI projects in the
                 \l{Validating with Target Hardware}{QML Scene preview tool}.
-                You do not need to build them because they do not contain any
+                You do not need to build them because they do not have any
                 C++ code.
 
                 Use this template only if you are prototyping. You cannot create
@@ -168,7 +168,7 @@
         \row
             \li Code Snippet
             \li Creates a qmake project from a code snippet. When working on
-                bug reports that contain a code snippet, you can place the code
+                bug reports that have a code snippet, you can place the code
                 snippet into a project to compile and check it.
         \row
             \li {1,4} Non-Qt Project
@@ -230,7 +230,7 @@
 
     \section1 Specifying Project Contents
 
-    A project can contain files that should be:
+    A project can have files that should be:
 
     \list
         \li Compiled or otherwise handled by the build

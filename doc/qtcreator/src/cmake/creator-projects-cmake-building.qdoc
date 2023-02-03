@@ -55,8 +55,8 @@
     \section1 CMake Presets
 
     You can use CMake presets files to specify common configure, build, and test
-    options and share them with others. \c CMakePresets.json contains options for
-    project-wide builds, whereas \c CMakeUserPresets.json contains options for
+    options and share them with others. \c CMakePresets.json has options for
+    project-wide builds, whereas \c CMakeUserPresets.json has options for
     your local builds.
 
     Create the presets files in the format described in
@@ -72,7 +72,7 @@
     disabled all kits in the project. To update changes to the
     \c CMakePresets.json file, delete the \c CMakeLists.txt.user file.
 
-    \image qtcreator-cmake-presets-configure.webp "Opening a project that contains Cmake presets"
+    \image qtcreator-cmake-presets-configure.webp "Opening a project that has Cmake presets"
 
     You can view the presets in the \uicontrol {Initial Configuration} field and
     in the environment configuration field below it.

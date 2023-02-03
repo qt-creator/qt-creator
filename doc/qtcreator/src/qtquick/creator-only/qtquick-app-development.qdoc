@@ -48,7 +48,7 @@
 
             Qt Quick UI projects (.qmlproject) are useful for creating user
             interfaces. To use them for application development, you have to
-            convert them to Qt Quick Application projects that contain .pro,
+            convert them to Qt Quick Application projects that have .pro,
             .cpp, and .qrc files.
 
         \li \l {UI Files}

@@ -52,7 +52,7 @@
     error markers is the same as a compiler will give you, not an incomplete
     set or a close approximation, as when using the built-in \QC code model.
     Clang focuses on detailed information for diagnostics, which is really
-    useful if the code contains typos, for example.
+    useful if the code has typos, for example.
     We make use of these libraries via the clangd tool, which implements
     an \l{https://microsoft.github.io/language-server-protocol/}{LSP} server.
 
@@ -141,7 +141,7 @@
     \QC.
 
     By default, \QC runs one clangd process per project. If you have created
-    \l{Managing Sessions}{sessions} that contain related projects, you can
+    \l{Managing Sessions}{sessions} that have related projects, you can
     specify that the projects in the session should be managed by a single
     clangd process.
 

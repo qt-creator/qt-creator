@@ -83,7 +83,7 @@
 
     To specify global settings for Valgrind, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Analyzer. The \uicontrol
-    {Memcheck Memory Analysis Options} group contains Memcheck options.
+    {Memcheck Memory Analysis Options} group has Memcheck options.
 
     In \uicontrol {Extra Memcheck arguments}, specify additional arguments
     for launching the executable.
@@ -127,7 +127,7 @@
     at startup. A default suppression file is created by the ./configure script
     when the system is built.
 
-    You can write your own suppression files if parts of your project contain
+    You can write your own suppression files if parts of your project have
     errors you cannot fix and you do not want to be reminded of them. Click
     \uicontrol Add in the \uicontrol {MemCheck Memory Analysis} dialog to add
     the suppression files.
@@ -270,7 +270,7 @@
 
     To specify global settings for Valgrind, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Analyzer. The \uicontrol
-    {Callgrind Profiling Options} group contains Callgrind options.
+    {Callgrind Profiling Options} group has Callgrind options.
 
     \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 

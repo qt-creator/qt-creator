@@ -50,7 +50,7 @@
         \li \l{Indenting Text or Code}
 
             \QC indents text and code according to rules that you
-            specify separately for files that contain C++, QML, or
+            specify separately for files that have C++, QML, or
             Nim (experimental) code and for other text files.
 
         \li \l{Using Qt Quick Toolbars}

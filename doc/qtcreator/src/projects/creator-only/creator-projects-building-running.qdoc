@@ -33,7 +33,7 @@
 
         \li \l{Building for Multiple Platforms}
 
-            \e {Build configurations} contain everything you need to compile
+            \e {Build configurations} have everything you need to compile
             the sources into binaries. Build configurations use the tools and settings
             defined in their corresponding kit.
 

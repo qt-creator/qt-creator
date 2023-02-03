@@ -52,7 +52,7 @@
 
     \section1 Creating Tests
 
-    You can use a wizard to create projects that contain tests.
+    You can use a wizard to create projects that have tests.
 
     \section2 Creating Qt and Qt Quick Tests
 
@@ -137,7 +137,7 @@
                     support C++ 11 features in the test.
 
                 \li In the \uicontrol {Google test repository} field, select
-                    a directory that contains a clone of the googletest
+                    a directory that has a clone of the googletest
                     repository.
 
                     To use an installed Google C++ Testing framework instead,
@@ -182,9 +182,9 @@
                 \li In the \uicontrol {Test case name} field, enter a name for
                     the test case.
                 \li In the \uicontrol {Boost include dir (optional)} field,
-                    enter the path to the directory that contains files needed
+                    enter the path to the directory that has files needed
                     by Boost.Test, such as \e version.hpp and a subfolder called
-                    \e test that contains the test header files.
+                    \e test that has the test header files.
                 \li In the \uicontrol {Build system} field, select the build
                     system to use for building the project: qmake, CMake, or
                     Qbs.
@@ -224,7 +224,7 @@
                     to use a self defined main function and set up the project
                     to use Qt features.
                 \li In the \uicontrol {Catch2 include directory (optional)} field,
-                    you may enter a path to the directory that contains the
+                    you may enter a path to the directory that has the
                     Catch2 header files.
                 \li In the \uicontrol {Build system} field, select the build
                     system to use for building the project: qmake, CMake, or
@@ -306,7 +306,7 @@
 
     \list 1
 
-        \li Open a project that contains tests.
+        \li Open a project that has tests.
 
         \li In the \uicontrol Tests view, select the tests to run.
 

@@ -89,7 +89,7 @@
 
     \section1 Using Common Functions
 
-    The \uicontrol{Tools} menu contains a submenu for each supported version
+    The \uicontrol{Tools} menu has a submenu for each supported version
     control system. This section describes using the functions that are
     available for all the supported version control systems. For more
     information about the additional functions and options available for a
@@ -144,15 +144,15 @@
     \section2 Viewing Versioning History and Change Details
 
     Display the versioning history of a file by selecting \uicontrol{Log}
-    or \uicontrol{Filelog}. Typically, the log output contains the date, the commit
+    or \uicontrol{Filelog}. Typically, the log output has the date, commit
     message, and a change or revision identifier.
 
     \section2 Annotating Files
 
-    Annotation views are obtained by selecting \uicontrol{Annotate} or \uicontrol{Blame}.
-    Selecting \uicontrol{Annotate} or \uicontrol{Blame} displays the lines of the file
-    prepended by the change identifier they originate from. Clicking on the
-    change identifier shows a detailed description of the change.
+    To open annotation views, select \uicontrol {Annotate} or \uicontrol {Blame}.
+    They show the lines of the file and the identifier of the change the lines
+    originate from. Click the change identifier to see a detailed description of
+    the change.
 
     To show the annotation of a previous version, right-click on the
     version identifier at the beginning of a line and choose one of the
@@ -167,7 +167,7 @@
 
     Once you have finished making changes, submit them to the version control
     system by choosing \uicontrol{Commit} or \uicontrol{Submit}. \QC displays a
-    commit page containing a text editor where you can enter your commit
+    commit page that has a text editor where you can enter your commit
     message and a checkable list of modified files to include.
 
     \section2 Reverting Changes

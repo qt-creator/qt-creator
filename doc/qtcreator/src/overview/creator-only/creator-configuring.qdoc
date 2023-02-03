@@ -167,7 +167,7 @@
 
     \section2 Installing Plugins
 
-    Qt Marketplace contains links to \QC plugins that you can download and
+    Qt Marketplace has links to \QC plugins that you can download and
     install either for free or for a price set by their publisher. You can
     browse the available plugins in the \uicontrol Marketplace tab in the
     Welcome mode.
@@ -180,7 +180,7 @@
         \li Select \uicontrol Help > \uicontrol {About Plugins} >
             \uicontrol {Install Plugins}.
         \li In the \uicontrol Source dialog, enter the path to the archive
-             or library that contains the plugin.
+             or library that has the plugin.
             \image qtcreator-install-plugin-source.png
         \li In the \uicontrol {Install Location} dialog, select
             \uicontrol {User plugins} to make the plugin available for the

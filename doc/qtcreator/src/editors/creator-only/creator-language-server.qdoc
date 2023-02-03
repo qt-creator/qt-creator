@@ -170,7 +170,7 @@
     \section1 Inspecting Language Clients
 
     \QC sends messages (\e Requests) to the language server and receives
-    responses that contain the requested information if the language server is
+    responses that have the requested information if the language server is
     capable of handling the requests. To inspect the communication between \QC
     and language servers and view server capabilities, select \uicontrol Tools
     > \uicontrol {Debug \QC} > \uicontrol {Inspect Language Clients}.

@@ -48,7 +48,7 @@
     \uicontrol Window > \uicontrol {Go to Last Edit}.
 
     To go to any open file, select it from the \uicontrol {Open files} drop-down
-    menu (1). To open a context menu that contains commands for managing open
+    menu (1). To open a context menu that has commands for managing open
     files, right-click the file name or icon on the toolbar. In addition to the
     commands also available in the \uicontrol File menu, you can copy the path
     and name of the current file and the number of the line where the cursor is
@@ -120,7 +120,7 @@
 
     \section1 Editing Selected Lines
 
-    The \uicontrol Edit > \uicontrol Advanced menu contains options for editing
+    The \uicontrol Edit > \uicontrol Advanced menu has options for editing
     selected lines of text.
 
     To duplicate the selected lines, select \uicontrol {Duplicate Selection}.

@@ -28,7 +28,7 @@
 
     \image qtcreator-semanticerror.png
 
-    In the following screenshot, a Qt class name contains a typo:
+    In the following screenshot, a Qt class name has a typo:
 
     \image qtcreator-typo-clang.png
 
@@ -46,7 +46,7 @@
     In addition to underlining, errors and warnings are marked with icons and
     annotated.
     \endif
-    When writing QML or JavaScript code, the annotations may contain error codes
+    When writing QML or JavaScript code, the annotations may have error codes
     listed in \l{JavaScript and QML Error Codes}.
 
     \image qml-syntax-check.png

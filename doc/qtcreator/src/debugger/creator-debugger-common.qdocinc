@@ -205,7 +205,7 @@
         \li Right-click the breakpoint marker in the text editor and select
             \uicontrol{Disable Breakpoint}.
 
-        \li Select a line that contains a breakpoint and press \key Ctrl+F9
+        \li Select a line that has a breakpoint and press \key Ctrl+F9
             (\key Ctrl+F8 on \macos).
 
         \li In the \uicontrol {Breakpoint Preset} view or the
@@ -371,7 +371,7 @@
             \li The debug information provided by GCC does not include enough
                 information about the time when a variable is initialized.
                 Therefore, \QC can not tell whether the contents of a local
-                variable contains "real data", or "initial noise". If a QObject
+                variable are \e {real data} or \e {initial noise}. If a QObject
                 appears uninitialized, its value is reported as
                 \uicontrol {not in scope}. Not all uninitialized objects,
                 however, can be recognized as such.

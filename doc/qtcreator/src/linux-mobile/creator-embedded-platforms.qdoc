@@ -46,7 +46,7 @@
     Either Windows 10 64-bit or later or Ubuntu Linux 64-bit 20.04 LTS
     or later is required to install and use Boot2Qt.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for Boot2Qt devices:
 
     \list
@@ -66,7 +66,7 @@
     You must have a tool chain for building applications for embedded Linux
     devices installed on the development PC.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for remote Linux devices:
 
     \list
@@ -84,7 +84,7 @@
     necessary for bare metal software development on devices based on the Arm
     Cortex-M processors.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for MCUs:
 
     \list
@@ -100,7 +100,7 @@
 
     \note In Qt 6, \QC support for QNX is considered experimental.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for QNX devices:
 
     \list

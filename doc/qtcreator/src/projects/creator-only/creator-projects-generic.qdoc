@@ -121,7 +121,7 @@
 
     \section1 Forwarding Flags to Clang Code Model
 
-    The \c {.cxxflags} and \c {.cflags} files contain command line flags for the
+    The \c {.cxxflags} and \c {.cflags} files have command line flags for the
     Clang code model on a single line.
 
     For example, specify the \c {-std=c++11} to set the language version

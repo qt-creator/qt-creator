@@ -64,7 +64,7 @@
         \li Design for limited input methods
 
             Applications collect information from users on the task at hand. In
-            addition to touch screen input, some devices contain physical keys
+            addition to touch screen input, some devices have physical keys
             such as a five way navigation pad, a keypad, and a keyboard. Users
             enter information by using screen controls, such as lists, check
             boxes, radio buttons, and text fields.

@@ -13,7 +13,7 @@
     \title Projects
 
     The \uicontrol Projects view displays projects in a project tree.
-    The project tree contains a list of all projects open in the current
+    The project tree has a list of all projects open in the current
     \l{Managing Sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
     are part of the project.
@@ -36,7 +36,7 @@
             source files open in the code editor. Use the \l{Selecting Modes}
             {mode selector} to open the current file in another editor.
         \li To bring up a \l{Projects View Context Menu}{context menu}
-            containing the actions most commonly needed, right-click an
+            that has the actions most commonly needed, right-click an
             item in the project tree. For example, through the menu of
             the project root directory you can, among other actions, run
             and close the project.
@@ -49,7 +49,7 @@
 
     \section1 Projects View Context Menu
 
-    The \uicontrol Projects view contains context menus for managing projects,
+    The \uicontrol Projects view has context menus for managing projects,
     subprojects, folders, and files. Use the following functions to manage
     projects and subprojects:
 
@@ -97,12 +97,12 @@
 
     \if defined(qtdesignstudio)
     In the \uicontrol Edit and \uicontrol Debug mode, the
-    \l{Working with Sidebars}{sidebar} contains the \uicontrol Projects
+    \l{Working with Sidebars}{sidebar} has the \uicontrol Projects
     view. It has a toolbar with additional options.
 
     \image qtcreator-projects-view-edit.png "Projects view in the sidebar"
     \else
-    The toolbar in the \uicontrol Projects view contains additional options.
+    The toolbar in the \uicontrol Projects view has additional options.
     \endif
 
 
@@ -117,7 +117,7 @@
         \li \uicontrol {Hide Disabled Files} hides the source files that you
             have not enabled for the current target,
         \li \uicontrol {Hide Empty Directories} hides directories that do not
-            contain any files.
+            have any files.
         \li \uicontrol {Show Source and Header Groups} shows source and header
             files grouped together in the view, regardless of their location in
             the file system.

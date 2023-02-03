@@ -82,7 +82,7 @@
         \li \uicontrol {Save IncrediBuild monitor file} writes a copy of the
             build progress (\c{.ib_mon}) file to the specified location.
             If only a folder name is given, IncrediBuild generates a GUID for
-            the file name. A message containing the location of the saved
+            the file name. A message that has the location of the saved
             \c{.ib_mon} file is added to the end of the build output.
         \li \uicontrol {Suppress STDOUT} does not write anything to the standard
              output.

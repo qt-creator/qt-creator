@@ -66,7 +66,7 @@
         \li Select \uicontrol Finish to create \e Page.qml.
     \endlist
 
-    \QC opens \e Page.qml in the \uicontrol Edit mode. It contains a root item
+    \QC opens \e Page.qml in the \uicontrol Edit mode. It has a root item
     of the type \l Item that we replace with a \l Rectangle type. We give the
     type the ID \e page, anchor it to the parent item on all sides, and set
     its color to white:

@@ -10,7 +10,7 @@
 
     Fossil is an open source distributed version control system, designed
     and developed by the creator of SQLite. A stand-alone Fossil executable
-    contains a source control management engine, web interface, issue tracker,
+    has a source control management engine, web interface, issue tracker,
     wiki, and built-in web server. Fossil is available for Linux, Windows,
     and \macos.
 
@@ -41,7 +41,7 @@
     \section1 Additional Fossil Functions
 
     In addition to the standard version control system functions described in
-    \l {Using Version Control Systems}, the \uicontrol Fossil submenu contains
+    \l {Using Version Control Systems}, the \uicontrol Fossil submenu has
     the following items:
 
     \table

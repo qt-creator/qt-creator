@@ -8,7 +8,7 @@
 
     \title FAQ
 
-    This section contains answers to some frequently asked questions about \QC.
+    This section has answers to some frequently asked questions about \QC.
     You might also find answers to your questions in the
     \l{Known Issues} and \l{How-tos} sections, or the Troubleshooting
     sections for a special area, such as
@@ -146,7 +146,7 @@
 
     \QC comes fully integrated with Qt documentation and examples using
     the Qt Help plugin. The integrated Qt Reference Documentation is available
-    for Qt 4.4 and later. \QC and other Qt deliverables contain
+    for Qt 4.4 and later. \QC and other Qt deliverables have
     documentation as .qch files. All the documentation is accessible in the
     \uicontrol Help mode.
 
