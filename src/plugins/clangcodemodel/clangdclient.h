@@ -137,6 +137,8 @@ private:
     const CustomInspectorTabs createCustomInspectorTabs() override;
     TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
+    LanguageClient::LanguageClientOutlineItem *createOutlineItem(
+        const LanguageServerProtocol::DocumentSymbol &symbol) override;
     bool referencesShadowFile(const TextEditor::TextDocument *doc,
                               const Utils::FilePath &candidate) override;
     bool fileBelongsToProject(const Utils::FilePath &filePath) const override;

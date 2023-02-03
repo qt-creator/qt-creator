@@ -31,7 +31,6 @@ class Unregistration;
 } // namespace LanguageServerProtocol
 
 namespace LanguageClient {
-
 class BaseClientInterface;
 class ClientPrivate;
 class DiagnosticManager;
@@ -40,6 +39,7 @@ class DynamicCapabilities;
 class HoverHandler;
 class InterfaceController;
 class LanguageClientCompletionAssistProvider;
+class LanguageClientOutlineItem;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
 class ProgressManager;
@@ -160,13 +160,13 @@ public:
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
-    void setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier);
-    LanguageServerProtocol::SymbolStringifier symbolStringifier() const;
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
     virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;
+    virtual LanguageClientOutlineItem *createOutlineItem(
+        const LanguageServerProtocol::DocumentSymbol &symbol);
 
     LanguageServerProtocol::DocumentUri::PathMapper hostPathMapper() const;
     Utils::FilePath serverUriToHostPath(const LanguageServerProtocol::DocumentUri &uri) const;

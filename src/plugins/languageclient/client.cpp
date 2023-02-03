@@ -11,6 +11,7 @@
 #include "languageclienthoverhandler.h"
 #include "languageclientinterface.h"
 #include "languageclientmanager.h"
+#include "languageclientoutline.h"
 #include "languageclientquickfix.h"
 #include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
@@ -325,7 +326,6 @@ public:
     SemanticTokenSupport m_tokenSupport;
     QString m_serverName;
     QString m_serverVersion;
-    LanguageServerProtocol::SymbolStringifier m_symbolStringifier;
     Client::LogTarget m_logTarget = Client::LogTarget::Ui;
     bool m_locatorsEnabled = true;
     bool m_autoRequestCodeActions = true;
@@ -1484,16 +1484,6 @@ void Client::setSemanticTokensHandler(const SemanticTokensHandler &handler)
     d->m_tokenSupport.setTokensHandler(handler);
 }
 
-void Client::setSymbolStringifier(const LanguageServerProtocol::SymbolStringifier &stringifier)
-{
-    d->m_symbolStringifier = stringifier;
-}
-
-SymbolStringifier Client::symbolStringifier() const
-{
-    return d->m_symbolStringifier;
-}
-
 void Client::setSnippetsGroup(const QString &group)
 {
     if (const auto provider = qobject_cast<LanguageClientCompletionAssistProvider *>(
@@ -2087,6 +2077,12 @@ bool Client::referencesShadowFile(const TextEditor::TextDocument *doc,
 bool Client::fileBelongsToProject(const Utils::FilePath &filePath) const
 {
     return project() && project()->isKnownFile(filePath);
+}
+
+LanguageClientOutlineItem *Client::createOutlineItem(
+    const LanguageServerProtocol::DocumentSymbol &symbol)
+{
+    return new LanguageClientOutlineItem(this, symbol);
 }
 
 FilePath toHostPath(const FilePath serverDeviceTemplate, const FilePath localClientPath)

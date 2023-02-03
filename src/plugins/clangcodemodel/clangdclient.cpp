@@ -38,6 +38,7 @@
 #include <languageclient/languageclienthoverhandler.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
+#include <languageclient/languageclientoutline.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageclient/languageclientutils.h>
 #include <languageclient/progressmanager.h>
@@ -126,6 +127,20 @@ public:
     using Request::Request;
     explicit SymbolInfoRequest(const TextDocumentPositionParams &params)
         : Request("textDocument/symbolInfo", params) {}
+};
+
+class ClangdOutlineItem : public LanguageClientOutlineItem
+{
+    using LanguageClientOutlineItem::LanguageClientOutlineItem;
+private:
+    QVariant data(int column, int role) const override
+    {
+        if (role == Qt::DisplayRole) {
+            return ClangdClient::displayNameFromDocumentSymbol(
+                static_cast<SymbolKind>(type()), name(), detail());
+        }
+        return LanguageClientOutlineItem::data(column, role);
+    }
 };
 
 void setupClangdConfigFile()
@@ -427,7 +442,6 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     });
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
-    setSymbolStringifier(displayNameFromDocumentSymbol);
     setSemanticTokensHandler([this](TextDocument *doc, const QList<ExpandedSemanticToken> &tokens,
                                     int version, bool force) {
         d->handleSemanticTokens(doc, tokens, version, force);
@@ -659,6 +673,12 @@ DiagnosticManager *ClangdClient::createDiagnosticManager()
                 this, &ClangdClient::textMarkCreated);
     }
     return diagnosticManager;
+}
+
+LanguageClientOutlineItem *ClangdClient::createOutlineItem(
+    const LanguageServerProtocol::DocumentSymbol &symbol)
+{
+    return new ClangdOutlineItem(this, symbol);
 }
 
 bool ClangdClient::referencesShadowFile(const TextEditor::TextDocument *doc,

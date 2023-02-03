@@ -556,7 +556,6 @@ enum class SymbolKind {
     TypeParameter = 26,
     LastSymbolKind = TypeParameter,
 };
-using SymbolStringifier = std::function<QString(SymbolKind, const QString &, const QString &)>;
 
 namespace CompletionItemKind {
 enum Kind {
