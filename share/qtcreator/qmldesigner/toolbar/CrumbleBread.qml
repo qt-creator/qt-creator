@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Shapes
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
@@ -12,13 +13,13 @@ Item {
     property int modelSize
 
     /* Colors might come from Theme */
-    property color idleBackgroundColor: "#2e2f30"
-    property color idleStrokeColor: "#1f1f1f"
-    property color idleTextColor: "#ffffff"
-    property color hoverBackgroundColor: "#434343"
-    property color hoverStrokeColor: "#434343"
-    property color activeColor: "#57b9fc"
-    property color activeTextColor: "#1f1f1f"
+    property color idleBackgroundColor: StudioTheme.Values.themeControlBackground_toolbarIdle
+    property color idleStrokeColor: StudioTheme.Values.controlOutline_toolbarIdle
+    property color idleTextColor: StudioTheme.Values.themeTextColor
+    property color hoverBackgroundColor: StudioTheme.Values.themeControlBackground_topToolbarHover
+    property color hoverStrokeColor: StudioTheme.Values.controlOutline_toolbarHover
+    property color activeColor: StudioTheme.Values.themeInteraction
+    property color activeTextColor: StudioTheme.Values.themeTextSelectedTextColor
 
     property string tooltip
 
