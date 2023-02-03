@@ -18748,13 +18748,6 @@ when they are not required, which will improve performance in most cases.</sourc
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
     <name>::Autotest</name>
     <message>
         <source>Google Test</source>
@@ -21143,7 +21136,7 @@ Leave empty to search through the file system.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>

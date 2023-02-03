@@ -19185,13 +19185,6 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
     <name>::CppEditor</name>
     <message>
         <source>Constructor</source>
@@ -21731,7 +21724,7 @@ Note: This can expose you to man-in-the-middle attack.</source>
     </message>
 </context>
 <context>
-    <name>GlslEditor::Internal::GlslEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>

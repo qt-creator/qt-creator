@@ -30957,14 +30957,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -31002,9 +30995,6 @@ když bude zavolán mimo git bash.</translation>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Vertex Shader (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nový %1</translation>

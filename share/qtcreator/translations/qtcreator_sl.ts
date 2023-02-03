@@ -21598,14 +21598,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
+    <name>::GlslEditor</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu
@@ -21644,9 +21637,6 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Senčilnik za oglišča (Desktop OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nov %1</translation>

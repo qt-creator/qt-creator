@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glsleditorplugin.h"
+
 #include "glslcompletionassist.h"
 #include "glsleditor.h"
 #include "glsleditorconstants.h"
+#include "glsleditortr.h"
 #include "glslhighlighter.h"
 
 #include <glsl/glslengine.h>
@@ -101,7 +103,7 @@ void GlslEditorPlugin::initialize()
     glslToolsMenu->setOnAllDisabledBehavior(ActionContainer::Hide);
     QMenu *menu = glslToolsMenu->menu();
     //: GLSL sub-menu in the Tools menu
-    menu->setTitle(tr("GLSL"));
+    menu->setTitle(Tr::tr("GLSL"));
     ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(glslToolsMenu);
 
     // Insert marker for "Refactoring" menu:

@@ -29843,21 +29843,11 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>GLSLEditor::Internal::FunctionArgumentWidget</name>
+    <name>::GlslEditor</name>
     <message>
         <source>%1 of %2</source>
         <translation type="obsolete">%1 de %2</translation>
     </message>
-</context>
-<context>
-    <name>::GLSLEditor</name>
-    <message>
-        <source>GLSL</source>
-        <translation>GLSL</translation>
-    </message>
-</context>
-<context>
-    <name>GLSLEditor::Internal::GLSLEditorPlugin</name>
     <message>
         <source>GLSL</source>
         <extracomment>GLSL sub-menu in the Tools menu</extracomment>
@@ -29895,9 +29885,6 @@ Do you want to retry?</source>
         <source>Vertex Shader (Desktop OpenGL)</source>
         <translation>Vertex shader (OpenGL)</translation>
     </message>
-</context>
-<context>
-    <name>GLSLEditor::GLSLFileWizard</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
