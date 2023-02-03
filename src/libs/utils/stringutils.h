@@ -109,5 +109,8 @@ QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c);
 
 QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text);
 
+// Skips empty parts - see QTBUG-110900
+QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator);
+
 
 } // namespace Utils

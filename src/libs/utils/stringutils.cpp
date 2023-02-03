@@ -454,6 +454,19 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
     return res;
 }
 
+QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator)
+{
+    QString result;
+    for (const QString &string : strings) {
+        if (string.isEmpty())
+            continue;
+        if (!result.isEmpty())
+            result += separator;
+        result += string;
+    }
+    return result;
+}
+
 QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
 {
     return base + QString::number(n);
