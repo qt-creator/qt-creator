@@ -230,7 +230,7 @@ void Edit3DView::handleEntriesChanged()
         {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
         {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
         {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
-        {EK_importedModels, {tr("Imported Models"), {}}}
+        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}
     };
 
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();

@@ -74,6 +74,9 @@
     "GroupSelectionIcon": {
         "iconName": "group_small"
     },
+    "ImportedModelsIcon": {
+        "iconName": "importedModels_small"
+    },
     "LayoutsIcon": {
         "iconName": "layouts_small"
     },

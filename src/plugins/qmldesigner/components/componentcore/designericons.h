@@ -67,6 +67,7 @@ public:
         EventListIcon,
         FitSelectedIcon,
         GroupSelectionIcon,
+        ImportedModelsIcon,
         LayoutsIcon,
         LightIcon,
         LightDirectionalIcon,
