@@ -698,7 +698,7 @@ QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QString &i
             painter.save();
             painter.setPen(color);
             painter.setFont(font);
-            painter.drawText(QRectF(QPoint(0, 0), size), iconSymbol);
+            painter.drawText(QRectF(QPoint(0, 0), size), Qt::AlignCenter, iconSymbol);
             painter.restore();
 
             icon.addPixmap(pixmap);

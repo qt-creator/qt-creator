@@ -95,3 +95,19 @@ QLineEdit:focus {
     background-color: creatorTheme.DScontrolBackgroundInteraction;
     border-color: creatorTheme.DScontrolOutlineInteraction;
 }
+
+QToolBar QToolButton {
+    border: none;
+    padding: 0px;
+    width: 29px; min-width: 29px; max-width: 29px;
+    height: 29px; min-height: 29px; max-height: 29px;
+    border-radius: 4px;
+}
+
+QToolBar QToolButton:hover {
+    background-color: creatorTheme.DScontrolBackground_topToolbarHover;
+}
+
+QToolBar QToolButton:checked {
+    background-color: creatorTheme.DSinteraction;
+}
