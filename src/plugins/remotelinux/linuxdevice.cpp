@@ -640,11 +640,8 @@ void LinuxProcessInterface::handleDone(const ProcessResultData &resultData)
     ProcessResultData finalData = resultData;
     if (!m_pidParsed) {
         finalData.m_error = QProcess::FailedToStart;
-        if (!m_error.isEmpty()) {
-            if (!finalData.m_errorString.isEmpty())
-                finalData.m_errorString += "\n";
-            finalData.m_errorString += QString::fromLocal8Bit(m_error);
-        }
+        finalData.m_errorString = Utils::joinStrings({finalData.m_errorString,
+                                                      QString::fromLocal8Bit(m_error)}, '\n');
     }
     emit done(finalData);
 }
