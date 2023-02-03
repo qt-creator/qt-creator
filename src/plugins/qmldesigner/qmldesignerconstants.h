@@ -142,6 +142,22 @@ const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 // Copy/Paste Headers
 const char HEADER_3DPASTE_CONTENT[] = "// __QmlDesigner.Editor3D.Paste__ \n";
 
+const char OBJECT_NAME_ASSET_LIBRARY[] = "QQuickWidgetAssetLibrary";
+const char OBJECT_NAME_CONTENT_LIBRARY[] = "QQuickWidgetContentLibrary";
+const char OBJECT_NAME_BUSY_INDICATOR[] = "QQuickWidgetBusyIndicator";
+const char OBJECT_NAME_COMPONENT_LIBRARY[] = "QQuickWidgetComponentLibrary";
+const char OBJECT_NAME_MATERIAL_BROWSER[] = "QQuickWidgetMaterialBrowser";
+const char OBJECT_NAME_MATERIAL_EDITOR[] = "QQuickWidgetMaterialEditor";
+const char OBJECT_NAME_PROPERTY_EDITOR[] = "QQuickWidgetPropertyEditor";
+const char OBJECT_NAME_STATES_EDITOR[] = "QQuickWidgetStatesEditor";
+const char OBJECT_NAME_TEXTURE_EDITOR[] = "QQuickWidgetTextureEditor";
+const char OBJECT_NAME_TOP_TOOLBAR[] = "QQuickWidgetTopToolbar";
+const char OBJECT_NAME_STATUSBAR[] = "QQuickWidgetStatusbar";
+const char OBJECT_NAME_TOP_FEEDBACK[] = "QQuickWidgetQDSFeedback";
+const char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
+const char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
+const char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
+
 namespace Internal {
     enum { debug = 0 };
 }

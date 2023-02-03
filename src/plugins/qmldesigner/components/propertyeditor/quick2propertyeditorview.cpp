@@ -3,6 +3,8 @@
 
 #include "quick2propertyeditorview.h"
 
+#include <qmldesignerconstants.h>
+
 #include "aligndistribute.h"
 #include "assetimageprovider.h"
 #include "annotationeditor/annotationeditor.h"
@@ -30,6 +32,7 @@ namespace QmlDesigner {
 Quick2PropertyEditorView::Quick2PropertyEditorView(AsynchronousImageCache &imageCache)
     : QQuickWidget()
 {
+    setObjectName(Constants::OBJECT_NAME_PROPERTY_EDITOR);
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     Theme::setupTheme(engine());
     engine()->addImageProvider("qmldesigner_thumbnails",

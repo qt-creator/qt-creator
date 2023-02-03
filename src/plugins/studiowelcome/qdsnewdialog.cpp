@@ -11,6 +11,7 @@
 #include <utils/qtcassert.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
+#include <qmldesigner/qmldesignerconstants.h>
 
 #include "createproject.h"
 #include "newprojectdialogimageprovider.h"
@@ -61,6 +62,7 @@ QdsNewDialog::QdsNewDialog(QWidget *parent)
     m_recentsStore.setReverseOrder();
     m_recentsStore.setMaximum(10);
 
+    m_dialog->setObjectName(QmlDesigner::Constants::OBJECT_NAME_NEW_DIALOG);
     m_dialog->setResizeMode(QQuickWidget::SizeRootObjectToView); // SizeViewToRootObject
     m_dialog->engine()->addImageProvider(QStringLiteral("newprojectdialog_library"),
                                          new Internal::NewProjectDialogImageProvider());

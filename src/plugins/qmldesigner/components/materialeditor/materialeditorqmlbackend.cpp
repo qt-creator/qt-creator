@@ -84,6 +84,7 @@ MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialE
     , m_contextObject(new MaterialEditorContextObject(m_view->rootContext()))
     , m_materialEditorImageProvider(new MaterialEditorImageProvider())
 {
+    m_view->setObjectName(Constants::OBJECT_NAME_MATERIAL_EDITOR);
     m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_view->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_view->engine()->addImageProvider("materialEditor", m_materialEditorImageProvider);

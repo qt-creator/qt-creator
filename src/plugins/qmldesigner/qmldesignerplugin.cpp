@@ -730,6 +730,7 @@ void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &ide
 void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
 {
     m_feedbackWidget = new QQuickWidget(Core::ICore::dialogParent());
+    m_feedbackWidget->setObjectName(Constants::OBJECT_NAME_TOP_FEEDBACK);
 
     const QString qmlPath = Core::ICore::resourcePath("qmldesigner/feedback/FeedbackPopup.qml").toString();
 

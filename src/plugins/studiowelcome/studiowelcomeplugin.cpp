@@ -27,6 +27,7 @@
 
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>
+#include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 
 #include <utils/checkablemessagebox.h>
@@ -569,11 +570,13 @@ void StudioWelcomePlugin::extensionsInitialized()
 
                 s_viewWindow->show();
                 s_viewWindow->requestActivate();
+                s_viewWindow->setObjectName(QmlDesigner::Constants::OBJECT_NAME_SPLASH_SCREEN);
             } else {
                 s_viewWidget = new QQuickWidget(Core::ICore::dialogParent());
 
                 s_viewWidget->setWindowFlag(Qt::SplashScreen, true);
 
+                s_viewWidget->setObjectName(QmlDesigner::Constants::OBJECT_NAME_SPLASH_SCREEN);
                 s_viewWidget->setWindowModality(Qt::ApplicationModal);
                 s_viewWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
                 s_viewWidget->engine()->addImportPath("qrc:/studiofonts");
@@ -790,6 +793,7 @@ void WelcomeMode::createQuickWidget()
     m_quickWidget = new QQuickWidget;
     m_quickWidget->setMinimumSize(640, 480);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    m_quickWidget->setObjectName(QmlDesigner::Constants::OBJECT_NAME_WELCOME_PAGE);
     QmlDesigner::Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->engine()->addImportPath("qrc:/studiofonts");
 

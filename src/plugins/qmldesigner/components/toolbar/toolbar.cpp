@@ -5,6 +5,7 @@
 #include "toolbarbackend.h"
 
 #include <theme.h>
+#include <qmldesignerconstants.h>
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>
@@ -72,6 +73,8 @@ void ToolBar::create()
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
+    quickWidget->setObjectName(Constants::OBJECT_NAME_TOP_TOOLBAR);
+
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
     Utils::FilePath qmlFilePath = qmlSourcesPath() / "Main.qml";
@@ -98,6 +101,8 @@ void ToolBar::createStatusBar()
     quickWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     quickWidget->setMinimumWidth(200);
     quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    quickWidget->setObjectName(Constants::OBJECT_NAME_STATUSBAR);
 
     quickWidget->engine()->addImportPath(propertyEditorResourcesPath().toString() + "/imports");
 
