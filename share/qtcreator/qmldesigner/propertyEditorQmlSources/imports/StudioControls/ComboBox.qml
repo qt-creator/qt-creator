@@ -184,9 +184,9 @@ T.ComboBox {
 
     popup: T.Popup {
         id: comboBoxPopup
-        x: actionIndicator.width + control.style.borderWidth
+        x: actionIndicator.width
         y: control.height
-        width: control.width - actionIndicator.width - control.style.borderWidth * 2
+        width: control.width - actionIndicator.width
         // TODO Setting the height on the popup solved the problem with the popup of height 0,
         // but it has the problem that it sometimes extend over the border of the actual window
         // and is then cut off.

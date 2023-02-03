@@ -21,7 +21,7 @@ T.ComboBox {
     width: control.style.controlSize.width
     height: control.style.controlSize.height
 
-    leftPadding: control.style.borderWidth
+    leftPadding: 0
     rightPadding: popupIndicator.width + control.style.borderWidth
     font.pixelSize: control.style.baseFontSize
 
