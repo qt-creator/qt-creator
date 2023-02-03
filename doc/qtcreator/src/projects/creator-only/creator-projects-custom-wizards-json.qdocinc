@@ -116,8 +116,8 @@
 
                     \li \c supportedProjectTypes is an optional setting that
                         can be used to filter wizards when adding a new build
-                        target to an existing project. For example, only wizards
-                        that produce qmake projects should be provided when
+                        target to an existing project. For example, show only
+                        wizards that produce qmake projects when
                         adding a new target to an existing qmake project.
 
                         Possible values are the build systems supported by \QC
@@ -457,7 +457,7 @@
         \li \c projectFilePath with the path to the project file.
 
         \li \c requiredFeatures with a list of strings or objects that describe
-            the features that a kit must provide to be listed on the page.
+            the features that a kit must have to appear on the page.
 
             When a string is found, this feature must be set. When using an
             object instead, the following settings are checked:
@@ -574,8 +574,8 @@
 
                 \li \c arguments with the arguments to pass to \c command.
 
-                \li \c timeOutFactor can be used to provide for longer than
-                    default timeouts for long-running commands.
+                \li \c timeOutFactor extends default timeouts for long-running
+                    commands.
 
                 \li \c enabled which will be evaluated to decide whether or
                     not to actually execute this job.
@@ -634,7 +634,7 @@
 
         \li \c persistenceKey makes the user choice persistent. The value is
             taken to be a settings key. If the user changes the default
-            value of the widget, the user-provided value is stored and will
+            value of the widget, the user's value is stored and will
             become the new default value the next time the wizard is run.
 
         \li \c visible is set to \c true if the widget is visible, otherwise

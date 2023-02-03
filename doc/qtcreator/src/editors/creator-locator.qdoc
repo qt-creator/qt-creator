@@ -343,7 +343,7 @@
 
     \section1 Executing JavaScript
 
-    The locator provides access to a JavaScript interpreter, that can be used to
+    The locator has a JavaScript interpreter that you can use to
     perform calculations.
 
     Beside simple mathematical operations, like ((1 + 2) * 3), the following

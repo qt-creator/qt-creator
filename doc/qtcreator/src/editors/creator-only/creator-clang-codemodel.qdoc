@@ -16,7 +16,7 @@
 
     The \e {code model} is the part of an IDE that understands the language you
     are using to write your application. It is the framework that allows \QC
-    to provide the following services:
+    to offer the following services:
 
     \list
 
@@ -42,12 +42,12 @@
 
     \endlist
 
-    \QC comes with a plugin that provides some of these services
+    The Clang code model plugin offers some of these services
     for C++ on top of \l{https://clangd.llvm.org/}{Clangd}.
 
     \section1 About the Clang Code Model
 
-    The Clang project provides libraries for parsing
+    The Clang project has libraries for parsing
     C language family source files. The feedback you get through warning and
     error markers is the same as a compiler will give you, not an incomplete
     set or a close approximation, as when using the built-in \QC code model.
@@ -67,9 +67,8 @@
     include several files, processing a single file and all the included files
     can take a while.
 
-    The Clang code model plugin now provides some of the services that were
-    previously provided by the built-in C/C++ code model. Currently, the
-    following services are implemented:
+    The Clang code model plugin now offers some of the same services as the
+    built-in C/C++ code model:
 
     \list
 

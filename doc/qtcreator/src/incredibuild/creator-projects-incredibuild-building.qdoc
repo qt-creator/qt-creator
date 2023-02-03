@@ -62,8 +62,8 @@
         \li \uicontrol {Profile.xml} defines how Automatic Interception
             Interface handles processes in a distributed job. It is not
             necessary for Visual Studio or Make and Build tools builds, but can
-            be used to provide configuration options if those builds use
-            additional processes that are not included in those packages. It is
+            be used to add configuration options if those builds use
+            processes that are not included in those packages. It is
             required to configure distributable processes in Dev Tools builds.
         \li \uicontrol {Avoid local task execution} frees up resources on the
             initiator machine. This might be beneficial for distribution if the

@@ -79,10 +79,10 @@
         \row
             \li Mode
                 \target glossary-mode
-            \li Adapts the \QC user interface to the different application
-                development tasks at hand. Each mode has its own view that shows
-                only the information required for performing a particular task,
-                and provides only the most relevant features and functions
+            \li Adapts the \QC user interface to the application
+                development task at hand. Each mode has its own view that shows
+                only the information you need for performing a particular task,
+                and has only the most relevant features and functions
                 related to it. As a result, the majority of the \QC window area
                 is always dedicated to actual application development tasks.
 

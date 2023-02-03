@@ -37,14 +37,14 @@
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \note To use the debugging tools for Windows, you must install them and add
-    the Symbol Server provided by Microsoft to the symbol search path of the
+    the Microsoft Symbol Server to the symbol search path of the
     debugger. For more information, see \l{Setting CDB Paths on Windows}.
 
     \note To use the Free Software Foundation (FSF) version of GDB on \macos, you
     must sign it and modify your \l{glossary-buildandrun-kit}{kit} settings.
 
-    This section explains the options you have for debugging C++ code and
-    provides installation notes for the supported native debuggers. It also
+    This section describes the options you have for debugging C++ code and
+    installing the supported native debuggers. It also
     applies for code in other compiled languages such as C, FORTRAN, Ada.
 
     For more information on the debugger modes, see
@@ -145,8 +145,7 @@
 
     \section1 Installing Native Debuggers
 
-    The following sections provide information about installing native
-    debuggers.
+    The following sections describe installing native debuggers.
 
     \section2 GDB
 
@@ -185,12 +184,10 @@
 
     \section3 Symbol Server
 
-    It is highly recommended that you add the Symbol Server provided
-    by Microsoft to the symbol search path of the debugger. The
-    Symbol Server provides you with debugging information for the
-    operating system libraries for debugging Windows applications.
-    For more information, see
-    \l{Setting CDB Paths on Windows}.
+    We highly recommend that you add the Microsoft Symbol Server to the
+    symbol search path of the debugger. The Symbol Server has debugging
+    information for the operating system libraries for debugging Windows
+    applications. For more information, see \l{Setting CDB Paths on Windows}.
 
     \section2 Debugging Tools for \macos
 

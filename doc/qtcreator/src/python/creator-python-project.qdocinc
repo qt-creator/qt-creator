@@ -13,7 +13,7 @@
 
     If you have not installed PySide6, \QC prompts you to install it after
     you create the project. Further, it prompts you to install the
-    \l {Python Language Server}{Python language server} that provides services
+    \l {Python Language Server}{Python language server} that offers services
     such as code completion and annotations. Select \uicontrol Install to install
     PySide6 and the language server.
 
@@ -44,7 +44,7 @@
 
     \image qtcreator-python-wizard-app-window.png "Qt for Python wizard for creating a widget-based UI"
 
-    The wizard adds the imports to the source file to provide
+    The wizard adds the imports to the source file for
     access to the QApplication, the base class you selected in the Qt
     Widgets module, and Qt UI tools:
 
@@ -152,7 +152,7 @@
 
     \image qtcreator-python-wizard-qml.png "Qt for Python wizard for creating an empty Qt Quick application"
 
-    The wizard adds the following imports to the source file to provide access
+    The wizard adds the following imports to the source file for access
     to QGuiApplication and QQmlApplicationEngine:
 
     \badcode

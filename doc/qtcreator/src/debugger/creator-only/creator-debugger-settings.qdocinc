@@ -170,9 +170,8 @@
     source code editor, select the \uicontrol {Correct breakpoint location}
     check box. For more information, see \l{Setting Breakpoints}.
 
-    To use the abstraction layer provided by Python Dumper
-    classes to create a description of data items displayed
-    in the  \uicontrol Locals and \uicontrol Expressions
+    To use the abstraction layer of Python Dumper classes to create a description
+    of data items in the \uicontrol Locals and \uicontrol Expressions
     views, select the \uicontrol {Use Python dumper} check box.
     For more information, see \l{Debugging Helper Implementation}.
 
@@ -183,7 +182,7 @@
     \section2 Setting CDB Paths on Windows
 
     To obtain debugging information for the operating system libraries for
-    debugging Windows applications, add the Symbol Server provided by Microsoft
+    debugging Windows applications, add the Microsoft Symbol Server
     to the symbol search path of the debugger:
 
     \list 1

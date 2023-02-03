@@ -368,7 +368,7 @@
                 \uicontrol {Locals} and \uicontrol {Expressions} view to show
                 unexpected data.
         \row
-            \li The debug information provided by GCC does not include enough
+            \li The debug information from GCC does not include enough
                 information about the time when a variable is initialized.
                 Therefore, \QC can not tell whether the contents of a local
                 variable are \e {real data} or \e {initial noise}. If a QObject
@@ -385,21 +385,20 @@
 
     \section1 Inspecting Basic Qt Objects
 
-    The \uicontrol {Locals} and \uicontrol {Expressions} views also provide access
-    to the most powerful feature of the debugger: comprehensive display of data
-    belonging to Qt's basic objects. For example, in case of QObject, instead of
-    displaying a pointer to some private data structure, you see a list of
+    The most powerful feature of the debugger is that the \uicontrol {Locals}
+    and \uicontrol {Expressions} views show the data that belongs to
+    Qt's basic objects. For example, in case of QObject, instead of
+    a pointer to some private data structure, you see a list of
     children, signals, and slots.
 
     Similarly, instead of displaying many pointers and integers, \QC's debugger
     displays the contents of a QHash or QMap in an orderly manner. Also, the
-    debugger displays access data for QFileInfo and provides access to the
-    \e real contents of QVariant.
+    debugger shows access data for QFileInfo and the \e real contents of QVariant.
 
     Right-click in the \uicontrol {Locals} or the \uicontrol {Expressions} view
-    to open a context menu that provides additional options for viewing data. The
-    available options depend on the type of the current items, and are provided
-    by the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
+    to open a context menu that has more options for viewing data. The
+    available options depend on the type of the current items, and come from
+    the \l{Using Debugging Helpers}{Debugging Helpers}. Typically,
     string-like data, such as \c{QByteArray} and \c{std::string}, offer a
     selection of encodings, as well as the possibility to use a full editor
     window. Map-like data, such as \c{QMap}, \c{QHash}, and \c{std::map}, offer

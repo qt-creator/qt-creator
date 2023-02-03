@@ -49,7 +49,7 @@
         \li In the \uicontrol {Ignored file patterns} field, enter a filter
             for ignoring files that match the pattern (wildcard). You can enter
             multiple patterns separated by commas. Even though Cppcheck is not
-            run on files that match the provided patterns, they might be
+            run on files that match the patterns, they might be
             implicitly checked if other files include them.
         \li Select the \uicontrol {Inconclusive errors} check box to also
             mark possible false positives.

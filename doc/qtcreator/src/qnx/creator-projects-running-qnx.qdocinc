@@ -28,8 +28,8 @@
     \section2 Troubleshooting Errors
 
     To support running, debugging, and stopping applications from \QC, the QNX
-    Neutrino RTOS should provide a few additional command line tools and
-    services, as described in \l {Qt for QNX}.
+    Neutrino RTOS has additional command line tools and services, as described
+    in \l {Qt for QNX}.
 
     \section3 Debug Output Cannot Be Shown
 

@@ -455,7 +455,7 @@
 
     \section1 Issues
 
-    \uicontrol{Issues} provides lists of following types of issues:
+    \uicontrol{Issues} lists the following types of issues:
 
     \list
 
@@ -580,7 +580,7 @@
 
     \section1 Compile Output
 
-    \uicontrol{Compile Output} provides all output from the compiler.
+    \uicontrol{Compile Output} shows all output from the compiler.
     The \uicontrol{Compile Output} is a more detailed version of information
     displayed in \l Issues.
 

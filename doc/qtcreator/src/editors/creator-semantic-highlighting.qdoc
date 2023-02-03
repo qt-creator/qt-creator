@@ -28,7 +28,7 @@
 
     \section1 Generic Highlighting
 
-    Generic highlighting is provided by
+    \QC uses
     \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
     {KSyntaxHighlighting}, which is the syntax highlighting engine for Kate
     syntax definitions. \QC comes with most of the commonly used syntax files,
@@ -62,7 +62,7 @@
     \image qtcreator-syntax-highlighter.png "Generic Highlighter preferences"
 
     If you have written your own syntax definition files, you
-    can provide an additional definition search path in the
+    can add a definition search path in the
     \uicontrol {User Highlight Definition Files} field. To
     apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.

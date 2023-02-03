@@ -563,7 +563,7 @@
     \l{https://curl.haxx.se/}{curl} tool are used for HTTP connections.
 
     Select the \uicontrol HTTPS check box to prepend \c https to the Gerrit URL
-    if Gerrit does not provide it.
+    if Gerrit does not add it.
 
     \image qtcreator-gerrit-options.png "Gerrit preferences"
 

@@ -40,7 +40,7 @@
     \section1 Packaging Applications
 
     Because bundling applications as APK packages is not
-    trivial, Qt 5 provides a deployment tool called \c androiddeployqt.
+    trivial, Qt 5 has a deployment tool called \c androiddeployqt.
     When you deploy an application using a \e {Qt for Android kit}, \QC uses
     the \c androiddeployqt tool to create the necessary files and to bundle them
     into an APK:
@@ -51,7 +51,7 @@
             that automatically load Qt and execute the native code in your
             application.
 
-        \li AndroidManifest.xml, which provides meta-information about your
+        \li AndroidManifest.xml, which has meta-information about your
             application.
 
         \li Other XML files, which specify the dependencies of your application.
@@ -65,7 +65,7 @@
 
         \li Gradle script that is needed by Java IDEs, such as Android Studio.
             It allows the user to extend the Java part without copying our Java
-            sources. It also allows the IDEs to provide code completion, syntax
+            sources. It also allows the IDEs to offer code completion, syntax
             highlighting, and so on.
 
     \endlist
