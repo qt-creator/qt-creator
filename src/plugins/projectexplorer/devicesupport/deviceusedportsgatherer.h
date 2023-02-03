@@ -44,7 +44,7 @@ private:
 };
 
 class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererAdapter
-        : public Utils::Tasking::TaskAdapter<DeviceUsedPortsGatherer>
+    : public Utils::Tasking::TaskAdapter<DeviceUsedPortsGatherer>
 {
 public:
     DeviceUsedPortsGathererAdapter();
@@ -57,7 +57,6 @@ class PROJECTEXPLORER_EXPORT PortsGatherer : public RunWorker
 
 public:
     explicit PortsGatherer(RunControl *runControl);
-    ~PortsGatherer() override;
 
     QUrl findEndPoint();
 

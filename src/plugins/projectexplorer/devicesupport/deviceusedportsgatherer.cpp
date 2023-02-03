@@ -11,6 +11,7 @@
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 #include <utils/url.h>
 
 using namespace Utils;
@@ -30,10 +31,10 @@ public:
 
 } // namespace Internal
 
-DeviceUsedPortsGatherer::DeviceUsedPortsGatherer(QObject *parent) :
-    QObject(parent), d(new Internal::DeviceUsedPortsGathererPrivate)
-{
-}
+DeviceUsedPortsGatherer::DeviceUsedPortsGatherer(QObject *parent)
+    : QObject(parent)
+    , d(new Internal::DeviceUsedPortsGathererPrivate)
+{}
 
 DeviceUsedPortsGatherer::~DeviceUsedPortsGatherer()
 {
@@ -56,8 +57,7 @@ void DeviceUsedPortsGatherer::start()
     d->process.reset(new QtcProcess);
     d->process->setCommand(d->portsGatheringMethod.commandLine(protocol));
 
-    connect(d->process.get(), &QtcProcess::done,
-            this, &DeviceUsedPortsGatherer::handleProcessDone);
+    connect(d->process.get(), &QtcProcess::done, this, &DeviceUsedPortsGatherer::handleProcessDone);
     d->process->start();
 }
 
@@ -107,13 +107,11 @@ void DeviceUsedPortsGatherer::handleProcessDone()
     if (d->process->result() == ProcessResult::FinishedWithSuccess) {
         setupUsedPorts();
     } else {
-        QString errMsg = d->process->errorString();
-        const QByteArray stdErr = d->process->readAllRawStandardError();
-        if (!stdErr.isEmpty()) {
-            errMsg += QLatin1Char('\n');
-            errMsg += Tr::tr("Remote error output was: %1").arg(QString::fromUtf8(stdErr));
-        }
-        emitError(errMsg);
+        const QString errorString = d->process->errorString();
+        const QString stdErr = d->process->readAllStandardError();
+        const QString outputString
+            = stdErr.isEmpty() ? stdErr : Tr::tr("Remote error output was: %1").arg(stdErr);
+        emitError(Utils::joinStrings({errorString, outputString}, '\n'));
     }
     stop();
 }
@@ -138,8 +136,6 @@ PortsGatherer::PortsGatherer(RunControl *runControl)
         reportStarted();
     });
 }
-
-PortsGatherer::~PortsGatherer() = default;
 
 void PortsGatherer::start()
 {
@@ -260,7 +256,7 @@ QUrl ChannelProvider::channel(int i) const
 {
     if (Internal::SubChannelProvider *provider = m_channelProviders.value(i))
         return provider->channel();
-    return QUrl();
+    return {};
 }
 
 } // namespace ProjectExplorer
