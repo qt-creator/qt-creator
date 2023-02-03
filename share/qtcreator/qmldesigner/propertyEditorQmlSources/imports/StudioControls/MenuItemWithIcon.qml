@@ -30,7 +30,7 @@ T.MenuItem {
             id: iconLabel
             text: control.checked ? StudioTheme.Constants.tickIcon : ""
             visible: true
-            color: control.enabled ? control.style.icon.idle : control.style.icon.disabled
+            color: control.enabled ? control.highlighted ? control.style.text.selectedText                                                         : control.style.text.idle                                    : control.style.text.disabled
             font.family: StudioTheme.Constants.iconFont.family
             font.pixelSize: control.style.baseIconFontSize
             anchors.verticalCenter: parent.verticalCenter
@@ -41,7 +41,7 @@ T.MenuItem {
             x: control.style.squareControlSize.width
             text: control.text
             font: control.font
-            color: control.enabled ? control.style.text.idle : control.style.text.disabled
+            color: control.enabled ? control.highlighted ? control.style.text.selectedText                                                         : control.style.text.idle                                    : control.style.text.disabled
             anchors.verticalCenter: parent.verticalCenter
         }
     }
@@ -54,8 +54,6 @@ T.MenuItem {
         y: control.style.borderWidth
         width: control.menu.width - (control.style.borderWidth * 2)
         height: control.height - (control.style.borderWidth * 2)
-        color: control.down ? control.palette.midlight
-                            : control.highlighted ? control.style.interaction
-                                                  : "transparent"
+        color: control.highlighted ? control.style.interaction : "transparent"
     }
 }
