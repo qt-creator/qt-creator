@@ -487,28 +487,25 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     return diffText;
 }
 
-static QString sideFileName(DiffSide side, const FileData &fileData, unsigned formatFlags)
+static QString sideFileName(DiffSide side, const FileData &fileData)
 {
     const FileData::FileOperation operation = side == LeftSide ? FileData::NewFile
                                                                : FileData::DeleteFile;
     if (fileData.fileOperation == operation)
         return "/dev/null";
     const QString sideMarker = side == LeftSide ? "a/" : "b/";
-    const QString formatMarker = formatFlags & DiffUtils::AddLevel ? sideMarker : QString();
-    return formatMarker + fileData.fileInfo[side].fileName;
+    return sideMarker + fileData.fileInfo[side].fileName;
 }
 
-QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned formatFlags)
+QString DiffUtils::makePatch(const QList<FileData> &fileDataList)
 {
     QString diffText;
     QTextStream str(&diffText);
 
     for (int i = 0; i < fileDataList.size(); i++) {
         const FileData &fileData = fileDataList.at(i);
-        if (formatFlags & GitFormat) {
-            str << "diff --git a/" << fileData.fileInfo[LeftSide].fileName
-                << " b/" << fileData.fileInfo[RightSide].fileName << '\n';
-        }
+        str << "diff --git a/" << fileData.fileInfo[LeftSide].fileName
+                      << " b/" << fileData.fileInfo[RightSide].fileName << '\n';
         if (fileData.fileOperation == FileData::NewFile
                 || fileData.fileOperation == FileData::DeleteFile) { // git only?
             if (fileData.fileOperation == FileData::NewFile)
@@ -524,16 +521,16 @@ QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned forma
 
         if (fileData.binaryFiles) {
             str << "Binary files ";
-            str << sideFileName(LeftSide, fileData, formatFlags);
+            str << sideFileName(LeftSide, fileData);
             str << " and ";
-            str << sideFileName(RightSide, fileData, formatFlags);
+            str << sideFileName(RightSide, fileData);
             str << " differ\n";
         } else {
             if (!fileData.chunks.isEmpty()) {
                 str << "--- ";
-                str << sideFileName(LeftSide, fileData, formatFlags) << "\n";
+                str << sideFileName(LeftSide, fileData) << "\n";
                 str << "+++ ";
-                str << sideFileName(RightSide, fileData, formatFlags) << "\n";
+                str << sideFileName(RightSide, fileData) << "\n";
                 for (int j = 0; j < fileData.chunks.size(); j++) {
                     str << makePatch(fileData.chunks.at(j),
                                      (j == fileData.chunks.size() - 1)
@@ -1041,8 +1038,8 @@ static bool detectIndexAndBinary(QStringView patch, FileData *fileData, QStringV
         return true;
     }
 
-    const QString leftFileName = sideFileName(LeftSide, *fileData, DiffUtils::AddLevel);
-    const QString rightFileName = sideFileName(RightSide, *fileData, DiffUtils::AddLevel);
+    const QString leftFileName = sideFileName(LeftSide, *fileData);
+    const QString rightFileName = sideFileName(RightSide, *fileData);
     const QString binaryLine = "Binary files "
             + leftFileName + " and "
             + rightFileName + " differ";

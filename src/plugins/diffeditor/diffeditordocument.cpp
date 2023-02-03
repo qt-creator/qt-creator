@@ -368,7 +368,7 @@ static QString formatGitDescription(const QString &description)
 QString DiffEditorDocument::plainText() const
 {
     return Utils::joinStrings({formatGitDescription(description()),
-                               DiffUtils::makePatch(diffFiles(), DiffUtils::GitFormat)}, '\n');
+                               DiffUtils::makePatch(diffFiles())}, '\n');
 }
 
 void DiffEditorDocument::beginReload()
