@@ -8,6 +8,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <coreplugin/dialogs/codecselector.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -345,11 +346,11 @@ QString DiffEditorDocument::fallbackSaveAsFileName() const
 // ### fixme: git-specific handling should be done in the git plugin:
 // Remove unexpanded branches and follows-tag, clear indentation
 // and create E-mail
-static void formatGitDescription(QString *description)
+static QString formatGitDescription(const QString &description)
 {
     QString result;
-    result.reserve(description->size());
-    const auto descriptionList = description->split('\n');
+    result.reserve(description.size());
+    const auto descriptionList = description.split('\n');
     for (QString line : descriptionList) {
         if (line.startsWith("commit ") || line.startsWith("Branches: <Expand>"))
             continue;
@@ -361,23 +362,13 @@ static void formatGitDescription(QString *description)
         result.append(line);
         result.append('\n');
     }
-    *description = result;
+    return result;
 }
 
 QString DiffEditorDocument::plainText() const
 {
-    QString result = description();
-    const int formattingOptions = DiffUtils::GitFormat;
-    if (formattingOptions & DiffUtils::GitFormat)
-        formatGitDescription(&result);
-
-    const QString diff = DiffUtils::makePatch(diffFiles(), formattingOptions);
-    if (!diff.isEmpty()) {
-        if (!result.isEmpty())
-            result += '\n';
-        result += diff;
-    }
-    return result;
+    return Utils::joinStrings({formatGitDescription(description()),
+                               DiffUtils::makePatch(diffFiles(), DiffUtils::GitFormat)}, '\n');
 }
 
 void DiffEditorDocument::beginReload()
