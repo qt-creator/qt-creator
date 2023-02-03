@@ -21,6 +21,13 @@ public:
     MultiTextCursor();
     explicit MultiTextCursor(const QList<QTextCursor> &cursors);
 
+    MultiTextCursor(const MultiTextCursor &multiCursor);
+    MultiTextCursor &operator=(const MultiTextCursor &multiCursor);
+    MultiTextCursor(const MultiTextCursor &&multiCursor);
+    MultiTextCursor &operator=(const MultiTextCursor &&multiCursor);
+
+    ~MultiTextCursor();
+
     /// replace all cursors with \param cursors and the last one will be the new main cursors
     void setCursors(const QList<QTextCursor> &cursors);
     const QList<QTextCursor> cursors() const;
@@ -69,20 +76,23 @@ public:
     bool operator==(const MultiTextCursor &other) const;
     bool operator!=(const MultiTextCursor &other) const;
 
-    using iterator = QList<QTextCursor>::iterator;
-    using const_iterator = QList<QTextCursor>::const_iterator;
+    using iterator = std::list<QTextCursor>::iterator;
+    using const_iterator = std::list<QTextCursor>::const_iterator;
 
-    iterator begin() { return m_cursors.begin(); }
-    iterator end() { return m_cursors.end(); }
-    const_iterator begin() const { return m_cursors.begin(); }
-    const_iterator end() const { return m_cursors.end(); }
-    const_iterator constBegin() const { return m_cursors.constBegin(); }
-    const_iterator constEnd() const { return m_cursors.constEnd(); }
+    iterator begin() { return m_cursorList.begin(); }
+    iterator end() { return m_cursorList.end(); }
+    const_iterator begin() const { return m_cursorList.begin(); }
+    const_iterator end() const { return m_cursorList.end(); }
+    const_iterator constBegin() const { return m_cursorList.cbegin(); }
+    const_iterator constEnd() const { return m_cursorList.cend(); }
 
     static bool multiCursorAddEvent(QKeyEvent *e, QKeySequence::StandardKey matchKey);
 
 private:
-    QList<QTextCursor> m_cursors;
+    std::list<QTextCursor> m_cursorList;
+    std::map<int, std::list<QTextCursor>::iterator> m_cursorMap;
+
+    void fillMapWithList();
 };
 
 } // namespace Utils
