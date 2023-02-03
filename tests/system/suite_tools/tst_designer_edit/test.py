@@ -67,8 +67,8 @@ def performEditMenu():
                               "visible='1' window=':Qt Creator_Core::Internal::MainWindow'} "
                               "type='QTreeView' unnamed='1' visible='1'}")
     tree = __iterateChildren__(objInspTV.model(), None)
-    expectedMenuSequence = [["menuSquishTestFile", 2], ["actionOpen", 3], ["separator", 3],
-                            ["actionShutdown", 3]]
+    expectedMenuSequence = [["menuSquishTestFile", 2], ["actionOpen", 3], ["actionShutdown", 3],
+                            ["separator", 3]]
     seqStart = tree.index(expectedMenuSequence[0])
     test.verify(seqStart != -1 and tree[seqStart:seqStart + 4] == expectedMenuSequence,
                 "Verify Object Inspector contains expected menu inclusive children.")
