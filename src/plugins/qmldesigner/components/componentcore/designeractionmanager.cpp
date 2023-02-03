@@ -1362,7 +1362,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Priorities::ArrangeCategory,
                           &selectionNotEmpty));
 
-    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(arrangeCategory, 10));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           toFrontCommandId,
@@ -1404,7 +1404,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &toBack,
                           &lowerAvailable));
 
-    addDesignerAction(new SeperatorDesignerAction(arrangeCategory, 20));
+    addDesignerAction(new SeparatorDesignerAction(arrangeCategory, 20));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           reverseCommandId,
@@ -1422,7 +1422,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       Priorities::EditCategory,
                                       &selectionNotEmpty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 30));
+    addDesignerAction(new SeparatorDesignerAction(editCategory, 30));
 
     addDesignerAction(
         new ModelNodeAction(resetPositionCommandId,
@@ -1468,7 +1468,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &resetSize,
                           &selectionNotEmptyAndHasWidthOrHeightProperty));
 
-    addDesignerAction(new SeperatorDesignerAction(editCategory, 40));
+    addDesignerAction(new SeparatorDesignerAction(editCategory, 40));
 
     addDesignerAction(new VisiblityModelNodeAction(
                           visiblityCommandId,
@@ -1508,7 +1508,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &anchorsReset,
                           &singleSelectionItemIsAnchored));
 
-    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 10));
 
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopAndBottomCommandId,
@@ -1530,7 +1530,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           12,
                           AnchorLineType(AnchorLineLeft | AnchorLineRight)));
 
-    addDesignerAction(new SeperatorDesignerAction(anchorsCategory, 20));
+    addDesignerAction(new SeparatorDesignerAction(anchorsCategory, 20));
 
     addDesignerAction(new ParentAnchorAction(
                           anchorParentTopCommandId,
@@ -1731,7 +1731,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &selectionCanBeLayouted,
                           &selectionCanBeLayouted));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 0));
+    addDesignerAction(new SeparatorDesignerAction(layoutCategory, 0));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           removeLayoutCommandId,
@@ -1824,7 +1824,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &layoutGridLayout,
                           &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
-    addDesignerAction(new SeperatorDesignerAction(layoutCategory, 10));
+    addDesignerAction(new SeparatorDesignerAction(layoutCategory, 10));
 
     addDesignerAction(new FillWidthModelNodeAction(
                           layoutFillWidthCommandId,
@@ -1846,12 +1846,12 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelectionAndInQtQuickLayout,
                           &singleSelectionAndInQtQuickLayout));
 
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ModifySection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::PositionSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::EventSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::AdditionsSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
-    addDesignerAction(new SeperatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ModifySection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::PositionSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::EventSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::AdditionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           goIntoComponentCommandId,

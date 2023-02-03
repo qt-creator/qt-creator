@@ -136,7 +136,7 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
     command->setDefaultKeySequence(QKeySequence::Redo);
     designerActionManager.addCreatorCommand(command, ComponentCoreConstants::editCategory, 2, Utils::Icons::REDO_TOOLBAR.icon());
 
-    designerActionManager.addDesignerAction(new SeperatorDesignerAction(ComponentCoreConstants::editCategory, 10));
+    designerActionManager.addDesignerAction(new SeparatorDesignerAction(ComponentCoreConstants::editCategory, 10));
     //Edit Menu
 
     m_deleteAction.setIcon(QIcon::fromTheme(QLatin1String("edit-cut"), Utils::Icons::EDIT_CLEAR_TOOLBAR.icon()));

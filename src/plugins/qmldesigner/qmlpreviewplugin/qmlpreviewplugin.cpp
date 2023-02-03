@@ -56,7 +56,7 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
     auto zoomAction = new ZoomPreviewAction;
     designerActionManager.addDesignerAction(zoomAction);
 
-    auto separator = new SeperatorDesignerAction(ComponentCoreConstants::qmlPreviewCategory, 0);
+    auto separator = new SeparatorDesignerAction(ComponentCoreConstants::qmlPreviewCategory, 0);
     designerActionManager.addDesignerAction(separator);
 
     m_previewToggleAction = previewAction->defaultAction();
