@@ -698,6 +698,7 @@ MetaInfo {
             canBeDroppedInNavigator: true
             canBeDroppedInFormEditor: false
             canBeDroppedInView3D: false
+            canBeContainer: false
         }
 
         ItemLibraryEntry {
@@ -718,6 +719,7 @@ MetaInfo {
             canBeDroppedInNavigator: true
             canBeDroppedInFormEditor: false
             canBeDroppedInView3D: false
+            canBeContainer: false
         }
 
         ItemLibraryEntry {
