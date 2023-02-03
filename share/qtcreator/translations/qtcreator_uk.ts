@@ -35794,7 +35794,7 @@ Install an SDK of at least API version %1.</source>
     <name>::DiffEditor</name>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Видалити символ</translation>

@@ -29895,7 +29895,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Usuń znak</translation>

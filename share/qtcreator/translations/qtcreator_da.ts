@@ -13952,7 +13952,7 @@ Det hjælper måske at genbygge projektet.</translation>
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>Slet tegn</translation>

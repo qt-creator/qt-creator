@@ -23,8 +23,10 @@
 ****************************************************************************/
 
 #include "emacskeysplugin.h"
+
 #include "emacskeysconstants.h"
 #include "emacskeysstate.h"
+#include "emacskeystr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -83,50 +85,50 @@ void EmacsKeysPlugin::initialize()
             this, &EmacsKeysPlugin::currentEditorChanged);
 
     registerAction(Constants::DELETE_CHARACTER,
-        &EmacsKeysPlugin::deleteCharacter, tr("Delete Character"));
+        &EmacsKeysPlugin::deleteCharacter, Tr::tr("Delete Character"));
     registerAction(Constants::KILL_WORD,
-        &EmacsKeysPlugin::killWord, tr("Kill Word"));
+        &EmacsKeysPlugin::killWord, Tr::tr("Kill Word"));
     registerAction(Constants::KILL_LINE,
-        &EmacsKeysPlugin::killLine, tr("Kill Line"));
+        &EmacsKeysPlugin::killLine, Tr::tr("Kill Line"));
     registerAction(Constants::INSERT_LINE_AND_INDENT,
-        &EmacsKeysPlugin::insertLineAndIndent, tr("Insert New Line and Indent"));
+        &EmacsKeysPlugin::insertLineAndIndent, Tr::tr("Insert New Line and Indent"));
 
     registerAction(Constants::GOTO_FILE_START,
-        &EmacsKeysPlugin::gotoFileStart, tr("Go to File Start"));
+        &EmacsKeysPlugin::gotoFileStart, Tr::tr("Go to File Start"));
     registerAction(Constants::GOTO_FILE_END,
-        &EmacsKeysPlugin::gotoFileEnd, tr("Go to File End"));
+        &EmacsKeysPlugin::gotoFileEnd, Tr::tr("Go to File End"));
     registerAction(Constants::GOTO_LINE_START,
-        &EmacsKeysPlugin::gotoLineStart, tr("Go to Line Start"));
+        &EmacsKeysPlugin::gotoLineStart, Tr::tr("Go to Line Start"));
     registerAction(Constants::GOTO_LINE_END,
-        &EmacsKeysPlugin::gotoLineEnd, tr("Go to Line End"));
+        &EmacsKeysPlugin::gotoLineEnd, Tr::tr("Go to Line End"));
     registerAction(Constants::GOTO_NEXT_LINE,
-        &EmacsKeysPlugin::gotoNextLine, tr("Go to Next Line"));
+        &EmacsKeysPlugin::gotoNextLine, Tr::tr("Go to Next Line"));
     registerAction(Constants::GOTO_PREVIOUS_LINE,
-        &EmacsKeysPlugin::gotoPreviousLine, tr("Go to Previous Line"));
+        &EmacsKeysPlugin::gotoPreviousLine, Tr::tr("Go to Previous Line"));
     registerAction(Constants::GOTO_NEXT_CHARACTER,
-        &EmacsKeysPlugin::gotoNextCharacter, tr("Go to Next Character"));
+        &EmacsKeysPlugin::gotoNextCharacter, Tr::tr("Go to Next Character"));
     registerAction(Constants::GOTO_PREVIOUS_CHARACTER,
-        &EmacsKeysPlugin::gotoPreviousCharacter, tr("Go to Previous Character"));
+        &EmacsKeysPlugin::gotoPreviousCharacter, Tr::tr("Go to Previous Character"));
     registerAction(Constants::GOTO_NEXT_WORD,
-        &EmacsKeysPlugin::gotoNextWord, tr("Go to Next Word"));
+        &EmacsKeysPlugin::gotoNextWord, Tr::tr("Go to Next Word"));
     registerAction(Constants::GOTO_PREVIOUS_WORD,
-        &EmacsKeysPlugin::gotoPreviousWord, tr("Go to Previous Word"));
+        &EmacsKeysPlugin::gotoPreviousWord, Tr::tr("Go to Previous Word"));
 
     registerAction(Constants::MARK,
-        &EmacsKeysPlugin::mark, tr("Mark"));
+        &EmacsKeysPlugin::mark, Tr::tr("Mark"));
     registerAction(Constants::EXCHANGE_CURSOR_AND_MARK,
-        &EmacsKeysPlugin::exchangeCursorAndMark, tr("Exchange Cursor and Mark"));
+        &EmacsKeysPlugin::exchangeCursorAndMark, Tr::tr("Exchange Cursor and Mark"));
     registerAction(Constants::COPY,
-        &EmacsKeysPlugin::copy, tr("Copy"));
+        &EmacsKeysPlugin::copy, Tr::tr("Copy"));
     registerAction(Constants::CUT,
-        &EmacsKeysPlugin::cut, tr("Cut"));
+        &EmacsKeysPlugin::cut, Tr::tr("Cut"));
     registerAction(Constants::YANK,
-        &EmacsKeysPlugin::yank, tr("Yank"));
+        &EmacsKeysPlugin::yank, Tr::tr("Yank"));
 
     registerAction(Constants::SCROLL_HALF_DOWN,
-        &EmacsKeysPlugin::scrollHalfDown, tr("Scroll Half Screen Down"));
+        &EmacsKeysPlugin::scrollHalfDown, Tr::tr("Scroll Half Screen Down"));
     registerAction(Constants::SCROLL_HALF_UP,
-        &EmacsKeysPlugin::scrollHalfUp, tr("Scroll Half Screen Up"));
+        &EmacsKeysPlugin::scrollHalfUp, Tr::tr("Scroll Half Screen Up"));
 }
 
 void EmacsKeysPlugin::extensionsInitialized()

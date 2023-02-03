@@ -32628,7 +32628,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>EmacsKeys::Internal::EmacsKeysPlugin</name>
+    <name>::EmacsKeys</name>
     <message>
         <source>Delete Character</source>
         <translation>文字を削除する</translation>
