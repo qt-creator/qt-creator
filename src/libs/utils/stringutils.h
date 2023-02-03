@@ -111,6 +111,8 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text);
 
 // Skips empty parts - see QTBUG-110900
 QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator);
-
+QTCREATOR_UTILS_EXPORT QString trimFront(const QString &string, QChar ch);
+QTCREATOR_UTILS_EXPORT QString trimBack(const QString &string, QChar ch);
+QTCREATOR_UTILS_EXPORT QString trim(const QString &string, QChar ch);
 
 } // namespace Utils

@@ -75,6 +75,8 @@ private slots:
     void testParseUsedPortFromNetstatOutput();
     void testJoinStrings_data();
     void testJoinStrings();
+    void testTrim_data();
+    void testTrim();
 
 private:
     TestMacroExpander mx;
@@ -297,6 +299,35 @@ void tst_StringUtils::testJoinStrings()
     QFETCH(JoinData, data);
 
     QCOMPARE(Utils::joinStrings(data.input, data.separator), data.output);
+}
+
+struct TrimData
+{
+    QString input;
+    QString front = {};
+    QString back = {};
+    QString bothSides = {};
+    QChar ch = ' ';
+};
+
+void tst_StringUtils::testTrim_data()
+{
+    QTest::addColumn<TrimData>("data");
+
+    QTest::newRow("Empty") << TrimData{};
+    QTest::newRow("AllToRemove") << TrimData{"   "};
+    QTest::newRow("BothSides") << TrimData{" foo ", "foo ", " foo", "foo"};
+    QTest::newRow("BothSidesLong") << TrimData{"  foo  ", "foo  ", "  foo", "foo"};
+    QTest::newRow("CharInside") << TrimData{"  foo bar  ", "foo bar  ", "  foo bar", "foo bar"};
+}
+
+void tst_StringUtils::testTrim()
+{
+    QFETCH(TrimData, data);
+
+    QCOMPARE(Utils::trimFront(data.input, data.ch), data.front);
+    QCOMPARE(Utils::trimBack(data.input, data.ch), data.back);
+    QCOMPARE(Utils::trim(data.input, data.ch), data.bothSides);
 }
 
 QTEST_GUILESS_MAIN(tst_StringUtils)

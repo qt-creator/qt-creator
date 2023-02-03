@@ -454,6 +454,10 @@ QTCREATOR_UTILS_EXPORT QString normalizeNewlines(const QString &text)
     return res;
 }
 
+/*!
+    Joins all the not empty string list's \a strings into a single string with each element
+    separated by the given separator (which can be an empty string).
+*/
 QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar separator)
 {
     QString result;
@@ -465,6 +469,52 @@ QTCREATOR_UTILS_EXPORT QString joinStrings(const QStringList &strings, QChar sep
         result += string;
     }
     return result;
+}
+
+/*!
+    Returns a copy of \a string that has \a ch characters removed from the start.
+*/
+QTCREATOR_UTILS_EXPORT QString trimFront(const QString &string, QChar ch)
+{
+    const int size = string.size();
+    int i = 0;
+    while (i < size) {
+        if (string.at(i) != ch)
+            break;
+        ++i;
+    }
+    if (i == 0)
+        return string;
+    if (i == size)
+        return {};
+    return string.sliced(i);
+}
+
+/*!
+    Returns a copy of \a string that has \a ch characters removed from the end.
+*/
+QTCREATOR_UTILS_EXPORT QString trimBack(const QString &string, QChar ch)
+{
+    const int size = string.size();
+    int i = 0;
+    while (i < size) {
+        if (string.at(size - i - 1) != ch)
+            break;
+        ++i;
+    }
+    if (i == 0)
+        return string;
+    if (i == size)
+        return {};
+    return string.chopped(i);
+}
+
+/*!
+    Returns a copy of \a string that has \a ch characters removed from the start and the end.
+*/
+QTCREATOR_UTILS_EXPORT QString trim(const QString &string, QChar ch)
+{
+    return trimFront(trimBack(string, ch), ch);
 }
 
 QTCREATOR_UTILS_EXPORT QString appendHelper(const QString &base, int n)
