@@ -3340,8 +3340,11 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         if (filePath.endsWith(QLatin1String(".qws")))
             continue;
 
-        const QString actionText = ActionManager::withNumberAccelerator(
-                    filePath.withTildeHomePath(), acceleratorKey);
+        const QString displayPath =
+            filePath.osType() == OsTypeWindows ? filePath.displayName()
+                                               : filePath.withTildeHomePath();
+        const QString actionText =
+            ActionManager::withNumberAccelerator(displayPath, acceleratorKey);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, filePath] {
             openRecentProject(filePath);
