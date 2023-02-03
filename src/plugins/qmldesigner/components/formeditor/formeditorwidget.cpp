@@ -58,7 +58,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_context->setWidget(this);
 
     auto fillLayout = new QVBoxLayout(this);
-    fillLayout->setContentsMargins(4, 0, 4, 0);
+    fillLayout->setContentsMargins(0, 0, 0, 0);
     fillLayout->setSpacing(0);
     setLayout(fillLayout);
 
