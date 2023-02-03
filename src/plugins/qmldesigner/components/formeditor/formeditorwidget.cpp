@@ -284,13 +284,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
-    const QIcon resetIcon = Utils::StyleHelper::getIconFromIconFont(fontName,
-                                                                    Theme::getIconUnicode(
-                                                                        Theme::Icon::reload_medium),
-                                                                    iconSize,
-                                                                    iconSize,
-                                                                    iconColorNormal);
-    m_resetAction = new QAction(resetIcon, tr("Reset View"), this);
+    m_resetAction = new QAction(
+                DesignerActionManager::instance().contextIcon(DesignerIcons::ResetViewIcon),
+                tr("Reset View"), this);
     registerActionAsCommand(m_resetAction,
                             Constants::FORMEDITOR_REFRESH,
                             QKeySequence(Qt::Key_R),

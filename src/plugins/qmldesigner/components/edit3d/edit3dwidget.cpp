@@ -282,7 +282,7 @@ void Edit3DWidget::createContextMenu()
 
     QAction *defaultToggleGroupAction = view()->edit3DAction(View3DActionType::SelectionModeToggle)->action();
     m_toggleGroupAction = m_contextMenu->addAction(
-                defaultToggleGroupAction->icon(),
+                contextIcon(DesignerIcons::ToggleGroupIcon),
                 tr("Group Selection Mode"), [&]() {
         view()->edit3DAction(View3DActionType::SelectionModeToggle)->action()->trigger();
     });

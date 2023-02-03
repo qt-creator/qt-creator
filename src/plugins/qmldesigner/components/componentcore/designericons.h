@@ -92,6 +92,7 @@ public:
         SimpleCheckIcon,
         SnappingIcon,
         TimelineIcon,
+        ToggleGroupIcon,
         VisibilityIcon
     };
     Q_ENUM(IconId)

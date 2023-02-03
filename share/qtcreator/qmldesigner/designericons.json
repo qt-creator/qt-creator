@@ -137,7 +137,7 @@
         "iconName": "cube_small"
     },
     "ResetViewIcon": {
-        "iconName": "rotationOutline"
+        "iconName": "reload_medium"
     },
     "SelecionIcon": {
         "iconName": "selection_small"
@@ -163,6 +163,14 @@
     },
     "TimelineIcon": {
         "iconName": "timeline_small"
+    },
+    "ToggleGroupIcon": {
+        "Off": {
+            "iconName": "selectOutline_medium"
+        },
+        "On": {
+            "iconName": "selectFill_medium"
+        }
     },
     "VisibilityIcon": {
         "Off": {
