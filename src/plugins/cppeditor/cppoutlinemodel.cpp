@@ -11,6 +11,7 @@
 
 #include <utils/linecolumn.h>
 #include <utils/link.h>
+#include <utils/theme/theme.h>
 
 #include <QTimer>
 
@@ -101,6 +102,24 @@ public:
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             return name;
+        }
+
+        case Qt::ForegroundRole: {
+            const auto isFwdDecl = [&] {
+                const FullySpecifiedType type = symbol->type();
+                if (type->asForwardClassDeclarationType())
+                    return true;
+                if (const Template * const tmpl = type->asTemplateType())
+                    return tmpl->declaration() && tmpl->declaration()->asForwardClassDeclaration();
+                if (type->asObjCForwardClassDeclarationType())
+                    return true;
+                if (type->asObjCForwardProtocolDeclarationType())
+                    return true;
+                return false;
+            };
+            if (isFwdDecl())
+                return Utils::creatorTheme()->color(Utils::Theme::TextColorDisabled);
+            return TreeItem::data(column, role);
         }
 
         case Qt::DecorationRole:

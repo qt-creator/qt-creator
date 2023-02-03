@@ -404,6 +404,7 @@ LanguageClientOutlineItem::LanguageClientOutlineItem(Client *client, const Docum
     , m_name(info.name())
     , m_detail(info.detail().value_or(QString()))
     , m_range(info.range())
+    , m_selectionRange(info.selectionRange())
     , m_type(info.kind())
 {
     const QList<LanguageServerProtocol::DocumentSymbol> children = sortedSymbols(

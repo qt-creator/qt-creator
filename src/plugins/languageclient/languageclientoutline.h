@@ -27,6 +27,7 @@ public:
     LanguageClientOutlineItem(Client *client, const LanguageServerProtocol::DocumentSymbol &info);
 
     LanguageServerProtocol::Range range() const { return m_range; }
+    LanguageServerProtocol::Range selectionRange() const { return m_selectionRange; }
     LanguageServerProtocol::Position pos() const { return m_range.start(); }
     bool contains(const LanguageServerProtocol::Position &pos) const {
         return m_range.contains(pos);
@@ -46,6 +47,7 @@ private:
     QString m_name;
     QString m_detail;
     LanguageServerProtocol::Range m_range;
+    LanguageServerProtocol::Range m_selectionRange;
     int m_type = -1;
 };
 

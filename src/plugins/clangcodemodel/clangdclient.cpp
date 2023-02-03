@@ -62,6 +62,7 @@
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>
 #include <utils/runextensions.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
@@ -135,9 +136,16 @@ class ClangdOutlineItem : public LanguageClientOutlineItem
 private:
     QVariant data(int column, int role) const override
     {
-        if (role == Qt::DisplayRole) {
+        switch (role) {
+        case Qt::DisplayRole:
             return ClangdClient::displayNameFromDocumentSymbol(
                 static_cast<SymbolKind>(type()), name(), detail());
+        case Qt::ForegroundRole:
+            if ((detail().endsWith("class") || detail().endsWith("struct"))
+                && range().end() == selectionRange().end()) {
+                return creatorTheme()->color(Theme::TextColorDisabled);
+            }
+            break;
         }
         return LanguageClientOutlineItem::data(column, role);
     }
