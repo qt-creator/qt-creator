@@ -20,6 +20,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -208,6 +209,29 @@ void ToolBarBackend::setCurrentStyle(int index)
     view->resetPuppet();
 }
 
+void ToolBarBackend::setCurrentKit(int index)
+{
+    auto project = ProjectExplorer::SessionManager::startupProject();
+    QTC_ASSERT(project, return );
+
+    const auto kits = ProjectExplorer::KitManager::kits();
+
+    QTC_ASSERT(kits.count() > index, return );
+    QTC_ASSERT(index >= 0, return );
+
+    const auto kit = kits.at(index);
+
+    auto newTarget = project->target(kit);
+    if (!newTarget)
+        newTarget = project->addTargetForKit(kit);
+
+    ProjectExplorer::SessionManager::setActiveTarget(project,
+                                                     newTarget,
+                                                     ProjectExplorer::SetActive::Cascade);
+
+    emit currentKitChanged();
+}
+
 bool ToolBarBackend::canGoBack() const
 {
     QTC_ASSERT(designModeWidget(), return false);
@@ -296,6 +320,25 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
         emit isInDesignModeChanged();
     });
+
+    connect(ProjectExplorer::SessionManager::instance(),
+            &ProjectExplorer::SessionManager::startupProjectChanged,
+            [this](ProjectExplorer::Project *project) {
+                disconnect(m_kitConnection);
+                emit isQt6Changed();
+                if (project) {
+                    m_kitConnection = connect(project,
+                                              &ProjectExplorer::Project::activeTargetChanged,
+                                              this,
+                                              &ToolBarBackend::currentKitChanged);
+                    emit currentKitChanged();
+                }
+            });
+
+    connect(ProjectExplorer::KitManager::instance(),
+            &ProjectExplorer::KitManager::kitsChanged,
+            this,
+            &ToolBarBackend::kitsChanged);
 }
 
 void ToolBarBackend::registerDeclarativeType()
@@ -377,6 +420,33 @@ int ToolBarBackend::currentStyle() const
     const int index = ChangeStyleWidgetAction::getCurrentStyle(qmlFile);
 
     return index;
+}
+
+QStringList ToolBarBackend::kits() const
+{
+    return Utils::transform(ProjectExplorer::KitManager::kits(),
+                            [](ProjectExplorer::Kit *kit) { return kit->displayName(); });
+}
+
+int ToolBarBackend::currentKit() const
+{
+    if (auto target = ProjectExplorer::SessionManager::startupTarget()) {
+        auto kit = target->kit();
+        if (kit)
+            return kits().indexOf(kit->displayName());
+    }
+    return 0;
+}
+
+bool ToolBarBackend::isQt6() const
+{
+    const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        ProjectExplorer::SessionManager::startupTarget()->buildSystem());
+    QTC_ASSERT(buildSystem, return false);
+
+    const bool isQt6Project = buildSystem && buildSystem->qt6Project();
+
+    return isQt6Project;
 }
 
 void ToolBarBackend::setupWorkspaces()

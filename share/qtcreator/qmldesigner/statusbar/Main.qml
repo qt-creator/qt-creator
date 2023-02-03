@@ -48,18 +48,20 @@ Item {
                 elide: Text.ElideRight
             }
 
+
             TopLevelComboBox {
                 id: kits
                 style: StudioTheme.Values.statusbarControlStyle
-
-                width: 160
+                width: 200
                 anchors.verticalCenter: parent.verticalCenter
-                //anchors.left: settingButton.right
-                //anchors.leftMargin: 32
-                model: [ "Qt 6", "Qt 5", "Boot2Qt", "Android" ]
-                //onActivated: backend.setCurrentWorkspace(workspaces.currentText)
+                anchors.left: settingButton.right
+                anchors.leftMargin: 32
+                model: backend.kits
+                onActivated: backend.setCurrentKit(kits.currentIndex)
                 openUpwards: true
-                enabled: backend.isInDesignMode
+                enabled: backend.isInDesignMode && backend.isQt6
+                property int kitIndex: backend.currentKit
+                onKitIndexChanged: kits.currentIndex = backend.currentKit
             }
 
             Text {
@@ -78,8 +80,8 @@ Item {
                 style: StudioTheme.Values.statusbarControlStyle
                 width: 160
                 anchors.verticalCenter: parent.verticalCenter
-               // anchors.left: kits.right
-               // anchors.leftMargin: 32
+                anchors.left: kits.right
+                anchors.leftMargin: 32
                 model: backend.styles
                 onActivated: backend.setCurrentStyle(styles.currentIndex)
                 openUpwards: true

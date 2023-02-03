@@ -78,6 +78,9 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
     Q_PROPERTY(bool isDesignModeEnabled READ isDesignModeEnabled NOTIFY isDesignModeEnabledChanged)
     Q_PROPERTY(int currentStyle READ currentStyle NOTIFY currentStyleChanged)
+    Q_PROPERTY(QStringList kits READ kits NOTIFY kitsChanged)
+    Q_PROPERTY(int currentKit READ currentKit NOTIFY currentKitChanged)
+    Q_PROPERTY(bool isQt6 READ isQt6 NOTIFY isQt6Changed)
 
 public:
     ToolBarBackend(QObject *parent  = nullptr);
@@ -95,6 +98,7 @@ public:
     Q_INVOKABLE void editGlobalAnnoation();
     Q_INVOKABLE void showZoomMenu(int x, int y);
     Q_INVOKABLE void setCurrentStyle(int index);
+    Q_INVOKABLE void setCurrentKit(int index);
 
     bool canGoBack() const;
     bool canGoForward() const;
@@ -113,6 +117,12 @@ public:
     bool isDesignModeEnabled() const;
     int currentStyle() const;
 
+    QStringList kits() const;
+
+    int currentKit() const;
+
+    bool isQt6() const;
+
 signals:
     void navigationHistoryChanged();
     void openDocumentsChanged();
@@ -122,6 +132,9 @@ signals:
     void isInDesignModeChanged();
     void isDesignModeEnabledChanged();
     void currentStyleChanged();
+    void kitsChanged();
+    void currentKitChanged();
+    void isQt6Changed();
 
 private:
     void setupWorkspaces();
@@ -130,6 +143,7 @@ private:
 
     QStringList m_openDocuments;
     QStringList m_workspaces;
+    QMetaObject::Connection m_kitConnection;
 };
 
 } // namespace QmlDesigner
