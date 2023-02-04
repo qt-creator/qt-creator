@@ -1695,7 +1695,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Format instead of indenting</source>
         <translation>Formatiraj umjesto uvlačenja</translation>
@@ -15655,7 +15655,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Otvori korištenu konfiguracijsku datoteku .clang-formata</translation>

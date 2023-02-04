@@ -42131,7 +42131,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Format instead of indenting</source>
         <translation>インデントの代わりにフォーマットを行う</translation>
@@ -44212,7 +44212,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>使用した clang-format 設定ファイルを開く</translation>

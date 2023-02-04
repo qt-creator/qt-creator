@@ -6960,14 +6960,11 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Clang-Format Style</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatGlobalConfigWidget</name>
     <message>
         <source>ClangFormat global setting:</source>
         <translation type="unfinished"></translation>
@@ -7008,9 +7005,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Override Clang Format configuration file with the chosen configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatPlugin</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation type="unfinished"></translation>
@@ -7019,9 +7013,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>The ClangFormat plugin has been built against an unmodified Clang. You might experience formatting glitches in certain circumstances. See https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/README.md for more information.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClangFormatStyleFactory</name>
     <message>
         <source>ClangFormat</source>
         <translation type="unfinished"></translation>

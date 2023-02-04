@@ -41695,7 +41695,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Clang-Format Style</source>
         <translation>Clang-Format-Stil</translation>
@@ -41709,7 +41709,7 @@ Was soll %1 tun?</translation>
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatPlugin</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Verwendete .clang-format-Konfigurationsdatei öffnen</translation>
@@ -50556,7 +50556,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatGlobalConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Formatting mode:</source>
         <translation>Formatierungsart:</translation>
@@ -50597,9 +50597,6 @@ in &quot;%2&quot; aus.
         <source>Override Clang Format configuration file with the chosen configuration.</source>
         <translation>Die Clang-Format-Konfigurationsdatei mit der gewählten Konfiguration überschreiben.</translation>
     </message>
-</context>
-<context>
-    <name>ClangFormatStyleFactory</name>
     <message>
         <source>ClangFormat</source>
         <translation>ClangFormat</translation>

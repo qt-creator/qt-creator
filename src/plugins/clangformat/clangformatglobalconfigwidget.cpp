@@ -5,6 +5,7 @@
 
 #include "clangformatconstants.h"
 #include "clangformatsettings.h"
+#include "clangformattr.h"
 #include "clangformatutils.h"
 
 #include <projectexplorer/project.h>
@@ -31,18 +32,18 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
     resize(489, 305);
 
     m_projectHasClangFormat = new QLabel(this);
-    m_formattingModeLabel = new QLabel(tr("Formatting mode:"));
+    m_formattingModeLabel = new QLabel(Tr::tr("Formatting mode:"));
     m_indentingOrFormatting = new QComboBox(this);
-    m_formatWhileTyping = new QCheckBox(tr("Format while typing"));
-    m_formatOnSave = new QCheckBox(tr("Format edited code on file save"));
-    m_overrideDefault = new QCheckBox(tr("Override Clang Format configuration file"));
-    m_useGlobalSettings = new QCheckBox(tr("Use global settings"));
+    m_formatWhileTyping = new QCheckBox(Tr::tr("Format while typing"));
+    m_formatOnSave = new QCheckBox(Tr::tr("Format edited code on file save"));
+    m_overrideDefault = new QCheckBox(Tr::tr("Override Clang Format configuration file"));
+    m_useGlobalSettings = new QCheckBox(Tr::tr("Use global settings"));
     m_useGlobalSettings->hide();
 
     using namespace Layouting;
 
     Group globalSettingsGroupBox {
-        title(tr("ClangFormat settings:")),
+        title(Tr::tr("ClangFormat settings:")),
             Column {
                 m_useGlobalSettings,
                 Row { m_formattingModeLabel, m_indentingOrFormatting, st },
@@ -94,11 +95,11 @@ void ClangFormatGlobalConfigWidget::initCheckBoxes()
 void ClangFormatGlobalConfigWidget::initIndentationOrFormattingCombobox()
 {
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Indenting),
-                                        tr("Indenting only"));
+                                        Tr::tr("Indenting only"));
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Formatting),
-                                        tr("Full formatting"));
+                                        Tr::tr("Full formatting"));
     m_indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
-                                        tr("Disable"));
+                                        Tr::tr("Disable"));
 
     m_indentingOrFormatting->setCurrentIndex(
         static_cast<int>(getProjectIndentationOrFormattingSettings(m_project)));
@@ -146,8 +147,8 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
         m_projectHasClangFormat->hide();
     } else {
         m_projectHasClangFormat->show();
-        m_projectHasClangFormat->setText(tr("The current project has its own .clang-format file which "
-                                            "can be overridden by the settings below."));
+        m_projectHasClangFormat->setText(Tr::tr("The current project has its own .clang-format file which "
+                                                "can be overridden by the settings below."));
     }
 
     auto setEnableOverrideCheckBox = [this](int index) {
@@ -160,7 +161,7 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
             this, setEnableOverrideCheckBox);
 
     m_overrideDefault->setToolTip(
-        tr("Override Clang Format configuration file with the chosen configuration."));
+        Tr::tr("Override Clang Format configuration file with the chosen configuration."));
 
     m_overrideDefault->setChecked(getProjectOverriddenSettings(m_project));
 

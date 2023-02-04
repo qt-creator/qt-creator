@@ -37,7 +37,6 @@ namespace ClangFormat {
 
 class ClangFormatStyleFactory : public CppCodeStylePreferencesFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(ClangFormatStyleFactory)
 public:
     Indenter *createIndenter(QTextDocument *doc) const override
     {
@@ -47,7 +46,7 @@ public:
     std::pair<CppCodeStyleWidget *, QString> additionalTab(
         ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) const override
     {
-        return {new ClangFormatConfigWidget(codeStyle, project, parent), tr("ClangFormat")};
+        return {new ClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};
     }
 
     CodeStyleEditorWidget *createAdditionalGlobalSettings(
@@ -72,7 +71,7 @@ void ClangFormatPlugin::initialize()
     ActionContainer *contextMenu = ActionManager::actionContainer(CppEditor::Constants::M_CONTEXT);
     if (contextMenu) {
         auto openClangFormatConfigAction
-            = new QAction(tr("Open Used .clang-format Configuration File"), this);
+            = new QAction(Tr::tr("Open Used .clang-format Configuration File"), this);
         Command *command = ActionManager::registerAction(openClangFormatConfigAction,
                                                          Constants::OPEN_CURRENT_CONFIG_ID);
         contextMenu->addSeparator();

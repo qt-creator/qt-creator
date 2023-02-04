@@ -6367,7 +6367,7 @@ However, using the relaxed and extended rules means also that no highlighting/co
     </message>
 </context>
 <context>
-    <name>ClangFormat::ClangFormatConfigWidget</name>
+    <name>::ClangFormat</name>
     <message>
         <source>Apply</source>
         <translation>Применить</translation>
@@ -6404,9 +6404,6 @@ However, using the relaxed and extended rules means also that no highlighting/co
         <source>Fallback configuration</source>
         <translation>Запасная конфигурация</translation>
     </message>
-</context>
-<context>
-    <name>ClangFormat::ClangFormatPlugin</name>
     <message>
         <source>Open Used .clang-format Configuration File</source>
         <translation>Открыть использованный файл настроек .clang-format</translation>
