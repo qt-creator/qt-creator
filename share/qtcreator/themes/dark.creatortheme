@@ -457,6 +457,7 @@ FlatMenuBar=true
 ToolBarIconShadow=true
 WindowColorAsBase=false
 DarkUserInterface=true
+QDSTheme=false
 
 [ImageFiles]
 IconOverlayCSource=:/cppeditor/images/dark_qt_c.png

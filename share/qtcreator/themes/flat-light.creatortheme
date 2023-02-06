@@ -436,3 +436,4 @@ FlatMenuBar=false
 ToolBarIconShadow=false
 WindowColorAsBase=false
 DarkUserInterface=false
+QDSTheme=false
