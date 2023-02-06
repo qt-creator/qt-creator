@@ -5,6 +5,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace TextEditor { class ICodeStylePreferencesFactory; }
+
 namespace ClangFormat {
 
 class ClangFormatPlugin : public ExtensionSystem::IPlugin
@@ -12,8 +14,11 @@ class ClangFormatPlugin : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangFormat.json")
 
+    ~ClangFormatPlugin() override;
     void initialize() final;
     QVector<QObject *> createTestObjects() const override;
+
+    TextEditor::ICodeStylePreferencesFactory *m_factory = nullptr;
 };
 
 } // namespace ClangTools
