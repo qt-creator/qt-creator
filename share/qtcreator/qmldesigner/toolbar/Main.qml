@@ -1,9 +1,9 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-import QtQuick 2.15
-import QtQuick.Controls 2.15
 
-import StudioControls
+import QtQuick
+import QtQuick.Controls
+import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 import ToolBar 1.0
@@ -119,7 +119,6 @@ Rectangle {
                     var p = livePreviewButton.mapToGlobal(0, 0)
                     backend.showZoomMenu(p.x, p.y)
                 }
-
             }
 
             ActionSubscriber {
@@ -128,7 +127,7 @@ Rectangle {
             }
         }
 
-        TopLevelComboBox {
+        StudioControls.TopLevelComboBox {
             id: currentFile
             style: StudioTheme.Values.toolbarStyle
             width: 320
@@ -226,7 +225,7 @@ Rectangle {
             }
         }
 
-        TopLevelComboBox {
+        StudioControls.TopLevelComboBox {
             id: workspaces
             style: StudioTheme.Values.toolbarStyle
             width: 210

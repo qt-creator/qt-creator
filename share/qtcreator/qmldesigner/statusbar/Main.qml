@@ -1,9 +1,9 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import StudioControls
+import QtQuick
+import QtQuick.Controls
+import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import "../toolbar"
 
@@ -20,42 +20,36 @@ Item {
     }
 
     Rectangle {
-
         color: StudioTheme.Values.themeStatusbarBackground
         anchors.fill: parent
+
         Row {
             anchors.fill: parent
-            anchors.bottomMargin: 5
-            anchors.leftMargin: 5
+            anchors.topMargin: 3
+            anchors.leftMargin: 4
             spacing: 29
+
             ToolbarButton {
                 id: settingButton
                 style: StudioTheme.Values.statusbarButtonStyle
                 buttonIcon: StudioTheme.Constants.settings_medium
-                anchors.verticalCenter: parent.verticalCenter
                 onClicked: backend.triggerProjectSettings()
             }
 
-
             Text {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                height: StudioTheme.Values.statusbarButtonStyle.controlSize.height
                 color: StudioTheme.Values.themeTextColor
-                text: "Kit"
+                text: qsTr("Kit")
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
 
-
-            TopLevelComboBox {
+            StudioControls.TopLevelComboBox {
                 id: kits
                 style: StudioTheme.Values.statusbarControlStyle
-                width: 200
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: settingButton.right
-                anchors.leftMargin: 32
+                width: 160
                 model: backend.kits
                 onActivated: backend.setCurrentKit(kits.currentIndex)
                 openUpwards: true
@@ -65,23 +59,19 @@ Item {
             }
 
             Text {
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                height: StudioTheme.Values.statusbarButtonStyle.controlSize.height
                 color: StudioTheme.Values.themeTextColor
-                text: "Style"
+                text: qsTr("Style")
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 horizontalAlignment: Text.AlignRight
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
 
-            TopLevelComboBox {
+            StudioControls.TopLevelComboBox {
                 id: styles
                 style: StudioTheme.Values.statusbarControlStyle
                 width: 160
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: kits.right
-                anchors.leftMargin: 32
                 model: backend.styles
                 onActivated: backend.setCurrentStyle(styles.currentIndex)
                 openUpwards: true
@@ -89,20 +79,5 @@ Item {
                 currentIndex: backend.currentStyle
             }
         }
-
-
-//        Rectangle {
-//            color: "red"
-//            width: 2
-//            height: 41
-//        }
-
-//        Rectangle {
-//            color: "green"
-//            width: 2
-//            height: 41
-//            x: toolbarContainer.width - 2
-//        }
-
     }
 }
