@@ -22,9 +22,6 @@ public:
     const RepositorySettings settings() const;
     void setSettings(const RepositorySettings &settings);
 
-protected:
-    void changeEvent(QEvent *e) final;
-
 private:
     ConfigureDialogPrivate *d = nullptr;
 };

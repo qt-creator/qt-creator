@@ -22,7 +22,7 @@ QtcPlugin {
         "annotationhighlighter.cpp", "annotationhighlighter.h",
         "pullorpushdialog.cpp", "pullorpushdialog.h", "pullorpushdialog.ui",
         "branchinfo.h",
-        "configuredialog.cpp", "configuredialog.h", "configuredialog.ui",
+        "configuredialog.cpp", "configuredialog.h",
         "revisioninfo.h",
         "fossil.qrc",
         "revertdialog.ui",

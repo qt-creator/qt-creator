@@ -6,7 +6,7 @@ add_qtc_plugin(Fossil
     annotationhighlighter.cpp annotationhighlighter.h
     branchinfo.h
     commiteditor.cpp commiteditor.h
-    configuredialog.cpp configuredialog.h configuredialog.ui
+    configuredialog.cpp configuredialog.h
     constants.h
     fossil.qrc
     fossilclient.cpp fossilclient.h
