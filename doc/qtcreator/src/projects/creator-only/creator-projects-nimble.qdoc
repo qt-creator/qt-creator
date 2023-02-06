@@ -30,7 +30,7 @@
     \list 1
         \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits
             \uicontrol Compilers > \uicontrol Add > \uicontrol Nim to specify
-            the path to the the Nim compiler.
+            the path to the Nim compiler.
         \li Select \uicontrol Apply to add the compiler.
         \li Select \uicontrol Kits > \uicontrol Add to add a kit for building
             applications with Nimble:

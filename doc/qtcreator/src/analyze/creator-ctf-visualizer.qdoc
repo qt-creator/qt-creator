@@ -180,7 +180,7 @@
 
     Scheduler switch trace points are reached when an application is switched
     out due to predemption, for example, when another process gets the chance
-    to run on the CPU core. Enable scheduler schwitch trace points to record
+    to run on the CPU core. Enable scheduler switch trace points to record
     the thread that is currently running and the process it belongs to, as
     well as the time when the process started and stopped.
 

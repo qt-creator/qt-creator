@@ -431,7 +431,7 @@
 
     You can add your own definition file and save it with the file extension
     \e .def to add custom colors and icons for stereotypes, elements, or tool
-    bars. Either store this file in the the same directory as the
+    bars. Either store this file in the same directory as the
     \e standard.def file or select the root element of a model and apply your
     \e .def file to the property \uicontrol {Config path}.
 

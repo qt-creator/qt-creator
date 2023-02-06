@@ -86,7 +86,7 @@
     To use the built-in code model instead, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol C++ > \uicontrol clangd, and deselect the \uicontrol {Use clangd} check box.
     This setting also exists on the project level, so that you can have the clang-based
-    services generally enabled, but switch them off for for certain projects, or vice versa.
+    services generally enabled, but switch them off for certain projects, or vice versa.
 
     You can configure Clang diagnostics either globally or separately for:
 
