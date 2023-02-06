@@ -22,14 +22,14 @@ Rectangle {
         objectName: "title"
         color: "#333333"
         text: "Enjoying Qt Design Studio?"
-        font { family: "Titillium"; capitalization: Font.AllUppercase; pixelSize: 21 }
+        font { family: "Titillium"; pixelSize: 21 }
         anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 50 }
     }
 
     Text {
         id: h2
         color: "#333333"
-        text: "Tap a star to rate the usefulness of the feature"
+        text: "Select the level of your satisfaction."
         font { family: "Titillium"; pixelSize: 21 }
         anchors { horizontalCenter: parent.horizontalCenter; top: h1.bottom; topMargin: 12 }
     }
@@ -71,7 +71,7 @@ Rectangle {
             width: 426
             height: 90
             color: "#333333";
-            placeholderText: "We highly appreciate additional feedback.\nBouquets or Brickbats, suggestions, all welcome!"
+            placeholderText: "We highly appreciate additional feedback.\nBouquets, brickbats, or suggestions, all feedback is welcome!"
             font { pixelSize: 14; family: "Titillium" }
             wrapMode: Text.Wrap
         }
