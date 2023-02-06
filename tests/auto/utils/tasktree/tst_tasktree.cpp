@@ -19,7 +19,8 @@ enum class Handler {
     Error,
     GroupSetup,
     GroupDone,
-    GroupError
+    GroupError,
+    Sync
 };
 
 using Log = QList<QPair<int, Handler>>;
@@ -171,6 +172,9 @@ void tst_TaskTree::processTree_data()
     };
     const auto groupError = [storage](int groupId) {
         return [=] { storage->m_log.append({groupId, Handler::GroupError}); };
+    };
+    const auto setupSync = [storage](int syncId, bool success) {
+        return [=] { storage->m_log.append({syncId, Handler::Sync}); return success; };
     };
 
     const auto constructSimpleSequence = [=](const Workflow &policy) {
@@ -988,6 +992,86 @@ void tst_TaskTree::processTree_data()
         QTest::newRow("DeeplyNestedParallelError")
             << TestData{storage, root, log, 5, OnStart::Running, OnDone::Failure};
     }
+
+    {
+        const Group root {
+            Storage(storage),
+            Sync(setupSync(1, true)),
+            Sync(setupSync(2, true)),
+            Sync(setupSync(3, true)),
+            Sync(setupSync(4, true)),
+            Sync(setupSync(5, true))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Sync},
+            {3, Handler::Sync},
+            {4, Handler::Sync},
+            {5, Handler::Sync}
+        };
+        QTest::newRow("SyncSequential")
+            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            parallel,
+            Sync(setupSync(1, true)),
+            Sync(setupSync(2, true)),
+            Sync(setupSync(3, true)),
+            Sync(setupSync(4, true)),
+            Sync(setupSync(5, true))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Sync},
+            {3, Handler::Sync},
+            {4, Handler::Sync},
+            {5, Handler::Sync}
+        };
+        QTest::newRow("SyncParallel")
+            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            parallel,
+            Sync(setupSync(1, true)),
+            Sync(setupSync(2, true)),
+            Sync(setupSync(3, false)),
+            Sync(setupSync(4, true)),
+            Sync(setupSync(5, true))
+        };
+        const Log log {
+            {1, Handler::Sync},
+            {2, Handler::Sync},
+            {3, Handler::Sync}
+        };
+        QTest::newRow("SyncError")
+            << TestData{storage, root, log, 0, OnStart::NotRunning, OnDone::Failure};
+    }
+
+    const Group root {
+        Storage(storage),
+        Sync(setupSync(1, true)),
+        Process(setupProcess(2)),
+        Sync(setupSync(3, true)),
+        Process(setupProcess(4)),
+        Sync(setupSync(5, true)),
+        OnGroupDone(groupDone(0))
+    };
+    const Log log {
+        {1, Handler::Sync},
+        {2, Handler::Setup},
+        {3, Handler::Sync},
+        {4, Handler::Setup},
+        {5, Handler::Sync},
+        {0, Handler::GroupDone}
+    };
+    QTest::newRow("SyncAndAsync")
+        << TestData{storage, root, log, 2, OnStart::Running, OnDone::Success};
 }
 
 void tst_TaskTree::processTree()

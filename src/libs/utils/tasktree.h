@@ -244,6 +244,16 @@ public:
     OnGroupError(const GroupEndHandler &handler) : TaskItem({{}, {}, handler}) {}
 };
 
+// Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
+class QTCREATOR_UTILS_EXPORT Sync : public Group
+{
+public:
+    using SynchronousMethod = std::function<bool()>;
+    Sync(const SynchronousMethod &sync)
+        : Group({OnGroupSetup([sync] { return sync() ? TaskAction::StopWithDone
+                                                     : TaskAction::StopWithError; })}) {}
+};
+
 QTCREATOR_UTILS_EXPORT extern ParallelLimit sequential;
 QTCREATOR_UTILS_EXPORT extern ParallelLimit parallel;
 QTCREATOR_UTILS_EXPORT extern Workflow stopOnError;
