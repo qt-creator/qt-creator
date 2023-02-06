@@ -493,7 +493,7 @@ static QString sideFileName(DiffSide side, const FileData &fileData)
                                                                : FileData::DeleteFile;
     if (fileData.fileOperation == operation)
         return "/dev/null";
-    const QString sideMarker = side == LeftSide ? "a/" : "b/";
+    const QString sideMarker = side == LeftSide ? QString("a/") : QString("b/");
     return sideMarker + fileData.fileInfo[side].fileName;
 }
 
