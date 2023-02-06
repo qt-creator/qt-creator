@@ -11,6 +11,7 @@
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/utilsicons.h>
+#include <utils/tasktree.h>
 
 #include <QHelpEngine>
 #include <QHelpFilterEngine>
@@ -105,12 +106,6 @@ void HelpIndexFilter::accept(const LocatorFilterEntry &selection,
     emit linksActivated(links, key);
 }
 
-void HelpIndexFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    invalidateCache();
-}
-
 QStringList HelpIndexFilter::allIndices() const
 {
     LocalHelpManager::setupGuiHelpEngine();
@@ -120,4 +115,11 @@ QStringList HelpIndexFilter::allIndices() const
 void HelpIndexFilter::invalidateCache()
 {
     m_needsUpdate = true;
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> HelpIndexFilter::refreshRecipe()
+{
+    return Sync([this] { invalidateCache(); return true; });
 }

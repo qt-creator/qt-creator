@@ -17,7 +17,11 @@
 
 #include <optional>
 
+namespace Utils::Tasking { class TaskItem; }
+
 namespace Core {
+
+namespace Internal { class Locator; }
 
 class ILocatorFilter;
 
@@ -157,8 +161,6 @@ public:
     virtual void accept(const LocatorFilterEntry &selection, QString *newText,
                         int *selectionStart, int *selectionLength) const;
 
-    virtual void refresh(QFutureInterface<void> &future) { Q_UNUSED(future) };
-
     virtual QByteArray saveState() const;
     virtual void restoreState(const QByteArray &state);
 
@@ -202,6 +204,9 @@ protected:
     static bool isOldSetting(const QByteArray &state);
 
 private:
+    friend class Internal::Locator;
+    virtual std::optional<Utils::Tasking::TaskItem> refreshRecipe();
+
     Utils::Id m_id;
     QString m_shortcut;
     Priority m_priority = Medium;

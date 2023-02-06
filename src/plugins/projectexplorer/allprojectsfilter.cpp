@@ -9,6 +9,7 @@
 #include "projectmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/tasktree.h>
 
 using namespace Core;
 
@@ -25,12 +26,7 @@ AllProjectsFilter::AllProjectsFilter()
     setDefaultIncludedByDefault(true);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
-            this, &AllProjectsFilter::markFilesAsOutOfDate);
-}
-
-void AllProjectsFilter::markFilesAsOutOfDate()
-{
-    setFileIterator(nullptr);
+            this, &AllProjectsFilter::invalidateCache);
 }
 
 void AllProjectsFilter::prepareSearch(const QString &entry)
@@ -46,10 +42,16 @@ void AllProjectsFilter::prepareSearch(const QString &entry)
     BaseFileFilter::prepareSearch(entry);
 }
 
-void AllProjectsFilter::refresh(QFutureInterface<void> &future)
+void AllProjectsFilter::invalidateCache()
 {
-    Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &AllProjectsFilter::markFilesAsOutOfDate, Qt::QueuedConnection);
+    setFileIterator(nullptr);
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> AllProjectsFilter::refreshRecipe()
+{
+    return Sync([this] { invalidateCache(); return true; });
 }
 
 } // ProjectExplorer::Internal

@@ -382,14 +382,16 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     using namespace Tasking;
     QList<TaskItem> tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
-        const auto setupRefresh = [filter](AsyncTask<void> &async) {
-            async.setAsyncCallData(&ILocatorFilter::refresh, filter);
+        const auto task = filter->refreshRecipe();
+        if (!task.has_value())
+            continue;
+
+        const Group group {
+            optional,
+            *task,
+            OnGroupDone([this, filter] { m_refreshingFilters.removeOne(filter); })
         };
-        const auto onRefreshDone = [this, filter](const AsyncTask<void> &async) {
-            Q_UNUSED(async)
-            m_refreshingFilters.removeOne(filter);
-        };
-        tasks.append(Async<void>(setupRefresh, onRefreshDone));
+        tasks.append(group);
     }
 
     m_taskTree.reset(new TaskTree{tasks});

@@ -28,8 +28,6 @@ public:
     {
         setFileIterator(new BaseFileFilter::ListIterator(theFiles));
     }
-
-    void refresh(QFutureInterface<void> &) override {}
 };
 
 class ReferenceData

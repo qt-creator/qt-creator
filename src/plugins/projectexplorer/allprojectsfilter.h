@@ -5,8 +5,6 @@
 
 #include <coreplugin/locator/basefilefilter.h>
 
-#include <QFutureInterface>
-
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -16,11 +14,11 @@ class AllProjectsFilter : public Core::BaseFileFilter
 
 public:
     AllProjectsFilter();
-    void refresh(QFutureInterface<void> &future) override;
     void prepareSearch(const QString &entry) override;
 
 private:
-    void markFilesAsOutOfDate();
+    void invalidateCache();
+    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 };
 
 } // namespace Internal

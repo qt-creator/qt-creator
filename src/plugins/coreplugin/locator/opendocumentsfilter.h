@@ -7,10 +7,7 @@
 
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <QFutureInterface>
-#include <QList>
 #include <QMutex>
-#include <QString>
 
 namespace Core {
 namespace Internal {
@@ -38,6 +35,8 @@ private:
     };
 
     QList<Entry> editors() const;
+    void refreshInternally();
+    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     mutable QMutex m_mutex;
     QList<Entry> m_editors;

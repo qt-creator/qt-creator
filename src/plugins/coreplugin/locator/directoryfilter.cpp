@@ -7,12 +7,12 @@
 #include "../coreplugintr.h"
 
 #include <utils/algorithm.h>
+#include <utils/asynctask.h>
 #include <utils/fileutils.h>
 #include <utils/filesearch.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QJsonArray>
@@ -60,8 +60,6 @@ DirectoryFilter::DirectoryFilter(Id id)
 
 void DirectoryFilter::saveState(QJsonObject &object) const
 {
-    QMutexLocker locker(&m_lock); // m_files is modified in other thread
-
     if (displayName() != defaultDisplayName())
         object.insert(kDisplayNameKey, displayName());
     if (!m_directories.isEmpty()) {
@@ -92,7 +90,6 @@ static FilePaths toFilePaths(const QJsonArray &array)
 
 void DirectoryFilter::restoreState(const QJsonObject &object)
 {
-    QMutexLocker locker(&m_lock);
     setDisplayName(object.value(kDisplayNameKey).toString(defaultDisplayName()));
     m_directories = toFilePaths(object.value(kDirectoriesKey).toArray());
     m_filters = toStringList(
@@ -107,8 +104,6 @@ void DirectoryFilter::restoreState(const QByteArray &state)
 {
     if (isOldSetting(state)) {
         // TODO read old settings, remove some time after Qt Creator 4.15
-        QMutexLocker locker(&m_lock);
-
         QString name;
         QStringList directories;
         QString shortcut;
@@ -136,8 +131,6 @@ void DirectoryFilter::restoreState(const QByteArray &state)
         setDisplayName(name);
         setShortcutString(shortcut);
         setIncludedByDefault(defaultFilter);
-
-        locker.unlock();
     } else {
         ILocatorFilter::restoreState(state);
     }
@@ -263,8 +256,6 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
             &DirectoryFilter::updateOptionButtons,
             Qt::DirectConnection);
     m_dialog->directoryList->clear();
-    // Note: assuming we only change m_directories in the Gui thread,
-    // we don't need to protect it here with mutex
     m_dialog->directoryList->addItems(Utils::transform(m_directories, &FilePath::toString));
     m_dialog->nameLabel->setVisible(m_isCustomFilter);
     m_dialog->nameEdit->setVisible(m_isCustomFilter);
@@ -276,14 +267,10 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_dialog->filePatternLabel->setText(Utils::msgFilePatternLabel());
     m_dialog->filePatternLabel->setBuddy(m_dialog->filePattern);
     m_dialog->filePattern->setToolTip(Utils::msgFilePatternToolTip());
-    // Note: assuming we only change m_filters in the Gui thread,
-    // we don't need to protect it here with mutex
     m_dialog->filePattern->setText(Utils::transform(m_filters, &QDir::toNativeSeparators).join(','));
     m_dialog->exclusionPatternLabel->setText(Utils::msgExclusionPatternLabel());
     m_dialog->exclusionPatternLabel->setBuddy(m_dialog->exclusionPattern);
     m_dialog->exclusionPattern->setToolTip(Utils::msgFilePatternToolTip());
-    // Note: assuming we only change m_exclusionFilters in the Gui thread,
-    // we don't need to protect it here with mutex
     m_dialog->exclusionPattern->setText(
         Utils::transform(m_exclusionFilters, &QDir::toNativeSeparators).join(','));
     m_dialog->shortcutEdit->setText(shortcutString());
@@ -291,7 +278,6 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     updateOptionButtons();
     dialog.adjustSize();
     if (dialog.exec() == QDialog::Accepted) {
-        QMutexLocker locker(&m_lock);
         bool directoriesChanged = false;
         const FilePaths oldDirectories = m_directories;
         const QStringList oldFilters = m_filters;
@@ -353,51 +339,7 @@ void DirectoryFilter::updateOptionButtons()
 
 void DirectoryFilter::updateFileIterator()
 {
-    QMutexLocker locker(&m_lock);
     setFileIterator(new BaseFileFilter::ListIterator(m_files));
-}
-
-void DirectoryFilter::refresh(QFutureInterface<void> &future)
-{
-    FilePaths directories;
-    QStringList filters, exclusionFilters;
-    {
-        QMutexLocker locker(&m_lock);
-        if (m_directories.isEmpty()) {
-            m_files.clear();
-            QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator,
-                                      Qt::QueuedConnection);
-            future.setProgressRange(0, 1);
-            future.setProgressValueAndText(1, Tr::tr("%1 filter update: 0 files").arg(displayName()));
-            return;
-        }
-        directories = m_directories;
-        filters = m_filters;
-        exclusionFilters = m_exclusionFilters;
-    }
-    Utils::SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
-    future.setProgressRange(0, subDirIterator.maxProgress());
-    Utils::FilePaths filesFound;
-    auto end = subDirIterator.end();
-    for (auto it = subDirIterator.begin(); it != end; ++it) {
-        if (future.isCanceled())
-            break;
-        filesFound << (*it).filePath;
-        if (future.isProgressUpdateNeeded()
-                || future.progressValue() == 0 /*workaround for regression in Qt*/) {
-            future.setProgressValueAndText(subDirIterator.currentProgress(),
-                                           Tr::tr("%1 filter update: %n files", nullptr, filesFound.size()).arg(displayName()));
-        }
-    }
-
-    if (!future.isCanceled()) {
-        QMutexLocker locker(&m_lock);
-        m_files = filesFound;
-        QMetaObject::invokeMethod(this, &DirectoryFilter::updateFileIterator, Qt::QueuedConnection);
-        future.setProgressValue(subDirIterator.maxProgress());
-    } else {
-        future.setProgressValueAndText(subDirIterator.currentProgress(), Tr::tr("%1 filter update: canceled").arg(displayName()));
-    }
 }
 
 void DirectoryFilter::setIsCustomFilter(bool value)
@@ -409,10 +351,7 @@ void DirectoryFilter::setDirectories(const FilePaths &directories)
 {
     if (directories == m_directories)
         return;
-    {
-        QMutexLocker locker(&m_lock);
-        m_directories = directories;
-    }
+    m_directories = directories;
     Internal::Locator::instance()->refresh({this});
 }
 
@@ -435,14 +374,54 @@ FilePaths DirectoryFilter::directories() const
 
 void DirectoryFilter::setFilters(const QStringList &filters)
 {
-    QMutexLocker locker(&m_lock);
     m_filters = filters;
 }
 
 void DirectoryFilter::setExclusionFilters(const QStringList &exclusionFilters)
 {
-    QMutexLocker locker(&m_lock);
     m_exclusionFilters = exclusionFilters;
+}
+
+static void refresh(QFutureInterface<FilePaths> &future, const FilePaths &directories,
+                    const QStringList &filters, const QStringList &exclusionFilters,
+                    const QString &displayName)
+{
+    if (directories.isEmpty())
+        return;
+
+    SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
+    future.setProgressRange(0, subDirIterator.maxProgress());
+    FilePaths files;
+    const auto end = subDirIterator.end();
+    for (auto it = subDirIterator.begin(); it != end; ++it) {
+        if (future.isCanceled()) {
+            future.setProgressValueAndText(subDirIterator.currentProgress(),
+                                           Tr::tr("%1 filter update: canceled").arg(displayName));
+            return;
+        }
+        files << (*it).filePath;
+        if (future.isProgressUpdateNeeded() || future.progressValue() == 0) {
+            future.setProgressValueAndText(subDirIterator.currentProgress(),
+                   Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
+        }
+    }
+    future.setProgressValue(subDirIterator.maxProgress());
+    future.reportResult(files);
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> DirectoryFilter::refreshRecipe()
+{
+    const auto setup = [this](AsyncTask<FilePaths> &async) {
+        async.setAsyncCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
+                               displayName());
+    };
+    const auto done = [this](const AsyncTask<FilePaths> &async) {
+        m_files = async.isResultAvailable() ? async.result() : FilePaths();
+        updateFileIterator();
+    };
+    return Async<FilePaths>(setup, done);
 }
 
 } // namespace Core

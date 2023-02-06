@@ -7,7 +7,6 @@
 
 #include <QIcon>
 #include <QMultiMap>
-#include <QSet>
 #include <QUrl>
 
 #include <atomic>
@@ -28,7 +27,6 @@ public:
                                                const QString &entry) override;
     void accept(const Core::LocatorFilterEntry &selection,
                 QString *newText, int *selectionStart, int *selectionLength) const override;
-    void refresh(QFutureInterface<void> &future) override;
 
     QStringList allIndices() const;
 
@@ -36,10 +34,10 @@ signals:
     void linksActivated(const QMultiMap<QString, QUrl> &links, const QString &key) const;
 
 private:
-    void invalidateCache();
-
     bool updateCache(QFutureInterface<Core::LocatorFilterEntry> &future,
                      const QStringList &cache, const QString &entry);
+    void invalidateCache();
+    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     QStringList m_allIndicesCache;
     QStringList m_lastIndicesCache;

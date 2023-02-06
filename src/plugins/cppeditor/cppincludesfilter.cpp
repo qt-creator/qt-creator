@@ -14,6 +14,8 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/session.h>
+#include <utils/tasktree.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -109,19 +111,19 @@ CppIncludesFilter::CppIncludesFilter()
     setPriority(ILocatorFilter::Low);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(CppModelManager::instance(), &CppModelManager::documentUpdated,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(CppModelManager::instance(), &CppModelManager::aboutToRemoveFiles,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(DocumentModel::model(), &QAbstractItemModel::rowsInserted,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(DocumentModel::model(), &QAbstractItemModel::rowsRemoved,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(DocumentModel::model(), &QAbstractItemModel::dataChanged,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
     connect(DocumentModel::model(), &QAbstractItemModel::modelReset,
-            this, &CppIncludesFilter::markOutdated);
+            this, &CppIncludesFilter::invalidateCache);
 }
 
 void CppIncludesFilter::prepareSearch(const QString &entry)
@@ -146,16 +148,17 @@ void CppIncludesFilter::prepareSearch(const QString &entry)
     BaseFileFilter::prepareSearch(entry);
 }
 
-void CppIncludesFilter::refresh(QFutureInterface<void> &future)
-{
-    Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &CppIncludesFilter::markOutdated, Qt::QueuedConnection);
-}
-
-void CppIncludesFilter::markOutdated()
+void CppIncludesFilter::invalidateCache()
 {
     m_needsUpdate = true;
     setFileIterator(nullptr); // clean up
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> CppIncludesFilter::refreshRecipe()
+{
+    return Sync([this] { invalidateCache(); return true; });
 }
 
 } // namespace CppEditor::Internal

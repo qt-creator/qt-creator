@@ -8,6 +8,7 @@
 #include "projecttree.h"
 
 #include <utils/algorithm.h>
+#include <utils/tasktree.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -26,11 +27,6 @@ CurrentProjectFilter::CurrentProjectFilter()
 
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFilter::currentProjectChanged);
-}
-
-void CurrentProjectFilter::markFilesAsOutOfDate()
-{
-    setFileIterator(nullptr);
 }
 
 void CurrentProjectFilter::prepareSearch(const QString &entry)
@@ -52,19 +48,24 @@ void CurrentProjectFilter::currentProjectChanged()
         return;
     if (m_project)
         disconnect(m_project, &Project::fileListChanged,
-                   this, &CurrentProjectFilter::markFilesAsOutOfDate);
+                   this, &CurrentProjectFilter::invalidateCache);
 
     if (project)
         connect(project, &Project::fileListChanged,
-                this, &CurrentProjectFilter::markFilesAsOutOfDate);
+                this, &CurrentProjectFilter::invalidateCache);
 
     m_project = project;
-    markFilesAsOutOfDate();
+    invalidateCache();
 }
 
-void CurrentProjectFilter::refresh(QFutureInterface<void> &future)
+void CurrentProjectFilter::invalidateCache()
 {
-    Q_UNUSED(future)
-    QMetaObject::invokeMethod(this, &CurrentProjectFilter::markFilesAsOutOfDate,
-                              Qt::QueuedConnection);
+    setFileIterator(nullptr);
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> CurrentProjectFilter::refreshRecipe()
+{
+    return Sync([this] { invalidateCache(); return true; });
 }

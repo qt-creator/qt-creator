@@ -7,10 +7,7 @@
 
 #include <coreplugin/core_global.h>
 
-#include <QString>
 #include <QByteArray>
-#include <QFutureInterface>
-#include <QMutex>
 
 namespace Core {
 
@@ -22,7 +19,6 @@ public:
     DirectoryFilter(Utils::Id id);
     void restoreState(const QByteArray &state) override;
     bool openConfigDialog(QWidget *parent, bool &needsRefresh) override;
-    void refresh(QFutureInterface<void> &future) override;
 
     void setIsCustomFilter(bool value);
     void setDirectories(const Utils::FilePaths &directories);
@@ -42,6 +38,7 @@ private:
     void handleRemoveDirectory();
     void updateOptionButtons();
     void updateFileIterator();
+    std::optional<Utils::Tasking::TaskItem> refreshRecipe() override;
 
     Utils::FilePaths m_directories;
     QStringList m_filters;
@@ -49,7 +46,6 @@ private:
     // Our config dialog, uses in addDirectory and editDirectory
     // to give their dialogs the right parent
     class DirectoryFilterOptions *m_dialog = nullptr;
-    mutable QMutex m_lock;
     Utils::FilePaths m_files;
     bool m_isCustomFilter = true;
 };

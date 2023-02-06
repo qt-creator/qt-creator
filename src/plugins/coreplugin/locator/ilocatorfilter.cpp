@@ -7,6 +7,7 @@
 #include "../editormanager/editormanager.h"
 
 #include <utils/fuzzymatcher.h>
+#include <utils/tasktree.h>
 
 #include <QBoxLayout>
 #include <QCheckBox>
@@ -97,6 +98,15 @@ QString ILocatorFilter::shortcutString() const
 void ILocatorFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
+}
+
+/*!
+    Returns refresh recipe for refreshing cached data. By default, no recipe is returned, so
+    that the filter won't be refreshed.
+*/
+std::optional<Tasking::TaskItem> ILocatorFilter::refreshRecipe()
+{
+    return {};
 }
 
 /*!
@@ -220,13 +230,13 @@ void ILocatorFilter::restoreState(const QByteArray &state)
     various aspects of the filter. Called when the user requests to configure
     the filter.
 
-    Set \a needsRefresh to \c true, if a refresh() should be done after
+    Set \a needsRefresh to \c true, if a refresh should be done after
     closing the dialog. Return \c false if the user canceled the dialog.
 
     The default implementation allows changing the shortcut and whether the
     filter is included by default.
 
-    \sa refresh()
+    \sa refreshRecipe()
 */
 bool ILocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
@@ -614,14 +624,6 @@ bool ILocatorFilter::isOldSetting(const QByteArray &state)
 
     \sa prepareSearch()
     \sa caseSensitivity()
-*/
-
-/*!
-    \fn void Core::ILocatorFilter::refresh(QFutureInterface<void> &future)
-
-    Refreshes cached data asynchronously.
-
-    If \a future is \c canceled, the refresh should be aborted.
 */
 
 /*!

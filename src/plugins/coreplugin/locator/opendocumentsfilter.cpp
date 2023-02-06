@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 #include <utils/link.h>
+#include <utils/tasktree.h>
 
 #include <QAbstractItemModel>
 #include <QMutexLocker>
@@ -113,6 +114,24 @@ QList<OpenDocumentsFilter::Entry> OpenDocumentsFilter::editors() const
 {
     QMutexLocker lock(&m_mutex);
     return m_editors;
+}
+
+void OpenDocumentsFilter::refreshInternally()
+{
+    QMutexLocker lock(&m_mutex);
+    m_editors.clear();
+    const QList<DocumentModel::Entry *> documentEntries = DocumentModel::entries();
+    // create copy with only the information relevant to use
+    // to avoid model deleting entries behind our back
+    for (DocumentModel::Entry *e : documentEntries)
+        m_editors.append({e->filePath(), e->displayName()});
+}
+
+using namespace Utils::Tasking;
+
+std::optional<TaskItem> OpenDocumentsFilter::refreshRecipe()
+{
+    return Sync([this] { refreshInternally(); return true; });
 }
 
 } // Core::Internal
