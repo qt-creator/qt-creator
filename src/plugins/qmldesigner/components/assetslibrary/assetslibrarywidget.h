@@ -77,7 +77,7 @@ public:
 
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectMaker(const QString &filePath);
-    Q_INVOKABLE bool qtVersionIsAtLeast6_4() const;
+    Q_INVOKABLE bool qtVersionIs6_4() const;
     Q_INVOKABLE void invalidateThumbnail(const QString &id);
     Q_INVOKABLE QSize imageSize(const QString &id);
     Q_INVOKABLE QString assetFileSize(const QString &id);

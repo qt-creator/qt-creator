@@ -15,7 +15,7 @@ Item {
     // Array of supported externally dropped files that trigger custom import process
     property var dropComplexExtFiles: []
 
-    readonly property int qtVersionAtLeast6_4: rootView.qtVersionIsAtLeast6_4()
+    readonly property int qtVersion6_4: rootView.qtVersionIs6_4()
     property bool __searchBoxEmpty: true
 
     AssetsContextMenu {

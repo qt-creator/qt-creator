@@ -186,9 +186,9 @@ bool AssetsLibraryWidget::canCreateEffects() const
 #endif
 }
 
-bool AssetsLibraryWidget::qtVersionIsAtLeast6_4() const
+bool AssetsLibraryWidget::qtVersionIs6_4() const
 {
-    return (QT_VERSION >= QT_VERSION_CHECK(6, 4, 0));
+    return QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4;
 }
 
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
