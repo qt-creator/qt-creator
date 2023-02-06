@@ -18,6 +18,7 @@ public:
     static GTest::Constants::GroupMode groupMode();
     static QString currentGTestFilter();
 
+    QStringList testNameForSymbolName(const QString &symbolName) const override;
 private:
     const char *name() const override;
     QString displayName() const override;

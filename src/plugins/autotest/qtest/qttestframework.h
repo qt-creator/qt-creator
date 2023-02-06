@@ -15,6 +15,7 @@ class QtTestFramework : public ITestFramework
 public:
     QtTestFramework() : ITestFramework(true) {}
 
+    QStringList testNameForSymbolName(const QString &symbolName) const override;
 private:
     const char *name() const override;
     QString displayName() const override;

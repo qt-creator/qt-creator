@@ -36,5 +36,13 @@ unsigned QtTestFramework::priority() const
     return QtTest::Constants::FRAMEWORK_PRIORITY;
 }
 
+QStringList QtTestFramework::testNameForSymbolName(const QString &symbolName) const
+{
+    int index = symbolName.lastIndexOf("::");
+    if (index == -1)
+        return {};
+    return { symbolName.left(index), symbolName.mid(index + 2) };
+}
+
 } // namespace Internal
 } // namespace Autotest
