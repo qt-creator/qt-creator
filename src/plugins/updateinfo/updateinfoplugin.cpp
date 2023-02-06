@@ -192,6 +192,8 @@ void UpdateInfoPlugin::startCheckForUpdates()
 
 void UpdateInfoPlugin::stopCheckForUpdates()
 {
+    emit checkForUpdatesRunningChanged(false);
+
     if (!d->m_maintenanceToolProcess)
         return;
 
@@ -199,7 +201,6 @@ void UpdateInfoPlugin::stopCheckForUpdates()
     d->m_maintenanceToolProcess.reset();
     d->m_updateOutput.clear();
     d->m_packagesOutput.clear();
-    emit checkForUpdatesRunningChanged(false);
 }
 
 static void showUpdateInfo(const QList<Update> &updates, const std::function<void()> &startUpdater)
