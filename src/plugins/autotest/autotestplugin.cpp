@@ -438,6 +438,24 @@ void AutotestPluginPrivate::onRunUnderCursorTriggered(TestRunMode mode)
     m_testRunner.runTests(mode, testsToRun);
 }
 
+TestFrameworks AutotestPlugin::activeTestFrameworks()
+{
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
+    TestFrameworks sorted;
+    if (!project || projectSettings(project)->useGlobalSettings()) {
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 &ITestFramework::active);
+    } else { // we've got custom project settings
+        const TestProjectSettings *settings = projectSettings(project);
+        const QHash<ITestFramework *, bool> active = settings->activeFrameworks();
+        sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
+                                 [active](ITestFramework *framework) {
+            return active.value(framework, false);
+        });
+    }
+    return sorted;
+}
+
 void AutotestPlugin::updateMenuItemsEnabledState()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();

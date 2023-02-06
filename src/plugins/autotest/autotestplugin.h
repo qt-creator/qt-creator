@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "autotest_global.h"
+#include "itestframework.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -45,6 +45,7 @@ public:
 
     static TestSettings *settings();
     static TestProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    static TestFrameworks activeTestFrameworks();
     static void updateMenuItemsEnabledState();
     static void cacheRunConfigChoice(const QString &buildTargetKey, const ChoicePair &choice);
     static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
