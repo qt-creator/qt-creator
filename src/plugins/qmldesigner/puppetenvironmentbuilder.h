@@ -25,6 +25,7 @@ public:
         : m_target(target)
         , m_designerSettings(designerSettings)
         , m_model(model)
+        , m_qmlPuppetPath(qmlPuppetPath)
     {}
 
     QProcessEnvironment processEnvironment() const;
