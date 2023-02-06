@@ -67,7 +67,8 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         async.setFutureSynchronizer(&m_futureSynchronizer);
     };
     const auto onInfoGeneratorDone = [=](const AsyncTask<ProjectInfo::ConstPtr> &async) {
-        storage->projectInfo = async.result();
+        if (async.isResultAvailable())
+            storage->projectInfo = async.result();
     };
     QList<TaskItem> tasks{parallel};
     tasks.append(Async<ProjectInfo::ConstPtr>(setupInfoGenerator, onInfoGeneratorDone));

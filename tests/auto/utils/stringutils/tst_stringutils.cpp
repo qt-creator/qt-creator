@@ -69,10 +69,14 @@ private slots:
     void testWithTildeHomePath();
     void testMacroExpander_data();
     void testMacroExpander();
-    void testStripAccelerator();
     void testStripAccelerator_data();
-    void testParseUsedPortFromNetstatOutput();
+    void testStripAccelerator();
     void testParseUsedPortFromNetstatOutput_data();
+    void testParseUsedPortFromNetstatOutput();
+    void testJoinStrings_data();
+    void testJoinStrings();
+    void testTrim_data();
+    void testTrim();
 
 private:
     TestMacroExpander mx;
@@ -169,13 +173,6 @@ void tst_StringUtils::testMacroExpander()
     QCOMPARE(in, out);
 }
 
-void tst_StringUtils::testStripAccelerator()
-{
-    QFETCH(QString, expected);
-
-    QCOMPARE(Utils::stripAccelerator(QString::fromUtf8(QTest::currentDataTag())), expected);
-}
-
 void tst_StringUtils::testStripAccelerator_data()
 {
     QTest::addColumn<QString>("expected");
@@ -193,12 +190,11 @@ void tst_StringUtils::testStripAccelerator_data()
     QTest::newRow("Test&") << "Test";
 }
 
-void tst_StringUtils::testParseUsedPortFromNetstatOutput()
+void tst_StringUtils::testStripAccelerator()
 {
-    QFETCH(QString, line);
-    QFETCH(int, port);
+    QFETCH(QString, expected);
 
-    QCOMPARE(Utils::parseUsedPortFromNetstatOutput(line.toUtf8()), port);
+    QCOMPARE(Utils::stripAccelerator(QString::fromUtf8(QTest::currentDataTag())), expected);
 }
 
 void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
@@ -244,6 +240,94 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     QTest::newRow("Qnx8") << "Active Internet6 connections (including servers)"                                 <<    -1;
     QTest::newRow("Qnx9") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    "   <<    -1;
     QTest::newRow("QnxA") << "tcp6       0      0  *.22                   *.*                    LISTEN   "     <<    22;
+}
+
+void tst_StringUtils::testParseUsedPortFromNetstatOutput()
+{
+    QFETCH(QString, line);
+    QFETCH(int, port);
+
+    QCOMPARE(Utils::parseUsedPortFromNetstatOutput(line.toUtf8()), port);
+}
+
+struct JoinData
+{
+    QStringList input;
+    QString output = {};
+    QChar separator = '\n';
+};
+
+void tst_StringUtils::testJoinStrings_data()
+{
+    QTest::addColumn<JoinData>("data");
+
+    QTest::newRow("0") << JoinData{};
+
+    QTest::newRow("1") << JoinData{{"one"}, "one"};
+    QTest::newRow("1_Null") << JoinData{{{}}};
+    QTest::newRow("1_Empty") << JoinData{{""}};
+
+    QTest::newRow("2") << JoinData{{"first", "second"}, "first\nsecond"};
+    QTest::newRow("2_Null") << JoinData{{{}, {}}};
+    QTest::newRow("2_Empty") << JoinData{{"", ""}};
+    QTest::newRow("2_1stNull") << JoinData{{{}, "second"}, "second"};
+    QTest::newRow("2_1stEmpty") << JoinData{{"", "second"}, "second"};
+    QTest::newRow("2_2ndNull") << JoinData{{"first", {}}, "first"};
+    QTest::newRow("2_2ndEmpty") << JoinData{{"first", ""}, "first"};
+
+    QTest::newRow("3") << JoinData{{"first", "second", "third"}, "first\nsecond\nthird"};
+    QTest::newRow("3_Null") << JoinData{{{}, {}, {}}};
+    QTest::newRow("3_Empty") << JoinData{{"", "", ""}};
+    QTest::newRow("3_1stNull") << JoinData{{{}, "second", "third"}, "second\nthird"};
+    QTest::newRow("3_1stEmpty") << JoinData{{"", "second", "third"}, "second\nthird"};
+    QTest::newRow("3_2ndNull") << JoinData{{"first", {}, "third"}, "first\nthird"};
+    QTest::newRow("3_2ndEmpty") << JoinData{{"first", "", "third"}, "first\nthird"};
+    QTest::newRow("3_3rdNull") << JoinData{{"first", "second", {}}, "first\nsecond"};
+    QTest::newRow("3_3rdEmpty") << JoinData{{"first", "second", ""}, "first\nsecond"};
+    QTest::newRow("3_1stNonNull") << JoinData{{"first", {}, {}}, "first"};
+    QTest::newRow("3_1stNonEmpty") << JoinData{{"first", "", ""}, "first"};
+    QTest::newRow("3_2ndNonNull") << JoinData{{{}, "second", {}}, "second"};
+    QTest::newRow("3_2ndNonEmpty") << JoinData{{"", "second", ""}, "second"};
+    QTest::newRow("3_2ndNonNull") << JoinData{{{}, {}, "third"}, "third"};
+    QTest::newRow("3_3ndNonEmpty") << JoinData{{"", "", "third"}, "third"};
+
+    QTest::newRow("DotSeparator") << JoinData{{"first", "second"}, "first.second", '.'};
+}
+
+void tst_StringUtils::testJoinStrings()
+{
+    QFETCH(JoinData, data);
+
+    QCOMPARE(Utils::joinStrings(data.input, data.separator), data.output);
+}
+
+struct TrimData
+{
+    QString input;
+    QString front = {};
+    QString back = {};
+    QString bothSides = {};
+    QChar ch = ' ';
+};
+
+void tst_StringUtils::testTrim_data()
+{
+    QTest::addColumn<TrimData>("data");
+
+    QTest::newRow("Empty") << TrimData{};
+    QTest::newRow("AllToRemove") << TrimData{"   "};
+    QTest::newRow("BothSides") << TrimData{" foo ", "foo ", " foo", "foo"};
+    QTest::newRow("BothSidesLong") << TrimData{"  foo  ", "foo  ", "  foo", "foo"};
+    QTest::newRow("CharInside") << TrimData{"  foo bar  ", "foo bar  ", "  foo bar", "foo bar"};
+}
+
+void tst_StringUtils::testTrim()
+{
+    QFETCH(TrimData, data);
+
+    QCOMPARE(Utils::trimFront(data.input, data.ch), data.front);
+    QCOMPARE(Utils::trimBack(data.input, data.ch), data.back);
+    QCOMPARE(Utils::trim(data.input, data.ch), data.bothSides);
 }
 
 QTEST_GUILESS_MAIN(tst_StringUtils)

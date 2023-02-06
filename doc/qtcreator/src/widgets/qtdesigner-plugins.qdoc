@@ -53,7 +53,7 @@
 
     On \macos, a GUI application must be built and run from a bundle. A bundle
     is a directory structure that appears as a single entity when viewed in the
-    Finder. A bundle for an application typically contains the executable and
+    Finder. A bundle for an application typically has the executable and
     all the resources it needs.
 
     \QC uses its own set of Qt Libraries located in the bundle, and therefore,

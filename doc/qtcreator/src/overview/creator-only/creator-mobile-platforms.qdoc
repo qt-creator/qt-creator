@@ -27,11 +27,11 @@
 
     \section1 Android
 
-    Starting from Qt 5.14.0, the Qt for Android package contains all the
+    Starting from Qt 5.14.0, the Qt for Android package has all the
     architectures (ABIs) installed as one. You can let \QC automatically
     create kits for installed Qt version and tool chains.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for Android devices:
 
     \list
@@ -50,7 +50,7 @@
     iOS. \QC automatically detects the tool chain and creates the necessary
     kits to build applications for and run them on configured iOS devices.
 
-    The following topics contain more information about developing applications
+    The following topics have more information about developing applications
     for iOS devices:
 
     \list

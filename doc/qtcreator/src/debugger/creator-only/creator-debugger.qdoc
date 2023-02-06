@@ -295,7 +295,7 @@
         \li In the \uicontrol {Core file} field, specify the core file to
             inspect.
         \li In the \uicontrol {Executable of symbol file} field, specify
-            a file that contains debug information corresponding to the
+            a file that has debug information corresponding to the
             core file. Typically, this is the executable file or a \c {.debug}
             file if the debug information is stored separately from the
             executable.
@@ -305,7 +305,7 @@
             the \c sysroot to use instead of the default \c sysroot.
     \endlist
 
-    Also in this mode, using a properly configured project containing the
+    Also in this mode, using a properly configured project that has the
     sources of the crashed program is not strictly necessary, but helpful.
 
     \section2 Launching in Post-Mortem Mode
@@ -430,7 +430,7 @@
     \list 1
 
         \li Install the \e{Debugging Tools for Windows} on the remote machine.
-            The installation folder contains the CDB command line executable
+            The installation folder has the CDB command line executable
             (\c cdb.exe).
 
         \li Copy the \QC CDB extension library and the dependencies from the Qt installation
@@ -610,7 +610,7 @@
 
        \li To continue running the program, press \key F5.
 
-       \li To run to the line containing the cursor, press \key {Ctrl+F10}
+       \li To run to the line that has the cursor, press \key {Ctrl+F10}
            (\key {Shift+F8} on \macos).
 
        \li To run to the selected function when you are stepping into a nested
@@ -700,7 +700,7 @@
     \section2 Stepping into Frameworks in \macos
 
     In \macos, external libraries are usually built into so-called Frameworks,
-    which may contain both release and debug versions of the library. When you
+    which may have both release and debug versions of the library. When you
     run applications on the \macos desktop, the release version of Frameworks is
     used by default. To step into Frameworks, select the
     \uicontrol {Use debug versions of Frameworks} option in the project run
@@ -723,7 +723,7 @@
     In addition, the view displays symbols within the modules and indicates
     where each module was loaded.
 
-    Right-click the view to open a context menu that contains menu items for:
+    Right-click the view to open a context menu that has menu items for:
 
     \list
 
@@ -756,7 +756,7 @@
     the source file is actually part of the project, or whether it was compiled
     elsewhere. The view shows the path to each file in the file system.
 
-    Right-click the view to open a context menu that contains menu items for
+    Right-click the view to open a context menu that has menu items for
     reloading data and opening files.
 
     To enable the debugger to step into the code and display the source code
@@ -802,7 +802,7 @@
     \omit
     \section2 Creating Snapshots
 
-    A snapshot contains the complete state of the debugged program at a time,
+    A snapshot has the complete state of the debugged program at a time,
     including the full memory contents.
 
     To create snapshots of a debugged program, select \uicontrol {Create Snapshot}
@@ -934,7 +934,7 @@
     \QC application package, where it is located in the
     \c Contents/resources/debugger folder.
 
-    The \c personaltypes.py file contains one example implementation:
+    The \c personaltypes.py file has one example implementation:
 
     \quotefromfile ../../../share/qtcreator/debugger/personaltypes.py
     \skipto qdump__
@@ -997,7 +997,7 @@
 
     \list
 
-        \li \c d of type \c Dumper, an object containing the current settings and
+        \li \c d of type \c Dumper, an object that has the current settings and
             providing facilities to build up an object representing a part of
             the \uicontrol Locals and \uicontrol Expressions views.
 
@@ -1112,7 +1112,7 @@
 
     \section3 Dumper Class
 
-    The \c Dumper class contains generic bookkeeping, low-level, and convenience
+    The \c Dumper class has generic bookkeeping, low-level, and convenience
     functions:
 
     \list
@@ -1476,7 +1476,7 @@
     inferior stopped because it received a signal from the operating system.
     Signal name:? signal meaning: Unknown signal.}
 
-    Some versions of Avira AntiVir Desktop-Products contain known issues in
+    Some versions of Avira AntiVir Desktop-Products have known issues in
     various development environments, including \QC. To fix the problem,
     Avira instructs you to update to version \c {avipbb.sys 10.0.22.22}. For
     more information, see
@@ -1489,7 +1489,7 @@
 
     \section1 Debugger Does Not Hit Breakpoints
 
-    You might have created a release build that does not contain debug
+    You might have created a release build that does not have debug
     information. A GNU Compiler Collection (GCC) debug build has the \c {-g}
     option on the compiler command line. Check that this option is present in
     the \l {Compile Output}. If it is not, adjust your build
@@ -1570,7 +1570,7 @@
 
     \section2 Disabling Incremental Linking
 
-    Incremental linking can affect debugging. If the debugger log contains
+    Incremental linking can affect debugging. If the debugger log has
     the \e {Unable to verify checksum of module} message, disable incremental
     linking.
 

@@ -874,7 +874,7 @@ void SideBySideDiffEditorWidget::showDiff()
     m_controller.setBusyShowing(true);
 
     connect(m_asyncTask.get(), &AsyncTaskBase::done, this, [this] {
-        if (m_asyncTask->isCanceled()) {
+        if (m_asyncTask->isCanceled() || !m_asyncTask->isResultAvailable()) {
             for (SideDiffEditorWidget *editor : m_editor)
                 editor->clearAll(Tr::tr("Retrieving data failed."));
         } else {

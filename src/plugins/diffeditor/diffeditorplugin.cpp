@@ -109,24 +109,25 @@ DiffFilesController::DiffFilesController(IDocument *document)
     setDisplayName(Tr::tr("Diff"));
     using namespace Tasking;
 
-    const TreeStorage<QList<FileData>> storage;
+    const TreeStorage<QList<std::optional<FileData>>> storage;
 
     const auto setupTree = [this, storage](TaskTree &taskTree) {
-        QList<FileData> *outputList = storage.activeStorage();
+        QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
         const auto setupDiff = [this](AsyncTask<FileData> &async, const ReloadInput &reloadInput) {
             async.setAsyncCallData(DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
             async.setFutureSynchronizer(Internal::DiffEditorPlugin::futureSynchronizer());
         };
         const auto onDiffDone = [outputList](const AsyncTask<FileData> &async, int i) {
-            (*outputList)[i] = async.result();
+            if (async.isResultAvailable())
+                (*outputList)[i] = async.result();
         };
 
         const QList<ReloadInput> inputList = reloadInputList();
         outputList->resize(inputList.size());
 
         using namespace std::placeholders;
-        QList<TaskItem> tasks {parallel, continueOnDone};
+        QList<TaskItem> tasks {parallel, optional};
         for (int i = 0; i < inputList.size(); ++i) {
             tasks.append(Async<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
                                          std::bind(onDiffDone, _1, i)));
@@ -134,7 +135,13 @@ DiffFilesController::DiffFilesController(IDocument *document)
         taskTree.setupRoot(tasks);
     };
     const auto onTreeDone = [this, storage] {
-        setDiffFiles(*storage.activeStorage());
+        const QList<std::optional<FileData>> &results = *storage.activeStorage();
+        QList<FileData> finalList;
+        for (const std::optional<FileData> &result : results) {
+            if (result.has_value())
+                finalList.append(*result);
+        }
+        setDiffFiles(finalList);
     };
     const auto onTreeError = [this, storage] {
         setDiffFiles({});

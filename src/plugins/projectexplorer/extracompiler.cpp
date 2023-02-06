@@ -340,7 +340,7 @@ Tasking::TaskItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &prov
         async.setFutureSynchronizer(futureSynchronizer());
     };
     const auto taskDone = [=](const AsyncTask<FileNameToContentsHash> &async) {
-        if (async.results().size() == 0)
+        if (!async.isResultAvailable())
             return;
         const FileNameToContentsHash data = async.result();
         if (data.isEmpty())

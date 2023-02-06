@@ -129,7 +129,7 @@
         \li \e Initial state is the state the state machine enters when it
             starts.
 
-        \li \e {Parallel state} contains child states that execute in parallel
+        \li \e {Parallel state} has child states that execute in parallel
             and are all active simultaneously. Events are processed
             independently by each child state and may trigger different
             transitions for each child.

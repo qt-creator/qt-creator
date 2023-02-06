@@ -126,11 +126,6 @@ public:
 
 class DIFFEDITOR_EXPORT DiffUtils {
 public:
-    enum PatchFormattingFlags {
-        AddLevel = 0x1, // Add 'a/' , '/b' for git am
-        GitFormat = AddLevel | 0x2, // Add line 'diff ..' as git does
-    };
-
     static ChunkData calculateOriginalData(const QList<Utils::Diff> &leftDiffList,
                                            const QList<Utils::Diff> &rightDiffList);
     static FileData calculateContextData(const ChunkData &originalData,
@@ -146,8 +141,7 @@ public:
                              const QString &leftFileName,
                              const QString &rightFileName,
                              bool lastChunk = false);
-    static QString makePatch(const QList<FileData> &fileDataList,
-                             unsigned formatFlags = 0);
+    static QString makePatch(const QList<FileData> &fileDataList);
     static QList<FileData> readPatch(const QString &patch,
                                      bool *ok = nullptr,
                                      QFutureInterfaceBase *jobController = nullptr);

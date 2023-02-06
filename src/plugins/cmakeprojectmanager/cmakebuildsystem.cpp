@@ -1241,8 +1241,8 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 
         if (it != cm.cend()) {
             const QByteArray initialValue = initialConfig.expandedValueOf(kit(), var).toUtf8();
-            const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
-            const FilePath path = FilePath::fromString(QString::fromUtf8(it->value));
+            const FilePath initialPath = FilePath::fromUserInput(QString::fromUtf8(initialValue));
+            const FilePath path = FilePath::fromUserInput(QString::fromUtf8(it->value));
 
             if (!initialValue.isEmpty() && !samePath(path, initialPath) && !path.exists()) {
                 CMakeConfigItem item(*it);
@@ -1267,11 +1267,11 @@ void CMakeBuildSystem::updateInitialCMakeExpandableVars()
             const QByteArrayList initialValueList = initialConfig.expandedValueOf(kit(), var).toUtf8().split(';');
 
             for (const auto &initialValue: initialValueList) {
-                const FilePath initialPath = FilePath::fromString(QString::fromUtf8(initialValue));
+                const FilePath initialPath = FilePath::fromUserInput(QString::fromUtf8(initialValue));
 
                 const bool pathIsContained
                     = Utils::contains(it->value.split(';'), [samePath, initialPath](const QByteArray &p) {
-                          return samePath(FilePath::fromString(QString::fromUtf8(p)), initialPath);
+                          return samePath(FilePath::fromUserInput(QString::fromUtf8(p)), initialPath);
                       });
                 if (!initialValue.isEmpty() && !pathIsContained) {
                     CMakeConfigItem item(*it);

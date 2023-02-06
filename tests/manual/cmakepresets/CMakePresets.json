@@ -12,7 +12,7 @@
       "generator": "Ninja",
       "installDir": "../inst-${presetName}",
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "$env{SYSTEMDRIVE}/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SYSTEMDRIVE}/Qt/6.4.2/mingw_64"
       },
       "condition": {
         "type": "equals",
@@ -34,7 +34,7 @@
       "inherits" : "mingw",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.3.2/mingw_64"
+        "CMAKE_PREFIX_PATH": "$env{SystemDrive}/Qt/6.4.2/mingw_64"
       }
     },
     {
@@ -56,7 +56,7 @@
       },
       "environment" : {
         "HOST_SYSTEM_NAME": "Windows",
-        "QT_VERSION": "6.3.2"
+        "QT_VERSION": "6.4.2"
       }
     },
     {
@@ -64,7 +64,7 @@
       "displayName": "Visual C++ 2019 x64 Ninja",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "toolchainFile" : "c:/Qt/6.3.2/msvc2019_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile" : "c:/Qt/6.4.2/msvc2019_64/lib/cmake/Qt6/qt.toolchain.cmake",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       },
@@ -92,7 +92,7 @@
       "displayName": "Linux GCC",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build-${presetName}",
-      "toolchainFile" : "$env{HOME}/Qt/6.3.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
+      "toolchainFile" : "$env{HOME}/Qt/6.4.2/gcc_64/lib/cmake/Qt6/qt.toolchain.cmake",
       "condition" : {
         "type": "equals",
         "lhs": "${hostSystemName}",

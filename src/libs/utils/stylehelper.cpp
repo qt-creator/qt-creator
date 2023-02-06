@@ -726,4 +726,29 @@ bool StyleHelper::isReadableOn(const QColor &background, const QColor &foregroun
     return contrastRatio(background, foreground) > 3;
 }
 
+QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &desiredForeground)
+{
+    if (isReadableOn(background, desiredForeground))
+        return desiredForeground;
+
+    int h, s, v;
+    QColor foreground = desiredForeground;
+    foreground.getHsv(&h, &s, &v);
+    // adjust the color value to ensure better readability
+    if (luminance(background) < .5)
+        v = v + 64;
+    else if (v >= 64)
+        v = v - 64;
+    v %= 256;
+
+    foreground.setHsv(h, s, v);
+    if (!isReadableOn(background, foreground)) {
+        s = (s + 128) % 256;    // adjust the saturation to ensure better readability
+        foreground.setHsv(h, s, v);
+        if (!isReadableOn(background, foreground)) // we failed to create some better foreground
+            return desiredForeground;
+    }
+    return foreground;
+}
+
 } // namespace Utils

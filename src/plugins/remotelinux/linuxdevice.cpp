@@ -37,6 +37,7 @@
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMutex>
+#include <QReadWriteLock>
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QTemporaryDir>
@@ -359,6 +360,8 @@ public:
     RunResult runInShell(const CommandLine &cmdLine,
                          const QByteArray &stdInData) const override;
 
+    Environment deviceEnvironment() const override;
+
     LinuxDevicePrivate *m_dev;
 };
 
@@ -374,18 +377,58 @@ public:
     void attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                   const SshParameters &sshParameters);
 
+    Environment getEnvironment();
+    void invalidateEnvironmentCache();
+
     LinuxDevice *q = nullptr;
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
     mutable QMutex m_shellMutex;
     QList<QtcProcess *> m_terminals;
     LinuxDeviceFileAccess m_fileAccess{this};
+
+    QReadWriteLock m_environmentCacheLock;
+    std::optional<Environment> m_environmentCache;
 };
+
+void LinuxDevicePrivate::invalidateEnvironmentCache()
+{
+    QWriteLocker locker(&m_environmentCacheLock);
+    m_environmentCache.reset();
+}
+
+Environment LinuxDevicePrivate::getEnvironment()
+{
+    QReadLocker locker(&m_environmentCacheLock);
+    if (m_environmentCache.has_value())
+        return m_environmentCache.value();
+
+    locker.unlock();
+    QWriteLocker writeLocker(&m_environmentCacheLock);
+    if (m_environmentCache.has_value())
+        return m_environmentCache.value();
+
+    QtcProcess getEnvProc;
+    getEnvProc.setCommand({FilePath("env").onDevice(q->rootPath()), {}});
+    Environment inEnv;
+    inEnv.setCombineWithDeviceEnvironment(false);
+    getEnvProc.setEnvironment(inEnv);
+    getEnvProc.runBlocking();
+
+    const QString remoteOutput = getEnvProc.cleanedStdOut();
+    m_environmentCache = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+    return m_environmentCache.value();
+}
 
 RunResult LinuxDeviceFileAccess::runInShell(const CommandLine &cmdLine,
                                             const QByteArray &stdInData) const
 {
     return m_dev->runInShell(cmdLine, stdInData);
+}
+
+Environment LinuxDeviceFileAccess::deviceEnvironment() const
+{
+    return m_dev->getEnvironment();
 }
 
 // SshProcessImpl
@@ -597,11 +640,8 @@ void LinuxProcessInterface::handleDone(const ProcessResultData &resultData)
     ProcessResultData finalData = resultData;
     if (!m_pidParsed) {
         finalData.m_error = QProcess::FailedToStart;
-        if (!m_error.isEmpty()) {
-            if (!finalData.m_errorString.isEmpty())
-                finalData.m_errorString += "\n";
-            finalData.m_errorString += QString::fromLocal8Bit(m_error);
-        }
+        finalData.m_errorString = Utils::joinStrings({finalData.m_errorString,
+                                                      QString::fromLocal8Bit(m_error)}, '\n');
     }
     emit done(finalData);
 }
@@ -1110,6 +1150,8 @@ bool LinuxDevicePrivate::setupShell()
     const SshParameters sshParameters = q->sshParameters();
     if (m_handler->isRunning(sshParameters))
         return true;
+
+    invalidateEnvironmentCache();
 
     bool ok = false;
     QMetaObject::invokeMethod(m_handler, [this, sshParameters] {

@@ -167,7 +167,7 @@
 
     \section1 Indenting Other Text Files
 
-    To specify indentation settings for text files that do not contain C++ or
+    To specify indentation settings for text files that do not have C++ or
     QML code (such as Python code files), select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
 
@@ -238,7 +238,7 @@
     the cursor is located within leading white space, select \uicontrol {In
     Leading White Space}.
 
-    Your highlight definition file can contain definitions for both multi and
+    Your highlight definition file can have definitions for both multi and
     single line comments. To apply the single line comment definition when
     commenting out a selection, select \uicontrol {Prefer single line comments}.
 

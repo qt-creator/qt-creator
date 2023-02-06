@@ -81,6 +81,9 @@ public:
     QString value(const_iterator it) const { return m_dict.value(it); } // FIXME: avoid
     bool isEnabled(const_iterator it) const { return m_dict.isEnabled(it); } // FIXME: avoid
 
+    void setCombineWithDeviceEnvironment(bool combine) { m_combineWithDeviceEnvironment = combine; }
+    bool combineWithDeviceEnvironment() const { return m_combineWithDeviceEnvironment; }
+
     const_iterator constBegin() const { return m_dict.constBegin(); } // FIXME: avoid
     const_iterator constEnd() const { return m_dict.constEnd(); } // FIXME: avoid
     const_iterator constFind(const QString &name) const { return m_dict.constFind(name); } // FIXME: avoid
@@ -102,6 +105,7 @@ public:
 
 private:
     NameValueDictionary m_dict;
+    bool m_combineWithDeviceEnvironment = true;
 };
 
 class QTCREATOR_UTILS_EXPORT EnvironmentChange final

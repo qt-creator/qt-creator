@@ -76,7 +76,7 @@
 
     \section1 Finding Information in Qt Documentation
 
-    \QC, \QSDK and other Qt deliverables contain documentation
+    \QC, \QSDK and other Qt deliverables have documentation
     as .qch files. All the documentation is accessible in the \uicontrol Help mode.
 
     By default, \QC registers only the latest available version of the
@@ -135,9 +135,9 @@
     In the \uicontrol Search pane, you can use full-text search for finding a
     particular word in all the installed documents. Enter the term you are
     looking for, and select the \uicontrol Search button. All documents that
-    contain the specified term are listed. The list is sorted by document
+    have the specified term are listed. The list is sorted by document
     version (if you have installed several Qt versions, for example) and
-    the number of search hits that the documents contain. Select a document in
+    the number of search hits that the documents have. Select a document in
     the list to open it.
 
     \image qtcreator-help-search.png "Search pane"
@@ -146,16 +146,16 @@
 
     \list
 
-        \li \c deep lists all the documents that contain the word \c deep.
+        \li \c deep lists all the documents that have the word \c deep.
             The search is not case sensitive.
 
-        \li \c{deep*} lists all the documents that contain a word beginning
+        \li \c{deep*} lists all the documents that have a word beginning
             with \c deep
 
-        \li \c{deep copy} lists all documents that contain both \c deep and
+        \li \c{deep copy} lists all documents that have both \c deep and
             \c copy
 
-        \li \c{"deep copy"} lists all documents that contain the phrase
+        \li \c{"deep copy"} lists all documents that have the phrase
             \c{deep copy}
 
     \endlist
@@ -169,7 +169,7 @@
     \inlineimage icons/reload_gray.png
     (\uicontrol {Regenerate Index}).
 
-    Punctuation is not included in indexed terms. To find terms that contain
+    Punctuation is not included in indexed terms. To find terms that have
     punctuation, such as domain names, use the asterisk as a wild card. For
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
 

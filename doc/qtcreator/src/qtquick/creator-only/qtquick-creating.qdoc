@@ -27,21 +27,21 @@
         \row
             \li Application (Qt)
             \li Qt Quick Application
-            \li Creates a Qt Quick 2 application project that can contain both
+            \li Creates a Qt Quick 2 application project that can have both
                 QML and C++ code. You can build the application and deploy it
                 to desktop, embedded, and mobile target platforms.
         \row
             \li Application (Qt for Python)
             \li Qt for Python - Qt Quick Application
-            \li Creates a Python project that contains an empty Qt Quick
+            \li Creates a Python project that has an empty Qt Quick
                 Application.
         \row
             \li Other Project
             \li Qt Quick UI Prototype
             \li Creates a Qt Quick UI project with a single QML file that
-                contains the main view. You can preview Qt Quick 2 UI projects
+                has the main view. You can preview Qt Quick 2 UI projects
                 in the QML Scene preview tool. You do not need to build them
-                because they do not contain any C++ code.
+                because they do not have any C++ code.
 
                 This project type is compatible with \QDS. However, use this
                 template only if you are prototyping. You cannot create
@@ -146,7 +146,7 @@
     Qt Quick UI Prototype projects are useful for testing or prototyping user
     interfaces,
     or for setting up a separate project just for QML editing, for example. You
-    cannot use them for application development because they do not contain:
+    cannot use them for application development because they do not have:
 
     \list
         \li C++ code

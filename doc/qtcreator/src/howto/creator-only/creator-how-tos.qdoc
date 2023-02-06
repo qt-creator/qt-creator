@@ -257,13 +257,13 @@
 
     \section1 Add a license header template for C++ code
 
-    Specify a file containing a license header for C++ in \uicontrol Edit >
+    Specify a file that has a license header for C++ in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol C++ > \uicontrol {File Naming} >
     \uicontrol {License template}.
 
     \image qtcreator-options-cpp-files.png "File Naming preferences"
 
-    The license file may contain special placeholders enclosed
+    The license file may have special placeholders enclosed
     in \c{%%} that are replaced when generating a new file:
 
     \list 1

@@ -170,7 +170,7 @@
 
     \list
 
-        \li Text snippets, which can contain any text string. For example, code
+        \li Text snippets, which can have any text string. For example, code
             comments
 
         \if defined(qtcreator)

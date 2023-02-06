@@ -9,6 +9,7 @@
 #include <utils/processinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/stringutils.h>
 
 using namespace Utils;
 
@@ -50,13 +51,13 @@ void SshDeviceProcessList::handleProcessDone()
     if (d->m_process.result() == ProcessResult::FinishedWithSuccess) {
         reportProcessListUpdated(buildProcessList(d->m_process.cleanedStdOut()));
     } else {
-        const QString errorMessage = d->m_process.exitStatus() == QProcess::NormalExit
+        const QString errorString = d->m_process.exitStatus() == QProcess::NormalExit
                 ? Tr::tr("Process listing command failed with exit code %1.").arg(d->m_process.exitCode())
                 : d->m_process.errorString();
         const QString stdErr = d->m_process.cleanedStdErr();
-        const QString fullMessage = stdErr.isEmpty()
-                ? errorMessage : errorMessage + '\n' + Tr::tr("Remote stderr was: %1").arg(stdErr);
-        reportError(fullMessage);
+        const QString outputString
+            = stdErr.isEmpty() ? stdErr : Tr::tr("Remote stderr was: %1").arg(stdErr);
+        reportError(Utils::joinStrings({errorString, outputString}, '\n'));
     }
     setFinished();
 }

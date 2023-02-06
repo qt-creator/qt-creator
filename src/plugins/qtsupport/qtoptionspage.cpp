@@ -252,6 +252,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_nameEdit = new QLineEdit;
 
     m_qmakePath = new QLabel;
+    m_qmakePath->setObjectName("qmakePath"); // for Squish
     m_qmakePath->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_qmakePath->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
 

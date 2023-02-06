@@ -48,7 +48,7 @@
 
     The default convention on Windows is that the debug and release versions
     of a library have the same name, but are placed in different subdirectories,
-    usually called \e debug and \e release. If the library path does not contain
+    usually called \e debug and \e release. If the library path does not have
     either of these folders, you cannot select the option to place the libraries
     in separate folders.
 

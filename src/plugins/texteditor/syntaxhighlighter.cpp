@@ -478,8 +478,7 @@ void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int 
                                             const QTextCharFormat &format)
 {
     Q_D(const SyntaxHighlighter);
-    QTextCharFormat visualSpaceFormat = d->whitespaceFormat;
-    visualSpaceFormat.setBackground(format.background());
+    const QTextCharFormat visualSpaceFormat = whitespacified(format);
 
     const int end = std::min(start + count, int(text.length()));
     int index = start;
@@ -807,6 +806,14 @@ QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
     QTC_ASSERT(d->formats.size() > category, return QTextCharFormat());
 
     return d->formats.at(category);
+}
+
+QTextCharFormat SyntaxHighlighter::whitespacified(const QTextCharFormat &fmt)
+{
+    Q_D(SyntaxHighlighter);
+    QTextCharFormat format = d->whitespaceFormat;
+    format.setBackground(fmt.background());
+    return format;
 }
 
 void SyntaxHighlighter::highlightBlock(const QString &text)

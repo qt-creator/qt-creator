@@ -34,6 +34,7 @@
 #include "cppcompletion_test.h"
 #include "cppdoxygen_test.h"
 #include "cppheadersource_test.h"
+#include "cpphighlighter.h"
 #include "cppincludehierarchy_test.h"
 #include "cppinsertvirtualmethods.h"
 #include "cpplocalsymbols_test.h"
@@ -566,6 +567,7 @@ QVector<QObject *> CppEditorPlugin::createTestObjects() const
         new CodegenTest,
         new CompilerOptionsBuilderTest,
         new CompletionTest,
+        new CppHighlighterTest,
         new FunctionUtilsTest,
         new HeaderPathFilterTest,
         new HeaderSourceTest,

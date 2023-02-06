@@ -57,7 +57,7 @@
 
     \section1 Additional Build Commands
 
-    The \uicontrol Build menu contains additional commands for building,
+    The \uicontrol Build menu has additional commands for building,
     rebuilding, and cleaning projects.
 
     To build the current project in all its configurations, that

@@ -16,7 +16,7 @@
 
     \l{Qt for Android} has binaries for armv7a, arm64-v8a, x86, and x86-64.
     To support several different ABIs in your application, build an AAB that
-    contains binaries for each of the ABIs. The Google Play store uses the
+    has binaries for each of the ABIs. The Google Play store uses the
     AAB to generate optimized APK packages for the devices issuing the download
     request and automatically signs them with your publisher key.
 
@@ -166,19 +166,19 @@
 
     You can use \QC to generate a keystore and a \e {self-signed} certificate.
     The generated certificate has the structure of an X.509 v3 digital
-    certificate. It contains information about the version, serial number, and
+    certificate. It has information about the version, serial number, and
     validity period of the certificate, the ID of the algorithm that is used to
     encrypt the data, the organization that issued the certificate, and the
     \e subject (owner) of the certificate. In case of a self-signed certificate,
     the issuer and owner of the certificate are the same. In addition, the
-    certificate contains information about the algorithm that is used to sign
+    certificate has information about the algorithm that is used to sign
     the certificate, as well as the signature of the certificate.
 
     The keystore is protected by a password. In addition, you can protect each
     alias with its individual password.
 
     When you sign an Android application, you must select a keystore that
-    contains certificates and a certificate alias from the keystore. The public
+    has certificates and a certificate alias from the keystore. The public
     key (certificate) for the alias is embedded into the APK during signing.
 
     To create a keystore and a self-signed certificate:
@@ -186,7 +186,7 @@
     \list 1
 
         \li In the \uicontrol Keystore field, select \uicontrol Create to create
-            a new keystore that contains one key pair in the
+            a new keystore that has one key pair in the
             \uicontrol {Create a Keystore and a Certificate} dialog:
 
             \image qtcreator-android-certificate.png
@@ -221,7 +221,7 @@
             keystore.
 
         \li In the \uicontrol {Certificate alias} field, select an alias from the list
-            of key pairs that the keystore contains.
+            of key pairs that the keystore has.
 
         \li Select the \uicontrol {Sign package} check box to use the alias to
             sign the Android package.

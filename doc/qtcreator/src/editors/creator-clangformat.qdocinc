@@ -18,11 +18,11 @@
     {Beautifier} because combining them can provide unexpected results.
 
     You can use Clang Format to enforce a coding style for a project or the
-    whole organization. Create a \c {.clang-format} file that contains the
+    whole organization. Create a \c {.clang-format} file that has the
     \l{https://clang.llvm.org/docs/ClangFormatStyleOptions.html}
     {Clang Format Style Options} to use and save it in the root folder of the
     project or one of its parent folders. The plugin searches for the Clang
-    format file recursively from the directory that contains the source file
+    format file recursively from the directory that has the source file
     up to the file system root.
 
     To override the \c {.clang-format} file globally for all projects, select
@@ -49,7 +49,7 @@
     \uicontrol {ClangFormat} >
     \uicontrol {Override Clang Format configuration file}.
 
-    You can create \c {.clang-format} files that contain the configuration
+    You can create \c {.clang-format} files that have the configuration
     options of a certain predefined style from the command line. For example,
     to create a format file for the LLVM style, enter the following command:
 

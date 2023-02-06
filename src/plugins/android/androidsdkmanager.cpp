@@ -694,8 +694,9 @@ AndroidSdkPackage *SdkManagerOutputParser::parsePlatform(const QStringList &data
             return nullptr;
         }
         platform = new SdkPlatform(packageData.revision, data.at(0), apiLevel);
-        platform->setDescriptionText(packageData.description);
+        platform->setExtension(convertNameToExtension(packageData.headerParts.at(1)));
         platform->setInstalledLocation(packageData.installedLocation);
+        platform->setDescriptionText(packageData.description);
     } else {
         qCDebug(sdkManagerLog) << "Platform: Parsing failed. Minimum required data unavailable:"
                                << data;

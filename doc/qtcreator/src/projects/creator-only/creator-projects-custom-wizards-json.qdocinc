@@ -62,7 +62,7 @@
 
     \section1 Creating Wizards
 
-    \QC contains wizards for adding classes, files, and projects. You can
+    \QC has wizards for adding classes, files, and projects. You can
     use them as basis for adding your own wizards. We use the C++ wizard
     to explain the process and the sections and settings in the .json file.
 
@@ -222,7 +222,7 @@
 
             \endlist
 
-            \li The \c options section contains an array of objects with \e key
+            \li The \c options section has an array of objects with \e key
                 and \e value attributes. You can define your own variables to
                 use in the configuration and template source files, in addition
                 to the predefined variables. For example, the C++ class creation
@@ -302,7 +302,7 @@
 
                     \li \c data specifies the wizard pages. In the C++ wizard,
                         it specifies a \c Fields page and a \c Summary page. The
-                        \c Fields page contains the \c CheckBox, \c ComboBox,
+                        \c Fields page has the \c CheckBox, \c ComboBox,
                         \c LineEdit, \c PathChooser, and \c Spacer widgets. For
                         more information about the widgets, see
                         \l{Available Widgets}.
@@ -364,10 +364,10 @@
         \li \c Features lists all features available via any of the kits
             configured in \QC.
 
-        \li \c Plugins contains a list of all plugins running in the current
+        \li \c Plugins has a list of all plugins running in the current
             instance of \QC.
 
-        \li \c Platform contains the platform selected in the \uicontrol File >
+        \li \c Platform has the platform selected in the \uicontrol File >
             \uicontrol {New Project} or \uicontrol {New File} dialog. This value
             may be empty.
     \endlist
@@ -378,7 +378,7 @@
     \list
         \li \c InitialPath with the path to the selected node.
 
-        \li \c ProjectExplorer.Profile.Ids contains a list of Kits configured
+        \li \c ProjectExplorer.Profile.Ids has a list of Kits configured
             for the project of the selected node.
     \endlist
 
@@ -389,7 +389,7 @@
 
     \section2 Field Page
 
-    A Field page has the \c typeId value \c Field and contains widgets. For more
+    A Field page has the \c typeId value \c Field and has widgets. For more
     information about widget definitions, see \l{Available Widgets}.
 
     \code
@@ -451,7 +451,7 @@
     \section2 Kits
 
     A Kits page has the \c typeId value \c Kits. The \c data section of a Kits
-    page contains an object with the following settings:
+    page has an object with the following settings:
 
     \list
         \li \c projectFilePath with the path to the project file.
@@ -493,7 +493,7 @@
 
     \section2 Project
 
-    A Project page has the \c typeId value \c Project. It contains no data or an
+    A Project page has the \c typeId value \c Project. It has no data or an
     object with the \c trDescription property which will be shown on the
     generated page. \c trDescription defaults to \c {%\{trDescription\}}, which
     is filled in with the information taken from the \c trDescription
@@ -513,7 +513,7 @@
 
     \section2 Summary
 
-    A Summary page has the \c typeId value \c Summary. It contains no data or
+    A Summary page has the \c typeId value \c Summary. It has no data or
     an empty object.
 
     \code
@@ -722,9 +722,9 @@
     \list
 
         \li \c items specifies a list of items to put into the list type. The
-            list can contain both JSON objects and plain strings.
+            list can have both JSON objects and plain strings.
             For JSON objects, define \c trKey and \c value pairs, where the
-            \c trKey is the list item visible to users and \c value contains
+            \c trKey is the list item visible to users and \c value has
             the data associated with the item.
             In addition, you can use \c icon to specify an icon for the list
             item and \c trToolTip to specify a tooltip for it.
@@ -758,7 +758,7 @@
         \li \c wordWrap is set to \c true to enable word wrap. By default, it is
              set to \c{false}.
 
-        \li \c trText contains the label text to display.
+        \li \c trText has the label text to display.
 
     \endlist
 
@@ -811,7 +811,7 @@
             case.
 
         \li \c isPassword is a boolean value that specifies that the line edit
-            contains a password, which will be masked.
+            has a password, which will be masked.
 
         \li \c historyId is a key that specifies the name for a list of items
             for the history completer. This value and \c completion are
@@ -908,7 +908,7 @@
 
     \list
         \li \c source specifies the path and filename of the template file
-            relative to the directory containing the \c {wizard.json} file.
+            relative to the directory that has the \c {wizard.json} file.
 
             If \c source is unset, it is assumed that the file with the name
             given in \c target is generated by some other means. This is useful

@@ -125,7 +125,7 @@
             the tool in the system environment or the \l{Build Environment}
             {build environment} or \l {Selecting the Run Environment}
             {run environment} of the active project. Select the build or run
-            environment if the system environment does not contain the necessary
+            environment if the system environment does not have the necessary
             PATH settings to find the tool chain, for example.
         \else
         \li In the \uicontrol {Base environment} field, use the default settings.

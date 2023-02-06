@@ -23,9 +23,9 @@
     You need to set up the debugger only if the automatic setup fails because
     the native debugger is missing (as is usually the case for the CDB debugger
     on Windows, which you always must install yourself) or because the installed
-    version is not supported (for example, when your system contains no, or an
-    outdated version of GDB and you want to use a locally installed replacement
-    instead).
+    version is not supported. For example, when your system does not have GDB
+    installed or the installed version is outdated, and you want to use a locally
+    installed replacement instead.
 
     \note If you need to change the debugger to use for an automatically
     detected \l{glossary-buildandrun-kit}{kit}, you can \uicontrol Clone the
@@ -194,7 +194,7 @@
 
     \section2 Debugging Tools for \macos
 
-    The Qt binary distribution contains both debug and release
+    The Qt binary distribution has both debug and release
     variants of the libraries. But you have to explicitly tell the
     runtime linker that you want to use the debug libraries even if
     your application is compiled as debug, as release is the default

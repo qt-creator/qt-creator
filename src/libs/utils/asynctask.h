@@ -66,8 +66,9 @@ public:
     bool isCanceled() const { return m_watcher.isCanceled(); }
 
     QFuture<ResultType> future() const { return m_watcher.future(); }
-    ResultType result() const { return m_watcher.result(); } // TODO: warn when isRunning?
-    QList<ResultType> results() const { return m_watcher.future().results(); }
+    ResultType result() const { return m_watcher.result(); }
+    QList<ResultType> results() const { return future().results(); }
+    bool isResultAvailable() const { return future().resultCount(); }
 
 private:
     StartHandler m_startHandler;

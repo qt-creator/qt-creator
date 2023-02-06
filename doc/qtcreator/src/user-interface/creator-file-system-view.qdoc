@@ -53,7 +53,7 @@
         \li Open a project located in the selected directory.
         \li Show the file or directory in the file explorer.
         \li Open a terminal window in the selected directory or in the directory
-            that contains the file. To specify the terminal to use on Linux and
+            that has the file. To specify the terminal to use on Linux and
             \macos, select \uicontrol Edit > \uicontrol Preferences >
             \uicontrol Environment > \uicontrol System.
         \li Search from the selected directory.
@@ -83,7 +83,7 @@
 
     \image qtcreator-filesystem-view.webp "File System view in the sidebar"
     \else
-    The toolbar in the \uicontrol {File System} view contains additional
+    The toolbar in the \uicontrol {File System} view has additional
     options.
     \endif
 

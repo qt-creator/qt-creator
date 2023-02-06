@@ -22,12 +22,12 @@
         \row
             \li Build configuration
                 \target glossary-build-config
-            \li Contains all the information you need to compile the sources
+            \li Has all the information you need to compile the sources
                 into binaries. Different build configurations allow you to
                 quickly build the project for different purposes.
                 By default, \QC creates \e {debug build} and \e {release build}
                 configurations for each \e {kit} defined for your project.
-                A debug build contains
+                A debug build has
                 additional debug symbols that you need for debugging the
                 application but that you can leave out from the release version.
                 Generally, you use the debug configuration for testing and the
@@ -48,10 +48,10 @@
             \li Component
                 \target glossary-component
             \li An instantiable QML definition, typically
-                contained in a .qml file. For instance, a Button component may
-                be defined in Button.qml. The QML runtime may instantiate this
-                Button component to create Button objects. Alternatively, a
-                component may be defined inside a \l{Component} QML type.
+                in a .qml file. For instance, you can define a Button component
+                in Button.qml. The QML runtime may instantiate this
+                Button component to create Button objects. Alternatively, you may
+                define a component in a \l{Component} QML type.
 
         \row
             \li Deploy configuration

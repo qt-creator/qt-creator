@@ -156,7 +156,7 @@
     the reachable blocks in the results file.
 
     Select \uicontrol {Fuzzy Detect Leak Types} to mark memory blocks
-    \e reachable or \e {indirectly lost} if they contain references to any
+    \e reachable or \e {indirectly lost} if they have references to any
     address. This option is useful when used with some custom allocators (such
     as \c av_malloc() in \c ffmpeg) that keep only an address somewhere inside
     the allocation block and do not refer directly to the start of an allocated

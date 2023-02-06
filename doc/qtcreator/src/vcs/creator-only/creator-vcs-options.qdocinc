@@ -21,7 +21,7 @@
     field.
 
     For some version control systems, you can specify the maximum number of
-    lines the log can contain in the \uicontrol {Log count} field.
+    lines the log can have in the \uicontrol {Log count} field.
 
     After you set up the version control system, use the command line to check
     that everything works (for example, use the status command). If no issues

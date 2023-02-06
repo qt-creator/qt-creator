@@ -26,7 +26,7 @@
     matches the patterns specified for any MIME type. If no match is found, it
     checks the contents of the file for magic headers specified for the file.
 
-    The magic headers can contain the following types of values: string, host,
+    The magic headers can have the following types of values: string, host,
     big-endian, little-endian, and byte. \QC interprets the values according to
     the
     \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
@@ -92,7 +92,7 @@
     delete the pattern \c {*.dts} from the MIME type \c {audio/vnd.dts} (where
     it represents the digital surround audio file format), and add it to the
     \c {text/plain} MIME type. You can use the \uicontrol Filter field to find
-    the MIME type that currently contains a filename extension.
+    the MIME type that currently has a filename extension.
 
     To revert the changes you have made to the MIME type definitions,
     select \uicontrol {Reset MIME Types}. To revert the changes you have

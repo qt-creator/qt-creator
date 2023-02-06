@@ -27,10 +27,10 @@
     can set the interpreter to use by default.
 
     The Qt for Python Application wizards generate a \c {.pyproject} file that
-    lists the files in the Python project and a \c {.py} file that contains
+    lists the files in the Python project and a \c {.py} file that has
     some boilerplate code. In addition, the widget-based UI wizard creates a
-    \c {.ui} file that contains a \QD form, and the Qt Quick Application wizard
-    creates a \c {.qml} file that contains Qt Quick controls.
+    \c {.ui} file that has a \QD form, and the Qt Quick Application wizard
+    creates a \c {.qml} file that has Qt Quick controls.
 
     The \c{.pyproject} files are JSON-based configuration files that replace
     the previously used \c {.pyqtc} configuration files. You can still open and
@@ -38,7 +38,7 @@
     for new projects.
 
     The \uicontrol {Window UI} wizard enables you to
-    create a Python project that contains the source file for a class. Specify
+    create a Python project that has the source file for a class. Specify
     the PySide version, class name, base class, and and source file for the
     class.
 
@@ -147,7 +147,7 @@
    \section1 Creating Qt Quick Based Python Applications
 
     The \uicontrol {Qt for Python - Qt Quick Application - Empty} wizard enables
-    you to create a Python project that contains a main QML file. Specify the
+    you to create a Python project that has a main QML file. Specify the
     minimum PySide version to run the application.
 
     \image qtcreator-python-wizard-qml.png "Qt for Python wizard for creating an empty Qt Quick application"

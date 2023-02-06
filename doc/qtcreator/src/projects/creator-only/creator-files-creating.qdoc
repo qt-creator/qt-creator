@@ -31,7 +31,7 @@
         \row
             \li {1,3} Modeling
             \li State Chart
-            \li State Chart XML (SCXML) file that contains boilerplate
+            \li State Chart XML (SCXML) file that has boilerplate
                 code for state machines. You can use the classes in the
                 \l {Qt SCXML} module to embed state machines created from
                 the files in Qt applications.

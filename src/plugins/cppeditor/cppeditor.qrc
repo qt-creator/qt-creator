@@ -3,5 +3,6 @@
         <file>images/dark_qt_cpp.png</file>
         <file>images/dark_qt_h.png</file>
         <file>images/dark_qt_c.png</file>
+        <file>testcases/highlightingtestcase.cpp</file>
     </qresource>
 </RCC>

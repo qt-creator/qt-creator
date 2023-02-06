@@ -461,8 +461,7 @@ TaskAction TaskContainer::startChildren(int nextChild)
 {
     QTC_CHECK(isRunning());
     GuardLocker locker(m_runtimeData->m_startGuard);
-    const int childCount = m_constData.m_children.size();
-    for (int i = nextChild; i < childCount; ++i) {
+    for (int i = nextChild; i < m_constData.m_children.size(); ++i) {
         const int limit = m_runtimeData->currentLimit();
         if (i >= limit)
             break;
@@ -489,9 +488,8 @@ TaskAction TaskContainer::childDone(bool success)
 {
     QTC_CHECK(isRunning());
     const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
-    const bool shouldStop
-        = (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
-          | (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
+    const bool shouldStop = (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
+                         || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
     if (shouldStop)
         stop();
 
@@ -499,7 +497,7 @@ TaskAction TaskContainer::childDone(bool success)
     const bool updatedSuccess = m_runtimeData->updateSuccessBit(success);
     const TaskAction startAction
         = (shouldStop || m_runtimeData->m_doneCount == m_constData.m_children.size())
-              ? toTaskAction(updatedSuccess) : TaskAction::Continue;
+        ? toTaskAction(updatedSuccess) : TaskAction::Continue;
 
     if (isStarting())
         return startAction;
@@ -552,7 +550,7 @@ TaskAction TaskNode::start()
         invokeEndHandler(success);
         disconnect(m_task.get(), &TaskInterface::done, this, nullptr);
         m_task.release()->deleteLater();
-        QTC_ASSERT(parentContainer()->isRunning(), return);
+        QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
         if (parentContainer()->isStarting())
             *unwindAction = toTaskAction(success);
         else

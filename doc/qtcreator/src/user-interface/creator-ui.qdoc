@@ -116,7 +116,7 @@
     \section1 Customizing the Menu
 
     By default, top-level menu items \uicontrol Build, \uicontrol Debug, and
-    \uicontrol Analyze are not visible. These menu items contain options for
+    \uicontrol Analyze are not visible. These menu items have options for
     advanced functionality.
 
     To toggle the visibility of these menu items:

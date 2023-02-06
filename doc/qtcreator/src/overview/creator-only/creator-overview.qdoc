@@ -35,7 +35,7 @@
                 information as a compiler would need. It stores the information
                 in the project settings.
 
-                \QC contains templates for creating new projects. They guide
+                \QC has templates for creating new projects. They guide
                 you step-by-step through the project creation process, create
                 the necessary files, and specify settings depending on the
                 choices you make. For more information, see

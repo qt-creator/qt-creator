@@ -335,9 +335,11 @@ public:
                 yy += 18;
 
                 // Project path.
-                QString pathWithTilde = projectPath.withTildeHomePath();
+                const QString displayPath =
+                    projectPath.osType() == OsTypeWindows ? projectPath.displayName()
+                                                          : projectPath.withTildeHomePath();
                 painter->setPen(foregroundPrimaryColor);
-                painter->drawText(x1, yy, fm.elidedText(pathWithTilde, Qt::ElideMiddle, textSpace));
+                painter->drawText(x1, yy, fm.elidedText(displayPath, Qt::ElideMiddle, textSpace));
                 yy += 22;
             }
 
@@ -486,10 +488,12 @@ public:
 
         painter->setPen(themeColor(Theme::Welcome_ForegroundPrimaryColor));
         painter->setFont(sizedFont(13, option.widget));
-        QString pathWithTilde = projectPath.withTildeHomePath();
-        const QString pathWithTildeElided =
-                painter->fontMetrics().elidedText(pathWithTilde, Qt::ElideMiddle, textSpace);
-        painter->drawText(x + TEXT_OFFSET_HORIZONTAL, secondBase, pathWithTildeElided);
+        const QString displayPath =
+            projectPath.osType() == OsTypeWindows ? projectPath.displayName()
+                                                  : projectPath.withTildeHomePath();
+        const QString displayPathElided =
+            painter->fontMetrics().elidedText(displayPath, Qt::ElideMiddle, textSpace);
+        painter->drawText(x + TEXT_OFFSET_HORIZONTAL, secondBase, displayPathElided);
     }
 
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &idx) const final

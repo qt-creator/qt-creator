@@ -27,7 +27,7 @@
 
         \li \l{Developing Qt Quick Applications}
 
-            You can use wizards to create Qt Quick projects containing
+            You can use wizards to create Qt Quick projects that have
             boiler-plate code that you can edit in the \uicontrol Edit mode.
 
         \li \l{Developing Widget Based Applications}

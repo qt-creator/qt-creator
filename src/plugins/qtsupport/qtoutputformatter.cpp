@@ -16,6 +16,7 @@
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/outputformatter.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
 #include <QPlainTextEdit>
@@ -412,6 +413,16 @@ static QTextCharFormat blueFormat()
     return result;
 }
 
+static QTextCharFormat tweakedBlueFormat()
+{
+    // foreground gets tweaked when passing doAppendMessage()
+    QTextCharFormat tweakedBlue = blueFormat();
+    QColor foreground = tweakedBlue.foreground().color();
+    foreground = StyleHelper::ensureReadableOn(tweakedBlue.background().color(), foreground);
+    tweakedBlue.setForeground(foreground);
+    return tweakedBlue;
+}
+
 static QTextCharFormat greenFormat()
 {
     QTextCharFormat result;
@@ -440,12 +451,12 @@ void QtSupportPlugin::testQtOutputFormatter_appendMessage_data()
             << "blue da ba dee"
             << "blue da ba dee"
             << blueFormat()
-            << blueFormat();
+            << tweakedBlueFormat();
     QTest::newRow("ANSI color change")
             << "\x1b[38;2;0;0;127mHello"
             << "Hello"
             << QTextCharFormat()
-            << blueFormat();
+            << tweakedBlueFormat();
 }
 
 void QtSupportPlugin::testQtOutputFormatter_appendMessage()
@@ -500,7 +511,7 @@ void QtSupportPlugin::testQtOutputFormatter_appendMixedAssertAndAnsi()
              OutputFormatter::linkFormat(QTextCharFormat(), "file://test.cpp:123"));
 
     edit.moveCursor(QTextCursor::End);
-    QCOMPARE(edit.currentCharFormat(), blueFormat());
+    QCOMPARE(edit.currentCharFormat(), tweakedBlueFormat());
 }
 
 } // namespace QtSupport

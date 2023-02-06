@@ -97,7 +97,7 @@
     \list
 
         \li To import a keyboard shortcut mapping scheme, click \uicontrol Import
-            and select the .kms file containing the keyboard shortcut mapping scheme
+            and select the .kms file that has the keyboard shortcut mapping scheme
             you want to import.
 
         \li To export the current keyboard shortcut mapping scheme, click

@@ -154,5 +154,13 @@ int platformNameToApiLevel(const QString &platformName)
     return apiLevel;
 }
 
+QString convertNameToExtension(const QString &name)
+{
+    if (name.endsWith("ext4"))
+        return " Extension 4";
+
+    return {};
+}
+
 } // namespace Internal
 } // namespace Android

@@ -212,7 +212,7 @@
         \li Count memory page allocations
     \endlist
 
-    To generate JSON files that contain the trace data in Chrome Trace Format,
+    To generate JSON files that have the trace data in Chrome Trace Format,
     enter the following command on the command line:
 
     \code

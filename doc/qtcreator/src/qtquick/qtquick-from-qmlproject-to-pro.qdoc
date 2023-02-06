@@ -59,7 +59,7 @@
 
     The wizard automatically adds the \c QML_IMPORT_PATH option to the project
     file for specifying the required \l{QML Import Path}{QML import path}. The
-    path is only needed if more than one subdirectory contains QML files.
+    path is only needed if more than one subdirectory has QML files.
 
     Then you can use the \l QQuickView class in the main C++ source file to
     show the main QML file when the application starts.

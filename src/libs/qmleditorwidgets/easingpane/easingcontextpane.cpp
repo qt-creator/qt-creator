@@ -4,7 +4,7 @@
 #include "easingcontextpane.h"
 
 #include "easinggraph.h"
-#include "qmleditorwidgetstr.h"
+#include "../qmleditorwidgetstr.h"
 
 #include <qmljs/qmljspropertyreader.h>
 #include <utils/layoutbuilder.h>

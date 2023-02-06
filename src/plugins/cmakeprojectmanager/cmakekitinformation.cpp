@@ -1143,7 +1143,10 @@ void CMakeConfigurationKitAspect::setKitDefaultConfigHash(ProjectExplorer::Kit *
               expanded.value = item.expandedValue(k).toUtf8();
               return expanded;
           });
-    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded);
+    const CMakeTool *const tool = CMakeKitAspect::cmakeTool(k);
+    const QByteArray kitHash = computeDefaultConfigHash(defaultConfigExpanded,
+                                                        tool ? tool->cmakeExecutable()
+                                                             : FilePath());
 
     CMakeConfig config = configuration(k);
     config.append(CMakeConfigItem(QTC_KIT_DEFAULT_CONFIG_HASH, CMakeConfigItem::INTERNAL, kitHash));
@@ -1159,7 +1162,8 @@ CMakeConfigItem CMakeConfigurationKitAspect::kitDefaultConfigHashItem(const Proj
     });
 }
 
-QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config)
+QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConfig &config,
+                                                                 const FilePath &cmakeBinary)
 {
     const CMakeConfig defaultConfig = defaultConfiguration(nullptr);
     const QByteArray configValues = std::accumulate(defaultConfig.begin(),
@@ -1169,7 +1173,11 @@ QByteArray CMakeConfigurationKitAspect::computeDefaultConfigHash(const CMakeConf
                                                              const CMakeConfigItem &item) {
                                                         return sum += config.valueOf(item.key);
                                                     });
-    return QCryptographicHash::hash(configValues, QCryptographicHash::Md5).toHex();
+    return QCryptographicHash::hash(cmakeBinary.caseSensitivity() == Qt::CaseInsensitive
+                                        ? configValues.toLower()
+                                        : configValues,
+                                    QCryptographicHash::Md5)
+        .toHex();
 }
 
 QVariant CMakeConfigurationKitAspect::defaultValue(const Kit *k) const

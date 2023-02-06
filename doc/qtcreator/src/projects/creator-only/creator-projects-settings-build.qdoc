@@ -16,7 +16,7 @@
 
     Different build configurations allow you to quickly switch between
     different build settings. By default, \QC creates \e debug, \e release, and
-    \e profile build configurations. A debug build contains additional
+    \e profile build configurations. A debug build has additional
     debug symbols that you need for debugging the application but that you
     can leave out from the release version. Generally, you use the debug
     configuration for testing and the release configuration for creating
@@ -91,7 +91,7 @@
     \uicontrol {Default arguments}, \uicontrol {Extra arguments},
     \uicontrol {Make arguments}, or \uicontrol {Tool arguments}.
     You can create shell command lines
-    that can contain redirection and other advanced constructs. However, some
+    that can have redirection and other advanced constructs. However, some
     more complex use cases, such as piping test data into the application being
     tested or grouping commands, are not supported because the value of the
     \uicontrol Executable field is always placed first when constructing the command.
