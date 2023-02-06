@@ -257,8 +257,6 @@ bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessag
 
     dd = new FossilPluginPrivate;
 
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/fossil/wizard/");
-
     return true;
 }
 
