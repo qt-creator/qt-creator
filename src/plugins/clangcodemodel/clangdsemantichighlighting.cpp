@@ -330,6 +330,8 @@ void doSemanticHighlighting(
             styles.mainStyle = C_TYPE;
         } else if (token.type == "modifier") {
             styles.mainStyle = C_KEYWORD;
+        } else if (token.type == "label") {
+            styles.mainStyle = C_LABEL;
         } else if (token.type == "typeParameter") {
             // clangd reports both type and non-type template parameters as type parameters,
             // but the latter can be distinguished by the readonly modifier.
