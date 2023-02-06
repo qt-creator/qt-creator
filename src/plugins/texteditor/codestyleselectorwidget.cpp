@@ -209,8 +209,9 @@ void CodeStyleSelectorWidget::slotImportClicked()
         if (importedStyle)
             m_codeStyle->setCurrentDelegate(importedStyle);
         else
-            QMessageBox::warning(this, tr("Import Code Style"),
-                                 tr("Cannot import code style from %1"), fileName.toUserOutput());
+            QMessageBox::warning(this,
+                                 tr("Import Code Style"),
+                                 tr("Cannot import code style from %1").arg(fileName.toUserOutput()));
     }
 }
 
