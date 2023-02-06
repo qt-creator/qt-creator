@@ -214,6 +214,9 @@ void QmlItemNode::placeEffectNode(NodeAbstractProperty &parentProperty, const Qm
     } else {
         parentProperty.parentModelNode().variantProperty("layer.enabled").setValue(true);
     }
+
+    if (effectNode.modelNode().metaInfo().hasProperty("timeRunning"))
+        effectNode.modelNode().variantProperty("timeRunning").setValue(true);
 }
 
 bool QmlItemNode::isValid() const

@@ -1670,11 +1670,10 @@ void openEffectMaker(const QString &filePath)
         Utils::QtcProcess *qqemProcess = new Utils::QtcProcess();
         qqemProcess->setEnvironment(env);
         qqemProcess->setCommand({ effectMakerPath, arguments });
-        qqemProcess->start();
-
         QObject::connect(qqemProcess, &Utils::QtcProcess::done, [qqemProcess]() {
             qqemProcess->deleteLater();
         });
+        qqemProcess->start();
     }
 }
 
