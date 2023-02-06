@@ -7,6 +7,7 @@
 
 namespace QmlJSEditor {
 
-void matchWrapInLoaderQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result);
+void matchWrapInLoaderQuickFix(const Internal::QmlJSQuickFixAssistInterface *interface,
+                               QuickFixOperations &result);
 
 } // namespace QmlJSEditor

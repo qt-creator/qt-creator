@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscomponentfromobjectdef.h"
-#include "qmljseditor.h"
 #include "qmljseditortr.h"
 #include "qmljsquickfix.h"
 #include "qmljsquickfixassist.h"
@@ -42,8 +41,8 @@ class SplitInitializerOperation: public QmlJSQuickFixOperation
     UiObjectInitializer *_objectInitializer;
 
 public:
-    SplitInitializerOperation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
-              UiObjectInitializer *objectInitializer)
+    SplitInitializerOperation(const Internal::QmlJSQuickFixAssistInterface *interface,
+                              UiObjectInitializer *objectInitializer)
         : QmlJSQuickFixOperation(interface, 0)
         , _objectInitializer(objectInitializer)
     {
@@ -77,7 +76,8 @@ public:
     }
 };
 
-void matchSplitInitializerQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchSplitInitializerQuickFix(const Internal::QmlJSQuickFixAssistInterface *interface,
+                                   QuickFixOperations &result)
 {
     UiObjectInitializer *objectInitializer = nullptr;
 
@@ -108,7 +108,7 @@ class AnalysizeMessageSuppressionOperation: public QmlJSQuickFixOperation
     Q_DECLARE_TR_FUNCTIONS(AddAnalysisMessageSuppressionComment)
 
 public:
-    AnalysizeMessageSuppressionOperation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,
+    AnalysizeMessageSuppressionOperation(const Internal::QmlJSQuickFixAssistInterface *interface,
                                          const StaticAnalysis::Message &message)
         : QmlJSQuickFixOperation(interface, 0)
         , _message(message)
@@ -128,7 +128,8 @@ public:
     }
 };
 
-void matchAddAnalysisMessageSuppressionCommentQuickFix(const QmlJSQuickFixInterface &interface, QuickFixOperations &result)
+void matchAddAnalysisMessageSuppressionCommentQuickFix(
+    const Internal::QmlJSQuickFixAssistInterface *interface, QuickFixOperations &result)
 {
     const QList<StaticAnalysis::Message> &messages = interface->semanticInfo().staticAnalysisMessages;
 
@@ -144,8 +145,7 @@ void matchAddAnalysisMessageSuppressionCommentQuickFix(const QmlJSQuickFixInterf
 
 QuickFixOperations findQmlJSQuickFixes(const AssistInterface *interface)
 {
-    QSharedPointer<const AssistInterface> assistInterface(interface);
-    auto qmlJSInterface = assistInterface.staticCast<const QmlJSQuickFixAssistInterface>();
+    auto qmlJSInterface = static_cast<const QmlJSQuickFixAssistInterface *>(interface);
 
     QuickFixOperations quickFixes;
 
