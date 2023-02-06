@@ -22,6 +22,10 @@
     {mode} you are working in. Only views that are relevant to a mode are
     available in it.
 
+    \note Usually, \l{Searching with the Locator}{searching with the locator}
+    is the fastest way to find a particular project, file, class, or function,
+    or almost anything else in your project.
+
     Manage projects and files in the following views:
 
     \list

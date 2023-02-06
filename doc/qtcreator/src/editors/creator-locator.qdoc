@@ -8,6 +8,9 @@
 
     \title Searching with the Locator
 
+    The locator is the fastest way to find a particular project, file, class, or
+    function, or almost anything else in your project.
+
     By default, you can find the locator in the bottom left of the \QC window.
     To open it as a centered popup, click \inlineimage icons/magnifier.png
     (\uicontrol Options) in it and select \uicontrol {Open as Centered Popup}.
