@@ -26,7 +26,7 @@
 
 namespace ClangFormat {
 
-Internal::LlvmFileSystemAdapter llvmFileSystemAdapter;
+Internal::LlvmFileSystemAdapter llvmFileSystemAdapter = {};
 
 namespace {
 void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
