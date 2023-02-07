@@ -77,7 +77,7 @@ static void startTerminalEmulator(const QString &workingDir, const Environment &
 #else
     const TerminalCommand term = TerminalCommand::terminalEmulator();
     QProcess process;
-    process.setProgram(term.command);
+    process.setProgram(term.command.nativePath());
     process.setArguments(ProcessArgs::splitArgs(term.openArgs));
     process.setProcessEnvironment(env.toProcessEnvironment());
     process.setWorkingDirectory(workingDir);

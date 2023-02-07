@@ -15,7 +15,7 @@ namespace Utils {
 
 static QSettings *s_settings = nullptr;
 
-TerminalCommand::TerminalCommand(const QString &command, const QString &openArgs,
+TerminalCommand::TerminalCommand(const FilePath &command, const QString &openArgs,
                                  const QString &executeArgs, bool needsQuotes)
     : command(command)
     , openArgs(openArgs)
@@ -65,9 +65,9 @@ TerminalCommand TerminalCommand::defaultTerminalEmulator()
 
     if (defaultTerm.command.isEmpty()) {
         if (HostOsInfo::isMacHost()) {
-            const QString termCmd = QCoreApplication::applicationDirPath()
-                            + "/../Resources/scripts/openTerminal.py";
-            if (QFileInfo::exists(termCmd))
+            const FilePath termCmd = FilePath::fromString(QCoreApplication::applicationDirPath())
+                            / "../Resources/scripts/openTerminal.py";
+            if (termCmd.exists())
                 defaultTerm = {termCmd, "", ""};
             else
                 defaultTerm = {"/usr/X11/bin/xterm", "", "-e"};
@@ -76,7 +76,7 @@ TerminalCommand TerminalCommand::defaultTerminalEmulator()
             defaultTerm = {"xterm", "", "-e"};
             const Environment env = Environment::systemEnvironment();
             for (const TerminalCommand &term : *knownTerminals) {
-                const QString result = env.searchInPath(term.command).toString();
+                const FilePath result = env.searchInPath(term.command.path());
                 if (!result.isEmpty()) {
                     defaultTerm = {result, term.openArgs, term.executeArgs, term.needsQuotes};
                     break;
@@ -95,7 +95,7 @@ QVector<TerminalCommand> TerminalCommand::availableTerminalEmulators()
     if (HostOsInfo::isAnyUnixHost()) {
         const Environment env = Environment::systemEnvironment();
         for (const TerminalCommand &term : *knownTerminals) {
-            const QString command = env.searchInPath(term.command).toString();
+            const FilePath command = env.searchInPath(term.command.path());
             if (!command.isEmpty())
                 result.push_back({command, term.openArgs, term.executeArgs});
         }
@@ -118,7 +118,7 @@ const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
 TerminalCommand TerminalCommand::terminalEmulator()
 {
     if (s_settings && HostOsInfo::isAnyUnixHost() && s_settings->contains(kTerminalCommandKey)) {
-        return {s_settings->value(kTerminalCommandKey).toString(),
+        return {FilePath::fromSettings(s_settings->value(kTerminalCommandKey)),
                 s_settings->value(kTerminalOpenOptionsKey).toString(),
                 s_settings->value(kTerminalExecuteOptionsKey).toString()};
     }
@@ -135,7 +135,7 @@ void TerminalCommand::setTerminalEmulator(const TerminalCommand &term)
             s_settings->remove(kTerminalOpenOptionsKey);
             s_settings->remove(kTerminalExecuteOptionsKey);
         } else {
-            s_settings->setValue(kTerminalCommandKey, term.command);
+            s_settings->setValue(kTerminalCommandKey, term.command.toSettings());
             s_settings->setValue(kTerminalOpenOptionsKey, term.openArgs);
             s_settings->setValue(kTerminalExecuteOptionsKey, term.executeArgs);
         }
