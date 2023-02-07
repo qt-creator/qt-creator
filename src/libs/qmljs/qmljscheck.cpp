@@ -1832,9 +1832,12 @@ bool Check::visit(CallExpression *ast)
     static const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
                                                      "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
 
-    static const QStringList whiteListedFunctions = {"toString", "toFixed", "toExponential", "toPrecision", "isFinite", "isNaN", "valueOf",
-                                                     "toLowerCase", "toLocaleString", "toLocaleLowerCase", "toUpperCase", "toLocaleUpperCase",
-                                                     "substring" , "charAt", "charCodeAt", "concat", "endsWith", "includes", "indexOf", "lastIndexOf"};
+    static const QStringList whiteListedFunctions = {
+        "toString",    "toFixed",           "toExponential", "toPrecision",    "isFinite",
+        "isNaN",       "valueOf",           "toLowerCase",   "toLocaleString", "toLocaleLowerCase",
+        "toUpperCase", "toLocaleUpperCase", "substring",     "charAt",         "charCodeAt",
+        "concat",      "endsWith",          "includes",      "indexOf",        "lastIndexOf",
+        "arg"};
 
     static const QStringList colorFunctions = {"lighter", "darker", "rgba",  "tint", "hsla", "hsva"};
 
