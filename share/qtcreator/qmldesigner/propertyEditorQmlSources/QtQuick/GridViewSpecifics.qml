@@ -23,7 +23,10 @@ Column {
         anchors.right: parent.right
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Cell size") }
+            PropertyLabel {
+                text: qsTr("Cell size")
+                tooltip: qsTr("Sets the dimensions of cells in the grid.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -39,6 +42,7 @@ Column {
                 ControlLabel {
                     //: The width of the object
                     text: qsTr("W", "width")
+                    tooltip: qsTr("Width")
                 }
 
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
@@ -56,6 +60,7 @@ Column {
                 ControlLabel {
                     //: The height of the object
                     text: qsTr("H", "height")
+                    tooltip: qsTr("Height")
                 }
 /*
                 TODO QDS-4836
@@ -66,7 +71,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Flow") }
+            PropertyLabel {
+                text: qsTr("Flow")
+                tooltip: qsTr("Sets the directions of the cells.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -81,7 +89,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Layout direction") }
+            PropertyLabel {
+                text: qsTr("Layout direction")
+                tooltip: qsTr("Sets in which direction items in the grid view are placed.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -98,7 +109,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Snap mode")
-                tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
+                tooltip: qsTr("Sets how the view scrolling will settle following a drag or flick.")
             }
 
             SecondColumnLayout {
@@ -116,7 +127,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Cache")
-                tooltip: qsTr("Cache buffer")
+                tooltip: qsTr("Sets in pixels how far the components are kept loaded outside the view's visible area.")
                 blockedByTemplate: !backendValues.cacheBuffer.isAvailable
             }
 
