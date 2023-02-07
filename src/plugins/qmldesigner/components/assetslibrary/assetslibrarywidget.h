@@ -95,6 +95,9 @@ public:
 
     Q_INVOKABLE bool canCreateEffects() const;
 
+    Q_INVOKABLE void showInGraphicalShell(const QString &path);
+    Q_INVOKABLE QString showInGraphicalShellMsg() const;
+
 signals:
     void itemActivated(const QString &itemName);
     void extFilesDrop(const QList<QUrl> &simpleFilePaths,

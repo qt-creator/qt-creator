@@ -26,6 +26,7 @@
 #include "utils/filepath.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
@@ -185,6 +186,16 @@ bool AssetsLibraryWidget::canCreateEffects() const
 #else
     return true;
 #endif
+}
+
+void AssetsLibraryWidget::showInGraphicalShell(const QString &path)
+{
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), Utils::FilePath::fromString(path));
+}
+
+QString AssetsLibraryWidget::showInGraphicalShellMsg() const
+{
+    return Core::FileUtils::msgGraphicalShellAction();
 }
 
 bool AssetsLibraryWidget::qtVersionIs6_4() const

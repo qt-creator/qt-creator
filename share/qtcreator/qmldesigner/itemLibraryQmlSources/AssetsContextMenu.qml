@@ -19,11 +19,14 @@ StudioControls.Menu {
     property var __dirIndex: null
     property string __allExpandedState: ""
     property var __selectedAssetPathsList: null
+    property bool __showInGraphicalShellEnabled: false
 
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
     function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
     {
+        root.__showInGraphicalShellEnabled = true
+
         rootView.updateHasMaterialLibrary()
 
         root.__onFolderCreated = onFolderCreated
@@ -35,9 +38,10 @@ StudioControls.Menu {
         root.popup()
     }
 
-    function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState,
-                                   onFolderCreated)
+    function openContextMenuForDir(dirModelIndex, dirPath, dirName, allExpandedState, onFolderCreated)
     {
+        root.__showInGraphicalShellEnabled = true
+
         rootView.updateHasMaterialLibrary()
 
         root.__onFolderCreated = onFolderCreated
@@ -52,6 +56,15 @@ StudioControls.Menu {
 
     function openContextMenuForFile(fileIndex, dirModelIndex, selectedAssetPathsList, onFolderCreated)
     {
+        // check that all assets are in the same folder
+        let asset0 = selectedAssetPathsList[0]
+        let asset0Folder = asset0.substring(0, asset0.lastIndexOf('/'))
+
+        root.__showInGraphicalShellEnabled = selectedAssetPathsList.every(v => {
+            let assetFolder = v.substring(0, v.lastIndexOf('/'))
+            return assetFolder === asset0Folder
+        })
+
         if (selectedAssetPathsList.length > 1) {
             deleteFileItem.text = qsTr("Delete Files")
             addTexturesItem.text = qsTr("Add Textures")
@@ -73,6 +86,8 @@ StudioControls.Menu {
 
     function openContextMenuForEmpty(dirPath)
     {
+        __showInGraphicalShellEnabled = true
+
         root.__dirPath = dirPath
         root.__fileIndex = ""
         root.__dirIndex = ""
@@ -204,6 +219,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         text: qsTr("New Effect")
         visible: rootView.canCreateEffects()
+        height: visible ? implicitHeight : 0
 
         NewEffectDialog {
             id: newEffectDialog
@@ -212,5 +228,18 @@ StudioControls.Menu {
         }
 
         onTriggered: newEffectDialog.open()
+    }
+
+    StudioControls.MenuItem {
+        text: rootView.showInGraphicalShellMsg()
+
+        enabled: root.__showInGraphicalShellEnabled
+
+        onTriggered: {
+            if (!root.__fileIndex || root.__selectedAssetPathsList.length > 1)
+                rootView.showInGraphicalShell(root.__dirPath)
+            else
+                rootView.showInGraphicalShell(root.__selectedAssetPathsList[0])
+        }
     }
 }
