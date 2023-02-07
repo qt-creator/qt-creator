@@ -453,7 +453,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
                 const QString &name, const QString &prefix, const MessageId &reqId) {
             qCDebug(clangdLog) << "handling symbol info reply"
                                << link.targetFilePath.toUserOutput() << link.targetLine;
-            if (!sentinel)
+            if (!sentinel || !virtualFuncAssistProcessor)
                 return;
             if (!name.isEmpty())
                 symbolsToDisplay.push_back({prefix + name, link});
