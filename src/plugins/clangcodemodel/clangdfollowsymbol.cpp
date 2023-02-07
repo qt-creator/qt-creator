@@ -40,7 +40,7 @@ public:
         : m_followSymbol(followSymbol) {}
 
     void cancel() override { resetData(true); }
-    bool running() override { return m_followSymbol; }
+    bool running() override { return m_followSymbol && m_running; }
     void update();
     void finalize();
     void resetData(bool resetFollowSymbolData);
@@ -51,10 +51,11 @@ private:
         return createProposal(false);
     }
 
-    IAssistProposal *createProposal(bool final) const;
+    IAssistProposal *createProposal(bool final);
     VirtualFunctionProposalItem *createEntry(const QString &name, const Link &link) const;
 
     QPointer<ClangdFollowSymbol> m_followSymbol;
+    bool m_running = false;
 };
 
 class ClangdFollowSymbol::VirtualFunctionAssistProvider : public IAssistProvider
@@ -297,10 +298,10 @@ void ClangdFollowSymbol::VirtualFunctionAssistProcessor::resetData(bool resetFol
     m_followSymbol = nullptr;
 }
 
-IAssistProposal *
-ClangdFollowSymbol::VirtualFunctionAssistProcessor::createProposal(bool final) const
+IAssistProposal *ClangdFollowSymbol::VirtualFunctionAssistProcessor::createProposal(bool final)
 {
     QTC_ASSERT(m_followSymbol, return nullptr);
+    m_running = !final;
 
     QList<AssistProposalItemInterface *> items;
     bool needsBaseDeclEntry = !m_followSymbol->d->defLinkNode.range()
