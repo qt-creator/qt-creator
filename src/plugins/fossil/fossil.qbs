@@ -20,7 +20,7 @@ QtcPlugin {
         "fossilcommitwidget.cpp", "fossilcommitwidget.h",
         "fossileditor.cpp", "fossileditor.h",
         "annotationhighlighter.cpp", "annotationhighlighter.h",
-        "pullorpushdialog.cpp", "pullorpushdialog.h", "pullorpushdialog.ui",
+        "pullorpushdialog.cpp", "pullorpushdialog.h",
         "branchinfo.h",
         "configuredialog.cpp", "configuredialog.h",
         "revisioninfo.h",
