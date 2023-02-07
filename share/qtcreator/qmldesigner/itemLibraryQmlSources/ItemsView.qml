@@ -235,7 +235,7 @@ Item {
             id: verticalScrollView
             anchors.fill: parent
             clip: true
-            interactive: !itemContextMenu.opened && !moduleContextMenu.opened
+            interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
 
             onContentHeightChanged: {
                 var maxPosition = Math.max(contentHeight - verticalScrollView.height, 0)
@@ -352,7 +352,7 @@ Item {
                 width: 270
                 height: parent.height
                 clip: true
-                interactive: !itemContextMenu.opened && !moduleContextMenu.opened
+                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
 
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - horizontalScrollView.height, 0)
@@ -457,6 +457,8 @@ Item {
                 id: itemScrollView
                 width: itemsView.width - 275
                 height: itemsView.height
+                interactive: !itemContextMenu.opened && !moduleContextMenu.opened && !rootView.isDragging
+
                 onContentHeightChanged: {
                     var maxPosition = Math.max(contentHeight - itemScrollView.height, 0)
                     if (contentY > maxPosition)

@@ -105,6 +105,10 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 m_itemToDrag = {};
             }
         }
+    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_itemToDrag = {};
+
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -366,12 +370,21 @@ void ItemLibraryWidget::handlePriorityImportsChanged()
     }
 }
 
+void ItemLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
 void ItemLibraryWidget::startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos)
 {
     // Actual drag is created after mouse has moved to avoid a QDrag bug that causes drag to stay
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     m_itemToDrag = itemLibEntry;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 bool ItemLibraryWidget::subCompEditMode() const
