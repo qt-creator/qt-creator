@@ -747,7 +747,7 @@ void QmlDesignerPlugin::lauchFeedbackPopup(const QString &identifier)
     QTC_ASSERT(root, return );
 
     QObject *title = root->findChild<QObject *>("title");
-    QString name = QmlDesignerPlugin::tr("Enjoying %1?").arg(identiferToDisplayString(identifier));
+    QString name = QmlDesignerPlugin::tr("Enjoying the %1?").arg(identiferToDisplayString(identifier));
     title->setProperty("text", name);
     root->setProperty("identifier", identifier);
 
