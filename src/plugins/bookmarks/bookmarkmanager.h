@@ -31,7 +31,7 @@ public:
     ~BookmarkManager() final;
 
     void updateBookmark(Bookmark *bookmark);
-    void updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName);
+    void updateBookmarkFileName(Bookmark *bookmark, const Utils::FilePath &oldFilePath);
     void deleteBookmark(Bookmark *bookmark); // Does not remove the mark
     void removeAllBookmarks();
     Bookmark *bookmarkForIndex(const QModelIndex &index) const;

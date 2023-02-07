@@ -417,12 +417,12 @@ void BookmarkManager::updateBookmark(Bookmark *bookmark)
     saveBookmarks();
 }
 
-void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const QString &oldFileName)
+void BookmarkManager::updateBookmarkFileName(Bookmark *bookmark, const FilePath &oldFilePath)
 {
-    if (oldFileName == bookmark->fileName().toString())
+    if (oldFilePath == bookmark->fileName())
         return;
 
-    m_bookmarksMap[Utils::FilePath::fromString(oldFileName)].removeAll(bookmark);
+    m_bookmarksMap[oldFilePath].removeAll(bookmark);
     m_bookmarksMap[bookmark->fileName()].append(bookmark);
     updateBookmark(bookmark);
 }

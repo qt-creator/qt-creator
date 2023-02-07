@@ -66,11 +66,11 @@ void Bookmark::updateBlock(const QTextBlock &block)
     }
 }
 
-void Bookmark::updateFileName(const FilePath &fileName)
+void Bookmark::updateFileName(const FilePath &filePath)
 {
-    const FilePath &oldFileName = this->fileName();
-    TextMark::updateFileName(fileName);
-    m_manager->updateBookmarkFileName(this, oldFileName.toString());
+    const FilePath oldFilePath = this->fileName();
+    TextMark::updateFileName(filePath);
+    m_manager->updateBookmarkFileName(this, oldFilePath);
 }
 
 void Bookmark::setNote(const QString &note)
