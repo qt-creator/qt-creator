@@ -43,6 +43,9 @@ class AssetsLibraryWidget : public QFrame
 
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
 
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
+
 public:
     AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache);
@@ -101,6 +104,7 @@ signals:
     void addTexturesRequested(const QStringList &filePaths, QmlDesigner::AddTextureMode mode);
     void hasMaterialLibraryUpdateRequested();
     void hasMaterialLibraryChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -110,6 +114,7 @@ private:
 
     void addResources(const QStringList &files);
     void updateSearch();
+    void setIsDragging(bool val);
 
     QSize m_itemIconSize;
 
@@ -128,6 +133,7 @@ private:
     QString m_filterText;
     QPoint m_dragStartPoint;
     bool m_hasMaterialLibrary = false;
+    bool m_isDragging = false;
 };
 
 } // namespace QmlDesigner

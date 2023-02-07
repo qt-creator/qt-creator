@@ -78,6 +78,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_assetsToDrag.clear();
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -350,6 +351,14 @@ void AssetsLibraryWidget::updateSearch()
     m_assetsModel->setSearchText(m_filterText);
 }
 
+void AssetsLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
 void AssetsLibraryWidget::setResourcePath(const QString &resourcePath)
 {
     m_assetsModel->setRootPath(resourcePath);
@@ -363,6 +372,7 @@ void AssetsLibraryWidget::startDragAsset(const QStringList &assetPaths, const QP
     // active (and blocks mouse release) if mouse is released at the same spot of the drag start.
     m_assetsToDrag = assetPaths;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 QPair<QString, QByteArray> AssetsLibraryWidget::getAssetTypeAndData(const QString &assetPath)

@@ -9,7 +9,7 @@ import StudioControls as StudioControls
 TreeView {
     id: root
     clip: true
-    interactive: verticalScrollBar.visible && !root.contextMenu.opened
+    interactive: verticalScrollBar.visible && !root.contextMenu.opened && !rootView.isDragging
     reuseItems: false
     boundsBehavior: Flickable.StopAtBounds
     rowSpacing: 5
