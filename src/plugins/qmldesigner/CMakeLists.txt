@@ -1,3 +1,5 @@
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
+
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
@@ -7,10 +9,6 @@ endif()
 env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
-
-env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
-option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
-add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
@@ -61,6 +59,13 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt5_VERSION VERSION_GREATER_EQUAL 6.5.0
+
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
+  DEFINES QDS_HAS_QMLDOM
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -493,32 +498,6 @@ function(get_and_add_as_subdirectory name repository git_tag build_dir source_di
     )
     add_subdirectory(${source_dir}/${name}/${source_subdir} ${name})
 endfunction()
-
-if (WITH_QMLDOM)
-  if (Qt5_VERSION VERSION_LESS 6.3.2)
-    message(FATAL_ERROR "You need Qt 6.3.2 or newer to enable WITH_QMLDOM feature.")
-  endif()
-
-
-  get_and_add_as_subdirectory("qmldom_standalone"
-                              "https://codereview.qt-project.org/qt/qtdeclarative"
-                              "origin/dev"
-                              "${CMAKE_BINARY_DIR}"
-                              "${CMAKE_CURRENT_SOURCE_DIR}/../.."
-                              "src/qmldom/standalone"
-                              )
-
-  set_target_properties(qmldomlib PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,RUNTIME_OUTPUT_DIRECTORY>"
-    LIBRARY_OUTPUT_DIRECTORY "$<TARGET_PROPERTY:QmlJS,LIBRARY_OUTPUT_DIRECTORY>")
-
-  extend_qtc_target(QmlDesigner
-      CONDITION TARGET qmldomlib
-      DEFINES QDS_HAS_QMLDOM
-      DEPENDS qmldomlib
-  )
-endif()
-
 
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   get_target_property(_designerType Qt::Designer TYPE)

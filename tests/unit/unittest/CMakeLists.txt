@@ -1,5 +1,6 @@
 find_package(Googletest MODULE)
 find_package(GoogleBenchmark MODULE)
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
 
 if (NOT Googletest_FOUND)
   message(STATUS "Googletest was not found. Please set GOOGLETEST_DIR (CMake or Environment) variable.")
@@ -321,17 +322,18 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET qmldomlib
-  DEPENDS qmldomlib
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt5_VERSION VERSION_GREATER_EQUAL 6.5.0
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   SOURCES
     qmldocumentparser-test.cpp
     qmltypesparser-test.cpp
 )
 
 extend_qtc_test(unittest
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt5_VERSION VERSION_GREATER_EQUAL 6.5.0
   SOURCES_PREFIX "${QmlDesignerDir}/designercore"
-  CONDITION TARGET qmldomlib
-  DEPENDS qmldomlib
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
+  DEFINES QDS_HAS_QMLDOM
   SOURCES
     projectstorage/qmldocumentparser.cpp projectstorage/qmldocumentparser.h
     projectstorage/qmltypesparser.cpp projectstorage/qmltypesparser.h

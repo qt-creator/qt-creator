@@ -11,7 +11,7 @@
 #include <sqlitedatabase.h>
 
 #ifdef QDS_HAS_QMLDOM
-#include <qmldom/qqmldomtop_p.h>
+#include <private/qqmldomtop_p.h>
 #endif
 
 #include <filesystem>
