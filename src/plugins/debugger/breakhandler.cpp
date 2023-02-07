@@ -89,9 +89,9 @@ public:
             gbp->m_params.lineNumber = lineNumber;
     }
 
-    void updateFileName(const FilePath &fileName) final
+    void updateFilePath(const FilePath &fileName) final
     {
-        TextMark::updateFileName(fileName);
+        TextMark::updateFilePath(fileName);
         QTC_ASSERT(m_bp, return);
         m_bp->setFileName(fileName);
         if (GlobalBreakpoint gbp = m_bp->globalBreakpoint())
@@ -158,9 +158,9 @@ public:
         m_gbp->updateLineNumber(lineNumber);
     }
 
-    void updateFileName(const FilePath &fileName) final
+    void updateFilePath(const FilePath &fileName) final
     {
-        TextMark::updateFileName(fileName);
+        TextMark::updateFilePath(fileName);
         QTC_ASSERT(m_gbp, return);
         m_gbp->updateFileName(fileName);
     }
@@ -1883,7 +1883,7 @@ void BreakpointItem::updateMarker()
 {
     const FilePath &file = markerFileName();
     int line = markerLineNumber();
-    if (m_marker && (file != m_marker->fileName() || line != m_marker->lineNumber()))
+    if (m_marker && (file != m_marker->filePath() || line != m_marker->lineNumber()))
         destroyMarker();
 
     if (!m_marker && !file.isEmpty() && line > 0)
@@ -2308,8 +2308,8 @@ void GlobalBreakpointItem::updateMarker()
 
     const int line = m_params.lineNumber;
     if (m_marker) {
-        if (m_params.fileName != m_marker->fileName())
-            m_marker->updateFileName(m_params.fileName);
+        if (m_params.fileName != m_marker->filePath())
+            m_marker->updateFilePath(m_params.fileName);
         if (line != m_marker->lineNumber())
             m_marker->move(line);
     } else if (!m_params.fileName.isEmpty() && line > 0) {

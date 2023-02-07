@@ -995,7 +995,7 @@ void SquishTools::updateLocationMarker(const Utils::FilePath &file, int line)
     if (QTC_GUARD(!m_locationMarker)) {
         m_locationMarker = new SquishLocationMark(file, line);
     } else {
-        m_locationMarker->updateFileName(file);
+        m_locationMarker->updateFilePath(file);
         m_locationMarker->move(line);
     }
 }

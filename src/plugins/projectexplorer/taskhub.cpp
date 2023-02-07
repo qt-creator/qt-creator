@@ -65,7 +65,7 @@ public:
     bool isClickable() const override;
     void clicked() override;
 
-    void updateFileName(const FilePath &fileName) override;
+    void updateFilePath(const FilePath &fileName) override;
     void updateLineNumber(int lineNumber) override;
     void removedFromEditor() override;
 private:
@@ -78,10 +78,10 @@ void TaskMark::updateLineNumber(int lineNumber)
     TextMark::updateLineNumber(lineNumber);
 }
 
-void TaskMark::updateFileName(const FilePath &fileName)
+void TaskMark::updateFilePath(const FilePath &fileName)
 {
     TaskHub::updateTaskFileName(m_task, fileName.toString());
-    TextMark::updateFileName(FilePath::fromString(fileName.toString()));
+    TextMark::updateFilePath(FilePath::fromString(fileName.toString()));
 }
 
 void TaskMark::removedFromEditor()
