@@ -19,6 +19,7 @@ QtObject {
     property real viewBarComboIcon: 16
 
     property real smallFont: 8
+    property real miniIcon: 10
     property real baseFont: 12
     property real mediumFont: 14
     property real bigFont: 16
@@ -219,6 +220,7 @@ QtObject {
 
     // Toolbar
     property real toolbarHeight: 41
+    property real doubleToolbarHeight: values.toolbarHeight * 2
     property real toolbarSpacing: 10
 
 
@@ -407,4 +409,5 @@ QtObject {
     property ControlStyle statusbarButtonStyle: StatusBarButtonStyle {}
     property ControlStyle statusbarControlStyle: StatusBarControlStyle {}
     property ControlStyle statesControlStyle: StatesControlStyle {}
+    property ControlStyle searchControlStyle: SearchControlStyle {}
 }

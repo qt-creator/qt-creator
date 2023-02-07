@@ -8,6 +8,7 @@ ControlStyle {
     baseIconFontSize: Values.bigFont
     controlSize: Qt.size(Values.viewBarComboWidth, Values.viewBarComboHeight)
     smallIconFontSize: Values.viewBarComboIcon
+    borderWidth: Values.border
 
     radius: Values.smallRadius
 
@@ -20,7 +21,7 @@ ControlStyle {
 
     background: ControlStyle.BackgroundColors {
         idle: Values.themeControlBackground_toolbarIdle
-        hover: Values.themeControlBackground_topToolbarHover //"#fff000"//values.themeControlBackground_topToolbarHover
+        hover: Values.themeControlBackground_topToolbarHover
         interaction: Values.themeInteraction
         disabled: Values.themeControlBackground_toolbarIdle
     }

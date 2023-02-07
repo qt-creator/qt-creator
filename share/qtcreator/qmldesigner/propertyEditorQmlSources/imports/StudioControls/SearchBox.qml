@@ -38,13 +38,15 @@ Item {
             color: control.style.background.idle
             border.color: control.style.border.idle
             border.width: control.style.borderWidth
+            radius: control.style.radius
 
-            Behavior on color {
-                ColorAnimation {
-                    duration: StudioTheme.Values.hoverDuration
-                    easing.type: StudioTheme.Values.hoverEasing
-                }
-            }
+            // lets do this when the widget controls are removed so they remain consistent
+//            Behavior on color {
+//                ColorAnimation {
+//                    duration: StudioTheme.Values.hoverDuration
+//                    easing.type: StudioTheme.Values.hoverEasing
+//                }
+//           }
         }
 
         height: control.style.controlSize.height
@@ -61,11 +63,11 @@ Item {
         onTextChanged: control.searchChanged(text)
 
         QC.Label {
-            text: StudioTheme.Constants.search
+            text: StudioTheme.Constants.search_small
             font.family: StudioTheme.Constants.iconFont.family
             font.pixelSize: control.style.baseIconFontSize
             anchors.left: parent.left
-            anchors.leftMargin: 7
+            anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             color: control.style.icon.idle
         }
@@ -80,7 +82,7 @@ Item {
             color: xMouseArea.containsMouse ? control.style.panel.background : "transparent"
 
             QC.Label {
-                text: StudioTheme.Constants.closeCross
+                text: StudioTheme.Constants.close_small
                 font.family: StudioTheme.Constants.iconFont.family
                 font.pixelSize: control.style.baseIconFontSize
                 verticalAlignment: Text.AlignVCenter
@@ -117,12 +119,12 @@ Item {
                 PropertyChanges {
                     target: textFieldBackground
                     color: control.style.background.hover
-                    border.color: control.style.border.idle
+                    border.color: control.style.border.hover
                 }
 
                 PropertyChanges {
                     target: searchFilterText
-                    placeholderTextColor: control.style.text.placeholder
+                    placeholderTextColor: control.style.text.placeholderHover
                 }
             },
             State {

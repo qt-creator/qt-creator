@@ -6,6 +6,7 @@ InternalConstants 1.0 InternalConstants.qml
 ToolbarStyle 1.0 ToolbarStyle.qml
 PrimaryButtonStyle 1.0 PrimaryButtonStyle.qml
 StatesControlStyle 1.0 StatesControlStyle.qml
+SearchControlStyle 1.0 SearchControlStyle.qml
 StatusBarButtonStyle 1.0 StatusBarButtonStyle.qml
 StatusBarControlStyle 1.0 StatusBarControlStyle.qml
 TopToolbarButtonStyle 1.0 TopToolbarButtonStyle.qml

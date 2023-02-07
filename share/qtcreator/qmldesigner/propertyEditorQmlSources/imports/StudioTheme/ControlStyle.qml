@@ -105,6 +105,7 @@ QtObject {
         property color selection: Values.themeTextSelectionColor
         property color selectedText: Values.themeTextSelectedTextColor
         property color placeholder: Values.themePlaceholderTextColor
+        property color placeholderHover: Values.themePlaceholderTextColor
         property color placeholderInteraction: Values.themePlaceholderTextColorInteraction
     }
 
