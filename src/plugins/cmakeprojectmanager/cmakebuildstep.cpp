@@ -246,7 +246,7 @@ bool CMakeBuildStep::init()
         RunConfiguration *rc = target()->activeRunConfiguration();
         if (!rc || rc->buildKey().isEmpty()) {
             emit addTask(BuildSystemTask(Task::Error,
-                                         QCoreApplication::translate("ProjectExplorer::Task",
+                                         QCoreApplication::translate("::ProjectExplorer",
                                     "You asked to build the current Run Configuration's build target only, "
                                     "but it is not associated with a build target. "
                                     "Update the Make Step in your build settings.")));

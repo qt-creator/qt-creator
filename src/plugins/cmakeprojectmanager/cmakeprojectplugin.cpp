@@ -181,7 +181,7 @@ void CMakeProjectPlugin::initialize()
     });
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::CMAKEFORMATTER_MENU_ID);
-    menu->menu()->setTitle(QCoreApplication::translate("CMakeFormatter", "CMakeFormatter"));
+    menu->menu()->setTitle(Tr::tr("CMakeFormatter"));
     menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 

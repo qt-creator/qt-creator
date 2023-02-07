@@ -116,7 +116,7 @@ ClangToolsOptionsPage::ClangToolsOptionsPage()
     setId(Constants::SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Clang Tools"));
     setCategory("T.Analyzer");
-    setDisplayCategory(QCoreApplication::translate("Analyzer", "Analyzer"));
+    setDisplayCategory(QCoreApplication::translate("::Debugger", "Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
     setWidgetCreator([] { return new SettingsWidget; });
 }

@@ -121,8 +121,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
 
     // Create copy if needed
     if (config.isReadOnly()) {
-        const QString name = QCoreApplication::translate("ClangDiagnosticConfig",
-                                                         "Project: %1 (based on %2)")
+        const QString name = Tr::tr("Project: %1 (based on %2)")
                                  .arg(project->displayName(), config.displayName());
         config = ClangDiagnosticConfigsModel::createCustomConfig(config, name);
     }
@@ -141,9 +140,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
-    const QString text
-        = QCoreApplication::translate("ClangDiagnosticConfig",
-                                      "Changes applied in Projects Mode > Clang Code Model");
+    const QString text = Tr::tr("Changes applied in Projects Mode > Clang Code Model");
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);

@@ -5077,7 +5077,7 @@ void GdbEngine::handleFetchVariables(const DebuggerResponse &response)
 QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
 {
     if (sm == StartInternal) {
-        return QCoreApplication::translate("QtDumperHelper",
+        return Tr::tr(
             "ptrace: Operation not permitted.\n\n"
             "Could not attach to the process. "
             "Make sure no other debugger traces this process.\n"
@@ -5085,7 +5085,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
             "/proc/sys/kernel/yama/ptrace_scope\n"
             "For more details, see /etc/sysctl.d/10-ptrace.conf\n");
     }
-    return QCoreApplication::translate("QtDumperHelper",
+    return Tr::tr(
         "ptrace: Operation not permitted.\n\n"
         "Could not attach to the process. "
         "Make sure no other debugger traces this process.\n"
