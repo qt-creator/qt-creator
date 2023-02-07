@@ -11,8 +11,6 @@
 #include "commiteditor.h"
 #include "wizard/fossiljsextension.h"
 
-#include "ui_revertdialog.h"
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -32,6 +30,7 @@
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/commandline.h>
+#include <utils/layoutbuilder.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
@@ -44,14 +43,16 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
-#include <QtPlugin>
 #include <QAction>
-#include <QMenu>
-#include <QDir>
 #include <QDialog>
-#include <QMessageBox>
+#include <QDialogButtonBox>
+#include <QDir>
 #include <QFileDialog>
+#include <QGroupBox>
+#include <QMenu>
+#include <QMessageBox>
 #include <QRegularExpression>
+#include <QtPlugin>
 
 using namespace Core;
 using namespace Utils;
@@ -244,6 +245,16 @@ public:
 
 static FossilPluginPrivate *dd = nullptr;
 
+class RevertDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(Fossil::Internal::FossilPlugin)
+
+public:
+    RevertDialog(const QString &title, QWidget *parent = nullptr);
+
+    QLineEdit *m_revisionLineEdit;
+};
+
 FossilPlugin::~FossilPlugin()
 {
     delete dd;
@@ -423,13 +434,14 @@ void FossilPluginPrivate::revertCurrentFile()
     QTC_ASSERT(state.hasFile(), return);
 
     QDialog dialog(Core::ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
+
+    auto revisionLineEdit = new QLineEdit;
+
     if (dialog.exec() != QDialog::Accepted)
         return;
     m_client.revertFile(state.currentFileTopLevel(),
-                         state.relativeCurrentFile(),
-                         revertUi.revisionLineEdit->text());
+                        state.relativeCurrentFile(),
+                        revisionLineEdit->text());
 }
 
 void FossilPluginPrivate::statusCurrentFile()
@@ -501,12 +513,9 @@ void FossilPluginPrivate::revertAll()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog(Core::ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    m_client.revertAll(state.topLevel(), revertUi.revisionLineEdit->text());
+    RevertDialog dialog(tr("Revert"), Core::ICore::dialogParent());
+    if (dialog.exec() == QDialog::Accepted)
+        m_client.revertAll(state.topLevel(), dialog.m_revisionLineEdit->text());
 }
 
 void FossilPluginPrivate::statusMulti()
@@ -618,13 +627,9 @@ void FossilPluginPrivate::update()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog(Core::ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
-    dialog.setWindowTitle(tr("Update"));
-    if (dialog.exec() != QDialog::Accepted)
-        return;
-    m_client.update(state.topLevel(), revertUi.revisionLineEdit->text());
+    RevertDialog dialog(tr("Update"), Core::ICore::dialogParent());
+    if (dialog.exec() == QDialog::Accepted)
+        m_client.update(state.topLevel(), dialog.m_revisionLineEdit->text());
 }
 
 void FossilPluginPrivate::configureRepository()
@@ -1064,6 +1069,35 @@ void FossilPluginPrivate::changed(const QVariant &v)
     default:
         break;
     }
+}
+
+RevertDialog::RevertDialog(const QString &title, QWidget *parent)
+    : QDialog(parent)
+{
+    resize(600, 0);
+    setWindowTitle(title);
+
+    auto *groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+    groupBox->setCheckable(true);
+    groupBox->setChecked(false);
+    groupBox->setToolTip(tr("Checkout revision, can also be a branch or a tag name."));
+
+    m_revisionLineEdit = new QLineEdit;
+
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    using namespace Utils::Layouting;
+    Form {
+        tr("Revision"), m_revisionLineEdit, br,
+    }.attachTo(groupBox);
+
+    Column {
+        groupBox,
+        buttonBox,
+    }.attachTo(this);
 }
 
 } // namespace Internal

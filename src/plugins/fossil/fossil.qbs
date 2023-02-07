@@ -25,7 +25,6 @@ QtcPlugin {
         "configuredialog.cpp", "configuredialog.h",
         "revisioninfo.h",
         "fossil.qrc",
-        "revertdialog.ui",
     ]
 
     Group {

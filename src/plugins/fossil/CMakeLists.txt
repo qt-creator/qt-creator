@@ -15,7 +15,6 @@ add_qtc_plugin(Fossil
     fossilplugin.cpp fossilplugin.h
     fossilsettings.cpp fossilsettings.h
     pullorpushdialog.cpp pullorpushdialog.h
-    revertdialog.ui
     revisioninfo.h
     wizard/fossiljsextension.cpp wizard/fossiljsextension.h
 )
