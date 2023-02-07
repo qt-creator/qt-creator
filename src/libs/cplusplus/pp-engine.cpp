@@ -57,6 +57,7 @@ using namespace Utils;
 namespace {
 enum {
     MAX_FUNCTION_LIKE_ARGUMENTS_COUNT = 100,
+    MAX_INCLUDE_DEPTH = 200,
     MAX_TOKEN_EXPANSION_COUNT = 5000,
     MAX_TOKEN_BUFFER_DEPTH = 16000 // for when macros are using some kind of right-folding, this is the list of "delayed" buffers waiting to be expanded after the current one.
 };
@@ -1676,6 +1677,15 @@ void Preprocessor::handleIncludeDirective(PPToken *tk, bool includeNext)
 {
     if (m_cancelChecker && m_cancelChecker())
         return;
+
+    GuardLocker depthLocker(m_includeDepthGuard);
+    if (m_includeDepthGuard.lockCount() > MAX_INCLUDE_DEPTH) {
+        // FIXME: Categorized logging!
+#ifndef NO_DEBUG
+        std::cerr << "Maximum include depth exceeded" << m_state.m_currentFileName << std::endl;
+#endif
+        return;
+    }
 
     m_state.m_lexer->setScanAngleStringLiteralTokens(true);
     lex(tk); // consume "include" token

@@ -29,6 +29,8 @@
 #include <cplusplus/Lexer.h>
 #include <cplusplus/Token.h>
 
+#include <utils/guard.h>
+
 #include <QVector>
 #include <QBitArray>
 #include <QByteArray>
@@ -241,6 +243,7 @@ private:
     Environment *m_env;
     QByteArray m_scratchBuffer;
     CancelChecker m_cancelChecker;
+    Utils::Guard m_includeDepthGuard;
 
     bool m_expandFunctionlikeMacros;
     bool m_keepComments;

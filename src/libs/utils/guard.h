@@ -16,6 +16,7 @@ public:
     Guard();
     ~Guard();
     bool isLocked() const;
+    int lockCount() const { return m_lockCount; }
 
     // Prefer using GuardLocker when possible. These two methods are provided only for cases
     // when locking and unlocking are done in separate methods, so that GuardLocker can't be
