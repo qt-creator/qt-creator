@@ -4,6 +4,7 @@
 #include "fossilsettings.h"
 
 #include "constants.h"
+#include "fossiltr.h"
 
 #include <coreplugin/icore.h>
 
@@ -26,30 +27,30 @@ FossilSettings::FossilSettings()
     binaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::FOSSILDEFAULT);
-    binaryPath.setDisplayName(tr("Fossil Command"));
+    binaryPath.setDisplayName(Tr::tr("Fossil Command"));
     binaryPath.setHistoryCompleter("Fossil.Command.History");
-    binaryPath.setLabelText(tr("Command:"));
+    binaryPath.setLabelText(Tr::tr("Command:"));
 
     registerAspect(&defaultRepoPath);
     defaultRepoPath.setSettingsKey("defaultRepoPath");
     defaultRepoPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     defaultRepoPath.setExpectedKind(PathChooser::Directory);
-    defaultRepoPath.setDisplayName(tr("Fossil Repositories"));
-    defaultRepoPath.setLabelText(tr("Default path:"));
-    defaultRepoPath.setToolTip(tr("Directory to store local repositories by default."));
+    defaultRepoPath.setDisplayName(Tr::tr("Fossil Repositories"));
+    defaultRepoPath.setLabelText(Tr::tr("Default path:"));
+    defaultRepoPath.setToolTip(Tr::tr("Directory to store local repositories by default."));
 
     registerAspect(&userName);
     userName.setDisplayStyle(StringAspect::LineEditDisplay);
-    userName.setLabelText(tr("Default user:"));
-    userName.setToolTip(tr("Existing user to become an author of changes made to the repository."));
+    userName.setLabelText(Tr::tr("Default user:"));
+    userName.setToolTip(Tr::tr("Existing user to become an author of changes made to the repository."));
 
     registerAspect(&sslIdentityFile);
     sslIdentityFile.setSettingsKey("sslIdentityFile");
     sslIdentityFile.setDisplayStyle(StringAspect::PathChooserDisplay);
     sslIdentityFile.setExpectedKind(PathChooser::File);
-    sslIdentityFile.setDisplayName(tr("SSL/TLS Identity Key"));
-    sslIdentityFile.setLabelText(tr("SSL/TLS identity:"));
-    sslIdentityFile.setToolTip(tr("SSL/TLS client identity key to use if requested by the server."));
+    sslIdentityFile.setDisplayName(Tr::tr("SSL/TLS Identity Key"));
+    sslIdentityFile.setLabelText(Tr::tr("SSL/TLS identity:"));
+    sslIdentityFile.setToolTip(Tr::tr("SSL/TLS client identity key to use if requested by the server."));
 
     registerAspect(&diffIgnoreAllWhiteSpace);
     diffIgnoreAllWhiteSpace.setSettingsKey("diffIgnoreAllWhiteSpace");
@@ -65,8 +66,8 @@ FossilSettings::FossilSettings()
 
     registerAspect(&timelineWidth);
     timelineWidth.setSettingsKey("timelineWidth");
-    timelineWidth.setLabelText(tr("Log width:"));
-    timelineWidth.setToolTip(tr("The width of log entry line (>20). "
+    timelineWidth.setLabelText(Tr::tr("Log width:"));
+    timelineWidth.setToolTip(Tr::tr("The width of log entry line (>20). "
         "Choose 0 to see a single line per entry."));
 
     registerAspect(&timelineLineageFilter);
@@ -82,17 +83,17 @@ FossilSettings::FossilSettings()
     registerAspect(&disableAutosync);
     disableAutosync.setSettingsKey("disableAutosync");
     disableAutosync.setDefaultValue(true);
-    disableAutosync.setLabelText(tr("Disable auto-sync"));
-    disableAutosync.setToolTip(tr("Disable automatic pull prior to commit or update and "
+    disableAutosync.setLabelText(Tr::tr("Disable auto-sync"));
+    disableAutosync.setToolTip(Tr::tr("Disable automatic pull prior to commit or update and "
         "automatic push after commit or tag or branch creation."));
 
     registerAspect(&timeout);
-    timeout.setLabelText(tr("Timeout:"));
-    timeout.setSuffix(tr("s"));
+    timeout.setLabelText(Tr::tr("Timeout:"));
+    timeout.setSuffix(Tr::tr("s"));
 
     registerAspect(&logCount);
-    logCount.setLabelText(tr("Log count:"));
-    logCount.setToolTip(tr("The number of recent commit log entries to show. "
+    logCount.setLabelText(Tr::tr("Log count:"));
+    logCount.setToolTip(Tr::tr("The number of recent commit log entries to show. "
         "Choose 0 to see all entries."));
 };
 
@@ -100,8 +101,6 @@ FossilSettings::FossilSettings()
 
 class OptionsPageWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Fossil::Internal::OptionsPageWidget)
-
 public:
     OptionsPageWidget(const std::function<void()> &onApply, FossilSettings *settings);
     void apply() final;
@@ -130,16 +129,16 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
 
     Column {
         Group {
-            title(tr("Configuration")),
+            title(Tr::tr("Configuration")),
             Row { s.binaryPath }
         },
 
         Group {
-            title(tr("Local Repositories")),
+            title(Tr::tr("Local Repositories")),
             Row { s.defaultRepoPath }
         },
         Group {
-            title(tr("User")),
+            title(Tr::tr("User")),
             Form {
                 s.userName, br,
                 s.sslIdentityFile
@@ -147,7 +146,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
         },
 
         Group {
-            title(tr("Miscellaneous")),
+            title(Tr::tr("Miscellaneous")),
             Column {
                 Row {
                 s.logCount,
@@ -166,7 +165,7 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
 OptionsPage::OptionsPage(const std::function<void()> &onApply, FossilSettings *settings)
 {
     setId(Constants::VCS_ID_FOSSIL);
-    setDisplayName(OptionsPageWidget::tr("Fossil"));
+    setDisplayName(Tr::tr("Fossil"));
     setWidgetCreator([onApply, settings]() { return new OptionsPageWidget(onApply, settings); });
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }

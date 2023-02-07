@@ -52,9 +52,9 @@ public:
 
         addReloadButton();
         if (features.testFlag(FossilClient::DiffIgnoreWhiteSpaceFeature)) {
-            mapSetting(addToggleButton("-w", tr("Ignore All Whitespace")),
+            mapSetting(addToggleButton("-w", Tr::tr("Ignore All Whitespace")),
                        &client->settings().diffIgnoreAllWhiteSpace);
-            mapSetting(addToggleButton("--strip-trailing-cr", tr("Strip Trailing CR")),
+            mapSetting(addToggleButton("--strip-trailing-cr", Tr::tr("Strip Trailing CR")),
                        &client->settings().diffStripTrailingCR);
         }
     }
@@ -75,7 +75,7 @@ public:
         FossilClient::SupportedFeatures features = client->supportedFeatures();
 
         if (features.testFlag(FossilClient::AnnotateBlameFeature)) {
-            mapSetting(addToggleButton("|BLAME|", tr("Show Committers")),
+            mapSetting(addToggleButton("|BLAME|", Tr::tr("Show Committers")),
                        &settings.annotateShowCommitters);
         }
 
@@ -83,7 +83,7 @@ public:
         // This way the annotated line number would not get offset by the version list.
         settings.annotateListVersions.setValue(false);
 
-        mapSetting(addToggleButton("--log", tr("List Versions")),
+        mapSetting(addToggleButton("--log", Tr::tr("List Versions")),
                    &settings.annotateListVersions);
     }
 };
@@ -130,11 +130,11 @@ public:
         // then parse it out in arguments.
         // All-choice is a blank argument with no additional parameters
         const QList<ChoiceItem> lineageFilterChoices = {
-            ChoiceItem(tr("Ancestors"), "ancestors"),
-            ChoiceItem(tr("Descendants"), "descendants"),
-            ChoiceItem(tr("Unfiltered"), "")
+            ChoiceItem(Tr::tr("Ancestors"), "ancestors"),
+            ChoiceItem(Tr::tr("Descendants"), "descendants"),
+            ChoiceItem(Tr::tr("Unfiltered"), "")
         };
-        mapSetting(addChoices(tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
+        mapSetting(addChoices(Tr::tr("Lineage"), QStringList("|LINEAGE|%1|current"), lineageFilterChoices),
                    &settings.timelineLineageFilter);
     }
 
@@ -143,8 +143,8 @@ public:
         FossilSettings &settings = m_client->settings();
 
         // show files
-        mapSetting(addToggleButton("-showfiles", tr("Verbose"),
-                                   tr("Show files changed in each revision")),
+        mapSetting(addToggleButton("-showfiles", Tr::tr("Verbose"),
+                                   Tr::tr("Show files changed in each revision")),
                    &settings.timelineVerbose);
     }
 
@@ -154,19 +154,19 @@ public:
 
         // option: -t <val>
         const QList<ChoiceItem> itemTypeChoices = {
-            ChoiceItem(tr("All Items"), "all"),
-            ChoiceItem(tr("File Commits"), "ci"),
-            ChoiceItem(tr("Technical Notes"), "e"),
-            ChoiceItem(tr("Tags"), "g"),
-            ChoiceItem(tr("Tickets"), "t"),
-            ChoiceItem(tr("Wiki Commits"), "w")
+            ChoiceItem(Tr::tr("All Items"), "all"),
+            ChoiceItem(Tr::tr("File Commits"), "ci"),
+            ChoiceItem(Tr::tr("Technical Notes"), "e"),
+            ChoiceItem(Tr::tr("Tags"), "g"),
+            ChoiceItem(Tr::tr("Tickets"), "t"),
+            ChoiceItem(Tr::tr("Wiki Commits"), "w")
         };
 
         // here we setup the ComboBox to map to the "-t <val>", which will produce
         // the enquoted option-values (e.g "-t all").
         // Fossil expects separate arguments for option and value ( i.e. "-t" "all")
         // so we need to handle the splitting explicitly in arguments().
-        mapSetting(addChoices(tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
+        mapSetting(addChoices(Tr::tr("Item Types"), QStringList("-t %1"), itemTypeChoices),
                    &settings.timelineItemType);
     }
 

@@ -4,6 +4,7 @@
 #include "configuredialog.h"
 
 #include "fossilsettings.h"
+#include "fossiltr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -43,22 +44,22 @@ public:
 ConfigureDialog::ConfigureDialog(QWidget *parent) : QDialog(parent),
     d(new ConfigureDialogPrivate)
 {
-    setWindowTitle(tr("Configure Repository"));
+    setWindowTitle(Tr::tr("Configure Repository"));
     resize(600, 0);
 
     d->m_userLineEdit = new QLineEdit;
     d->m_userLineEdit->setToolTip(
-        tr("Existing user to become an author of changes made to the repository."));
+        Tr::tr("Existing user to become an author of changes made to the repository."));
 
     d->m_sslIdentityFilePathChooser = new Utils::PathChooser;
     d->m_sslIdentityFilePathChooser->setExpectedKind(Utils::PathChooser::File);
-    d->m_sslIdentityFilePathChooser->setPromptDialogTitle(tr("SSL/TLS Identity Key"));
+    d->m_sslIdentityFilePathChooser->setPromptDialogTitle(Tr::tr("SSL/TLS Identity Key"));
     d->m_sslIdentityFilePathChooser->setToolTip(
-        tr("SSL/TLS client identity key to use if requested by the server."));
+        Tr::tr("SSL/TLS client identity key to use if requested by the server."));
 
-    d->m_disableAutosyncCheckBox = new QCheckBox(tr("Disable auto-sync"));
+    d->m_disableAutosyncCheckBox = new QCheckBox(Tr::tr("Disable auto-sync"));
     d->m_disableAutosyncCheckBox->setToolTip(
-        tr("Disable automatic pull prior to commit or update and automatic push "
+        Tr::tr("Disable automatic pull prior to commit or update and automatic push "
            "after commit or tag or branch creation."));
 
     auto buttonBox = new QDialogButtonBox;
@@ -69,13 +70,13 @@ ConfigureDialog::ConfigureDialog(QWidget *parent) : QDialog(parent),
     using namespace Utils::Layouting;
     Column {
         Group {
-            title(tr("Repository User")),
-            Form { tr("User:"), d->m_userLineEdit, },
+            title(Tr::tr("Repository User")),
+            Form { Tr::tr("User:"), d->m_userLineEdit, },
         },
         Group {
-            title(tr("Repository Settings")),
+            title(Tr::tr("Repository Settings")),
             Form {
-                tr("SSL/TLS identity:"), d->m_sslIdentityFilePathChooser, br,
+                Tr::tr("SSL/TLS identity:"), d->m_sslIdentityFilePathChooser, br,
                 d->m_disableAutosyncCheckBox,
             },
         },

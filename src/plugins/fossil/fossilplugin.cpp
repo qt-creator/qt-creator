@@ -115,8 +115,6 @@ const VcsBaseSubmitEditorParameters submitEditorParameters {
 
 class FossilPluginPrivate final : public VcsBase::VcsBasePluginPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(Fossil::Internal::FossilPlugin)
-
 public:
     enum SyncMode {
         SyncPull,
@@ -247,8 +245,6 @@ static FossilPluginPrivate *dd = nullptr;
 
 class RevertDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Fossil::Internal::FossilPlugin)
-
 public:
     RevertDialog(const QString &title, QWidget *parent = nullptr);
 
@@ -309,7 +305,7 @@ void FossilPluginPrivate::createMenu(const Core::Context &context)
     // Create menu item for Fossil
     m_fossilContainer = Core::ActionManager::createMenu("Fossil.FossilMenu");
     QMenu *menu = m_fossilContainer->menu();
-    menu->setTitle(tr("&Fossil"));
+    menu->setTitle(Tr::tr("&Fossil"));
 
     createFileActions(context);
     m_fossilContainer->addSeparator(context);
@@ -328,54 +324,57 @@ void FossilPluginPrivate::createFileActions(const Core::Context &context)
 {
     Core::Command *command;
 
-    m_annotateFile = new Utils::ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_annotateFile = new Utils::ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_annotateFile, Constants::ANNOTATE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_annotateFile, &QAction::triggered, this, &FossilPluginPrivate::annotateCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_diffFile = new Utils::ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_diffFile = new Utils::ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_diffFile, Constants::DIFF, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+D") : tr("ALT+I,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+D")
+                                                                      : Tr::tr("ALT+I,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &FossilPluginPrivate::diffCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logFile = new Utils::ParameterAction(tr("Timeline Current File"), tr("Timeline \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_logFile = new Utils::ParameterAction(Tr::tr("Timeline Current File"), Tr::tr("Timeline \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_logFile, Constants::LOG, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+L") : tr("ALT+I,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+L")
+                                                                      : Tr::tr("ALT+I,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &FossilPluginPrivate::logCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusFile = new Utils::ParameterAction(tr("Status Current File"), tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_statusFile = new Utils::ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_statusFile, Constants::STATUS, context);
     command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+S") : tr("ALT+I,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+S")
+                                                                      : Tr::tr("ALT+I,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &FossilPluginPrivate::statusCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_fossilContainer->addSeparator(context);
 
-    m_addAction = new Utils::ParameterAction(tr("Add Current File"), tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
+    m_addAction = new Utils::ParameterAction(Tr::tr("Add Current File"), Tr::tr("Add \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_addAction, Constants::ADD, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &FossilPluginPrivate::addCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new Utils::ParameterAction(tr("Delete Current File..."), tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new Utils::ParameterAction(Tr::tr("Delete Current File..."), Tr::tr("Delete \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_deleteAction, Constants::DELETE, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &FossilPluginPrivate::deleteCurrentFile);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertFile = new Utils::ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
+    m_revertFile = new Utils::ParameterAction(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
     command = Core::ActionManager::registerAction(m_revertFile, Constants::REVERT, context);
     command->setAttribute(Core::Command::CA_UpdateText);
     connect(m_revertFile, &QAction::triggered, this, &FossilPluginPrivate::revertCurrentFile);
@@ -456,29 +455,30 @@ void FossilPluginPrivate::createDirectoryActions(const Core::Context &context)
     QAction *action;
     Core::Command *command;
 
-    action = new QAction(tr("Diff"), this);
+    action = new QAction(Tr::tr("Diff"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::DIFFMULTI, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::diffRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Timeline"), this);
+    action = new QAction(Tr::tr("Timeline"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::LOGMULTI, context);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+T") : tr("ALT+I,Alt+T")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+T")
+                                                                      : Tr::tr("ALT+I,Alt+T")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::logRepository);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Revert..."), this);
+    action = new QAction(Tr::tr("Revert..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::REVERTMULTI, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::revertAll);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Status"), this);
+    action = new QAction(Tr::tr("Status"), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::STATUSMULTI, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::statusMulti);
@@ -513,7 +513,7 @@ void FossilPluginPrivate::revertAll()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    RevertDialog dialog(tr("Revert"), Core::ICore::dialogParent());
+    RevertDialog dialog(Tr::tr("Revert"), Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
         m_client.revertAll(state.topLevel(), dialog.m_revisionLineEdit->text());
 }
@@ -530,37 +530,39 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
     QAction *action = 0;
     Core::Command *command = 0;
 
-    action = new QAction(tr("Pull..."), this);
+    action = new QAction(Tr::tr("Pull..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::PULL, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::pull);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Push..."), this);
+    action = new QAction(Tr::tr("Push..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::PUSH, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::push);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Update..."), this);
+    action = new QAction(Tr::tr("Update..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::UPDATE, context);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+U") : tr("ALT+I,Alt+U")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+U")
+                                                                      : Tr::tr("ALT+I,Alt+U")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::update);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Commit..."), this);
+    action = new QAction(Tr::tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+I,Meta+C") : tr("ALT+I,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+I,Meta+C")
+                                                                      : Tr::tr("ALT+I,Alt+C")));
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::commit);
     m_fossilContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Settings ..."), this);
+    action = new QAction(Tr::tr("Settings ..."), this);
     m_repositoryActionList.append(action);
     command = Core::ActionManager::registerAction(action, Constants::CONFIGURE_REPOSITORY, context);
     connect(action, &QAction::triggered, this, &FossilPluginPrivate::configureRepository);
@@ -569,7 +571,7 @@ void FossilPluginPrivate::createRepositoryActions(const Core::Context &context)
 
     // Register "Create Repository..." action in global context, so that it's visible
     // without active repository to allow creating a new one.
-    m_createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    m_createRepositoryAction = new QAction(Tr::tr("Create Repository..."), this);
     command = Core::ActionManager::registerAction(m_createRepositoryAction, Constants::CREATE_REPOSITORY);
     connect(m_createRepositoryAction, &QAction::triggered, this, &FossilPluginPrivate::createRepository);
     m_fossilContainer->addAction(command);
@@ -601,7 +603,7 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
 
     QString remoteLocation(dialog.remoteLocation());
     if (remoteLocation.isEmpty() && defaultURL.isEmpty()) {
-        VcsBase::VcsOutputWindow::appendError(tr("Remote repository is not defined."));
+        VcsBase::VcsOutputWindow::appendError(Tr::tr("Remote repository is not defined."));
         return false;
     } else if (remoteLocation == defaultURL) {
         remoteLocation.clear();
@@ -627,7 +629,7 @@ void FossilPluginPrivate::update()
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    RevertDialog dialog(tr("Update"), Core::ICore::dialogParent());
+    RevertDialog dialog(Tr::tr("Update"), Core::ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
         m_client.update(state.topLevel(), dialog.m_revisionLineEdit->text());
 }
@@ -673,7 +675,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
                this, &FossilPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
-        VcsBase::VcsOutputWindow::appendError(tr("There are no changes to commit."));
+        VcsBase::VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
         return;
     }
 
@@ -688,19 +690,19 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBase::VcsBaseClient::S
 
     Core::IEditor *editor = Core::EditorManager::openEditor(saver.filePath(), Constants::COMMIT_ID);
     if (!editor) {
-        VcsBase::VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
+        VcsBase::VcsOutputWindow::appendError(Tr::tr("Unable to create an editor for the commit."));
         return;
     }
 
     CommitEditor *commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        VcsBase::VcsOutputWindow::appendError(tr("Unable to create a commit editor."));
+        VcsBase::VcsOutputWindow::appendError(Tr::tr("Unable to create a commit editor."));
         return;
     }
     setSubmitEditor(commitEditor);
 
-    const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
+    const QString msg = Tr::tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const RevisionInfo currentRevision = m_client.synchronousRevisionQuery(m_submitRepository);
@@ -739,28 +741,28 @@ void FossilPluginPrivate::createRepository()
     // Prompt for a directory that is not under version control yet
     QWidget *mw = Core::ICore::dialogParent();
     do {
-        directory = FileUtils::getExistingDirectory(nullptr, tr("Choose Checkout Directory"), directory);
+        directory = FileUtils::getExistingDirectory(nullptr, Tr::tr("Choose Checkout Directory"), directory);
         if (directory.isEmpty())
             return;
         const Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
-        const QString question = tr("The directory \"%1\" is already managed by a version control system (%2)."
+        const QString question = Tr::tr("The directory \"%1\" is already managed by a version control system (%2)."
                                     " Would you like to specify another directory?").arg(directory.toUserOutput(), managingControl->displayName());
 
-        if (!ask(mw, tr("Repository already under version control"), question))
+        if (!ask(mw, Tr::tr("Repository already under version control"), question))
             return;
     } while (true);
     // Create
     const bool rc = vcsCreateRepository(directory);
     const QString nativeDir = directory.toUserOutput();
     if (rc) {
-        QMessageBox::information(mw, tr("Repository Created"),
-                                 tr("A version control repository has been created in %1.").
+        QMessageBox::information(mw, Tr::tr("Repository Created"),
+                                 Tr::tr("A version control repository has been created in %1.").
                                  arg(nativeDir));
     } else {
-        QMessageBox::warning(mw, tr("Repository Creation Failed"),
-                                 tr("A version control repository could not be created in %1.").
+        QMessageBox::warning(mw, Tr::tr("Repository Creation Failed"),
+                                 Tr::tr("A version control repository could not be created in %1.").
                                  arg(nativeDir));
     }
 }
@@ -841,7 +843,7 @@ void FossilPluginPrivate::updateActions(VcsBase::VcsBasePluginPrivate::ActionSta
 
 QString FossilPluginPrivate::displayName() const
 {
-    return tr("Fossil");
+    return Tr::tr("Fossil");
 }
 
 Id FossilPluginPrivate::id() const
@@ -1077,10 +1079,10 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
     resize(600, 0);
     setWindowTitle(title);
 
-    auto *groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+    auto *groupBox = new QGroupBox(Tr::tr("Specify a revision other than the default?"));
     groupBox->setCheckable(true);
     groupBox->setChecked(false);
-    groupBox->setToolTip(tr("Checkout revision, can also be a branch or a tag name."));
+    groupBox->setToolTip(Tr::tr("Checkout revision, can also be a branch or a tag name."));
 
     m_revisionLineEdit = new QLineEdit;
 
@@ -1091,7 +1093,7 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
 
     using namespace Utils::Layouting;
     Form {
-        tr("Revision"), m_revisionLineEdit, br,
+        Tr::tr("Revision"), m_revisionLineEdit, br,
     }.attachTo(groupBox);
 
     Column {

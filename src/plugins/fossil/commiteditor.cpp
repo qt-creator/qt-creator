@@ -1,10 +1,12 @@
 // Copyright (c) 2018 Artur Shepilko
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "branchinfo.h"
 #include "commiteditor.h"
+
+#include "branchinfo.h"
 #include "constants.h"
 #include "fossilcommitwidget.h"
+#include "fossiltr.h"
 
 #include <coreplugin/idocument.h>
 #include <vcsbase/submitfilemodel.h>
@@ -17,7 +19,7 @@ namespace Internal {
 CommitEditor::CommitEditor() :
     VcsBase::VcsBaseSubmitEditor(new FossilCommitWidget)
 {
-    document()->setPreferredDisplayName(tr("Commit Editor"));
+    document()->setPreferredDisplayName(Tr::tr("Commit Editor"));
 }
 
 FossilCommitWidget *CommitEditor::commitWidget()

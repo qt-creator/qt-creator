@@ -4,6 +4,7 @@
 #include "pullorpushdialog.h"
 
 #include "constants.h"
+#include "fossiltr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -20,31 +21,31 @@ namespace Internal {
 PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(mode == PullMode ? tr("Pull Source") : tr("Push Destination"));
+    setWindowTitle(mode == PullMode ? Tr::tr("Pull Source") : Tr::tr("Push Destination"));
     resize(600, 0);
 
-    m_defaultButton = new QRadioButton(tr("Default location"));
+    m_defaultButton = new QRadioButton(Tr::tr("Default location"));
     m_defaultButton->setChecked(true);
 
-    m_localButton = new QRadioButton(tr("Local filesystem:"));
+    m_localButton = new QRadioButton(Tr::tr("Local filesystem:"));
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
     m_localPathChooser->setExpectedKind(Utils::PathChooser::File);
-    m_localPathChooser->setPromptDialogFilter(tr(Constants::FOSSIL_FILE_FILTER));
+    m_localPathChooser->setPromptDialogFilter(Tr::tr(Constants::FOSSIL_FILE_FILTER));
 
-    m_urlButton = new QRadioButton(tr("Specify URL:"));
-    m_urlButton->setToolTip(tr("For example: https://[user[:pass]@]host[:port]/[path]"));
+    m_urlButton = new QRadioButton(Tr::tr("Specify URL:"));
+    m_urlButton->setToolTip(Tr::tr("For example: https://[user[:pass]@]host[:port]/[path]"));
 
     m_urlLineEdit = new QLineEdit;
     m_urlLineEdit->setEnabled(false);
     m_urlLineEdit->setToolTip(m_urlButton->toolTip());
 
-    m_rememberCheckBox = new QCheckBox(tr("Remember specified location as default"));
+    m_rememberCheckBox = new QCheckBox(Tr::tr("Remember specified location as default"));
     m_rememberCheckBox->setEnabled(false);
 
-    m_privateCheckBox = new QCheckBox(tr("Include private branches"));
-    m_privateCheckBox->setToolTip(tr("Allow transfer of private branches."));
+    m_privateCheckBox = new QCheckBox(Tr::tr("Include private branches"));
+    m_privateCheckBox->setToolTip(Tr::tr("Allow transfer of private branches."));
 
     auto buttonBox = new QDialogButtonBox;
     buttonBox->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -54,7 +55,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     using namespace Utils::Layouting;
     Column {
         Group {
-            title(tr("Remote Location")),
+            title(Tr::tr("Remote Location")),
             Form {
                 m_defaultButton, br,
                 m_localButton, m_localPathChooser, br,
@@ -62,7 +63,7 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
             },
         },
         Group {
-            title(tr("Options")),
+            title(Tr::tr("Options")),
             Column { m_rememberCheckBox, m_privateCheckBox, },
         },
         buttonBox,

@@ -4,6 +4,7 @@
 #include "fossilcommitwidget.h"
 
 #include "branchinfo.h"
+#include "fossiltr.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
@@ -91,13 +92,13 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
     m_invalidBranchLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     m_invalidBranchLabel->setType(InfoLabel::Error);
 
-    m_isPrivateCheckBox = new QCheckBox(tr("Private"));
-    m_isPrivateCheckBox->setToolTip(tr("Create a private check-in that is never synced.\n"
+    m_isPrivateCheckBox = new QCheckBox(Tr::tr("Private"));
+    m_isPrivateCheckBox->setToolTip(Tr::tr("Create a private check-in that is never synced.\n"
                                        "Children of private check-ins are automatically private.\n"
                                        "Private check-ins are not pushed to the remote repository by default."));
 
     m_tagsLineEdit = new QLineEdit;
-    m_tagsLineEdit->setToolTip(tr("Tag names to apply; comma-separated."));
+    m_tagsLineEdit->setToolTip(Tr::tr("Tag names to apply; comma-separated."));
 
     m_authorLineEdit = new QLineEdit;
 
@@ -105,19 +106,19 @@ FossilCommitWidget::FossilCommitWidget() : m_commitPanel(new QWidget)
 
     Column {
         Group {
-            title(tr("Current Information")),
+            title(Tr::tr("Current Information")),
             Form {
-                tr("Local root:"), m_localRootLineEdit,
-                tr("Branch:"), m_currentBranchLineEdit,
-                tr("Tags:"), m_currentTagsLineEdit
+                Tr::tr("Local root:"), m_localRootLineEdit,
+                Tr::tr("Branch:"), m_currentBranchLineEdit,
+                Tr::tr("Tags:"), m_currentTagsLineEdit
             }
         },
         Group {
-            title(tr("Commit Information")),
+            title(Tr::tr("Commit Information")),
             Grid {
-                tr("New branch:"), m_branchLineEdit,  m_invalidBranchLabel, m_isPrivateCheckBox, br,
-                tr("Tags:"), m_tagsLineEdit, br,
-                tr("Author:"),  m_authorLineEdit, st,
+                Tr::tr("New branch:"), m_branchLineEdit,  m_invalidBranchLabel, m_isPrivateCheckBox, br,
+                Tr::tr("Tags:"), m_tagsLineEdit, br,
+                Tr::tr("Author:"),  m_authorLineEdit, st,
             }
         }
     }.attachTo(m_commitPanel, WithoutMargins);
@@ -171,7 +172,7 @@ bool FossilCommitWidget::canSubmit(QString *whyNot) const
 
     if (m_invalidBranchLabel->isVisible() || message.isEmpty()) {
         if (whyNot)
-            *whyNot = tr("Message check failed.");
+            *whyNot = Tr::tr("Message check failed.");
         return false;
     }
 
