@@ -5,7 +5,9 @@
 
 #include "builddirparameters.h"
 #include "cmakeparser.h"
+#include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakespecificsettings.h"
 
 #include <coreplugin/progressmanager/processprogress.h>
 #include <projectexplorer/buildsystem.h>
@@ -85,6 +87,16 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
             emit finished(failedToStartExitCode);
             return;
         }
+    }
+
+    // Copy the "package-manager" CMake code from the ${IDE:ResourcePath} to the build directory
+    if (Internal::CMakeSpecificSettings::instance()->packageManagerAutoSetup.value()) {
+        const FilePath localPackageManagerDir = buildDirectory.pathAppended(Constants::PACKAGE_MANAGER_DIR);
+        const FilePath idePackageManagerDir = FilePath::fromString(
+            parameters.expander->expand(QStringLiteral("%{IDE:ResourcePath}/package-manager")));
+
+        if (!localPackageManagerDir.exists() && idePackageManagerDir.exists())
+            idePackageManagerDir.copyRecursively(localPackageManagerDir);
     }
 
     const auto parser = new CMakeParser;

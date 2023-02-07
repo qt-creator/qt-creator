@@ -467,7 +467,8 @@ void CMakeBuildSystem::clearCMakeCache()
         m_parameters.buildDirectory / "CMakeCache.txt.prev",
         m_parameters.buildDirectory / "CMakeFiles",
         m_parameters.buildDirectory / ".cmake/api/v1/reply",
-        m_parameters.buildDirectory / ".cmake/api/v1/reply.prev"
+        m_parameters.buildDirectory / ".cmake/api/v1/reply.prev",
+        m_parameters.buildDirectory / Constants::PACKAGE_MANAGER_DIR
     };
 
     for (const FilePath &path : pathsToDelete)

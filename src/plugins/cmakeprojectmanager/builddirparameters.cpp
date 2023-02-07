@@ -14,6 +14,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -28,20 +29,20 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
     auto bc = buildSystem->cmakeBuildConfiguration();
     QTC_ASSERT(bc, return);
 
-    const Utils::MacroExpander *expander = bc->macroExpander();
+    expander = bc->macroExpander();
 
     const QStringList expandedArguments = Utils::transform(buildSystem->initialCMakeArguments(),
-                                                           [expander](const QString &s) {
+                                                           [this](const QString &s) {
                                                                return expander->expand(s);
                                                            });
     initialCMakeArguments = Utils::filtered(expandedArguments,
                                             [](const QString &s) { return !s.isEmpty(); });
     configurationChangesArguments = Utils::transform(buildSystem->configurationChangesArguments(),
-                                                     [expander](const QString &s) {
+                                                     [this](const QString &s) {
                                                          return expander->expand(s);
                                                      });
     additionalCMakeArguments = Utils::transform(buildSystem->additionalCMakeArguments(),
-                                                [expander](const QString &s) {
+                                                [this](const QString &s) {
                                                     return expander->expand(s);
                                                 });
     const Target *t = bc->target();
