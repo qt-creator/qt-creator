@@ -479,8 +479,8 @@ void QmakeProjectManagerPlugin::testMakefileParser()
     MakeFileParse parser("/tmp/something", MakeFileParse::Mode::FilterKnownConfigValues);
     parser.parseCommandLine(command, project);
 
-    QCOMPARE(ProcessArgs::splitArgs(parser.unparsedArguments()),
-             ProcessArgs::splitArgs(unparsedArguments));
+    QCOMPARE(ProcessArgs::splitArgs(parser.unparsedArguments(), HostOsInfo::hostOs()),
+             ProcessArgs::splitArgs(unparsedArguments, HostOsInfo::hostOs()));
     QCOMPARE(parser.effectiveBuildConfig({}), effectiveBuildConfig);
 
     const QMakeStepConfig qmsc = parser.config();

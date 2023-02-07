@@ -76,7 +76,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
 
     auto updateUi = [=] {
         const CommandLine cmd = commandLine();
-        const QStringList parts = ProcessArgs::splitArgs(cmd.toUserOutput());
+        const QStringList parts = ProcessArgs::splitArgs(cmd.toUserOutput(), HostOsInfo::hostOs());
 
         commandTextEdit->setText(parts.join(QChar::LineFeed));
 

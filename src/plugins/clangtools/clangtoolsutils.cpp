@@ -284,7 +284,7 @@ static QStringList extraOptions(const QString &envVar)
     if (!qtcEnvironmentVariableIsSet(envVar))
         return QStringList();
     QString arguments = qtcEnvironmentVariable(envVar);
-    return Utils::ProcessArgs::splitArgs(arguments);
+    return ProcessArgs::splitArgs(arguments, HostOsInfo::hostOs());
 }
 
 QStringList extraClangToolsPrependOptions()

@@ -86,7 +86,7 @@ QStringList CallgrindToolRunner::toolArguments() const
 
     arguments << "--callgrind-out-file=" + m_valgrindOutputFile.path();
 
-    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments.value());
+    arguments << ProcessArgs::splitArgs(m_settings.callgrindArguments.value(), HostOsInfo::hostOs());
 
     return arguments;
 }

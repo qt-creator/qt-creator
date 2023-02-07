@@ -122,7 +122,7 @@ QStringList PerfSettings::perfRecordArguments() const
                         "--call-graph", callgraphArg,
                         sampleMode.itemValue().toString(),
                         QString::number(period.value())})
-         + ProcessArgs::splitArgs(extraArguments.value());
+         + ProcessArgs::splitArgs(extraArguments.value(), HostOsInfo::hostOs());
 }
 
 void PerfSettings::resetToDefault()

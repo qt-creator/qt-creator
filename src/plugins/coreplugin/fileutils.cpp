@@ -76,7 +76,8 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         const QString folder = fileInfo.isDir() ? fileInfo.absoluteFilePath() : fileInfo.filePath();
         const QString app = UnixUtils::fileBrowser(ICore::settings());
         QStringList browserArgs = ProcessArgs::splitArgs(
-                    UnixUtils::substituteFileBrowserParameters(app, folder));
+                    UnixUtils::substituteFileBrowserParameters(app, folder),
+                    HostOsInfo::hostOs());
         QString error;
         if (browserArgs.isEmpty()) {
             error = Tr::tr("The command for file browser is not set.");

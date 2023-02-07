@@ -214,7 +214,7 @@ QStringList MemcheckToolRunner::toolArguments() const
     if (m_withGdb)
         arguments << "--vgdb=yes" << "--vgdb-error=0";
 
-    arguments << Utils::ProcessArgs::splitArgs(m_settings.memcheckArguments.value());
+    arguments << ProcessArgs::splitArgs(m_settings.memcheckArguments.value(), HostOsInfo::hostOs());
 
     return arguments;
 }

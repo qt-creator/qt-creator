@@ -245,7 +245,7 @@ QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
                         continue;
 
                     // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
-                    const QStringList parts = ProcessArgs::splitArgs(f.fragment);
+                    const QStringList parts = ProcessArgs::splitArgs(f.fragment, HostOsInfo::hostOs());
                     for (QString part : parts) {
                         // Library search paths that are added with target_link_directories are added as
                         // -LIBPATH:... (Windows/MSVC), or
@@ -306,7 +306,7 @@ static QStringList splitFragments(const QStringList &fragments)
 {
     QStringList result;
     for (const QString &f : fragments) {
-        result += ProcessArgs::splitArgs(f);
+        result += ProcessArgs::splitArgs(f, HostOsInfo::hostOs());
     }
     return result;
 }

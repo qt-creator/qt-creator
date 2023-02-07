@@ -1385,8 +1385,10 @@ void GccToolChainConfigWidget::setFromToolchain()
     QSignalBlocker blocker(this);
     auto tc = static_cast<GccToolChain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
-    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags()));
-    m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags()));
+    m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformCodeGenFlags(),
+                                                                  HostOsInfo::hostOs()));
+    m_platformLinkerFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->platformLinkerFlags(),
+                                                                 HostOsInfo::hostOs()));
     if (m_abiWidget) {
         m_abiWidget->setAbis(tc->supportedAbis(), tc->targetAbi());
         if (!m_isReadOnly && !m_compilerCommand->filePath().toString().isEmpty())

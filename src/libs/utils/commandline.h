@@ -55,7 +55,7 @@ public:
     //! Append already quoted arguments to a shell command
     static void addArgs(QString *args, const QString &inArgs);
     //! Split a shell command into separate arguments.
-    static QStringList splitArgs(const QString &cmd, OsType osType = HostOsInfo::hostOs(),
+    static QStringList splitArgs(const QString &cmd, OsType osType,
                                  bool abortOnMeta = false, SplitError *err = nullptr,
                                  const Environment *env = nullptr, const QString *pwd = nullptr);
     //! Safely replace the expandos in a shell command

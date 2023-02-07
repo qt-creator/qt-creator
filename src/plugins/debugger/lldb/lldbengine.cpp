@@ -267,7 +267,8 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
     cmd2.arg("environment", rp.inferior.environment.toStringList());
-    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments()).join(QChar(0))));
+    cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments(),
+                                                         HostOsInfo::hostOs()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
     cmd2.arg("symbolfile", rp.symbolFile.path());
 

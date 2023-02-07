@@ -242,7 +242,8 @@ QWidget *IosDsymBuildStep::createConfigWidget()
 
     connect(argumentsTextEdit, &QPlainTextEdit::textChanged, this,
             [this, argumentsTextEdit, resetDefaultsButton, updateDetails] {
-        setArguments(Utils::ProcessArgs::splitArgs(argumentsTextEdit->toPlainText()));
+        setArguments(ProcessArgs::splitArgs(argumentsTextEdit->toPlainText(),
+                                            HostOsInfo::hostOs()));
         resetDefaultsButton->setEnabled(!isDefault());
         updateDetails();
     });

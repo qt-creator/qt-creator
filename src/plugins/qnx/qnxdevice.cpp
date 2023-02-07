@@ -48,7 +48,7 @@ QnxProcessImpl::QnxProcessImpl(const LinuxDevice *linuxDevice)
 
 QString QnxProcessImpl::fullCommandLine(const CommandLine &commandLine) const
 {
-    QStringList args = ProcessArgs::splitArgs(commandLine.arguments());
+    QStringList args = ProcessArgs::splitArgs(commandLine.arguments(), HostOsInfo::hostOs());
     args.prepend(commandLine.executable().toString());
     const QString cmd = ProcessArgs::createUnixArgs(args).toString();
 

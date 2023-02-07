@@ -261,7 +261,7 @@ void MakeInstallStep::updateFromCustomCommandLineAspect()
     const StringAspect * const aspect = customCommandLineAspect();
     if (!aspect->isChecked())
         return;
-    const QStringList tokens = ProcessArgs::splitArgs(aspect->value());
+    const QStringList tokens = ProcessArgs::splitArgs(aspect->value(), HostOsInfo::hostOs());
     setMakeCommand(tokens.isEmpty() ? FilePath() : FilePath::fromString(tokens.first()));
     setUserArguments(ProcessArgs::joinArgs(tokens.mid(1)));
 }

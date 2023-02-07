@@ -101,7 +101,8 @@ QWidget *IosBuildStep::createConfigWidget()
     updateDetails();
 
     connect(buildArgumentsTextEdit, &QPlainTextEdit::textChanged, this, [=] {
-        setBaseArguments(ProcessArgs::splitArgs(buildArgumentsTextEdit->toPlainText()));
+        setBaseArguments(ProcessArgs::splitArgs(buildArgumentsTextEdit->toPlainText(),
+                                                HostOsInfo::hostOs()));
         resetDefaultsButton->setEnabled(!m_useDefaultArguments);
         updateDetails();
     });
@@ -113,7 +114,8 @@ QWidget *IosBuildStep::createConfigWidget()
     });
 
     connect(extraArgumentsLineEdit, &QLineEdit::editingFinished, this, [=] {
-        setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text()));
+        setExtraArguments(ProcessArgs::splitArgs(extraArgumentsLineEdit->text(),
+                                                 HostOsInfo::hostOs()));
     });
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,

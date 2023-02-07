@@ -400,7 +400,7 @@ static QStringList readFlags(const QString &filePath)
         return QStringList();
     QStringList flags;
     for (const auto &line : lines)
-        flags.append(ProcessArgs::splitArgs(line));
+        flags.append(ProcessArgs::splitArgs(line, HostOsInfo::hostOs()));
     return flags;
 }
 

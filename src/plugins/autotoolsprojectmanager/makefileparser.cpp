@@ -13,6 +13,8 @@
 #include <QFile>
 #include <QFileInfo>
 
+using namespace Utils;
+
 namespace AutotoolsProjectManager::Internal {
 
 MakefileParser::MakefileParser(const QString &makefile) : m_makefile(makefile)
@@ -423,7 +425,7 @@ QStringList MakefileParser::parseTermsAfterAssign(const QString &line)
     if (assignPos <= 0 || assignPos >= line.size())
         return QStringList();
 
-    const QStringList parts = Utils::ProcessArgs::splitArgs(line.mid(assignPos));
+    const QStringList parts = ProcessArgs::splitArgs(line.mid(assignPos), HostOsInfo::hostOs());
     QStringList result;
     for (int i = 0; i < parts.count(); ++i) {
         const QString cur = parts.at(i);
