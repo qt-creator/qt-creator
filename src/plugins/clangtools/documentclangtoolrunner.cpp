@@ -233,7 +233,7 @@ void DocumentClangToolRunner::onDone(const AnalyzeOutputData &output)
 
     const FilePath mappedPath = vfso().autoSavedFilePath(m_document);
     Diagnostics diagnostics = readExportedDiagnostics(
-        FilePath::fromString(output.outputFilePath),
+        output.outputFilePath,
         [&](const FilePath &path) { return path == mappedPath; });
 
     for (Diagnostic &diag : diagnostics) {

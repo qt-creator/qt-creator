@@ -39,7 +39,7 @@ struct AnalyzeOutputData
 {
     bool success = true;
     Utils::FilePath fileToAnalyze;
-    QString outputFilePath;
+    Utils::FilePath outputFilePath;
     CppEditor::ClangToolType toolType;
     QString errorMessage = {};
     QString errorDetails = {};

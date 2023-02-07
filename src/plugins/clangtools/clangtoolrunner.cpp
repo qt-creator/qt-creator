@@ -85,7 +85,7 @@ static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
     return arguments;
 }
 
-static QString createOutputFilePath(const FilePath &dirPath, const FilePath &fileToAnalyze)
+static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fileToAnalyze)
 {
     const QString fileName = fileToAnalyze.fileName();
     const FilePath fileTemplate = dirPath.pathAppended("report-" + fileName + "-XXXXXX");
@@ -95,7 +95,7 @@ static QString createOutputFilePath(const FilePath &dirPath, const FilePath &fil
     temporaryFile.setFileTemplate(fileTemplate.path());
     if (temporaryFile.open()) {
         temporaryFile.close();
-        return temporaryFile.fileName();
+        return FilePath::fromString(temporaryFile.fileName());
     }
     return {};
 }
@@ -106,15 +106,15 @@ TaskItem clangToolTask(const AnalyzeInputData &input,
 {
     struct ClangToolStorage {
         QString name;
-        Utils::FilePath executable;
-        QString outputFilePath;
+        FilePath executable;
+        FilePath outputFilePath;
     };
     const TreeStorage<ClangToolStorage> storage;
 
     const auto mainToolArguments = [=](const ClangToolStorage *data)
     {
         QStringList result;
-        result << "-export-fixes=" + data->outputFilePath;
+        result << "-export-fixes=" + data->outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data->executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
         result << input.unit.file.nativePath();
