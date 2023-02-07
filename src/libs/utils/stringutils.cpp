@@ -487,7 +487,7 @@ QTCREATOR_UTILS_EXPORT QString trimFront(const QString &string, QChar ch)
         return string;
     if (i == size)
         return {};
-    return string.sliced(i);
+    return string.mid(i);
 }
 
 /*!
