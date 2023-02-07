@@ -11,10 +11,10 @@ namespace Constants {
 const char INFO_READ_ONLY[] = "DesignerXmlEditor.ReadOnly";
 const char K_DESIGNER_XML_EDITOR_ID[] = "FormEditor.DesignerXmlEditor";
 const char C_DESIGNER_XML_EDITOR[] = "Designer Xml Editor";
-const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("Designer", "Form Editor");
+const char C_DESIGNER_XML_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("::Designer", "Form Editor");
 
 const char SETTINGS_CATEGORY[] = "P.Designer";
-const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("Designer", "Designer");
+const char SETTINGS_TR_CATEGORY[] = QT_TRANSLATE_NOOP("::Designer", "Designer");
 
 // Context
 const char C_FORMEDITOR[] = "FormEditor.FormEditor";

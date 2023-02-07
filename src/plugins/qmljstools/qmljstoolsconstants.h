@@ -17,7 +17,7 @@ const char JS_MIMETYPE[] = "application/javascript";
 const char JSON_MIMETYPE[] = "application/json";
 
 const char QML_JS_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
-const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("QmlJSTools", "Code Style");
+const char QML_JS_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("::QmlJSTools", "Code Style");
 
 const char QML_JS_SETTINGS_ID[] = "QmlJS";
 

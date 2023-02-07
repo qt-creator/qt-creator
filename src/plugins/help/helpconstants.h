@@ -34,14 +34,14 @@ const char HELP_SEARCH[] = "Help.Search";
 const char HELP_BOOKMARKS[] = "Help.Bookmarks";
 const char HELP_OPENPAGES[] = "Help.OpenPages";
 
-static const char SB_INDEX[] = QT_TRANSLATE_NOOP("Help", "Index");
-static const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("Help", "Contents");
-static const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("Help", "Bookmarks");
-static const char SB_OPENPAGES[] = QT_TRANSLATE_NOOP("Help", "Open Pages");
-static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("Help", "Search");
+static const char SB_INDEX[] = QT_TRANSLATE_NOOP("::Help", "Index");
+static const char SB_CONTENTS[] = QT_TRANSLATE_NOOP("::Help", "Contents");
+static const char SB_BOOKMARKS[] = QT_TRANSLATE_NOOP("::Help", "Bookmarks");
+static const char SB_OPENPAGES[] = QT_TRANSLATE_NOOP("::Help", "Open Pages");
+static const char SB_SEARCH[] = QT_TRANSLATE_NOOP("::Help", "Search");
 
-static const char TR_OPEN_LINK_AS_NEW_PAGE[] = QT_TRANSLATE_NOOP("Help", "Open Link as New Page");
-static const char TR_OPEN_LINK_IN_WINDOW[] = QT_TRANSLATE_NOOP("Help", "Open Link in Window");
+static const char TR_OPEN_LINK_AS_NEW_PAGE[] = QT_TRANSLATE_NOOP("::Help", "Open Link as New Page");
+static const char TR_OPEN_LINK_IN_WINDOW[] = QT_TRANSLATE_NOOP("::Help", "Open Link in Window");
 
 } // Constants
 } // Help

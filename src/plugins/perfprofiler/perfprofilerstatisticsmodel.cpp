@@ -12,19 +12,19 @@ namespace PerfProfiler {
 namespace Internal {
 
 static const char *headerLabels[] = {
-    QT_TRANSLATE_NOOP("PerfProfiler", "Address"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Function"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Source Location"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Binary Location"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Caller"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Callee"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Recursion in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Samples"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Samples in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Self Samples"),
-    QT_TRANSLATE_NOOP("PerfProfiler", "Self in Percent")
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Address"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Function"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Source Location"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Binary Location"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Caller"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Callee"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Occurrences"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Occurrences in Percent"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Recursion in Percent"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Samples"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Samples in Percent"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Self Samples"),
+    QT_TRANSLATE_NOOP("::PerfProfiler", "Self in Percent")
 };
 
 Q_STATIC_ASSERT(sizeof(headerLabels) ==
