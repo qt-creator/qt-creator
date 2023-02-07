@@ -624,15 +624,11 @@ void CMakeBuildSystem::updateProjectData()
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
             FilePath moduleMapFile = buildConfiguration()->buildDirectory()
                     .pathAppended("qml_module_mappings/" + rpp.buildSystemTarget);
-            if (moduleMapFile.exists()) {
-                QFile mmf(moduleMapFile.toString());
-                if (mmf.open(QFile::ReadOnly)) {
-                    QByteArray content = mmf.readAll();
-                    auto lines = content.split('\n');
-                    for (const auto &line : lines) {
-                        if (!line.isEmpty())
-                            moduleMappings.append(line.simplified());
-                    }
+            if (expected_str<QByteArray> content = moduleMapFile.fileContents()) {
+                auto lines = content->split('\n');
+                for (const QByteArray &line : lines) {
+                    if (!line.isEmpty())
+                        moduleMappings.append(line.simplified());
                 }
             }
 
