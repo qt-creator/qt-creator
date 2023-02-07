@@ -1030,7 +1030,7 @@ expected_str<FilePath> UnixDeviceFileAccess::createTempFile(const FilePath &file
                                                     'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
                                                     'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
-    std::uniform_int_distribution<> dist(0, chars.size() - 1);
+    std::uniform_int_distribution<> dist(0, int(chars.size() - 1));
 
     int maxTries = 10;
     FilePath newPath;
