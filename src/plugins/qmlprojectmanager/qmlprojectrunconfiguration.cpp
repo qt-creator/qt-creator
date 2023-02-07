@@ -2,10 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlprojectrunconfiguration.h"
-#include "qmlproject.h"
-#include "qmlprojectmanagerconstants.h"
 #include "qmlmainfileaspect.h"
 #include "qmlmultilanguageaspect.h"
+#include "qmlproject.h"
+#include "qmlprojectmanagerconstants.h"
+
+#include <qmlpuppetpaths.h>
 
 // getting the qmlpuppet path from setings
 #include <app/app_version.h>
@@ -26,6 +28,8 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -42,51 +46,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
-
-namespace {
-Utils::FilePath qmlPuppetPath(const Utils::FilePath puppetDirectoryPath)
-{
-    return puppetDirectoryPath.pathAppended(QString{"qml2puppet-"} +
-                                            Core::Constants::IDE_VERSION_LONG).withExecutableSuffix();
-}
-
-Utils::FilePath qmlPuppetPathFromSettings()
-{
-    const char PUPPET_DEFAULT_DIRECTORY[] = "PuppetDefaultDirectory";
-    const char QML_SETTINGS_GROUP[] = "QML";
-    const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
-    QSettings *settings = Core::ICore::instance()->settings();
-    settings->beginGroup(QLatin1String(QML_SETTINGS_GROUP));
-    settings->beginGroup(QLatin1String(QML_DESIGNER_SETTINGS_GROUP));
-
-    auto puppetFallbackDirectory = Utils::FilePath::fromString(
-                settings->value(PUPPET_DEFAULT_DIRECTORY).toString());
-
-    settings->endGroup();
-    settings->endGroup();
-
-    if (!puppetFallbackDirectory.isEmpty() && puppetFallbackDirectory.exists())
-        return qmlPuppetPath(puppetFallbackDirectory);
-
-    return {};
-}
-
-Utils::FilePath  puppetAsQmlRuntime(QtVersion *version)
-{
-    if (version->qtVersion() >= QVersionNumber(6, 4, 0)) {
-        Utils::FilePath qmlPuppetFilePath = qmlPuppetPathFromSettings();
-        if (qmlPuppetFilePath.isExecutableFile())
-            return qmlPuppetFilePath;
-        else {
-            qmlPuppetFilePath = qmlPuppetPath(version->binPath());
-            if (qmlPuppetFilePath.isExecutableFile())
-                return qmlPuppetFilePath;
-        }
-    }
-    return {};
-}
-
-} // namespace
 
 namespace QmlProjectManager {
 class QmlMultiLanguageAspect;
@@ -231,10 +190,11 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
 
-        Utils::FilePath puppetAsQmlRuntimePath = puppetAsQmlRuntime(version);
-        if (!puppetAsQmlRuntimePath.isEmpty()) {
+        auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
+            target(), QmlDesigner::QmlDesignerBasePlugin::settings());
+        if (!puppetPath.isEmpty()) {
             usePuppetAsQmlRuntime = true;
-            return puppetAsQmlRuntimePath;
+            return puppetPath;
         }
 
         return isDesktop ? version->qmlRuntimeFilePath() : "qmlscene";

@@ -12,6 +12,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <puppetenvironmentbuilder.h>
+#include <qmlpuppetpaths.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -135,54 +136,6 @@ bool ExternalDependencies::hasStartupTarget() const
 
 namespace {
 
-Utils::FilePath qmlPuppetExecutablePath(const Utils::FilePath &workingDirectory)
-{
-    return workingDirectory.pathAppended(QString{"qml2puppet-"} + Core::Constants::IDE_VERSION_LONG)
-        .withExecutableSuffix();
-}
-
-Utils::FilePath qmlPuppetFallbackDirectory(const DesignerSettings &settings)
-{
-    auto puppetFallbackDirectory = Utils::FilePath::fromString(
-        settings.value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY).toString());
-    if (puppetFallbackDirectory.isEmpty() || !puppetFallbackDirectory.exists())
-        return Core::ICore::libexecPath();
-    return puppetFallbackDirectory;
-}
-
-std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetFallbackPaths(const DesignerSettings &settings)
-{
-    auto workingDirectory = qmlPuppetFallbackDirectory(settings);
-
-    return {workingDirectory, qmlPuppetExecutablePath(workingDirectory)};
-}
-
-std::pair<Utils::FilePath, Utils::FilePath> pathsForKitPuppet(ProjectExplorer::Target *target)
-{
-    if (!target || !target->kit())
-        return {};
-
-    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-
-    if (currentQtVersion) {
-        auto path = currentQtVersion->binPath();
-        return {path, qmlPuppetExecutablePath(path)};
-    }
-
-    return {};
-}
-
-std::pair<Utils::FilePath, Utils::FilePath> qmlPuppetPaths(ProjectExplorer::Target *target,
-                                                           const DesignerSettings &settings)
-{
-    auto [workingDirectoryPath, puppetPath] = pathsForKitPuppet(target);
-
-    if (workingDirectoryPath.isEmpty() || !puppetPath.exists())
-        return qmlPuppetFallbackPaths(settings);
-
-    return {workingDirectoryPath, puppetPath};
-}
-
 bool isForcingFreeType(ProjectExplorer::Target *target)
 {
     if (Utils::HostOsInfo::isWindowsHost() && target) {
@@ -209,7 +162,7 @@ PuppetStartData ExternalDependencies::puppetStartData(const Model &model) const
 {
     PuppetStartData data;
     auto target = ProjectExplorer::SessionManager::startupTarget();
-    auto [workingDirectory, puppetPath] = qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
 
     data.puppetPath = puppetPath.toString();
     data.workingDirectoryPath = workingDirectory.toString();
@@ -229,7 +182,7 @@ bool ExternalDependencies::instantQmlTextUpdate() const
 Utils::FilePath ExternalDependencies::qmlPuppetPath() const
 {
     auto target = ProjectExplorer::SessionManager::startupTarget();
-    auto [workingDirectory, puppetPath] = qmlPuppetPaths(target, m_designerSettings);
+    auto [workingDirectory, puppetPath] = QmlPuppetPaths::qmlPuppetPaths(target, m_designerSettings);
     return puppetPath;
 }
 
