@@ -786,11 +786,11 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (HostOsInfo::isWindowsHost()) {
+        // Otherwise command lines with '> tmp.log' hang.
         ProcessArgs::SplitError perr;
-        rp.inferior.command.setArguments(
-                ProcessArgs::prepareArgs(rp.inferior.command.arguments(), &perr,
-                                         HostOsInfo::hostOs(), nullptr,
-                                         &rp.inferior.workingDirectory).toWindowsArgs());
+        ProcessArgs::prepareArgs(rp.inferior.command.arguments(), &perr,
+                                 HostOsInfo::hostOs(), nullptr,
+                                 &rp.inferior.workingDirectory).toWindowsArgs();
         if (perr != ProcessArgs::SplitOk) {
             // perr == BadQuoting is never returned on Windows
             // FIXME? QTCREATORBUG-2809
