@@ -187,7 +187,7 @@ void ClangFormat::disableFormattingSelectedText()
 Command ClangFormat::command() const
 {
     Command command;
-    command.setExecutable(m_settings.command().toString());
+    command.setExecutable(m_settings.command());
     command.setProcessing(Command::PipeProcessing);
 
     if (m_settings.usePredefinedStyle()) {

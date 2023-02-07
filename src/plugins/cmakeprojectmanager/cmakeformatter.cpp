@@ -13,15 +13,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/formattexteditor.h>
 #include <texteditor/texteditor.h>
-#include <utils/fileutils.h>
 
 #include <QAction>
-#include <QMenu>
 #include <QVersionNumber>
 
 using namespace TextEditor;
@@ -43,7 +43,7 @@ void CMakeFormatter::formatFile()
 Command CMakeFormatter::command() const
 {
     Command command;
-    command.setExecutable(CMakeFormatterSettings::instance()->command().toString());
+    command.setExecutable(CMakeFormatterSettings::instance()->command());
     command.setProcessing(Command::FileProcessing);
     command.addOption("--in-place");
     command.addOption("%file");
