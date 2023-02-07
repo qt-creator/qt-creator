@@ -11,13 +11,23 @@ ControlStyle {
 
     background: ControlStyle.BackgroundColors {
         idle: Values.themeToolbarBackground
-        hover: Values.themeStateControlBackgroundColor_hover
+        hover: Values.themeStateControlBackgroundColor_globalHover
         globalHover: Values.themeStateControlBackgroundColor_globalHover
-        interaction: Values.themeInteraction
+        interaction: Values.themeToolbarBackground
     }
-
+    text: ControlStyle.TextColors {
+        idle: Values.themeTextColor
+        interaction: Values.themeTextSelectedTextColor
+        hover: Values.themeTextColor
+        disabled: Values.themeTextColorDisabled
+        selection: Values.themeTextSelectionColor
+        selectedText: Values.themeTextSelectedTextColor
+        placeholder: Values.themeTextColor
+        placeholderInteraction: Values.themeTextColor
+    }
     border: ControlStyle.BorderColors {
-        hover: Values.themeControlBackground_toolbarHover
+        idle: Values.controlOutline_toolbarIdle
+        hover: Values.themeStateHighlight
         interaction: Values.themeInteraction
     }
 }

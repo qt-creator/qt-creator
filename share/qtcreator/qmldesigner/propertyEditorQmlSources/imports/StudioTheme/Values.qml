@@ -358,6 +358,7 @@ QtObject {
     property color themeTabInactiveBackground: Theme.color(Theme.DStabInactiveBackground)
     property color themeTabInactiveText: Theme.color(Theme.DStabInactiveText)
 
+
     // State Editor
     property color themeStateSeparator: Theme.color(Theme.DSstateSeparatorColor)
     property color themeStateBackground: Theme.color(Theme.DSstateBackgroundColor)

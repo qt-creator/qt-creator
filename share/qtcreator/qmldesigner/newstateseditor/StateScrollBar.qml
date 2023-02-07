@@ -41,7 +41,7 @@ T.ScrollBar {
         radius: width / 2
         opacity: 0.0
         color: scrollBar.pressed ? StudioTheme.Values.themeScrollBarHandle //"#4C4C4C"//DARK
-                                 : StudioTheme.Values.themeScrollBarTrack //"#3E3E3E"//DARK
+                                 : StudioTheme.Values.themeScrollBarHandle //"#3E3E3E"//DARK
 
         states: State {
             name: "active"
