@@ -775,7 +775,7 @@ public:
     QList<QTextCursor> m_autoCompleteHighlightPos;
     void updateAutoCompleteHighlight();
 
-    QList<int> m_cursorBlockNumbers;
+    QSet<int> m_cursorBlockNumbers;
     int m_blockCount = 0;
 
     QPoint m_markDragStart;
@@ -5372,21 +5372,18 @@ void TextEditorWidgetPrivate::updateCurrentLineHighlight()
             q->viewport()->update(updateRect);
         }
     };
-    QList<int> cursorBlockNumbers;
-    for (const QTextCursor &c : m_cursors) {
-        int cursorBlockNumber = c.blockNumber();
-        if (!m_cursorBlockNumbers.contains(cursorBlockNumber))
-            updateBlock(c.block());
-        if (!cursorBlockNumbers.contains(c.blockNumber()))
-            cursorBlockNumbers << c.blockNumber();
-    }
-    if (m_cursorBlockNumbers != cursorBlockNumbers) {
-        for (int oldBlock : m_cursorBlockNumbers) {
-            if (!cursorBlockNumbers.contains(oldBlock))
-                updateBlock(m_document->document()->findBlockByNumber(oldBlock));
-        }
-        m_cursorBlockNumbers = cursorBlockNumbers;
-    }
+
+    QSet<int> cursorBlockNumbers;
+    for (const QTextCursor &c : m_cursors)
+        cursorBlockNumbers.insert(c.blockNumber());
+
+    const QSet<int> updateBlockNumbers = (cursorBlockNumbers - m_cursorBlockNumbers)
+                                         + (m_cursorBlockNumbers - cursorBlockNumbers);
+
+    for (const int blockNumber : updateBlockNumbers)
+        updateBlock(m_document->document()->findBlockByNumber(blockNumber));
+
+    m_cursorBlockNumbers = cursorBlockNumbers;
 }
 
 void TextEditorWidget::slotCursorPositionChanged()
