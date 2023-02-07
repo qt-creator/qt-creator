@@ -20,6 +20,7 @@
 #include <QStringView>
 #include <QUrl>
 #include <QtGlobal>
+#include <QTemporaryFile>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -488,6 +489,40 @@ bool FilePath::isExecutableFile() const
 std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) const
 {
     return fileAccess()->refersToExecutableFile(*this,  matchScope);
+}
+
+expected_str<FilePath> FilePath::tmpDir() const
+{
+    if (needsDevice()) {
+        const Environment env = deviceEnvironment();
+        if (env.hasKey("TMPDIR"))
+            return FilePath::fromUserInput(env.value("TMPDIR")).onDevice(*this);
+        if (env.hasKey("TEMP"))
+            return FilePath::fromUserInput(env.value("TEMP")).onDevice(*this);
+        if (env.hasKey("TMP"))
+            return FilePath::fromUserInput(env.value("TMP")).onDevice(*this);
+
+        if (osType() != OsTypeWindows)
+            return FilePath("/tmp").onDevice(*this);
+        return make_unexpected(QString("Could not find temporary directory on device %1")
+                               .arg(displayName()));
+    }
+
+    return FilePath::fromUserInput(QDir::tempPath());
+}
+
+expected_str<FilePath> FilePath::createTempFile() const
+{
+    if (!needsDevice()) {
+        QTemporaryFile file(toFSPathString());
+        file.setAutoRemove(false);
+        if (file.open())
+            return FilePath::fromString(file.fileName());
+
+        return make_unexpected(QString("Could not create temporary file: %1").arg(file.errorString()));
+    }
+
+    return fileAccess()->createTempFile(*this);
 }
 
 bool FilePath::isReadableFile() const

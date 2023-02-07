@@ -184,6 +184,9 @@ public:
                       WithExeOrBatSuffix, WithAnySuffix };
     std::optional<FilePath> refersToExecutableFile(MatchScope considerScript) const;
 
+    [[nodiscard]] expected_str<FilePath> tmpDir() const;
+    [[nodiscard]] expected_str<FilePath> createTempFile() const;
+
     // makes sure that capitalization of directories is canonical
     // on Windows and macOS. This is rarely needed.
     [[nodiscard]] FilePath normalizedPathName() const;
