@@ -4,10 +4,8 @@
 #include "terminalcommand.h"
 
 #include "algorithm.h"
-#include "commandline.h"
 #include "environment.h"
 #include "hostosinfo.h"
-#include "qtcassert.h"
 
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -119,27 +117,10 @@ const char kTerminalExecuteOptionsKey[] = "General/Terminal/ExecuteOptions";
 
 TerminalCommand TerminalCommand::terminalEmulator()
 {
-    if (s_settings && HostOsInfo::isAnyUnixHost()) {
-        if (s_settings->value(kTerminalVersionKey).toString() == kTerminalVersion) {
-            if (s_settings->contains(kTerminalCommandKey))
-                return {s_settings->value(kTerminalCommandKey).toString(),
-                                    s_settings->value(kTerminalOpenOptionsKey).toString(),
-                                    s_settings->value(kTerminalExecuteOptionsKey).toString()};
-        } else {
-            // TODO remove reading of old settings some time after 4.8
-            const QString value = s_settings->value("General/TerminalEmulator").toString().trimmed();
-            if (!value.isEmpty()) {
-                // split off command and options
-                const QStringList splitCommand = ProcessArgs::splitArgs(value);
-                if (QTC_GUARD(!splitCommand.isEmpty())) {
-                    const QString command = splitCommand.first();
-                    const QStringList quotedArgs = transform(splitCommand.mid(1),
-                                                             &ProcessArgs::quoteArgUnix);
-                    const QString options = quotedArgs.join(' ');
-                    return {command, "", options};
-                }
-            }
-        }
+    if (s_settings && HostOsInfo::isAnyUnixHost() && s_settings->contains(kTerminalCommandKey)) {
+        return {s_settings->value(kTerminalCommandKey).toString(),
+                s_settings->value(kTerminalOpenOptionsKey).toString(),
+                s_settings->value(kTerminalExecuteOptionsKey).toString()};
     }
 
     return defaultTerminalEmulator();
