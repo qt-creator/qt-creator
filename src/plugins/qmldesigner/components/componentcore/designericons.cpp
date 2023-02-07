@@ -79,21 +79,6 @@ EType DesignerIconEnums<EType>::value(const QString &keyStr, bool *ok)
     return static_cast<EType>(metaEnum.keyToValue(keyStr.toLatin1(), ok));
 }
 
-Q_GLOBAL_STATIC(QStringList, _iconFontMandatoryKeys);
-
-const QStringList & iconFontMandatoryKeys()
-{
-    if (_iconFontMandatoryKeys->isEmpty()) {
-        *_iconFontMandatoryKeys
-        << DesignerIconEnums<Theme::Icon>::keyName
-        << DesignerIconEnums<Theme::Color>::keyName
-        << DesignerIconEnums<QIcon::Mode>::keyName
-        << DesignerIconEnums<QIcon::State>::keyName
-        << "size";
-    }
-    return *_iconFontMandatoryKeys;
-}
-
 QJsonObject mergeJsons(const QJsonObject &prior, const QJsonObject &joiner)
 {
     QJsonObject object = prior;
