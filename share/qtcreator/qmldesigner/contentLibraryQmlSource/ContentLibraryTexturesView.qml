@@ -10,7 +10,7 @@ HelperWidgets.ScrollView {
     id: root
 
     clip: true
-    interactive: !ctxMenu.opened
+    interactive: !ctxMenu.opened && !rootView.isDragging
 
     readonly property int cellWidth: 100
     readonly property int cellHeight: 100

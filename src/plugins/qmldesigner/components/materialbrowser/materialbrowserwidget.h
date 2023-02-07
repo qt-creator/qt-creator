@@ -36,7 +36,7 @@ class MaterialBrowserWidget : public QFrame
 
     Q_PROPERTY(bool materialSectionFocused MEMBER m_materialSectionFocused NOTIFY materialSectionFocusedChanged)
 
-    // Needed for a workaround for a bug where after drag-n-droping an item, the ScrollView scrolls to a random position
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
@@ -96,7 +96,7 @@ private:
     QPoint m_dragStartPoint;
 
     bool m_materialSectionFocused = true;
-    bool m_isDragging = true;
+    bool m_isDragging = false;
 };
 
 } // namespace QmlDesigner

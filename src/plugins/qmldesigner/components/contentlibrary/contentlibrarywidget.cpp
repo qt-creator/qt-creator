@@ -79,6 +79,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = nullptr;
         m_textureToDrag = nullptr;
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -212,6 +213,14 @@ void ContentLibraryWidget::updateSearch()
     m_quickWidget->update();
 }
 
+void ContentLibraryWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
+}
+
 QString ContentLibraryWidget::findTextureBundlePath()
 {
     QDir texBundleDir(qEnvironmentVariable("TEXTURE_BUNDLE_PATH"));
@@ -234,6 +243,7 @@ void ContentLibraryWidget::startDragMaterial(QmlDesigner::ContentLibraryMaterial
 {
     m_materialToDrag = mat;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 void ContentLibraryWidget::startDragTexture(QmlDesigner::ContentLibraryTexture *tex,
@@ -241,6 +251,7 @@ void ContentLibraryWidget::startDragTexture(QmlDesigner::ContentLibraryTexture *
 {
     m_textureToDrag = tex;
     m_dragStartPoint = mousePos.toPoint();
+    setIsDragging(true);
 }
 
 void ContentLibraryWidget::addImage(ContentLibraryTexture *tex)

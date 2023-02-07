@@ -28,6 +28,9 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport  NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
 
+    // Needed for a workaround for a bug where after drag-n-dropping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
+
 public:
     ContentLibraryWidget();
 
@@ -64,6 +67,7 @@ signals:
     void updateSceneEnvStateRequested();
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -71,6 +75,7 @@ protected:
 private:
     void reloadQmlSource();
     void updateSearch();
+    void setIsDragging(bool val);
     QString findTextureBundlePath();
 
     QScopedPointer<QQuickWidget> m_quickWidget;
@@ -88,6 +93,7 @@ private:
 
     bool m_hasMaterialLibrary = false;
     bool m_hasQuick3DImport = false;
+    bool m_isDragging = false;
 };
 
 } // namespace QmlDesigner
