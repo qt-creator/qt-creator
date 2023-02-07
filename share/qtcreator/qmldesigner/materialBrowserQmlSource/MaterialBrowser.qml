@@ -201,7 +201,7 @@ Item {
             height: root.height - searchBox.height
             clip: true
             visible: root.enableUiElements
-            interactive: !ctxMenu.opened && !ctxMenuTextures.opened
+            interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging
 
             Column {
                 Item {

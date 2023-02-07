@@ -137,6 +137,8 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
         m_materialToDrag = {};
         m_textureToDrag = {};
+
+        setIsDragging(false);
     }
 
     return QObject::eventFilter(obj, event);
@@ -247,12 +249,16 @@ void MaterialBrowserWidget::startDragMaterial(int index, const QPointF &mousePos
 {
     m_materialToDrag = m_materialBrowserModel->materialAt(index);
     m_dragStartPoint = mousePos.toPoint();
+
+    setIsDragging(true);
 }
 
 void MaterialBrowserWidget::startDragTexture(int index, const QPointF &mousePos)
 {
     m_textureToDrag = m_materialBrowserTexturesModel->textureAt(index);
     m_dragStartPoint = mousePos.toPoint();
+
+    setIsDragging(true);
 }
 
 void MaterialBrowserWidget::acceptBundleMaterialDrop()
@@ -313,6 +319,14 @@ void MaterialBrowserWidget::updateSearch()
     m_materialBrowserModel->setSearchText(m_filterText);
     m_materialBrowserTexturesModel->setSearchText(m_filterText);
     m_quickWidget->update();
+}
+
+void MaterialBrowserWidget::setIsDragging(bool val)
+{
+    if (m_isDragging != val) {
+        m_isDragging = val;
+        emit isDraggingChanged();
+    }
 }
 
 QQuickWidget *MaterialBrowserWidget::quickWidget() const

@@ -36,6 +36,9 @@ class MaterialBrowserWidget : public QFrame
 
     Q_PROPERTY(bool materialSectionFocused MEMBER m_materialSectionFocused NOTIFY materialSectionFocusedChanged)
 
+    // Needed for a workaround for a bug where after drag-n-droping an item, the ScrollView scrolls to a random position
+    Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
+
 public:
     MaterialBrowserWidget(class AsynchronousImageCache &imageCache, MaterialBrowserView *view);
     ~MaterialBrowserWidget() = default;
@@ -65,6 +68,7 @@ public:
 
 signals:
     void materialSectionFocusedChanged();
+    void isDraggingChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -72,6 +76,8 @@ protected:
 private:
     void reloadQmlSource();
     void updateSearch();
+
+    void setIsDragging(bool val);
 
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
@@ -90,6 +96,7 @@ private:
     QPoint m_dragStartPoint;
 
     bool m_materialSectionFocused = true;
+    bool m_isDragging = true;
 };
 
 } // namespace QmlDesigner
