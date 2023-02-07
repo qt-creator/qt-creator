@@ -36,7 +36,7 @@ namespace Internal {
 class SpotlightIterator : public BaseFileFilter::Iterator
 {
 public:
-    SpotlightIterator(const QStringList &command);
+    SpotlightIterator(const CommandLine &command);
     ~SpotlightIterator() override;
 
     void toFront() override;
@@ -59,20 +59,19 @@ private:
     bool m_finished;
 };
 
-SpotlightIterator::SpotlightIterator(const QStringList &command)
+SpotlightIterator::SpotlightIterator(const CommandLine &command)
     : m_index(-1)
     , m_finished(false)
 {
     QTC_ASSERT(!command.isEmpty(), return );
     m_process.reset(new QtcProcess);
-    m_process->setCommand({Environment::systemEnvironment().searchInPath(command.first()),
-                           command.mid(1)});
+    m_process->setCommand(command);
     m_process->setEnvironment(Utils::Environment::systemEnvironment());
     QObject::connect(m_process.get(), &QtcProcess::done,
-                     m_process.get(), [this, cmd = command.first()] {
+                     m_process.get(), [this, exe = command.executable().toUserOutput()] {
         if (m_process->result() != ProcessResult::FinishedWithSuccess) {
             MessageManager::writeFlashing(Tr::tr(
-                            "Locator: Error occurred when running \"%1\".").arg(cmd));
+                            "Locator: Error occurred when running \"%1\".").arg(exe));
         }
         scheduleKillProcess();
     });
@@ -247,8 +246,8 @@ void SpotlightLocatorFilter::prepareSearch(const QString &entry)
             caseSensitivity(link.targetFilePath.toString()) == Qt::CaseInsensitive
                 ? m_arguments
                 : m_caseSensitiveArguments);
-        setFileIterator(
-            new SpotlightIterator(QStringList(m_command) + ProcessArgs::splitArgs(argumentString)));
+        const CommandLine cmd(FilePath::fromString(m_command), argumentString, CommandLine::Raw);
+        setFileIterator(new SpotlightIterator(cmd));
     }
     BaseFileFilter::prepareSearch(entry);
 }
