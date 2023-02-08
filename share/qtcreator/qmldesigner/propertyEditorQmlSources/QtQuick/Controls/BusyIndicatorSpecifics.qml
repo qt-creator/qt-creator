@@ -18,7 +18,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Running")
-                tooltip: qsTr("Whether the busy indicator is currently indicating activity.")
+                tooltip: qsTr("Toggles if the busy indicator indicates activity.")
             }
 
             SecondColumnLayout {
