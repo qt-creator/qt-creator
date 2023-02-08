@@ -62,7 +62,7 @@ add_qtc_library(QmlDesignerCore STATIC
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt5_VERSION VERSION_GREATER_EQUAL 6.5.0
+  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND Qt6_VERSION VERSION_GREATER_EQUAL 6.5.0
 
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   DEFINES QDS_HAS_QMLDOM
@@ -403,7 +403,7 @@ file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
 set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
 
 add_qtc_plugin(QmlDesigner
-  CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
+  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Sqlite Qt::Xml Qt::Svg
