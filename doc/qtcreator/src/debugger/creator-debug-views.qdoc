@@ -1,13 +1,54 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \page creator-stack-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-debugging-qml.html
+    \else
+    \previouspage creator-debug-mode.html
+    \endif
+    \nextpage creator-breakpoints-view.html
 
-//! [debugger-breakpoints]
+    \title Viewing Call Stack Trace
 
-    \section1 Setting Breakpoints
+    When the program being debugged is interrupted, \QC displays the nested
+    function calls leading to the current position as a call stack trace. This
+    stack trace is built up from call stack frames, each representing a
+    particular function. For each function, \QC tries to retrieve the file name
+    and line number of the corresponding source file. This data is shown in the
+    \uicontrol Stack view.
 
+    \image qtcreator-debug-stack.png {Stack view}
 
+    Since the call stack leading to the current position may originate or go
+    through code for which no debug information is available, not all stack
+    frames have corresponding source locations. Stack frames without
+    corresponding source locations are grayed out in the \uicontrol Stack view.
+
+    If you click a frame with a known source location, the text editor jumps to
+    the corresponding location and updates the \uicontrol {Locals} and
+    \uicontrol {Expressions} views, making it seem like the program
+    was interrupted before entering the function.
+
+    To find out which QML file is causing a Qt Quick 2 application to crash,
+    select \uicontrol {Load QML Stack} in the context menu in the
+    \uicontrol Stack view. The debugger tries to retrieve the JavaScript stack
+    from the stopped executable and prepends the frames to the C++ frames,
+    should it find any. You can click a frame in the QML stack to open the QML
+    file in the editor.
+*/
+
+/*!
+    \page creator-breakpoints-view.html
+    \previouspage creator-stack-view.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-locals-view.html
+    \else
+    \nextpage creator-threads-view.html
+    \endif
+
+    \title Setting Breakpoints
 
     You can associate breakpoints with:
 
@@ -49,7 +90,7 @@
     (\uicontrol {Unclaimed Breakpoint}) icon, when they refer to a position
     in code.
 
-    \image qtcreator-debugger-breakpoint-preset.png "Breakpoint Preset" view
+    \image qtcreator-debugger-breakpoint-preset.png {Breakpoint Preset view}
 
     When a debugger starts, the debugging backend identifies breakpoints
     from the set of unclaimed breakpoints that might be handled by the
@@ -80,7 +121,7 @@
 
     \image qtcreator-debug-breakpoints.png "Breakpoints view"
 
-    \section2 Adding Breakpoints
+    \section1 Adding Breakpoints
 
     To add breakpoints:
 
@@ -124,11 +165,11 @@
     \endlist
 
     \if defined(qtcreator)
-    \section2 Specifying Breakpoint Settings
+    \section1 Specifying Breakpoint Settings
 
     You can specify settings for breakpoints in \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Debugger. For more information,
-    see \l{Specifying Debugger Settings}.
+    see \l{Debugger Preferences}.
 
     To use a full absolute path in breakpoints, select the
     \uicontrol {Set breakpoints using a full absolute path} check box.
@@ -162,7 +203,7 @@
     {Breakpoints, Watchpoints, and Catchpoints} in GDB documentation.
     \endif
 
-    \section2 Moving Breakpoints
+    \section1 Moving Breakpoints
 
     To move a breakpoint:
 
@@ -175,7 +216,7 @@
              line number in the \uicontrol {Line number} field.
     \endlist
 
-    \section2 Deleting Breakpoints
+    \section1 Deleting Breakpoints
 
     To delete breakpoints:
 
@@ -195,7 +236,7 @@
 
     \endlist
 
-    \section2 Enabling and Disabling Breakpoints
+    \section1 Enabling and Disabling Breakpoints
 
     To temporarily disable a breakpoint without deleting it and losing associated
     data like conditions and commands:
@@ -223,7 +264,7 @@
     With the notable exception of data breakpoints, breakpoints retain their
     enabled or disabled state when the debugged program is restarted.
 
-    \section2 Setting Data Breakpoints
+    \section1 Setting Data Breakpoints
 
     A \e {data breakpoint} stops the program when data is read or written at the
     specified address.
@@ -254,49 +295,23 @@
     is unlikely that the used addresses will stay the same at the next program
     launch. If you really want a data breakpoint to be active again, re-enable
     it manually.
+*/
 
-//! [debugger-breakpoints]
+/*!
+    \page creator-locals-view.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-breakpoints-view.html
+    \else
+    \previouspage creator-source-files-view.html
+    \endif
+    \nextpage creator-expressions-view.html
 
-//! [debugger-call-stack-trace]
+    \title Local Variables and Function Parameters
 
-    \section1 Viewing Call Stack Trace
-
-    When the program being debugged is interrupted, \QC displays the nested
-    function calls leading to the current position as a call stack trace. This
-    stack trace is built up from call stack frames, each representing a
-    particular function. For each function, \QC tries to retrieve the file name
-    and line number of the corresponding source file. This data is shown in the
-    \uicontrol Stack view.
-
-    \image qtcreator-debug-stack.png
-
-    Since the call stack leading to the current position may originate or go
-    through code for which no debug information is available, not all stack
-    frames have corresponding source locations. Stack frames without
-    corresponding source locations are grayed out in the \uicontrol Stack view.
-
-    If you click a frame with a known source location, the text editor jumps to
-    the corresponding location and updates the \uicontrol {Locals} and
-    \uicontrol {Expressions} views, making it seem like the program
-    was interrupted before entering the function.
-
-    To find out which QML file is causing a Qt Quick 2 application to crash,
-    select \uicontrol {Load QML Stack} in the context menu in the
-    \uicontrol Stack view. The debugger tries to retrieve the JavaScript stack
-    from the stopped executable and prepends the frames to the C++ frames,
-    should it find any. You can click a frame in the QML stack to open the QML
-    file in the editor.
-
-//! [debugger-call-stack-trace]
-
-//! [debugger-locals]
-
-    \section1 Local Variables and Function Parameters
-
-    The Locals view consists of the \uicontrol Locals pane and the
+    The \uicontrol {Locals} view consists of the \uicontrol Locals pane and the
     \uicontrol {Return Value} pane (hidden when empty).
 
-    \image qtcreator-locals.png "Locals view"
+    \image qtcreator-locals.png {Locals view}
 
     Whenever a program stops under the control of the debugger, it retrieves
     information about the topmost stack frame and displays it in the
@@ -310,12 +325,18 @@
     objects will be displayed. Select \uicontrol {Use dynamic object type for
     display} in the context menu. Keep in mind that choosing the dynamic type
     might be slower.
+*/
 
-//! [debugger-locals]
+/*!
+    \page creator-expressions-view.html
+    \previouspage creator-locals-view.html
+    \if defined(qtdesignstudio)
+    \nextpage creator-qml-debugging-example.html
+    \else
+    \nextpage creator-registers-view.html
+    \endif
 
-//! [debugger-expressions]
-
-    \section1 Evaluating Expressions
+    \title Evaluating Expressions
 
     To compute values of arithmetic expressions or function calls, use
     expression evaluators in the \uicontrol Expressions view. To insert a new
@@ -324,7 +345,7 @@
     \uicontrol {Add New Expression Evaluator} from the context menu, or drag and
     drop an expression from the code editor.
 
-    \image qtcreator-debugger-expressions.png
+    \image qtcreator-debugger-expressions.png {Expressions view}
 
     \note Expression evaluators are powerful, but slow down debugger operation
     significantly. It is advisable to not use them excessively, and to remove
@@ -336,16 +357,12 @@
 
     The QML debugger can evaluate JavaScript expressions.
 
-//! [debugger-expressions]
-
-//! [debugger-expressions-cpp]
-
+    \if defined(qtcreator)
     GDB, LLDB and CDB support the evaluation of simple C and C++ expressions.
-    Functions can be called
-    only if they are actually compiled into the debugged executable or a library
-    used by the executable. Most notably, inlined functions such as most
-    \c{operator[]} implementations of standard containers are typically \e{not}
-    available.
+    Functions can be called only if they are actually compiled into the debugged
+    executable or a library used by the executable. Most notably, inlined
+    functions such as most \c{operator[]} implementations of standard containers
+    are typically \e{not} available.
 
     When using GDB or LLDB as backend, a special ranged syntax can be used to
     display multiple values with one expression. A sub-expression of form
@@ -357,31 +374,21 @@
     value and type, you can examine and traverse the low-level layout of object
     data.
 
-    \table
-        \row
-            \li \b{Note:}
+    GDB and LLDB, and therefore \QC's debugger, also work for optimized
+    builds on Linux and \macos. Optimization can lead to re-ordering
+    of instructions or removal of some local variables, causing the
+    \uicontrol {Locals} and \uicontrol {Expressions} view to show
+    unexpected data.
 
-        \row
-            \li GDB and LLDB, and therefore \QC's debugger, also work for optimized
-                builds on Linux and \macos. Optimization can lead to re-ordering
-                of instructions or removal of some local variables, causing the
-                \uicontrol {Locals} and \uicontrol {Expressions} view to show
-                unexpected data.
-        \row
-            \li The debug information from GCC does not include enough
-                information about the time when a variable is initialized.
-                Therefore, \QC can not tell whether the contents of a local
-                variable are \e {real data} or \e {initial noise}. If a QObject
-                appears uninitialized, its value is reported as
-                \uicontrol {not in scope}. Not all uninitialized objects,
-                however, can be recognized as such.
-    \endtable
+    The debug information from GCC does not include enough
+    information about the time when a variable is initialized.
+    Therefore, \QC can not tell whether the contents of a local
+    variable are \e {real data} or \e {initial noise}. If a QObject
+    appears uninitialized, its value is reported as
+    \uicontrol {not in scope}. Not all uninitialized objects,
+    however, can be recognized as such.
 
     \note The set of evaluated expressions is saved in your session.
-
-//! [debugger-expressions-cpp]
-
-//! [debugger-qt-basic-objects]
 
     \section1 Inspecting Basic Qt Objects
 
@@ -419,6 +426,5 @@
 
     You can enable tooltips in the main editor displaying this information.
     For more information, see \l{See the value of variables in tooltips while debugging}.
-
-//! [debugger-qt-basic-objects]
+    \endif
 */

@@ -11,7 +11,7 @@
     \page creator-debugging-qml.html
     \if defined(qtdesignstudio)
     \previouspage studio-debugging.html
-    \nextpage creator-qml-debugging-example.html
+    \nextpage creator-stack-view.html
     \else
     \previouspage creator-debugging-helpers.html
     \nextpage creator-debugging-example.html
@@ -158,9 +158,9 @@
 
     \list
 
-        \li \l{Setting Breakpoints}{Setting breakpoints}
-
         \li \l{Viewing Call Stack Trace}{Viewing call stack trace}
+
+        \li \l{Setting Breakpoints}{Setting breakpoints}
 
         \li \l{Local Variables and Function Parameters}
               {Viewing local variables and function parameters}
@@ -168,13 +168,6 @@
         \li \l{Evaluating Expressions}
 
     \endlist
-
-    \if defined(qtdesignstudio)
-    \include creator-debugger-common.qdocinc debugger-breakpoints
-    \include creator-debugger-common.qdocinc debugger-call-stack-trace
-    \include creator-debugger-common.qdocinc debugger-locals
-    \include creator-debugger-common.qdocinc debugger-expressions
-    \endif
 
     \section1 Inspecting Items
 

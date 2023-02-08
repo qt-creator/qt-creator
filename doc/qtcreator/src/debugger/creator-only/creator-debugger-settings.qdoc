@@ -1,11 +1,12 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \page creator-debugger-preferences.html
+    \previouspage creator-remote-debugging.html
+    \nextpage creator-debugging-helpers.html
 
-//! [debugger-settings]
-
-    \section1 Specifying Debugger Settings
+    \title Debugger Preferences
 
     To specify settings for managing debugger processes, select \uicontrol Edit
      > \uicontrol Preferences > \uicontrol Debugger. In the \uicontrol General tab,
@@ -25,7 +26,7 @@
     program, which effectively prevents storing debug output in
     system logs.
 
-    \section2 Mapping Source Paths
+    \section1 Mapping Source Paths
 
     To enable the debugger to step into the code and display the source code
     when using a copy of the source tree at a location different from the one
@@ -47,7 +48,7 @@
             of the source tree on the local machine.
     \endlist
 
-    \section2 Specifying GDB Settings
+    \section1 Specifying GDB Settings
 
     To specify settings for managing the GDB process, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB.
@@ -133,7 +134,7 @@
     To keep debugging all children after a fork, select the
     \uicontrol {Debug all child processes} check box.
 
-    \section2 Specifying CDB Settings
+    \section1 Specifying CDB Settings
 
     To specify settings for managing the CDB process, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Debugger > \uicontrol CDB.
@@ -179,7 +180,7 @@
     in \l Issues, select the check boxes
     in the \uicontrol {Add Exceptions to Issues View} group.
 
-    \section2 Setting CDB Paths on Windows
+    \section1 Setting CDB Paths on Windows
 
     To obtain debugging information for the operating system libraries for
     debugging Windows applications, add the Microsoft Symbol Server
@@ -202,6 +203,4 @@
     To use the Source Server infrastructure for fetching missing source files
     directly from version control or the web, enter the following string in
     the \uicontrol {Source Paths} field: \c srv*.
-
-//! [debugger-settings]
 */
