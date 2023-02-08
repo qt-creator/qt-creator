@@ -190,11 +190,13 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         // If not given explicitly by Qt Version, try to pick it from $PATH.
         const bool isDesktop = version->type() == QtSupport::Constants::DESKTOPQT;
 
-        auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
-            target(), QmlDesigner::QmlDesignerBasePlugin::settings());
-        if (!puppetPath.isEmpty()) {
-            usePuppetAsQmlRuntime = true;
-            return puppetPath;
+        if (version->qtVersion().majorVersion() > 5) {
+            auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
+                        target(), QmlDesigner::QmlDesignerBasePlugin::settings());
+            if (!puppetPath.isEmpty()) {
+                usePuppetAsQmlRuntime = true;
+                return puppetPath;
+            }
         }
 
         return isDesktop ? version->qmlRuntimeFilePath() : "qmlscene";
