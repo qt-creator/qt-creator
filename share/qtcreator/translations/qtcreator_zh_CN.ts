@@ -8104,7 +8104,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>Coco::CocoPlugin</name>
+    <name>::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
         <translation type="unfinished"></translation>

@@ -50728,7 +50728,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>Coco::CocoPlugin</name>
+    <name>::Coco</name>
     <message>
         <source>Select a Squish Coco CoverageBrowser Executable</source>
         <translation type="unfinished"></translation>
