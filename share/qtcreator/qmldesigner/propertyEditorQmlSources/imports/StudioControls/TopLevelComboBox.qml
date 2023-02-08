@@ -73,23 +73,23 @@ T.ComboBox {
         height: 0
         closePolicy: T.Popup.CloseOnEscape
         onAboutToShow: {
-            control.menuDelegate.parent = window.contentItem
-            control.menuDelegate.visible = true
+            control.listView.parent = window.contentItem
+            control.listView.visible = true
 
-            if (Qt.platform.os !== "osx" && Qt.platform.os !== "windows")
-                window.transientParent = Theme.mainWindowHandle()
+            var originMapped = control.mapToGlobal(0,0)
+
+            if (control.openUpwards) {
+                window.x = originMapped.x + 1 // This is a workaround for the status bar
+                window.y = originMapped.y - window.height
+            } else {
+                window.x = originMapped.x
+                window.y = originMapped.y + control.height
+            }
 
             window.show()
             window.requestActivate()
-            if (!control.openUpwards) {
-                window.x = control.mapToGlobal(0,0).x
-                window.y = control.mapToGlobal(0,0).y + control.height
-            } else {
-                window.x = control.mapToGlobal(0,0).x
-                window.y = control.mapToGlobal(0,0).y - window.height
-            }
 
-            control.menuDelegate.focus = true
+            control.listView.focus = true
         }
 
         onAboutToHide: window.hide()
@@ -106,8 +106,8 @@ T.ComboBox {
 
     Window {
         id: window
-        width: control.menuDelegate.implicitWidth
-        height: control.menuDelegate.implicitHeight
+        width: control.listView.width
+        height: control.listView.height + 2 * control.style.borderWidth
         visible: false
         flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint
         modality: Qt.NonModal
@@ -115,72 +115,81 @@ T.ComboBox {
         color: "transparent"
 
         onActiveFocusItemChanged: {
-            if (window.activeFocusItem === null && !comboBoxInput.hover && !popupIndicator.hover)
+            if (window.activeFocusItem === null && !comboBoxInput.hover
+                    && !popupIndicator.hover && comboBoxPopup.opened)
                 comboBoxPopup.close()
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: control.style.popup.background
         }
     }
 
-    property Menu menuDelegate: Menu {
-        id: textEditMenu
-        y: 0
+    property ListView listView: ListView {
+        x: 0
+        y: control.style.borderWidth
         width: control.width
-        overlap: 0
+        height: control.listView.contentHeight
+        interactive: false
+        model: control.model
+        Keys.onEscapePressed: comboBoxPopup.close()
 
-        Repeater {
-            model: control.model
+        delegate: ItemDelegate {
+            id: itemDelegate
 
-            MenuItem {
-                id: menuItem
-                x: 0
+            onClicked: {
+                control.currentIndex = index
+                control.activated(index)
+                comboBoxPopup.close()
+            }
+
+            width: control.width
+            height: control.style.controlSize.height
+            padding: 0
+
+            contentItem: Text {
+                leftPadding: itemDelegateIconArea.width
                 text: modelData
-                onTriggered: {
-                    control.currentIndex = index
-                    control.activated(index)
-                    comboBoxPopup.close()
+                color: {
+                    if (!itemDelegate.enabled)
+                        return control.style.text.disabled
+
+                    return itemDelegate.hovered ? control.style.text.selectedText
+                                                : control.style.text.idle
                 }
+                font: control.font
+                elide: Text.ElideRight
+                verticalAlignment: Text.AlignVCenter
+            }
 
-                background: Rectangle {
-                    implicitWidth: textLabel.implicitWidth + menuItem.labelSpacing
-                                   + menuItem.leftPadding + menuItem.rightPadding
-                    implicitHeight: control.style.controlSize.height
-                    x: control.style.borderWidth
-                    y: control.style.borderWidth
-                    width: menuItem.menu.width - (control.style.borderWidth * 2)
-                    height: menuItem.height - (control.style.borderWidth * 2)
-                    color: menuItem.highlighted ? control.style.interaction
-                                                : "transparent"
+            Item {
+                id: itemDelegateIconArea
+                width: itemDelegate.height
+                height: itemDelegate.height
+
+                T.Label {
+                    id: itemDelegateIcon
+                    text: StudioTheme.Constants.tickIcon
+                    color: itemDelegate.hovered ? control.style.text.selectedText
+                                                : control.style.text.idle
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: control.style.smallIconFontSize
+                    visible: control.currentIndex === index
+                    anchors.fill: parent
+                    renderType: Text.NativeRendering
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
+            }
 
-                contentItem: Item {
-                    Text {
-                        id: textLabel
-                        leftPadding: itemDelegateIconArea.width
-                        text: menuItem.text
-                        font: control.font
-                        color: menuItem.highlighted ? control.style.text.selectedText
-                                                    : control.style.text.idle
-                        anchors.verticalCenter: parent.verticalCenter
-                    }
-
-                    Item {
-                        id: itemDelegateIconArea
-                        width: menuItem.height
-                        height: menuItem.height
-
-                        T.Label {
-                            id: itemDelegateIcon
-                            text: StudioTheme.Constants.tickIcon
-                            color: textLabel.color
-                            font.family: StudioTheme.Constants.iconFont.family
-                            font.pixelSize: control.style.smallIconFontSize
-                            visible: control.currentIndex === index
-                            anchors.fill: parent
-                            renderType: Text.NativeRendering
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
-                }
+            background: Rectangle {
+                id: itemDelegateBackground
+                x: control.style.borderWidth
+                y: 0
+                width: itemDelegate.width - 2 * control.style.borderWidth
+                height: itemDelegate.height
+                color: itemDelegate.hovered ? control.style.interaction : "transparent"
             }
         }
     }
