@@ -30,10 +30,9 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 10
-            enabled: backend.isDesignModeEnabled
 
-            tooltip: qsTr("Switch to Design Mode.")
-            buttonIcon: StudioTheme.Constants.designMode_large
+            tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.") : qsTr("Switch to Welcome Mode.")
+            buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large : StudioTheme.Constants.home_large
             onClicked: backend.triggerModeChange()
         }
 
@@ -60,6 +59,7 @@ Rectangle {
             anchors.leftMargin: 10
             buttonIcon: StudioTheme.Constants.home_large
             onClicked: backend.triggerModeChange()
+            tooltip: qsTr("Switch to Welcome Mode.")
         }
 
         ToolbarButton {

@@ -81,6 +81,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(QStringList kits READ kits NOTIFY kitsChanged)
     Q_PROPERTY(int currentKit READ currentKit NOTIFY currentKitChanged)
     Q_PROPERTY(bool isQt6 READ isQt6 NOTIFY isQt6Changed)
+    Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
 
 public:
     ToolBarBackend(QObject *parent  = nullptr);
@@ -123,6 +124,8 @@ public:
 
     bool isQt6() const;
 
+    bool projectOpened() const;
+
 signals:
     void navigationHistoryChanged();
     void openDocumentsChanged();
@@ -135,6 +138,7 @@ signals:
     void kitsChanged();
     void currentKitChanged();
     void isQt6Changed();
+    void projectOpenedChanged();
 
 private:
     void setupWorkspaces();

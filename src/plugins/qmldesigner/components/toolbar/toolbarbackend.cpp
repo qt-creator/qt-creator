@@ -76,8 +76,13 @@ static void openUiFile()
 void ToolBarBackend::triggerModeChange()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_MODE_CHANGE);
-    QTimer::singleShot(0, []() { //Do not trigger mode change directly from QML
+    QTimer::singleShot(0, [this]() { //Do not trigger mode change directly from QML
         bool qmlFileOpen = false;
+
+        if (!projectOpened()) {
+            Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
+            return;
+        }
 
         auto document = Core::EditorManager::currentDocument();
 
@@ -326,6 +331,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
                 emit isQt6Changed();
+                emit projectOpenedChanged();
                 if (project) {
                     m_kitConnection = connect(project,
                                               &ProjectExplorer::Project::activeTargetChanged,
@@ -447,6 +453,11 @@ bool ToolBarBackend::isQt6() const
     const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
     return isQt6Project;
+}
+
+bool ToolBarBackend::projectOpened() const
+{
+    return ProjectExplorer::SessionManager::instance()->startupProject();
 }
 
 void ToolBarBackend::setupWorkspaces()

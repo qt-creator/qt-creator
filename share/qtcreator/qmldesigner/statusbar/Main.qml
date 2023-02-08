@@ -34,6 +34,7 @@ Item {
                 style: StudioTheme.Values.statusbarButtonStyle
                 buttonIcon: StudioTheme.Constants.settings_medium
                 onClicked: backend.triggerProjectSettings()
+                enabled: backend.isInDesignMode
             }
 
             Text {
