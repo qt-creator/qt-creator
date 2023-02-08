@@ -14,7 +14,9 @@
 #include <languageclient/locatorfilter.h>
 #include <projectexplorer/session.h>
 #include <utils/link.h>
+#include <utils/algorithm.h>
 
+#include <QHash>
 #include <set>
 #include <tuple>
 
@@ -219,6 +221,11 @@ public:
     }
 
 private:
+    void prepareSearch(const QString &) override
+    {
+        m_content = TextEditor::TextDocument::currentTextDocument()->plainText();
+    }
+
     Core::LocatorFilterEntry generateLocatorEntry(const DocumentSymbol &info,
                                                   const Core::LocatorFilterEntry &parent) override
     {
@@ -227,8 +234,7 @@ private:
         entry.displayName = ClangdClient::displayNameFromDocumentSymbol(
                     static_cast<SymbolKind>(info.kind()), info.name(),
                     info.detail().value_or(QString()));
-        const Position &pos = info.range().start();
-        entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+        entry.internalData = QVariant::fromValue(info);
         entry.extraInfo = parent.extraInfo;
         if (!entry.extraInfo.isEmpty())
             entry.extraInfo.append("::");
@@ -239,6 +245,66 @@ private:
 
         return entry;
     }
+
+    // Filter out declarations for which a definition is also present.
+    QList<Core::LocatorFilterEntry> matchesFor(QFutureInterface<Core::LocatorFilterEntry> &future,
+                                               const QString &entry) override
+    {
+        QList<Core::LocatorFilterEntry> allMatches
+            = DocumentLocatorFilter::matchesFor(future, entry);
+        QHash<QString, QList<Core::LocatorFilterEntry>> possibleDuplicates;
+        for (const Core::LocatorFilterEntry &e : std::as_const(allMatches))
+            possibleDuplicates[e.displayName + e.extraInfo] << e;
+        const QTextDocument doc(m_content);
+        for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
+            const QList<Core::LocatorFilterEntry> &duplicates = it.value();
+            if (duplicates.size() == 1)
+                continue;
+            QList<Core::LocatorFilterEntry> declarations;
+            QList<Core::LocatorFilterEntry> definitions;
+            for (const Core::LocatorFilterEntry &candidate : duplicates) {
+                const auto symbol = qvariant_cast<DocumentSymbol>(candidate.internalData);
+                const SymbolKind kind = static_cast<SymbolKind>(symbol.kind());
+                if (kind != SymbolKind::Class && kind != SymbolKind::Function)
+                    break;
+                const Range range = symbol.range();
+                const Range selectionRange = symbol.selectionRange();
+                if (kind == SymbolKind::Class) {
+                    if (range.end() == selectionRange.end())
+                        declarations << candidate;
+                    else
+                        definitions << candidate;
+                    continue;
+                }
+                const int startPos = selectionRange.end().toPositionInDocument(&doc);
+                const int endPos = range.end().toPositionInDocument(&doc);
+                const QString functionBody = m_content.mid(startPos, endPos - startPos);
+
+                // Hacky, but I don't see anything better.
+                if (functionBody.contains('{') && functionBody.contains('}'))
+                    definitions << candidate;
+                else
+                    declarations << candidate;
+            }
+            if (definitions.size() == 1
+                && declarations.size() + definitions.size() == duplicates.size()) {
+                for (const Core::LocatorFilterEntry &decl : std::as_const(declarations))
+                    Utils::erase(allMatches, [&decl](const Core::LocatorFilterEntry &e) {
+                        return e.internalData == decl.internalData;
+                    });
+            }
+        }
+
+        // The base implementation expects the position in the internal data.
+        for (Core::LocatorFilterEntry &e : allMatches) {
+            const Position pos = qvariant_cast<DocumentSymbol>(e.internalData).range().start();
+            e.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+        }
+
+        return allMatches;
+    }
+
+    QString m_content;
 };
 
 class ClangdCurrentDocumentFilter::Private

@@ -285,7 +285,8 @@ IndexItem::Ptr SearchSymbols::addChildItem(const QString &symbolName, const QStr
                                                StringTable::insert(path),
                                                symbol->line(),
                                                symbol->column() - 1, // 1-based vs 0-based column
-                                               icon);
+                                               icon,
+                                               symbol->asFunction());
     _parent->addChild(newItem);
     return newItem;
 }

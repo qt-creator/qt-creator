@@ -9,7 +9,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
+#include <utils/algorithm.h>
 
+#include <QHash>
 #include <QRegularExpression>
 
 using namespace CPlusPlus;
@@ -100,8 +102,37 @@ QList<Core::LocatorFilterEntry> CppCurrentDocumentFilter::matchesFor(
     }
 
     // entries are unsorted by design!
-
     betterEntries += goodEntries;
+
+    QHash<QString, QList<Core::LocatorFilterEntry>> possibleDuplicates;
+    for (const Core::LocatorFilterEntry &e : std::as_const(betterEntries)) {
+        const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(e.internalData);
+        possibleDuplicates[info->scopedSymbolName() + info->symbolType()] << e;
+    }
+    for (auto it = possibleDuplicates.cbegin(); it != possibleDuplicates.cend(); ++it) {
+        const QList<Core::LocatorFilterEntry> &duplicates = it.value();
+        if (duplicates.size() == 1)
+            continue;
+        QList<Core::LocatorFilterEntry> declarations;
+        QList<Core::LocatorFilterEntry> definitions;
+        for (const Core::LocatorFilterEntry &candidate : duplicates) {
+            const IndexItem::Ptr info = qvariant_cast<IndexItem::Ptr>(candidate.internalData);
+            if (info->type() != IndexItem::Function)
+                break;
+            if (info->isFunctionDefinition())
+                definitions << candidate;
+            else
+                declarations << candidate;
+        }
+        if (definitions.size() == 1
+            && declarations.size() + definitions.size() == duplicates.size()) {
+            for (const Core::LocatorFilterEntry &decl : std::as_const(declarations))
+                Utils::erase(betterEntries, [&decl](const Core::LocatorFilterEntry &e) {
+                    return e.internalData == decl.internalData;
+                });
+        }
+    }
+
     return betterEntries;
 }
 
