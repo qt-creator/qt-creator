@@ -54366,7 +54366,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
 </context>
 <context>
-    <name>QmlPreview::QmlPreviewPlugin</name>
+    <name>::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation type="unfinished">QML-Vorschau</translation>

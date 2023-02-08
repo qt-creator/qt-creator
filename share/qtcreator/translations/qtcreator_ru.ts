@@ -38089,7 +38089,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlPreview::Internal::QmlPreviewPlugin</name>
+    <name>::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation>Предпросмотр QML</translation>
@@ -38102,9 +38102,6 @@ the QML editor know about a likely URI.</source>
         <source>Preview File</source>
         <translation>Файл предпросмотра</translation>
     </message>
-</context>
-<context>
-    <name>QmlPreview::ProjectFileSelectionsWidget</name>
     <message>
         <source>Files to test:</source>
         <translation>Тестируемые файлы:</translation>

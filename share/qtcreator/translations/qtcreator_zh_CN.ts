@@ -36789,7 +36789,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlPreview::QmlPreviewPlugin</name>
+    <name>::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation type="unfinished"></translation>

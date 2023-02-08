@@ -31097,7 +31097,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlPreview::Internal::QmlPreviewPlugin</name>
+    <name>::QmlPreview</name>
     <message>
         <source>QML Preview</source>
         <translation type="unfinished"></translation>
