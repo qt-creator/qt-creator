@@ -18,6 +18,7 @@
 #include <set>
 #include <tuple>
 
+using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace Utils;
 
@@ -40,7 +41,7 @@ public:
     }
 };
 
-class LspWorkspaceFilter : public LanguageClient::WorkspaceLocatorFilter
+class LspWorkspaceFilter : public WorkspaceLocatorFilter
 {
 public:
     LspWorkspaceFilter()
@@ -69,7 +70,7 @@ public:
     }
 };
 
-class LspClassesFilter : public LanguageClient::WorkspaceClassLocatorFilter
+class LspClassesFilter : public WorkspaceClassLocatorFilter
 {
 public:
     LspClassesFilter() {
@@ -96,7 +97,7 @@ public:
     }
 };
 
-class LspFunctionsFilter : public LanguageClient::WorkspaceMethodLocatorFilter
+class LspFunctionsFilter : public WorkspaceMethodLocatorFilter
 {
 public:
     LspFunctionsFilter()
@@ -117,7 +118,7 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter()
 }
 
 ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
-                                                 ILocatorFilter *lspFilter)
+                                                 WorkspaceLocatorFilter *lspFilter)
     : m_cppFilter(cppFilter), m_lspFilter(lspFilter)
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
@@ -136,17 +137,13 @@ ClangGlobalSymbolFilter::~ClangGlobalSymbolFilter()
 void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
 {
     m_cppFilter->prepareSearch(entry);
-    QList<LanguageClient::Client *> clients;
+    QList<Client *> clients;
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
-        if (LanguageClient::Client * const client
-                = ClangModelManagerSupport::clientForProject(project)) {
+        if (Client * const client = ClangModelManagerSupport::clientForProject(project))
             clients << client;
-        }
     }
-    if (!clients.isEmpty()) {
-        static_cast<LanguageClient::WorkspaceLocatorFilter *>(m_lspFilter)
-            ->prepareSearch(entry, clients);
-    }
+    if (!clients.isEmpty())
+        m_lspFilter->prepareSearch(entry, clients);
 }
 
 QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
@@ -155,16 +152,16 @@ QList<Core::LocatorFilterEntry> ClangGlobalSymbolFilter::matchesFor(
     QList<Core::LocatorFilterEntry> matches = m_cppFilter->matchesFor(future, entry);
     const QList<Core::LocatorFilterEntry> lspMatches = m_lspFilter->matchesFor(future, entry);
     if (!lspMatches.isEmpty()) {
-        std::set<std::tuple<Utils::FilePath, int, int>> locations;
+        std::set<std::tuple<FilePath, int, int>> locations;
         for (const auto &entry : std::as_const(matches)) {
             const CppEditor::IndexItem::Ptr item
                     = qvariant_cast<CppEditor::IndexItem::Ptr>(entry.internalData);
             locations.insert(std::make_tuple(item->filePath(), item->line(), item->column()));
         }
         for (const auto &entry : lspMatches) {
-            if (!entry.internalData.canConvert<Utils::Link>())
+            if (!entry.internalData.canConvert<Link>())
                 continue;
-            const auto link = qvariant_cast<Utils::Link>(entry.internalData);
+            const auto link = qvariant_cast<Link>(entry.internalData);
             if (locations.find(std::make_tuple(link.targetFilePath, link.targetLine,
                                                link.targetColumn)) == locations.cend()) {
                 matches << entry; // TODO: Insert sorted?
@@ -205,7 +202,7 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     setDefaultIncludedByDefault(false);
 }
 
-class LspCurrentDocumentFilter : public LanguageClient::DocumentLocatorFilter
+class LspCurrentDocumentFilter : public DocumentLocatorFilter
 {
 public:
     LspCurrentDocumentFilter()
@@ -228,7 +225,7 @@ private:
                     static_cast<SymbolKind>(info.kind()), info.name(),
                     info.detail().value_or(QString()));
         const Position &pos = info.range().start();
-        entry.internalData = QVariant::fromValue(Utils::LineColumn(pos.line(), pos.character()));
+        entry.internalData = QVariant::fromValue(LineColumn(pos.line(), pos.character()));
         entry.extraInfo = parent.extraInfo;
         if (!entry.extraInfo.isEmpty())
             entry.extraInfo.append("::");
