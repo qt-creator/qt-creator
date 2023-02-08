@@ -41,6 +41,7 @@ Project {
                 "FullySpecifiedType.cpp",
                 "FullySpecifiedType.h",
                 "Keywords.cpp",
+                "Keywords.kwgen",
                 "Lexer.cpp",
                 "Lexer.h",
                 "LiteralTable.h",
