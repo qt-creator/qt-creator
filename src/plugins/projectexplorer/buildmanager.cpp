@@ -15,6 +15,7 @@
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorersettings.h"
+#include "projectexplorertr.h"
 #include "runcontrol.h"
 #include "session.h"
 #include "target.h"

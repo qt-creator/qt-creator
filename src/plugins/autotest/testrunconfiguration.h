@@ -5,8 +5,6 @@
 
 #include "testconfiguration.h"
 
-#include "autotesttr.h"
-
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -15,6 +13,8 @@
 #include <projectexplorer/runconfiguration.h>
 
 #include <utils/qtcassert.h>
+
+#include <QCoreApplication>
 
 namespace Autotest {
 namespace Internal {
@@ -25,7 +25,7 @@ public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
-        setDefaultDisplayName(Tr::tr("AutoTest Debug"));
+        setDefaultDisplayName(QCoreApplication::tr("::Autotest", "AutoTest Debug"));
 
         bool enableQuick = false;
         if (auto debuggable = dynamic_cast<DebuggableTestConfiguration *>(config))

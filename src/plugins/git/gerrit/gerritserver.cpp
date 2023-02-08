@@ -5,6 +5,7 @@
 #include "gerritparameters.h"
 #include "gerritserver.h"
 #include "../gitclient.h"
+#include "../gittr.h"
 
 #include <coreplugin/icore.h>
 
@@ -281,8 +282,8 @@ bool GerritServer::resolveRoot()
         case CertificateError:
             if (QMessageBox::question(
                         Core::ICore::dialogParent(),
-                        Tr::tr("Certificate Error"),
-                        Tr::tr(
+                        ::Git::Tr::tr("Certificate Error"),
+                        ::Git::Tr::tr(
                             "Server certificate for %1 cannot be authenticated.\n"
                             "Do you want to disable SSL verification for this server?\n"
                             "Note: This can expose you to man-in-the-middle attack.")

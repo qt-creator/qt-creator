@@ -5,7 +5,6 @@
 
 #include "basemessage.h"
 #include "jsonkeys.h"
-#include "languageserverprotocoltr.h"
 #include "lsptypes.h"
 
 #include <utils/qtcassert.h>
@@ -163,7 +162,8 @@ public:
         if (auto parameter = params())
             return parameter->isValid();
         if (errorMessage)
-            *errorMessage = Tr::tr("No parameters in \"%1\".").arg(method());
+            *errorMessage = QCoreApplication::tr("::LanguageServerProtocol",
+                                                 "No parameters in \"%1\".").arg(method());
         return false;
     }
 };
@@ -375,7 +375,8 @@ public:
         if (id().isValid())
             return true;
         if (errorMessage)
-            *errorMessage = Tr::tr("No ID set in \"%1\".").arg(this->method());
+            *errorMessage = QCoreApplication::tr("::LanguageServerProtocol",
+                                                 "No ID set in \"%1\".").arg(this->method());
         return false;
     }
 

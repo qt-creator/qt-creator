@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fossilclient.h"
-#include "fossileditor.h"
+
 #include "constants.h"
+#include "fossileditor.h"
+#include "fossiltr.h"
 
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditor.h>

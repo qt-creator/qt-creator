@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "fossilplugin.h"
+
+#include "commiteditor.h"
+#include "configuredialog.h"
 #include "constants.h"
 #include "fossilclient.h"
 #include "fossilcommitwidget.h"
 #include "fossileditor.h"
+#include "fossiltr.h"
 #include "pullorpushdialog.h"
-#include "configuredialog.h"
-#include "commiteditor.h"
 #include "wizard/fossiljsextension.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>

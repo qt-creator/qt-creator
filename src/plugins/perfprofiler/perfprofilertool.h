@@ -6,7 +6,6 @@
 #include "perfprofilerconstants.h"
 #include "perfprofilerflamegraphview.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilertr.h"
 #include "perfprofilertraceview.h"
 #include "perftimelinemodelmanager.h"
 
@@ -84,7 +83,8 @@ private:
     void finalize();
 
     Utils::Perspective m_perspective{Constants::PerfProfilerPerspectiveId,
-                                     ::PerfProfiler::Tr::tr("Performance Analyzer")};
+                                     QCoreApplication::tr("::PerfProfiler",
+                                                          "Performance Analyzer")};
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;

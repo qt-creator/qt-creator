@@ -5,6 +5,7 @@
 
 #include "perfdatareader.h"
 #include "perfprofilertool.h"
+#include "perfprofilertr.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 

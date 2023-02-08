@@ -10,6 +10,7 @@
 #include "pathchooser.h"
 #include "qtcassert.h"
 #include "qtcsettings.h"
+#include "utilstr.h"
 #include "variablechooser.h"
 
 #include <QAction>
