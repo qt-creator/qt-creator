@@ -24051,7 +24051,7 @@ Error: %5</source>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation type="unfinished"></translation>

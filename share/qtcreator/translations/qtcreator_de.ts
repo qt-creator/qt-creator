@@ -44713,7 +44713,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation>Marketplace</translation>

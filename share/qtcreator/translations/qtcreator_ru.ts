@@ -24236,7 +24236,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>Marketplace::Internal::QtMarketplaceWelcomePage</name>
+    <name>::Marketplace</name>
     <message>
         <source>Marketplace</source>
         <translation>Магазин</translation>
