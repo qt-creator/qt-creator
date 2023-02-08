@@ -40,7 +40,7 @@ public:
 };
 
 AbiFlavorAccessor::AbiFlavorAccessor() :
-    UpgradingSettingsAccessor("QtCreatorExtraAbi", Tr::tr("ABI")
+    UpgradingSettingsAccessor("QtCreatorExtraAbi", Tr::tr("ABI"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::installerResourcePath("abi.xml"));
