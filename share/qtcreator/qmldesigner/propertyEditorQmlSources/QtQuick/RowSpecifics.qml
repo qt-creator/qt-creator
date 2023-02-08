@@ -18,7 +18,10 @@ Column {
         anchors.right: parent.right
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Spacing") }
+            PropertyLabel {
+                text: qsTr("Spacing")
+                tooltip: qsTr("Sets the spacing between items in the row.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -35,6 +38,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Layout direction")
+                tooltip: qsTr("Sets in which direction items in the row are placed.")
                 blockedByTemplate: !backendValues.layoutDirection.isAvailable
             }
 
