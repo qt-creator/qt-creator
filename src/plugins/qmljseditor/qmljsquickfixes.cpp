@@ -105,8 +105,6 @@ class AnalysizeMessageSuppressionOperation: public QmlJSQuickFixOperation
 {
     StaticAnalysis::Message _message;
 
-    Q_DECLARE_TR_FUNCTIONS(AddAnalysisMessageSuppressionComment)
-
 public:
     AnalysizeMessageSuppressionOperation(const Internal::QmlJSQuickFixAssistInterface *interface,
                                          const StaticAnalysis::Message &message)

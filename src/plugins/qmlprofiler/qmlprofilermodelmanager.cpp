@@ -54,7 +54,6 @@ private:
 
 class QmlProfilerEventStorage : public Timeline::TraceEventStorage
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProfilerEventStorage)
 public:
     using ErrorHandler = std::function<void(const QString &)>;
 

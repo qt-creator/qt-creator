@@ -24,8 +24,6 @@ class QmlJSEditorWidget;
 
 class QMLJSEDITOR_EXPORT QmlJSHoverHandler : public TextEditor::BaseHoverHandler
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSHoverHandler)
-
 public:
     QmlJSHoverHandler();
 

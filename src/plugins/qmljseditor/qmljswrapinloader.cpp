@@ -62,8 +62,6 @@ protected:
 template <typename T>
 class Operation: public QmlJSQuickFixOperation
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlJSEditor::Internal::Operation)
-
     T *m_objDef;
 
 public:

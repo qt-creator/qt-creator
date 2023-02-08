@@ -19,8 +19,6 @@ class GerritServer;
 
 class AuthenticationDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Gerrit::Internal::AuthenticationDialog)
-
 public:
     AuthenticationDialog(GerritServer *server);
     ~AuthenticationDialog() override;
