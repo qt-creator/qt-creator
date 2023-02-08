@@ -14,6 +14,7 @@
 #include <utils/runextensions.h>
 
 #include "silversearcheroutputparser.h"
+#include "silversearchertr.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -146,7 +147,7 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
     auto layout = new QHBoxLayout(m_widget);
     layout->setContentsMargins(0, 0, 0, 0);
     m_searchOptionsLineEdit = new QLineEdit;
-    m_searchOptionsLineEdit->setPlaceholderText(tr("Search Options (optional)"));
+    m_searchOptionsLineEdit->setPlaceholderText(Tr::tr("Search Options (optional)"));
     layout->addWidget(m_searchOptionsLineEdit);
 
     FindInFiles *findInFiles = FindInFiles::instance();
@@ -155,7 +156,7 @@ FindInFilesSilverSearcher::FindInFilesSilverSearcher(QObject *parent)
 
     setEnabled(isSilverSearcherAvailable());
     if (!isEnabled()) {
-        QLabel *label = new QLabel(tr("Silver Searcher is not available on the system."));
+        QLabel *label = new QLabel(Tr::tr("Silver Searcher is not available on the system."));
         label->setStyleSheet("QLabel { color : red; }");
         layout->addWidget(label);
     }
