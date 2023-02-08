@@ -52271,7 +52271,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
 </context>
 <context>
-    <name>GitLab::GitLabCloneDialog</name>
+    <name>::GitLab</name>
     <message>
         <source>Clone Repository</source>
         <translation type="unfinished"></translation>
@@ -52332,9 +52332,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Cloning failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabDialog</name>
     <message>
         <source>GitLab</source>
         <translation type="unfinished"></translation>
@@ -52403,9 +52400,6 @@ Note: This can expose you to man-in-the-middle attack.</source>
 Möchten Sie die SSL-Verifikation für diesen Server abschalten?
 Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsPage</name>
     <message>
         <source>Host:</source>
         <translation type="unfinished">Host:</translation>
@@ -52426,13 +52420,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>HTTPS:</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabOptionsWidget</name>
     <message>
         <source>Default:</source>
         <translation type="unfinished">Vorgabe:</translation>
@@ -52481,13 +52468,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
         <source>Add</source>
         <translation type="unfinished">Hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>GitLab::GitLabPlugin</name>
-    <message>
-        <source>GitLab</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>GitLab...</source>
         <translation type="unfinished"></translation>
@@ -52499,13 +52479,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     <message>
         <source>Invalid GitLab configuration. For a fully functional configuration, you need to set up host name or address and an access token. Providing the path to curl is mandatory.</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>GitLab::GitLabProjectSettingsWidget</name>
-    <message>
-        <source>Host:</source>
-        <translation type="unfinished">Host:</translation>
     </message>
     <message>
         <source>Linked GitLab Configuration:</source>
@@ -52529,10 +52502,6 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Remote host does not match chosen GitLab configuration.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Check settings for misconfiguration.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -5,6 +5,7 @@
 
 #include "gitlaboptionspage.h"
 #include "gitlabplugin.h"
+#include "gitlabtr.h"
 #include "queryrunner.h"
 #include "resultparser.h"
 
@@ -31,13 +32,12 @@ const char PSK_LAST_REQ[]   = "GitLab.LastRequest";
 
 static QString accessLevelString(int accessLevel)
 {
-    const char trContext[] = "GitLab::GitLabProjectSettingsWidget";
     switch (accessLevel) {
-    case 10: return QCoreApplication::translate(trContext, "Guest");
-    case 20: return QCoreApplication::translate(trContext, "Reporter");
-    case 30: return QCoreApplication::translate(trContext, "Developer");
-    case 40: return QCoreApplication::translate(trContext, "Maintainer");
-    case 50: return QCoreApplication::translate(trContext, "Owner");
+    case 10: return Tr::tr("Guest");
+    case 20: return Tr::tr("Reporter");
+    case 30: return Tr::tr("Developer");
+    case 40: return Tr::tr("Maintainer");
+    case 50: return Tr::tr("Owner");
     }
     return {};
 }
@@ -120,27 +120,28 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     auto formLayout = new QFormLayout;
     m_hostCB = new QComboBox;
-    formLayout->addRow(tr("Host:"), m_hostCB);
+    formLayout->addRow(Tr::tr("Host:"), m_hostCB);
     m_linkedGitLabServer = new QComboBox;
-    formLayout->addRow(tr("Linked GitLab Configuration:"), m_linkedGitLabServer);
+    formLayout->addRow(Tr::tr("Linked GitLab Configuration:"), m_linkedGitLabServer);
     verticalLayout->addLayout(formLayout);
     m_infoLabel = new Utils::InfoLabel;
     m_infoLabel->setVisible(false);
     verticalLayout->addWidget(m_infoLabel);
     auto horizontalLayout = new QHBoxLayout;
     horizontalLayout->setContentsMargins(0, 0, 0, 0);
-    m_linkWithGitLab = new QPushButton(tr("Link with GitLab"));
+    m_linkWithGitLab = new QPushButton(Tr::tr("Link with GitLab"));
     horizontalLayout->addWidget(m_linkWithGitLab);
-    m_unlink = new QPushButton(tr("Unlink from GitLab"));
+    m_unlink = new QPushButton(Tr::tr("Unlink from GitLab"));
     m_unlink->setEnabled(false);
     horizontalLayout->addWidget(m_unlink);
-    m_checkConnection = new QPushButton(tr("Test Connection"));
+    m_checkConnection = new QPushButton(Tr::tr("Test Connection"));
     m_checkConnection->setEnabled(false);
     horizontalLayout->addWidget(m_checkConnection);
     horizontalLayout->addStretch(1);
     verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->addWidget(new QLabel(tr("Projects linked with GitLab receive event "
-                                            "notifications in the Version Control output pane.")));
+    verticalLayout->addWidget(new QLabel(Tr::tr("Projects linked with GitLab receive event "
+                                                "notifications in the Version Control output "
+                                                "pane.")));
 
     connect(m_linkWithGitLab, &QPushButton::clicked, this, [this] {
         checkConnection(Link);
@@ -178,7 +179,7 @@ void GitLabProjectSettingsWidget::checkConnection(CheckMode mode)
     const auto [remoteHost, projName, port] = GitLabProjectSettings::remotePartsFromRemote(remote);
     if (remoteHost != server.host) { // port check as well
         m_infoLabel->setType(Utils::InfoLabel::NotOk);
-        m_infoLabel->setText(tr("Remote host does not match chosen GitLab configuration."));
+        m_infoLabel->setText(Tr::tr("Remote host does not match chosen GitLab configuration."));
         m_infoLabel->setVisible(true);
         return;
     }
@@ -210,17 +211,17 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
     bool linkable = false;
     if (!project.error.message.isEmpty()) {
         m_infoLabel->setType(Utils::InfoLabel::Error);
-        m_infoLabel->setText(tr("Check settings for misconfiguration.")
+        m_infoLabel->setText(Tr::tr("Check settings for misconfiguration.")
                              + " (" + project.error.message + ')');
     } else {
         if (project.accessLevel != -1) {
             m_infoLabel->setType(Utils::InfoLabel::Ok);
-            m_infoLabel->setText(tr("Accessible (%1).")
+            m_infoLabel->setText(Tr::tr("Accessible (%1).")
                                  .arg(accessLevelString(project.accessLevel)));
             linkable = true;
         } else {
             m_infoLabel->setType(Utils::InfoLabel::Warning);
-            m_infoLabel->setText(tr("Read only access."));
+            m_infoLabel->setText(Tr::tr("Read only access."));
         }
     }
     m_infoLabel->setVisible(true);
@@ -294,9 +295,9 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
         const Utils::FilePath repository = gitClient
                 ? gitClient->findRepositoryForDirectory(projectDirectory) : Utils::FilePath();
         if (repository.isEmpty())
-            m_infoLabel->setText(tr("Not a git repository."));
+            m_infoLabel->setText(Tr::tr("Not a git repository."));
         else
-            m_infoLabel->setText(tr("Local git repository without remotes."));
+            m_infoLabel->setText(Tr::tr("Local git repository without remotes."));
         m_infoLabel->setType(Utils::InfoLabel::None);
         m_infoLabel->setVisible(true);
     }
