@@ -22,9 +22,11 @@ public:
     QVariant restoreValue(const QString &variable, const QVariant &defaultValue = QVariant()) const;
     QVariantMap restoreValues() const;
     bool load(const FilePath &fileName);
+    FilePath filePath();
 
 private:
     QMap<QString, QVariant> m_valueMap;
+    FilePath m_filePath;
 };
 
 class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
