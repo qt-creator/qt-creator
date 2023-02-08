@@ -16,7 +16,7 @@ Section {
     SectionLayout {
         PropertyLabel {
             text: qsTr("Check state")
-            tooltip: qsTr("The current check state.")
+            tooltip: qsTr("Sets the state of the check box.")
         }
 
         SecondColumnLayout {
@@ -34,7 +34,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Tri-state")
-            tooltip: qsTr("Whether the checkbox has three states.")
+            tooltip: qsTr("Toggles if the check box can have an intermediate state.")
         }
 
         SecondColumnLayout {
