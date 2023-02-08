@@ -3,8 +3,9 @@
 
 #include "iplugin.h"
 #include "iplugin_p.h"
-#include "pluginmanager.h"
 #include "pluginspec.h"
+
+#include <utils/algorithm.h>
 
 /*!
     \class ExtensionSystem::IPlugin
@@ -187,16 +188,34 @@ bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
 }
 
 /*!
+    Registers a function object that creates a test object.
+
+    The ownership of the created object is transferred to the plugin.
+
+    \sa createTestObjects()
+*/
+
+void IPlugin::addTestCreator(const TestCreator &creator)
+{
+    d->testCreators.append(creator);
+}
+
+/*!
     Returns objects that are meant to be passed on to \l QTest::qExec().
 
     This function will be called if the user starts \QC with
     \c {-test PluginName} or \c {-test all}.
 
+    By default, this function creates test objects using the functors
+    added by \c addTest().
+
     The ownership of returned objects is transferred to caller.
+
+    \sa addTest()
 */
 QVector<QObject *> IPlugin::createTestObjects() const
 {
-    return {};
+    return Utils::transform(d->testCreators, &TestCreator::operator());
 }
 
 /*!

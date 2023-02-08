@@ -17,8 +17,6 @@ public:
     RemoteLinuxPlugin();
     ~RemoteLinuxPlugin() final;
 
-    QVector<QObject *> createTestObjects() const override;
-
 private:
     void initialize() final;
 };

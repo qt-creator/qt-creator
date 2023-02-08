@@ -15,6 +15,7 @@ class IPluginPrivate
 {
 public:
     PluginSpec *pluginSpec;
+    QList<std::function<QObject *()>> testCreators;
 };
 
 } // namespace Internal
