@@ -6,6 +6,7 @@
 #include "filestatus.h"
 #include "nonlockingmutex.h"
 #include "projectstorageids.h"
+#include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
 #include "projectstoragetypes.h"
 
@@ -30,7 +31,7 @@ class ProjectStorage;
 class QmlDocumentParserInterface;
 class QmlTypesParserInterface;
 
-class ProjectStorageUpdater
+class ProjectStorageUpdater : public ProjectStoragePathWatcherNotifierInterface
 {
 public:
     using PathCache = SourcePathCache<ProjectStorage<Sqlite::Database>, NonLockingMutex>;
@@ -50,7 +51,8 @@ public:
     {}
 
     void update(QStringList directories, QStringList qmlTypesPaths);
-    void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths);
+    void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
+    void pathsChanged(const SourceIds &filePathIds) override;
 
     struct Component
     {
