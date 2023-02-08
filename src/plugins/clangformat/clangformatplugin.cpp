@@ -7,6 +7,7 @@
 #include "clangformatconstants.h"
 #include "clangformatglobalconfigwidget.h"
 #include "clangformatindenter.h"
+#include "clangformattr.h"
 #include "clangformatutils.h"
 #include "tests/clangformat-test.h"
 
