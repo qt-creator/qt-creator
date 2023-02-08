@@ -30971,20 +30971,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Analyzer::Internal::ValgrindConfigWidget</name>
-    <message>
-        <source>Valgrind Command</source>
-        <translation type="obsolete">Commande Valgrind</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::ValgrindSettings</name>
-    <message>
-        <source>Generic Settings</source>
-        <translation type="obsolete">Réglages générique</translation>
-    </message>
-</context>
-<context>
     <name>::VcsBase</name>
     <message>
         <source>Unable to start process &apos;%1&apos;: %2</source>
