@@ -162,8 +162,8 @@ public:
         if (auto parameter = params())
             return parameter->isValid();
         if (errorMessage)
-            *errorMessage = QCoreApplication::tr("::LanguageServerProtocol",
-                                                 "No parameters in \"%1\".").arg(method());
+            *errorMessage = QCoreApplication::translate("::LanguageServerProtocol",
+                                                        "No parameters in \"%1\".").arg(method());
         return false;
     }
 };
@@ -375,8 +375,8 @@ public:
         if (id().isValid())
             return true;
         if (errorMessage)
-            *errorMessage = QCoreApplication::tr("::LanguageServerProtocol",
-                                                 "No ID set in \"%1\".").arg(this->method());
+            *errorMessage = QCoreApplication::translate("::LanguageServerProtocol",
+                                                        "No ID set in \"%1\".").arg(this->method());
         return false;
     }
 

@@ -46,8 +46,8 @@ private:
     void toggleThreadRestriction(QAction *action);
 
     Utils::Perspective m_perspective{Constants::CtfVisualizerPerspectiveId,
-                                     QCoreApplication::tr("::CtfVisualizer",
-                                                          "Chrome Trace Format Visualizer")};
+                                     QCoreApplication::translate("::CtfVisualizer",
+                                                                 "Chrome Trace Format Visualizer")};
 
     bool m_isLoading;
     QScopedPointer<QAction> m_loadJson;

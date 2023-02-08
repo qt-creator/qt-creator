@@ -25,7 +25,7 @@ public:
     TestRunConfiguration(ProjectExplorer::Target *parent, TestConfiguration *config)
         : ProjectExplorer::RunConfiguration(parent, "AutoTest.TestRunConfig")
     {
-        setDefaultDisplayName(QCoreApplication::tr("::Autotest", "AutoTest Debug"));
+        setDefaultDisplayName(QCoreApplication::translate("::Autotest", "AutoTest Debug"));
 
         bool enableQuick = false;
         if (auto debuggable = dynamic_cast<DebuggableTestConfiguration *>(config))

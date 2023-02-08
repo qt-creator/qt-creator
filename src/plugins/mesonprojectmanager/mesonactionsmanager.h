@@ -14,8 +14,8 @@ class MesonActionsManager : public QObject
 {
     Q_OBJECT
     Utils::ParameterAction buildTargetContextAction{
-        QCoreApplication::tr("::MesonProjectManager", "Build"),
-        QCoreApplication::tr("::MesonProjectManager", "Build \"%1\""),
+        QCoreApplication::translate("::MesonProjectManager", "Build"),
+        QCoreApplication::translate("::MesonProjectManager", "Build \"%1\""),
         Utils::ParameterAction::AlwaysEnabled /*handled manually*/
     };
     QAction configureActionMenu;
