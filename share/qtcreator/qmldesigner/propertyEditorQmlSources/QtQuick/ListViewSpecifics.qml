@@ -21,7 +21,7 @@ Column {
         SectionLayout {
             PropertyLabel {
                 text: qsTr("Orientation")
-                tooltip: qsTr("Orientation of the list.")
+                tooltip: qsTr("Sets the orientation of the list.")
             }
 
             SecondColumnLayout {
@@ -39,6 +39,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Layout direction")
+                tooltip: qsTr("Sets the direction that the cells flow inside a list.")
                 blockedByTemplate: !backendValues.layoutDirection.isAvailable
             }
 
@@ -58,7 +59,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Snap mode")
-                tooltip: qsTr("Determines how the view scrolling will settle following a drag or flick.")
+                tooltip: qsTr("Sets how the view scrolling settles following a drag or flick.")
                 blockedByTemplate: !backendValues.snapMode.isAvailable
             }
 
@@ -78,7 +79,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Spacing")
-                tooltip: qsTr("Spacing between components.")
+                tooltip: qsTr("Sets the spacing between components.")
             }
 
             SecondColumnLayout {
@@ -96,7 +97,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Cache")
-                tooltip: qsTr("Cache buffer.")
+                tooltip: qsTr("Sets in pixels how far the components are kept loaded outside the view's visible area.")
                 blockedByTemplate: !backendValues.cacheBuffer.isAvailable
             }
 
@@ -116,7 +117,7 @@ Column {
 
             PropertyLabel {
                 text: qsTr("Navigation wraps")
-                tooltip: qsTr("Whether the grid wraps key navigation.")
+                tooltip: qsTr("Toggles if the grid wraps key navigation.")
                 blockedByTemplate: !backendValues.keyNavigationWraps.isAvailable
             }
 
