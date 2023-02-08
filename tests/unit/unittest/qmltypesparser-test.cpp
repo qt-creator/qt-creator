@@ -39,16 +39,17 @@ MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + Pr
 MATCHER_P5(IsType,
            typeName,
            prototype,
-           extensionType,
+           extension,
            traits,
            sourceId,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Type{typeName, prototype, extensionType, traits, sourceId}))
+               + PrintToString(Storage::Type{typeName, prototype, extension, traits, sourceId}))
 {
     const Storage::Type &type = arg;
 
     return type.typeName == typeName && type.prototype == Storage::ImportedTypeName{prototype}
-           && type.traits == traits && type.sourceId == sourceId;
+           && type.extension == Storage::ImportedTypeName{extension} && type.traits == traits
+           && type.sourceId == sourceId;
 }
 
 MATCHER_P3(IsPropertyDeclaration,
@@ -185,6 +186,28 @@ TEST_F(QmlTypesParser, Types)
     QString source{R"(import QtQuick.tooling 1.2
                       Module{
                         Component { name: "QObject"}
+                        Component { name: "QQmlComponent"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(IsType("QObject",
+                                            Storage::ImportedType{},
+                                            Storage::ImportedType{},
+                                            QmlDesigner::Storage::TypeTraits::Reference,
+                                            qmltypesFileSourceId),
+                                     IsType("QQmlComponent",
+                                            Storage::ImportedType{},
+                                            Storage::ImportedType{},
+                                            QmlDesigner::Storage::TypeTraits::Reference,
+                                            qmltypesFileSourceId)));
+}
+
+TEST_F(QmlTypesParser, Prototype)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"}
                         Component { name: "QQmlComponent"
                                     prototype: "QObject"}})"};
 
@@ -199,6 +222,29 @@ TEST_F(QmlTypesParser, Types)
                                      IsType("QQmlComponent",
                                             Storage::ImportedType{"QObject"},
                                             Storage::ImportedType{},
+                                            QmlDesigner::Storage::TypeTraits::Reference,
+                                            qmltypesFileSourceId)));
+}
+
+TEST_F(QmlTypesParser, Extension)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"}
+                        Component { name: "QQmlComponent"
+                                    extension: "QObject"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types,
+                UnorderedElementsAre(IsType("QObject",
+                                            Storage::ImportedType{},
+                                            Storage::ImportedType{},
+                                            QmlDesigner::Storage::TypeTraits::Reference,
+                                            qmltypesFileSourceId),
+                                     IsType("QQmlComponent",
+                                            Storage::ImportedType{},
+                                            Storage::ImportedType{"QObject"},
                                             QmlDesigner::Storage::TypeTraits::Reference,
                                             qmltypesFileSourceId)));
 }

@@ -410,18 +410,17 @@ void addType(Storage::Synchronization::Types &types,
     auto exports = exportScope.exports;
 
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
-    types.emplace_back(Utils::SmallStringView{typeName},
-                       Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
-                       Storage::Synchronization::ImportedType{},
-                       createTypeTraits(component.accessSemantics()),
-                       sourceId,
-                       createExports(exports, typeName, storage, cppModuleId),
-                       createProperties(component.ownProperties(),
-                                        enumerationTypes,
-                                        componentNameWithoutNamespace),
-                       std::move(functionsDeclarations),
-                       std::move(signalDeclarations),
-                       createEnumeration(enumerations));
+    types.emplace_back(
+        Utils::SmallStringView{typeName},
+        Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
+        Storage::Synchronization::ImportedType{TypeNameString{component.extensionTypeName()}},
+        createTypeTraits(component.accessSemantics()),
+        sourceId,
+        createExports(exports, typeName, storage, cppModuleId),
+        createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),
+        std::move(functionsDeclarations),
+        std::move(signalDeclarations),
+        createEnumeration(enumerations));
 }
 
 void addTypes(Storage::Synchronization::Types &types,
