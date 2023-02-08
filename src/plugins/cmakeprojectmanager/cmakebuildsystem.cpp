@@ -1086,8 +1086,7 @@ DeploymentData CMakeBuildSystem::deploymentData() const
     if (!hasDeploymentFile)
         return result;
 
-    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                                         sourceDir.toString());
+    deploymentPrefix = result.addFilesFromDeploymentFile(deploymentFilePath, sourceDir);
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()

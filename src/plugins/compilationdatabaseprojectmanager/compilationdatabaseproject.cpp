@@ -460,8 +460,7 @@ void CompilationDatabaseBuildSystem::updateDeploymentData()
     const Utils::FilePath deploymentFilePath = projectDirectory()
             .pathAppended("QtCreatorDeployment.txt");
     DeploymentData deploymentData;
-    deploymentData.addFilesFromDeploymentFile(deploymentFilePath.toString(),
-                                              projectDirectory().toString());
+    deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
     setDeploymentData(deploymentData);
     if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.toString())) {
         m_deployFileWatcher->clear();

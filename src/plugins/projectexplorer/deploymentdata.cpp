@@ -48,11 +48,12 @@ bool DeploymentData::operator==(const DeploymentData &other) const
             && m_localInstallRoot == other.m_localInstallRoot;
 }
 
-QString DeploymentData::addFilesFromDeploymentFile(const QString &deploymentFilePath,
-                                                   const QString &sourceDir)
+QString DeploymentData::addFilesFromDeploymentFile(const FilePath &deploymentFilePath,
+                                                   const FilePath &sourceDir_)
 {
+    const QString sourceDir = sourceDir_.toString();
     const QString sourcePrefix = sourceDir.endsWith('/') ? sourceDir : sourceDir + '/';
-    QFile deploymentFile(deploymentFilePath);
+    QFile deploymentFile(deploymentFilePath.toString());
     QTextStream deploymentStream;
     QString deploymentPrefix;
 
