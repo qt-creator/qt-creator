@@ -18,7 +18,10 @@ Column {
         anchors.right: parent.right
 
         SectionLayout {
-            PropertyLabel { text: qsTr("Spacing") }
+            PropertyLabel {
+                text: qsTr("Spacing")
+                tooltip: qsTr("Sets the spacing between flow items.")
+            }
 
             SecondColumnLayout {
                 SpinBox {
@@ -33,7 +36,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Flow") }
+            PropertyLabel {
+                text: qsTr("Flow")
+                tooltip: qsTr("Sets the direction of flow items.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
@@ -48,7 +54,10 @@ Column {
                 ExpandingSpacer {}
             }
 
-            PropertyLabel { text: qsTr("Layout direction") }
+            PropertyLabel {
+                text: qsTr("Layout direction")
+                tooltip: qsTr("Sets in which direction items in the flow are placed.")
+            }
 
             SecondColumnLayout {
                 ComboBox {
