@@ -5,6 +5,7 @@
 
 #include "compilationdatabaseconstants.h"
 #include "compilationdatabaseproject.h"
+#include "compilationdatabaseprojectmanagertr.h"
 #include "compilationdatabasetests.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -34,7 +35,7 @@ class CompilationDatabaseProjectManagerPluginPrivate
 public:
     CompilationDatabaseEditorFactory editorFactory;
     CompilationDatabaseBuildConfigurationFactory buildConfigFactory;
-    QAction changeRootAction{CompilationDatabaseProjectManagerPlugin::tr("Change Root Directory")};
+    QAction changeRootAction{Tr::tr("Change Root Directory")};
 };
 
 CompilationDatabaseProjectManagerPlugin::~CompilationDatabaseProjectManagerPlugin()

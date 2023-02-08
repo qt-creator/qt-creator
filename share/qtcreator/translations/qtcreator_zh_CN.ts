@@ -8339,14 +8339,11 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDatabaseProjectManagerPlugin</name>
+    <name>::CompilationDatabaseProjectManager</name>
     <message>
         <source>Change Root Directory</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDbParser</name>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation type="unfinished"></translation>

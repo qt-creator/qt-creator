@@ -4,6 +4,7 @@
 #include "compilationdbparser.h"
 
 #include "compilationdatabaseconstants.h"
+#include "compilationdatabaseprojectmanagertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/task.h>
@@ -87,7 +88,7 @@ void CompilationDbParser::start()
         });
         m_treeScanner->asyncScanForFiles(m_rootPath);
         Core::ProgressManager::addTask(m_treeScanner->future(),
-                                       tr("Scan \"%1\" project tree").arg(m_projectName),
+                                       Tr::tr("Scan \"%1\" project tree").arg(m_projectName),
                                        "CompilationDatabase.Scan.Tree");
         ++m_runningParserJobs;
         connect(m_treeScanner, &TreeScanner::finished,
@@ -97,7 +98,7 @@ void CompilationDbParser::start()
     // Thread 2: Parse the project file.
     const QFuture<DbContents> future = runAsync(&CompilationDbParser::parseProject, this);
     Core::ProgressManager::addTask(future,
-                                   tr("Parse \"%1\" project").arg(m_projectName),
+                                   Tr::tr("Parse \"%1\" project").arg(m_projectName),
                                    "CompilationDatabase.Parse");
     ++m_runningParserJobs;
     m_parserWatcher.setFuture(future);

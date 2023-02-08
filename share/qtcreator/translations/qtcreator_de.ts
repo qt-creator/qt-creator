@@ -44442,7 +44442,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDbParser</name>
+    <name>::CompilationDatabaseProjectManager</name>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Durchsuche &quot;%1&quot;-Projektbaum</translation>
@@ -50751,7 +50751,7 @@ in &quot;%2&quot; aus.
     </message>
 </context>
 <context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDatabaseProjectManagerPlugin</name>
+    <name>::CompilationDatabaseProjectManager</name>
     <message>
         <source>Change Root Directory</source>
         <translation type="unfinished"></translation>

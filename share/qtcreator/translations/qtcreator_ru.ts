@@ -7876,14 +7876,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDatabaseProjectManagerPlugin</name>
+    <name>::CompilationDatabaseProjectManager</name>
     <message>
         <source>Change Root Directory</source>
         <translation>Сменить корневой каталог</translation>
     </message>
-</context>
-<context>
-    <name>CompilationDatabaseProjectManager::Internal::CompilationDbParser</name>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Сканирование дерева проекта «%1»</translation>
