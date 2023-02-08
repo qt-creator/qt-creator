@@ -49,6 +49,7 @@ QtcPlugin {
         "clangformatplugin.h",
         "clangformatsettings.cpp",
         "clangformatsettings.h",
+        "clangformattr.h",
         "clangformatutils.h",
         "clangformatutils.cpp",
     ]

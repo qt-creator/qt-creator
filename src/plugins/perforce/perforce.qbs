@@ -28,6 +28,7 @@ QtcPlugin {
         "perforcesubmiteditor.cpp",
         "perforcesubmiteditor.h",
         "perforcesubmiteditorwidget.cpp",
-        "perforcesubmiteditorwidget.h"
+        "perforcesubmiteditorwidget.h",
+        "perforcetr.h",
     ]
 }

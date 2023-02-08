@@ -57,6 +57,7 @@ QtcPlugin {
         "cmakeprojectconstants.h",
         "cmakeprojectmanager.cpp",
         "cmakeprojectmanager.h",
+        "cmakeprojectmanagertr.h",
         "cmakeprojectnodes.cpp",
         "cmakeprojectnodes.h",
         "cmakeprojectplugin.cpp",

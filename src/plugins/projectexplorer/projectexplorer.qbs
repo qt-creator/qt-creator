@@ -112,6 +112,7 @@ Project {
                 "projectexplorericons.h", "projectexplorericons.cpp",
                 "projectexplorersettings.h",
                 "projectexplorersettingspage.cpp", "projectexplorersettingspage.h",
+                "projectexplorertr.h",
                 "projectfilewizardextension.cpp", "projectfilewizardextension.h",
                 "projectimporter.cpp", "projectimporter.h",
                 "projectmacro.cpp", "projectmacro.h",

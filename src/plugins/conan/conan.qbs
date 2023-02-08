@@ -16,7 +16,8 @@ QtcPlugin {
         "conanplugin.h",
         "conanplugin.cpp",
         "conansettings.h",
-        "conansettings.cpp"
+        "conansettings.cpp",
+        "conantr.h",
     ]
 }
 

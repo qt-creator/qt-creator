@@ -19,6 +19,7 @@ QtcPlugin {
         "cvssettings.h",
         "cvssubmiteditor.cpp",
         "cvssubmiteditor.h",
+        "cvstr.h",
         "cvsutils.cpp",
         "cvsutils.h",
     ]

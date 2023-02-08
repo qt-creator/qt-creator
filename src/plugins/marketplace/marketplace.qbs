@@ -11,6 +11,7 @@ QtcPlugin {
 
     files: [
         "marketplaceplugin.h",
+        "marketplacetr.h",
         "productlistmodel.cpp", "productlistmodel.h",
         "qtmarketplacewelcomepage.cpp", "qtmarketplacewelcomepage.h",
     ]

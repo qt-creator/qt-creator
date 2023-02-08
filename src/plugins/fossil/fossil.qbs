@@ -12,19 +12,20 @@ QtcPlugin {
     Depends { name: "VcsBase" }
 
     files: [
-        "constants.h",
-        "fossilclient.cpp", "fossilclient.h",
-        "fossilplugin.cpp", "fossilplugin.h",
-        "fossilsettings.cpp", "fossilsettings.h",
+        "annotationhighlighter.cpp", "annotationhighlighter.h",
+        "branchinfo.h",
         "commiteditor.cpp", "commiteditor.h",
+        "configuredialog.cpp", "configuredialog.h",
+        "constants.h",
+        "fossil.qrc",
+        "fossilclient.cpp", "fossilclient.h",
         "fossilcommitwidget.cpp", "fossilcommitwidget.h",
         "fossileditor.cpp", "fossileditor.h",
-        "annotationhighlighter.cpp", "annotationhighlighter.h",
+        "fossilplugin.cpp", "fossilplugin.h",
+        "fossilsettings.cpp", "fossilsettings.h",
+        "fossiltr.h",
         "pullorpushdialog.cpp", "pullorpushdialog.h",
-        "branchinfo.h",
-        "configuredialog.cpp", "configuredialog.h",
         "revisioninfo.h",
-        "fossil.qrc",
     ]
 
     Group {

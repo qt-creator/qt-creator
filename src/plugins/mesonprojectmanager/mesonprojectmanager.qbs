@@ -63,6 +63,7 @@ Project {
             "mesonproject.h",
             "mesonprojectimporter.cpp",
             "mesonprojectimporter.h",
+            "mesonprojectmanagertr.h",
             "mesonprojectparser.cpp",
             "mesonprojectparser.h",
             "mesonrunconfiguration.cpp",

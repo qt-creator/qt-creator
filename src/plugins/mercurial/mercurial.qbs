@@ -29,6 +29,7 @@ QtcPlugin {
         "mercurialplugin.h",
         "mercurialsettings.cpp",
         "mercurialsettings.h",
+        "mercurialtr.h",
         "revertdialog.cpp",
         "revertdialog.h",
         "srcdestdialog.cpp",
