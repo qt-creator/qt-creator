@@ -4557,7 +4557,13 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
     switch (response.resultClass) {
     case ResultDone:
     case ResultRunning:
+    {
         showMessage("INFERIOR ATTACHED");
+
+        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+        if (!commands.isEmpty())
+            runCommand({commands, NativeCommand});
+
         if (state() == EngineRunRequested) {
             // Happens e.g. for "Attach to unstarted application"
             // We will get a '*stopped' later that we'll interpret as 'spontaneous'
@@ -4577,6 +4583,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
                 updateAll();
         }
         break;
+    }
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
             QString msg = msgPtraceError(runParameters().startMode);
@@ -4731,6 +4738,13 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
     CHECK_STATE(EngineRunRequested);
 
     if (response.resultClass == ResultRunning) {
+
+        if (isLocalRunEngine()) {
+            QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+            if (!commands.isEmpty())
+                runCommand({commands, NativeCommand});
+        }
+
         notifyEngineRunAndInferiorRunOk();
         showMessage("INFERIOR STARTED");
         showMessage(msgInferiorSetupOk(), StatusBar);
