@@ -33,6 +33,7 @@
 #endif
 
 #include <algorithm>
+#include <array>
 
 namespace Utils {
 
