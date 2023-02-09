@@ -112,6 +112,21 @@ bool DecltypeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool TypeConstraintAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto _other = pattern->asTypeConstraint())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool PlaceholderTypeSpecifierAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto _other = pattern->asPlaceholderTypeSpecifier())
+        return matcher->match(this, _other);
+    return false;
+}
+
 bool DeclaratorAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (DeclaratorAST *_other = pattern->asDeclarator())
@@ -893,6 +908,21 @@ bool TemplateDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
     if (TemplateDeclarationAST *_other = pattern->asTemplateDeclaration())
         return matcher->match(this, _other);
 
+    return false;
+}
+
+bool ConceptDeclarationAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (ConceptDeclarationAST *_other = pattern->asConceptDeclaration())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
+bool RequiresExpressionAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (const auto other = pattern->asRequiresExpression())
+        return matcher->match(this, other);
     return false;
 }
 

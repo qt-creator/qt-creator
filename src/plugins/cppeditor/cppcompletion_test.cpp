@@ -70,6 +70,10 @@ public:
         // Get Document
         const Document::Ptr document = waitForFileInGlobalSnapshot(filePath);
         QVERIFY(document);
+        if (!document->diagnosticMessages().isEmpty()) {
+            for (const Document::DiagnosticMessage &m : document->diagnosticMessages())
+                qDebug().noquote() << m.text();
+        }
         QVERIFY(document->diagnosticMessages().isEmpty());
 
         m_snapshot.insert(document);

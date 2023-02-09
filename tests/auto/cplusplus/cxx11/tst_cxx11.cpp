@@ -145,6 +145,8 @@ private Q_SLOTS:
 
     void lambdaType_data();
     void lambdaType();
+
+    void concepts();
 };
 
 
@@ -291,6 +293,29 @@ void tst_cxx11::lambdaType()
 
     QEXPECT_FAIL("return expression", "Not implemented", Abort);
     QCOMPARE(oo.prettyType(function->type()), expectedType);
+}
+
+void tst_cxx11::concepts()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx20Enabled = true;
+
+    const QString source = R"(
+template<typename T> concept IsPointer = requires(T p) { *p; };
+template<IsPointer T> void* func(T p) { return p; }
+void *func2(IsPointer auto p)
+{
+    return p;
+}
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug() << errors;
+    QVERIFY(!hasErrors);
 }
 
 QTEST_APPLESS_MAIN(tst_cxx11)

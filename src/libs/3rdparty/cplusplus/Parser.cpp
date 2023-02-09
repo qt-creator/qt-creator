@@ -1255,11 +1255,180 @@ bool Parser::parseTemplateDeclaration(DeclarationAST *&node)
         ast->declaration = nullptr;
         if (parseDeclaration(ast->declaration))
             break;
+        if (parseConceptDeclaration(ast->declaration))
+            break;
 
         error(start_declaration, "expected a declaration");
         rewind(start_declaration + 1);
         skipUntilDeclaration();
     }
+
+    node = ast;
+    return true;
+}
+
+bool Parser::parseConceptDeclaration(DeclarationAST *&node)
+{
+    if (!_languageFeatures.cxx20Enabled)
+        return false;
+    if (LA() != T_CONCEPT)
+        return false;
+
+    const auto ast = new (_pool) ConceptDeclarationAST;
+    ast->concept_token = consumeToken();
+    if (!parseName(ast->name))
+        return false;
+    parseAttributeSpecifier(ast->attributes);
+    if (LA() != T_EQUAL)
+        return false;
+    ast->equals_token = consumeToken();
+    if (!parseLogicalOrExpression(ast->constraint))
+        return false;
+    if (LA() != T_SEMICOLON)
+        return false;
+    ast->semicolon_token = consumeToken();
+    node = ast;
+    return true;
+}
+
+bool Parser::parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node)
+{
+    if ((lookAtBuiltinTypeSpecifier() || _translationUnit->tokenAt(_tokenIndex).isKeyword())
+        && (LA() != T_AUTO && LA() != T_DECLTYPE)) {
+        return false;
+    }
+
+    TypeConstraintAST *typeConstraint = nullptr;
+    const int savedCursor = cursor();
+    parseTypeConstraint(typeConstraint);
+    if (LA() != T_AUTO && (LA() != T_DECLTYPE || LA(1) != T_LPAREN || LA(2) != T_AUTO)) {
+        rewind(savedCursor);
+        return false;
+    }
+    const auto spec = new (_pool) PlaceholderTypeSpecifierAST;
+    spec->typeConstraint = typeConstraint;
+    if (LA() == T_DECLTYPE) {
+        spec->declTypetoken = consumeToken();
+        if (LA() != T_LPAREN)
+            return false;
+        spec->lparenToken = consumeToken();
+        if (LA() != T_AUTO)
+            return false;
+        spec->autoToken = consumeToken();
+        if (LA() != T_RPAREN)
+            return false;
+        spec->rparenToken = consumeToken();
+    } else {
+        spec->autoToken = consumeToken();
+    }
+    node = spec;
+    return true;
+}
+
+bool Parser::parseTypeConstraint(TypeConstraintAST *&node)
+{
+    NestedNameSpecifierListAST *nestedName = nullptr;
+    parseNestedNameSpecifierOpt(nestedName, true);
+    NameAST *conceptName = nullptr;
+    if (!parseUnqualifiedName(conceptName, true))
+        return false;
+    const auto typeConstraint = new (_pool) TypeConstraintAST;
+    typeConstraint->nestedName = nestedName;
+    typeConstraint->conceptName = conceptName;
+    if (LA() != T_LESS)
+        return true;
+    typeConstraint->lessToken = consumeToken();
+    if (LA() != T_GREATER) {
+        if (!parseTemplateArgumentList(typeConstraint->templateArgs))
+            return false;
+    }
+    if (LA() != T_GREATER)
+        return false;
+    typeConstraint->greaterToken = consumeToken();
+    node = typeConstraint;
+    return true;
+}
+
+bool Parser::parseRequirement()
+{
+    if (LA() == T_TYPENAME) { // type-requirement
+        consumeToken();
+        NameAST *name = nullptr;
+        if (!parseName(name, true))
+            return false;
+        if (LA() != T_SEMICOLON)
+            return false;
+        consumeToken();
+        return true;
+    }
+    if (LA() == T_LBRACE) { // compound-requirement
+        consumeToken();
+        ExpressionAST *expr = nullptr;
+        if (!parseExpression(expr))
+            return false;
+        if (LA() != T_RBRACE)
+            return false;
+        consumeToken();
+        if (LA() == T_NOEXCEPT)
+            consumeToken();
+        if (LA() == T_SEMICOLON) {
+            consumeToken();
+            return true;
+        }
+        TypeConstraintAST *typeConstraint = nullptr;
+        if (!parseTypeConstraint(typeConstraint))
+            return false;
+        if (LA() != T_SEMICOLON)
+            return false;
+        consumeToken();
+        return true;
+    }
+    if (LA() == T_REQUIRES) { // nested-requirement
+        consumeToken();
+        ExpressionAST *constraintExpr = nullptr;
+        if (!parseLogicalOrExpression(constraintExpr))
+            return false;
+        if (LA() != T_SEMICOLON)
+            return false;
+        consumeToken();
+        return true;
+    }
+    ExpressionAST *simpleExpr;
+    if (!parseExpression(simpleExpr)) // simple-requirement
+        return false;
+    if (LA() != T_SEMICOLON)
+        return false;
+    consumeToken();
+    return true;
+}
+
+bool Parser::parseRequiresExpression(ExpressionAST *&node)
+{
+    if (!_languageFeatures.cxx20Enabled)
+        return false;
+    if (LA() != T_REQUIRES)
+        return false;
+
+    const auto ast = new (_pool) RequiresExpressionAST;
+    ast->requires_token = consumeToken();
+    if (LA() == T_LPAREN) {
+        ast->lparen_token = consumeToken();
+        if (!parseParameterDeclarationClause(ast->parameters))
+            return false;
+        if (LA() != T_RPAREN)
+            return false;
+        ast->rparen_token = consumeToken();
+    }
+    if (LA() != T_LBRACE)
+        return false;
+    ast->lbrace_token = consumeToken();
+    if (!parseRequirement())
+        return false;
+    while (LA() != T_RBRACE) {
+        if (!parseRequirement())
+            return false;
+    }
+    ast->rbrace_token = consumeToken();
 
     node = ast;
     return true;
@@ -1500,6 +1669,14 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
     NameAST *named_type_specifier = nullptr;
     SpecifierListAST **decl_specifier_seq_ptr = &decl_specifier_seq;
     for (;;) {
+        PlaceholderTypeSpecifierAST *placeholderSpec = nullptr;
+        // A simple auto is also technically a placeholder-type-specifier, but for historical
+        // reasons, it is handled further below.
+        if (LA() != T_AUTO && parsePlaceholderTypeSpecifier(placeholderSpec)) {
+            *decl_specifier_seq_ptr = new (_pool) SpecifierListAST(placeholderSpec);
+            decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
+            continue;
+        }
         if (! noStorageSpecifiers && ! onlySimpleTypeSpecifiers && lookAtStorageClassSpecifier()) {
             // storage-class-specifier
             SimpleSpecifierAST *spec = new (_pool) SimpleSpecifierAST;
@@ -1550,8 +1727,9 @@ bool Parser::parseDeclSpecifierSeq(SpecifierListAST *&decl_specifier_seq,
             }
             decl_specifier_seq_ptr = &(*decl_specifier_seq_ptr)->next;
             has_type_specifier = true;
-        } else
+        } else {
             break;
+        }
     }
 
     return decl_specifier_seq != nullptr;
@@ -1694,6 +1872,8 @@ bool Parser::hasAuto(SpecifierListAST *decl_specifier_list) const
             if (_translationUnit->tokenKind(simpleSpec->specifier_token) == T_AUTO)
                 return true;
         }
+        if (spec->asPlaceholderTypeSpecifier())
+            return true;
     }
     return false;
 }
@@ -4730,6 +4910,9 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
     case T_AT_PROTOCOL:
     case T_AT_SELECTOR:
         return parseObjCExpression(node);
+
+    case T_REQUIRES:
+        return parseRequiresExpression(node);
 
     default: {
         NameAST *name = nullptr;

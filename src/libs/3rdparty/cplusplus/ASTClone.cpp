@@ -141,6 +141,32 @@ DecltypeSpecifierAST *DecltypeSpecifierAST::clone(MemoryPool *pool) const
     return ast;
 }
 
+TypeConstraintAST *TypeConstraintAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) TypeConstraintAST;
+    for (NestedNameSpecifierListAST *iter = nestedName, **ast_iter = &ast->nestedName; iter;
+         iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) NestedNameSpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    ast->lessToken = lessToken;
+    for (ExpressionListAST *iter = templateArgs, **ast_iter = &ast->templateArgs;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) ExpressionListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    ast->greaterToken = greaterToken;
+    return ast;
+}
+
+PlaceholderTypeSpecifierAST *PlaceholderTypeSpecifierAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) PlaceholderTypeSpecifierAST;
+    if (typeConstraint)
+        ast->typeConstraint = typeConstraint->clone(pool);
+    ast->lparenToken = lparenToken;
+    ast->declTypetoken = declTypetoken;
+    ast->autoToken = autoToken;
+    ast->rparenToken = rparenToken;
+    return ast;
+}
+
 DeclaratorAST *DeclaratorAST::clone(MemoryPool *pool) const
 {
     DeclaratorAST *ast = new (pool) DeclaratorAST;
@@ -1281,6 +1307,34 @@ TemplateDeclarationAST *TemplateDeclarationAST::clone(MemoryPool *pool) const
     ast->greater_token = greater_token;
     if (declaration)
         ast->declaration = declaration->clone(pool);
+    return ast;
+}
+
+ConceptDeclarationAST *ConceptDeclarationAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) ConceptDeclarationAST;
+    ast->concept_token = concept_token;
+    ast->name = name->clone(pool);
+    ast->equals_token = equals_token;
+    ast->semicolon_token = semicolon_token;
+    for (SpecifierListAST *iter = attributes, **ast_iter = &ast->attributes;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next) {
+        *ast_iter = new (pool) SpecifierListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    }
+    ast->constraint = constraint->clone(pool);
+    return ast;
+}
+
+RequiresExpressionAST *RequiresExpressionAST::clone(MemoryPool *pool) const
+{
+    const auto ast = new (pool) RequiresExpressionAST;
+    ast->requires_token = requires_token;
+    ast->lparen_token = lparen_token;
+    if (parameters)
+        ast->parameters = parameters->clone(pool);
+    ast->rparen_token = rparen_token;
+    ast->lbrace_token = lbrace_token;
+    ast->rbrace_token = rbrace_token;
     return ast;
 }
 

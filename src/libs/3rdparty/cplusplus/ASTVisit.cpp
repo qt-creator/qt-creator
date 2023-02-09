@@ -110,6 +110,23 @@ void DecltypeSpecifierAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void TypeConstraintAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(nestedName, visitor);
+        accept(conceptName, visitor);
+        accept(templateArgs, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void PlaceholderTypeSpecifierAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(typeConstraint, visitor);
+    visitor->endVisit(this);
+}
+
 void DeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {
@@ -943,6 +960,23 @@ void TemplateDeclarationAST::accept0(ASTVisitor *visitor)
         accept(template_parameter_list, visitor);
         accept(declaration, visitor);
     }
+    visitor->endVisit(this);
+}
+
+void ConceptDeclarationAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(name, visitor);
+        accept(attributes, visitor);
+        accept(constraint, visitor);
+    }
+    visitor->endVisit(this);
+}
+
+void RequiresExpressionAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this))
+        accept(parameters, visitor);
     visitor->endVisit(this);
 }
 

@@ -4634,3 +4634,33 @@ int NoExceptOperatorExpressionAST::lastToken() const
         return noexcept_token + 1;
     return 1;
 }
+
+int TypeConstraintAST::firstToken() const
+{
+    if (nestedName)
+        return nestedName->firstToken();
+    return conceptName->firstToken();
+}
+
+int TypeConstraintAST::lastToken() const
+{
+    if (greaterToken)
+        return greaterToken + 1;
+    return conceptName->lastToken();
+}
+
+int PlaceholderTypeSpecifierAST::firstToken() const
+{
+    if (typeConstraint)
+        return typeConstraint->firstToken();
+    if (declTypetoken)
+        return declTypetoken;
+    return autoToken;
+}
+
+int PlaceholderTypeSpecifierAST::lastToken() const
+{
+    if (rparenToken)
+        return rparenToken + 1;
+    return autoToken + 1;
+}

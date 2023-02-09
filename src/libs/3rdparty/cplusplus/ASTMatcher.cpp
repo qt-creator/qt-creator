@@ -216,6 +216,25 @@ bool ASTMatcher::match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern
     return true;
 }
 
+bool ASTMatcher::match(TypeConstraintAST *node, TypeConstraintAST *pattern)
+{
+    if (!pattern->nestedName)
+        pattern->nestedName = node->nestedName;
+    else if (!AST::match(node->nestedName, pattern->nestedName, this))
+        return false;
+    if (!pattern->conceptName)
+        pattern->conceptName = node->conceptName;
+    else if (!AST::match(node->conceptName, pattern->conceptName, this))
+        return false;
+    pattern->lessToken = node->lessToken;
+    if (!pattern->templateArgs)
+        pattern->templateArgs = node->templateArgs;
+    else if (!AST::match(node->templateArgs, pattern->templateArgs, this))
+        return false;
+    pattern->greaterToken = node->greaterToken;
+    return true;
+}
+
 bool ASTMatcher::match(DeclaratorAST *node, DeclaratorAST *pattern)
 {
     (void) node;
@@ -1749,6 +1768,19 @@ bool ASTMatcher::match(ParameterDeclarationClauseAST *node, ParameterDeclaration
     return true;
 }
 
+bool ASTMatcher::match(PlaceholderTypeSpecifierAST *node, PlaceholderTypeSpecifierAST *pattern)
+{
+    if (!pattern->typeConstraint)
+        pattern->typeConstraint = node->typeConstraint;
+    else if (!AST::match(node->typeConstraint, pattern->typeConstraint, this))
+        return false;
+    pattern->declTypetoken = node->declTypetoken;
+    pattern->lparenToken = node->lparenToken;
+    pattern->autoToken = node->autoToken;
+    pattern->rparenToken = node->rparenToken;
+    return true;
+}
+
 bool ASTMatcher::match(CallAST *node, CallAST *pattern)
 {
     (void) node;
@@ -2176,6 +2208,40 @@ bool ASTMatcher::match(TemplateDeclarationAST *node, TemplateDeclarationAST *pat
     if (! pattern->declaration)
         pattern->declaration = node->declaration;
     else if (! AST::match(node->declaration, pattern->declaration, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(ConceptDeclarationAST *node, ConceptDeclarationAST *pattern)
+{
+    pattern->concept_token = node->concept_token;
+    pattern->equals_token = node->equals_token;
+    pattern->semicolon_token = node->semicolon_token;
+
+    if (!pattern->attributes)
+        pattern->attributes = node->attributes;
+    else if (!AST::match(node->attributes, pattern->attributes, this))
+        return false;
+
+    if (!pattern->constraint)
+        pattern->constraint = node->constraint;
+    else if (! AST::match(node->constraint, pattern->constraint, this))
+        return false;
+
+    return true;
+}
+
+bool ASTMatcher::match(RequiresExpressionAST *node, RequiresExpressionAST *pattern)
+{
+    pattern->requires_token = node->requires_token;
+    pattern->lparen_token = node->lparen_token;
+    pattern->lbrace_token = node->lbrace_token;
+    pattern->rbrace_token = node->rbrace_token;
+
+    if (!pattern->parameters)
+        pattern->parameters = node->parameters;
+    else if (!AST::match(node->parameters, pattern->parameters, this))
         return false;
 
     return true;

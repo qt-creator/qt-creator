@@ -933,6 +933,11 @@ bool Bind::visit(ParameterDeclarationClauseAST *ast)
     return false;
 }
 
+bool Bind::visit(RequiresExpressionAST *)
+{
+    return false;
+}
+
 void Bind::parameterDeclarationClause(ParameterDeclarationClauseAST *ast, int lparen_token, Function *fun)
 {
     if (! ast)

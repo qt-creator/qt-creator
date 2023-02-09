@@ -143,6 +143,11 @@ public:
     bool parseTemplateArgument(ExpressionAST *&node);
     bool parseTemplateArgumentList(ExpressionListAST *&node);
     bool parseTemplateDeclaration(DeclarationAST *&node);
+    bool parseConceptDeclaration(DeclarationAST *&node);
+    bool parsePlaceholderTypeSpecifier(PlaceholderTypeSpecifierAST *&node);
+    bool parseTypeConstraint(TypeConstraintAST *&node);
+    bool parseRequirement();
+    bool parseRequiresExpression(ExpressionAST *&node);
     bool parseTemplateParameter(DeclarationAST *&node);
     bool parseTemplateParameterList(DeclarationListAST *&node);
     bool parseThrowExpression(ExpressionAST *&node);
