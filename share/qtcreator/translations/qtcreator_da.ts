@@ -38322,7 +38322,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
+    <name>::qmt</name>
     <message>
         <source>Show Definition</source>
         <translation>Vis definition</translation>
@@ -38335,9 +38335,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Association</source>
         <translation>Tilknytning</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramController</name>
     <message>
         <source>Change</source>
         <translation>Skift</translation>
@@ -38362,9 +38359,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Delete</source>
         <translation>Slet</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>Opret afhængighed</translation>
@@ -38397,9 +38391,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Relocate Relation</source>
         <translation>Genlokaliser relation</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation>Ny pakke</translation>
@@ -38416,9 +38407,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>New Diagram</source>
         <translation>Nyt diagram</translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>Uacceptabelt nul-objekt.</translation>
@@ -38447,9 +38435,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Unable to handle file version %1.</source>
         <translation>Kunne ikke håndtere fil version %1.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>Skift objekt</translation>
@@ -38467,10 +38452,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Flyt relation</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>Tilføj objekt</translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation>Slet objekt</translation>
     </message>
@@ -38483,42 +38464,12 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Slet relation</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Klip</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Indsæt</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>Vis definition</translation>
-    </message>
-    <message>
         <source>Open Diagram</source>
         <translation>Åbn diagram</translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
         <translation>Afhængighed</translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation>Åbn diagram</translation>
     </message>
     <message>
         <source>Create Diagram</source>
@@ -38527,10 +38478,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Remove</source>
         <translation>Fjern</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Slet</translation>
     </message>
     <message>
         <source>Align Objects</source>
@@ -38576,9 +38523,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Add Related Elements</source>
         <translation>Tilføj relaterede elementer</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>Manglende filnavn.</translation>
@@ -38591,9 +38535,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Model</source>
         <translation>Model</translation>
     </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation>Stereotyper:</translation>
@@ -38621,10 +38562,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Relations:</source>
         <translation>Relationer:</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation>Model</translation>
     </message>
     <message>
         <source>Models</source>
@@ -38711,20 +38648,12 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <translation>Slut B: %1</translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation>Afhængighed</translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation>Afhængigheder</translation>
     </message>
     <message>
         <source>Direction:</source>
         <translation>Retning:</translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
-        <translation>Nedarvning</translation>
     </message>
     <message>
         <source>Inheritances</source>
@@ -38737,10 +38666,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     <message>
         <source>Base class: %1</source>
         <translation>Grundklasse: %1</translation>
-    </message>
-    <message>
-        <source>Association</source>
-        <translation>Tilknytning</translation>
     </message>
     <message>
         <source>Associations</source>
@@ -38918,9 +38843,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>Multi-Selection</source>
         <translation>Multi-markering</translation>
     </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
     <message>
         <source>[unnamed]</source>
         <translation>[unavngivet]</translation>

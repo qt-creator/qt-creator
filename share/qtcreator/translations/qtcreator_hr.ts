@@ -10744,7 +10744,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>::qmt</name>
     <message>
         <source>Change</source>
         <translation>Promijeni</translation>
@@ -10769,9 +10769,6 @@ will also disable the following plugins:
         <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ClassItem</name>
     <message>
         <source>Show Definition</source>
         <translation type="unfinished"></translation>
@@ -10784,9 +10781,6 @@ will also disable the following plugins:
         <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
         <translation type="unfinished"></translation>
@@ -10801,10 +10795,6 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Remove</source>
-        <translation>Ukloni</translation>
-    </message>
-    <message>
-        <source>Delete</source>
         <translation>Ukloni</translation>
     </message>
     <message>
@@ -10871,9 +10861,6 @@ will also disable the following plugins:
         <source>Add Related Elements</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation type="unfinished"></translation>
@@ -10890,9 +10877,6 @@ will also disable the following plugins:
         <source>New Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation type="unfinished"></translation>
@@ -10921,9 +10905,6 @@ will also disable the following plugins:
         <source>Unable to handle file version %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation type="unfinished"></translation>
@@ -10941,10 +10922,6 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10957,42 +10934,9 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Izreži</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Zalijepi</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
-    <message>
         <source>[unnamed]</source>
         <translation>[neimenovano]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Ukloni</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation type="unfinished"></translation>
@@ -11110,20 +11054,12 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Direction:</source>
         <translation>Smjer:</translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Inheritances</source>
@@ -11135,10 +11071,6 @@ will also disable the following plugins:
     </message>
     <message>
         <source>Base class: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11317,9 +11249,6 @@ will also disable the following plugins:
         <source>Multi-Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation type="unfinished"></translation>
@@ -11328,13 +11257,6 @@ will also disable the following plugins:
         <source>Project is modified.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation type="unfinished"></translation>

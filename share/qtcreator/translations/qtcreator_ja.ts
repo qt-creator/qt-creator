@@ -34163,7 +34163,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>::qmt</name>
     <message>
         <source>Change</source>
         <translation>変更</translation>
@@ -34188,9 +34188,6 @@ the program.</source>
         <source>Delete</source>
         <translation>削除</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ClassItem</name>
     <message>
         <source>Show Definition</source>
         <translation>定義の表示</translation>
@@ -34203,9 +34200,6 @@ the program.</source>
         <source>Association</source>
         <translation>関連</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
         <translation>依存関係</translation>
@@ -34221,10 +34215,6 @@ the program.</source>
     <message>
         <source>Remove</source>
         <translation>図から削除</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>モデルから削除</translation>
     </message>
     <message>
         <source>Align Objects</source>
@@ -34266,9 +34256,6 @@ the program.</source>
         <source>Same Size</source>
         <translation>サイズを合わせる</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation>新しいパッケージ</translation>
@@ -34285,58 +34272,34 @@ the program.</source>
         <source>New Diagram</source>
         <translation>新しい図</translation>
     </message>
-</context>
-<context>
-    <name>qmt::NullPointerException</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>受付不可能な null オブジェクトです。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileNotFoundException</name>
     <message>
         <source>File not found.</source>
         <translation>ファイルが見つかりません。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileCreationException</name>
     <message>
         <source>Unable to create file.</source>
         <translation>ファイルを作成できません。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileWriteError</name>
     <message>
         <source>Writing to file failed.</source>
         <translation>ファイルへの書き込みに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileReadError</name>
     <message>
         <source>Reading from file failed.</source>
         <translation>ファイルの読み込みに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::IllegalXmlFile</name>
     <message>
         <source>Illegal XML file.</source>
         <translation>無効な XML ファイルです。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::UnknownFileVersion</name>
     <message>
         <source>Unable to handle file version %1.</source>
         <translation>%1 は未知のファイルバージョンです。</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>オブジェクトの変更</translation>
@@ -34354,10 +34317,6 @@ the program.</source>
         <translation>関係の移動</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>オブジェクトの追加</translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation>オブジェクトを削除する</translation>
     </message>
@@ -34370,42 +34329,9 @@ the program.</source>
         <translation>関係を削除する</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>切り取り</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>貼り付け</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
-    <message>
         <source>[unnamed]</source>
         <translation>[無名]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>定義の表示</translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation>図を開く</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>削除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation>ステレオタイプ:</translation>
@@ -34527,16 +34453,8 @@ the program.</source>
         <translation>依存関係</translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation>依存関係</translation>
-    </message>
-    <message>
         <source>Direction:</source>
         <translation>方向:</translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
-        <translation>継承</translation>
     </message>
     <message>
         <source>Inheritances</source>
@@ -34549,10 +34467,6 @@ the program.</source>
     <message>
         <source>Base class: %1</source>
         <translation>基底クラス: %1</translation>
-    </message>
-    <message>
-        <source>Association</source>
-        <translation>関連</translation>
     </message>
     <message>
         <source>Associations</source>
@@ -34718,9 +34632,6 @@ the program.</source>
         <source>&lt;font color=red&gt;Invalid syntax!&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;無効なシンタックス！&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>ファイル名が見つかりません。</translation>
@@ -34729,13 +34640,6 @@ the program.</source>
         <source>Project is modified.</source>
         <translation>プロジェクトが編集されています。</translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation>モデル</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>依存関係の作成</translation>
@@ -34747,18 +34651,6 @@ the program.</source>
     <message>
         <source>Create Association</source>
         <translation>関連の作成</translation>
-    </message>
-    <message>
-        <source>New Package</source>
-        <translation>新しいパッケージ</translation>
-    </message>
-    <message>
-        <source>New Component</source>
-        <translation>新しいコンポーネント</translation>
-    </message>
-    <message>
-        <source>New Class</source>
-        <translation>新しいクラス</translation>
     </message>
     <message>
         <source>New Item</source>
@@ -41298,11 +41190,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>qmt::V</name>
-    <message>
-        <source>Multi-Selection</source>
-        <translation>複数選択</translation>
-    </message>
+    <name>::qmt</name>
 </context>
 <context>
     <name>::Utils</name>
@@ -42941,35 +42829,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>qmt::Exception</name>
-    <message>
-        <source>Unacceptable null object.</source>
-        <translation>受付不可能な null オブジェクトです。</translation>
-    </message>
-    <message>
-        <source>File not found.</source>
-        <translation>ファイルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>Unable to create file.</source>
-        <translation>ファイルを作成できません。</translation>
-    </message>
-    <message>
-        <source>Writing to file failed.</source>
-        <translation>ファイルへの書き込みに失敗しました。</translation>
-    </message>
-    <message>
-        <source>Reading from file failed.</source>
-        <translation>ファイルの読み込みに失敗しました。</translation>
-    </message>
-    <message>
-        <source>Illegal XML file.</source>
-        <translation>無効な XML ファイルです。</translation>
-    </message>
-    <message>
-        <source>Unable to handle file version %1.</source>
-        <translation>%1 は未知のファイルバージョンです。</translation>
-    </message>
+    <name>::qmt</name>
 </context>
 <context>
     <name>::QmlDebug</name>

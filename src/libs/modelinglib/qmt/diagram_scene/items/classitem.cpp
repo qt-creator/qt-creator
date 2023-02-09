@@ -45,6 +45,8 @@
 
 #include <qmt/stereotype/customrelation.h>
 
+#include "../../modelinglibtr.h"
+
 namespace qmt {
 
 static const char ASSOCIATION[] = "association";
@@ -378,7 +380,7 @@ bool ClassItem::extendContextMenu(QMenu *menu)
 {
     bool extended = false;
     if (diagramSceneModel()->diagramSceneController()->elementTasks()->hasClassDefinition(object(), diagramSceneModel()->diagram())) {
-        menu->addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", menu));
+        menu->addAction(new ContextMenuAction(Tr::tr("Show Definition"), "showDefinition", menu));
         extended = true;
     }
     return extended;
@@ -444,11 +446,11 @@ void ClassItem::addRelationStarterTool(const QString &id)
     if (id == INHERITANCE)
         relationStarter()->addArrow(INHERITANCE, ArrowItem::ShaftSolid,
                                     ArrowItem::HeadNone, ArrowItem::HeadTriangle,
-                                    tr("Inheritance"));
+                                    Tr::tr("Inheritance"));
     else if (id == ASSOCIATION)
         relationStarter()->addArrow(ASSOCIATION, ArrowItem::ShaftSolid,
                                     ArrowItem::HeadNone, ArrowItem::HeadFilledTriangle,
-                                    tr("Association"));
+                                    Tr::tr("Association"));
     else
         ObjectItem::addRelationStarterTool(id);
 }

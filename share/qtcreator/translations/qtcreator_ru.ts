@@ -48235,7 +48235,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
+    <name>::qmt</name>
     <message>
         <source>Show Definition</source>
         <translation>Показать определение</translation>
@@ -48248,9 +48248,6 @@ What do you want to do?</source>
         <source>Association</source>
         <translation>Ассоциация</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramController</name>
     <message>
         <source>Change</source>
         <translation>Изменение</translation>
@@ -48275,9 +48272,6 @@ What do you want to do?</source>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>Создание зависимости</translation>
@@ -48310,9 +48304,6 @@ What do you want to do?</source>
         <source>Relocate Relation</source>
         <translation>Переместить отношение</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation>Создать пакет</translation>
@@ -48329,9 +48320,6 @@ What do you want to do?</source>
         <source>New Diagram</source>
         <translation>Создать диаграмму</translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>Недопустимый нулевой объект.</translation>
@@ -48360,9 +48348,6 @@ What do you want to do?</source>
         <source>Unable to handle file version %1.</source>
         <translation>Не удалось обработать файл версии %1.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>Изменение объекта</translation>
@@ -48380,10 +48365,6 @@ What do you want to do?</source>
         <translation>Перемещение отношения</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>Добавить объект</translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation>Удалить объект</translation>
     </message>
@@ -48396,42 +48377,12 @@ What do you want to do?</source>
         <translation>Удалить отношение</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Вырезать</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Вставить</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>Показать определение</translation>
-    </message>
-    <message>
         <source>Open Diagram</source>
         <translation>Открыть диаграмму</translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
         <translation>Зависимость</translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation>Открыть диаграмму</translation>
     </message>
     <message>
         <source>Create Diagram</source>
@@ -48440,10 +48391,6 @@ What do you want to do?</source>
     <message>
         <source>Remove</source>
         <translation>Убрать</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Align Objects</source>
@@ -48509,9 +48456,6 @@ What do you want to do?</source>
         <source>Add Related Elements</source>
         <translation>Добавить связанные элементы</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>Отсутствует имя файла.</translation>
@@ -48524,9 +48468,6 @@ What do you want to do?</source>
         <source>Model</source>
         <translation>Модель</translation>
     </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Yes</source>
         <translation>Да</translation>
@@ -48534,10 +48475,6 @@ What do you want to do?</source>
     <message>
         <source>No</source>
         <translation>Нет</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation>Модель</translation>
     </message>
     <message>
         <source>Models</source>
@@ -48600,24 +48537,12 @@ What do you want to do?</source>
         <translation>Конец Б: %1</translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation>Зависимость</translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation>Зависимости</translation>
     </message>
     <message>
-        <source>Inheritance</source>
-        <translation>Наследование</translation>
-    </message>
-    <message>
         <source>Inheritances</source>
         <translation>Наследования</translation>
-    </message>
-    <message>
-        <source>Association</source>
-        <translation>Ассоциация</translation>
     </message>
     <message>
         <source>Associations</source>
@@ -48859,9 +48784,6 @@ What do you want to do?</source>
         <source>Multi-Selection</source>
         <translation>Множественное выделение</translation>
     </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
     <message>
         <source>[unnamed]</source>
         <translation>[без имени]</translation>

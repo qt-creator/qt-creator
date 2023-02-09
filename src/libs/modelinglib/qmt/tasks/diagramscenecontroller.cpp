@@ -39,6 +39,8 @@
 #include "qmt/tasks/isceneinspector.h"
 #include "qmt/tasks/voidelementtasks.h"
 
+#include "../../modelinglibtr.h"
+
 #include <QMenu>
 #include <QFileInfo>
 #include <QDir>
@@ -186,7 +188,7 @@ void DiagramSceneController::deleteFromDiagram(const DSelection &dselection, MDi
 void DiagramSceneController::createDependency(DObject *endAObject, DObject *endBObject,
                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
-    m_diagramController->undoController()->beginMergeSequence(tr("Create Dependency"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Create Dependency"));
 
     MObject *endAModelObject = m_modelController->findObject<MObject>(endAObject->modelUid());
     QMT_ASSERT(endAModelObject, return);
@@ -213,7 +215,7 @@ void DiagramSceneController::createDependency(DObject *endAObject, DObject *endB
 void DiagramSceneController::createInheritance(DClass *derivedClass, DClass *baseClass,
                                                const QList<QPointF> &intermediatePoints, MDiagram *diagram)
 {
-    m_diagramController->undoController()->beginMergeSequence(tr("Create Inheritance"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Create Inheritance"));
 
     MClass *derivedModelClass = m_modelController->findObject<MClass>(derivedClass->modelUid());
     QMT_ASSERT(derivedModelClass, return);
@@ -240,7 +242,7 @@ void DiagramSceneController::createAssociation(DClass *endAClass, DClass *endBCl
                                                const QList<QPointF> &intermediatePoints, MDiagram *diagram,
                                                std::function<void (MAssociation*, DAssociation*)> custom)
 {
-    m_diagramController->undoController()->beginMergeSequence(tr("Create Association"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Create Association"));
 
     MClass *endAModelObject = m_modelController->findObject<MClass>(endAClass->modelUid());
     QMT_ASSERT(endAModelObject, return);
@@ -277,7 +279,7 @@ void DiagramSceneController::createConnection(const QString &customRelationId,
                                               const QList<QPointF> &intermediatePoints, MDiagram *diagram,
                                               std::function<void (MConnection *, DConnection *)> custom)
 {
-    m_diagramController->undoController()->beginMergeSequence(tr("Create Connection"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Create Connection"));
 
     MObject *endAModelObject = m_modelController->findObject<MObject>(endAObject->modelUid());
     QMT_CHECK(endAModelObject);
@@ -411,7 +413,7 @@ void DiagramSceneController::dropNewElement(const QString &newElementId, const Q
 void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage *parentPackage, const QPointF &pos,
                                                  MDiagram *diagram)
 {
-    m_modelController->undoController()->beginMergeSequence(tr("Drop Element"));
+    m_modelController->undoController()->beginMergeSequence(Tr::tr("Drop Element"));
     m_modelController->addObject(parentPackage, modelObject);
     DElement *element = addObject(modelObject, pos, diagram);
     m_modelController->undoController()->endMergeSequence();
@@ -421,7 +423,7 @@ void DiagramSceneController::dropNewModelElement(MObject *modelObject, MPackage 
 
 void DiagramSceneController::addRelatedElements(const DSelection &selection, MDiagram *diagram)
 {
-    m_diagramController->undoController()->beginMergeSequence(tr("Add Related Element"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Add Related Element"));
     const QList<DSelection::Index> indices = selection.indices();
     for (const DSelection::Index &index : indices) {
         DElement *delement = m_diagramController->findElement(index.elementKey(), diagram);
@@ -833,7 +835,7 @@ DObject *DiagramSceneController::addObject(MObject *modelObject, const QPointF &
     if (m_diagramController->hasDelegate(modelObject, diagram))
         return nullptr;
 
-    m_diagramController->undoController()->beginMergeSequence(tr("Add Element"));
+    m_diagramController->undoController()->beginMergeSequence(Tr::tr("Add Element"));
 
     DFactory factory;
     modelObject->accept(&factory);
@@ -957,7 +959,7 @@ bool DiagramSceneController::relocateRelationEnd(DRelation *relation, DObject *t
         if (visitor.isAccepted()) {
             MObject *currentTargetMObject = m_modelController->findObject((modelRelation->*endUid)());
             QMT_ASSERT(currentTargetMObject, return false);
-            m_modelController->undoController()->beginMergeSequence(tr("Relocate Relation"));
+            m_modelController->undoController()->beginMergeSequence(Tr::tr("Relocate Relation"));
             // move relation into new target if it was a child of the old target
             if (currentTargetMObject == modelRelation->owner())
                 m_modelController->moveRelation(targetMObject, modelRelation);

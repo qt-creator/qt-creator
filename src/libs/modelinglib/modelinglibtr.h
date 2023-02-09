@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace ModelingLib {
+namespace qmt {
 
 struct Tr
 {
-    Q_DECLARE_TR_FUNCTIONS(::ModelingLib)
+    Q_DECLARE_TR_FUNCTIONS(::qmt)
 };
 
-} // ModelingLib
+} // qmt

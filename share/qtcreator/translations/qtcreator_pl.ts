@@ -33164,7 +33164,7 @@ itself takes time.</source>
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>::qmt</name>
     <message>
         <source>Change</source>
         <translation>Zmień</translation>
@@ -33189,9 +33189,6 @@ itself takes time.</source>
         <source>Delete</source>
         <translation>Usuń</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation>Nowy pakiet</translation>
@@ -33208,9 +33205,6 @@ itself takes time.</source>
         <source>New Diagram</source>
         <translation>Nowy diagram</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>Zmień obiekt</translation>
@@ -33228,10 +33222,6 @@ itself takes time.</source>
         <translation>Przesuń relację</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>Dodaj obiekt</translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation>Usuń obiekt</translation>
     </message>
@@ -33244,27 +33234,9 @@ itself takes time.</source>
         <translation>Usuń relację</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Wytnij</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Wklej</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Usuń</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
-    <message>
         <source>[unnamed]</source>
         <translation>[nienazwany]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
     <message>
         <source>Show Definition</source>
         <translation>Pokaż definicję</translation>
@@ -33273,13 +33245,6 @@ itself takes time.</source>
         <source>Open Diagram</source>
         <translation>Otwórz diagram</translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation>Usuń</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation>Stereotypy:</translation>
@@ -33584,9 +33549,6 @@ itself takes time.</source>
         <source>Multi-Selection</source>
         <translation>Zaznaczenie wielokrotne</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>Brak nazwy pliku.</translation>
@@ -33595,13 +33557,6 @@ itself takes time.</source>
         <source>Project is modified.</source>
         <translation>Projekt zmodyfikowany.</translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation>Model</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>Utwórz zależność</translation>
@@ -33613,18 +33568,6 @@ itself takes time.</source>
     <message>
         <source>Create Association</source>
         <translation>Utwórz związek</translation>
-    </message>
-    <message>
-        <source>New Package</source>
-        <translation>Nowy pakiet</translation>
-    </message>
-    <message>
-        <source>New Component</source>
-        <translation>Nowy komponent</translation>
-    </message>
-    <message>
-        <source>New Class</source>
-        <translation>Nowa klasa</translation>
     </message>
     <message>
         <source>New Item</source>
@@ -34405,28 +34348,13 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>Pokaż definicję</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
-    <message>
-        <source>Open Diagram</source>
-        <translation>Otwórz diagram</translation>
-    </message>
+    <name>::qmt</name>
     <message>
         <source>Create Diagram</source>
         <translation>Utwórz diagram</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
-        <source>Delete</source>
         <translation>Usuń</translation>
     </message>
     <message>
@@ -37033,7 +36961,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>qmt::Exception</name>
+    <name>::qmt</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>Niedopuszczalny zerowy obiekt.</translation>

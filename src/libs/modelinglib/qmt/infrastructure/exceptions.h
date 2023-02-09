@@ -12,8 +12,6 @@ namespace qmt {
 
 class QMT_EXPORT Exception
 {
-    Q_DECLARE_TR_FUNCTIONS(qmt::Exception)
-
 public:
     explicit Exception(const QString &errorMessage);
     virtual ~Exception() = default;

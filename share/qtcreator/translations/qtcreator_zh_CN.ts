@@ -47831,7 +47831,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
+    <name>::qmt</name>
     <message>
         <source>Show Definition</source>
         <translation type="unfinished"></translation>
@@ -47844,9 +47844,6 @@ What do you want to do?</source>
         <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramController</name>
     <message>
         <source>Change</source>
         <translation type="unfinished"></translation>
@@ -47871,9 +47868,6 @@ What do you want to do?</source>
         <source>Delete</source>
         <translation type="unfinished">删除</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation type="unfinished"></translation>
@@ -47906,9 +47900,6 @@ What do you want to do?</source>
         <source>Relocate Relation</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation type="unfinished"></translation>
@@ -47925,9 +47916,6 @@ What do you want to do?</source>
         <source>New Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::Exception</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation type="unfinished"></translation>
@@ -47956,9 +47944,6 @@ What do you want to do?</source>
         <source>Unable to handle file version %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation type="unfinished"></translation>
@@ -47976,10 +47961,6 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation type="unfinished"></translation>
     </message>
@@ -47992,41 +47973,11 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation type="unfinished">剪切</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation type="unfinished">粘贴</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
-    <message>
-        <source>Show Definition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
     <message>
         <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48035,10 +47986,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">删除</translation>
-    </message>
-    <message>
-        <source>Delete</source>
         <translation type="unfinished">删除</translation>
     </message>
     <message>
@@ -48105,9 +48052,6 @@ What do you want to do?</source>
         <source>Add Related Elements</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation type="unfinished"></translation>
@@ -48120,9 +48064,6 @@ What do you want to do?</source>
         <source>Model</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation type="unfinished"></translation>
@@ -48149,10 +48090,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Relations:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48240,19 +48177,11 @@ What do you want to do?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dependency</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Dependencies</source>
         <translation type="unfinished">依赖关系</translation>
     </message>
     <message>
         <source>Direction:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Inheritance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48265,10 +48194,6 @@ What do you want to do?</source>
     </message>
     <message>
         <source>Base class: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Association</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -48455,9 +48380,6 @@ What do you want to do?</source>
         <source>Multi-Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
     <message>
         <source>[unnamed]</source>
         <translation type="unfinished"></translation>

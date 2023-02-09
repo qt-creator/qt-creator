@@ -41641,7 +41641,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>::qmt</name>
     <message>
         <source>Change</source>
         <translation>Змінити</translation>
@@ -41666,9 +41666,6 @@ the program.</source>
         <source>Delete</source>
         <translation>Видалити</translation>
     </message>
-</context>
-<context>
-    <name>qmt::DocumentController</name>
     <message>
         <source>New Package</source>
         <translation>Новий пакунок</translation>
@@ -41685,9 +41682,6 @@ the program.</source>
         <source>New Diagram</source>
         <translation>Нова діаграма</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>Змінити об&apos;єкт</translation>
@@ -41705,10 +41699,6 @@ the program.</source>
         <translation>Пересунути відносини</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>Додати об&apos;єкт</translation>
-    </message>
-    <message>
         <source>Delete Object</source>
         <translation>Видалити об&apos;єкт</translation>
     </message>
@@ -41721,27 +41711,9 @@ the program.</source>
         <translation>Видалити відносини</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Вирізати</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Вставити</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
-    <message>
         <source>[unnamed]</source>
         <translation>[без назви]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
     <message>
         <source>Show Definition</source>
         <translation>Показати визначення</translation>
@@ -41750,13 +41722,6 @@ the program.</source>
         <source>Open Diagram</source>
         <translation>Відкрити діаграму</translation>
     </message>
-    <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation>Стереотипи:</translation>
@@ -42065,9 +42030,6 @@ the program.</source>
         <source>Multi-Selection</source>
         <translation>Кілька виділених</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>Відсутня назва файлу.</translation>
@@ -42076,13 +42038,6 @@ the program.</source>
         <source>Project is modified.</source>
         <translation>Проект було змінено.</translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation>Модель</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>Створити залежність</translation>
@@ -42094,18 +42049,6 @@ the program.</source>
     <message>
         <source>Create Association</source>
         <translation>Створити асоціацію</translation>
-    </message>
-    <message>
-        <source>New Package</source>
-        <translation>Новий пакунок</translation>
-    </message>
-    <message>
-        <source>New Component</source>
-        <translation>Новий компонент</translation>
-    </message>
-    <message>
-        <source>New Class</source>
-        <translation>Новий клас</translation>
     </message>
     <message>
         <source>New Item</source>
@@ -42929,18 +42872,7 @@ the program.</source>
     <name>::ProjectExplorer</name>
 </context>
 <context>
-    <name>qmt::ClassItem</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>Показати визначення</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ObjectItem</name>
-    <message>
-        <source>Open Diagram</source>
-        <translation>Відкрити діаграму</translation>
-    </message>
+    <name>::qmt</name>
     <message>
         <source>Create Diagram</source>
         <translation>Створити діаграму</translation>
@@ -42948,10 +42880,6 @@ the program.</source>
     <message>
         <source>Remove</source>
         <translation>Прибрати</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Видалити</translation>
     </message>
     <message>
         <source>Align Objects</source>
@@ -42993,51 +42921,30 @@ the program.</source>
         <source>Same Size</source>
         <translation>Однаковий розмір</translation>
     </message>
-</context>
-<context>
-    <name>qmt::NullPointerException</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>Неприпустимий нульовий об&apos;єкт.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileNotFoundException</name>
     <message>
         <source>File not found.</source>
         <translation>Файл не знайдено.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileCreationException</name>
     <message>
         <source>Unable to create file.</source>
         <translation>Неможливо створити файл.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileWriteError</name>
     <message>
         <source>Writing to file failed.</source>
         <translation>Збій запису до файлу.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::FileReadError</name>
     <message>
         <source>Reading from file failed.</source>
         <translation>Збій читання з файлу.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::IllegalXmlFile</name>
     <message>
         <source>Illegal XML file.</source>
         <translation>Неправильний файл XML.</translation>
     </message>
-</context>
-<context>
-    <name>qmt::UnknownFileVersion</name>
     <message>
         <source>Unable to handle file version %1.</source>
         <translation>Неможливо обробити файл версії %1.</translation>

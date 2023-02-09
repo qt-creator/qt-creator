@@ -16,6 +16,8 @@
 #include "qmt/model/mpackage.h"
 #include "qmt/model/mrelation.h"
 
+#include "../../modelinglibtr.h"
+
 #include <QDebug>
 
 namespace qmt {
@@ -34,7 +36,7 @@ class ModelController::UpdateObjectCommand : public UndoCommand
 {
 public:
     UpdateObjectCommand(ModelController *modelController, MObject *object)
-        : UndoCommand(tr("Change Object")),
+        : UndoCommand(Tr::tr("Change Object")),
           m_modelController(modelController)
     {
         MCloneVisitor visitor;
@@ -108,7 +110,7 @@ class ModelController::UpdateRelationCommand :
 {
 public:
     UpdateRelationCommand(ModelController *modelController, MRelation *relation)
-        : UndoCommand(tr("Change Relation")),
+        : UndoCommand(Tr::tr("Change Relation")),
           m_modelController(modelController)
     {
         MCloneVisitor visitor;
@@ -450,7 +452,7 @@ class ModelController::MoveObjectCommand : public UndoCommand
 {
 public:
     MoveObjectCommand(ModelController *modelController, MObject *object)
-        : UndoCommand(tr("Move Object")),
+        : UndoCommand(Tr::tr("Move Object")),
           m_modelController(modelController),
           m_objectKey(object->uid()),
           m_ownerKey(object->owner()->uid()),
@@ -506,7 +508,7 @@ class ModelController::MoveRelationCommand : public UndoCommand
 {
 public:
     MoveRelationCommand(ModelController *modelController, MRelation *relation)
-        : UndoCommand(tr("Move Relation")),
+        : UndoCommand(Tr::tr("Move Relation")),
           m_modelController(modelController),
           m_relationKey(relation->uid()),
           m_ownerKey(relation->owner()->uid()),
@@ -650,7 +652,7 @@ void ModelController::addObject(MPackage *parentPackage, MObject *object)
         emit beginInsertObject(row, parentPackage);
     mapObject(object);
     if (m_undoController) {
-        auto undoCommand = new AddElementsCommand(this, tr("Add Object"));
+        auto undoCommand = new AddElementsCommand(this, Tr::tr("Add Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(TypeObject, object->uid(), parentPackage->uid());
     }
@@ -666,7 +668,7 @@ void ModelController::removeObject(MObject *object)
 {
     QMT_ASSERT(object, return);
     if (m_undoController)
-        m_undoController->beginMergeSequence(tr("Delete Object"));
+        m_undoController->beginMergeSequence(Tr::tr("Delete Object"));
     removeRelatedRelations(object);
     // remove object
     QMT_ASSERT(object->owner(), return);
@@ -675,7 +677,7 @@ void ModelController::removeObject(MObject *object)
     if (!m_isResettingModel)
         emit beginRemoveObject(row, owner);
     if (m_undoController) {
-        auto undoCommand = new RemoveElementsCommand(this, tr("Delete Object"));
+        auto undoCommand = new RemoveElementsCommand(this, Tr::tr("Delete Object"));
         m_undoController->push(undoCommand);
         undoCommand->add(object, object->owner());
     }
@@ -787,7 +789,7 @@ void ModelController::addRelation(MObject *owner, MRelation *relation)
         emit beginInsertRelation(row, owner);
     mapRelation(relation);
     if (m_undoController) {
-        auto undoCommand = new AddElementsCommand(this, tr("Add Relation"));
+        auto undoCommand = new AddElementsCommand(this, Tr::tr("Add Relation"));
         m_undoController->push(undoCommand);
         undoCommand->add(TypeRelation, relation->uid(), owner->uid());
     }
@@ -808,7 +810,7 @@ void ModelController::removeRelation(MRelation *relation)
     if (!m_isResettingModel)
         emit beginRemoveRelation(row, owner);
     if (m_undoController) {
-        auto undoCommand = new RemoveElementsCommand(this, tr("Delete Relation"));
+        auto undoCommand = new RemoveElementsCommand(this, Tr::tr("Delete Relation"));
         m_undoController->push(undoCommand);
         undoCommand->add(relation, owner);
     }
@@ -884,7 +886,7 @@ MContainer ModelController::cutElements(const MSelection &modelSelection)
 {
     // PERFORM avoid duplicate call of simplify(modelSelection)
     MContainer copiedElements = copyElements(modelSelection);
-    deleteElements(modelSelection, tr("Cut"));
+    deleteElements(modelSelection, Tr::tr("Cut"));
     return copiedElements;
 }
 
@@ -922,7 +924,7 @@ void ModelController::pasteElements(MObject *owner, const MReferences &modelCont
     for (MElement *clonedElement : std::as_const(clonedElements))
         updateRelationKeys(clonedElement, renewedKeys);
     if (m_undoController)
-        m_undoController->beginMergeSequence(tr("Paste"));
+        m_undoController->beginMergeSequence(Tr::tr("Paste"));
     // insert all elements
     bool added = false;
     for (MElement *clonedElement : std::as_const(clonedElements)) {
@@ -935,7 +937,7 @@ void ModelController::pasteElements(MObject *owner, const MReferences &modelCont
             emit beginInsertObject(row, objectOwner);
             mapObject(object);
             if (m_undoController) {
-                auto undoCommand = new AddElementsCommand(this, tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, Tr::tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(TypeObject, object->uid(), objectOwner->uid());
             }
@@ -947,7 +949,7 @@ void ModelController::pasteElements(MObject *owner, const MReferences &modelCont
             emit beginInsertRelation(row, owner);
             mapRelation(relation);
             if (m_undoController) {
-                auto undoCommand = new AddElementsCommand(this, tr("Paste"));
+                auto undoCommand = new AddElementsCommand(this, Tr::tr("Paste"));
                 m_undoController->push(undoCommand);
                 undoCommand->add(TypeRelation, relation->uid(), owner->uid());
             }
@@ -965,7 +967,7 @@ void ModelController::pasteElements(MObject *owner, const MReferences &modelCont
 
 void ModelController::deleteElements(const MSelection &modelSelection)
 {
-    deleteElements(modelSelection, tr("Delete"));
+    deleteElements(modelSelection, Tr::tr("Delete"));
 }
 
 void ModelController::deleteElements(const MSelection &modelSelection, const QString &commandLabel)

@@ -34397,7 +34397,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>qmt::DocumentController</name>
+    <name>::qmt</name>
     <message>
         <source>New Package</source>
         <translation>Neues Paket</translation>
@@ -34414,9 +34414,6 @@ provided they were unmodified before the refactoring.</source>
         <source>New Diagram</source>
         <translation>Neues Diagramm</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelController</name>
     <message>
         <source>Change Object</source>
         <translation>Object ändern</translation>
@@ -34461,16 +34458,10 @@ provided they were unmodified before the refactoring.</source>
         <source>Delete</source>
         <translation>Löschen</translation>
     </message>
-</context>
-<context>
-    <name>qmt::TreeModel</name>
     <message>
         <source>[unnamed]</source>
         <translation>[namenlos]</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ModelTreeView</name>
     <message>
         <source>Show Definition</source>
         <translation>Definition anzeigen</translation>
@@ -34478,10 +34469,6 @@ provided they were unmodified before the refactoring.</source>
     <message>
         <source>Open Diagram</source>
         <translation>Diagramm öffnen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
     </message>
 </context>
 <context>
@@ -37084,37 +37071,14 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>qmt::DiagramController</name>
+    <name>::qmt</name>
     <message>
         <source>Change</source>
         <translation>Ändern</translation>
     </message>
     <message>
-        <source>Add Object</source>
-        <translation>Objekt hinzufügen</translation>
-    </message>
-    <message>
         <source>Remove Object</source>
         <translation>Objekt entfernen</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation>Ausschneiden</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation>Einfügen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::ClassItem</name>
-    <message>
-        <source>Show Definition</source>
-        <translation>Definition anzeigen</translation>
     </message>
     <message>
         <source>Inheritance</source>
@@ -37124,9 +37088,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Association</source>
         <translation>Assoziation</translation>
     </message>
-</context>
-<context>
-    <name>qmt::PropertiesView::MView</name>
     <message>
         <source>Stereotypes:</source>
         <translation>Stereotypen:</translation>
@@ -37257,10 +37218,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Richtung:</translation>
     </message>
     <message>
-        <source>Inheritance</source>
-        <translation>Vererbung</translation>
-    </message>
-    <message>
         <source>Inheritances</source>
         <translation>Vererbungen</translation>
     </message>
@@ -37271,11 +37228,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
     <message>
         <source>Base class: %1</source>
         <translation>Basisklasse: %1</translation>
-    </message>
-    <message>
-        <source>Association</source>
-        <translation>Assoziation
-</translation>
     </message>
     <message>
         <source>Associations</source>
@@ -37461,9 +37413,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Multi-Selection</source>
         <translation>Mehrfachauswahl</translation>
     </message>
-</context>
-<context>
-    <name>qmt::ProjectController</name>
     <message>
         <source>Missing file name.</source>
         <translation>Fehlender Dateiname.</translation>
@@ -37472,13 +37421,6 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Project is modified.</source>
         <translation>Verändertes Projekt.</translation>
     </message>
-    <message>
-        <source>Model</source>
-        <translation>Modell</translation>
-    </message>
-</context>
-<context>
-    <name>qmt::DiagramSceneController</name>
     <message>
         <source>Create Dependency</source>
         <translation>Abhängigkeit erzeugen</translation>
@@ -37667,15 +37609,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>qmt::ObjectItem</name>
-    <message>
-        <source>Dependency</source>
-        <translation>Abhängigkeit</translation>
-    </message>
-    <message>
-        <source>Open Diagram</source>
-        <translation>Diagramm öffnen</translation>
-    </message>
+    <name>::qmt</name>
     <message>
         <source>Create Diagram</source>
         <translation>Diagramm erstellen</translation>
@@ -37683,10 +37617,6 @@ Sie werden erhalten.</numerusform>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation>Löschen</translation>
     </message>
     <message>
         <source>Align Objects</source>
@@ -39371,7 +39301,7 @@ Zeile: %4, Spalte: %5
     </message>
 </context>
 <context>
-    <name>qmt::Exception</name>
+    <name>::qmt</name>
     <message>
         <source>Unacceptable null object.</source>
         <translation>Unzulässiges Null-Objekt.</translation>

@@ -13,6 +13,8 @@
 #include "qmt/model_ui/treemodel.h"
 #include "qmt/tasks/ielementtasks.h"
 
+#include "../../modelinglibtr.h"
+
 #include <QPainter>
 #include <QMimeData>
 #include <QDrag>
@@ -228,17 +230,17 @@ void ModelTreeView::contextMenuEvent(QContextMenuEvent *event)
         QMenu menu;
         bool addSeparator = false;
         if (m_elementTasks->hasClassDefinition(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Show Definition"), "showDefinition", &menu));
+            menu.addAction(new ContextMenuAction(Tr::tr("Show Definition"), "showDefinition", &menu));
             addSeparator = true;
         }
         if (m_elementTasks->hasDiagram(melement)) {
-            menu.addAction(new ContextMenuAction(tr("Open Diagram"), "openDiagram", &menu));
+            menu.addAction(new ContextMenuAction(Tr::tr("Open Diagram"), "openDiagram", &menu));
             addSeparator = true;
         }
         if (melement->owner()) {
             if (addSeparator)
                 menu.addSeparator();
-            menu.addAction(new ContextMenuAction(tr("Delete"),
+            menu.addAction(new ContextMenuAction(Tr::tr("Delete"),
                                                  "delete",
                                                  QKeySequence(Qt::CTRL | Qt::Key_D),
                                                  &menu));
