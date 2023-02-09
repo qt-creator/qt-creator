@@ -47,6 +47,7 @@ public:
     virtual bool isValidStatus() const = 0;
 
     virtual bool writeToSettings() const = 0;
+    virtual void readFromSettings() = 0;
 
     virtual QWidget *widget() = 0;
     virtual const McuPackageVersionDetector *getVersionDetector() const = 0;

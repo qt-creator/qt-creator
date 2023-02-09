@@ -66,6 +66,7 @@ public:
     QString statusText() const override;
 
     bool writeToSettings() const override;
+    void readFromSettings() override;
 
     QWidget *widget() override;
     const McuPackageVersionDetector *getVersionDetector() const override;

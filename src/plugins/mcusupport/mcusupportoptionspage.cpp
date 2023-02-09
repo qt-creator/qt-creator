@@ -90,6 +90,9 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         m_qtForMCUsSdkGroupBox = new QGroupBox(Tr::tr("Qt for MCUs SDK"));
         m_qtForMCUsSdkGroupBox->setFlat(true);
         auto *layout = new QVBoxLayout(m_qtForMCUsSdkGroupBox);
+        // Re-read the qtForMCUs package from settings to discard un-applied changes from previous sessions
+        m_options.qtForMCUsSdkPackage->readFromSettings();
+
         layout->addWidget(m_options.qtForMCUsSdkPackage->widget());
         mainLayout->addWidget(m_qtForMCUsSdkGroupBox);
     }

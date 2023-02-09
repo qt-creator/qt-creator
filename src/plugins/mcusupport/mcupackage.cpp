@@ -244,6 +244,11 @@ bool McuPackage::writeToSettings() const
     return settingsHandler->write(m_settingsKey, m_path, m_defaultPath);
 }
 
+void McuPackage::readFromSettings()
+{
+    setPath(settingsHandler->getPath(m_settingsKey, QSettings::UserScope, m_defaultPath));
+}
+
 QWidget *McuPackage::widget()
 {
     auto *widget = new QWidget;
