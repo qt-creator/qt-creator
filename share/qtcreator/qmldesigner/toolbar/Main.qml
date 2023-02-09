@@ -89,7 +89,7 @@ Rectangle {
 
                 border: StudioTheme.ControlStyle.BorderColors {
                     idle: StudioTheme.Values.themeControlBackground_toolbarIdle
-                    hover: StudioTheme.Values.themeControlBackground_toolbarHover
+                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
                     interaction: StudioTheme.Values.themeInteraction
                     disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
                 }

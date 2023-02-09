@@ -101,6 +101,8 @@ DStabFocusButtonPress=highlightBlue
 DStabFocusBackground=highlightBlue
 DSnavigatorText=lightWhite
 DSpopupBackground=offBlack
+DSinteractionHover=highlightHover
+DSnavigatorTextSelected=highlightBlue
 
 ;contentious remap
 ;background color for main form view, library, navigator, properties, connections
@@ -126,7 +128,6 @@ DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff707070
 
-DSinteractionHover=ff74cbfc
 
 DScontrolBackgroundInteraction=ff3d3d3d
 DScontrolBackgroundDisabled=ff2e2f30
@@ -213,7 +214,7 @@ DStabFocusIcon=ff000000
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
 DSnavigatorTextHover=ffffffff
-DSnavigatorTextSelected=ff2aafd3
+
 DSnavigatorIcon=ffffffff
 DSnavigatorIconHover=ffa1a1a1
 DSnavigatorIconSelected=ffffffff

@@ -161,7 +161,7 @@ QtObject {
                                             + values.twoControlColumnGap
                                             + values.actionIndicatorWidth
 
-    property real twoControlColumnWidthMin: 3 * values.height - 2 * values.border
+    property real twoControlColumnWidthMin: 3 * values.height - 2 * values.border - 10
     property real twoControlColumnWidthMax: 3 * values.twoControlColumnWidthMin
     property real twoControlColumnWidth: values.twoControlColumnWidthMin
 

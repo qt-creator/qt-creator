@@ -11,5 +11,6 @@ ControlStyle {
     background.hover: Values.themeControlBackground_topToolbarHover
     background.globalHover: Values.themeControlBackground_topToolbarHover
     border.idle: Values.controlOutline_toolbarIdle
+    border.hover: Values.themeControlBackground_topToolbarHover
     text.hover: Values.themeTextColor
 }

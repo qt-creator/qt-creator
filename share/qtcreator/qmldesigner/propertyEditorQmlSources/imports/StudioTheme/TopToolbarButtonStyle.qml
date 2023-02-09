@@ -6,6 +6,7 @@ import QtQuick
 ControlStyle {
 
     controlSize: Qt.size(Values.topLevelComboWidth, Values.topLevelComboHeight)
+    borderWidth: Values.border
     baseIconFontSize: Values.topLevelComboIcon
     radius: Values.smallRadius
 
@@ -26,7 +27,7 @@ ControlStyle {
 
     border: ControlStyle.BorderColors {
         idle: Values.themeControlBackground_toolbarIdle
-        hover: Values.themeControlBackground_toolbarHover
+        hover: Values.themeControlBackground_topToolbarHover
         interaction: Values.themeInteraction
         disabled: Values.themeControlBackground_toolbarIdle
     }
