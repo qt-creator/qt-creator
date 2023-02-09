@@ -21,19 +21,21 @@ jobs:
   build:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    outputs:
+        tag: ${{ steps.git.outputs.tag }}
     strategy:
       fail-fast: false
       matrix:
         config:
         - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
+            name: "Windows Latest MSVC", artifact: "windows-x64-msvc",
             os: windows-latest,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             is_msvc: true
           }
         - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
+            name: "Windows Latest MinGW", artifact: "windows-x64-mingw",
             os: windows-latest,
             toolchain: "https://github.com/cristianadam/mingw-builds/releases/download/v11.2.0-rev1/x86_64-11.2.0-release-posix-seh-rt_v9-rev1.7z",
             toolchain_path: "mingw64/bin",
@@ -41,12 +43,12 @@ jobs:
             is_msvc: false
           }
         - {
-            name: "Ubuntu Latest GCC", artifact: "Linux",
+            name: "Ubuntu Latest GCC", artifact: "linux-x64",
             os: ubuntu-latest,
             cc: "gcc", cxx: "g++"
           }
         - {
-            name: "macOS Latest Clang", artifact: "macOS",
+            name: "macOS Latest Clang", artifact: "macos-universal",
             os: macos-latest,
             cc: "clang", cxx: "clang++"
           }
@@ -54,9 +56,21 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Checkout submodules
+      id: git
+      shell: cmake -P {0}
       run: |
-        git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git
-        git submodule update --init --recursive
+        execute_process(COMMAND git submodule set-url -- perfparser https://code.qt.io/qt-creator/perfparser.git)
+        execute_process(COMMAND git submodule update --init --recursive)
+        file(MAKE_DIRECTORY release)
+        if (${{github.ref}} MATCHES "tags/v(.*)")
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}\n")
+            file(READ "dist/changelog/changes-${CMAKE_MATCH_1}.md" changelog_md)
+            file(WRITE "release/changelog.md" "These packages are not officially supported, for official packages please check out https://download.qt.io/official_releases/qtcreator\n\n")
+            file(APPEND "release/changelog.md" "${changelog_md}")
+        else()
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${{github.run_id}}\n")
+        endif()
+
 
     - name: Download Ninja and CMake
       shell: cmake -P {0}
@@ -562,6 +576,10 @@ jobs:
           set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}/${{ matrix.config.toolchain_path }}${path_separator}$ENV{PATH}")
         endif()
 
+        if ("${{ runner.os }}" STREQUAL "macOS")
+           set(ENV{CMAKE_OSX_ARCHITECTURES} "x86_64;arm64")
+        endif()
+
         execute_process(
           COMMAND python
             -u
@@ -579,7 +597,7 @@ jobs:
             --add-config=-DCMAKE_C_COMPILER_LAUNCHER=ccache
             --add-config=-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
-            --zip-infix=-${{ matrix.config.artifact }}-${{ github.run_id }}
+            --zip-infix=-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}
             --no-qbs
             --with-cpack
           RESULT_VARIABLE result
@@ -646,42 +664,42 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v3
       with:
-        path: build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        path: build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
+        name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload Devel
       uses: actions/upload-artifact@v3
       with:
-        path: build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
+        path: build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}_dev.7z
+        name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}_dev.7z
 
     - name: Upload wininterrupt
       if: runner.os == 'Windows'
       uses: actions/upload-artifact@v3
       with:
-        path: build/wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        path: build/wininterrupt-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
+        name: wininterrupt-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload qtcreatorcdbext
       if: runner.os == 'Windows' && matrix.config.is_msvc
       uses: actions/upload-artifact@v3
       with:
-        path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
+        name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
 
     - name: Upload Debian package
       if: runner.os == 'Linux'
       uses: actions/upload-artifact@v3
       with:
-        path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
+        name: qtcreator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.deb
 
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
       uses: actions/upload-artifact@v3
       with:
-        path: build/qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
-        name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
+        path: build/qt-creator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.dmg
+        name: qt-creator-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.dmg
 
     - name: Create ccache archive
       working-directory: .ccache
@@ -693,169 +711,38 @@ jobs:
         path: ./${{ steps.ccache.outputs.archive_name }}.tar
         name: ${{ steps.ccache.outputs.archive_name }}
 
+    - name: Upload Release Changelog
+      if: contains(github.ref, 'tags/v')
+      uses: actions/upload-artifact@v3
+      with:
+        path: ./release/changelog.md
+        name: changelog.md
+
   release:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
     needs: build
 
     steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: release-with-dirs
+
+    - name: Fixup artifacts
+      run: |
+        mkdir release
+        mv release-with-dirs/*/* release/
+        rm release/ccache*
+
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: v${{ needs.build.outputs.tag }}
+        body_path: release/changelog.md
+        files: release/*
         draft: false
         prerelease: false
-
-    - name: Store Release url
-      run: |
-        echo "${{ steps.create_release.outputs.upload_url }}" > ./upload_url
-
-    - uses: actions/upload-artifact@v3
-      with:
-        path: ./upload_url
-        name: upload_url
-
-  publish:
-    if: contains(github.ref, 'tags/v')
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - {
-            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
-            os: ubuntu-latest
-          }
-        - {
-            name: "Windows Latest MinGW", artifact: "Windows-MinGW",
-            os: ubuntu-latest
-          }
-        - {
-            name: "Ubuntu Latest GCC", artifact: "Linux",
-            os: ubuntu-latest
-          }
-        - {
-            name: "macOS Latest Clang", artifact: "macOS",
-            os: ubuntu-latest
-          }
-    needs: release
-
-    steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        path: ./
-
-    - name: Download Devel artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
-        path: ./
-
-    - name: Download wininterrupt artifact
-      if: contains(matrix.config.artifact, 'Windows')
-      uses: actions/download-artifact@v3
-      with:
-        name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        path: ./
-
-    - name: Download qtcreatorcdbext artifact
-      if: matrix.config.artifact == 'Windows-MSVC'
-      uses: actions/download-artifact@v3
-      with:
-        name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        path: ./
-
-    - name: Download Debian package artifact
-      if: matrix.config.artifact == 'Linux'
-      uses: actions/download-artifact@v3
-      with:
-        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
-        path: ./
-
-    - name: Download disk image artifact
-      if: matrix.config.artifact == 'macOS'
-      uses: actions/download-artifact@v3
-      with:
-        name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
-        path: ./
-
-    - name: Download URL
-      uses: actions/download-artifact@v3
-      with:
-        name: upload_url
-        path: ./
-    - id: set_upload_url
-      run: |
-        upload_url=`cat ./upload_url`
-        echo upload_url=$upload_url >> $GITHUB_OUTPUT
-
-    - name: Upload to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_content_type: application/x-gtar
-
-    - name: Upload Devel to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
-        asset_name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}_dev.7z
-        asset_content_type: application/x-gtar
-
-    - name: Upload wininterrupt to Release
-      if: contains(matrix.config.artifact, 'Windows')
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_name: wininterrupt-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_content_type: application/x-gtar
-
-    - name: Upload qtcreatorcdbext to Release
-      if: matrix.config.artifact == 'Windows-MSVC'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
-        asset_content_type: application/x-gtar
-
-    - name: Upload Debian package to Release
-      if: matrix.config.artifact == 'Linux'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
-        asset_name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
-        asset_content_type: application/x-gtar
-
-    - name: Upload disk image to Release
-      if: matrix.config.artifact == 'macOS'
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
-        asset_path: ./qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
-        asset_name: qt-creator-${{ matrix.config.artifact }}-${{ github.run_id }}.dmg
-        asset_content_type: application/x-gtar
