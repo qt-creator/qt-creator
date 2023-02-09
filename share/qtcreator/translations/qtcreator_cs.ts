@@ -2542,10 +2542,6 @@ Chcete je nechat přepsat?</translation>
         <translation type="obsolete">Cesty k symbolům: %1</translation>
     </message>
     <message>
-        <source>&lt;none&gt;</source>
-        <translation type="obsolete">&lt;žádná&gt;</translation>
-    </message>
-    <message>
         <source>Source paths: %1</source>
         <translation type="obsolete">Cesty ke zdrojovému textu: %1</translation>
     </message>
@@ -11910,7 +11906,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>Byla nalezena zastaralá verze pomocného ladicího programu (%1). Je požadována verze %2.</translation>
@@ -28812,7 +28808,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Rozbor</translation>

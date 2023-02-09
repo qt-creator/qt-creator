@@ -2099,9 +2099,6 @@ Would you like to overwrite them?</source>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Error de codificación&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="unfinished"></translation>
@@ -2124,9 +2121,6 @@ Would you like to overwrite them?</source>
             <numerusform>%n tipos conocidos, versión de Qt: %1, namespace Qt: %2</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Seleccione archivo principal</translation>
@@ -8821,14 +8815,6 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
 </context>
 <context>
     <name>::Debugger</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Ejecutable:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumentos:</translation>
-    </message>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrumpir en &apos;main&apos;:</translation>

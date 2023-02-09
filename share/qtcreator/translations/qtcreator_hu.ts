@@ -14031,7 +14031,7 @@ Ellenőrizze le, hogy vajon a telefon csatlakoztatva van-e és a TRK alkalmazás
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>A debuggolást segítő könyvtárban (%1) egy idejét múlt verzió található; %2 verzió igényelt.</translation>

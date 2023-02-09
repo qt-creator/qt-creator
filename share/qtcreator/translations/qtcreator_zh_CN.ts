@@ -272,7 +272,7 @@
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>分析器</translation>
@@ -19300,7 +19300,7 @@ Use drag and drop to change the order of the parameters.</source>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>::Git</name>
     <message>
         <source>Certificate Error</source>
         <translation type="unfinished"></translation>
@@ -19311,9 +19311,6 @@ Do you want to disable SSL verification for this server?
 Note: This can expose you to man-in-the-middle attack.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
     <message>
         <source>Push to Gerrit</source>
         <translation type="unfinished"></translation>
@@ -19372,9 +19369,6 @@ Reviewers can be specified by nickname or email address. Spaces not allowed.
 Partial names can be used if they are unambiguous.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>::Git</name>
     <message>
         <source>Delete Branch</source>
         <translation>删除分支 </translation>
@@ -20473,12 +20467,6 @@ were not verified among remotes in %3. Select different folder?</source>
     <message>
         <source>Checked - Mark change as WIP.
 Unchecked - Mark change as ready for review.
-Partially checked - Do not change current state.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Checked - Mark change as private.
-Unchecked - Remove mark.
 Partially checked - Do not change current state.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -30814,7 +30802,7 @@ Are you sure?</source>
     </message>
 </context>
 <context>
-    <name>QWidget</name>
+    <name>::Android</name>
     <message>
         <source>Images (*.png *.jpg *.jpeg)</source>
         <translation type="unfinished"></translation>
@@ -36650,7 +36638,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -37974,7 +37962,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>ptrace: Operation not permitted.
 

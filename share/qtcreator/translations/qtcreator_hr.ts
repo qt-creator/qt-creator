@@ -15854,7 +15854,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
@@ -20531,9 +20531,6 @@ Affected are breakpoints %1</source>
         <source>Error</source>
         <translation>Greška</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
 

@@ -2,7 +2,7 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="uk">
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Аналізатор</translation>
@@ -16619,7 +16619,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="vanished">Знайдено застарілу версію бібліотеки помічника зневадження (%1); необхідна версія %2.</translation>
@@ -39987,9 +39987,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Debuggers</source>
         <translation>Зневаджувачі</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Debugger Settings</source>
         <translation>Налаштування зневаджувача</translation>

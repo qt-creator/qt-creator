@@ -83,7 +83,7 @@
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analysator</translation>
@@ -30357,7 +30357,7 @@ Er du sikker på, at du vil fortsætte?</translation>
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>ptrace: Operation not permitted.
 

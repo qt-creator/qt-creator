@@ -426,7 +426,7 @@
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Анализатор</translation>
@@ -32914,7 +32914,7 @@ Copy the path to the source files to the clipboard?</source>
     </message>
 </context>
 <context>
-    <name>QWidget</name>
+    <name>::Android</name>
     <message>
         <source>Images (*.png *.jpg *.webp *.svg)</source>
         <translation>Изображения (*.png *.jpg *.webp *.svg)</translation>
@@ -39207,7 +39207,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QtDumperHelper</name>
+    <name>::Debugger</name>
     <message>
         <source>ptrace: Operation not permitted.
 

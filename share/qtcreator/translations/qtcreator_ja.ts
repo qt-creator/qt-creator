@@ -16962,9 +16962,6 @@ Qt Creator はアタッチできません。</translation>
         <source>Qt Sources</source>
         <translation>Qt ソース</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -16997,9 +16994,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
 詳細は /etc/sysctl.d/10-ptrace.conf を参照してください
 </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>The gdb process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.
 %2</source>
@@ -30397,7 +30391,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>解析</translation>

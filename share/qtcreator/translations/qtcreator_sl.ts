@@ -1646,9 +1646,6 @@ Ali jih želite nadomestiti?</translation>
         <translation type="obsolete">Zaganjanje oddaljene izvršljive datoteke ni uspelo:
 </translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>Najdena je bila zastarela različica knjižnice pomočnika za razhroščevanje (%1). Potrebna je različica %2.</translation>
@@ -1666,9 +1663,6 @@ Ali jih želite nadomestiti?</translation>
         <source>&lt;none&gt;</source>
         <translation>&lt;brez&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Core File</source>
         <translation>Izberite datoteko posnetka</translation>
@@ -19727,7 +19721,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>

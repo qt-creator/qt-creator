@@ -6403,9 +6403,6 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
         <translation>Der zu debuggende Prozess kann nicht angehalten werden:
 </translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -18139,7 +18136,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analyzer</translation>
@@ -43866,7 +43863,7 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
 </context>
 <context>
-    <name>QWidget</name>
+    <name>::Android</name>
     <message>
         <source>Images (*.png *.jpg *.jpeg)</source>
         <translation type="unfinished"></translation>
@@ -49806,7 +49803,7 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritPushDialog</name>
+    <name>::Git</name>
     <message>
         <source>Push to Gerrit</source>
         <translation type="unfinished">Push zu Gerrit</translation>
@@ -49814,14 +49811,6 @@ z.B. name = &quot;m_test_foo_&quot;:
     <message>
         <source>&amp;Reviewers:</source>
         <translation type="unfinished">&amp;Reviewer:</translation>
-    </message>
-    <message>
-        <source>Checked - Mark change as private.
-Unchecked - Remove mark.
-Partially checked - Do not change current state.</source>
-        <translation type="unfinished">Markiert - Änderung als privat markieren.
-Nicht markiert - Markierung entfernen.
-Teilmarkiert - Zustand nicht verändern.</translation>
     </message>
     <message>
         <source>&amp;Draft/private</source>
@@ -52174,7 +52163,7 @@ Flags: %3</translation>
     </message>
 </context>
 <context>
-    <name>Gerrit::Internal::GerritDialog</name>
+    <name>::Git</name>
     <message>
         <source>Certificate Error</source>
         <translation type="unfinished">Zertifikatsfehler</translation>
@@ -54276,7 +54265,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
+    <name>::QmlJSTools</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>

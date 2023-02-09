@@ -2748,9 +2748,6 @@ Voulez vous les écraser ?</translation>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Erreur d&apos;encodage&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="obsolete">Une version trop ancienne de la bibliothèque d&apos;aide au débogage a été trouvé(%1); La version %2 est nécessaire.</translation>
@@ -2832,9 +2829,6 @@ Pour plus de détails, voir /etc/sysctl.d/10-ptrace.conf</translation>
         <source>&lt;none&gt;</source>
         <translation>&lt;aucun&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation>Charger un fichier core</translation>
@@ -28334,7 +28328,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analyseur</translation>

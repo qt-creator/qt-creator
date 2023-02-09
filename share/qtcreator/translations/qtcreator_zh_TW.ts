@@ -1794,9 +1794,6 @@
         <source>Ctrl+Shift+F11</source>
         <translation>Ctrl+Shift+F11</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found an outdated version of the debugging helper library (%1); version %2 is required.</source>
         <translation>系統找到一個已過期的除錯小助手函式庫 (%1)，需要的版號為 %2。</translation>
@@ -1859,9 +1856,6 @@ For more details, see/etc/sysctl.d/10-ptrace.conf
         <source>&lt;none&gt;</source>
         <translation>&lt;無&gt;</translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Load Core File</source>
         <translation type="unfinished"></translation>
@@ -17514,7 +17508,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>分析器</translation>

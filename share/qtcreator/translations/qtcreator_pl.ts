@@ -4998,9 +4998,6 @@ receives a signal like SIGSEGV during debugging.</source>
         <source>Are you sure you want to remove all expression evaluators?</source>
         <translation>Czy usunąć wszystkie procedury przetwarzające?</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>ptrace: Operation not permitted.
 
@@ -13862,7 +13859,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Analyzer</name>
+    <name>::Debugger</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>

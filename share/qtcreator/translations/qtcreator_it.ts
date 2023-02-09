@@ -2096,9 +2096,6 @@ Vuoi sovrascriverli?</translation>
         <source>&lt;Encoding error&gt;</source>
         <translation>&lt;Errore di codifica&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QtDumperHelper</name>
     <message>
         <source>Found a too-old version of the debugging helper library (%1); version %2 is required.</source>
         <translation type="unfinished"></translation>
@@ -2121,9 +2118,6 @@ Vuoi sovrascriverli?</translation>
             <numerusform>%n tipi conosciuti, versione Qt: %1, namespace Qt: %2</numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>::Debugger</name>
     <message>
         <source>Select Executable</source>
         <translation>Scegli l&apos;Eseguibile</translation>
@@ -3471,10 +3465,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     <message>
         <source>Copy contents to clipboard</source>
         <translation>Copia il contenuto negli appunti</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Eseguibile:</translation>
     </message>
     <message>
         <source>Arguments:</source>
@@ -8662,10 +8652,6 @@ Per eseguire la ricerca, scrivi questo prefisso, uno spazio e poi il termine da 
 </context>
 <context>
     <name>::Debugger</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Parametri:</translation>
-    </message>
     <message>
         <source>Break at &apos;main&apos;:</source>
         <translation>Interrompi su &apos;main&apos;</translation>
