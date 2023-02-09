@@ -14,17 +14,6 @@
 namespace Utils {
 namespace Internal {
 
-QUrl filePathUrl(const QUrl &url)
-{
-    QUrl ret = url;
-    @autoreleasepool {
-        NSURL *nsurl = url.toNSURL();
-        if ([nsurl isFileReferenceURL])
-            ret = QUrl::fromNSURL([nsurl filePathURL]);
-    }
-    return ret;
-}
-
 QString normalizePathName(const QString &filePath)
 {
     QString result;
