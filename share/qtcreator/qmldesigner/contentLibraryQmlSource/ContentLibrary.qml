@@ -1,13 +1,13 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuickDesignerTheme
-import HelperWidgets as HelperWidgets
-import StudioControls as StudioControls
-import StudioTheme as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
+import StudioControls 1.0 as StudioControls
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
@@ -28,43 +28,55 @@ Item {
 
     Column {
         id: col
-        y: 5
         spacing: 5
 
-        StudioControls.SearchBox {
-            id: searchBox
+        Rectangle {
+            width: parent.width
+            height: StudioTheme.Values.doubleToolbarHeight
+            color: StudioTheme.Values.themeToolbarBackground
 
-            width: root.width
-            enabled: {
-                if (tabBar.currIndex == 0) { // Materials tab
-                    materialsModel.matBundleExists
-                            && rootView.hasMaterialLibrary
-                            && materialsModel.hasRequiredQuick3DImport
-                } else { // Textures / Environments tabs
-                    texturesModel.texBundleExists
+            Column {
+                anchors.fill: parent
+                padding: 6
+                spacing: 12
+
+                StudioControls.SearchBox {
+                    id: searchBox
+                    width: parent.width - (parent.padding * 2)
+                    style: StudioTheme.Values.searchControlStyle
+                    enabled: {
+                        if (tabBar.currIndex === 0) { // Materials tab
+                            materialsModel.matBundleExists
+                                && rootView.hasMaterialLibrary
+                                && materialsModel.hasRequiredQuick3DImport
+                        } else { // Textures / Environments tabs
+                            texturesModel.texBundleExists
+                        }
+                    }
+
+                    onSearchChanged: (searchText) => {
+                        rootView.handleSearchFilterChanged(searchText)
+
+                        // make sure categories with matches are expanded
+                        materialsView.expandVisibleSections()
+                        texturesView.expandVisibleSections()
+                        environmentsView.expandVisibleSections()
+                    }
                 }
-            }
 
-            onSearchChanged: (searchText) => {
-                rootView.handleSearchFilterChanged(searchText)
-
-                // make sure categories with matches are expanded
-                materialsView.expandVisibleSections()
-                texturesView.expandVisibleSections()
-                environmentsView.expandVisibleSections()
+                ContentLibraryTabBar {
+                    id: tabBar
+                    width: parent.width - (parent.padding * 2)
+                    height: StudioTheme.Values.toolbarHeight
+                    tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.material_medium},
+                                {name: qsTr("Textures"),     icon: StudioTheme.Constants.textures_medium},
+                                {name: qsTr("Environments"), icon: StudioTheme.Constants.languageList_medium}]
+                }
             }
         }
 
         UnimportBundleMaterialDialog {
             id: confirmUnimportDialog
-        }
-
-        ContentLibraryTabBar {
-            id: tabBar
-             // TODO: update icons
-            tabsModel: [{name: qsTr("Materials"),    icon: StudioTheme.Constants.gradient},
-                        {name: qsTr("Textures"),     icon: StudioTheme.Constants.materialPreviewEnvironment},
-                        {name: qsTr("Environments"), icon: StudioTheme.Constants.translationSelectLanguages}]
         }
 
         StackLayout {
