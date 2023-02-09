@@ -8,8 +8,7 @@
 namespace Core { class IDocument; }
 namespace ProjectExplorer { class ProjectPanelFactory; }
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 ProjectExplorer::ProjectPanelFactory *projectPanelFactory();
 
@@ -27,10 +26,7 @@ private:
     void registerAnalyzeActions();
     void onCurrentEditorChanged();
 
-    QVector<QObject *> createTestObjects() const final;
-
     class ClangToolsPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

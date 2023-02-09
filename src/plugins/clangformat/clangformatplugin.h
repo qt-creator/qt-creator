@@ -16,7 +16,6 @@ class ClangFormatPlugin : public ExtensionSystem::IPlugin
 
     ~ClangFormatPlugin() override;
     void initialize() final;
-    QVector<QObject *> createTestObjects() const override;
 
     TextEditor::ICodeStylePreferencesFactory *m_factory = nullptr;
 };

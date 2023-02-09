@@ -11,8 +11,7 @@
 
 #include <QFutureWatcher>
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
 {
@@ -31,10 +30,6 @@ private:
 
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
-#ifdef WITH_TESTS
-    QVector<QObject *> createTestObjects() const override;
-#endif
 };
 
-} // namespace Internal
-} // namespace Clang
+} // ClangCodeModel::Internal

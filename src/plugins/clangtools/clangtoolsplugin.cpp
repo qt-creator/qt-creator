@@ -5,7 +5,6 @@
 
 #include "clangtool.h"
 #include "clangtoolsconstants.h"
-#include "clangtoolsprojectsettings.h"
 #include "clangtoolsprojectsettingswidget.h"
 #include "clangtoolstr.h"
 #include "documentclangtoolrunner.h"
@@ -49,8 +48,7 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
 static ProjectPanelFactory *m_projectPanelFactoryInstance = nullptr;
 
@@ -112,6 +110,12 @@ void ClangToolsPlugin::initialize()
             &Core::EditorManager::currentEditorChanged,
             this,
             &ClangToolsPlugin::onCurrentEditorChanged);
+
+#ifdef WITH_TESTS
+    addTest<PreconfiguredSessionTests>();
+    addTest<ClangToolsUnitTests>();
+    addTest<ReadExportedDiagnosticsTest>();
+#endif
 }
 
 void ClangToolsPlugin::onCurrentEditorChanged()
@@ -185,16 +189,4 @@ void ClangToolsPlugin::registerAnalyzeActions()
     });
 }
 
-QVector<QObject *> ClangToolsPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new PreconfiguredSessionTests;
-    tests << new ClangToolsUnitTests;
-    tests << new ReadExportedDiagnosticsTest;
-#endif
-    return tests;
-}
-
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

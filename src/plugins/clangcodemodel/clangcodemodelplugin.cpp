@@ -43,8 +43,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace ClangCodeModel {
-namespace Internal {
+namespace ClangCodeModel::Internal {
 
 void ClangCodeModelPlugin::generateCompilationDB()
 {
@@ -78,8 +77,7 @@ ClangCodeModelPlugin::~ClangCodeModelPlugin()
 
 void ClangCodeModelPlugin::initialize()
 {
-    TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS,
-                                          Tr::tr("Clang Code Model"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS, Tr::tr("Clang Code Model"));
 
     connect(ProjectExplorerPlugin::instance(),
             &ProjectExplorerPlugin::finishedInitialization,
@@ -90,6 +88,18 @@ void ClangCodeModelPlugin::initialize()
                 std::make_unique<ClangModelManagerSupport>());
 
     createCompilationDBAction();
+
+#ifdef WITH_TESTS
+    addTest<Tests::ActivationSequenceProcessorTest>();
+    addTest<Tests::ClangdTestCompletion>();
+    addTest<Tests::ClangdTestExternalChanges>();
+    addTest<Tests::ClangdTestFindReferences>();
+    addTest<Tests::ClangdTestFollowSymbol>();
+    addTest<Tests::ClangdTestHighlighting>();
+    addTest<Tests::ClangdTestLocalReferences>();
+    addTest<Tests::ClangdTestTooltips>();
+    addTest<Tests::ClangFixItTest>();
+#endif
 }
 
 void ClangCodeModelPlugin::createCompilationDBAction()
@@ -178,22 +188,4 @@ void ClangCodeModelPlugin::maybeHandleBatchFileAndExit() const
 #endif
 }
 
-#ifdef WITH_TESTS
-QVector<QObject *> ClangCodeModelPlugin::createTestObjects() const
-{
-    return {
-        new Tests::ActivationSequenceProcessorTest,
-        new Tests::ClangdTestCompletion,
-        new Tests::ClangdTestExternalChanges,
-        new Tests::ClangdTestFindReferences,
-        new Tests::ClangdTestFollowSymbol,
-        new Tests::ClangdTestHighlighting,
-        new Tests::ClangdTestLocalReferences,
-        new Tests::ClangdTestTooltips,
-        new Tests::ClangFixItTest,
-    };
-}
-#endif
-
-} // namespace Internal
-} // namespace Clang
+} // ClangCodeModel::Internal
