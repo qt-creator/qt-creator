@@ -28,7 +28,7 @@ add_qtc_plugin(Valgrind
     valgrind.qrc
     valgrindconfigwidget.cpp valgrindconfigwidget.h
     valgrindengine.cpp valgrindengine.h
-    valgrindplugin.cpp valgrindplugin.h
+    valgrindplugin.cpp
     valgrindrunner.cpp valgrindrunner.h
     valgrindsettings.cpp valgrindsettings.h
     xmlprotocol/announcethread.cpp xmlprotocol/announcethread.h

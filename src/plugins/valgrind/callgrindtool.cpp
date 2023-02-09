@@ -19,7 +19,6 @@
 #include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
-#include <valgrind/valgrindplugin.h>
 #include <valgrind/valgrindsettings.h>
 
 #include <debugger/debuggerconstants.h>

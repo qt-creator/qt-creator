@@ -1,35 +1,32 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "valgrindplugin.h"
-
 #include "callgrindtool.h"
 #include "memchecktool.h"
 #include "valgrindconfigwidget.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icontext.h>
+#include <coreplugin/icore.h>
+
+#include <debugger/analyzer/analyzerrunconfigwidget.h>
+#include <debugger/analyzer/analyzericons.h>
+
+#include <extensionsystem/iplugin.h>
+
+#include <projectexplorer/projectexplorer.h>
+
 #ifdef WITH_TESTS
 #   include "valgrindmemcheckparsertest.h"
 #   include "valgrindtestrunnertest.h"
 #endif
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-#include <debugger/analyzer/analyzerrunconfigwidget.h>
-#include <debugger/analyzer/analyzericons.h>
-
-#include <projectexplorer/projectexplorer.h>
-
-#include <QCoreApplication>
-#include <QPointer>
-
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class ValgrindRunConfigurationAspect : public GlobalOrProjectAspect
 {
@@ -55,26 +52,30 @@ public:
     ValgrindOptionsPage valgrindOptionsPage;
 };
 
-ValgrindPlugin::~ValgrindPlugin()
+class ValgrindPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Valgrind.json")
 
-void ValgrindPlugin::initialize()
-{
-    d = new ValgrindPluginPrivate;
+public:
+    ValgrindPlugin() = default;
+    ~ValgrindPlugin() final { delete d; }
 
-    RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
-}
+    void initialize() final
+    {
+        d = new ValgrindPluginPrivate;
 
-QVector<QObject *> ValgrindPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
+        RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 #ifdef WITH_TESTS
-    tests << new Test::ValgrindMemcheckParserTest << new Test::ValgrindTestRunnerTest;
+        addTest<Test::ValgrindMemcheckParserTest>();
+        addTest<Test::ValgrindTestRunnerTest>();
 #endif
-    return tests;
-}
+    }
 
-} // namespace Internal
-} // namespace Valgrind
+private:
+    class ValgrindPluginPrivate *d = nullptr;
+};
+
+} // Valgrind::Internal
+
+#include "valgrindplugin.moc"
