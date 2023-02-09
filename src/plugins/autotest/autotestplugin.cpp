@@ -283,6 +283,8 @@ void AutotestPlugin::initialize()
 #ifdef WITH_TESTS
     ExtensionSystem::PluginManager::registerScenario("TestModelManagerInterface",
                    [] { return dd->m_loadProjectScenario(); });
+
+    addTest<AutoTestUnitTests>(&dd->m_testTreeModel);
 #endif
 }
 
@@ -538,15 +540,6 @@ void AutotestPlugin::popupResultsPane()
 {
     if (dd)
         dd->m_resultsPane->popup(Core::IOutputPane::NoModeSwitch);
-}
-
-QVector<QObject *> AutotestPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#ifdef WITH_TESTS
-    tests << new AutoTestUnitTests(&dd->m_testTreeModel);
-#endif
-    return tests;
 }
 
 bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const

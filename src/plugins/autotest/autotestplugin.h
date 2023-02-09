@@ -51,9 +51,6 @@ public:
     static ChoicePair cachedChoiceFor(const QString &buildTargetKey);
     static void clearChoiceCache();
     static void popupResultsPane();
-
-private:
-    QVector<QObject *> createTestObjects() const override;
 };
 
 } // namespace Internal
