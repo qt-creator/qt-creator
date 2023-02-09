@@ -283,7 +283,7 @@ void BuildSettingsWidget::cloneConfiguration()
     bc->setDisplayName(name);
     const FilePath buildDirectory = bc->buildDirectory();
     if (buildDirectory != m_target->project()->projectDirectory()) {
-        const std::function<bool(const FilePath &)> isBuildDirOk = [this](const FilePath &candidate) {
+        const FilePathPredicate isBuildDirOk = [this](const FilePath &candidate) {
             if (candidate.exists())
                 return false;
             return !anyOf(m_target->buildConfigurations(), [&candidate](const BuildConfiguration *bc) {

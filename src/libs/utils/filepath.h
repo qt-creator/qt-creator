@@ -8,6 +8,7 @@
 #include "expected.h"
 #include "filepathinfo.h"
 #include "osspecificaspects.h"
+#include "utiltypes.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -50,8 +51,6 @@ public:
 };
 
 using FilePaths = QList<class FilePath>;
-
-enum class IterationPolicy { Stop, Continue };
 
 class QTCREATOR_UTILS_EXPORT FilePath
 {
@@ -159,7 +158,7 @@ public:
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
     [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
-                                               const PathFilter &filter = {}) const;
+                                               const FilePathPredicate &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
@@ -182,7 +181,7 @@ public:
     enum PathAmending { AppendToPath, PrependToPath };
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
                                         PathAmending = AppendToPath,
-                                        const PathFilter &filter = {}) const;
+                                        const FilePathPredicate &filter = {}) const;
 
     enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
                       WithExeOrBatSuffix, WithAnySuffix };

@@ -107,15 +107,21 @@ private slots:
     void tmp();
     void tmp_data();
 
+    void searchInWithFilter();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
+    QString exeExt;
 };
 
-static void touch(const QDir &dir, const QString &filename, bool fill)
+static void touch(const QDir &dir, const QString &filename, bool fill, bool executable = false)
 {
     QFile file(dir.absoluteFilePath(filename));
     file.open(QIODevice::WriteOnly);
+    if (executable)
+        file.setPermissions(file.permissions() | QFileDevice::ExeUser);
+
     if (fill) {
         QRandomGenerator *random = QRandomGenerator::global();
         for (int i = 0; i < 10; ++i)
@@ -126,7 +132,7 @@ static void touch(const QDir &dir, const QString &filename, bool fill)
 
 void tst_filepath::initTestCase()
 {
-    // initialize test for tst_fileutiles::relativePath*()
+    // initialize test for tst_filepath::relativePath*()
     QVERIFY(tempDir.isValid());
     rootPath = tempDir.path();
     QDir dir(rootPath);
@@ -141,6 +147,38 @@ void tst_filepath::initTestCase()
 
     // initialize test for tst_filepath::asyncLocalCopy()
     touch(dir, "x/y/fileToCopy.txt", true);
+
+// initialize test for tst_filepath::searchIn()
+#ifdef Q_OS_WIN
+    exeExt = ".exe";
+#endif
+
+    dir.mkpath("s/1");
+    dir.mkpath("s/2");
+    touch(dir, "s/1/testexe" + exeExt, false, true);
+    touch(dir, "s/2/testexe" + exeExt, false, true);
+}
+
+void tst_filepath::searchInWithFilter()
+{
+    const FilePaths dirs = {FilePath::fromUserInput(rootPath) / "s" / "1",
+                            FilePath::fromUserInput(rootPath) / "s" / "2"};
+
+    FilePath exe = FilePath::fromUserInput("testexe" + exeExt)
+                       .searchInDirectories(dirs, [](const FilePath &path) {
+                           return path.path().contains("/2/");
+                       });
+
+    QVERIFY(!exe.path().endsWith("/1/testexe" + exeExt)
+            && exe.path().endsWith("/2/testexe" + exeExt));
+
+    FilePath exe2 = FilePath::fromUserInput("testexe" + exeExt)
+                        .searchInDirectories(dirs, [](const FilePath &path) {
+                            return path.path().contains("/1/");
+                        });
+
+    QVERIFY(!exe2.path().endsWith("/2/testexe" + exeExt)
+            && exe2.path().endsWith("/1/testexe" + exeExt));
 }
 
 void tst_filepath::isEmpty_data()

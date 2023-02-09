@@ -8,6 +8,7 @@
 #include "environmentfwd.h"
 #include "filepath.h"
 #include "namevaluedictionary.h"
+#include "utiltypes.h"
 
 #include <functional>
 #include <optional>
@@ -56,16 +57,15 @@ public:
 
     void setupEnglishOutput();
 
-    using PathFilter = std::function<bool(const FilePath &)>;
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
-                          const PathFilter &func = PathFilter()) const;
+                          const FilePathPredicate &func = {}) const;
     FilePath searchInDirectories(const QString &executable,
                                  const FilePaths &dirs,
-                                 const PathFilter &func = {}) const;
+                                 const FilePathPredicate &func = {}) const;
     FilePaths findAllInPath(const QString &executable,
                             const FilePaths &additionalDirs = {},
-                            const PathFilter &func = {}) const;
+                            const FilePathPredicate &func = {}) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;

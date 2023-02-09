@@ -4,6 +4,7 @@
 #include "environment.h"
 
 #include "algorithm.h"
+#include "filepath.h"
 #include "qtcassert.h"
 
 #include <QDir>
@@ -130,36 +131,44 @@ void Environment::setupEnglishOutput()
     m_dict.set("LANGUAGE", "en_US:en");
 }
 
-static FilePath searchInDirectory(const QStringList &execs,
-                                  const FilePath &directory,
-                                  QSet<FilePath> &alreadyChecked)
+using SearchResultCallback = std::function<IterationPolicy(const FilePath &)>;
+
+static IterationPolicy searchInDirectory(const SearchResultCallback &resultCallback,
+                                         const FilePaths &execs,
+                                         const FilePath &directory,
+                                         QSet<FilePath> &alreadyCheckedDirectories,
+                                         const FilePathPredicate &filter = {})
 {
-    const int checkedCount = alreadyChecked.count();
-    alreadyChecked.insert(directory);
+    // Compare the initial size of the set with the size after insertion to check if the directory
+    // was already checked.
+    const int initialCount = alreadyCheckedDirectories.count();
+    alreadyCheckedDirectories.insert(directory);
+    const bool wasAlreadyChecked = alreadyCheckedDirectories.count() == initialCount;
 
-    if (directory.isEmpty() || alreadyChecked.count() == checkedCount)
-        return FilePath();
+    if (directory.isEmpty() || wasAlreadyChecked)
+        return IterationPolicy::Continue;
 
-    for (const QString &exec : execs) {
-        const FilePath filePath = directory.pathAppended(exec);
-        if (filePath.isExecutableFile())
-            return filePath;
+    for (const FilePath &exec : execs) {
+        const FilePath filePath = directory / exec.path();
+        if (filePath.isExecutableFile() && (!filter || filter(filePath))) {
+            if (resultCallback(filePath) == IterationPolicy::Stop)
+                return IterationPolicy::Stop;
+        }
     }
-    return FilePath();
+    return IterationPolicy::Continue;
 }
 
-static QStringList appendExeExtensions(const Environment &env, const QString &executable)
+static FilePaths appendExeExtensions(const Environment &env, const FilePath &executable)
 {
-    QStringList execs(executable);
+    FilePaths execs{executable};
     if (env.osType() == OsTypeWindows) {
-        const QFileInfo fi(executable);
         // Check all the executable extensions on windows:
         // PATHEXT is only used if the executable has no extension
-        if (fi.suffix().isEmpty()) {
+        if (executable.suffix().isEmpty()) {
             const QStringList extensions = env.expandedValueForKey("PATHEXT").split(';');
 
             for (const QString &ext : extensions)
-                execs << executable + ext.toLower();
+                execs << executable.stringAppended(ext.toLower());
         }
     }
     return execs;
@@ -170,99 +179,101 @@ QString Environment::expandedValueForKey(const QString &key) const
     return expandVariables(m_dict.value(key));
 }
 
-static FilePath searchInDirectoriesHelper(const Environment &env,
-                                          const QString &executable,
-                                          const FilePaths &dirs,
-                                          const Environment::PathFilter &func,
-                                          bool usePath)
+static void searchInDirectoriesHelper(const SearchResultCallback &resultCallback,
+                                      const Environment &env,
+                                      const QString &executable,
+                                      const FilePaths &dirs,
+                                      const FilePathPredicate &func,
+                                      bool usePath)
 {
     if (executable.isEmpty())
-        return FilePath();
+        return;
 
-    const QString exec = QDir::cleanPath(env.expandVariables(executable));
-    const QFileInfo fi(exec);
+    const FilePath exec = FilePath::fromUserInput(QDir::cleanPath(env.expandVariables(executable)));
+    const FilePaths execs = appendExeExtensions(env, exec);
 
-    const QStringList execs = appendExeExtensions(env, exec);
-
-    if (fi.isAbsolute()) {
-        for (const QString &path : execs) {
-            QFileInfo pfi = QFileInfo(path);
-            if (pfi.isFile() && pfi.isExecutable())
-                return FilePath::fromString(path);
+    if (exec.isAbsolutePath()) {
+        for (const FilePath &path : execs) {
+            if (path.isExecutableFile() && (!func || func(path)))
+                if (resultCallback(path) == IterationPolicy::Stop)
+                    return;
         }
-        return FilePath::fromString(exec);
+        return;
     }
 
-    QSet<FilePath> alreadyChecked;
+    QSet<FilePath> alreadyCheckedDirectories;
     for (const FilePath &dir : dirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp)))
-            return tmp;
+        if (searchInDirectory(resultCallback, execs, dir, alreadyCheckedDirectories, func)
+            == IterationPolicy::Stop)
+            return;
     }
 
     if (usePath) {
-        if (executable.contains('/'))
-            return FilePath();
+        QTC_ASSERT(!executable.contains('/'), return);
 
         for (const FilePath &p : env.path()) {
-            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
-            if (!tmp.isEmpty() && (!func || func(tmp)))
-                return tmp;
+            if (searchInDirectory(resultCallback, execs, p, alreadyCheckedDirectories, func)
+                == IterationPolicy::Stop)
+                return;
         }
     }
-    return FilePath();
+    return;
 }
 
 FilePath Environment::searchInDirectories(const QString &executable,
                                           const FilePaths &dirs,
-                                          const PathFilter &func) const
+                                          const FilePathPredicate &func) const
 {
-    return searchInDirectoriesHelper(*this, executable, dirs, func, false);
+    FilePath result;
+    searchInDirectoriesHelper(
+        [&result](const FilePath &path) {
+            result = path;
+            return IterationPolicy::Stop;
+        },
+        *this,
+        executable,
+        dirs,
+        func,
+        false);
+
+    return result;
 }
 
 FilePath Environment::searchInPath(const QString &executable,
                                    const FilePaths &additionalDirs,
-                                   const PathFilter &func) const
+                                   const FilePathPredicate &func) const
 {
-    return searchInDirectoriesHelper(*this, executable, additionalDirs, func, true);
+    FilePath result;
+    searchInDirectoriesHelper(
+        [&result](const FilePath &path) {
+            result = path;
+            return IterationPolicy::Stop;
+        },
+        *this,
+        executable,
+        additionalDirs,
+        func,
+        true);
+
+    return result;
 }
 
 FilePaths Environment::findAllInPath(const QString &executable,
-                                        const FilePaths &additionalDirs,
-                                        const Environment::PathFilter &func) const
+                                     const FilePaths &additionalDirs,
+                                     const FilePathPredicate &func) const
 {
-    if (executable.isEmpty())
-        return {};
-
-    const QString exec = QDir::cleanPath(expandVariables(executable));
-    const QFileInfo fi(exec);
-
-    const QStringList execs = appendExeExtensions(*this, exec);
-
-    if (fi.isAbsolute()) {
-        for (const QString &path : execs) {
-            QFileInfo pfi = QFileInfo(path);
-            if (pfi.isFile() && pfi.isExecutable())
-                return {FilePath::fromString(path)};
-        }
-        return {FilePath::fromString(exec)};
-    }
-
     QSet<FilePath> result;
-    QSet<FilePath> alreadyChecked;
-    for (const FilePath &dir : additionalDirs) {
-        FilePath tmp = searchInDirectory(execs, dir, alreadyChecked);
-        if (!tmp.isEmpty() && (!func || func(tmp)))
-            result << tmp;
-    }
+    searchInDirectoriesHelper(
+        [&result](const FilePath &path) {
+            result.insert(path);
+            return IterationPolicy::Continue;
+        },
+        *this,
+        executable,
+        additionalDirs,
+        func,
+        true);
 
-    if (!executable.contains('/')) {
-        for (const FilePath &p : path()) {
-            FilePath tmp = searchInDirectory(execs, p, alreadyChecked);
-            if (!tmp.isEmpty() && (!func || func(tmp)))
-                result << tmp;
-        }
-    }
     return result.values();
 }
 

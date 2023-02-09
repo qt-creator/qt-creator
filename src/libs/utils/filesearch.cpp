@@ -9,6 +9,7 @@
 #include "qtcassert.h"
 #include "stringutils.h"
 #include "utilstr.h"
+#include "utiltypes.h"
 
 #include <QLoggingCategory>
 #include <QMutex>
@@ -496,8 +497,7 @@ static bool isFileIncluded(const QList<QRegularExpression> &filterRegs,
     return isIncluded && (exclusionRegs.isEmpty() || !matches(exclusionRegs, filePath));
 }
 
-std::function<bool(const FilePath &)> filterFileFunction(const QStringList &filters,
-                                                         const QStringList &exclusionFilters)
+FilePathPredicate filterFileFunction(const QStringList &filters, const QStringList &exclusionFilters)
 {
     const QList<QRegularExpression> filterRegs = filtersToRegExps(filters);
     const QList<QRegularExpression> exclusionRegs = filtersToRegExps(exclusionFilters);
