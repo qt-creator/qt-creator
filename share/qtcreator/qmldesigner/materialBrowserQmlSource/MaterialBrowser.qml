@@ -1,9 +1,9 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
+import QtQuick
 import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
@@ -273,20 +273,52 @@ Item {
 
     Column {
         id: col
-        y: 5
         spacing: 5
 
-        Row {
-            width: root.width
-            enabled: root.enableUiElements
+        Rectangle {
+            width: parent.width
+            height: StudioTheme.Values.doubleToolbarHeight
+            color: StudioTheme.Values.themeToolbarBackground
 
-            StudioControls.SearchBox {
-                id: searchBox
+            Column {
+                anchors.fill: parent
+                padding: 6
+                spacing: 12
 
-                width: root.width
+                StudioControls.SearchBox {
+                    id: searchBox
+                    width: parent.width - (parent.padding * 2)
+                    style: StudioTheme.Values.searchControlStyle
 
-                onSearchChanged: (searchText) => {
-                    rootView.handleSearchFilterChanged(searchText)
+                    onSearchChanged: (searchText) => {
+                        rootView.handleSearchFilterChanged(searchText)
+                    }
+                }
+
+                Row {
+                    width: parent.width - (parent.padding * 2)
+                    height: StudioTheme.Values.toolbarHeight
+                    leftPadding: 6
+                    rightPadding: 6
+                    spacing: 6
+
+                    HelperWidgets.AbstractButton {
+                        id: addMaterial
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.material_medium
+                        tooltip: qsTr("Add a Material.")
+                        onClicked: materialBrowserModel.addNewMaterial()
+                        enabled: root.enableUiElements
+                    }
+
+                    HelperWidgets.AbstractButton {
+                        id: addTexture
+                        style: StudioTheme.Values.viewBarButtonStyle
+                        buttonIcon: StudioTheme.Constants.textures_medium
+                        tooltip: qsTr("Add a Texture.")
+                        onClicked: materialBrowserTexturesModel.addNewTexture()
+                        enabled: root.enableUiElements
+                    }
                 }
             }
         }
@@ -311,7 +343,7 @@ Item {
             visible: text !== ""
         }
 
-        ScrollView {
+        HelperWidgets.ScrollView {
             id: scrollView
 
             width: root.width
@@ -325,7 +357,7 @@ Item {
                     width: root.width
                     height: materialsSection.height
 
-                    Section {
+                    HelperWidgets.Section {
                         id: materialsSection
 
                         width: root.width
@@ -395,27 +427,13 @@ Item {
                             width: root.width
                         }
                     }
-
-                    IconButton {
-                        id: addMaterialButton
-
-                        tooltip: qsTr("Add a material.")
-
-                        anchors.right: parent.right
-                        anchors.rightMargin: scrollView.verticalScrollBarVisible ? 10 : 0
-                        icon: StudioTheme.Constants.plus
-                        normalColor: "transparent"
-                        buttonSize: StudioTheme.Values.sectionHeadHeight
-                        onClicked: materialBrowserModel.addNewMaterial()
-                        enabled: root.enableUiElements
-                    }
                 }
 
                 Item {
                     width: root.width
                     height: texturesSection.height
 
-                    Section {
+                    HelperWidgets.Section {
                         id: texturesSection
 
                         width: root.width
@@ -479,20 +497,6 @@ Item {
                             wrapMode: Text.WordWrap
                             width: root.width
                         }
-                    }
-
-                    IconButton {
-                        id: addTextureButton
-
-                        tooltip: qsTr("Add a texture.")
-
-                        anchors.right: parent.right
-                        anchors.rightMargin: scrollView.verticalScrollBarVisible ? 10 : 0
-                        icon: StudioTheme.Constants.plus
-                        normalColor: "transparent"
-                        buttonSize: StudioTheme.Values.sectionHeadHeight
-                        onClicked: materialBrowserTexturesModel.addNewTexture()
-                        enabled: root.enableUiElements
                     }
                 }
 
