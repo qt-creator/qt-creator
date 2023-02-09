@@ -7,6 +7,7 @@
 #include "clangmodelmanagersupport.h"
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditortr.h>
 #include <cppeditor/cpplocatorfilter.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/indexitem.h>
@@ -122,8 +123,7 @@ ClangGlobalSymbolFilter::ClangGlobalSymbolFilter(ILocatorFilter *cppFilter,
     : m_cppFilter(cppFilter), m_lspFilter(lspFilter)
 {
     setId(CppEditor::Constants::LOCATOR_FILTER_ID);
-    setDisplayName(QCoreApplication::translate("::CppEditor",
-                                               CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::LOCATOR_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(":");
     setDefaultIncludedByDefault(false);
 }
@@ -186,8 +186,7 @@ ClangClassesFilter::ClangClassesFilter()
     : ClangGlobalSymbolFilter(new CppClassesFilter, new LspClassesFilter)
 {
     setId(CppEditor::Constants::CLASSES_FILTER_ID);
-    setDisplayName(QCoreApplication::translate("::CppEditor",
-                                               CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CLASSES_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("c");
     setDefaultIncludedByDefault(false);
 }
@@ -196,8 +195,7 @@ ClangFunctionsFilter::ClangFunctionsFilter()
     : ClangGlobalSymbolFilter(new CppFunctionsFilter, new LspFunctionsFilter)
 {
     setId(CppEditor::Constants::FUNCTIONS_FILTER_ID);
-    setDisplayName(QCoreApplication::translate("::CppEditor",
-                                               CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::FUNCTIONS_FILTER_DISPLAY_NAME));
     setDefaultShortcutString("m");
     setDefaultIncludedByDefault(false);
 }
@@ -253,9 +251,7 @@ public:
 ClangdCurrentDocumentFilter::ClangdCurrentDocumentFilter() : d(new Private)
 {
     setId(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(
-        QCoreApplication::translate("::CppEditor",
-                                    CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
+    setDisplayName(::CppEditor::Tr::tr(CppEditor::Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

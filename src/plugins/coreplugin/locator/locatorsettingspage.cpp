@@ -20,7 +20,6 @@
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
-#include <QCoreApplication>
 #include <QHash>
 #include <QHeaderView>
 #include <QLabel>
@@ -430,7 +429,7 @@ void LocatorSettingsWidget::removeCustomFilter()
 LocatorSettingsPage::LocatorSettingsPage()
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
-    setDisplayName(QCoreApplication::translate("::Core", Constants::FILTER_OPTIONS_PAGE));
+    setDisplayName(Tr::tr(Constants::FILTER_OPTIONS_PAGE));
     setCategory(Constants::SETTINGS_CATEGORY_CORE);
     setWidgetCreator([] { return new LocatorSettingsWidget; });
 }

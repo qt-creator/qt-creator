@@ -4,6 +4,7 @@
 #include "cppcurrentdocumentfilter.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -20,8 +21,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
     : m_modelManager(manager)
 {
     setId(Constants::CURRENT_DOCUMENT_FILTER_ID);
-    setDisplayName(QCoreApplication::translate("::CppEditor",
-                                               Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
+    setDisplayName(Tr::tr(Constants::CURRENT_DOCUMENT_FILTER_DISPLAY_NAME));
     setDefaultShortcutString(".");
     setPriority(High);
     setDefaultIncludedByDefault(false);

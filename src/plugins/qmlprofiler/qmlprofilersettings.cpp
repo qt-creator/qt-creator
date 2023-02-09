@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -82,7 +83,7 @@ QmlProfilerOptionsPage::QmlProfilerOptionsPage()
     setId(Constants::SETTINGS);
     setDisplayName(Tr::tr("QML Profiler"));
     setCategory("T.Analyzer");
-    setDisplayCategory(Tr::tr("Analyzer"));
+    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 }
 

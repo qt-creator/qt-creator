@@ -20,6 +20,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -976,7 +977,7 @@ public:
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
 
         const QString fail = QString{"Docker: "}
-                             + QCoreApplication::translate("::Debugger", "Process failed to start.");
+                             + ::ProjectExplorer::Tr::tr("The process failed to start.");
         auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
         errorLabel->setVisible(false);
 

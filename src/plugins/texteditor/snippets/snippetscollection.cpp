@@ -356,7 +356,7 @@ QList<Snippet> SnippetsCollection::readXML(const FilePath &fileName, const QStri
                         } else if (isGroupKnown(groupId) && (snippetId.isEmpty() || snippetId == id)) {
                             Snippet snippet(groupId, id);
                             snippet.setTrigger(trigger);
-                            snippet.setComplement(QCoreApplication::translate("::TextEditor",
+                            snippet.setComplement(Tr::tr(
                                                       atts.value(kComplement).toString().toLatin1(),
                                                       atts.value(kId).toString().toLatin1()));
                             snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));

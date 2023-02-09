@@ -20,19 +20,19 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/icore.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/locator/locatormanager.h>
 #include <coreplugin/minisplitter.h>
-#include <coreplugin/sidebar.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/sidebar.h>
 #include <texteditor/texteditorconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -223,18 +223,15 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
     if (style != SideBarWidget) {
         m_toggleSideBarAction
             = new QAction(Utils::Icons::TOGGLE_LEFT_SIDEBAR_TOOLBAR.icon(),
-                          QCoreApplication::translate("::Core",
-                                                      Core::Constants::TR_SHOW_LEFT_SIDEBAR),
-                          toolBar);
+                          Tr::tr(Core::Constants::TR_SHOW_LEFT_SIDEBAR), toolBar);
         m_toggleSideBarAction->setCheckable(true);
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
                                                   Core::Constants::TOGGLE_LEFT_SIDEBAR, context);
         connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction, [this](bool checked) {
-            m_toggleSideBarAction->setText(
-                QCoreApplication::translate("::Core",
-                                            checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
-                                                    : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
+            m_toggleSideBarAction->setText(::Core::Tr::tr(
+                                               checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
+                                                       : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
         });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));

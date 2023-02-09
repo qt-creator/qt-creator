@@ -6,11 +6,11 @@
 #include "formtemplatewizardpage.h"
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+#include <projectexplorer/projectexplorertr.h>
 
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>
 
-#include <QCoreApplication>
 #include <QDesignerNewFormWidgetInterface>
 #include <QDebug>
 #include <QXmlStreamReader>
@@ -46,8 +46,8 @@ bool FormPageFactory::validateData(Utils::Id typeId, const QVariant &data, QStri
 {
     QTC_ASSERT(canCreate(typeId), return false);
     if (!data.isNull() && (data.type() != QVariant::Map || !data.toMap().isEmpty())) {
-        *errorMessage = QCoreApplication::translate("::ProjectExplorer",
-                                                    "\"data\" for a \"Form\" page needs to be unset or an empty object.");
+        *errorMessage = ::ProjectExplorer::Tr::tr(
+                    "\"data\" for a \"Form\" page needs to be unset or an empty object.");
         return false;
     }
 

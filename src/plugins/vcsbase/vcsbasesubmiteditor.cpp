@@ -151,7 +151,7 @@ void VcsBaseSubmitEditor::setParameters(const VcsBaseSubmitEditorParameters &par
     d->m_file.setMimeType(QLatin1String(parameters.mimeType));
 
     setWidget(d->m_widget);
-    document()->setPreferredDisplayName(QCoreApplication::translate("::VcsBase", d->m_parameters.displayName));
+    document()->setPreferredDisplayName(Tr::tr(d->m_parameters.displayName));
 
     // Message font according to settings
     CompletingTextEdit *descriptionEdit = d->m_widget->descriptionEdit();

@@ -18,6 +18,7 @@
 #include <coreplugin/icore.h>
 
 #include <debugger/analyzer/analyzericons.h>
+#include <debugger/debuggertr.h>
 
 #include <QCheckBox>
 #include <QFormLayout>
@@ -126,7 +127,7 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     setId(Constants::OPTIONS_PAGE_ID);
     setDisplayName(Tr::tr("Cppcheck"));
     setCategory("T.Analyzer");
-    setDisplayCategory(QCoreApplication::translate("::Debugger", "Analyzer"));
+    setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
     setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
 
     CppcheckOptions options;
