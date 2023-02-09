@@ -22,13 +22,13 @@ ControlStyle {
         idle: Values.themecontrolBackground_statusbarIdle
         hover: Values.themecontrolBackground_statusbarHover
         interaction: Values.themeInteraction
-        disabled: Values.themeControlBackground_toolbarIdle
+        disabled: Values.themecontrolBackground_statusbarIdle
     }
 
     border: ControlStyle.BorderColors {
         idle: Values.themecontrolBackground_statusbarIdle
         hover: Values.themeControlBackground_toolbarHover
         interaction: Values.themeInteraction
-        disabled: Values.themeControlBackground_toolbarIdle
+        disabled: Values.themecontrolBackground_statusbarIdle
     }
 }

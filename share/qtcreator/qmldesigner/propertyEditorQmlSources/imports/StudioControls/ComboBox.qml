@@ -30,6 +30,8 @@ T.ComboBox {
 
     property alias textInput: comboBoxInput
 
+    property int maximumPopupHeight: control.style.maxComboBoxPopupHeight
+
     signal compressedActivated(int index, int reason)
 
     enum ActivatedReason { EditingFinished, Other }
@@ -193,7 +195,7 @@ T.ComboBox {
         height: Math.min(contentItem.implicitHeight + comboBoxPopup.topPadding
                          + comboBoxPopup.bottomPadding,
                          control.Window.height - topMargin - bottomMargin,
-                         control.style.maxComboBoxPopupHeight)
+                         control.maximumPopupHeight)
         padding: control.style.borderWidth
         margins: 0 // If not defined margin will be -1
         closePolicy: T.Popup.CloseOnPressOutside | T.Popup.CloseOnPressOutsideParent

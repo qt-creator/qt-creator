@@ -5,16 +5,17 @@ import QtQuick
 import QtQuick.Controls
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import QtQuickDesignerTheme 1.0
 
 import ToolBar 1.0
 
 Rectangle {
-    id: toolbarContainer
+    id: root
     color: StudioTheme.Values.themeToolbarBackground
-    border.color: "#00000000"
 
-    height: 56
-    width: 2024
+    readonly property int mediumBreakpoint: 720
+    readonly property int largeBreakpoint: 1200
+    readonly property bool flyoutEnabled: root.width < root.largeBreakpoint
 
     ToolBarBackend {
         id: backend
@@ -30,9 +31,10 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 10
-
-            tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.") : qsTr("Switch to Welcome Mode.")
-            buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large : StudioTheme.Constants.home_large
+            tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.")
+                                                 : qsTr("Switch to Welcome Mode.")
+            buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large
+                                                    : StudioTheme.Constants.home_large
             onClicked: backend.triggerModeChange()
         }
 
@@ -130,7 +132,7 @@ Rectangle {
         StudioControls.TopLevelComboBox {
             id: currentFile
             style: StudioTheme.Values.toolbarStyle
-            width: 320
+            width: 320 - ((root.width > root.mediumBreakpoint) ? 0 : (root.mediumBreakpoint - root.width))
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: livePreviewButton.right
             anchors.leftMargin: 10
@@ -199,6 +201,7 @@ Rectangle {
             enabled: moveToComponentBackend.available
             tooltip: moveToComponentBackend.tooltip
             buttonIcon: StudioTheme.Constants.createComponent_large
+            visible: !root.flyoutEnabled
 
             onClicked: moveToComponentBackend.trigger()
 
@@ -216,6 +219,7 @@ Rectangle {
             enabled: goIntoComponentBackend.available
             tooltip: goIntoComponentBackend.tooltip
             buttonIcon: StudioTheme.Constants.editComponent_large
+            visible: !root.flyoutEnabled
 
             onClicked: goIntoComponentBackend.trigger()
 
@@ -234,6 +238,7 @@ Rectangle {
             anchors.rightMargin: 10
             model: backend.workspaces
             currentIndex: workspaces.find(backend.currentWorkspace)
+            visible: !root.flyoutEnabled
 
             onActivated: backend.setCurrentWorkspace(workspaces.currentText)
         }
@@ -245,6 +250,7 @@ Rectangle {
             anchors.rightMargin: 10
             tooltip: qsTr("Edit Annotations")
             buttonIcon: StudioTheme.Constants.annotations_large
+            visible: !root.flyoutEnabled
 
             onClicked: backend.editGlobalAnnoation()
         }
@@ -258,6 +264,7 @@ Rectangle {
             anchors.rightMargin: 8
             iconFont: StudioTheme.Constants.font
             buttonIcon: qsTr("Share")
+            visible: !root.flyoutEnabled
 
             onClicked: backend.shareApplicationOnline()
         }
@@ -270,8 +277,120 @@ Rectangle {
             anchors.rightMargin: 10
             tooltip: qsTr("More Items")
             buttonIcon: StudioTheme.Constants.more_medium
-            enabled: false
-            //onClicked: backend.editGlobalAnnoation()
+            enabled: root.flyoutEnabled
+            checkable: true
+            checked: window.visible
+            checkedInverted: true
+            onClicked: {
+                if (window.visible) {
+                    window.close()
+                } else {
+                    var originMapped = moreItems.mapToGlobal(0,0)
+                    window.x = originMapped.x + moreItems.width - window.width
+                    window.y = originMapped.y + moreItems.height + 7
+                    window.show()
+                    window.requestActivate()
+                }
+            }
+        }
+
+        Window {
+            id: window
+
+            readonly property int padding: 6
+
+            width: row.width + window.padding * 2
+            height: row.height + workspacesFlyout.height + 3 * window.padding
+                    + (workspacesFlyout.popup.opened ? workspacesFlyout.popup.height : 0)
+            visible: false
+            flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint
+            modality: Qt.NonModal
+            transientParent: null
+            color: "transparent"
+
+            onActiveFocusItemChanged: {
+                if (window.activeFocusItem === null && !moreItems.hovered)
+                    window.close()
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                color: StudioTheme.Values.themePopupBackground
+                radius: StudioTheme.Values.smallRadius
+
+                Column {
+                    id: column
+                    anchors.margins: window.padding
+                    anchors.fill: parent
+                    spacing: window.padding
+
+                    Row {
+                        id: row
+                        spacing: window.padding
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        ToolbarButton {
+                            style: StudioTheme.Values.statusbarButtonStyle
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled: moveToComponentBackend.available
+                            tooltip: moveToComponentBackend.tooltip
+                            buttonIcon: StudioTheme.Constants.createComponent_large
+
+                            onClicked: moveToComponentBackend.trigger()
+
+                            ActionSubscriber {
+                                actionId: "MakeComponent"
+                            }
+                        }
+
+                        ToolbarButton {
+                            style: StudioTheme.Values.statusbarButtonStyle
+                            anchors.verticalCenter: parent.verticalCenter
+                            enabled: goIntoComponentBackend.available
+                            tooltip: goIntoComponentBackend.tooltip
+                            buttonIcon: StudioTheme.Constants.editComponent_large
+
+                            onClicked: goIntoComponentBackend.trigger()
+
+                            ActionSubscriber {
+                                actionId: "GoIntoComponent"
+                            }
+                        }
+
+                        ToolbarButton {
+                            style: StudioTheme.Values.statusbarButtonStyle
+                            anchors.verticalCenter: parent.verticalCenter
+                            tooltip: qsTr("Edit Annotations")
+                            buttonIcon: StudioTheme.Constants.annotations_large
+
+                            onClicked: backend.editGlobalAnnoation()
+                        }
+
+                        ToolbarButton {
+                            anchors.verticalCenter: parent.verticalCenter
+                            style: StudioTheme.Values.primaryToolbarStyle
+                            width: shareButton.width
+                            iconFont: StudioTheme.Constants.font
+                            buttonIcon: qsTr("Share")
+
+                            onClicked: backend.shareApplicationOnline()
+                        }
+                    }
+
+                    StudioControls.ComboBox {
+                        id: workspacesFlyout
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        actionIndicatorVisible: false
+                        style: StudioTheme.Values.statusbarControlStyle
+                        width: row.width
+                        maximumPopupHeight: 400
+                        model: backend.workspaces
+                        currentIndex: workspacesFlyout.find(backend.currentWorkspace)
+
+                        onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentText)
+                    }
+                }
+            }
         }
     }
 }
