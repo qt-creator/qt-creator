@@ -49,6 +49,7 @@ Dialog {
 
                 Keys.onEnterPressed: btnCreate.onClicked()
                 Keys.onReturnPressed: btnCreate.onClicked()
+                Keys.onEscapePressed: root.reject()
 
                 onTextChanged: {
                     root.createdDirPath = root.dirPath + '/' + folderName.text

@@ -42,6 +42,8 @@ Dialog {
 
                 Keys.onEnterPressed: btnCreate.onClicked()
                 Keys.onReturnPressed: btnCreate.onClicked()
+                Keys.onEscapePressed: root.reject()
+
                 onTextChanged: {
                     let validator = /^[A-Z]\w{2,}[A-Za-z0-9_]*$/
                     txtNameValidatorMsg.visible = text.length > 0 && !validator.test(text)
