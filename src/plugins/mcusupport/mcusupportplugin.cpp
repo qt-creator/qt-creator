@@ -41,12 +41,9 @@
 using namespace Core;
 using namespace ProjectExplorer;
 
-namespace {
-constexpr char setupMcuSupportKits[]{"SetupMcuSupportKits"};
-}
+namespace McuSupport::Internal {
 
-namespace McuSupport {
-namespace Internal {
+const char setupMcuSupportKits[] = "SetupMcuSupportKits";
 
 void printMessage(const QString &message, bool important)
 {
@@ -125,6 +122,10 @@ void McuSupportPlugin::initialize()
     dd->m_options.registerQchFiles();
     dd->m_options.registerExamples();
     ProjectExplorer::JsonWizardFactory::addWizardPath(":/mcusupport/wizards/");
+
+#if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
+    addTest<Test::McuSupportTest>();
+#endif
 }
 
 void McuSupportPlugin::extensionsInitialized()
@@ -189,14 +190,4 @@ void McuSupportPlugin::askUserAboutMcuSupportKitsUpgrade(const SettingsHandler::
     ICore::infoBar()->addInfo(info);
 }
 
-QVector<QObject *> McuSupportPlugin::createTestObjects() const
-{
-    QVector<QObject *> tests;
-#if defined(WITH_TESTS) && defined(GOOGLE_TEST_IS_FOUND)
-    tests << new Test::McuSupportTest;
-#endif
-    return tests;
-}
-
-} // namespace Internal
-} // namespace McuSupport
+} // McuSupport::Internal
