@@ -620,7 +620,7 @@ Utils::FilePath StudioWelcomePlugin::defaultExamplesPath()
                                                     : QStandardPaths::DocumentsLocation;
 
     return Utils::FilePath::fromString(QStandardPaths::writableLocation(location))
-        .pathAppended("QtDesignStudio");
+        .pathAppended("QtDesignStudio/examples");
 }
 
 QString StudioWelcomePlugin::examplesPathSetting()
