@@ -232,9 +232,5 @@ QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &f
 
 bool isRelativePathHelper(const QString &path, OsType osType);
 
-// For testing
-QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);
-QTCREATOR_UTILS_EXPORT QString cleanPathHelper(const QString &path);
-
 } // namespace Utils
 

@@ -293,6 +293,9 @@ public:
     std::function<void(const FilePath &, const Environment &)> openTerminal;
 };
 
+// For testing
+QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);
+
 } // Utils
 
 Q_DECLARE_METATYPE(Utils::FilePath)

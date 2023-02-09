@@ -802,7 +802,7 @@ FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &fi
 
 FilePath FileUtils::homePath()
 {
-    return FilePath::fromString(doCleanPath(QDir::homePath()));
+    return FilePath::fromUserInput(QDir::homePath());
 }
 
 FilePaths FileUtils::toFilePathList(const QStringList &paths) {

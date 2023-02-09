@@ -8,6 +8,7 @@ Project {
         "commandline/commandline.qbs",
         "deviceshell/deviceshell.qbs",
         "expected/expected.qbs",
+        "filepath/filepath.qbs",
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",

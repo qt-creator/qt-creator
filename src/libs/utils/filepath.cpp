@@ -780,6 +780,146 @@ int FilePath::schemeAndHostLength(const QStringView path)
     return pos + 1;  // scheme://host/ plus something
 }
 
+static QString normalizePathSegmentHelper(const QString &name)
+{
+    const int len = name.length();
+
+    if (len == 0 || name.contains("%{"))
+        return name;
+
+    int i = len - 1;
+    QVarLengthArray<char16_t> outVector(len);
+    int used = len;
+    char16_t *out = outVector.data();
+    const ushort *p = reinterpret_cast<const ushort *>(name.data());
+    const ushort *prefix = p;
+    int up = 0;
+
+    const int prefixLength = name.at(0) == u'/' ? 1 : 0;
+
+    p += prefixLength;
+    i -= prefixLength;
+
+    // replicate trailing slash (i > 0 checks for emptiness of input string p)
+    // except for remote paths because there can be /../ or /./ ending
+    if (i > 0 && p[i] == '/') {
+        out[--used] = '/';
+        --i;
+    }
+
+    while (i >= 0) {
+        if (p[i] == '/') {
+            --i;
+            continue;
+        }
+
+        // remove current directory
+        if (p[i] == '.' && (i == 0 || p[i - 1] == '/')) {
+            --i;
+            continue;
+        }
+
+        // detect up dir
+        if (i >= 1 && p[i] == '.' && p[i - 1] == '.' && (i < 2 || p[i - 2] == '/')) {
+            ++up;
+            i -= i >= 2 ? 3 : 2;
+            continue;
+        }
+
+        // prepend a slash before copying when not empty
+        if (!up && used != len && out[used] != '/')
+            out[--used] = '/';
+
+        // skip or copy
+        while (i >= 0) {
+            if (p[i] == '/') {
+                --i;
+                break;
+            }
+
+            // actual copy
+            if (!up)
+                out[--used] = p[i];
+            --i;
+        }
+
+        // decrement up after copying/skipping
+        if (up)
+            --up;
+    }
+
+    // Indicate failure when ".." are left over for an absolute path.
+    //    if (ok)
+    //        *ok = prefixLength == 0 || up == 0;
+
+    // add remaining '..'
+    while (up) {
+        if (used != len && out[used] != '/') // is not empty and there isn't already a '/'
+            out[--used] = '/';
+        out[--used] = '.';
+        out[--used] = '.';
+        --up;
+    }
+
+    bool isEmpty = used == len;
+
+    if (prefixLength) {
+        if (!isEmpty && out[used] == '/') {
+            // Even though there is a prefix the out string is a slash. This happens, if the input
+            // string only consists of a prefix followed by one or more slashes. Just skip the slash.
+            ++used;
+        }
+        for (int i = prefixLength - 1; i >= 0; --i)
+            out[--used] = prefix[i];
+    } else {
+        if (isEmpty) {
+            // After resolving the input path, the resulting string is empty (e.g. "foo/.."). Return
+            // a dot in that case.
+            out[--used] = '.';
+        } else if (out[used] == '/') {
+            // After parsing the input string, out only contains a slash. That happens whenever all
+            // parts are resolved and there is a trailing slash ("./" or "foo/../" for example).
+            // Prepend a dot to have the correct return value.
+            out[--used] = '.';
+        }
+    }
+
+    // If path was not modified return the original value
+    if (used == 0)
+        return name;
+    return QString::fromUtf16(out + used, len - used);
+}
+
+QString doCleanPath(const QString &input_)
+{
+    QString input = input_;
+    if (input.contains('\\'))
+        input.replace('\\', '/');
+
+    if (input.startsWith("//?/")) {
+        input = input.mid(4);
+        if (input.startsWith("UNC/"))
+            input = '/' + input.mid(3); // trick it into reporting two slashs at start
+    }
+
+    int prefixLen = 0;
+    const int shLen = FilePath::schemeAndHostLength(input);
+    if (shLen > 0) {
+        prefixLen = shLen + FilePath::rootLength(input.mid(shLen));
+    } else {
+        prefixLen = FilePath::rootLength(input);
+        if (prefixLen > 0 && input.at(prefixLen - 1) == '/')
+            --prefixLen;
+    }
+
+    QString path = normalizePathSegmentHelper(input.mid(prefixLen));
+
+    // Strip away last slash except for root directories
+    if (path.size() > 1 && path.endsWith(u'/'))
+        path.chop(1);
+
+    return input.left(prefixLen) + path;
+}
 
 /*! Find the parent directory of a given directory.
 
@@ -1788,150 +1928,7 @@ QTextStream &operator<<(QTextStream &s, const FilePath &fn)
     return s << fn.toString();
 }
 
-static QString normalizePathSegmentHelper(const QString &name)
-{
-    const int len = name.length();
-
-    if (len == 0 || name.contains("%{"))
-        return name;
-
-    int i = len - 1;
-    QVarLengthArray<char16_t> outVector(len);
-    int used = len;
-    char16_t *out = outVector.data();
-    const ushort *p = reinterpret_cast<const ushort *>(name.data());
-    const ushort *prefix = p;
-    int up = 0;
-
-    const int prefixLength =  name.at(0) == u'/' ? 1 : 0;
-
-    p += prefixLength;
-    i -= prefixLength;
-
-    // replicate trailing slash (i > 0 checks for emptiness of input string p)
-    // except for remote paths because there can be /../ or /./ ending
-    if (i > 0 && p[i] == '/') {
-        out[--used] = '/';
-        --i;
-    }
-
-    while (i >= 0) {
-        if (p[i] == '/') {
-            --i;
-            continue;
-        }
-
-        // remove current directory
-        if (p[i] == '.' && (i == 0 || p[i-1] == '/')) {
-            --i;
-            continue;
-        }
-
-        // detect up dir
-        if (i >= 1 && p[i] == '.' && p[i-1] == '.' && (i < 2 || p[i - 2] == '/')) {
-            ++up;
-            i -= i >= 2 ? 3 : 2;
-            continue;
-        }
-
-        // prepend a slash before copying when not empty
-        if (!up && used != len && out[used] != '/')
-            out[--used] = '/';
-
-        // skip or copy
-        while (i >= 0) {
-            if (p[i] == '/') {
-                --i;
-                break;
-            }
-
-            // actual copy
-            if (!up)
-                out[--used] = p[i];
-            --i;
-        }
-
-        // decrement up after copying/skipping
-        if (up)
-            --up;
-    }
-
-    // Indicate failure when ".." are left over for an absolute path.
-//    if (ok)
-//        *ok = prefixLength == 0 || up == 0;
-
-    // add remaining '..'
-    while (up) {
-        if (used != len && out[used] != '/') // is not empty and there isn't already a '/'
-            out[--used] = '/';
-        out[--used] = '.';
-        out[--used] = '.';
-        --up;
-    }
-
-    bool isEmpty = used == len;
-
-    if (prefixLength) {
-        if (!isEmpty && out[used] == '/') {
-            // Even though there is a prefix the out string is a slash. This happens, if the input
-            // string only consists of a prefix followed by one or more slashes. Just skip the slash.
-            ++used;
-        }
-        for (int i = prefixLength - 1; i >= 0; --i)
-            out[--used] = prefix[i];
-    } else {
-        if (isEmpty) {
-            // After resolving the input path, the resulting string is empty (e.g. "foo/.."). Return
-            // a dot in that case.
-            out[--used] = '.';
-        } else if (out[used] == '/') {
-            // After parsing the input string, out only contains a slash. That happens whenever all
-            // parts are resolved and there is a trailing slash ("./" or "foo/../" for example).
-            // Prepend a dot to have the correct return value.
-            out[--used] = '.';
-        }
-    }
-
-    // If path was not modified return the original value
-    if (used == 0)
-        return name;
-    return QString::fromUtf16(out + used, len - used);
-}
-
-QString doCleanPath(const QString &input_)
-{
-    QString input = input_;
-    if (input.contains('\\'))
-        input.replace('\\', '/');
-
-    if (input.startsWith("//?/")) {
-        input = input.mid(4);
-        if (input.startsWith("UNC/"))
-            input = '/' + input.mid(3);  // trick it into reporting two slashs at start
-    }
-
-    int prefixLen = 0;
-    const int shLen = FilePath::schemeAndHostLength(input);
-    if (shLen > 0) {
-        prefixLen = shLen + FilePath::rootLength(input.mid(shLen));
-    } else {
-        prefixLen = FilePath::rootLength(input);
-        if (prefixLen > 0 && input.at(prefixLen - 1) == '/')
-            --prefixLen;
-    }
-
-    QString path = normalizePathSegmentHelper(input.mid(prefixLen));
-
-    // Strip away last slash except for root directories
-    if (path.size() > 1 && path.endsWith(u'/'))
-        path.chop(1);
-
-    return input.left(prefixLen) + path;
-}
-
-
 // FileFilter
-
 FileFilter::FileFilter(const QStringList &nameFilters,
                        const QDir::Filters fileFilters,
                        const QDirIterator::IteratorFlags flags)
