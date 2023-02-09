@@ -39,8 +39,7 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
 {
     QList<LocatorFilterEntry> goodEntries;
     QList<LocatorFilterEntry> betterEntries;
-    QString postfix;
-    Link link = Link::fromString(entry, true, &postfix);
+    const Link link = Link::fromString(entry, true);
 
     const QRegularExpression regexp = createRegExp(link.targetFilePath.toString());
     if (!regexp.isValid())
@@ -56,10 +55,12 @@ QList<LocatorFilterEntry> OpenDocumentsFilter::matchesFor(QFutureInterface<Locat
         QString displayName = editorEntry.displayName;
         const QRegularExpressionMatch match = regexp.match(displayName);
         if (match.hasMatch()) {
-            LocatorFilterEntry filterEntry(this, displayName, QString(fileName + postfix));
+            LocatorFilterEntry filterEntry(this, displayName);
             filterEntry.filePath = FilePath::fromString(fileName);
             filterEntry.extraInfo = filterEntry.filePath.shortNativePath();
             filterEntry.highlightInfo = highlightInfo(match);
+            filterEntry.linkForEditor = Link(filterEntry.filePath, link.targetLine,
+                                             link.targetColumn);
             if (match.capturedStart() == 0)
                 betterEntries.append(filterEntry);
             else

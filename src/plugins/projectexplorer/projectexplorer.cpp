@@ -4362,10 +4362,8 @@ void RunConfigurationLocatorFilter::prepareSearch(const QString &entry)
     if (!target)
         return;
     for (auto rc : target->runConfigurations()) {
-        if (rc->displayName().contains(entry, Qt::CaseInsensitive)) {
-            Core::LocatorFilterEntry filterEntry(this, rc->displayName(), {});
-            m_result.append(filterEntry);
-        }
+        if (rc->displayName().contains(entry, Qt::CaseInsensitive))
+            m_result.append(LocatorFilterEntry(this, rc->displayName()));
     }
 }
 

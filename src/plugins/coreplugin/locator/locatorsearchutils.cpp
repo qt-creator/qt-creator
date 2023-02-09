@@ -3,34 +3,33 @@
 
 #include "locatorsearchutils.h"
 
-#include <QSet>
-#include <QString>
-#include <QVariant>
+#include <utils/link.h>
+
+#include <unordered_set>
 
 void Core::Internal::runSearch(QFutureInterface<Core::LocatorFilterEntry> &future,
                                const QList<ILocatorFilter *> &filters, const QString &searchText)
 {
-    QSet<QString> alreadyAdded;
+    std::unordered_set<Utils::FilePath> addedCache;
     const bool checkDuplicates = (filters.size() > 1);
+    const auto duplicatesRemoved = [&](const QList<LocatorFilterEntry> &entries) {
+        if (!checkDuplicates)
+            return entries;
+        QList<LocatorFilterEntry> results;
+        results.reserve(entries.size());
+        for (const LocatorFilterEntry &entry : entries) {
+            const auto &link = entry.linkForEditor;
+            if (!link || addedCache.emplace(link->targetFilePath).second)
+                results.append(entry);
+        }
+        return results;
+    };
+
     for (ILocatorFilter *filter : filters) {
         if (future.isCanceled())
             break;
-
-        const QList<LocatorFilterEntry> filterResults = filter->matchesFor(future, searchText);
-        QVector<LocatorFilterEntry> uniqueFilterResults;
-        uniqueFilterResults.reserve(filterResults.size());
-        for (const LocatorFilterEntry &entry : filterResults) {
-            if (checkDuplicates) {
-                const QString stringData = entry.internalData.toString();
-                if (!stringData.isEmpty()) {
-                    if (alreadyAdded.contains(stringData))
-                        continue;
-                    alreadyAdded.insert(stringData);
-                }
-            }
-            uniqueFilterResults.append(entry);
-        }
-        if (!uniqueFilterResults.isEmpty())
-            future.reportResults(uniqueFilterResults);
+        const auto results = duplicatesRemoved(filter->matchesFor(future, searchText));
+        if (!results.isEmpty())
+            future.reportResults(results);
     }
 }

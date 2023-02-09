@@ -60,7 +60,7 @@ QList<LocatorFilterEntry> JavaScriptFilter::matchesFor(
             entries.append({this, message, QVariant::fromValue(EngineAction::Abort)});
         } else {
             const QString expression = entry + " = " + result;
-            entries.append({this, expression, QVariant()});
+            entries.append({this, expression});
             entries.append({this, Tr::tr("Copy to clipboard: %1").arg(result), result});
             entries.append({this, Tr::tr("Copy to clipboard: %1").arg(expression), expression});
         }
