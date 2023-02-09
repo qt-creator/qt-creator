@@ -57,10 +57,11 @@ public:
                           const FilePaths &additionalDirs = FilePaths(),
                           const PathFilter &func = PathFilter()) const;
     FilePath searchInDirectories(const QString &executable,
-                                 const FilePaths &dirs) const;
+                                 const FilePaths &dirs,
+                                 const PathFilter &func = {}) const;
     FilePaths findAllInPath(const QString &executable,
-                               const FilePaths &additionalDirs = FilePaths(),
-                               const PathFilter &func = PathFilter()) const;
+                            const FilePaths &additionalDirs = {},
+                            const PathFilter &func = {}) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;

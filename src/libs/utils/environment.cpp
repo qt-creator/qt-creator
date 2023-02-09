@@ -214,9 +214,10 @@ static FilePath searchInDirectoriesHelper(const Environment &env,
 }
 
 FilePath Environment::searchInDirectories(const QString &executable,
-                                          const FilePaths &dirs) const
+                                          const FilePaths &dirs,
+                                          const PathFilter &func) const
 {
-    return searchInDirectoriesHelper(*this, executable, dirs, {}, false);
+    return searchInDirectoriesHelper(*this, executable, dirs, func, false);
 }
 
 FilePath Environment::searchInPath(const QString &executable,

@@ -145,6 +145,8 @@ public:
     void clear();
     bool isEmpty() const;
 
+    using PathFilter = std::function<bool(const FilePath &)>;
+
     [[nodiscard]] FilePath absoluteFilePath() const;
     [[nodiscard]] FilePath absolutePath() const;
     [[nodiscard]] FilePath resolvePath(const FilePath &tail) const;
@@ -156,7 +158,8 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
-    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs) const;
+    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs,
+                                               const PathFilter &filter = {}) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
@@ -178,7 +181,8 @@ public:
 
     enum PathAmending { AppendToPath, PrependToPath };
     [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
-                                        PathAmending = AppendToPath) const;
+                                        PathAmending = AppendToPath,
+                                        const PathFilter &filter = {}) const;
 
     enum MatchScope { ExactMatchOnly, WithExeSuffix, WithBatSuffix,
                       WithExeOrBatSuffix, WithAnySuffix };

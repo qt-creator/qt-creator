@@ -1305,14 +1305,16 @@ FilePath FilePath::withNewPath(const QString &newPath) const
         assert(fullPath == FilePath::fromUrl("docker://123/usr/bin/make"))
     \endcode
 */
-FilePath FilePath::searchInDirectories(const FilePaths &dirs) const
+FilePath FilePath::searchInDirectories(const FilePaths &dirs, const PathFilter &filter) const
 {
     if (isAbsolutePath())
         return *this;
-    return deviceEnvironment().searchInDirectories(path(), dirs);
+    return deviceEnvironment().searchInDirectories(path(), dirs, filter);
 }
 
-FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending amending) const
+FilePath FilePath::searchInPath(const FilePaths &additionalDirs,
+                                PathAmending amending,
+                                const PathFilter &filter) const
 {
     if (isAbsolutePath())
         return *this;
@@ -1328,7 +1330,7 @@ FilePath FilePath::searchInPath(const FilePaths &additionalDirs, PathAmending am
         else
             directories = additionalDirs + directories;
     }
-    return searchInDirectories(directories);
+    return searchInDirectories(directories, filter);
 }
 
 Environment FilePath::deviceEnvironment() const
