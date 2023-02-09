@@ -51,7 +51,7 @@ TreeView {
             assetsModel.syncHaveFiles()
         }
 
-        updateRows()
+        root.updateRows()
     }
 
     Timer {

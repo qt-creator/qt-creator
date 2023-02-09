@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 import QtQuick
@@ -22,7 +22,7 @@ TreeViewDelegate {
     property int __currentRow: model.index
     property string __itemPath: model.filePath
 
-    readonly property int __fileItemHeight: thumbnailImage.height
+    readonly property int __fileItemHeight: thumbnailImage.height + 2 * StudioTheme.Values.border
     readonly property int __dirItemHeight: 21
 
     implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
@@ -67,9 +67,25 @@ TreeViewDelegate {
     background: Rectangle {
         id: bg
 
-        width: root.implicitWidth
+        x: root.indentation * root.depth
+        width: root.implicitWidth - bg.x
 
         color: {
+            if (root.__isDirectory && (root.isHighlighted || root.hasChildWithDropHover))
+                return StudioTheme.Values.themeInteraction
+
+            if (!root.__isDirectory && root.assetsView.selectedAssets[root.__itemPath])
+                return StudioTheme.Values.themeSectionHeadBackground
+
+            if (mouseArea.containsMouse)
+                return StudioTheme.Values.themeSectionHeadBackground
+
+            return root.__isDirectory
+                    ? StudioTheme.Values.themeSectionHeadBackground
+                    : "transparent"
+        }
+        border.width: StudioTheme.Values.border
+        border.color: {
             if (root.__isDirectory && (root.isHighlighted || root.hasChildWithDropHover))
                 return StudioTheme.Values.themeInteraction
 
@@ -83,31 +99,17 @@ TreeViewDelegate {
                     ? StudioTheme.Values.themeSectionHeadBackground
                     : "transparent"
         }
-
-        // this rectangle exists so as to have some visual indentation for the directories
-        // We prepend a default pane-colored rectangle so that the nested directory will
-        // look moved a bit to the right
-        Rectangle {
-            anchors.top: bg.top
-            anchors.bottom: bg.bottom
-            anchors.left: bg.left
-
-            width: root.indentation * root.depth
-            implicitWidth: root.indentation * root.depth
-            color: StudioTheme.Values.themePanelBackground
-        }
     }
 
     contentItem: Text {
         id: assetLabel
         text: assetLabel.__computeText()
         color: StudioTheme.Values.themeTextColor
-        font.pixelSize: 14
+        font.pixelSize: StudioTheme.Values.mediumFont
         anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Qt.AlignVCenter
 
-        function __computeText()
-        {
+        function __computeText() {
             return root.__isDirectory
                     ? (root.hasChildren
                        ? model.display.toUpperCase()
@@ -136,7 +138,7 @@ TreeViewDelegate {
         onPositionChanged: tooltipBackend.reposition()
 
         onPressed: (mouse) => {
-            forceActiveFocus()
+            mouseArea.forceActiveFocus()
             mouseArea.allowTooltip = false
             tooltipBackend.hideTooltip()
 
@@ -174,10 +176,10 @@ TreeViewDelegate {
         }
 
         onDoubleClicked: (mouse) => {
-            forceActiveFocus()
-            allowTooltip = false
+            mouseArea.forceActiveFocus()
+            mouseArea.allowTooltip = false
             tooltipBackend.hideTooltip()
-            if (mouse.button === Qt.LeftButton && isEffect)
+            if (mouse.button === Qt.LeftButton && root.isEffect)
                 rootView.openEffectMaker(filePath)
         }
 
@@ -187,8 +189,7 @@ TreeViewDelegate {
             text: assetTooltip.__computeText()
             delay: 1000
 
-            function __computeText()
-            {
+            function __computeText() {
                 let filePath = model.filePath.replace(assetsModel.contentDirPath(), "")
                 let fileSize = rootView.assetFileSize(model.filePath)
                 let fileExtMatches = model.filePath.match(/\.(.*)$/)
@@ -211,9 +212,8 @@ TreeViewDelegate {
                 }
             }
 
-            function refresh()
-            {
-                text = assetTooltip.__computeText()
+            function refresh() {
+                assetTooltip.text = assetTooltip.__computeText()
             }
         }
 
@@ -221,34 +221,30 @@ TreeViewDelegate {
             interval: 1000
             running: mouseArea.containsMouse && mouseArea.allowTooltip
             onTriggered: {
-                if (suffix === ".ttf" || suffix === ".otf") {
+                if (root.isFont) {
                     tooltipBackend.name = model.fileName
                     tooltipBackend.path = model.filePath
                     tooltipBackend.showTooltip()
                 }
             }
-        } // Timer
+        }
 
         onClicked: (mouse) => {
             if (mouse.button === Qt.LeftButton)
                 root.__toggleExpandCurrentRow()
             else
                 root.__openContextMenuForCurrentRow()
-
-
         }
-    } // MouseArea
+    }
 
-    function getDirPath()
-    {
+    function getDirPath() {
         if (root.__isDirectory)
             return model.filePath
         else
             return assetsModel.parentDirPath(model.filePath)
     }
 
-    function __openContextMenuForCurrentRow()
-    {
+    function __openContextMenuForCurrentRow() {
         let modelIndex = assetsModel.indexForPath(model.filePath)
 
         function onFolderCreated(path) {
@@ -269,8 +265,7 @@ TreeViewDelegate {
        }
     }
 
-    function __toggleExpandCurrentRow()
-    {
+    function __toggleExpandCurrentRow() {
         if (!root.__isDirectory)
            return
 
@@ -287,8 +282,7 @@ TreeViewDelegate {
         }
     }
 
-    function reloadImage()
-    {
+    function reloadImage() {
         if (root.__isDirectory)
             return
 
@@ -299,7 +293,8 @@ TreeViewDelegate {
     Image {
         id: thumbnailImage
         visible: !root.__isDirectory
-        x: root.depth * root.indentation
+        y: StudioTheme.Values.border
+        x: root.depth * root.indentation + StudioTheme.Values.border
         width: 48
         height: 48
         cache: false
@@ -309,8 +304,7 @@ TreeViewDelegate {
         fillMode: Image.PreserveAspectFit
         source: thumbnailImage.__computeSource()
 
-        function __computeSource()
-        {
+        function __computeSource() {
             return root.__isDirectory
                     ? ""
                     : "image://qmldesigner_assets/" + model.filePath
@@ -320,6 +314,5 @@ TreeViewDelegate {
             if (thumbnailImage.status === Image.Ready)
                 assetTooltip.refresh()
         }
-
-    } // Image
-} // TreeViewDelegate
+    }
+}
