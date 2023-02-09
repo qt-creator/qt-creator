@@ -216,12 +216,13 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
 };
 #endif
 
-QVector<QObject *> SanitizerParser::createTestObjects()
+std::optional<std::function<QObject *()>> SanitizerParser::testCreator()
 {
 #ifdef WITH_TESTS
-    return {new SanitizerParserTest};
-#endif
+    return []() -> QObject * { return new SanitizerParserTest; };
+#else
     return {};
+#endif
 }
 
 SanitizerOutputFormatterFactory::SanitizerOutputFormatterFactory()

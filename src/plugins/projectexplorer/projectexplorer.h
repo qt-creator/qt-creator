@@ -111,7 +111,6 @@ public:
     void extensionsInitialized() override;
     void restoreKits();
     ShutdownFlag aboutToShutdown() override;
-    QVector<QObject *> createTestObjects() const override;
 
     static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);
     static const ProjectExplorerSettings &projectExplorerSettings();
