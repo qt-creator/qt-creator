@@ -55,6 +55,7 @@ public:
 signals:
     void changed();
     void statusChanged();
+    void reset();
 
 }; // class McuAbstractPackage
 } // namespace McuSupport::Internal

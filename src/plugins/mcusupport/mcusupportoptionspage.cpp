@@ -277,6 +277,15 @@ void McuSupportOptionsWidget::showMcuTargetPackages()
 
     for (const auto &package : packages) {
         QWidget *packageWidget = package->widget();
+        QWeakPointer packagePtr(package);
+        connect(package.get(), &McuPackage::reset, this, [this, packagePtr] (){
+            McuPackagePtr package = packagePtr.lock();
+            if (package) {
+                MacroExpanderPtr macroExpander
+                    = m_options.sdkRepository.getMacroExpander(*currentMcuTarget());
+                package->setPath(macroExpander->expand(package->defaultPath()));
+            }
+        });
         m_packagesLayout->addRow(package->label(), packageWidget);
         packageWidget->show();
     }
