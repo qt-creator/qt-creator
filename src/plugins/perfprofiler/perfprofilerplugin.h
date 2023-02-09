@@ -18,7 +18,6 @@ public:
     ~PerfProfilerPlugin();
 
     void initialize() final;
-    QVector<QObject *> createTestObjects() const final;
 
     static PerfSettings *globalSettings();
 
