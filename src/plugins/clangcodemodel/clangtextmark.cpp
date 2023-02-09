@@ -189,7 +189,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src,
                 line = match.captured(6).toInt(&ok);
                 column = 0;
             }
-            FilePath auxFilePath = FilePath::fromUserInput(match.captured(1));
+            FilePath auxFilePath = mapper(FilePath::fromUserInput(match.captured(1)));
             if (auxFilePath.isRelativePath() && auxFilePath.fileName() == filePath.fileName())
                 auxFilePath = filePath;
             aux.location = {auxFilePath, line, column - 1};
