@@ -236,15 +236,33 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
 
+const char SETTING_HIDE_OPTION_CATEGORIES[] = "HideOptionCategories";
+
+static bool categoryVisible(const Id &id)
+{
+    static QStringList list
+        = Core::ICore::settings()->value(SETTING_HIDE_OPTION_CATEGORIES).toStringList();
+
+    if (anyOf(list, [id](const QString &str) { return id.toString().contains(str); }))
+        return false;
+
+    return true;
+}
+
 bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
+    const CategoryModel *cm = static_cast<CategoryModel *>(sourceModel());
+    const Category *category = cm->categories().at(sourceRow);
+
+    if (!categoryVisible(category->id))
+        return false;
+
     // Regular contents check, then check page-filter.
     if (QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent))
         return true;
 
     const QRegularExpression regex = filterRegularExpression();
-    const CategoryModel *cm = static_cast<CategoryModel*>(sourceModel());
-    const Category *category = cm->categories().at(sourceRow);
+
     for (const IOptionsPage *page : category->pages) {
         if (page->displayCategory().contains(regex) || page->displayName().contains(regex)
             || page->matches(regex))
