@@ -55,7 +55,6 @@ signals:
 private:
     void initialize() override;
     void extensionsInitialized() override;
-    QVector<QObject *> createTestObjects() const override;
 
     CppEditorPluginPrivate *d = nullptr;
 };

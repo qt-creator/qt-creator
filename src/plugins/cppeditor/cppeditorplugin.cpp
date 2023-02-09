@@ -464,6 +464,36 @@ void CppEditorPlugin::initialize()
             d, &CppEditorPluginPrivate::onTaskStarted);
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             d, &CppEditorPluginPrivate::onAllTasksFinished);
+
+#ifdef WITH_TESTS
+    addTest<CodegenTest>();
+    addTest<CompilerOptionsBuilderTest>();
+    addTest<CompletionTest>();
+    addTest<CppHighlighterTest>();
+    addTest<FunctionUtilsTest>();
+    addTest<HeaderPathFilterTest>();
+    addTest<HeaderSourceTest>();
+    addTest<IncludeGroupsTest>();
+    addTest<LocalSymbolsTest>();
+    addTest<LocatorFilterTest>();
+    addTest<ModelManagerTest>();
+    addTest<PointerDeclarationFormatterTest>();
+    addTest<ProjectFileCategorizerTest>();
+    addTest<ProjectInfoGeneratorTest>();
+    addTest<ProjectPartChooserTest>();
+    addTest<DocumentTrackerTest>();
+    addTest<SourceProcessorTest>();
+    addTest<SymbolSearcherTest>();
+    addTest<TypeHierarchyBuilderTest>();
+    addTest<Tests::AutoCompleterTest>();
+    addTest<Tests::DoxygenTest>();
+    addTest<Tests::FileAndTokenActionsTest>();
+    addTest<Tests::FollowSymbolTest>();
+    addTest<Tests::IncludeHierarchyTest>();
+    addTest<Tests::InsertVirtualMethodsTest>();
+    addTest<Tests::QuickfixTest>();
+    addTest<Tests::SelectionsTest>();
+#endif
 }
 
 void CppEditorPlugin::extensionsInitialized()
@@ -558,41 +588,6 @@ void CppEditorPluginPrivate::inspectCppCodeModel()
         ICore::registerWindow(m_cppCodeModelInspectorDialog, Context("CppEditor.Inspector"));
         m_cppCodeModelInspectorDialog->show();
     }
-}
-
-QVector<QObject *> CppEditorPlugin::createTestObjects() const
-{
-    return {
-#ifdef WITH_TESTS
-        new CodegenTest,
-        new CompilerOptionsBuilderTest,
-        new CompletionTest,
-        new CppHighlighterTest,
-        new FunctionUtilsTest,
-        new HeaderPathFilterTest,
-        new HeaderSourceTest,
-        new IncludeGroupsTest,
-        new LocalSymbolsTest,
-        new LocatorFilterTest,
-        new ModelManagerTest,
-        new PointerDeclarationFormatterTest,
-        new ProjectFileCategorizerTest,
-        new ProjectInfoGeneratorTest,
-        new ProjectPartChooserTest,
-        new DocumentTrackerTest,
-        new SourceProcessorTest,
-        new SymbolSearcherTest,
-        new TypeHierarchyBuilderTest,
-        new Tests::AutoCompleterTest,
-        new Tests::DoxygenTest,
-        new Tests::FileAndTokenActionsTest,
-        new Tests::FollowSymbolTest,
-        new Tests::IncludeHierarchyTest,
-        new Tests::InsertVirtualMethodsTest,
-        new Tests::QuickfixTest,
-        new Tests::SelectionsTest,
-#endif
-    };
 }
 
 void CppEditorPlugin::openTypeHierarchy()
