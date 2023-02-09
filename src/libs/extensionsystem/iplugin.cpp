@@ -197,9 +197,12 @@ bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
 /*!
     Registers a function object that creates a test object.
 
-    The ownership of the created object is transferred to the plugin.
+    The created objects are meant to be passed on to \l QTest::qExec().
 
-    \sa createTestObjects()
+    The function objects will be called if the user starts \QC with
+    \c {-test PluginName} or \c {-test all}.
+
+    The ownership of the created object is transferred to the plugin.
 */
 
 void IPlugin::addTestCreator(const TestCreator &creator)
@@ -208,15 +211,7 @@ void IPlugin::addTestCreator(const TestCreator &creator)
 }
 
 /*!
-    Returns objects that are meant to be passed on to \l QTest::qExec().
-
-    This function will be called if the user starts \QC with
-    \c {-test PluginName} or \c {-test all}.
-
-    By default, this function creates test objects using the functors
-    added by \c addTest().
-
-    The ownership of returned objects is transferred to caller.
+    \deprecated [10.0] Use addTest() instead
 
     \sa addTest()
 */
