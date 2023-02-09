@@ -5,19 +5,15 @@
 #include "findinfilessilversearcher.h"
 #include "outputparser_test.h"
 
-namespace SilverSearcher {
-namespace Internal {
+namespace SilverSearcher::Internal {
 
 void SilverSearcherPlugin::initialize()
 {
     new FindInFilesSilverSearcher(this);
-}
 
 #ifdef WITH_TESTS
-QVector<QObject *> SilverSearcherPlugin::createTestObjects() const
-{
-    return {new OutputParserTest};
-}
+    addTest<OutputParserTest>();
 #endif
-} // namespace Internal
-} // namespace SilverSearcher
+}
+
+} // SilverSearcher::Internal
