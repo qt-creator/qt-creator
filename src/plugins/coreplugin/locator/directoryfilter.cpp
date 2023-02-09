@@ -386,9 +386,6 @@ static void refresh(QFutureInterface<FilePaths> &future, const FilePaths &direct
                     const QStringList &filters, const QStringList &exclusionFilters,
                     const QString &displayName)
 {
-    if (directories.isEmpty())
-        return;
-
     SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
     future.setProgressRange(0, subDirIterator.maxProgress());
     FilePaths files;
@@ -413,15 +410,26 @@ using namespace Utils::Tasking;
 
 std::optional<TaskItem> DirectoryFilter::refreshRecipe()
 {
-    const auto setup = [this](AsyncTask<FilePaths> &async) {
+    const auto groupSetup = [this] {
+        if (!m_directories.isEmpty())
+            return TaskAction::Continue; // Async task will run
+        m_files.clear();
+        updateFileIterator();
+        return TaskAction::StopWithDone; // Group stops, skips async task
+    };
+    const auto asyncSetup = [this](AsyncTask<FilePaths> &async) {
         async.setAsyncCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                displayName());
     };
-    const auto done = [this](const AsyncTask<FilePaths> &async) {
+    const auto asyncDone = [this](const AsyncTask<FilePaths> &async) {
         m_files = async.isResultAvailable() ? async.result() : FilePaths();
         updateFileIterator();
     };
-    return Async<FilePaths>(setup, done);
+    const Group root {
+        OnGroupSetup(groupSetup),
+        Async<FilePaths>(asyncSetup, asyncDone)
+    };
+    return root;
 }
 
 } // namespace Core
