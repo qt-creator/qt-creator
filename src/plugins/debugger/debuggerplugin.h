@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "debugger_global.h"
-
 #include <extensionsystem/iplugin.h>
 #include <utils/filepath.h>
 
@@ -42,8 +40,6 @@ private:
                                              QString *logMessage);
     Q_SLOT void removeDetectedDebuggers(const QString &detectionId, QString *logMessage);
     Q_SLOT void listDetectedDebuggers(const QString &detectionId, QString *logMessage);
-
-    QVector<QObject *> createTestObjects() const override;
 };
 
 } // Debugger::Internal

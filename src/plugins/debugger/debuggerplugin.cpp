@@ -2125,17 +2125,6 @@ DebuggerPlugin::~DebuggerPlugin()
     m_instance = nullptr;
 }
 
-bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-
-    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
-    ExtensionSystem::PluginManager::addObject(this);
-
-    dd = new DebuggerPluginPrivate(arguments);
-    return true;
-}
-
 IPlugin::ShutdownFlag DebuggerPlugin::aboutToShutdown()
 {
     ExtensionSystem::PluginManager::removeObject(this);
@@ -2489,19 +2478,23 @@ void DebuggerUnitTests::testDebuggerMatching()
     QCOMPARE(expectedLevel, level);
 }
 
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
+#endif // ifdef  WITH_TESTS
+
+bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    return {new DebuggerUnitTests};
+    Q_UNUSED(errorMessage)
+
+    // Needed for call from AppOutputPane::attachToRunControl() and GammarayIntegration.
+    ExtensionSystem::PluginManager::addObject(this);
+
+    dd = new DebuggerPluginPrivate(arguments);
+
+#ifdef WITH_TESTS
+    addTest<DebuggerUnitTests>();
+#endif
+
+    return true;
 }
-
-#else // ^-- if WITH_TESTS else --v
-
-QVector<QObject *> DebuggerPlugin::createTestObjects() const
-{
-    return {};
-}
-
-#endif // if  WITH_TESTS
 
 } // Internal
 } // Debugger
