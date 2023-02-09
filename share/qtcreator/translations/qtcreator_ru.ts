@@ -24941,9 +24941,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Zoom: %1%</source>
         <translation>Масштаб: %1%</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ActionHandler</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Убрать</translation>
@@ -25005,16 +25002,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Return</source>
         <translation>Ввод</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Обновить зависимость от включаемых файлов</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Выбор особого каталога настроек</translation>
@@ -25027,9 +25018,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;Файл модели должен быть перезагружен.&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Модель не загружена. Сохранить невозможно.</translation>
@@ -25038,9 +25026,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Не удалось открыть файл «%1» для чтения: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Открытие диаграммы&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Двойной щелчок на диаграмме в дереве модели&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; «Открыть диаграмму» в контекстном меню пакета дерева модели&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -25137,16 +25122,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Swimlane</source>
         <translation>Swimlane</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Открыть диаграмму</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Добавить компонент %1</translation>
@@ -25207,7 +25186,7 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
     </message>
 </context>
 <context>
-    <name>Modeling</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Modeling</source>
         <translation>Моделирование</translation>

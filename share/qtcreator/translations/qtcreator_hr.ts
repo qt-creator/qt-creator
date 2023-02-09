@@ -25005,7 +25005,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Ukloni</translation>
@@ -25066,16 +25066,10 @@ Rok upotrebe: %3</translation>
         <source>Return</source>
         <translation>Return</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Aktualiziraj dodavanje ovisnosti</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Odaberi mapu prilagođene konfiguracije</translation>
@@ -25088,9 +25082,6 @@ Rok upotrebe: %3</translation>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;Datoteka modela se mora ponovo učitati.&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Nijedan model nije učitan. Spremanje nije moguće.</translation>
@@ -25099,9 +25090,6 @@ Rok upotrebe: %3</translation>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Nije bilo moguće otvoriti &quot;%1&quot; za čitanje: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Otvori dijagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Dvoklik na dijagram u stablastom modelu&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Odabei &quot;Otvori dijagram&quot; iz kontekstnog izbornika u stablastom modelu&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -25198,30 +25186,18 @@ Rok upotrebe: %3</translation>
         <source>Swimlane</source>
         <translation>Dijagram toka</translation>
     </message>
-</context>
-<context>
-    <name>::ModelEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiraj: %1%</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>Modeliranje</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Otvori dijagram</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Dodaj komponentu %1</translation>

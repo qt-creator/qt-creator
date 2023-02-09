@@ -24851,9 +24851,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Zoom: %1%</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ActionHandler</name>
     <message>
         <source>&amp;Remove</source>
         <translation type="unfinished">删除(&amp;R)</translation>
@@ -24914,16 +24911,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Return</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation type="unfinished"></translation>
@@ -24936,9 +24927,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation type="unfinished"></translation>
@@ -24947,9 +24935,6 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
@@ -25046,16 +25031,10 @@ Useful if build directory is corrupted or when rebuilding with a newer version o
         <source>Swimlane</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation type="unfinished"></translation>
@@ -25144,7 +25123,7 @@ Error:
     </message>
 </context>
 <context>
-    <name>Modeling</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Modeling</source>
         <translation type="unfinished"></translation>

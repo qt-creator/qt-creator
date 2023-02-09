@@ -19540,9 +19540,6 @@ Fejl: %5</translation>
         <source>Zoom: %1%</source>
         <translation>Zoom: %1%</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ActionHandler</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Fjern</translation>
@@ -19603,16 +19600,10 @@ Fejl: %5</translation>
         <source>Return</source>
         <translation>Vend tilbage</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ElementTasks</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Opdater inkluder-afhængigheder</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Vælg brugerdefineret konfigurationsmappe</translation>
@@ -19625,9 +19616,6 @@ Fejl: %5</translation>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation>&lt;font color=red&gt;Modelfil skal genindlæses.&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Ingen model indlæst. Kan ikke gemme.</translation>
@@ -19640,9 +19628,6 @@ Fejl: %5</translation>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Kunne ikke åbne &quot;%1&quot; til læsning: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Åbn et diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Dobbeltklik på diagram i model-træ&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Vælg &quot;Åbn diagram&quot; fra pakkens genvejsmenu i model-træ&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -19739,16 +19724,10 @@ Fejl: %5</translation>
         <source>Swimlane</source>
         <translation>Svømmebane</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Åbn diagram</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Tilføj komponenten %1</translation>
@@ -19809,7 +19788,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>Modeling</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Modeling</source>
         <translation>Modelering</translation>

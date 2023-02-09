@@ -42108,7 +42108,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Прибрати</translation>
@@ -42145,9 +42145,6 @@ the program.</source>
         <source>Return</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Модель на завантажено. Неможливо зберегти.</translation>
@@ -42164,9 +42161,6 @@ the program.</source>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Не вдалось відкрити файл &apos;%1&apos; для читання: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Відкрити діаграму&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Подвійне клацання на діаграмі в дереві моделі&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Виберіть &quot;Відкрити діаграму&quot; з контекстного меню пакунка в дереві моделі&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -42231,16 +42225,10 @@ the program.</source>
         <source>Boundary</source>
         <translation>Границя</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>Моделювання</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::FileWizardFactory</name>
     <message>
         <source>Model</source>
         <translation type="vanished">Модель</translation>
@@ -42265,16 +42253,10 @@ the program.</source>
         <source>Location:</source>
         <translation type="vanished">Розташування:</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Відкрити діаграму</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Додати компонент %1</translation>
@@ -43890,7 +43872,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Оберіть теку для налаштувань користувача</translation>

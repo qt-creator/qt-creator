@@ -38772,7 +38772,7 @@ Would you like to overwrite it?</source>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>図から削除(&amp;R)</translation>
@@ -38837,9 +38837,6 @@ Would you like to overwrite it?</source>
         <source>Return</source>
         <translation>Return</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>カスタム設定フォルダの選択</translation>
@@ -38852,9 +38849,6 @@ Would you like to overwrite it?</source>
         <source>&lt;font color=red&gt;Model file must be reloaded.&lt;/font&gt;</source>
         <translation>&lt;font color=&quot;red&quot;&gt;モデルファイルの再読込が必要です。&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>モデルが読み込まれていないため、保存できません。</translation>
@@ -38867,28 +38861,9 @@ Would you like to overwrite it?</source>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>読み込み用に &quot;%1&quot; を開けません: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;図を開く&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; モデルツリー内で図をダブルクリックする&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; モデルツリー内のパッケージのコンテキストメニューから&quot;図を開く&quot;を選択する&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Add Package</source>
-        <translation>パッケージの追加</translation>
-    </message>
-    <message>
-        <source>Add Component</source>
-        <translation>コンポーネントの追加</translation>
-    </message>
-    <message>
-        <source>Add Class</source>
-        <translation>クラスの追加</translation>
-    </message>
-    <message>
-        <source>Add Canvas Diagram</source>
-        <translation>キャンバス図の追加</translation>
     </message>
     <message>
         <source>Images (*.png *.jpeg *.jpg *.tif *.tiff);;PDF (*.pdf)</source>
@@ -38950,23 +38925,14 @@ Would you like to overwrite it?</source>
         <source>Boundary</source>
         <translation>境界</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>モデリング</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>図を開く</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>コンポーネント %1 の追加</translation>

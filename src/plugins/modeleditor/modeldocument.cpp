@@ -3,10 +3,11 @@
 
 #include "modeldocument.h"
 
+#include "extdocumentcontroller.h"
 #include "modeleditor_constants.h"
 #include "modeleditor_plugin.h"
+#include "modeleditortr.h"
 #include "modelsmanager.h"
-#include "extdocumentcontroller.h"
 
 #include "qmt/config/configcontroller.h"
 #include "qmt/infrastructure/ioexceptions.h"
@@ -57,7 +58,7 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
 bool ModelDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
     if (!d->documentController) {
-        *errorString = tr("No model loaded. Cannot save.");
+        *errorString = Tr::tr("No model loaded. Cannot save.");
         return false;
     }
 
@@ -107,7 +108,7 @@ bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag fla
         *errorString = ex.errorMessage();
         return false;
     } catch (const qmt::Exception &ex) {
-        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(filePath().toString()).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(filePath().toString()).arg(ex.errorMessage());
         return false;
     }
     emit contentSet();
@@ -131,7 +132,7 @@ Core::IDocument::OpenResult ModelDocument::load(QString *errorString, const QStr
         *errorString = ex.errorMessage();
         return OpenResult::ReadError;
     } catch (const qmt::Exception &ex) {
-        *errorString = tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
+        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.").arg(fileName).arg(ex.errorMessage());
         return OpenResult::CannotHandle;
     }
 

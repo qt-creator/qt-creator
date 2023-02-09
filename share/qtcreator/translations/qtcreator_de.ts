@@ -34614,7 +34614,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Entfernen</translation>
@@ -34675,9 +34675,6 @@ provided they were unmodified before the refactoring.</source>
         <source>Return</source>
         <translation>Return</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Diagramm öffnen&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Doppelklick auf ein Diagramm im Baum&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Wählen Sie &quot;Diagramm öffnen&quot; aus dem Kontextmenü eines Pakets im Baum&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -37492,7 +37489,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ModelDocument</name>
+    <name>::ModelEditor</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Kein Modell geladen, daher ist sichern nicht möglich.</translation>
@@ -37501,23 +37498,14 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>&quot;%1&quot; konnte nicht gelesen werden: %2.</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>Modellierung</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Diagramm öffnen</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Komponente %1 hinzufügen</translation>
@@ -37594,7 +37582,7 @@ Sie werden erhalten.</numerusform>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Konfigurationsverzeichnis auswählen</translation>
@@ -39469,7 +39457,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ElementTasks</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Include-Abhängigkeiten aktualisieren</translation>

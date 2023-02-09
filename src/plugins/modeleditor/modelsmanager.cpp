@@ -6,8 +6,9 @@
 #include "diagramsviewmanager.h"
 #include "extdocumentcontroller.h"
 #include "modeldocument.h"
-#include "modeleditor_constants.h"
 #include "modeleditor.h"
+#include "modeleditor_constants.h"
+#include "modeleditortr.h"
 #include "modelindexer.h"
 #include "pxnodecontroller.h"
 
@@ -97,7 +98,7 @@ ModelsManager::ModelsManager(QObject *parent)
                 ProjectExplorer::Constants::M_FOLDERCONTEXT);
     folderContainer->insertGroup(ProjectExplorer::Constants::G_FOLDER_FILES,
                                  Constants::EXPLORER_GROUP_MODELING);
-    d->openDiagramContextMenuItem = new QAction(tr("Open Diagram"), this);
+    d->openDiagramContextMenuItem = new QAction(Tr::tr("Open Diagram"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(
                 d->openDiagramContextMenuItem, Constants::ACTION_EXPLORER_OPEN_DIAGRAM,
                 projectTreeContext);

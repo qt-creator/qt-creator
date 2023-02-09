@@ -33620,7 +33620,7 @@ itself takes time.</source>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ActionHandler</name>
+    <name>::ModelEditor</name>
     <message>
         <source>&amp;Remove</source>
         <translation>&amp;Usuń</translation>
@@ -33689,9 +33689,6 @@ itself takes time.</source>
         <source>Return</source>
         <translation>Powróć</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelDocument</name>
     <message>
         <source>No model loaded. Cannot save.</source>
         <translation>Brak załadowanego projektu. Nie można zachować.</translation>
@@ -33704,28 +33701,9 @@ itself takes time.</source>
         <source>Could not open &quot;%1&quot; for reading: %2.</source>
         <translation>Nie można otworzyć &quot;%1&quot; do odczytu: %2.</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelEditor</name>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a diagram&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Double-click on diagram in model tree&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Select &quot;Open Diagram&quot; from package&apos;s context menu in model tree&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add Package</source>
-        <translation>Dodaj pakiet</translation>
-    </message>
-    <message>
-        <source>Add Component</source>
-        <translation>Dodaj komponent</translation>
-    </message>
-    <message>
-        <source>Add Class</source>
-        <translation>Dodaj klasę</translation>
-    </message>
-    <message>
-        <source>Add Canvas Diagram</source>
-        <translation>Dodaj diagram płótna</translation>
     </message>
     <message>
         <source>Images (*.png *.jpeg *.jpg *.tif *.tiff);;PDF (*.pdf)</source>
@@ -33771,23 +33749,14 @@ itself takes time.</source>
         <source>Boundary</source>
         <translation>Granice</translation>
     </message>
-</context>
-<context>
-    <name>Modeling</name>
     <message>
         <source>Modeling</source>
         <translation>Modelowanie</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::ModelsManager</name>
     <message>
         <source>Open Diagram</source>
         <translation>Otwórz diagram</translation>
     </message>
-</context>
-<context>
-    <name>ModelEditor::Internal::PxNodeController</name>
     <message>
         <source>Add Component %1</source>
         <translation>Dodaj komponent %1</translation>
@@ -35433,7 +35402,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ExtPropertiesMView</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Select Custom Configuration Folder</source>
         <translation>Wybierz katalog z własną konfiguracją</translation>
@@ -39640,7 +39609,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>ModelEditor::Internal::ElementTasks</name>
+    <name>::ModelEditor</name>
     <message>
         <source>Update Include Dependencies</source>
         <translation>Uaktualnij zależności</translation>
