@@ -19,7 +19,6 @@
 namespace ExtensionSystem {
 
 class IPlugin;
-class PluginManager;
 
 namespace Internal {
 

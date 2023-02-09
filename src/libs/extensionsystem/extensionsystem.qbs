@@ -20,7 +20,6 @@ Project {
             "invoker.h",
             "iplugin.cpp",
             "iplugin.h",
-            "iplugin_p.h",
             "optionsparser.cpp",
             "optionsparser.h",
             "plugindetailsview.cpp",

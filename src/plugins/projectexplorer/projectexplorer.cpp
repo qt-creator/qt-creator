@@ -2500,7 +2500,8 @@ void ProjectExplorerPluginPrivate::currentModeChanged(Id mode, Id oldMode)
 void ProjectExplorerPluginPrivate::determineSessionToRestoreAtStartup()
 {
     // Process command line arguments first:
-    const bool lastSessionArg = m_instance->pluginSpec()->arguments().contains("-lastsession");
+    const bool lastSessionArg =
+        ExtensionSystem::PluginManager::specForPlugin(m_instance)->arguments().contains("-lastsession");
     m_sessionToRestoreAtStartup = lastSessionArg ? SessionManager::startupSession() : QString();
     const QStringList arguments = ExtensionSystem::PluginManager::arguments();
     if (!lastSessionArg) {

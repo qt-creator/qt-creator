@@ -7,6 +7,7 @@
 #include "coreplugintr.h"
 #include "icore.h"
 
+#include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
 #include <utils/archive.h>
@@ -251,7 +252,7 @@ public:
     {
         QTC_ASSERT(m_tempDir.get(), return );
 
-        PluginSpec *coreplugin = CorePlugin::instance()->pluginSpec();
+        PluginSpec *coreplugin = PluginManager::specForPlugin(CorePlugin::instance());
 
         // look for plugin
         QDirIterator it(m_tempDir->path().path(),

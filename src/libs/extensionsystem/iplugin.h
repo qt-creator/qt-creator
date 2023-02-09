@@ -11,13 +11,7 @@
 
 namespace ExtensionSystem {
 
-namespace Internal {
-    class IPluginPrivate;
-    class PluginSpecPrivate;
-}
-
-class PluginManager;
-class PluginSpec;
+namespace Internal { class IPluginPrivate; }
 
 class EXTENSIONSYSTEM_EXPORT IPlugin : public QObject
 {
@@ -41,8 +35,6 @@ public:
                                    const QStringList & /* arguments */) { return nullptr; }
     virtual QVector<QObject *> createTestObjects() const;
 
-    PluginSpec *pluginSpec() const;
-
 protected:
     virtual void initialize() {}
 
@@ -56,8 +48,6 @@ signals:
 
 private:
     Internal::IPluginPrivate *d;
-
-    friend class Internal::PluginSpecPrivate;
 };
 
 } // namespace ExtensionSystem
