@@ -2874,7 +2874,8 @@ void tst_TestCore::testModelRootNode()
         QVERIFY(rootModelNode.isValid());
         QVERIFY(rootModelNode.isRootNode());
     } catch (const QmlDesigner::Exception &exception) {
-        QString errorMsg = tr("Exception: %1 %2 %3:%4").arg(exception.type(), exception.function(), exception.file()).arg(exception.line());
+        const QString errorMsg = QString("Exception: %1 %2 %3:%4")
+                .arg(exception.type(), exception.function(), exception.file()).arg(exception.line());
         QFAIL(errorMsg.toLatin1().constData());
     }
     QApplication::processEvents();
