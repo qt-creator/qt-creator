@@ -138,13 +138,6 @@ template<typename C>
 Q_REQUIRED_RESULT C filteredUnique(const C &container);
 
 /////////////////////////
-// asInitializerList
-/////////////////////////
-template<class C, // Container
-         typename V = typename C::value_type> // ValueType
-Q_REQUIRED_RESULT std::initializer_list<V> asInitializerList(const C &container);
-
-/////////////////////////
 // qobject_container_cast
 /////////////////////////
 template<class T, template<typename> class Container, typename Base>
@@ -966,17 +959,6 @@ C filteredUnique(const C &container)
         ins = *it;
     }
     return result;
-}
-
-//////////////////
-// asInitializerList
-/////////////////
-template<class Container, typename ValueType> // ValueType
-std::initializer_list<ValueType> asInitializerList(const Container &container)
-{
-    return std::initializer_list<ValueType>(
-                std::begin(container),
-                std::end(container));
 }
 
 //////////////////

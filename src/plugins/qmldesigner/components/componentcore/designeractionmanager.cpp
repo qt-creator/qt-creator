@@ -1346,9 +1346,9 @@ static QIcon createResetIcon(const QStringList &basicIconAddresses)
                     Theme::IconsBaseColor);
     });
 
-    QIcon finalIcon = Icon(asInitializerList(iconMaskList)).icon();
+    QIcon finalIcon = Icon(iconMaskList).icon();
     iconMaskList.append(resetMask);
-    QIcon finalOn = Icon(asInitializerList(iconMaskList)).icon();
+    QIcon finalOn = Icon(iconMaskList).icon();
     for (const QSize &iSize : finalIcon.availableSizes()) {
         for (const QIcon::Mode &mode : {QIcon::Normal, QIcon::Disabled, QIcon::Active, QIcon::Selected})
             finalIcon.addPixmap(finalOn.pixmap(iSize, mode, QIcon::On), mode, QIcon::On);
