@@ -200,6 +200,25 @@ Item {
         selectNextVisibleItem(1)
     }
 
+    function handleEnterPress()
+    {
+        if (searchBox.hasActiveFocus)
+            return;
+
+        if (!materialBrowserModel.isEmpty && rootView.materialSectionFocused && materialsSection.expanded)
+            materialBrowserModel.openMaterialEditor()
+        else if (!materialBrowserTexturesModel.isEmpty && !rootView.materialSectionFocused && texturesSection.expanded)
+            materialBrowserTexturesModel.openTextureEditor()
+    }
+
+    Keys.onEnterPressed: {
+        handleEnterPress()
+    }
+
+    Keys.onReturnPressed: {
+        handleEnterPress()
+    }
+
     MouseArea {
         id: focusGrabber
         anchors.fill: parent
