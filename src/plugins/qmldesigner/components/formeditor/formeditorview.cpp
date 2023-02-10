@@ -271,7 +271,7 @@ void FormEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVer
     for (FormEditorItem *item : items) {
         item->setParentItem(nullptr);
         m_scene->removeItemFromHash(item);
-        delete item;
+        deleteWithoutChildren({item});
     }
 
     QmlItemNode newItemNode(rootModelNode());
