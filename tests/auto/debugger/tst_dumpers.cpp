@@ -1131,6 +1131,7 @@ private slots:
     void dumper_data();
     void init();
     void cleanup();
+    void cleanupTestCase();
 
 private:
     void disarm() { t->buildTemp.setAutoRemove(!keepTemp()); }
@@ -1153,6 +1154,7 @@ private:
     bool m_isMacGdb = false;
     bool m_isQnxGdb = false;
     bool m_useGLibCxxDebug = false;
+    int m_totalDumpTime = 0;
 };
 
 void tst_Dumpers::initTestCase()
@@ -1308,6 +1310,11 @@ void tst_Dumpers::cleanup()
         logger.write(t->input.toUtf8());
     }
     delete t;
+}
+
+void tst_Dumpers::cleanupTestCase()
+{
+    qCDebug(lcDumpers) << "Dumpers total: " << QTime::fromMSecsSinceStartOfDay(m_totalDumpTime);
 }
 
 void tst_Dumpers::dumper()
@@ -1812,8 +1819,11 @@ void tst_Dumpers::dumper()
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(exe, args);
     QVERIFY(debugger.waitForStarted());
+    QElapsedTimer dumperTimer;
+    dumperTimer.start();
     debugger.write(cmds.toLocal8Bit());
     QVERIFY(debugger.waitForFinished());
+    m_totalDumpTime += dumperTimer.elapsed();
     output = debugger.readAllStandardOutput();
     QByteArray fullOutput = output;
     //qCDebug(lcDumpers) << "stdout: " << output;
