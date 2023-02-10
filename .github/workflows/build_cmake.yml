@@ -123,7 +123,8 @@ jobs:
           )
           execute_process(
             COMMAND
-              sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+              sudo apt install chrpath
+                               libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
                                libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxcb-randr0 libxcb-icccm4
                                xvfb
             RESULT_VARIABLE result
@@ -458,31 +459,33 @@ jobs:
 
           string(JSON artifacts_length LENGTH "${artifacts_json}" "artifacts")
           math(EXPR artifacts_length "${artifacts_length} - 1")
-          foreach(idx RANGE 0 ${artifacts_length})
-            string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
-            string(JSON name GET "${artifact_js}" "name")
-            if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
-              string(JSON download_url GET "${artifact_js}" "archive_download_url")
+          if(${artifacts_length} GREATER_EQUAL 0)
+            foreach(idx RANGE 0 ${artifacts_length})
+              string(JSON artifact_js GET "${artifacts_json}" "artifacts" ${idx})
+              string(JSON name GET "${artifact_js}" "name")
+              if ("${name}" STREQUAL "${{ steps.ccache.outputs.archive_name }}")
+                string(JSON download_url GET "${artifact_js}" "archive_download_url")
 
-              foreach(retry RANGE 10)
-                file(DOWNLOAD "${download_url}"
-                  "${{ steps.ccache.outputs.archive_name }}.zip"
-                  NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-                  NETRC REQUIRED
-                  SHOW_PROGRESS)
-                file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
-                if (fileSize GREATER 0)
-                  break()
-                endif()
-              endforeach()
+                foreach(retry RANGE 10)
+                  file(DOWNLOAD "${download_url}"
+                    "${{ steps.ccache.outputs.archive_name }}.zip"
+                    NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
+                    NETRC REQUIRED
+                    SHOW_PROGRESS)
+                  file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
+                  if (fileSize GREATER 0)
+                    break()
+                  endif()
+                endforeach()
 
-              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
-              file(MAKE_DIRECTORY .ccache)
-              execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
+                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf "${{ steps.ccache.outputs.archive_name }}.zip")
+                file(MAKE_DIRECTORY .ccache)
+                execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "../${{ steps.ccache.outputs.archive_name }}.tar" WORKING_DIRECTORY .ccache)
 
-              return()
-            endif()
-          endforeach()
+                return()
+              endif()
+            endforeach()
+          endif()
         endforeach()
 
     - name: Build
@@ -578,6 +581,7 @@ jobs:
             --add-config=-DIDE_REVISION_URL=https://github.com/$ENV{GITHUB_REPOSITORY}/commits/$ENV{GITHUB_SHA}
             --zip-infix=-${{ matrix.config.artifact }}-${{ github.run_id }}
             --no-qbs
+            --with-cpack
           RESULT_VARIABLE result
           COMMAND_ECHO STDOUT
           OUTPUT_VARIABLE output
@@ -664,6 +668,13 @@ jobs:
       with:
         path: build/qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+
+    - name: Upload Debian package
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v3
+      with:
+        path: build/build/qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
 
     - name: Upload disk image
       if: runner.os == 'macOS' && contains(github.ref, 'tags/v')
@@ -761,6 +772,13 @@ jobs:
         name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         path: ./
 
+    - name: Download Debian package artifact
+      if: matrix.config.artifact == 'Linux'
+      uses: actions/download-artifact@v3
+      with:
+        name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        path: ./
+
     - name: Download disk image artifact
       if: matrix.config.artifact == 'macOS'
       uses: actions/download-artifact@v3
@@ -818,6 +836,17 @@ jobs:
         upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
         asset_path: ./qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
         asset_name: qtcreatorcdbext-${{ matrix.config.artifact }}-${{ github.run_id }}.7z
+        asset_content_type: application/x-gtar
+
+    - name: Upload Debian package to Release
+      if: matrix.config.artifact == 'Linux'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.set_upload_url.outputs.upload_url }}
+        asset_path: ./qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
+        asset_name: qtcreator-${{ matrix.config.artifact }}-${{ github.run_id }}.deb
         asset_content_type: application/x-gtar
 
     - name: Upload disk image to Release

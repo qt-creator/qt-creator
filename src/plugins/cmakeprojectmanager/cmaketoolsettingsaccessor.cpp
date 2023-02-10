@@ -61,8 +61,9 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
 
     if (HostOsInfo::isMacHost()) {
         path.append("/Applications/CMake.app/Contents/bin");
-        path.append("/usr/local/bin");
-        path.append("/opt/local/bin");
+        path.append("/usr/local/bin");    // homebrew intel
+        path.append("/opt/homebrew/bin"); // homebrew arm
+        path.append("/opt/local/bin");    // macports
     }
 
     FilePaths suspects;
