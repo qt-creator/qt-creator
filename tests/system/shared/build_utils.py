@@ -56,7 +56,7 @@ def waitForCompile(timeout=60000):
 def dumpBuildIssues(listModel):
     issueDump = []
     for index in dumpIndices(listModel):
-        issueDump.extend([[index.data(role).toString() for role
+        issueDump.extend([[str(index.data(role).toString()) for role
                            in range(Qt.UserRole, Qt.UserRole + 6)]])
     return issueDump
 
