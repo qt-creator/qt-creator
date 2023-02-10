@@ -744,13 +744,12 @@ class QtcInternalDumper():
                 if self._user_requested_quit:
                     break
                 print('The program finished')
+                sys.exit(0)
             except SystemExit:
                 # In most cases SystemExit does not warrant a post-mortem session.
                 print('The program exited via sys.exit(). Exit status:')
                 print(sys.exc_info()[1])
                 t = sys.exc_info()[2]
-                self.interaction(None, t)
-
                 print('Post-mortem debugging is finished - ending debug session.')
                 sys.exit(0)
 
@@ -758,8 +757,7 @@ class QtcInternalDumper():
                 traceback.print_exc()
                 print('Uncaught exception. Entering post mortem debugging')
                 t = sys.exc_info()[2]
-                self.curframe_locals['__execption__'] = sys.exc_info()[0:2]
-                self.interaction(None, t)
+                self.curframe_locals['__exception__'] = t
                 print('Post mortem debugger finished - ending debug session.')
                 sys.exit(0)
 
