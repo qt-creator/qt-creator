@@ -491,7 +491,7 @@ class Dumper(DumperBase):
         raise Exception("cdb does not support calling functions")
 
     def nameForCoreId(self, id):
-        for dll in ['Utilsd4', 'Utils4']:
+        for dll in ['Utilsd', 'Utils']:
             idName = cdbext.call('%s!Utils::nameForId(%d)' % (dll, id))
             if idName is not None:
                 break
