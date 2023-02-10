@@ -76,6 +76,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(QStringList workspaces READ workspaces NOTIFY workspacesChanged)
     Q_PROPERTY(QStringList styles READ styles CONSTANT)
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
+    Q_PROPERTY(bool isInEditMode READ isInEditMode NOTIFY isInEditModeChanged)
     Q_PROPERTY(bool isDesignModeEnabled READ isDesignModeEnabled NOTIFY isDesignModeEnabledChanged)
     Q_PROPERTY(int currentStyle READ currentStyle NOTIFY currentStyleChanged)
     Q_PROPERTY(QStringList kits READ kits NOTIFY kitsChanged)
@@ -126,6 +127,8 @@ public:
 
     bool projectOpened() const;
 
+    bool isInEditMode() const;
+
 signals:
     void navigationHistoryChanged();
     void openDocumentsChanged();
@@ -133,6 +136,7 @@ signals:
     void currentWorkspaceChanged();
     void workspacesChanged();
     void isInDesignModeChanged();
+    void isInEditModeChanged();
     void isDesignModeEnabledChanged();
     void currentStyleChanged();
     void kitsChanged();

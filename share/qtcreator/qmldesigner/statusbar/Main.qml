@@ -34,7 +34,7 @@ Item {
                 style: StudioTheme.Values.statusbarButtonStyle
                 buttonIcon: StudioTheme.Constants.settings_medium
                 onClicked: backend.triggerProjectSettings()
-                enabled: backend.isInDesignMode
+                enabled: backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened)
             }
 
             Text {
@@ -54,7 +54,7 @@ Item {
                 model: backend.kits
                 onActivated: backend.setCurrentKit(kits.currentIndex)
                 openUpwards: true
-                enabled: backend.isInDesignMode && backend.isQt6
+                enabled: (backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened)) && backend.isQt6
                 property int kitIndex: backend.currentKit
                 onKitIndexChanged: kits.currentIndex = backend.currentKit
             }
