@@ -239,7 +239,7 @@ class QtcInternalDumper():
     def hexencode(s):
         if sys.version_info[0] == 2:
             return s.encode('hex')
-        if isinstance(s, str):
+        if isinstance(s, __builtins__.str):
             s = s.encode('utf8')
         return base64.b16encode(s).decode('utf8')
 
@@ -392,7 +392,7 @@ class QtcInternalDumper():
         if bp:
             self.currentbp = bp.number
             if (flag and bp.temporary):
-                self.do_clear(str(bp.number))
+                self.do_clear(__builtins__.str(bp.number))
             return True
         else:
             return False
@@ -497,7 +497,7 @@ class QtcInternalDumper():
         try:
             bp = self.get_bpbynumber(arg)
         except ValueError as err:
-            return str(err)
+            return __builtins__.str(err)
         bp.deleteMe()
         self._prune_breaks(bp.file, bp.line)
         return None
@@ -565,12 +565,12 @@ class QtcInternalDumper():
                 break
             frame = frame.f_back
         stack.reverse()
-        i = max(0, len(stack) - 1)
+        i = max(0, __builtins__.len(stack) - 1)
         while tb is not None:
             stack.append((tb.tb_frame, tb.tb_lineno))
             tb = tb.tb_next
         if frame is None:
-            i = max(0, len(stack) - 1)
+            i = max(0, __builtins__.len(stack) - 1)
         return stack, i
 
     # The following methods can be called by clients to use
@@ -672,7 +672,7 @@ class QtcInternalDumper():
                 line = 'shell ' + line[1:]
             else:
                 return None, None, line
-        i, length = 0, len(line)
+        i, length = 0, __builtins__.len(line)
         while i < length and line[i] in self.identchars:
             i = i + 1
         cmd, arg = line[:i], line[i:].strip()
@@ -685,7 +685,7 @@ class QtcInternalDumper():
         The return value is a flag indicating whether interpretation of
         commands by the interpreter should stop.
         """
-        line = str(line)
+        line = __builtins__.str(line)
         print('LINE 0: %s' % line)
         cmd, arg, line = self.parseline(line)
         print('LINE 1: %s' % line)
@@ -1025,10 +1025,10 @@ class QtcInternalDumper():
         failed = (None, None, None)
         # Input is identifier, may be in single quotes
         idstring = identifier.split("'")
-        if len(idstring) == 1:
+        if __builtins__.len(idstring) == 1:
             # not in single quotes
             tmp_id = idstring[0].strip()
-        elif len(idstring) == 3:
+        elif __builtins__.len(idstring) == 3:
             # quoted
             tmp_id = idstring[1].strip()
         else:
@@ -1043,7 +1043,7 @@ class QtcInternalDumper():
                 return failed
         # Best first guess at file to look at
         fname = self.defaultFile()
-        if len(parts) == 1:
+        if __builtins__.len(parts) == 1:
             item = parts[0]
         else:
             # More than one part.
@@ -1282,7 +1282,7 @@ class QtcInternalDumper():
         instance it is not possible to jump into the middle of a
         for loop or out of a finally clause.
         """
-        if self.curindex + 1 != len(self.stack):
+        if self.curindex + 1 != __builtins__.len(self.stack):
             self.error('You can only jump within the bottom frame')
             return
         try:
@@ -1407,7 +1407,7 @@ class QtcInternalDumper():
             self.message('Class %s.%s' % (value.__module__, value.__name__))
             return
         # None of the above...
-        self.message(type(value))
+        self.message(__builtins__.type(value))
 
     def do_interact(self, arg):
         """interact
@@ -1447,7 +1447,7 @@ class QtcInternalDumper():
         self.updateData(args)
 
     def updateData(self, args):
-        self.expandedINames = set(args.get('expanded', []))
+        self.expandedINames = __builtins__.set(args.get('expanded', []))
         self.typeformats = args.get('typeformats', {})
         self.formats = args.get('formats', {})
         self.output = ''
@@ -1476,7 +1476,7 @@ class QtcInternalDumper():
         for watcher in args.get('watchers', []):
             iname = watcher['iname']
             exp = self.hexdecode(watcher['exp'])
-            exp = str(exp).strip()
+            exp = __builtins__.str(exp).strip()
             escapedExp = self.hexencode(exp)
             self.put('{')
             self.putField('iname', iname)
@@ -1510,7 +1510,7 @@ class QtcInternalDumper():
 
     @staticmethod
     def cleanType(typename):
-        t = str(typename)
+        t = __builtins__.str(typename)
         if t.startswith("<type '") and t.endswith("'>"):
             t = t[7:-2]
         if t.startswith("<class '") and t.endswith("'>"):
@@ -1540,20 +1540,21 @@ class QtcInternalDumper():
         return iname in self.expandedINames
 
     def itemFormat(self, item):
-        form = self.formats.get(str(QtcInternalDumper.cleanAddress(item.value.address)))
+        form = self.formats.get(__builtins__.str(QtcInternalDumper.cleanAddress(item.value.address)))
         if form is None:
-            form = self.typeformats.get(str(item.value.type))
+            form = self.typeformats.get(__builtins__.str(item.value.type))
         return form
 
     def dumpValue(self, value, name, iname):
-        t = type(value)
+        t = __builtins__.type(value)
         tt = QtcInternalDumper.cleanType(t)
+        valueStr = __builtins__.str(value)
         if tt == 'module' or tt == 'function':
             return
-        if str(value).startswith("<class '"):
+        if valueStr.startswith("<class '"):
             return
         # FIXME: Should we?
-        if str(value).startswith('<enum-item '):
+        if valueStr.startswith('<enum-item '):
             return
         self.put('{')
         self.putField('iname', iname)
@@ -1564,11 +1565,11 @@ class QtcInternalDumper():
             self.putNumChild(0)
         elif tt == 'list' or tt == 'tuple':
             self.putType(tt)
-            self.putItemCount(len(value))
+            self.putItemCount(__builtins__.len(value))
             # self.putValue(value)
             self.put('children=[')
             for i, val in enumerate(value):
-                self.dumpValue(val, str(i), '%s.%d' % (iname, i))
+                self.dumpValue(val, __builtins__.str(i), '%s.%d' % (iname, i))
             self.put(']')
         elif tt == 'str':
             v = value
@@ -1583,20 +1584,20 @@ class QtcInternalDumper():
             self.putField('valueencoded', 'utf8')
             self.putNumChild(0)
         elif tt == 'buffer':
-            v = str(value)
+            v = valueStr
             self.putType(tt)
             self.putValue(self.hexencode(v))
             self.putField('valueencoded', 'latin1')
             self.putNumChild(0)
         elif tt == 'xrange':
             b = iter(value).next()
-            e = b + len(value)
+            e = b + __builtins__.len(value)
             self.putType(tt)
             self.putValue('(%d, %d)' % (b, e))
             self.putNumChild(0)
         elif tt == 'dict':
             self.putType(tt)
-            self.putItemCount(len(value))
+            self.putItemCount(__builtins__.len(value))
             self.putField('childnumchild', 2)
             self.put('children=[')
             i = 0
@@ -1622,13 +1623,13 @@ class QtcInternalDumper():
             pass
         elif tt == 'function':
             pass
-        elif str(value).startswith('<enum-item '):
+        elif valueStr.startswith('<enum-item '):
             # FIXME: Having enums always shown like this is not nice.
             self.putType(tt)
-            self.putValue(str(value)[11:-1])
+            self.putValue(valueStr[11:-1])
             self.putNumChild(0)
         else:
-            v = str(value)
+            v = valueStr
             p = v.find(' object at ')
             if p > 1:
                 self.putValue('@' + v[p + 11:-1])
@@ -1691,7 +1692,7 @@ class QtcInternalDumper():
         result += ',frames=['
         try:
             level = 0
-            frames = list(reversed(self.stack))
+            frames = __builtins__.list(reversed(self.stack))
             frames = frames[:-2]  # Drop "pdbbridge" and "<string>" levels
             for frame_lineno in frames:
                 frame, lineno = frame_lineno
